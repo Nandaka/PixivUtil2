@@ -38,10 +38,12 @@ class PixivConfig:
 
     alwaysCheckFileSize = True
     checkUpdatedLimit = 0
+
+    cookie = ''
     
     #Yavos: added next three lines
     createDownloadLists = False
-    downloadListDirectory = sys.path[0] + '\Download_Lists'
+    downloadListDirectory = '..'
     startIrfanView = False
     startIrfanSlide = False
     IrfanViewPath = 'C:\Program Files\IrfanView'
@@ -58,13 +60,16 @@ class PixivConfig:
         
             self.password = config.get('Authentication','password')
 
+            self.cookie = config.get('Authentication','cookie')
+
             self.tagsSeparator = config.get('Settings','tagsseparator')
             self.rootDirectory = config.get('Settings','rootdirectory')
+            
             try:
                 self.IrfanViewPath = config.get('Settings','IrfanViewPath')
                 self.downloadListDirectory = config.get('Settings','downloadListDirectory')
             except:
-                pass
+                self.rootDirectory = ''
 
             try:
                 self.processFromDb = config.getboolean('Settings','processfromdb')
@@ -205,6 +210,7 @@ class PixivConfig:
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
+        config.set('Authentication', 'cookie', self.cookie)
         
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         
@@ -218,6 +224,7 @@ class PixivConfig:
         print ' [Authentication]'
         print ' - username    =', self.username
         print ' - password    = ', self.password
+        print ' - cookie      = ', self.cookie
         
         print ' [Settings]'
         print ' - filename_format =', self.filenameFormat

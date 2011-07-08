@@ -20,10 +20,12 @@ import urllib
 import getpass
 import socket
 import httplib
+import cookielib
 
 import PixivConstant
 import PixivConfig
 import PixivDBManager
+
 
 ##import pprint
 
@@ -221,12 +223,32 @@ def configBrowser():
 
     socket.setdefaulttimeout(__config__.timeout)
 
+def loadCookie(cookieValue):
+    cj = cookielib.LWPCookieJar()
+    __br__.set_cookiejar(cj)
+    ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookieValue, port=None, port_specified=False, domain='pixiv.net', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+    cj.set_cookie(ck)
+    
 ### Pixiv related function ###
 def pixivLogin(username, password):
     printAndLog('info','logging in')
+
+    cookieValue = __config__.cookie
+    if len(cookieValue) > 0:
+        printAndLog('info','Trying to log with saved cookie')
+        loadCookie(cookieValue);
+        req = urllib2.Request('http://www.pixiv.net/mypage.php')
+        __br__.open(req)
+        if __br__.response().geturl() == 'http://www.pixiv.net/mypage.php' :
+            print 'done.'
+            __log__.info('Logged in')
+            return 0
+        else :
+            printAndLog('info','Cookie already expired/invalid.')
+
     try:
         req = urllib2.Request(PixivConstant.PIXIV_URL)
-        res = __br__.open(req)
+        __br__.open(req)
         
         form = __br__.select_form(name=PixivConstant.PIXIV_FORM_NAME)
         __br__['pixiv_id'] = username
@@ -329,6 +351,7 @@ def processList(mode):
                             retryCount = retryCount + 1
                             print 'Something wrong, retrying after 2 second (', retryCount, ')'
                             time.sleep(2)
+                __br__.clear_history()
             print 'done.'
         except:
             print 'Error at processList():',sys.exc_info()
@@ -1032,10 +1055,11 @@ def main():
     except:
         traceback.print_exc()
         __log__.error('traceback:\n'+traceback.print_last())
+        print 'error!'
     finally:
         __dbManager__.close()
         if ewd == False: ### Yavos: prevent input on exitwhendone
-            if selection != 'x' :
+            if selection == None or selection != 'x' :
                 raw_input('press enter to exit.')
         __log__.info('EXIT')
 

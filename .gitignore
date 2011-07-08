@@ -7,4 +7,6 @@ list.txt
 *.log
 *.bat
 db.sqlite
+*.pyc
+*.zip
 

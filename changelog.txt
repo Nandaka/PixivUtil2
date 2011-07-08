@@ -1,3 +1,8 @@
+20110708
+- by Nandaka
+  - Add cookie option for log in as requested by Demonoid.
+  - Add __br__.clear_history() in the processList
+
 20110513:
 - by Nandaka
   - Update ProcessByTags: Update with pixiv UI change, now based on regular expression to evaluate the links.
