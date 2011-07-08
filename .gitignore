@@ -1,0 +1,10 @@
+_backup/*
+build/*
+dist/*
+old/*
+config.ini
+list.txt
+*.log
+*.bat
+db.sqlite
+

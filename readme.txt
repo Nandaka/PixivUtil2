@@ -1,0 +1,76 @@
+By Yavos:
+
+<<< commandline >>>
+-s <number> 	will start PixivUtil in mode <number>, allowed are the following ones:
+		1 - Download by member_id (optional: followed by member_ids separated by space)
+		2 - Download by image_id (optional: folled by image_ids separated by space)
+		3 - Download by tags (optional: followed by tags)
+		4 - Download from list (optional: followed by path to list)
+		5 - Manage database
+
+-n <number>		will temporarily set pagelimit to <number> pages
+
+-i		will load IrfanView with downloaded images when not already set in config.ini
+
+-x		will exit programm when selected mode is finished
+
+
+<<< config.ini >>>
+createDownloadLists => set to <True> to automatically create download-lists
+downloadListDirectory => set directory for download-lists needed for createDownloadLists and IrfanView-Handling
+	-> if leaved blank it will create download-lists in pixivUtil-directory
+startIrfanView => set to <True> to start IrfanView with downloaded images when exiting pixivUtil
+	-> this will create download-lists
+	-> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
+startIrfanSlide => set to <True> to start IrfanView-Slideshow with downloaded images when exiting pixivUtil
+	-> this will create download-lists
+	-> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
+	-> Slideshow-options will be same as you have set in IrfanView before!
+IrfanViewPath => set directory where IrfanView is installed (needed to start IrfanView)
+
+
+<<< list.txt >>>
+- This file should be build in the following way:
+  member_id1 directory1
+  member_id2 directory2
+  ...
+  #comment - lines starting with # will be ignored
+
+- member_id = number
+- directory = path to download-directory for member_id
+            %root%\directory will save directory in rootFolder specified in config.ini
+	    \directory will save the folder in the root of your PixivUtil-drive
+	    C:\directory will save the folder in drive C: (change to any other drive as you wish)
+	    directory will save the folder in same directory as PixivUtil2.exe
+	    directory-path can end with \ or not
+
+- Examples for list:
+
+#this is a comment line, lines starting with # will be ignored
+#here is the first member:
+123456
+#you can see, the line has only the member id
+#usually I use it the following way:
+#
+#username (so I can recognize it ;) )
+123456
+#
+#next 2 lines contain a special folder for this member
+123456 test
+123456 "test"
+#now all images from member no. 123456 will be safed in directory "test" in the same directory as PixivUtil2
+#as you can see you can use it with "" oder without ;)
+#
+#next will be stored at the same partition as PixivUtil, but the directory is located in root-part of it
+123456 \test
+123456 "\test"
+#this will lead to "C:\test" when pixivUtil is located on "C:\"
+#
+#next line uses complete path to store the files
+123456 F:\new Folder\test
+123456 "F:\new Folder\test"
+#this will set the folder everywhere on your partitions
+#
+123456 %root%\special folder
+123456 "%root%\special folder"
+#this will set the download location to "special folder" in your rootDirectory given in config
