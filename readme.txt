@@ -1,3 +1,6 @@
+Requirement:
+- Python 2.7.2++
+
 By Yavos:
 
 <<< commandline >>>

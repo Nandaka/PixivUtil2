@@ -1,0 +1,1201 @@
+@charset "utf-8";
+/* HTML5 */
+article, section, aside, hgroup, nav, header, footer, figure, figcaption {
+  display: block;
+}
+
+img {
+  vertical-align: middle;
+}
+
+iframe {
+  border: none;
+}
+
+body ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+body ::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+body ::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+}
+body ::-webkit-scrollbar-thumb:vertical, body ::-webkit-scrollbar-thumb:horizontal {
+  background-color: #ccc;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+body div.console {
+  margin: 1px 0;
+  padding: 3px 10px;
+  color: #eee;
+  background-color: #333;
+}
+body form.ui-search {
+  position: relative;
+  z-index: 1000;
+  width: 250px;
+  margin: 0 auto;
+  color: #555;
+}
+body form.ui-search.has-text div.container input {
+  width: 192px;
+}
+body form.ui-search.has-text div.container div.clear {
+  display: block;
+}
+body form.ui-search input {
+  width: 100%;
+  padding: 0;
+  height: 20px;
+  font-size: 14px;
+  line-height: 1;
+  border: none;
+}
+body form.ui-search input:focus {
+  outline: none;
+  background-color: #fff;
+}
+body form.ui-search input.submit {
+  -moz-border-radius: 0 5px 5px 0;
+  border-radius: 0 5px 5px 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  text-indent: -9999px;
+  background: #becad7 url("http://source.pixiv.net/source/images/common/search_button.png") no-repeat 50% 50%;
+  border: none;
+  cursor: pointer;
+}
+body form.ui-search div.container {
+  -moz-border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px;
+  width: 212px;
+  height: 20px;
+  padding: 3px 5px;
+  background-color: #fff;
+  border: 1px solid #becad7;
+  border-right: none;
+}
+body form.ui-search div.container div.clear {
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 31px;
+  width: 20px;
+  height: 20px;
+  background: url("http://source.pixiv.net/source/images/common/icon_search_clear.png") no-repeat 50% 50%;
+  cursor: pointer;
+  opacity: 0.75;
+}
+body form.ui-search div.container div.clear:hover {
+  opacity: 1;
+}
+body form.ui-search ul#suggest-list {
+  display: none;
+  position: absolute;
+  width: 221px;
+  background-color: #fff;
+  border: 1px solid #becad7;
+  border-top: none;
+}
+body form.ui-search ul#suggest-list li {
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #777;
+  cursor: pointer;
+}
+body form.ui-search ul#suggest-list li:hover, body form.ui-search ul#suggest-list li.current {
+  background-color: #eee;
+}
+body .ui-scroll-view {
+  opacity: 0;
+}
+
+header#global-header {
+  background-color: #fff;
+  border-bottom: 1px solid #d6dee5;
+}
+header#global-header div.wrapper {
+  position: relative;
+  width: 970px;
+  height: 118px;
+  margin: 0 auto;
+}
+header#global-header div.wrapper h1 {
+  padding-top: 8px;
+}
+header#global-header div.wrapper h1 a {
+  background: url("http://source.pixiv.net/source/images/sprite-2nd.png") no-repeat 0 5px;
+  display: block;
+  width: 130px;
+  height: 60px;
+  text-indent: -9999px;
+}
+header#global-header div.wrapper nav.site-menu {
+  position: absolute;
+  top: 8px;
+  right: 0;
+}
+header#global-header div.wrapper nav.site-menu li {
+  display: inline;
+  margin-left: 10px;
+  line-height: 1;
+}
+header#global-header div.wrapper nav.global-menu {
+  position: absolute;
+  left: 8px;
+  bottom: 11px;
+  padding: 5px 0;
+  line-height: 20px;
+  font-size: 14px;
+}
+header#global-header div.wrapper nav.global-menu li {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  margin-right: 18px;
+  background: url("http://source.pixiv.net/source/images/sprite-2nd.png") no-repeat 0 0;
+}
+header#global-header div.wrapper nav.global-menu li.home {
+  background-position: 0 -80px;
+}
+header#global-header div.wrapper nav.global-menu li.home:hover, header#global-header div.wrapper nav.global-menu li.home.current {
+  background-position: 0 -60px;
+}
+header#global-header div.wrapper nav.global-menu li.upload {
+  background-position: 0 -120px;
+}
+header#global-header div.wrapper nav.global-menu li.upload:hover, header#global-header div.wrapper nav.global-menu li.upload.current {
+  background-position: 0 -100px;
+}
+header#global-header div.wrapper nav.global-menu li.bookmark {
+  background-position: 0 -160px;
+}
+header#global-header div.wrapper nav.global-menu li.bookmark:hover, header#global-header div.wrapper nav.global-menu li.bookmark.current {
+  background-position: 0 -140px;
+}
+header#global-header div.wrapper nav.global-menu li.message {
+  background-position: 0 -200px;
+}
+header#global-header div.wrapper nav.global-menu li.message:hover, header#global-header div.wrapper nav.global-menu li.message.current {
+  background-position: 0 -180px;
+}
+header#global-header div.wrapper nav.global-menu li.stacc {
+  background-position: 0 -240px;
+}
+header#global-header div.wrapper nav.global-menu li.stacc:hover, header#global-header div.wrapper nav.global-menu li.stacc.current {
+  background-position: 0 -220px;
+}
+header#global-header div.wrapper nav.global-menu li.setting {
+  background-position: 0 -280px;
+}
+header#global-header div.wrapper nav.global-menu li.setting:hover, header#global-header div.wrapper nav.global-menu li.setting.current {
+  background-position: 0 -260px;
+}
+header#global-header div.wrapper nav.global-menu li a {
+  display: inline-block;
+  padding-left: 26px;
+}
+header#global-header div.wrapper nav.global-menu li a.current {
+  font-weight: bold;
+  color: inherit;
+}
+header#global-header div.wrapper nav.global-menu li a.sub {
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid #ccc;
+}
+header#global-header div.wrapper nav.global-menu li a.count {
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  position: absolute;
+  top: -1px;
+  padding: 0 4px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 12px;
+  background-color: #cc0000;
+  border: 1px solid #fff;
+}
+header#global-header div.wrapper nav.global-menu li a.count:hover {
+  text-decoration: none;
+}
+header#global-header div.wrapper nav.category-menu {
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  position: absolute;
+  right: 0;
+  bottom: 11px;
+  width: 224px;
+  height: 29px;
+  padding: 1px 0 0;
+  text-align: center;
+  background-color: #f2f4f6;
+}
+header#global-header div.wrapper nav.category-menu ul {
+  display: inline;
+}
+header#global-header div.wrapper nav.category-menu ul li {
+  display: inline;
+  margin: 0 8px;
+  float: none;
+  background: none;
+}
+header#global-header div.wrapper nav.category-menu ul li.novel a {
+  background: url("http://source.pixiv.net/source/images/sprite-2nd.png") no-repeat 0 -317px;
+}
+header#global-header div.wrapper nav.category-menu ul li.event a {
+  background: url("http://source.pixiv.net/source/images/sprite-2nd.png") no-repeat 6px -355px;
+}
+header#global-header div.wrapper nav.category-menu ul li a {
+  display: inline-block;
+  padding-left: 22px;
+  line-height: 28px;
+}
+header#global-header div.wrapper nav.category-menu ul li a:hover {
+  color: #005373;
+  text-decoration: none;
+}
+header#global-header div.wrapper nav.category-menu ul li a span.count {
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  margin-left: 4px;
+  padding: 1px 3px;
+  color: #555;
+  font-size: 11px;
+  background-color: #fff;
+}
+header#global-header div.wrapper form.ui-search {
+  position: absolute;
+  right: 0;
+  bottom: 50px;
+  width: 224px;
+}
+header#global-header div.wrapper form.ui-search.has-text div.container input {
+  width: 166px;
+}
+header#global-header div.wrapper form.ui-search div.container {
+  -moz-border-radius: 0;
+  border-radius: 0;
+  width: 186px;
+}
+header#global-header div.wrapper form.ui-search ul#suggest-list {
+  width: 195px;
+}
+header#global-header div.wrapper div.ad {
+  position: absolute;
+  top: 8px;
+  right: 275px;
+}
+
+footer#global-footer {
+  margin: 10px 0 20px;
+}
+footer#global-footer a.page-top {
+  -moz-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
+  position: relative;
+  display: block;
+  width: 148px;
+  margin: 0 0 -1px auto;
+  padding: 5px 0 0;
+  line-height: 1;
+  text-align: center;
+  background-color: #fff;
+  border: 1px solid #d6dee5;
+  border-bottom: none;
+}
+footer#global-footer div.container {
+  -moz-border-radius: 5px 0 5px 5px;
+  border-radius: 5px 0 5px 5px;
+  text-align: center;
+  line-height: normal;
+  background-color: #fff;
+  border: 1px solid #d6dee5;
+}
+footer#global-footer div.container ul {
+  margin: 10px 0;
+}
+footer#global-footer div.container ul li {
+  display: inline;
+  margin: 0 5px;
+}
+footer#global-footer div.container p.copyright {
+  margin: 10px 0;
+  font-family: 'Lucida Grande', sans-serif;
+}
+
+div#page-index div#twitter-widget {
+  margin-bottom: 5px;
+}
+
+div#column-misc {
+  width: 224px;
+}
+div#column-misc .item {
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #d6dee5;
+  padding: 2px;
+}
+div#column-misc .item h1 {
+  -moz-border-radius: 2px 2px 0 0;
+  border-radius: 2px 2px 0 0;
+  padding: 2px;
+  line-height: 18px;
+  font-weight: bold;
+  background-color: #eef0f3;
+}
+div#column-misc .item h1 a {
+  color: #333;
+}
+div#column-misc .item div#facebook-like-box {
+  margin: 10px auto;
+}
+div#column-misc .item div#facebook-like-box,
+div#column-misc .item div#facebook-like-box iframe {
+  width: 200px;
+  height: 280px;
+}
+
+#page-ranking .ranking_top h2 {
+  float: left;
+  font-size: 18px;
+  font-weight: bold;
+}
+#page-ranking section.column2 {
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #d6dee5;
+  position: relative;
+  float: none;
+  /* TODO style.cssで.columnが宣言されている分の打ち消し */
+  width: auto;
+  margin: 0 0 10px;
+}
+#page-ranking section.column2 header {
+  margin: 0;
+  padding-top: 10px;
+  font-size: 13px;
+}
+#page-ranking section.column2 header h1 {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  color: red !important;
+  left: 20px;
+  /*	margin: 12px 0 0;*/
+  font-size: 17px;
+  line-height: 30px;
+  font-weight: bold;
+}
+#page-ranking section.column2 header h1 a {
+  color: #333;
+}
+#page-ranking section.column2 header nav.tab {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 35px;
+  border-bottom: 1px solid #d6dee5;
+}
+#page-ranking section.column2 header nav.tab ul {
+  position: absolute;
+  bottom: 0;
+}
+#page-ranking section.column2 header nav.tab ul.main {
+  width: 100%;
+  text-align: center;
+}
+#page-ranking section.column2 header nav.tab ul.sub {
+  right: 10px;
+}
+#page-ranking section.column2 header nav.tab ul li {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  margin-bottom: -1px;
+}
+#page-ranking section.column2 header nav.tab ul li.current {
+  padding: 0 14px;
+  font-weight: bold;
+  line-height: 29px;
+  background-color: #fff;
+  border: 1px solid #d6dee5;
+  border-bottom: none;
+}
+#page-ranking section.column2 header nav.tab ul li.current a {
+  display: inline;
+  padding: 0;
+  line-height: normal;
+  color: #333;
+}
+#page-ranking section.column2 header nav.tab ul li.related {
+  margin: 0 -10px 0 5px;
+}
+#page-ranking section.column2 header nav.tab ul li a {
+  display: inline-block;
+  margin: 0;
+  padding: 1px 15px 0;
+  line-height: 29px;
+}
+#page-ranking section.column2 header nav.menu {
+  position: relative;
+  line-height: 37px;
+  text-align: center;
+  background-color: #f2f4f6;
+}
+#page-ranking section.column2 header nav.menu div.sub {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+#page-ranking section.column2 header nav.menu ul {
+  display: inline;
+  padding: 3px 0;
+}
+#page-ranking section.column2 header nav.menu ul + ul {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid #ccc;
+}
+#page-ranking section.column2 header nav.menu ul.root + ul {
+  border-left: 3px double #ccc;
+}
+#page-ranking section.column2 header nav.menu ul li {
+  display: inline;
+  line-height: 1;
+}
+#page-ranking section.column2 header nav.menu ul li.current {
+  padding: 3px 10px;
+  font-weight: bold;
+}
+#page-ranking section.column2 header nav.menu ul li.current a {
+  padding: 0;
+}
+#page-ranking section.column2 header nav.menu ul li a {
+  display: inline;
+  padding: 3px 10px;
+}
+#page-ranking section.column2 header nav.menu ul li a span.current {
+  font-weight: bold;
+  color: #333;
+}
+#page-ranking section.column2 header nav.pager li {
+  border: none;
+}
+#page-ranking section.column2 header nav.pager li a.ui-button-light {
+  padding: 0 15px;
+  line-height: 22px;
+}
+#page-ranking section.column2 footer {
+  font-size: 13px;
+}
+#page-ranking section.column2 footer nav.pager li {
+  border: none;
+}
+#page-ranking section.column2 footer nav.pager li a.ui-button-light {
+  padding: 0 15px;
+  line-height: 22px;
+}
+#page-ranking section.column2 footer section.related-page {
+  -moz-border-radius: 0 0 4px 4px;
+  border-radius: 0 0 4px 4px;
+  margin-top: 30px;
+  line-height: 47px;
+  text-align: center;
+  background-color: #ebf4f8;
+}
+#page-ranking section.column2 footer section.related-page h1,
+#page-ranking section.column2 footer section.related-page ul,
+#page-ranking section.column2 footer section.related-page li {
+  display: inline;
+}
+#page-ranking section.column2 footer section.related-page h1:after {
+  content: ':';
+  margin-left: 5px;
+  color: #ddd;
+}
+#page-ranking section.column2 footer section.related-page ul {
+  margin-left: 5px;
+}
+#page-ranking section.column2 footer section.related-page ul + ul {
+  margin-left: 15px;
+}
+#page-ranking section.column2 footer section.related-page ul li {
+  margin: 0 5px 0 0;
+}
+#page-ranking section.column2 footer section.related-page ul li + li:before {
+  content: '/';
+  margin-right: 5px;
+  color: #ddd;
+}
+#page-ranking section.column2 footer section.related-page ul li.current {
+  position: relative;
+  font-weight: bold;
+}
+#page-ranking section.column2 footer section.related-page ul li.current:before {
+  display: block;
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -10px;
+  border-top-width: 9px;
+  border-right-width: 9px;
+  border-bottom-width: 0;
+  border-left-width: 9px;
+  border-color: #fff transparent;
+  border-style: solid;
+  content: '';
+}
+#page-ranking section.column2 footer section.related-page ul li.current a {
+  color: inherit;
+}
+#page-ranking section.column2 section.articles {
+  position: relative;
+  width: 580px;
+  min-height: 1215px;
+  margin-top: 15px;
+  padding: 0 194px;
+}
+#page-ranking section.column2 section.articles a:visited {
+  color: #996699;
+}
+#page-ranking section.column2 section.articles div.no-item {
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  clear: both;
+  width: 580px;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 156px;
+  background-color: #eee;
+}
+#page-ranking section.column2 section.articles article {
+  position: relative;
+  min-height: 156px;
+  padding: 15px 0;
+  color: #555;
+}
+#page-ranking section.column2 section.articles article + article {
+  border-top: 1px solid #eee;
+}
+#page-ranking section.column2 section.articles article:first-child {
+  border: none;
+}
+#page-ranking section.column2 section.articles article.current {
+  margin-left: -194px;
+  margin-right: -194px;
+  padding-left: 194px;
+  padding-right: 194px;
+  background-color: #fffaed;
+  border-color: #fff;
+}
+#page-ranking section.column2 section.articles article.current div.rank {
+  left: 194px;
+}
+#page-ranking section.column2 section.articles article.current div.rank h1 {
+  font-size: 24px;
+}
+#page-ranking section.column2 section.articles article.current div.rank h1.up {
+  background-position: -1632px -1090px;
+}
+#page-ranking section.column2 section.articles article.current div.rank h1.down {
+  background-position: -1632px -1120px;
+}
+#page-ranking section.column2 section.articles article.current + article {
+  border-color: #fff;
+}
+#page-ranking section.column2 section.articles article.current a.image-thumbnail {
+  left: 288px;
+}
+#page-ranking section.column2 section.articles article.current div.data {
+  left: 474px;
+}
+#page-ranking section.column2 section.articles article div.rank {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 70px;
+}
+#page-ranking section.column2 section.articles article div.rank h1 {
+  font-weight: bold;
+  font-size: 16px;
+}
+#page-ranking section.column2 section.articles article div.rank h1.up {
+  background: url("http://source.pixiv.net/source/images/sprite_20101101.png") no-repeat -1654px -1096px;
+}
+#page-ranking section.column2 section.articles article div.rank h1.down {
+  background: url("http://source.pixiv.net/source/images/sprite_20101101.png") no-repeat -1654px -1126px;
+}
+#page-ranking section.column2 section.articles article div.rank h1 a {
+  color: #444;
+}
+#page-ranking section.column2 section.articles article div.rank p.new {
+  color: #cc0000;
+}
+#page-ranking section.column2 section.articles article a.image-thumbnail {
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 94px;
+  width: 156px;
+  height: 156px;
+  text-align: center;
+}
+#page-ranking section.column2 section.articles article a.image-thumbnail img {
+  padding: 2px;
+  vertical-align: middle;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+#page-ranking section.column2 section.articles article a.image-thumbnail:hover img {
+  border-color: #258fb8;
+}
+#page-ranking section.column2 section.articles article div.data {
+  margin-left: 280px;
+  color: #666;
+}
+#page-ranking section.column2 section.articles article div.data h2 {
+  margin-bottom: 0.5em;
+  font-size: 16px;
+  font-weight: bold;
+}
+#page-ranking section.column2 section.articles article div.data div.artist {
+  margin-bottom: 1em;
+}
+#page-ranking section.column2 section.articles article div.data div.artist a img {
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+#page-ranking section.column2 section.articles article div.data dl {
+  line-height: normal;
+}
+#page-ranking section.column2 section.articles article div.data dl .date {
+  color: #666;
+}
+#page-ranking section.column2 section.articles article div.data dl dt,
+#page-ranking section.column2 section.articles article div.data dl dd {
+  display: inline;
+}
+#page-ranking section.column2 section.articles article div.data dl dt:after {
+  content: ':';
+  margin-left: 5px;
+  color: #ccc;
+}
+#page-ranking section.column2 section.articles article div.data dl dd {
+  margin: 0 5px;
+}
+#page-ranking section.column2 section.articles article div.data dl dd + dt:before {
+  content: '/';
+  margin-right: 5px;
+  color: #ccc;
+}
+#page-ranking section.column2 section.articles article div.data ul.tags {
+  margin-top: 0.5em;
+  font-size: 11px;
+}
+#page-ranking section.column2 section.articles article div.data ul.tags li {
+  display: inline;
+  margin-right: 5px;
+}
+#page-ranking section.column2 section.articles article div.data ul.tags li + li:before {
+  content: '/';
+  margin-right: 5px;
+  color: #ccc;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box {
+  margin: 0 -10px;
+  line-height: 1.5;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box div.label {
+  font-weight: normal;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items {
+  width: 183px;
+  margin: 0;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li {
+  cursor: default;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li:hover {
+  background-color: transparent;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li.input {
+  padding: 0;
+  line-height: 1;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li.input input {
+  width: 165px;
+  height: 12px;
+  padding: 8px 9px;
+  color: #777;
+  background-color: #ffffcc;
+  border: none;
+  outline: none;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li.share-button {
+  height: 24px;
+  padding: 4px 9px 0;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li.share-button iframe {
+  width: 110px;
+  height: 21px;
+}
+#page-ranking section.column2 section.articles article div.data div.context-select-box ul.items li ul.share-button li {
+  height: 24px;
+  padding: 4px 0 0;
+}
+#page-ranking section.column2 section.articles .ad {
+  position: absolute;
+}
+#page-ranking section.column2 section.articles .ad iframe {
+  vertical-align: middle;
+}
+
+select.ui-select-box {
+  display: none;
+}
+
+div.select-box-container {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  position: relative;
+  margin: 0 10px;
+  padding: 0 10px;
+  text-align: left;
+  line-height: 26px;
+  cursor: pointer;
+}
+div.select-box-container:hover div.label {
+  text-decoration: underline;
+}
+div.select-box-container ul.items {
+  display: none;
+  position: absolute;
+  z-index: 10000;
+  left: 0;
+  width: 118px;
+  margin: -2px auto 0;
+  background-color: #fff;
+  text-align: left;
+  border: 1px solid #becad7;
+}
+div.select-box-container ul.items.ceil {
+  margin: 0 auto -2px;
+  bottom: 0;
+}
+div.select-box-container ul.items li {
+  display: block;
+  margin: 0;
+  padding: 0 9px;
+  font-size: 14px;
+  line-height: 2;
+  color: #777;
+  cursor: pointer;
+  border-left: none !important;
+  border-right: none !important;
+}
+div.select-box-container ul.items li:hover {
+  background-color: #eee;
+}
+div.select-box-container ul.items li.current {
+  font-weight: normal;
+  background-color: #eee;
+  cursor: default;
+}
+
+div#page-ranking-area div.ranking_area {
+  position: relative;
+  text-align: left;
+  border-top: 1px solid #d6dee5;
+}
+div#page-ranking-area header {
+  position: absolute;
+  top: 0;
+  width: 968px;
+  height: 85px;
+  text-align: center;
+}
+div#page-ranking-area header nav.areas {
+  background-color: #fff;
+}
+div#page-ranking-area header nav.areas ul li {
+  display: inline;
+}
+div#page-ranking-area header nav.areas ul li a {
+  display: inline-block;
+  padding: 0 15px;
+  line-height: 38px;
+}
+div#page-ranking-area header ul.rank {
+  line-height: 47px;
+  background-color: rgba(203, 213, 225, 0.9);
+}
+div#page-ranking-area header ul.rank li {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  width: 138px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Helvetica", sans-serif;
+  color: #fff;
+}
+div#page-ranking-area div.rankingArea section.area {
+  padding: 85px 0 0;
+  /*北海道・東北*/
+  /*関東*/
+  /*中部*/
+  /*近畿*/
+  /*中国・四国*/
+  /*九州・沖縄*/
+  /*海外*/
+}
+div#page-ranking-area div.rankingArea section.area#area-0 section.whole {
+  background-position: 6px 10px;
+}
+div#page-ranking-area div.rankingArea section.area#area-1 section.whole {
+  background-position: 6px -118px;
+}
+div#page-ranking-area div.rankingArea section.area#area-2 section.whole {
+  background-position: 6px -246px;
+}
+div#page-ranking-area div.rankingArea section.area#area-3 section.whole {
+  background-position: 6px -374px;
+}
+div#page-ranking-area div.rankingArea section.area#area-4 section.whole {
+  background-position: 6px -502px;
+}
+div#page-ranking-area div.rankingArea section.area#area-5 section.whole {
+  background-position: 6px -630px;
+}
+div#page-ranking-area div.rankingArea section.area#area-6 section.whole {
+  background-position: 6px -758px;
+}
+div#page-ranking-area div.rankingArea section.area section {
+  position: relative;
+  height: 128px;
+  padding: 10px 6px;
+  background-image: url("http://source.pixiv.net/source/images/ranking-area.png");
+  background-repeat: no-repeat;
+  /*北海道*/
+  /*青森県*/
+  /*岩手県*/
+  /*宮城県*/
+  /*秋田県*/
+  /*山形県*/
+  /*福島県*/
+  /*茨城県*/
+  /*栃木県*/
+  /*群馬県*/
+  /*埼玉県*/
+  /*千葉県*/
+  /*東京都*/
+  /*神奈川県*/
+  /*新潟県*/
+  /*富山県*/
+  /*石川県*/
+  /*福井県*/
+  /*山梨県*/
+  /*長野県*/
+  /*岐阜県*/
+  /*静岡県*/
+  /*愛知県*/
+  /*三重県*/
+  /*滋賀県*/
+  /*京都府*/
+  /*大阪府*/
+  /*兵庫県*/
+  /*奈良県*/
+  /*和歌山県*/
+  /*鳥取県*/
+  /*島根県*/
+  /*岡山県*/
+  /*広島県*/
+  /*山口県*/
+  /*徳島県*/
+  /*香川県*/
+  /*愛媛県*/
+  /*高知県*/
+  /*福岡県*/
+  /*佐賀県*/
+  /*長崎県*/
+  /*熊本県*/
+  /*大分県*/
+  /*宮崎県*/
+  /*鹿児島県*/
+  /*沖縄*/
+}
+div#page-ranking-area div.rankingArea section.area section + section {
+  border-top: 1px dotted #ccc;
+}
+div#page-ranking-area div.rankingArea section.area section.whole {
+  background-color: #f2f4f6;
+  border: none;
+}
+div#page-ranking-area div.rankingArea section.area section.whole + section {
+  border: none;
+}
+div#page-ranking-area div.rankingArea section.area section#state-0 {
+  background-position: 6px -886px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-1 {
+  background-position: 6px -1014px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-2 {
+  background-position: 6px -1142px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-3 {
+  background-position: 6px -1270px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-4 {
+  background-position: 6px -1398px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-5 {
+  background-position: 6px -1526px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-6 {
+  background-position: 6px -1654px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-7 {
+  background-position: 6px -1782px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-8 {
+  background-position: 6px -1910px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-9 {
+  background-position: 6px -2038px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-10 {
+  background-position: 6px -2166px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-11 {
+  background-position: 6px -2294px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-12 {
+  background-position: 6px -2422px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-13 {
+  background-position: 6px -2550px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-14 {
+  background-position: 6px -2678px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-15 {
+  background-position: 6px -2806px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-16 {
+  background-position: 6px -2934px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-17 {
+  background-position: 6px -3062px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-18 {
+  background-position: 6px -3190px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-19 {
+  background-position: 6px -3318px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-20 {
+  background-position: 6px -3446px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-21 {
+  background-position: 6px -3574px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-22 {
+  background-position: 6px -3702px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-23 {
+  background-position: 6px -3830px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-24 {
+  background-position: 6px -3958px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-25 {
+  background-position: 6px -4086px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-26 {
+  background-position: 6px -4214px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-27 {
+  background-position: 6px -4342px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-28 {
+  background-position: 6px -4470px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-29 {
+  background-position: 6px -4598px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-30 {
+  background-position: 6px -4726px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-31 {
+  background-position: 6px -4854px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-32 {
+  background-position: 6px -4982px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-33 {
+  background-position: 6px -5110px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-34 {
+  background-position: 6px -5238px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-35 {
+  background-position: 6px -5366px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-36 {
+  background-position: 6px -5494px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-37 {
+  background-position: 6px -5622px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-38 {
+  background-position: 6px -5750px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-39 {
+  background-position: 6px -5878px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-40 {
+  background-position: 6px -6006px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-41 {
+  background-position: 6px -6134px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-42 {
+  background-position: 6px -6262px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-43 {
+  background-position: 6px -6390px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-44 {
+  background-position: 6px -6518px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-45 {
+  background-position: 6px -6646px;
+}
+div#page-ranking-area div.rankingArea section.area section#state-46 {
+  background-position: 6px -6774px;
+}
+div#page-ranking-area div.rankingArea section.area section h1 a {
+  display: block;
+  width: 128px;
+  height: 38px;
+  padding-top: 90px;
+  color: #333;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: bold;
+  text-align: center;
+}
+div#page-ranking-area div.rankingArea section.area section ul li {
+  position: absolute;
+  top: 10px;
+}
+div#page-ranking-area div.rankingArea section.area section ul li.rank-0 {
+  left: 143px;
+}
+div#page-ranking-area div.rankingArea section.area section ul li.rank-1 {
+  left: 281px;
+}
+div#page-ranking-area div.rankingArea section.area section ul li.rank-2 {
+  left: 419px;
+}
+div#page-ranking-area div.rankingArea section.area section ul li.rank-3 {
+  left: 557px;
+}
+div#page-ranking-area div.rankingArea section.area section ul li.rank-4 {
+  left: 695px;
+}
+div#page-ranking-area div.rankingArea section.area section a.more {
+  position: absolute;
+  top: 10px;
+  right: 1px;
+  width: 128px;
+  margin: 0 5px;
+  line-height: 128px;
+  text-align: center;
+}
+
+/* mypage お知らせ欄 */
+.NewsTop {
+  padding: 0;
+}
+.NewsTop h1 {
+  background: #F2F4F6;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 3px;
+  margin: -3px -8px 5px;
+}
+.NewsTop h1 a {
+  color: #333;
+}
+.NewsTop .info_r .title {
+  color: #ff0000;
+}
+.NewsTop .info_b .title {
+  font-weight: bold;
+}
+.NewsTop .info_rb .title {
+  font-weight: bold;
+  color: #ff0000;
+}
+.NewsTop .category {
+  display: inline-block;
+  padding: 0 3px;
+  text-align: center;
+  text-decoration: none !important;
+  font-size: 11px;
+  color: #333 !important;
+  line-height: 16px;
+  height: 16px;
+  width: 80px;
+  background-color: #E8F0F6;
+  -moz-border-radius: 2px;
+  /* border: 1px solid #D6DEE5; */
+  border-radius: 4px;
+}
+.NewsTop .category._3 {
+  background-color: #CBE1F2;
+}
+.NewsTop .category._4 {
+  background-color: #FFF569;
+  color: #706900 !important;
+}
+.NewsTop .category._6 {
+  background-color: #FFFBC2;
+  color: #474300 !important;
+}
+.NewsTop li {
+  line-height: 20px;
+}
+.NewsTop .date {
+  color: #666666;
+  font-size: 11px;
+  font-weight: normal;
+}
+.NewsTop .date:before {
+  content: "-";
+  color: #ccc;
+  padding: 0 2px;
+}
+.NewsTop .NewsTopSpecial a {
+  color: #ff0000;
+  font-weight: bold;
+}

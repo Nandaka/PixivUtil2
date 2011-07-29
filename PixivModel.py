@@ -21,20 +21,38 @@ class PixivArtist:
         self.ParseImages(page)
       
       ## parse artist info
-      self.ParseInfo(page)
+      self.ParseInfo(page, fromImage)
 
       ## check id
       if mid == self.artistId:
         print 'member_id OK'
 
-  def ParseInfo(self, page):
+  def ParseInfo(self, page, fromImage=False):
     temp = str(page.find(attrs={'class':'f18b'}).find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
     self.artistName = unicode(page.h2.span.a.string.extract())
     self.artistAvatar = str(page.find(attrs={'class':'avatar_m'}).find('img')['src'])
-    temp = self.artistAvatar.split('/')
-    self.artistToken = temp[-2]
+    self.artistToken = self.ParseToken(page, fromImage)
+      
 
+  def ParseToken(self, page, fromImage=False):
+    if self.artistAvatar == 'http://source.pixiv.net/source/images/no_profile.png':
+      if fromImage:
+        token = str(page.find(attrs={'class':'works_display'}).find('img')['src'])
+        print token
+        return token.split('/')[-2]
+      else :
+        try:
+          temp = page.find(attrs={'class':'display_works linkStyleWorks'})
+          if temp != None:
+            token = str(temp.ul.find('li').find('img')['src'])
+          return token.split('/')[-2]
+        except TypeError:
+          raise PixivModelException('Cannot parse artist token, possibly no images.')
+    else :
+      temp = self.artistAvatar.split('/')
+      return temp[-2]
+    
   def ParseImages(self, page):
     del self.imageList[:]
     temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
@@ -42,7 +60,7 @@ class PixivArtist:
     if temp == None or len(temp) == 0:
       raise PixivModelException('No image found!')
     for item in temp:
-      href = re.search('illust_id=(\d+)', str(item['href'])).group(1)
+      href = re.search('illust_id=(\d+)', str(item)).group(1)
       self.imageList.append(int(href))
     
   def IsUserExist(self, page):
