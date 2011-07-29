@@ -1,5 +1,7 @@
 Requirement:
 - Python 2.7.2++
+- mechanize 0.2.5
+- BeautifulSoup 3.2.0
 
 By Yavos:
 
