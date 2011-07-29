@@ -2,6 +2,10 @@
 - by Nandaka
   - add auto save cookie from login
   - refactor parsing logic to the PixivModel
+  - update Python version to 2.7.2
+  - update mechanize version to 0.2.5
+  - update BeautifulSoup version to 3.2.0
+  - add unittest for the parsing logic
 
 20110708
 - by Nandaka
