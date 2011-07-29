@@ -214,7 +214,7 @@ class PixivConfig:
         
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         
-        with open('config.ini', 'wb') as configfile:
+        with open('config.ini', 'w') as configfile:
             config.write(configfile)
             
         print 'done.'
