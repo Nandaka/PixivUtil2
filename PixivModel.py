@@ -196,6 +196,8 @@ class PixivImage:
       temp = str(img)
       temp = temp.replace('_p', '_big_p')
       urls.append(temp)
+      temp = str(img)
+      urls.append(temp)
     return urls    
 
 class PixivModelException(Exception):

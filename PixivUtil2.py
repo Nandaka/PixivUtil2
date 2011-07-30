@@ -527,7 +527,12 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
                     time.sleep(1)
                 print ''
 
+        result = 0
+        skipOne = False
         for img in image.imageUrls:
+            if skipOne:
+                skipOne = False
+                continue
             print 'Image URL :', img
             url = os.path.basename(img)
             splittedUrl = url.split('.')
@@ -559,7 +564,14 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
                     result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
                 print ''
 
-            if result == 0 :
+            
+            if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
+                print 'No big manga image available, try the small one'
+            elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
+                skipOne = True
+            elif result == -1:
+                printAndLog('error', 'Image url not found: '+str(image.imageId))
+            elif result == 0 :
                 try:
                     __dbManager__.insertImage(image.artist.artistId, image.imageId)
                 except:
