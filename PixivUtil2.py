@@ -381,6 +381,7 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
     try:
         page = 1
         noOfImages = 1
+        avatarDownloaded = False
 
         while True:
             print 'Page ',page
@@ -403,6 +404,24 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
             print 'Member Name  :', safePrint(artist.artistName)
             print 'Member Avatar:', artist.artistAvatar
             print 'Member Token :', artist.artistToken
+
+            if artist.artistAvatar.find('no_profile') == -1 and avatarDownloaded == False:
+                ## Download avatar as folder.jpg
+                if dir == '': #Yavos: use config-options
+                    filenameFormat = __config__.filenameFormat
+                    targetDir = __config__.rootDirectory
+                else: #Yavos: use filename from list
+                    filenameFormat = __config__.filenameFormat.split('\\')[-1]
+                    targetDir = dir
+                filenameFormat = filenameFormat.split('\\')[0]
+                image = PixivImage(parent=artist)
+                filename = makeFilename(filenameFormat, image)
+                filename = sanitizeFilename(filename)
+                filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
+                filename = filename.replace('\\\\', '\\')
+                result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), True, 3)
+                avatarDownloaded = True
+            
             __dbManager__.updateMemberName(member_id, artist.artistName)
 
             updatedLimitCount = 0

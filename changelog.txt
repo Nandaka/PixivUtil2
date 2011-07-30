@@ -6,6 +6,7 @@
   - update mechanize version to 0.2.5
   - update BeautifulSoup version to 3.2.0
   - add unittest for the parsing logic
+  - fix 404 in big_manga mode (20110729b)
 
 20110708
 - by Nandaka
