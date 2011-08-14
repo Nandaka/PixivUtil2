@@ -569,7 +569,7 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
 
                 filename = makeFilename(filenameFormat, image)
                 if image.imageMode == 'manga':
-                    filename = filename + splittedUrl[0].replace(str(image_id), '')
+                    filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
                 filename = sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename
