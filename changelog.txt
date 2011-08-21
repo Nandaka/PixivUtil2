@@ -1,3 +1,11 @@
+20110821
+- by Nandaka
+  - Fix filename for manga mode.
+  - Add strip() for list.txt parsing.
+  - Fix downloadlistdirectory parsing for list.txt.
+  - Update exception handling so the console window doesn't immidiately closed.
+  - Update the readme.txt.
+
 20110729
 - by Nandaka
   - add auto save cookie from login

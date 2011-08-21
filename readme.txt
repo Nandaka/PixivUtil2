@@ -21,27 +21,63 @@ By Yavos:
 
 
 <<< config.ini >>>
-createDownloadLists => set to <True> to automatically create download-lists
-downloadListDirectory => set directory for download-lists needed for createDownloadLists and IrfanView-Handling
-	-> if leaved blank it will create download-lists in pixivUtil-directory
-startIrfanView => set to <True> to start IrfanView with downloaded images when exiting pixivUtil
-	-> this will create download-lists
-	-> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
-startIrfanSlide => set to <True> to start IrfanView-Slideshow with downloaded images when exiting pixivUtil
-	-> this will create download-lists
-	-> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
-	-> Slideshow-options will be same as you have set in IrfanView before!
-IrfanViewPath => set directory where IrfanView is installed (needed to start IrfanView)
+[Authentication]
+username ==> Your pixiv username.
+password ==> Your pixiv password, in clear text!
+cookie   ==> Your cookies for pixiv login, will be automatically updated when login. 
+
+[Pixiv]
+numberofpage ==> Number of page to be processed, put '0' to process all pages.
+formorder    ==> Pixiv login form order, do not change.
+
+[Settings]
+userobots      ==> Download robots.txt for mechanize.
+rootdirectory  ==> Your root directory for saving the images.
+useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
+retrywait      ==> Waiting time for each retry, in seconds.
+proxyaddress   ==> Proxy server address, use this format: http://<username>:<password>@<proxy_server>:<port>
+uselist        ==> set to 'True' to parse list.txt.
+daylastupdated ==> Only process member_id which x days from the last check.
+processfromdb  ==> Set 'True' to use the DB.
+retry          ==> Number of retries.
+debughttp      ==> Print http header, useful for debuggin. Set 'False' to disable.
+timeout        ==> Time to wait before giving up the connection, in seconds.
+filenameformat ==> The format for the filename, reserved/illegal character will be replace with underscore '_'
+                -> The filename (+full path) will be trimmed to the first 250 character (Windows limitation).
+	        -> %member_token% ==> member token, doesn't change.
+	        -> %member_id%    ==> member id, in number.
+	        -> %image_id%  ==> image id, in number.
+	        -> %title%     ==> image title, usually in japanese character.
+	        -> %tags%      ==> image tags, usually in japanese character.
+	        -> %artist%    ==> artist name, may change.
+useragent      ==> Browser user agent to spoof.
+tagsseparator  ==> Separator for each tag, put %space% for space.
+overwrite      ==> Overwrite old files, set 'False' to disable.
+downloadlistdirectory ==> list.txt path.
+alwaysCheckFileSize   ==> Check the file size, if different then it will be downloaded again, set 'False' to disable.
+ 		       -> Override the overwrite and image_id checking from db (always fetch the image page for checking the size)
+checkUpdatedLimit     ==> Number of image to be check (Already downloaded?) before move to the next member.
+createDownloadLists   ==> set to <True> to automatically create download-lists
+downloadListDirectory ==> set directory for download-lists needed for createDownloadLists and IrfanView-Handling
+	               -> if leaved blank it will create download-lists in pixivUtil-directory
+startIrfanView  ==> set to <True> to start IrfanView with downloaded images when exiting pixivUtil
+	         -> this will create download-lists
+	         -> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
+startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded images when exiting pixivUtil
+	         -> this will create download-lists
+	         -> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
+	         -> Slideshow-options will be same as you have set in IrfanView before!
+IrfanViewPath   ==> set directory where IrfanView is installed (needed to start IrfanView)
 
 
 <<< list.txt >>>
-- This file should be build in the following way:
+- This file should be build in the following way, white space will be trimmed, see example:
   member_id1 directory1
   member_id2 directory2
   ...
   #comment - lines starting with # will be ignored
 
-- member_id = number
+- member_id = in number only
 - directory = path to download-directory for member_id
             %root%\directory will save directory in rootFolder specified in config.ini
 	    \directory will save the folder in the root of your PixivUtil-drive

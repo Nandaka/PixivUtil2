@@ -314,19 +314,23 @@ def processList(mode):
     else :
         printAndLog('info','Processing from list file.')
         try:
-            if op == '4' and len(args) > 0: #Yavos: begin adding new lines ;D
-                try:
-                    reader = open(args[0], 'r')
-                except:
-                    print '%s is no file' % args[0]
-                    print 'using list.txt instead...'
-                    reader = open('list.txt', 'r')
-            else: #Yavos: end adding new lines (content should be self-explaining)
-                reader = open('list.txt','r')
+            listFilename = __config__.downloadListDirectory + '\\list.txt'
+            if op == '4' and len(args) > 0:
+                listFilename = __config__.downloadListDirectory + '\\' + args[0]
+                if os.path.exists(listFilename) :
+                    try:
+                        reader = open(listFilename, 'r')
+                    except:
+                        print '%s is no file' % listFilename
+                        print 'using list.txt instead...'
+                        reader = open(listFilename, 'r')
+            else:
+                reader = open(listFilename,'r')
                 
             for line in reader:
                 if line.startswith('#'):
                     continue
+                line = line.strip()
                 lines = line.split(' ', 1) #Yavos: adding new lines for foldername in list
                 if len(lines) > 1:
                     dir = lines[1]
@@ -744,7 +748,7 @@ def main():
         __log__.error('Failed to read configuration.')
 
     configBrowser()
-    
+    selection = None
     global dfilename
     
     #Yavos: adding File for downloadlist
@@ -773,7 +777,7 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList :
-            __dbManager__.importList('list.txt')
+            __dbManager__.importList(__config__.downloadListDirectory+'\\list.txt')
 
         if __config__.useProxy :
             msg = 'Using proxy: ' + __config__.proxyAddress
@@ -823,7 +827,7 @@ def main():
                 mode = PixivConstant.PIXIVUTIL_MODE_OVERWRITE
             else :
                 mode = PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY
-            
+
             while True:
                 if opisvalid: #Yavos (next 3 lines): if commandline then use it ;P
                     selection = op
@@ -903,10 +907,10 @@ def main():
                 else:
                     print 'could not load', dfilename
 
-    except:
-        traceback.print_exc()
-        __log__.error('traceback:\n'+traceback.print_last())
-        print 'error!'
+    except Exception as ex:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        __log__.error('Unknown Error: '+ str(exc_value))
     finally:
         __dbManager__.close()
         if ewd == False: ### Yavos: prevent input on exitwhendone
@@ -916,3 +920,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

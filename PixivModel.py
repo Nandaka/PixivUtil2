@@ -96,9 +96,11 @@ class PixivImage:
     if page != None:
       ## check is error page
       if self.IsErrorPage(page):
-        raise PixivModelException('Error Page!')
+        raise PixivModelException('An error occurred!')
       if self.IsNeedPermission(page):
-        raise PixivModelException('Need Permission!')
+        raise PixivModelException('Not in MyPick List, Need Permission!')
+      if self.IsNeedAppropriateLevel(page):
+        raise PixivModelException('Public works can not be viewed by the appropriate level!')
       if self.IsDeleted(page):
         raise PixivModelException('Image not found/already deleted!')
       unknownError = self.CheckUnknownError(page)
@@ -126,13 +128,17 @@ class PixivImage:
       return test[0].contents[0].renderContents()
     else :
       return None
-    
+
+  def IsNeedAppropriateLevel(self, page):
+    errorMessage = '該当作品の公開レベルにより閲覧できません。'
+    return self.HaveString(page, errorMessage)
+  
   def IsNeedPermission(self, page):
     errorMessage = 'この作品は、.+さんのマイピクにのみ公開されています'
     return self.HaveString(page, errorMessage)
 
   def IsDeleted(self, page):
-    errorMessage = '(該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。)'
+    errorMessage = '該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。'
     return self.HaveString(page, errorMessage)
   
   def HaveString(self, page, string):
