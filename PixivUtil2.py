@@ -206,7 +206,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 print t,
                 time.sleep(1)
             print ''
-            downloadImage(url, filename, referer, overwrite, retry - 1)
+            return downloadImage(url, filename, referer, overwrite, retry - 1)
         else :
             raise
 
@@ -594,14 +594,16 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
                 skipOne = True
             elif result == -1:
                 printAndLog('error', 'Image url not found: '+str(image.imageId))
-            elif result == 0 :
-                try:
-                    __dbManager__.insertImage(image.artist.artistId, image.imageId)
-                except:
-                    pass
-                __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
-            else:
-                print "something happen."
+                
+        ## Only save to db if all images is downloaded completely
+        if result == 0 :
+            try:
+                __dbManager__.insertImage(image.artist.artistId, image.imageId)
+            except:
+                pass
+            __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
+        else:
+            print "something happen."
 
         del viewPage
         del mediumPage

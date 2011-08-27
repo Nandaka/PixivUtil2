@@ -5,6 +5,7 @@
   - Fix downloadlistdirectory parsing for list.txt.
   - Update exception handling so the console window doesn't immidiately closed.
   - Update the readme.txt.
+  - Fix DB saving (20110821b)
 
 20110729
 - by Nandaka
