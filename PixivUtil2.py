@@ -529,7 +529,7 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
         while True:
             try :
                 bigUrl = 'http://www.pixiv.net/member_illust.php?mode='+image.imageMode+'&illust_id='+str(image_id)
-                viewPage = __br__.follow_link(url_regex='mode='+image.imageMode)
+                viewPage = __br__.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image_id))
                 parseBigImage = BeautifulSoup(viewPage.read())
                 image.ParseImages(page=parseBigImage)
                 parseBigImage.decompose()
@@ -580,14 +580,13 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
                 filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
                 print 'Filename  :', safePrint(filename)
                 result = -1
-                        
+   
                 if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                     result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
                 else:
                     result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
                 print ''
 
-            
             if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
                 print 'No big manga image available, try the small one'
             elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
