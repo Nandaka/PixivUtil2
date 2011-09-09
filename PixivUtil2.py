@@ -141,7 +141,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             if not overwrite and os.path.exists(filename) and os.path.isfile(filename) :
                 if int(filesize) == os.path.getsize(filename) :
-                    print "\tFile exist!"
+                    print "\tFile exist! (Identical Size)"
                     return 0 #Yavos: added 0 -> updateImage() will be executed
                 else :
                     print "\t Found file with different filesize, removing..."
@@ -255,10 +255,10 @@ def pixivLogin(username, password):
 
     try:
         printAndLog('info','Log in using form.')
-        req = urllib2.Request(PixivConstant.PIXIV_URL)
+        req = urllib2.Request(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
         __br__.open(req)
         
-        form = __br__.select_form(name=PixivConstant.PIXIV_FORM_NAME)
+        form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
         __br__['pixiv_id'] = username
         __br__['pass'] = password
 
@@ -423,7 +423,7 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
                 filename = sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
                 filename = filename.replace('\\\\', '\\')
-                result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), True, 3)
+                result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             
             __dbManager__.updateMemberName(member_id, artist.artistName)
