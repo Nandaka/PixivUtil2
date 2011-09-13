@@ -1,3 +1,9 @@
+20110911
+- by Nandaka
+  - Update Login process.
+  - Add filesize checking when downloading avatar image.
+  - Change mechanize.Browser() DefaultFactory() parser to mechanize.RobustFactory() (20110911b)
+
 20110821
 - by Nandaka
   - Fix filename for manga mode.

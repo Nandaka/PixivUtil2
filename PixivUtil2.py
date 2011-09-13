@@ -40,7 +40,10 @@ import datetime
 import codecs
 import subprocess
 
-__br__ = Browser()
+__cj__ = cookielib.LWPCookieJar()
+__br__ = Browser(factory=mechanize.RobustFactory())
+__br__.set_cookiejar(__cj__)
+##__br__ = Browser()
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
@@ -133,11 +136,15 @@ def downloadImage(url, filename, referer, overwrite, retry):
             if referer != None:
                 req.add_header('Referer', referer)
 
-            res = __br__.open(req)
+            br2 = Browser()
+            br2.set_cookiejar(__cj__)
+            res = br2.open(req)
             try:
                 filesize = res.info()['Content-Length']
             except KeyError:
                 filesize = 0
+            except:
+                raise
 
             if not overwrite and os.path.exists(filename) and os.path.isfile(filename) :
                 if int(filesize) == os.path.getsize(filename) :
@@ -196,7 +203,8 @@ def downloadImage(url, filename, referer, overwrite, retry):
             raise
 
         except:
-            print 'Error at downloadImage():',sys.exc_info()
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
             __log__.error('Error at downloadImage(): ' + str(sys.exc_info()))
             raise
     except:
@@ -229,10 +237,8 @@ def configBrowser():
 
 def loadCookie(cookieValue):
     '''Load cookie to the Browser instance'''
-    cj = cookielib.LWPCookieJar()
-    __br__.set_cookiejar(cj)
     ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookieValue, port=None, port_specified=False, domain='pixiv.net', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-    cj.set_cookie(ck)
+    __cj__.set_cookie(ck)
     
 ### Pixiv related function ###
 def pixivLogin(username, password):
