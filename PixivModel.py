@@ -45,8 +45,14 @@ class PixivArtist:
         try:
           temp = page.find(attrs={'class':'display_works linkStyleWorks'})
           if temp != None:
-            token = str(temp.ul.find('li').find('img')['src'])
-          return token.split('/')[-2]
+            tokens = temp.ul.findAll('li')
+            for token in tokens:
+              artistToken = token.find('img')['data-src']
+              print artistToken
+              artistToken = artistToken.split('/')[-2]
+              if artistToken != 'common':
+                return artistToken
+          raw_input('cannot parse artist token')
         except TypeError:
           raise PixivModelException('Cannot parse artist token, possibly no images.')
     else :

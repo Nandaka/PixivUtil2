@@ -121,7 +121,8 @@ class TestPixivModel(unittest.TestCase):
       page = BeautifulSoup(p.read())
       image = PixivImage()
       urls = image.ParseImages(page, mode='manga')
-      self.assertEqual(len(urls), 39)
+      print urls
+      self.assertEqual(len(urls), 39*2)
       imageId = urls[0].split('/')[-1].split('.')[0]
       print 'imageId:',imageId
       self.assertEqual(imageId, '20592252_big_p0')
