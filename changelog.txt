@@ -1,3 +1,8 @@
+20110922
+- by Nandaka
+  - update DBManager to save custom folder from list.txt
+  - fix download proxy error
+
 20110916
 - by Nandaka
   - Fix filename bug if you are using member_id=directory format in the list.txt.

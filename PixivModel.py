@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import re
+import xml.sax.saxutils as saxutils
 from BeautifulSoup import BeautifulSoup, Tag
 
 class PixivArtist:
@@ -217,4 +218,63 @@ class PixivModelException(Exception):
     self.value = value
   def __str__(self):
     return repr(self.value)
+
+class PixivListItem:
+  memberId = ""
+  path = ""
+
+  def __init__(self, memberId, path):
+    self.memberId = int(memberId)
+    self.path = path.strip()
+    if self.path == "N\A":
+      self.path = ""
+
+  @staticmethod
+  def parseList(filename, rootDir=""):
+    l = list()
+
+    reader = open(filename, "r")
+    for line in reader:
+        if line.startswith('#') or len(line) < 1:
+          continue
+        items = line.split(" ", 1)
+        member_id = int(items[0])
+        path = ""
+        if len(items) > 1:
+          path = items[1].strip()
+          path = path.replace('\"', '')
+          if re.match(r'[a-zA-Z]:', path):
+              dirpath = path.split('\\', 1)
+              dirpath[1] = PixivListItem.sanitizeFilename(dirpath[1], rootDir)
+              path = '\\'.join(dirpath)
+          else:
+              path = PixivListItem.sanitizeFilename(path, rootDir)
+          path = path.replace('%root%', rootDir)
+          path = path.replace('\\\\', '\\')
+
+        listItem = PixivListItem(member_id, path)
+        l.append(listItem)
+
+    reader.close()        
+    return l
+
+  @staticmethod
+  def sanitizeFilename(s, rootDir):
+    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
+    __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
+    s = saxutils.unescape(s)
+    name= __badchars__.sub('_', s)
+    if __badnames__.match(name):
+        name= '_'+name
+
+    #Yavos: when foldername ends with "." PixivUtil won't find it
+    while name.find('.\\') != -1:
+        name = name.replace('.\\','\\')
+
+    ## cut to 255 char
+    pathLen = len(rootDir) + 1
+    if len(name) + pathLen > 255:
+        newLen = 250 - pathLen
+        name = name[:newLen]
+    return name.strip()
 

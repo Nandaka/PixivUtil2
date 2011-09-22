@@ -25,7 +25,7 @@ import cookielib
 import PixivConstant
 import PixivConfig
 import PixivDBManager
-from PixivModel import PixivArtist, PixivModelException, PixivImage
+from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem
 
 ##import pprint
 
@@ -48,14 +48,14 @@ gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
 __dbManager__ = PixivDBManager.PixivDBManager()
-__config__ = PixivConfig.PixivConfig()
+__config__    = PixivConfig.PixivConfig()
     
 ### Set up logging###
 __log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
 __log__.setLevel(logging.DEBUG)
 
 __logHandler__ = logging.handlers.RotatingFileHandler(PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=1024000, backupCount=5)
-__formatter__ = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+__formatter__  = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 __logHandler__.setFormatter(__formatter__)
 __log__.addHandler(__logHandler__)
 
@@ -138,6 +138,9 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             br2 = Browser()
             br2.set_cookiejar(__cj__)
+            br2.set_proxies(__config__.proxy)
+            br2.set_handle_robots(__config__.useRobots)
+            
             res = br2.open(req)
             try:
                 filesize = res.info()['Content-Length']
@@ -290,88 +293,50 @@ def pixivLogin(username, password):
         raise
 
 def processList(mode):
-    if __config__.processFromDb :
-        printAndLog('info','Processing from database.')
-        try:
+    result = None
+    try:
+        ## Getting the list
+        if __config__.processFromDb :
+            printAndLog('info','Processing from database.')
             if __config__.dayLastUpdated == 0:
                 result = __dbManager__.selectAllMember()
             else :
                 print 'Select only last',__config__.dayLastUpdated, 'days.'
                 result = __dbManager__.selectMembersByLastDownloadDate(__config__.dayLastUpdated)
-            for row in result:
-                retryCount = 0
-                while True:
-                    try:
-                        processMember(mode, row[0])
-                        break
-                    except:
-                        if retryCount > __config__.retry:
-                            printAndLog('error','Giving up member_id: '+str(row[0]))
-                            break
-                        retryCount = retryCount + 1
-                        print 'Something wrong, retrying after 2 second (', retryCount, ')'
-                        time.sleep(2)
-            print 'done.'
-        except:
-            print 'Error at processList():',sys.exc_info()
-            print 'failed'
-            __log__.error('Error at processList(): ' + str(sys.exc_info()))
-            raise
-    else :
-        printAndLog('info','Processing from list file.')
-        try:
+        else :
+            printAndLog('info','Processing from list file.')
             listFilename = __config__.downloadListDirectory + '\\list.txt'
             if op == '4' and len(args) > 0:
-                listFilename = __config__.downloadListDirectory + '\\' + args[0]
-                if os.path.exists(listFilename) :
-                    try:
-                        reader = open(listFilename, 'r')
-                    except:
-                        print '%s is no file' % listFilename
-                        print 'using list.txt instead...'
-                        reader = open(listFilename, 'r')
-            else:
-                reader = open(listFilename,'r')
-                
-            for line in reader:
-                userDir = ''
-                if line.startswith('#'):
-                    continue
-                line = line.strip()
-                lines = line.split(' ', 1) #Yavos: adding new lines for foldername in list
-                if len(lines) > 1:
-                    userDir = lines[1]
-                    userDir = userDir.strip() #delete leading & ending spaces
-                    userDir = userDir.replace('\"', '') #delete ""
-                    if re.match(r'[a-zA-Z]:', userDir):
-                        dirpath = userDir.split('\\', 1)
-                        dirpath[1] = sanitizeFilename(dirpath[1])
-                        userDir = '\\'.join(dirpath)
-                    else:
-                        userDir = sanitizeFilename(userDir)
-                    userDir = userDir.replace('%root%', __config__.rootDirectory)
-                    userDir = userDir.replace('\\\\', '\\') #prevent double-backslash in case rootDirectory has an ending \
+                testListFilename = __config__.downloadListDirectory + '\\' + args[0]
+                if os.path.exists(testListFilename) :
+                    listFilename = testListFilename
+            result = PixivListItem.parseList(listFilename, __config__.rootDirectory)
 
-                    retryCount = 0
-                while True:
-                    try:
-                        processMember(mode, int(lines[0]), userDir) #Yavos: added dir argument to pass to following functions
+        print "Found "+str(len(result))+" items."
+
+        ## iterating the list
+        for item in result:
+            retryCount = 0
+            while True:
+                try:
+                    processMember(mode, item.memberId, item.path)
+                    break
+                except:
+                    if retryCount > __config__.retry:
+                        printAndLog('error','Giving up member_id: '+str(row[0]))
                         break
-                    except:
-                        if retryCount > __config__.retry:
-                            printAndLog('error','Giving up member_id: '+str(row[0]))
-                            break
-                        retryCount = retryCount + 1
-                        print 'Something wrong, retrying after 2 second (', retryCount, ')'
-                        time.sleep(2)
-                
-                __br__.clear_history()
+                    retryCount = retryCount + 1
+                    print 'Something wrong, retrying after 2 second (', retryCount, ')'
+                    time.sleep(2)
+            
+            __br__.clear_history()
             print 'done.'
-        except:
-            print 'Error at processList():',sys.exc_info()
-            print 'failed'
-            __log__.error('Error at processList(): ' + str(sys.exc_info()))
-            raise
+
+    except:
+        print 'Error at processList():',sys.exc_info()
+        print 'failed'
+        __log__.error('Error at processList(): ' + str(sys.exc_info()))
+        raise
 
 def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     printAndLog('info','Processing Member Id: ' + str(member_id))
@@ -772,7 +737,8 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList :
-            __dbManager__.importList(__config__.downloadListDirectory+'\\list.txt')
+            listTxt = PixivListItem.parseList(__config__.downloadListDirectory+'\\list.txt')
+            __dbManager__.importList(listTxt)
 
         if __config__.useProxy :
             msg = 'Using proxy: ' + __config__.proxyAddress

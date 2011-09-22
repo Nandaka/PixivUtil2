@@ -10,11 +10,13 @@ import logging
 
 import codecs
 
+from PixivModel import PixivListItem
+
 class PixivDBManager:
     """Pixiv Database Manager"""
     
-    def __init__(self):
-        self.conn = sqlite3.connect('db.sqlite')
+    def __init__(self, target = "db.sqlite"):
+        self.conn = sqlite3.connect(target)
 
     def close(self):
         self.conn.close()
@@ -76,17 +78,18 @@ class PixivDBManager:
 ##########################################
 ## II. Export/Import DB                 ##
 ##########################################                    
-    def importList(self,filename):
+    def importList(self,listTxt):
         print 'Importing list...',
         try:
             c = self.conn.cursor()
-            reader = open(filename,'r')
-            for line in reader:
-                if line.startswith('#'):
-                    continue
-                member_id = int(line)
+            
+            for item in listTxt:
                 c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1)''',
-                                  (member_id, str(member_id), 'N\A'))
+                                  (item.memberId, str(item.memberId), 'N\A'))
+                c.execute('''UPDATE pixiv_master_member
+                             SET save_folder = ?
+                             WHERE member_id = ?''',
+                          (item.path, item.memberId))
             self.conn.commit()
         except:
             print 'Error at importList():',str(sys.exc_info())
@@ -95,6 +98,7 @@ class PixivDBManager:
         finally:
             c.close()
         print 'done.'
+        return 0
 
     def exportList(self,filename):
         print 'Exporting list...',
@@ -247,10 +251,16 @@ class PixivDBManager:
             c.close()
             
     def selectAllMember(self):
+        l = list()
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT member_id FROM pixiv_master_member ORDER BY member_id''')
+            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member ORDER BY member_id''')
             result = c.fetchall()
+
+            for row in result:
+                item = PixivListItem(row[0], row[1])
+                l.append(item)
+                
         except:
             print 'Error at selectAllMember():',str(sys.exc_info())
             print 'failed'
@@ -258,9 +268,10 @@ class PixivDBManager:
         finally:
             c.close()
             
-        return result
+        return l
 
     def selectMembersByLastDownloadDate(self, difference):
+        l = list()
         try:
             c = self.conn.cursor()
             try:
@@ -268,16 +279,22 @@ class PixivDBManager:
             except ValueError:
                 int_diff = 7
                 
-            c.execute('''SELECT member_id, (julianday(Date('now')) - julianday(last_update_date)) as diff FROM pixiv_master_member WHERE last_image == -1 OR diff > '''+ str(int_diff) +''' ORDER BY member_id''')
+            c.execute('''SELECT member_id, save_folder,  (julianday(Date('now')) - julianday(last_update_date)) as diff
+                         FROM pixiv_master_member
+                         WHERE last_image == -1 OR diff > '''+ str(int_diff) +''' ORDER BY member_id''')
             result = c.fetchall()
+            for row in result:
+                item = PixivListItem(row[0], row[1])
+                l.append(item)           
+            
         except:
-            print 'Error at selectAllMember():',str(sys.exc_info())
+            print 'Error at selectMembersByLastDownloadDate():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
             
-        return result
+        return l
     
     def selectMemberByMemberId(self, member_id):
         try:

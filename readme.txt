@@ -36,7 +36,7 @@ rootdirectory  ==> Your root directory for saving the images.
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
 retrywait      ==> Waiting time for each retry, in seconds.
 proxyaddress   ==> Proxy server address, use this format: http://<username>:<password>@<proxy_server>:<port>
-uselist        ==> set to 'True' to parse list.txt.
+uselist        ==> set to 'True' to parse list.txt. This will update the DB content from the list.txt (member_id and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the DB.
 retry          ==> Number of retries.
