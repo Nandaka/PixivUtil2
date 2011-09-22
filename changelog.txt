@@ -1,8 +1,16 @@
+20110916
+- by Nandaka
+  - Fix filename bug if you are using member_id=directory format in the list.txt.
+  - Add option 'downloadavatar' to download artist profile avatar.
+
 20110911
 - by Nandaka
   - Update Login process.
   - Add filesize checking when downloading avatar image.
-  - Change mechanize.Browser() DefaultFactory() parser to mechanize.RobustFactory() (20110911b)
+  - Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory(). 
+    For downloading still using the default factory because there is a problem (ValueError: invalid literal for int() 
+    with base 10: 'some_chars') if using robust factory (20110911b).
+  - Fix artist token parser when there is no profile image (20110911b).
 
 20110821
 - by Nandaka
@@ -11,17 +19,17 @@
   - Fix downloadlistdirectory parsing for list.txt.
   - Update exception handling so the console window doesn't immidiately closed.
   - Update the readme.txt.
-  - Fix DB saving (20110821b)
+  - Fix DB saving (20110821b).
 
 20110729
 - by Nandaka
-  - add auto save cookie from login
-  - refactor parsing logic to the PixivModel
+  - add auto save cookie from login.
+  - refactor parsing logic to the PixivModel.
   - update Python version to 2.7.2
   - update mechanize version to 0.2.5
   - update BeautifulSoup version to 3.2.0
   - add unittest for the parsing logic
-  - fix 404 in big_manga mode (20110729b)
+  - fix 404 in big_manga mode (20110729b).
 
 20110708
 - by Nandaka

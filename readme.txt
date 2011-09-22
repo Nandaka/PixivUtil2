@@ -56,7 +56,7 @@ overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
 alwaysCheckFileSize   ==> Check the file size, if different then it will be downloaded again, set 'False' to disable.
  		       -> Override the overwrite and image_id checking from db (always fetch the image page for checking the size)
-checkUpdatedLimit     ==> Number of image to be check (Already downloaded?) before move to the next member.
+checkUpdatedLimit     ==> Number of already downloaded image to be check before move to the next member. alwaysCheckFileSize must be set to False.
 createDownloadLists   ==> set to <True> to automatically create download-lists
 downloadListDirectory ==> set directory for download-lists needed for createDownloadLists and IrfanView-Handling
 	               -> if leaved blank it will create download-lists in pixivUtil-directory
@@ -68,7 +68,7 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded i
 	         -> be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
 	         -> Slideshow-options will be same as you have set in IrfanView before!
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start IrfanView)
-
+downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg' 
 
 <<< list.txt >>>
 - This file should be build in the following way, white space will be trimmed, see example:
@@ -86,7 +86,7 @@ IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
 	    directory-path can end with \ or not
 
 - Examples for list:
-
+### START EXAMPLE LIST####
 #this is a comment line, lines starting with # will be ignored
 #here is the first member:
 123456
@@ -100,7 +100,7 @@ IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
 123456 test
 123456 "test"
 #now all images from member no. 123456 will be safed in directory "test" in the same directory as PixivUtil2
-#as you can see you can use it with "" oder without ;)
+#as you can see you can use it with "" or without ;)
 #
 #next will be stored at the same partition as PixivUtil, but the directory is located in root-part of it
 123456 \test
@@ -115,3 +115,4 @@ IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
 123456 %root%\special folder
 123456 "%root%\special folder"
 #this will set the download location to "special folder" in your rootDirectory given in config
+### END EXAMPLE LIST####
