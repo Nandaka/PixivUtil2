@@ -43,7 +43,7 @@ import subprocess
 __cj__ = cookielib.LWPCookieJar()
 __br__ = Browser(factory=mechanize.RobustFactory())
 __br__.set_cookiejar(__cj__)
-##__br__ = Browser()
+
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
@@ -291,7 +291,7 @@ def pixivLogin(username, password):
 
 def processList(mode):
     if __config__.processFromDb :
-        printAndLog('info','Processing list from database.')
+        printAndLog('info','Processing from database.')
         try:
             if __config__.dayLastUpdated == 0:
                 result = __dbManager__.selectAllMember()
@@ -334,48 +334,37 @@ def processList(mode):
                 reader = open(listFilename,'r')
                 
             for line in reader:
+                userDir = ''
                 if line.startswith('#'):
                     continue
                 line = line.strip()
                 lines = line.split(' ', 1) #Yavos: adding new lines for foldername in list
                 if len(lines) > 1:
-                    dir = lines[1]
-                    dir = dir.strip() #delete leading & ending spaces
-                    dir = dir.replace('\"', '') #delete ""
-                    if re.match(r'[a-zA-Z]:', dir):
-                        dirpath = dir.split('\\', 1)
+                    userDir = lines[1]
+                    userDir = userDir.strip() #delete leading & ending spaces
+                    userDir = userDir.replace('\"', '') #delete ""
+                    if re.match(r'[a-zA-Z]:', userDir):
+                        dirpath = userDir.split('\\', 1)
                         dirpath[1] = sanitizeFilename(dirpath[1])
-                        dir = '\\'.join(dirpath)
+                        userDir = '\\'.join(dirpath)
                     else:
-                        dir = sanitizeFilename(dir)
-                    dir = dir.replace('%root%', __config__.rootDirectory)
-                    dir = dir.replace('\\\\', '\\') #prevent double-backslash in case rootDirectory has an ending \
+                        userDir = sanitizeFilename(userDir)
+                    userDir = userDir.replace('%root%', __config__.rootDirectory)
+                    userDir = userDir.replace('\\\\', '\\') #prevent double-backslash in case rootDirectory has an ending \
 
                     retryCount = 0
-                    while True:
-                        try:
-                            processMember(mode, int(lines[0]), dir) #Yavos: added dir argument to pass to following functions
+                while True:
+                    try:
+                        processMember(mode, int(lines[0]), userDir) #Yavos: added dir argument to pass to following functions
+                        break
+                    except:
+                        if retryCount > __config__.retry:
+                            printAndLog('error','Giving up member_id: '+str(row[0]))
                             break
-                        except:
-                            if retryCount > __config__.retry:
-                                printAndLog('error','Giving up member_id: '+str(row[0]))
-                                break
-                            retryCount = retryCount + 1
-                            print 'Something wrong, retrying after 2 second (', retryCount, ')'
-                            time.sleep(2)
-                else: #Yavos: end of new lines
-                    retryCount = 0
-                    while True :
-                        try:
-                            processMember(mode, int(line))
-                            break
-                        except:
-                            if retryCount > __config__.retry:
-                                printAndLog('error','Giving up member_id: '+str(row[0]))
-                                break
-                            retryCount = retryCount + 1
-                            print 'Something wrong, retrying after 2 second (', retryCount, ')'
-                            time.sleep(2)
+                        retryCount = retryCount + 1
+                        print 'Something wrong, retrying after 2 second (', retryCount, ')'
+                        time.sleep(2)
+                
                 __br__.clear_history()
             print 'done.'
         except:
@@ -384,7 +373,7 @@ def processList(mode):
             __log__.error('Error at processList(): ' + str(sys.exc_info()))
             raise
 
-def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will be initialized as '' when not given
+def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     printAndLog('info','Processing Member Id: ' + str(member_id))
     __config__.loadConfig()
 
@@ -415,14 +404,13 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
             print 'Member Avatar:', artist.artistAvatar
             print 'Member Token :', artist.artistToken
 
-            if artist.artistAvatar.find('no_profile') == -1 and avatarDownloaded == False:
+            if artist.artistAvatar.find('no_profile') == -1 and avatarDownloaded == False and __config__.downloadAvatar :
                 ## Download avatar as folder.jpg
-                if dir == '': #Yavos: use config-options
-                    filenameFormat = __config__.filenameFormat
+                filenameFormat = __config__.filenameFormat
+                if userDir == '':
                     targetDir = __config__.rootDirectory
-                else: #Yavos: use filename from list
-                    filenameFormat = __config__.filenameFormat.split('\\')[-1]
-                    targetDir = dir
+                else:
+                    targetDir = userDir
                 filenameFormat = filenameFormat.split('\\')[0]
                 image = PixivImage(parent=artist)
                 filename = makeFilename(filenameFormat, image)
@@ -455,7 +443,7 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
                 retryCount = 0
                 while True :
                     try:
-                        processImage(mode, artist, image_id, dir) #Yavos added dir-argument to pass
+                        processImage(mode, artist, image_id, userDir) #Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except Exception as ex:
@@ -492,7 +480,7 @@ def processMember(mode, member_id, dir=''): #Yavos added dir-argument which will
             printAndLog('error', 'Cannot dump page for member_id:'+str(member_id))
         raise
 
-def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-argument which will be initialized as '' when not given
+def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     try:
         print 'Processing Image Id:', image_id
         ## already downloaded images won't be downloaded twice - needed in processImage to catch any download
@@ -570,12 +558,11 @@ def processImage(mode, artist=None, image_id=None, dir=''): #Yavos added dir-arg
                 imageExtension = imageExtension.split('?')[0]
 
                 #Yavos: filename will be added here if given in list
-                if dir == '': #Yavos: use config-options
-                    filenameFormat = __config__.filenameFormat
+                filenameFormat = __config__.filenameFormat
+                if userDir == '': #Yavos: use config-options
                     targetDir = __config__.rootDirectory
                 else: #Yavos: use filename from list
-                    filenameFormat = __config__.filenameFormat.split('\\')[-1]
-                    targetDir = dir
+                    targetDir = userDir
 
                 filename = makeFilename(filenameFormat, image)
                 if image.imageMode == 'manga':
@@ -692,9 +679,12 @@ def processTags(mode, tags, page=1):
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
-def menu():
+def header():
     print 'PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION
     print PixivConstant.PIXIVUTIL_LINK
+    
+def menu():
+    header()
     print '1. Download by member_id'
     print '2. Download by image_id'
     print '3. Download by tags'
@@ -707,6 +697,8 @@ def menu():
 
 ### Main thread ###
 def main():
+    header()
+    
     ## Option Parser
     global npisvalid
     global opisvalid
@@ -727,24 +719,20 @@ def main():
         opisvalid = True
     elif op == None:
         opisvalid = False
-        #print 'no startaction given'
     else:
         opisvalid = False
-        #print 'invalid option: %s' % op
-        parser.error('%s is no operation' % op) #Yavos: use print option instead when program should be running even with this error
+        parser.error('%s is not valid operation' % op) #Yavos: use print option instead when program should be running even with this error
 
     ewd = options.exitwhendone
     try:
         if options.numberofpages != None:
             np = int(options.numberofpages)
             npisvalid = True
-            #print "ID", member_id, "is valid" 
         else:
             npisvalid = False
     except:
         npisvalid = False
-        #print "Value", options.numberofpages, " used for numberOfPage is no integer."
-        parser.error('Value %s used for numberOfPage is no integer.' % options.numberofpages) #Yavos: use print option instead when program should be running even with this error
+        parser.error('Value %s used for numberOfPage is not an integer.' % options.numberofpages) #Yavos: use print option instead when program should be running even with this error
     ### end new lines by Yavos ###
     
     __log__.info('Starting...')

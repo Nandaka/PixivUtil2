@@ -9,7 +9,7 @@ import traceback
 class PixivConfig:
     '''Configuration class'''
 
-    #default value
+    ## default value
     proxyAddress = ''
     proxy = {'http': proxyAddress}
     useProxy = False
@@ -38,12 +38,13 @@ class PixivConfig:
 
     alwaysCheckFileSize = True
     checkUpdatedLimit = 0
+    downloadAvatar = True
 
     cookie = ''
     
     #Yavos: added next three lines
     createDownloadLists = False
-    downloadListDirectory = '..'
+    downloadListDirectory = '.'
     startIrfanView = False
     startIrfanSlide = False
     IrfanViewPath = 'C:\Program Files\IrfanView'
@@ -159,6 +160,11 @@ class PixivConfig:
                 self.alwaysCheckFileSize = config.getboolean('Settings','alwaysCheckFileSize')
             except ValueError:
                 self.alwaysCheckFileSize = False
+
+            try:
+                self.downloadAvatar = config.getboolean('Settings','downloadAvatar')
+            except ValueError:
+                self.downloadAvatar = False
                 
             try:
                 self.checkUpdatedLimit = config.getint('Settings','checkUpdatedLimit')
@@ -207,6 +213,8 @@ class PixivConfig:
         config.set('Settings', 'startIrfanSlide', self.startIrfanSlide)
         config.set('Settings', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
         config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
+        config.set('Settings', 'downloadAvatar', self.downloadAvatar)
+        
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -249,6 +257,8 @@ class PixivConfig:
         print ' - startIrfanSlide =', self.startIrfanSlide
         print ' - alwaysCheckFileSize =', self.alwaysCheckFileSize
         print ' - checkUpdatedLimit =', self.checkUpdatedLimit
+        print ' - downloadAvatar =', self.downloadAvatar
+        
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage
