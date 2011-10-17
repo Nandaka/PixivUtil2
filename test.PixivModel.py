@@ -19,6 +19,21 @@ class TestPixivModel(unittest.TestCase):
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 363073)
 
+    def testPixivArtistProfileDataSrc(self):
+      print '\nTesting member page ProfileDataSrc'
+      p = open('./test/test-profile-datasrc.html', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+        artist = PixivArtist(1295112, page)
+        artist.PrintInfo()
+      except PixivModelException as ex:
+        print ex
+      page.decompose()
+      del page
+      self.assertNotEqual(artist, None)
+      self.assertEqual(artist.artistId, 1295112)
+      self.assertEqual(artist.artistToken, 'naoel')
+    
     def testPixivArtistNoImage(self):
       print '\nTesting member page - no image'
       p = open('./test/test-noimage.htm', 'r')

@@ -11,6 +11,7 @@ import logging
 import codecs
 
 from PixivModel import PixivListItem
+import PixivHelper
 
 class PixivDBManager:
     """Pixiv Database Manager"""
@@ -80,6 +81,7 @@ class PixivDBManager:
 ##########################################                    
     def importList(self,listTxt):
         print 'Importing list...',
+        print 'Found', len(listTxt),'items',
         try:
             c = self.conn.cursor()
             
@@ -167,7 +169,7 @@ class PixivDBManager:
             for row in c:
                 for string in row:
                     print '\t',
-                    self.safePrint(string)
+                    PixivHelper.safePrint(string)
                 print ''
                 i = i + 1
                 if i == 79:
@@ -202,7 +204,7 @@ class PixivDBManager:
                     for row in c:
                         for string in row:
                             print '   ',
-                            self.safePrint(string)
+                            PixivHelper.safePrint(string)
                         print ''
                 else :
                     return
@@ -214,7 +216,7 @@ class PixivDBManager:
                 for row in c:
                     for string in row:
                         print '   ',
-                        self.safePrint(string) #would it make more sense to set output to file?
+                        PixivHelper.safePrint(string) #would it make more sense to set output to file?
                     print ''    
             #Yavos: end of change
         except:
@@ -307,6 +309,22 @@ class PixivDBManager:
             raise
         finally:
             c.close()
+
+    def selectMemberByMemberId2(self, member_id):
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member WHERE member_id = ? ''', (member_id, ))
+            row = c.fetchone()
+            if row != None:
+                return PixivListItem(row[0], row[1])
+            else :
+                return PixivListItem(int(member_id),'')
+        except:
+            print 'Error at selectMemberByMemberId():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
             
     def printMembersByLastDownloadDate(self, difference):
         rows = self.selectMembersByLastDownloadDate(difference)
@@ -314,7 +332,7 @@ class PixivDBManager:
         for row in rows:
             for string in row:
                 print '   ',
-                self.safePrint(string)
+                PixivHelper.safePrint(string)
             print '\n'
     
     def updateMemberName(self, memberId, memberName):
@@ -492,12 +510,6 @@ class PixivDBManager:
 ##########################################
 ## VI. Utilities                        ##
 ##########################################
-    def safePrint(self,msg):
-        try:
-            print msg,
-        except UnicodeError:
-            print '',
-        return ' '
     def getInt(self, inputStr):
         inputInt = None
         while True:
@@ -550,7 +562,7 @@ class PixivDBManager:
                         for row in rows:
                             for string in row:
                                 print '\t\t',
-                                self.safePrint(string)
+                                PixivHelper.safePrint(string)
                             print '\n'
                     else :
                         print 'Not Found!\n'
@@ -560,7 +572,7 @@ class PixivDBManager:
                     if row != None:
                         for string in row:
                             print '\t\t',
-                            self.safePrint(string)
+                            PixivHelper.safePrint(string)
                         print '\n'
                     else :
                         print 'Not Found!\n'
@@ -570,7 +582,7 @@ class PixivDBManager:
                     if row != None:
                         for string in row:
                             print '\t\t',
-                            self.safePrint(string)
+                            PixivHelper.safePrint(string)
                         print '\n'
                     else :
                         print 'Not Found!\n'
@@ -581,7 +593,7 @@ class PixivDBManager:
                         for row in rows:
                             for string in row:
                                 print '\t\t',
-                                self.safePrint(string)
+                                PixivHelper.safePrint(string)
                             print '\n'
                     else :
                         print 'Not Found!\n'

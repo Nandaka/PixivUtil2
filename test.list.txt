@@ -1,0 +1,4 @@
+123456 C:\UserData\irawanad\PixivUtil\Images\123456
+23456
+234567 C:\UserData\irawanad\PixivUtil\Images\2345 67
+555 %root%\555

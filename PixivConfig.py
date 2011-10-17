@@ -36,11 +36,12 @@ class PixivConfig:
     retry = 3
     retryWait = 5
 
-    alwaysCheckFileSize = True
+    alwaysCheckFileSize = False
     checkUpdatedLimit = 0
     downloadAvatar = True
 
     cookie = ''
+    createMangaDir = False
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -120,6 +121,11 @@ class PixivConfig:
                 self.overwrite = config.getboolean('Settings','overwrite')
             except ValueError:
                 self.overwrite = False
+
+            try:
+                self.createMangaDir = config.getboolean('Settings','createMangaDir')
+            except ValueError:
+                self.createMangaDir = False
 
             try:
                 self.timeout = config.getint('Settings','timeout')
@@ -214,7 +220,7 @@ class PixivConfig:
         config.set('Settings', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
         config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
-        
+        config.set('Settings', 'createMangaDir', self.createMangaDir)
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -258,7 +264,7 @@ class PixivConfig:
         print ' - alwaysCheckFileSize =', self.alwaysCheckFileSize
         print ' - checkUpdatedLimit =', self.checkUpdatedLimit
         print ' - downloadAvatar =', self.downloadAvatar
-        
+        print ' - createMangaDir =', self.createMangaDir
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage

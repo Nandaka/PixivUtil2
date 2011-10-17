@@ -1,7 +1,9 @@
 20110922
 - by Nandaka
-  - update DBManager to save custom folder from list.txt
-  - fix download proxy error
+  - update DBManager to save custom folder from list.txt.
+  - fix download proxy error.
+  - change default value 'alwayscheckfilesize' to 'False'.
+  - refactor some method to new file.
 
 20110916
 - by Nandaka

@@ -1,8 +1,10 @@
 # -*- coding: UTF-8 -*-
-
-import re
-import xml.sax.saxutils as saxutils
 from BeautifulSoup import BeautifulSoup, Tag
+import os
+import re
+
+import PixivHelper
+import PixivDBManager
 
 class PixivArtist:
   artistId     = 0
@@ -48,8 +50,10 @@ class PixivArtist:
           if temp != None:
             tokens = temp.ul.findAll('li')
             for token in tokens:
-              artistToken = token.find('img')['data-src']
-              print artistToken
+              try:
+                artistToken = token.find('img')['data-src']
+              except:
+                artistToken = token.find('img')['src']
               artistToken = artistToken.split('/')[-2]
               if artistToken != 'common':
                 return artistToken
@@ -220,6 +224,7 @@ class PixivModelException(Exception):
     return repr(self.value)
 
 class PixivListItem:
+  '''Class for item in list.txt'''
   memberId = ""
   path = ""
 
@@ -231,7 +236,11 @@ class PixivListItem:
 
   @staticmethod
   def parseList(filename, rootDir=""):
+    '''read list.txt and return the list of PixivListItem'''
     l = list()
+
+    if not os.path.exists(filename) :
+      raise PixivModelException("File doesn't exists or no permission to read: " + filename)
 
     reader = open(filename, "r")
     for line in reader:
@@ -245,10 +254,10 @@ class PixivListItem:
           path = path.replace('\"', '')
           if re.match(r'[a-zA-Z]:', path):
               dirpath = path.split('\\', 1)
-              dirpath[1] = PixivListItem.sanitizeFilename(dirpath[1], rootDir)
+              dirpath[1] = PixivHelper.sanitizeFilename(dirpath[1], rootDir)
               path = '\\'.join(dirpath)
           else:
-              path = PixivListItem.sanitizeFilename(path, rootDir)
+              path = PixivHelper.sanitizeFilename(path, rootDir)
           path = path.replace('%root%', rootDir)
           path = path.replace('\\\\', '\\')
 
@@ -258,23 +267,15 @@ class PixivListItem:
     reader.close()        
     return l
 
+class PixivBookmark:
   @staticmethod
-  def sanitizeFilename(s, rootDir):
-    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
-    __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
-    s = saxutils.unescape(s)
-    name= __badchars__.sub('_', s)
-    if __badnames__.match(name):
-        name= '_'+name
+  def parseBookmark(page):
+    l = list()
+    db = PixivDBManager.PixivDBManager()
+    result = page.find(attrs={'class':'list_box'}).findAll('input')
+    for r in result:
+      item = db.selectMemberByMemberId2(r['value'])
+      print item.memberId, " path:", item.path
+      l.append(item)
 
-    #Yavos: when foldername ends with "." PixivUtil won't find it
-    while name.find('.\\') != -1:
-        name = name.replace('.\\','\\')
-
-    ## cut to 255 char
-    pathLen = len(rootDir) + 1
-    if len(name) + pathLen > 255:
-        newLen = 250 - pathLen
-        name = name[:newLen]
-    return name.strip()
-
+    return l

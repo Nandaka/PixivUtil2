@@ -25,7 +25,8 @@ import cookielib
 import PixivConstant
 import PixivConfig
 import PixivDBManager
-from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem
+import PixivHelper
+from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark
 
 ##import pprint
 
@@ -59,41 +60,15 @@ __formatter__  = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(m
 __logHandler__.setFormatter(__formatter__)
 __log__.addHandler(__logHandler__)
 
-__badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"') #|\'') #Yavos: excluded ' from forbidden symbols (don't know why you did this anyway)
-__badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
-
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
-__re_illust = re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+__re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+##__re_manga_page = re.compile(r'(_p\d+)\.');
 
 ### Utilities function ###
 def clearall():
     all = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clearall"]
     for var in all:
         del globals()[var]
-
-#-T01------------Sanitize filename (windows)
-def sanitizeFilename(s):
-    s = saxutils.unescape(s)
-    name= __badchars__.sub('_', s)
-    if __badnames__.match(name):
-        name= '_'+name
-    #Yavos: when foldername ends with "." PixivUtil won't find it
-    while name.find('.\\') != -1:
-        name = name.replace('.\\','\\')
-    ## cut to 255 char
-    pathLen = len(__config__.rootDirectory) + 1
-    if len(name) + pathLen > 255:
-        newLen = 250 - pathLen
-        name = name[:newLen]
-    return name
-
-#-T02------------Safe print
-def safePrint(msg):
-    try:
-        print msg,
-    except UnicodeError:
-        print '',
-    return ' '
 
 def dumpHtml(filename, html):
     try:
@@ -110,22 +85,6 @@ def printAndLog(level, msg):
     elif level == 'error':
         __log__.error(msg)
 
-#-T03------for defining filename
-def makeFilename(nameFormat, imageInfo, artistInfo=None):
-    if artistInfo == None:
-        artistInfo = imageInfo.artist
-    nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace('\\','_'))
-    nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace('\\','_'))
-    nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
-    nameFormat = nameFormat.replace('%member_id%',str(artistInfo.artistId))
-    nameFormat = nameFormat.replace('%member_token%',artistInfo.artistToken)
-    if __config__.tagsSeparator == '%space%':
-        __config__.tagsSeparator = ' '
-    tags = __config__.tagsSeparator.join(imageInfo.imageTags)
-    nameFormat = nameFormat.replace('%tags%',tags.replace('\\','_'))
-    nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
-    return nameFormat
-
 #-T04------For download file
 def downloadImage(url, filename, referer, overwrite, retry):
     try:
@@ -138,7 +97,8 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             br2 = Browser()
             br2.set_cookiejar(__cj__)
-            br2.set_proxies(__config__.proxy)
+            if __config__.useProxy:
+                br2.set_proxies(__config__.proxy)
             br2.set_handle_robots(__config__.useRobots)
             
             res = br2.open(req)
@@ -166,7 +126,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 save = file(filename + '.pixiv', 'wb+', 4096)
             except IOError:
                 msg = 'Error at downloadImage(): Cannot save ' + url +' to ' + filename + ' ' + str(sys.exc_info())
-                safePrint(msg)
+                PixivHelper.safePrint(msg)
                 __log__.error(unicode(msg))
                 save = file(os.path.split(url)[1], 'wb+', 4096)
 
@@ -365,7 +325,7 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                         print t,
                         time.sleep(1)
                     print ''
-            print 'Member Name  :', safePrint(artist.artistName)
+            print 'Member Name  :', PixivHelper.safePrint(artist.artistName)
             print 'Member Avatar:', artist.artistAvatar
             print 'Member Token :', artist.artistToken
 
@@ -378,8 +338,8 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                     targetDir = userDir
                 filenameFormat = filenameFormat.split('\\')[0]
                 image = PixivImage(parent=artist)
-                filename = makeFilename(filenameFormat, image)
-                filename = sanitizeFilename(filename)
+                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
+                filename = PixivHelper.sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
                 filename = filename.replace('\\\\', '\\')
                 result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
@@ -480,8 +440,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     if mediumPage != None :
                         dumpHtml('Error page for image ' + str(image_id) + '.html', mediumPage.get_data())
                     return
-        print "Title:", safePrint(image.imageTitle)
-        print "Tags :", safePrint(', '.join(image.imageTags))
+        print "Title:", PixivHelper.safePrint(image.imageTitle)
+        print "Tags :", PixivHelper.safePrint(', '.join(image.imageTags))
         print "Mode :", image.imageMode
         
         errorCount = 0
@@ -529,14 +489,19 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 else: #Yavos: use filename from list
                     targetDir = userDir
 
-                filename = makeFilename(filenameFormat, image)
+                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
                 if image.imageMode == 'manga':
                     filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
-                filename = sanitizeFilename(filename)
+                filename = PixivHelper.sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename
                 filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
-                print 'Filename  :', safePrint(filename)
+
+                if image.imageMode == 'manga' and __config__.createMangaDir :
+                    mangaPage = filename.split("_p");##__re_manga_page.findall(filename)
+                    filename = mangaPage[0] + "\\_p" + mangaPage[1]
+                    
+                print 'Filename  :', PixivHelper.safePrint(filename)
                 result = -1
    
                 if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
@@ -644,6 +609,21 @@ def processTags(mode, tags, page=1):
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
+def processBookmark(mode):
+    try:
+        print "Importing Bookmarks..."
+        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        print "Result: ", str(len(l)), "items."        
+        for item in l:
+            processMember(mode, item.memberId, item.path)
+
+    except :
+        print 'Error at processBookmark():',sys.exc_info()
+        __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
+        raise
+    
 def header():
     print 'PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION
     print PixivConstant.PIXIVUTIL_LINK
@@ -654,8 +634,9 @@ def menu():
     print '2. Download by image_id'
     print '3. Download by tags'
     print '4. Download from list'
+    print '5. Download from bookmark'
     print '------------------------'
-    print '5. Manage database'
+    print 'd. Manage database'
     print 'x. Exit'
     
     return raw_input('Input: ')
@@ -739,6 +720,7 @@ def main():
         if __config__.useList :
             listTxt = PixivListItem.parseList(__config__.downloadListDirectory+'\\list.txt')
             __dbManager__.importList(listTxt)
+            print "Updated " + str(len(listTxt)) + " items."
 
         if __config__.useProxy :
             msg = 'Using proxy: ' + __config__.proxyAddress
@@ -836,6 +818,9 @@ def main():
                     __log__.info('Batch mode.')
                     processList(mode)
                 elif selection == '5':
+                    __log__.info('Bookmark mode.')
+                    processBookmark(mode)
+                elif selection == 'd':
                     __dbManager__.main()
                 elif selection == '-all':
                     if npisvalid == False:
