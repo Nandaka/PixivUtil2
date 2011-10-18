@@ -58,6 +58,7 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be down
  		       -> Override the overwrite and image_id checking from db (always fetch the image page for checking the size)
 checkUpdatedLimit     ==> Number of already downloaded image to be check before move to the next member. alwaysCheckFileSize must be set to False.
 createDownloadLists   ==> set to <True> to automatically create download-lists
+createmangadir  ==> Create a directory if the imageMode is manga. The directory is created by splitting the image_id by '_pxx' pattern.
 downloadListDirectory ==> set directory for download-lists needed for createDownloadLists and IrfanView-Handling
 	               -> if leaved blank it will create download-lists in pixivUtil-directory
 startIrfanView  ==> set to <True> to start IrfanView with downloaded images when exiting pixivUtil

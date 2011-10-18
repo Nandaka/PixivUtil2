@@ -275,7 +275,7 @@ class PixivBookmark:
     result = page.find(attrs={'class':'list_box'}).findAll('input')
     for r in result:
       item = db.selectMemberByMemberId2(r['value'])
-      print item.memberId, " path:", item.path
+      ##print item.memberId, " path:", item.path
       l.append(item)
 
     return l

@@ -1,3 +1,9 @@
+20111017
+- by Nandaka
+  - Add download by user bookmark.
+  - Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is 
+    from the page marker '_p##'+ file extension.
+
 20110922
 - by Nandaka
   - update DBManager to save custom folder from list.txt.
