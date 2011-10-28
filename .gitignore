@@ -9,4 +9,5 @@ list.txt
 db.sqlite
 *.pyc
 *.zip
+*.7z
 
