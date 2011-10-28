@@ -33,7 +33,10 @@ class PixivArtist:
   def ParseInfo(self, page, fromImage=False):
     temp = str(page.find(attrs={'class':'f18b'}).find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
-    self.artistName = unicode(page.h2.span.a.string.extract())
+    try:
+      self.artistName = unicode(page.h2.span.a.string.extract())
+    except:
+      self.artistName = unicode(page.findAll(attrs={"class":"avatar_m"})[0]["title"])
     self.artistAvatar = str(page.find(attrs={'class':'avatar_m'}).find('img')['src'])
     self.artistToken = self.ParseToken(page, fromImage)
       
@@ -275,7 +278,17 @@ class PixivBookmark:
     result = page.find(attrs={'class':'list_box'}).findAll('input')
     for r in result:
       item = db.selectMemberByMemberId2(r['value'])
-      ##print item.memberId, " path:", item.path
       l.append(item)
 
     return l
+
+  @staticmethod
+  def exportList(l, filename):
+    from datetime import datetime
+    writer = open(filename, 'w')
+    writer.write('###Export date: ' + str(datetime.today()) +'###\n')
+    for item in l:
+        writer.write(str(item.memberId) + " " + str(item.path))
+        writer.write('\n')
+    writer.write('###END-OF-FILE###')
+    writer.close()

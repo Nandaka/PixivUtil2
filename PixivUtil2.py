@@ -62,7 +62,7 @@ __log__.addHandler(__logHandler__)
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-__re_manga_page = re.compile(r'((_big)?_p\d+)')
+##__re_manga_page = re.compile(r'(_p\d+)\.');
 
 ### Utilities function ###
 def clearall():
@@ -491,15 +491,15 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
                 filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
                 if image.imageMode == 'manga':
-                    if __config__.createMangaDir:
-                        mangaPage = str(__re_manga_page.findall(splittedUrl[0])[0][0])
-                        filename = filename + '\\' + mangaPage
-                    else:
-                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
+                    filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
                 filename = PixivHelper.sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename
                 filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
+
+                if image.imageMode == 'manga' and __config__.createMangaDir :
+                    mangaPage = filename.split("_p");##__re_manga_page.findall(filename)
+                    filename = mangaPage[0] + "\\_p" + mangaPage[1]
                     
                 print 'Filename  :', PixivHelper.safePrint(filename)
                 result = -1
@@ -612,26 +612,28 @@ def processTags(mode, tags, page=1):
 def processBookmark(mode):
     try:
         print "Importing Bookmarks..."
-        l_all = list()
-        p = 1
-        while True:
-            print "Fetching page",p
-            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user&p='+str(p))
-            parsePage = BeautifulSoup(page.read())
-            l = PixivBookmark.parseBookmark(parsePage)
-            p = p + 1
-            if len(l) == 0:
-                print "No more bookmark!"
-                break
-            else:
-                l_all.extend(l)
-        print "Result: ", str(len(l_all)), "bookmarks."        
-        for item in l_all:
+        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        print "Result: ", str(len(l)), "items."        
+        for item in l:
             processMember(mode, item.memberId, item.path)
 
     except :
         print 'Error at processBookmark():',sys.exc_info()
         __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
+        raise
+
+def exportBookmark(filename):
+    try:
+        print "Importing Bookmarks..."
+        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        PixivBookmark.exportList(l, filename)
+    except :
+        print 'Error at exportBookmark():',sys.exc_info()
+        __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
         raise
     
 def header():
@@ -647,6 +649,7 @@ def menu():
     print '5. Download from bookmark'
     print '------------------------'
     print 'd. Manage database'
+    print 'e. Export bookmark'
     print 'x. Exit'
     
     return raw_input('Input: ')
@@ -663,7 +666,7 @@ def main():
     global op
     
     parser = OptionParser()
-    parser.add_option('-s', '--startaction', dest='startaction', help='Action you want to load your program with: 1 "Download by member_id", 2 - "Download by image_id", 3 - "Download by tags", 4 - "Download from list", 5 - "Download from user bookmark"')
+    parser.add_option('-s', '--startaction', dest='startaction', help='Action you want to load your program with: 1 "Download by member_id", 2 - "Download by image_id", 3 - "Download by tags", 4 - "Download from list", 5 - "Manage database"')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone', help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
     parser.add_option('-i', '--irfanview', dest='iv', help='start IrfanView after downloading images using downloaded_on_%date%.txt', action='store_true', default=False)
     parser.add_option('-n', '--numberofpages', dest='numberofpages', help='overwrites numberOfPage set in config.ini')
@@ -830,6 +833,10 @@ def main():
                 elif selection == '5':
                     __log__.info('Bookmark mode.')
                     processBookmark(mode)
+                elif selection == 'e':
+                    __log__.info('Export Bookmark mode.')
+                    filename = raw_input("Filename ?");
+                    exportBookmark(filename)
                 elif selection == 'd':
                     __dbManager__.main()
                 elif selection == '-all':
