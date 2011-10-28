@@ -544,7 +544,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
-def processTags(mode, tags, page=1, limit=0):
+def processTags(mode, tags, page=1):
     try:
         msg = 'Searching for tags '+tags
         print msg
@@ -584,9 +584,6 @@ def processTags(mode, tags, page=1, limit=0):
             __br__.clear_history()
 
             i = i + 1
-            if limit != 0 and i > limit:
-                print "Page limit reached! Breaking..."
-                return
 
             parseSearchPage.decompose()
             del parseSearchPage
@@ -603,12 +600,12 @@ def processTags(mode, tags, page=1, limit=0):
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
-def processTagsList(mode, filename, page=1, limit=0):
+def processTagsList(mode, filename, page=1):
     try:
         print "Reading",filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            processTags(mode, tag, page, limit)
+            processTags(mode, tag, page)
     except:
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
@@ -832,8 +829,7 @@ def main():
                     else:
                         tags = raw_input('Tags: ') #Yavos: end
                         page  = raw_input('Start Page: ') or 1
-                        limit = raw_input('Limit     : ') or 0
-                    processTags(mode, tags, int(page), int(limit))
+                    processTags(mode, tags, int(page))
                 elif selection == '4':
                     __log__.info('Batch mode.')
                     processList(mode)
@@ -842,10 +838,9 @@ def main():
                     processBookmark(mode)
                 elif selection == '6':
                     __log__.info('Taglist mode.')
-                    filename = raw_input("Tags filename: ")
+                    filename = raw_input("Tags list filename: ")
                     page  = raw_input('Start Page: ') or 1
-                    limit = raw_input('Limit     : ') or 0
-                    processTagsList(mode, filename, int(page), int(limit))
+                    processTagsList(mode, filename, int(page))
                 elif selection == 'e':
                     __log__.info('Export Bookmark mode.')
                     filename = raw_input("Filename: ")

@@ -1,3 +1,13 @@
+20111028
+- by Nandaka
+  - Fix artist name parsing.
+  - Add download by tag list. 
+    - Separate each tags by space or paste the encoded query string. 
+    - Separate with new line for each query.
+  - Add Export user bookmarks.
+  - Add Database cleanup. Go to Manage Database -> Clean Up Database.
+  - Refactor Download by tags.
+
 20111017
 - by Nandaka
   - Add download by user bookmark.
