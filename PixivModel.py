@@ -4,7 +4,6 @@ import os
 import re
 
 import PixivHelper
-import PixivDBManager
 
 class PixivArtist:
   artistId     = 0
@@ -271,6 +270,8 @@ class PixivListItem:
     return l
 
 class PixivBookmark:
+  import PixivDBManager
+  
   @staticmethod
   def parseBookmark(page):
     l = list()

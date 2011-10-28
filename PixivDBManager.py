@@ -507,6 +507,27 @@ class PixivDBManager:
         finally:
             c.close()
 
+    def cleanUp(self):
+        import os
+        try:
+            print "Start clean-up operation."
+            print "Selecting all images, this may take some times."
+            c = self.conn.cursor()
+            c.execute('''SELECT image_id, save_name from pixiv_master_image''')
+            print "Checking images."
+            for row in c:
+                #print row[0],"==>",row[1]
+                if not os.path.exists(row[1]):
+                    PixivHelper.safePrint("Missing: " + str(row[0]) + " at " + row[1] + "\n")
+                    self.deleteImage(row[0])                
+            self.conn.commit()
+        except:
+            print 'Error at cleanUp():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
+
 ##########################################
 ## VI. Utilities                        ##
 ##########################################
@@ -535,7 +556,8 @@ class PixivDBManager:
         print '10. Delete image by image_id'
         print '11. Delete member and image (cascade deletion)'
         print '12. Blacklist image by image_id'
-        
+        print '==============================================='
+        print 'c. Clean Up Database'
         print 'x. Exit'
         selection = raw_input('Select one?')
         return selection
@@ -610,7 +632,8 @@ class PixivDBManager:
                     member_id = raw_input('member_id? ')
                     image_id = raw_input('image_id? ')
                     self.blacklistImage(member_id, image_id)
-                    
+                if selection == 'c':
+                    self.cleanUp()
                 if selection == 'x':
                     break
             print 'end PixivDBManager.'
