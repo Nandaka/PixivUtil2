@@ -4,7 +4,6 @@ import os
 import re
 
 import PixivHelper
-import PixivDBManager
 
 class PixivArtist:
   artistId     = 0
@@ -33,7 +32,10 @@ class PixivArtist:
   def ParseInfo(self, page, fromImage=False):
     temp = str(page.find(attrs={'class':'f18b'}).find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
-    self.artistName = unicode(page.h2.span.a.string.extract())
+    try:
+      self.artistName = unicode(page.h2.span.a.string.extract())
+    except:
+      self.artistName = unicode(page.findAll(attrs={"class":"avatar_m"})[0]["title"])
     self.artistAvatar = str(page.find(attrs={'class':'avatar_m'}).find('img')['src'])
     self.artistToken = self.ParseToken(page, fromImage)
       
@@ -268,6 +270,8 @@ class PixivListItem:
     return l
 
 class PixivBookmark:
+  import PixivDBManager
+  
   @staticmethod
   def parseBookmark(page):
     l = list()
@@ -275,7 +279,50 @@ class PixivBookmark:
     result = page.find(attrs={'class':'list_box'}).findAll('input')
     for r in result:
       item = db.selectMemberByMemberId2(r['value'])
-      ##print item.memberId, " path:", item.path
       l.append(item)
 
+    return l
+
+  @staticmethod
+  def exportList(l, filename):
+    from datetime import datetime
+    writer = open(filename, 'w')
+    writer.write('###Export date: ' + str(datetime.today()) +'###\n')
+    for item in l:
+        writer.write(str(item.memberId) + " " + str(item.path))
+        writer.write('\n')
+    writer.write('###END-OF-FILE###')
+    writer.close()
+
+class PixivTags:
+  imageList = list()
+  
+  def parseTags(self, page):
+    __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+    linkList = page.findAll('a')
+    for link in linkList:
+      link.extract()
+      if link.has_key('href') :
+        result = __re_illust.findall(link['href'])
+        if len(result) > 0 :
+          image_id = int(result[0])
+          self.imageList.append(image_id)
+          
+    return self.imageList
+ 
+  @staticmethod
+  def parseTagsList(filename):
+    '''read tags.txt and return the tags list'''
+    l = list()
+
+    if not os.path.exists(filename) :
+      raise PixivModelException("File doesn't exists or no permission to read: " + filename)
+
+    reader = open(filename, "r")
+    for line in reader:
+        if line.startswith('#') or len(line) < 1:
+          continue
+        l.append(line.strip())
+
+    reader.close()        
     return l

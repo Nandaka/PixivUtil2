@@ -26,7 +26,7 @@ import PixivConstant
 import PixivConfig
 import PixivDBManager
 import PixivHelper
-from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark
+from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags
 
 ##import pprint
 
@@ -62,7 +62,7 @@ __log__.addHandler(__logHandler__)
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-__re_manga_page = re.compile(r'((_big)?_p\d+)')
+##__re_manga_page = re.compile(r'(_p\d+)\.');
 
 ### Utilities function ###
 def clearall():
@@ -491,15 +491,15 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
                 filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
                 if image.imageMode == 'manga':
-                    if __config__.createMangaDir:
-                        mangaPage = str(__re_manga_page.findall(splittedUrl[0])[0][0])
-                        filename = filename + '\\' + mangaPage
-                    else:
-                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
+                    filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
                 filename = PixivHelper.sanitizeFilename(filename)
                 filename = targetDir + '\\' + filename
                 filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
+
+                if image.imageMode == 'manga' and __config__.createMangaDir :
+                    mangaPage = filename.split("_p");##__re_manga_page.findall(filename)
+                    filename = mangaPage[0] + "\\_p" + mangaPage[1]
                     
                 print 'Filename  :', PixivHelper.safePrint(filename)
                 result = -1
@@ -544,13 +544,11 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
-def processTags(mode, tags, page=1):
+def processTags(mode, tags, page=1, limit=0):
     try:
         msg = 'Searching for tags '+tags
         print msg
         __log__.info(msg)
-        #tags = tags.replace('　','+')
-        #tags = tags.replace(' ','+')
         if not tags.startswith("%") :
             ## Encode the tags
             tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
@@ -560,40 +558,36 @@ def processTags(mode, tags, page=1):
         while True:
             url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags
             print 'Looping... for '+ url
-            searchPage = __br__.open(url)#'http://www.pixiv.net/search.php?s_mode=s_tag&word='+tags+'&p='+str(i))
+            searchPage = __br__.open(url)
 
             parseSearchPage = BeautifulSoup(searchPage.read())
+            t = PixivTags()
+            l = t.parseTags(parseSearchPage)
             
-            ##linkList = parseSearchPage.find('div', { "class" : "search_a2_result linkStyleWorks" }).findAll('a')
-            linkList = parseSearchPage.findAll('a')
-            if len(linkList) == 0 :
+            if len(l) == 0 :
                 print 'No more images'
                 break
             else:
-                for link in linkList:
-                    link.extract()
-                    if link.has_key('href') :
-                        result = __re_illust.findall(link['href'])
-                        if len(result) > 0 :
-                            print 'href: ' + link['href']
-                            print 'Image #'+str(images)
-                            image_id = int(result[0])
-                            print 'Image id:', image_id
-                            while True:
-                                try:
-                                    processImage(mode, None, image_id)
-                                    break;
-                                except httplib.BadStatusLine:
-                                    print "Stuff happened, trying again after 2 second..."
-                                    time.sleep(2)
-                                
-                            images = images + 1
+                for image_id in l:
+                    print 'Image #'+str(images)
+                    print 'Image id:', image_id
+                    while True:
+                        try:
+                            processImage(mode, None, image_id)
+                            break;
+                        except httplib.BadStatusLine:
+                            print "Stuff happened, trying again after 2 second..."
+                            time.sleep(2)
+                        
+                    images = images + 1
 
             __br__.clear_history()
 
             i = i + 1
+            if limit != 0 and i > limit:
+                print "Page limit reached! Breaking..."
+                return
 
-            del linkList
             parseSearchPage.decompose()
             del parseSearchPage
             del searchPage
@@ -609,29 +603,42 @@ def processTags(mode, tags, page=1):
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
+def processTagsList(mode, filename, page=1, limit=0):
+    try:
+        print "Reading",filename
+        l = PixivTags.parseTagsList(filename)
+        for tag in l:
+            processTags(mode, tag, page, limit)
+    except:
+        print 'Error at processTagsList():',sys.exc_info()
+        __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
+        raise
+    
 def processBookmark(mode):
     try:
         print "Importing Bookmarks..."
-        l_all = list()
-        p = 1
-        while True:
-            print "Fetching page",p
-            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user&p='+str(p))
-            parsePage = BeautifulSoup(page.read())
-            l = PixivBookmark.parseBookmark(parsePage)
-            p = p + 1
-            if len(l) == 0:
-                print "No more bookmark!"
-                break
-            else:
-                l_all.extend(l)
-        print "Result: ", str(len(l_all)), "bookmarks."        
-        for item in l_all:
+        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        print "Result: ", str(len(l)), "items."        
+        for item in l:
             processMember(mode, item.memberId, item.path)
 
     except :
         print 'Error at processBookmark():',sys.exc_info()
         __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
+        raise
+
+def exportBookmark(filename):
+    try:
+        print "Importing Bookmarks..."
+        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        PixivBookmark.exportList(l, filename)
+    except :
+        print 'Error at exportBookmark():',sys.exc_info()
+        __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
         raise
     
 def header():
@@ -645,8 +652,10 @@ def menu():
     print '3. Download by tags'
     print '4. Download from list'
     print '5. Download from bookmark'
+    print '6. Download from tags list'
     print '------------------------'
     print 'd. Manage database'
+    print 'e. Export bookmark'
     print 'x. Exit'
     
     return raw_input('Input: ')
@@ -663,7 +672,7 @@ def main():
     global op
     
     parser = OptionParser()
-    parser.add_option('-s', '--startaction', dest='startaction', help='Action you want to load your program with: 1 "Download by member_id", 2 - "Download by image_id", 3 - "Download by tags", 4 - "Download from list", 5 - "Download from user bookmark"')
+    parser.add_option('-s', '--startaction', dest='startaction', help='Action you want to load your program with: 1 "Download by member_id", 2 - "Download by image_id", 3 - "Download by tags", 4 - "Download from list", 5 - "Manage database"')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone', help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
     parser.add_option('-i', '--irfanview', dest='iv', help='start IrfanView after downloading images using downloaded_on_%date%.txt', action='store_true', default=False)
     parser.add_option('-n', '--numberofpages', dest='numberofpages', help='overwrites numberOfPage set in config.ini')
@@ -821,15 +830,26 @@ def main():
                     if opisvalid and len(args) > 0: #Yavos: start
                         tags = " ".join(args)
                     else:
-                        tags = raw_input('tags: ') #Yavos: end
-                        page = raw_input('Start Page: ')
-                    processTags(mode, tags, int(page))
+                        tags = raw_input('Tags: ') #Yavos: end
+                        page  = raw_input('Start Page: ') or 1
+                        limit = raw_input('Limit     : ') or 0
+                    processTags(mode, tags, int(page), int(limit))
                 elif selection == '4':
                     __log__.info('Batch mode.')
                     processList(mode)
                 elif selection == '5':
                     __log__.info('Bookmark mode.')
                     processBookmark(mode)
+                elif selection == '6':
+                    __log__.info('Taglist mode.')
+                    filename = raw_input("Tags filename: ")
+                    page  = raw_input('Start Page: ') or 1
+                    limit = raw_input('Limit     : ') or 0
+                    processTagsList(mode, filename, int(page), int(limit))
+                elif selection == 'e':
+                    __log__.info('Export Bookmark mode.')
+                    filename = raw_input("Filename: ")
+                    exportBookmark(filename)
                 elif selection == 'd':
                     __dbManager__.main()
                 elif selection == '-all':
