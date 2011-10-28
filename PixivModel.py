@@ -292,3 +292,36 @@ class PixivBookmark:
         writer.write('\n')
     writer.write('###END-OF-FILE###')
     writer.close()
+
+class PixivTags:
+  imageList = list()
+  
+  def parseTags(self, page):
+    __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+    linkList = page.findAll('a')
+    for link in linkList:
+      link.extract()
+      if link.has_key('href') :
+        result = __re_illust.findall(link['href'])
+        if len(result) > 0 :
+          image_id = int(result[0])
+          self.imageList.append(image_id)
+          
+    return self.imageList
+ 
+  @staticmethod
+  def parseTagsList(filename):
+    '''read tags.txt and return the tags list'''
+    l = list()
+
+    if not os.path.exists(filename) :
+      raise PixivModelException("File doesn't exists or no permission to read: " + filename)
+
+    reader = open(filename, "r")
+    for line in reader:
+        if line.startswith('#') or len(line) < 1:
+          continue
+        l.append(line.strip())
+
+    reader.close()        
+    return l
