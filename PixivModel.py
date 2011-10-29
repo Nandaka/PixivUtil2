@@ -210,10 +210,12 @@ class PixivImage:
     for script in scripts:
       string += str(script)
     pattern = re.compile('http.*?\d+_p\d+\..{3}')
+    pattern2 = re.compile('http.*?(\d+_p\d+)\..{3}')
     m = pattern.findall(string)
     for img in m:
       temp = str(img)
-      temp = temp.replace('_p', '_big_p')
+      m2 = pattern2.findall(temp)         ## 1234_p0
+      temp = temp.replace(m2[0], m2[0].replace('_p', '_big_p')) 
       urls.append(temp)
       temp = str(img)
       urls.append(temp)

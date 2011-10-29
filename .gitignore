@@ -12,4 +12,4 @@ db.sqlite
 *.7z
 image*.html
 error*.html
-
+*.source*/*

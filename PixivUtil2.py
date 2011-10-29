@@ -62,7 +62,7 @@ __log__.addHandler(__logHandler__)
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-##__re_manga_page = re.compile(r'(_p\d+)\.');
+__re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
 ### Utilities function ###
 def clearall():
@@ -498,9 +498,11 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
 
                 if image.imageMode == 'manga' and __config__.createMangaDir :
-                    mangaPage = filename.split("_p");##__re_manga_page.findall(filename)
-                    filename = mangaPage[0] + "\\_p" + mangaPage[1]
-                    
+                    mangaPage = __re_manga_page.findall(filename)
+                    splittedFilename = filename.split(mangaPage[0][0],1)
+                    splittedMangaPage = mangaPage[0][0].split("_p",1)
+                    filename = splittedFilename[0] + splittedMangaPage[0] + "\\_p" + splittedMangaPage[1] + splittedFilename[1]
+
                 print 'Filename  :', PixivHelper.safePrint(filename)
                 result = -1
    
