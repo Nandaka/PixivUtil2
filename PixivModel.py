@@ -270,10 +270,10 @@ class PixivListItem:
     return l
 
 class PixivBookmark:
-  import PixivDBManager
-  
+
   @staticmethod
   def parseBookmark(page):
+    import PixivDBManager
     l = list()
     db = PixivDBManager.PixivDBManager()
     result = page.find(attrs={'class':'list_box'}).findAll('input')

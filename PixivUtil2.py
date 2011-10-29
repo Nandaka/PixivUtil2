@@ -614,11 +614,18 @@ def processTagsList(mode, filename, page=1):
 def processBookmark(mode):
     try:
         print "Importing Bookmarks..."
-        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
-        parsePage = BeautifulSoup(page.read())
-        l = PixivBookmark.parseBookmark(parsePage)
-        print "Result: ", str(len(l)), "items."        
-        for item in l:
+        totalList = list()
+        i = 1
+        while True:
+            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user&p='+str(i))
+            parsePage = BeautifulSoup(page.read())
+            l = PixivBookmark.parseBookmark(parsePage)
+            if len(l) == 0:
+                break
+            totalList.extend(l)
+            i = i + 1
+        print "Result: ", str(len(totalList)), "items."        
+        for item in totalList:
             processMember(mode, item.memberId, item.path)
 
     except :
@@ -628,11 +635,19 @@ def processBookmark(mode):
 
 def exportBookmark(filename):
     try:
-        print "Importing Bookmarks..."
-        page = __br__.open('http://www.pixiv.net/bookmark.php?type=user')
-        parsePage = BeautifulSoup(page.read())
-        l = PixivBookmark.parseBookmark(parsePage)
-        PixivBookmark.exportList(l, filename)
+        print "Importing Bookmarks..." 
+        totalList = list()
+        i = 1
+        while True:
+            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user7p='+str(i))
+            parsePage = BeautifulSoup(page.read())
+            l = PixivBookmark.parseBookmark(parsePage)
+            if len(l) == 0:
+                break
+            totalList.extend(l)
+            i = i + 1
+        print "Result: ", str(len(totalList)), "items."
+        PixivBookmark.exportList(totalList, filename)
     except :
         print 'Error at exportBookmark():',sys.exc_info()
         __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))

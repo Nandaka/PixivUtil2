@@ -10,4 +10,6 @@ db.sqlite
 *.pyc
 *.zip
 *.7z
+image*.html
+error*.html
 
