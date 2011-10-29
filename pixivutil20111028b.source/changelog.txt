@@ -1,0 +1,147 @@
+20111028
+- by Nandaka
+  - Fix artist name parsing.
+  - Add download by tag list. 
+    - Separate each tags by space or paste the encoded query string. 
+    - Separate with new line for each query.
+  - Add Export user bookmarks.
+  - Add Database cleanup. Go to Manage Database -> Clean Up Database.
+  - Refactor Download by tags.
+  - Fix bookmark processing if more than 1 page (20111028b).
+
+20111017
+- by Nandaka
+  - Add download by user bookmark.
+  - Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is 
+    from the page marker '_p##'+ file extension.
+
+20110922
+- by Nandaka
+  - update DBManager to save custom folder from list.txt.
+  - fix download proxy error.
+  - change default value 'alwayscheckfilesize' to 'False'.
+  - refactor some method to new file.
+
+20110916
+- by Nandaka
+  - Fix filename bug if you are using member_id=directory format in the list.txt.
+  - Add option 'downloadavatar' to download artist profile avatar.
+
+20110911
+- by Nandaka
+  - Update Login process.
+  - Add filesize checking when downloading avatar image.
+  - Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory(). 
+    For downloading still using the default factory because there is a problem (ValueError: invalid literal for int() 
+    with base 10: 'some_chars') if using robust factory (20110911b).
+  - Fix artist token parser when there is no profile image (20110911b).
+
+20110821
+- by Nandaka
+  - Fix filename for manga mode.
+  - Add strip() for list.txt parsing.
+  - Fix downloadlistdirectory parsing for list.txt.
+  - Update exception handling so the console window doesn't immidiately closed.
+  - Update the readme.txt.
+  - Fix DB saving (20110821b).
+
+20110729
+- by Nandaka
+  - add auto save cookie from login.
+  - refactor parsing logic to the PixivModel.
+  - update Python version to 2.7.2
+  - update mechanize version to 0.2.5
+  - update BeautifulSoup version to 3.2.0
+  - add unittest for the parsing logic
+  - fix 404 in big_manga mode (20110729b).
+
+20110708
+- by Nandaka
+  - Add cookie option for log in as requested by Demonoid.
+  - Add __br__.clear_history() in the processList
+
+20110513:
+- by Nandaka
+  - Update ProcessByTags: Update with pixiv UI change, now based on regular expression to evaluate the links.
+
+20110502:
+- by Nandaka
+  - Update ProcessByTags: handle already encoded tags (prefixed with %).
+
+20110327:
+- by Nandaka
+  - Fixing the error handler, now it will be trying for number of times (set in the config.ini).
+  - Enable dumping the html page again, if the app cannot dumping the page, it will be listed in the log file.
+
+20110227b:
+- by Nandaka
+  - Update download by tags to accept kana.
+
+20110227:
+- by Nandaka
+  - handle httplib.BadStatusLine
+  - fix download by tag as informed by Sandoi&bububu.
+  - add start page in procress by tag.
+
+20110205:
+- by Nandaka
+  - add permission check for downloading image.
+  - fix overwrite mode.
+  - fix big manga again.
+
+20110202 v2:
+- by Nandaka
+  - Fix big manga mode again, they using jQuery template.
+
+20110127:
+- by Nandaka
+  - fix big manga mode
+  - add option checkUpdatedLimit to skip member by the count of already downloaded images.
+
+20110101:
+- by crust:
+  - Update manga mode to download the big version.
+- by Nandaka
+  - merge the code and fix memory leak.
+
+20101202b:
+- by Nandaka:
+  - add additional checking for suspended user.
+
+20101024:
+- by Nandaka:
+  - Fix error when dumping html.
+  - Change exit behaviour, no need to press enter twice if you select exit.
+
+20101005:
+- by Yavos:
+  - added commandline-option: <-n number> to temporarily overwrite config-settings for <numberofpage>.
+  - added new options in config.ini (for details see readme.txt).
+    (<createDownloadLists>, <downloadListDirectory>, <startIrfanView>, <startIrfanSlide>, <IrfanViewPath>)
+  - added commandline-option <-i> to automatically start IrfanView with list of downloaded Images.
+    (this option only takes effect when <startIrfanView> and <startIrfanSlide> from config.ini are not set True)
+  - images will get the extension <.pixiv> until they are complete (prevent incomplete image-downloads).
+  - fix: all downloaded images will be added in DB (until now it was limited to images downloaded by member_id/list of member_ids).
+    (note: you can reset it again by setting <Yavos = False> in sourcecode line 27)
+  - added feature: when (directly or indirectly) set in config.ini pixivUtil will create lists of your downloaded images in <Downloaded_on_YYYY_MM_DD.txt> (using date when pixivUtil is launched).
+  - added feature: start IrfanView when exiting pixivUtil (Slideshow will be started before normal IrfanView-Window).
+  - added feature: typing <-all> in menu will temporarily activate/deactivate pagelimit set in config.ini (it will set commandline-option <-n 0>).
+  
+20100908:
+- by Nandaka:
+  - Updated find by tags.
+- by Yavos:
+  - added commandline-OptionParser.
+    (new options: -x, -s <number>, arguments may be passed in combination with -s).
+  - removed <'> from forbidden symbols list.
+  - ending dots <.> in foldernames are removed automatically.
+  - added html-encoding for <&#039;> -> <'>.
+  - special directorys for every member_id in list may be specified now.
+  - directorys like rootDirectory in config.ini don't need an ending <\> anymore.
+  - images by member_id can be downloaded automatically via commandline: <-s 1 (member_id(s))>.
+  - images by image_id can be downloaded automatically via commandline: <-s 2 (image_id(s))>.
+  - images by tags can be downloaded automatically via commandline: <-s 3 (tags)>.
+  - list can be downloaded automatically via commandline: <-s 4 (listfile)>.
+  - DB-Manger can be loaded via commandline: <-s 5>.
+  - programm can exit automatically when operation finished via commandline: <-x>.
+  - fix: output of imagelist in DB-Manger did not work when there are less than 10.000 pics.
