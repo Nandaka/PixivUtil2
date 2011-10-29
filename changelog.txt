@@ -7,6 +7,7 @@
   - Add Export user bookmarks.
   - Add Database cleanup. Go to Manage Database -> Clean Up Database.
   - Refactor Download by tags.
+  - Fix bookmark processing if more than 1 page (20111028b).
 
 20111017
 - by Nandaka
