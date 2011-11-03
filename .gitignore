@@ -13,3 +13,4 @@ db.sqlite
 image*.html
 error*.html
 *.source*/*
+Images/*

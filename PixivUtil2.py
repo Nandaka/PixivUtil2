@@ -674,8 +674,17 @@ def menu():
     
     return raw_input('Input: ')
 
+def setTitle():
+    setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' f: ' + __config__.filenameFormat
+    if os.name == 'nt':
+        os.system('title ' + setTitle)
+    else:
+        sys.stdout.write("\x1b]2;" + setTitle + "\x07")
+    
+    
 ### Main thread ###
 def main():
+    setTitle()
     header()
     
     ## Option Parser
