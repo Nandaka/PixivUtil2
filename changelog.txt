@@ -1,7 +1,8 @@
 201111xx
 - by Nandaka
-  - add filename format in the console title.
-  - update bookmarks processing to include hidden bookmarks.
+  - Add filename format in the console title.
+  - Update bookmarks processing to include hidden bookmarks.
+  - Add download by image bookmarks.
 
 20111028
 - by Nandaka
