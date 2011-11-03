@@ -612,20 +612,30 @@ def processTagsList(mode, filename, page=1):
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
         raise
-    
-def processBookmark(mode):
+
+def getBookmarks(hide):
+    totalList = list()
+    i = 1
+    while True:
+        url = 'http://www.pixiv.net/bookmark.php?type=user&p='+str(i)
+        if hide:
+            url = url + "&rest=hide"
+        page = __br__.open(url)
+        parsePage = BeautifulSoup(page.read())
+        l = PixivBookmark.parseBookmark(parsePage)
+        if len(l) == 0:
+            break
+        totalList.extend(l)
+        i = i + 1
+    return totalList
+
+def processBookmark(mode, hide=False):
     try:
         print "Importing Bookmarks..."
-        totalList = list()
-        i = 1
-        while True:
-            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user&p='+str(i))
-            parsePage = BeautifulSoup(page.read())
-            l = PixivBookmark.parseBookmark(parsePage)
-            if len(l) == 0:
-                break
-            totalList.extend(l)
-            i = i + 1
+        totalList = getBookmarks(hide=False)
+        if hide:
+            print "Importing Hidden Bookmarks..."
+            totalList.extend(getBookmarks(hide=True))
         print "Result: ", str(len(totalList)), "items."        
         for item in totalList:
             processMember(mode, item.memberId, item.path)
@@ -635,19 +645,13 @@ def processBookmark(mode):
         __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
         raise
 
-def exportBookmark(filename):
+def exportBookmark(filename, hide=False):
     try:
         print "Importing Bookmarks..." 
-        totalList = list()
-        i = 1
-        while True:
-            page = __br__.open('http://www.pixiv.net/bookmark.php?type=user&p='+str(i))
-            parsePage = BeautifulSoup(page.read())
-            l = PixivBookmark.parseBookmark(parsePage)
-            if len(l) == 0:
-                break
-            totalList.extend(l)
-            i = i + 1
+        totalList = getBookmarks(hide=False)
+        if hide:
+            print "Importing Hidden Bookmarks..."
+            totalList.extend(getBookmarks(hide=True))
         print "Result: ", str(len(totalList)), "items."
         PixivBookmark.exportList(totalList, filename)
     except :
@@ -861,7 +865,10 @@ def main():
                     processList(mode)
                 elif selection == '5':
                     __log__.info('Bookmark mode.')
-                    processBookmark(mode)
+                    hide = raw_input("Include hidden bookmarks [y/n]: ")
+                    if hide == 'y':
+                        hide = True
+                    processBookmark(mode, hide)
                 elif selection == '6':
                     __log__.info('Taglist mode.')
                     filename = raw_input("Tags list filename: ")
@@ -870,7 +877,10 @@ def main():
                 elif selection == 'e':
                     __log__.info('Export Bookmark mode.')
                     filename = raw_input("Filename: ")
-                    exportBookmark(filename)
+                    hide = raw_input("Include hidden bookmarks [y/n]: ")
+                    if hide == 'y':
+                        hide = True
+                    exportBookmark(filename, hide)
                 elif selection == 'd':
                     __dbManager__.main()
                 elif selection == '-all':
