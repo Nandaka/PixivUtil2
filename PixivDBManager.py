@@ -88,9 +88,9 @@ class PixivDBManager:
             for item in listTxt:
                 c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1)''',
                                   (item.memberId, str(item.memberId), 'N\A'))
-                c.execute('''UPDATE pixiv_master_member
-                             SET save_folder = ?
-                             WHERE member_id = ?''',
+                c.execute('''UPDATE pixiv_master_member 
+                             SET save_folder = ? 
+                             WHERE member_id = ? ''',
                           (item.path, item.memberId))
             self.conn.commit()
         except:
