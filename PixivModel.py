@@ -289,6 +289,20 @@ class PixivBookmark:
     return l
 
   @staticmethod
+  def parseImageBookmark(page):
+    imageList = list()
+    temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
+    temp = temp.findAll('a')
+    if temp == None or len(temp) == 0:
+      return imageList
+    for item in temp:
+      href = re.search('member_illust.php?.*illust_id=(\d+)', str(item))
+      if href != None:
+        href = href.group(1)
+        imageList.append(int(href))
+    return imageList
+
+  @staticmethod
   def exportList(l, filename):
     from datetime import datetime
     writer = open(filename, 'w')
