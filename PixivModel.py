@@ -285,7 +285,20 @@ class PixivBookmark:
         l.append(item)
     except:
       pass
+    return l
 
+  @staticmethod
+  def parseNewIllustBookmark(page):
+    l = list()
+    try:
+      result = page.find(attrs={'class':'images autopagerize_page_element'}).findAll('a')
+      for r in result:
+        href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
+        if href != None:
+          href = href.group(1)
+          l.append(int(href))
+    except:
+      pass
     return l
 
   @staticmethod

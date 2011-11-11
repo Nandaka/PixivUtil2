@@ -141,6 +141,16 @@ class TestPixivModel(unittest.TestCase):
       imageId = urls[0].split('/')[-1].split('.')[0]
       print 'imageId:',imageId
       self.assertEqual(imageId, '20592252_big_p0')
-
+      
+    def testPixivBookmarkNewIlust(self):
+      print '\nTesting BookmarkNewIlust'
+      p = open('./test/test-bookmarks_new_ilust.htm', 'r')
+      page = BeautifulSoup(p.read())
+      image = PixivBookmark()
+      
+      urls = PixivBookmark.parseNewIllustBookmark(page)
+      print urls
+      self.assertEqual(len(urls), 20)
+      
 if __name__ == '__main__':
     unittest.main()

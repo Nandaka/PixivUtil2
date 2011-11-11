@@ -695,7 +695,38 @@ def exportBookmark(filename, hide=False):
         print 'Error at exportBookmark():',sys.exc_info()
         __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
         raise
-    
+
+def processNewIllustFromBookmark(mode, pageNum=1):
+    try:
+        print "Processing New Illust from bookmark"
+        i = pageNum
+        while True:
+            print "Page #"+str(i)
+            url = 'http://www.pixiv.net/bookmark_new_illust.php?p='+str(i)
+            page = __br__.open(url)
+            parsedPage = BeautifulSoup(page.read())
+            l = PixivBookmark.parseNewIllustBookmark(parsedPage)
+            if len(l) == 0:
+                break
+            
+            for image_id in l:
+                processImage(mode, artist=None, image_id=int(image_id))
+            i = i + 1
+
+            parsedPage.decompose()
+            del parsedPage
+
+            if npisvalid == True: #Yavos: overwrite config-data
+                if i > np and np != 0:
+                    break
+            elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
+                break
+        print "Done."
+    except:
+        print 'Error at processNewIllustFromBookmark():',sys.exc_info()
+        __log__.error('Error at processNewIllustFromBookmark(): ' + str(sys.exc_info()))
+        raise
+        
 def header():
     print 'PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION
     print PixivConstant.PIXIVUTIL_LINK
@@ -709,6 +740,7 @@ def menu():
     print '5. Download from user bookmark'
     print '6. Download from image bookmark'
     print '7. Download from tags list'
+    print '8. Download new illust from bookmark'
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export bookmark'
@@ -918,6 +950,10 @@ def main():
                     filename = raw_input("Tags list filename: ")
                     page  = raw_input('Start Page: ') or 1
                     processTagsList(mode, filename, int(page))
+                elif selection == '8':
+                    __log__.info('New Illust from Bookmark mode.')
+                    pageNum = raw_input('Start Page: ') or 1
+                    processNewIllustFromBookmark(mode, int(pageNum))
                 elif selection == 'e':
                     __log__.info('Export Bookmark mode.')
                     filename = raw_input("Filename: ")

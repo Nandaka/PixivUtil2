@@ -3,6 +3,31 @@ Requirement:
 - mechanize 0.2.5
 - BeautifulSoup 3.2.0
 
+Capabilities:
+- Download by member_id
+- Download by image_id
+- Download by tags
+- Download from list (list.txt)
+- Download from user bookmark (http://www.pixiv.net/bookmark.php?type=user), including private.
+- Download from image bookmark (http://www.pixiv.net/bookmark.php), including private.
+- Download from tags list (tags.txt)
+- Download new illust from bookmarks (http://www.pixiv.net/bookmark_new_illust.php)
+- Manage database:
+  - Show all member
+  - Show all downloaded images
+  - Export list (member_id only)
+  - Export list (detailed)
+  - Show member by last downloaded date
+  - Show image by image_id
+  - Show member by member_id
+  - Show image by member_id
+  - Delete member by member_id
+  - Delete image by image_id
+  - Delete member and image (cascade deletion)
+  - Blacklist image by image_id
+  - Clean Up Database (remove db entry if downloaded file is missing)
+- Export user bookmark (member_id) to a text files.
+
 By Yavos:
 
 <<< commandline >>>

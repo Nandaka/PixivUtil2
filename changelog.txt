@@ -1,8 +1,9 @@
-201111xx
+20111111
 - by Nandaka
   - Add filename format in the console title.
   - Update bookmarks processing to include hidden bookmarks.
   - Add download by image bookmarks.
+  - Add Download new illust from bookmarks (http://www.pixiv.net/bookmark_new_illust.php).
 
 20111028
 - by Nandaka
