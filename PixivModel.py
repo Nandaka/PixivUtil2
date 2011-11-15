@@ -250,6 +250,7 @@ class PixivListItem:
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
+        line = line.strip()
         items = line.split(" ", 1)
         member_id = int(items[0])
         path = ""
