@@ -319,11 +319,15 @@ class PixivBookmark:
   @staticmethod
   def exportList(l, filename):
     from datetime import datetime
+    if not filename.endswith('.txt'):
+      filename = filename + '.txt'
     writer = open(filename, 'w')
     writer.write('###Export date: ' + str(datetime.today()) +'###\n')
     for item in l:
-        writer.write(str(item.memberId) + " " + str(item.path))
-        writer.write('\n')
+      writer.write(str(item.memberId))
+      if len(item.path) > 0:
+        writer.write(' ' + str(item.path))
+      writer.write('\n')
     writer.write('###END-OF-FILE###')
     writer.close()
 

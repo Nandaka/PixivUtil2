@@ -9,6 +9,7 @@ import traceback
 import logging
 
 import codecs
+from datetime import datetime
 
 from PixivModel import PixivListItem
 import PixivHelper
@@ -106,13 +107,16 @@ class PixivDBManager:
         print 'Exporting list...',
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT member_id FROM pixiv_master_member
+            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member
                             ORDER BY member_id''')
-            filename = filename + '.txt'
-            writer = open(filename, 'w')            
+            if not filename.endswith(".txt"):
+                filename = filename + '.txt'
+            writer = open(filename, 'w')
+            writer.write('###Export date: ' + str(datetime.today()) +'###\n')
             for row in c:
-                for string in row:
-                    writer.write(str(string))
+                writer.write(str(row[0]))
+                if len(row[1]) > 0:
+                    writer.write(' ' + str(row[1]))
                 writer.write('\n')
             writer.write('###END-OF-FILE###')
             writer.close()
