@@ -743,7 +743,7 @@ def menu():
     print '8. Download new illust from bookmark'
     print '------------------------'
     print 'd. Manage database'
-    print 'e. Export bookmark'
+    print 'e. Export online bookmark'
     print 'x. Exit'
     
     return raw_input('Input: ')
@@ -769,15 +769,29 @@ def main():
     global op
     
     parser = OptionParser()
-    parser.add_option('-s', '--startaction', dest='startaction', help='Action you want to load your program with: 1 "Download by member_id", 2 - "Download by image_id", 3 - "Download by tags", 4 - "Download from list", 5 - "Manage database"')
-    parser.add_option('-x', '--exitwhendone', dest='exitwhendone', help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
-    parser.add_option('-i', '--irfanview', dest='iv', help='start IrfanView after downloading images using downloaded_on_%date%.txt', action='store_true', default=False)
-    parser.add_option('-n', '--numberofpages', dest='numberofpages', help='overwrites numberOfPage set in config.ini')
+    parser.add_option('-s', '--startaction', dest='startaction',
+                      help='Action you want to load your program with:              ' + 
+                           '1 - Download by member_id                               ' +
+                           '2 - Download by image_id                                ' +
+                           '3 - Download by tags                                    ' +
+                           '4 - Download from list                                  ' +
+                           '5 - Download from user bookmark                          ' +
+                           '6 - Download from image bookmark                         ' +
+                           '7 - Download from tags list                              ' +
+                           '8 - Download new illust from bookmark                    ' +
+                           'e - Export online bookmark                               ' +
+                           'd - Manage database' )
+    parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
+                      help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
+    parser.add_option('-i', '--irfanview', dest='iv',
+                      help='start IrfanView after downloading images using downloaded_on_%date%.txt', action='store_true', default=False)
+    parser.add_option('-n', '--numberofpages', dest='numberofpages',
+                      help='temporarily overwrites numberOfPage set in config.ini')
 
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', 'd', 'e'):
         opisvalid = True
     elif op == None:
         opisvalid = False

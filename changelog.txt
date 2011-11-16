@@ -2,6 +2,7 @@
 - by Nandaka
   - Fix list.txt parsing the user target dir; strip() the line before split().
   - Fix bookmark and DB exporting for member_id; remove space if no path defined.
+  - Change default value for rootdirectory to "." (same folder with apps).
 
 20111111
 - by Nandaka

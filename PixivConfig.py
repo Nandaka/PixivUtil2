@@ -23,7 +23,7 @@ class PixivConfig:
     numberOfPage = 0
     useRobots = True
     filenameFormat = '%artist% (%member_id%)\\%image_id% - %title%'
-    rootDirectory = ''
+    rootDirectory = '.'
     overwrite = False
     timeout = 60
 
