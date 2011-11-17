@@ -17,6 +17,10 @@ class PixivArtist:
       ## detect if artist exist
       if not self.IsUserExist(page):
         raise PixivModelException('User ID not exist/deleted!')
+
+      ## detect if artist account is suspended.
+      if not self.IsUserSuspended(page):
+        raise PixivModelException('User Account is Suspended!')
       
       ## detect if image count != 0
       if not fromImage:
@@ -75,19 +79,24 @@ class PixivArtist:
     for item in temp:
       href = re.search('illust_id=(\d+)', str(item)).group(1)
       self.imageList.append(int(href))
-    
-  def IsUserExist(self, page):
-    if page == None:
-      raise PixivModelException('Empty page')
-    errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
-    pattern = re.compile(errorMessage)
+
+  def HaveString(self, page, string):
+    pattern = re.compile(string)
     test_2 = pattern.findall(str(page))
     if len(test_2) > 0 :
         if len(test_2[-1]) > 0 :
-            return False
+            return True
     else :
-      return True
-
+      return False
+  
+  def IsUserExist(self, page):
+    errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
+    return self.HaveString(page, errorMessage)
+    
+  def IsUserSuspended(self, page):
+    errorMessage = '該当ユーザーのアカウントは停止されています。'
+    return self.HaveString(page, errorMessage)
+    
   def PrintInfo(self):
     print 'id    :',self.artistId
     print 'name  :',self.artistName
