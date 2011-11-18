@@ -4,6 +4,7 @@
   - Fix bookmark and DB exporting for member_id; remove space if no path defined.
   - Change default value for rootdirectory to "." (same folder with apps).
   - Add unseen error message for member_id page parsing.
+  - Update Console Title when downloading.
 
 20111111
 - by Nandaka

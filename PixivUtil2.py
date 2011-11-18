@@ -309,6 +309,7 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
 
         while True:
             print 'Page ',page
+            setTitle("MemberId: " + str(member_id) + " Page: " + str(page))
             ## Try to get the member page
             while True:
                 try:
@@ -422,6 +423,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 mediumPage = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id='+str(image_id))
                 parseMediumPage = BeautifulSoup(mediumPage.read())
                 image = PixivImage(iid=image_id, page=parseMediumPage, parent=artist)
+                setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
                 parseMediumPage.decompose()
                 del parseMediumPage
                 break
@@ -732,6 +734,7 @@ def header():
     print PixivConstant.PIXIVUTIL_LINK
     
 def menu():
+    setTitle()
     header()
     print '1. Download by member_id'
     print '2. Download by image_id'
@@ -748,13 +751,9 @@ def menu():
     
     return raw_input('Input: ')
 
-def setTitle():
-    setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' f: ' + __config__.filenameFormat
-    if os.name == 'nt':
-        os.system('title ' + setTitle)
-    else:
-        sys.stdout.write("\x1b]2;" + setTitle + "\x07")
-    
+def setTitle(title=''):
+    setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' ' + title
+    PixivHelper.setConsoleTitle(setTitle)
     
 ### Main thread ###
 def main():

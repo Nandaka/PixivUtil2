@@ -47,3 +47,10 @@ def safePrint(msg):
     except UnicodeError:
         print '',
     return ' '
+
+def setConsoleTitle(title):
+    if os.name == 'nt':
+        os.system('title ' + title)
+    else:
+        sys.stdout.write("\x1b]2;" + title + "\x07")
+

@@ -15,11 +15,11 @@ class PixivArtist:
   def __init__(self, mid=0, page=None, fromImage=False):
     if page != None:
       ## detect if artist exist
-      if not self.IsUserExist(page):
+      if self.IsUserNotExist(page):
         raise PixivModelException('User ID not exist/deleted!')
 
       ## detect if artist account is suspended.
-      if not self.IsUserSuspended(page):
+      if self.IsUserSuspended(page):
         raise PixivModelException('User Account is Suspended!')
       
       ## detect if image count != 0
@@ -89,7 +89,7 @@ class PixivArtist:
     else :
       return False
   
-  def IsUserExist(self, page):
+  def IsUserNotExist(self, page):
     errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
     return self.HaveString(page, errorMessage)
     
