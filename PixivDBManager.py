@@ -107,24 +107,31 @@ class PixivDBManager:
         print 'Exporting list...',
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member
-                            ORDER BY member_id''')
+            c.execute('''SELECT member_id, save_folder, name
+                         FROM pixiv_master_member
+                         ORDER BY member_id''')
             if not filename.endswith(".txt"):
                 filename = filename + '.txt'
-            writer = open(filename, 'w')
-            writer.write('###Export date: ' + str(datetime.today()) +'###\n')
+            #writer = open(filename, 'w')
+            writer = codecs.open(filename, 'wb', encoding='utf-8')
+            writer.write('###Export date: ' + str(datetime.today()) +'###\r\n')
             for row in c:
+                data = unicode(row[2])
+                writer.write("# ")
+                writer.write(data)
+                writer.write("\r\n")
                 writer.write(str(row[0]))
                 if len(row[1]) > 0:
                     writer.write(' ' + str(row[1]))
-                writer.write('\n')
+                writer.write('\r\n')
             writer.write('###END-OF-FILE###')
-            writer.close()
         except:
             print 'Error at exportList():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
+            if writer != None:
+                writer.close()
             c.close()
         print 'done.'
 

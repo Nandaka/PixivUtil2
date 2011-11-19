@@ -16,11 +16,11 @@ class PixivArtist:
     if page != None:
       ## detect if artist exist
       if self.IsUserNotExist(page):
-        raise PixivModelException('User ID not exist/deleted!')
+        raise PixivModelException('User ID not exist/deleted!', errorCode=1001)
 
       ## detect if artist account is suspended.
       if self.IsUserSuspended(page):
-        raise PixivModelException('User Account is Suspended!')
+        raise PixivModelException('User Account is Suspended!', errorCode=1002)
       
       ## detect if image count != 0
       if not fromImage:
@@ -231,8 +231,12 @@ class PixivImage:
     return urls    
 
 class PixivModelException(Exception):
-  def __init__(self, value):
+  errorCode = 0
+  
+  def __init__(self, value, errorCode = 0):
     self.value = value
+    self.errorCode = errorCode
+    
   def __str__(self):
     return repr(self.value)
 

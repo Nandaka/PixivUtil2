@@ -318,6 +318,9 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                     break
                 except PixivModelException as ex:
                     print 'Error:',ex
+                    if ex.errorCode == 1001 or ex.errorCode == 1002:
+                        __dbManager__.deleteMemberByMemberId(member_id)
+                        printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
                     return
                 except Exception as ue:
                     print ue
@@ -615,22 +618,29 @@ def processTagsList(mode, filename, page=1):
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
         raise
 
-def processImageBookmark(mode, hide=False):
+def processImageBookmark(mode, hide=False, member_id=0):
     try:
         print "Importing image bookmarks..."
-        totalList = list()
+        #totalList = list()
         i = 1
         while True:
             print "Importing page", str(i)
             url = 'http://www.pixiv.net/bookmark.php?p='+str(i)
-            if hide == 'y':
+            if member_id > 0:
+                url = url + "&id=" + str(member_id)
+            if member_id == 0 and hide == 'y':
                 url = url + "&rest=hide"
             page = __br__.open(url)
             parsePage = BeautifulSoup(page.read())
             l = PixivBookmark.parseImageBookmark(parsePage)
             if len(l) == 0:
                 break
-            totalList.extend(l)
+            #totalList.extend(l)
+
+            for item in l:
+                #print item
+                processImage(mode, artist=None, image_id=item)
+        
             i = i + 1
 
             parsePage.decompose()
@@ -642,10 +652,10 @@ def processImageBookmark(mode, hide=False):
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
             
-        print "Result: ", str(len(totalList)), "items."
+        #print "Result: ", str(len(totalList)), "items."
         
-        for item in totalList:
-            processImage(mode, artist=None, image_id=item)
+        #for item in totalList:
+        #    processImage(mode, artist=None, image_id=item)
         print "Done.\n"
     except :
         print 'Error at processImageBookmark():',sys.exc_info()
@@ -740,8 +750,8 @@ def menu():
     print '2. Download by image_id'
     print '3. Download by tags'
     print '4. Download from list'
-    print '5. Download from user bookmark'
-    print '6. Download from image bookmark'
+    print '5. Download from online user bookmark'
+    print '6. Download from online image bookmark'
     print '7. Download from tags list'
     print '8. Download new illust from bookmark'
     print '------------------------'
@@ -954,10 +964,14 @@ def main():
                     processBookmark(mode, hide)
                 elif selection == '6':
                     __log__.info('Image Bookmark mode.')
-                    hide = raw_input("Hidden bookmarks [y/n]: ")
-                    if hide == 'y':
-                        hide = True
-                    processImageBookmark(mode, hide)
+                    memberIdStr = raw_input("Member Id (0 for your bookmark): ") or 0
+                    memberId = int(memberIdStr)
+                    hide = False
+                    if memberId == 0 :
+                        hide = raw_input("Hidden bookmarks [y/n]: ")
+                        if hide == 'y':
+                            hide = True
+                    processImageBookmark(mode, hide, memberId)
                 elif selection == '7':
                     __log__.info('Taglist mode.')
                     filename = raw_input("Tags list filename: ")
