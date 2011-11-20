@@ -125,6 +125,8 @@ class PixivImage:
         raise PixivModelException('Public works can not be viewed by the appropriate level!')
       if self.IsDeleted(page):
         raise PixivModelException('Image not found/already deleted!')
+      if self.IsGuroDisabled(page):
+        raise PixivModelException('Image is disabled for under 18, check your setting page (R-18/R-18G)!')
       unknownError = self.CheckUnknownError(page)
       if not unknownError == None:
         raise PixivModelException('Unknown Error: '+unknownError)
@@ -161,6 +163,10 @@ class PixivImage:
 
   def IsDeleted(self, page):
     errorMessage = '該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。'
+    return self.HaveString(page, errorMessage)
+
+  def IsGuroDisabled(self, page):
+    errorMessage = '表示されるページには、18歳未満の方には不適切な表現内容が含まれています。'
     return self.HaveString(page, errorMessage)
   
   def HaveString(self, page, string):

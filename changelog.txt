@@ -1,3 +1,7 @@
+201111xx
+- by Nandaka
+  - Add error message if R-18/R-18G is disabled.
+
 20111119
 - by Nandaka
   - Fix list.txt parsing the user target dir; strip() the line before split().
