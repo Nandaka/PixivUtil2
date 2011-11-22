@@ -253,6 +253,7 @@ def pixivLogin(username, password):
         raise
 
 def processList(mode):
+    global args
     result = None
     try:
         ## Getting the list
@@ -733,6 +734,9 @@ def processNewIllustFromBookmark(mode, pageNum=1):
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
+            if i >= 100:
+                print "Last page, all done."
+                break
         print "Done."
     except:
         print 'Error at processNewIllustFromBookmark():',sys.exc_info()
@@ -776,6 +780,7 @@ def main():
     global np
     global iv
     global op
+    global args
     
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
@@ -979,7 +984,10 @@ def main():
                     processTagsList(mode, filename, int(page))
                 elif selection == '8':
                     __log__.info('New Illust from Bookmark mode.')
-                    pageNum = raw_input('Start Page: ') or 1
+                    if opisvalid:
+                        pageNum = 1
+                    else:
+                        pageNum = raw_input('Start Page: ') or 1
                     processNewIllustFromBookmark(mode, int(pageNum))
                 elif selection == 'e':
                     __log__.info('Export Bookmark mode.')
