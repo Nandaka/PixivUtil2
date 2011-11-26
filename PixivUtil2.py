@@ -187,12 +187,22 @@ def downloadImage(url, filename, referer, overwrite, retry):
 def configBrowser():
     if __config__.useProxy:
         __br__.set_proxies(__config__.proxy)
+        msg = 'Using proxy: ' + __config__.proxyAddress
+        print msg
+        __log__.info(msg)
+        
     __br__.set_handle_equiv(True)
     #__br__.set_handle_gzip(True)
     __br__.set_handle_redirect(True)
     __br__.set_handle_referer(True)
     __br__.set_handle_robots(__config__.useRobots)
+    
     __br__.set_debug_http(__config__.debugHttp)
+    if __config__.debugHttp :
+        msg = 'Debug HTTP enabled.'
+        print msg
+        __log__.info(msg)
+        
     __br__.visit_response
     __br__.addheaders = [('User-agent', __config__.useragent)]
 
@@ -765,6 +775,142 @@ def menu():
     
     return raw_input('Input: ')
 
+def menuDownloadByMemberId(mode, opisvalid, args):
+    __log__.info('Member id mode.')
+    if opisvalid and len(args) > 0:
+        for member_id in args:
+            try:
+                testID = int(member_id)
+            except:
+                print "ID", member_id, "is not valid"
+                continue
+            processMember(mode, int(member_id))
+    else:
+        member_id = raw_input('Member id: ')
+        processMember(mode, member_id.strip())
+
+def menuDownloadByImageId(mode, opisvalid, args):
+    __log__.info('Image id mode.')
+    if opisvalid and len(args) > 0:
+        for image_id in args:
+            try:
+                testID = int(image_id)
+            except:
+                print "ID", image_id, "is not valid"
+                continue
+            processImage(mode, None, int(image_id))
+    else:
+        image_id = raw_input('Image id: ')
+        processImage(mode, None, int(image_id))
+
+def menuDownloadByTags(mode, opisvalid, args):
+    __log__.info('tags mode.')
+    page = 1
+    if opisvalid and len(args) > 0:
+        tags = " ".join(args)
+    else:
+        tags = raw_input('Tags: ')
+        page = raw_input('Start Page: ') or 1
+        try:
+            page = int(page)
+        except:
+            print 'Invalid page number:', page
+            return
+    processTags(mode, tags, int(page))
+
+def menuDownloadFromList(mode, opisvalid, args):
+    __log__.info('Batch mode.')
+    processList(mode)
+
+def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
+    __log__.info('User Bookmark mode.')
+    hide = 'n'
+    if opisvalid :
+        if len(args) > 0:
+            arg = args[0].lower()
+            if arg == 'y' or arg =='n':
+                hide = arg
+            else:
+                print "Invalid args: ", args
+    else :
+        hide = raw_input("Include hidden bookmarks [y/n]: ") or 'n'
+    if hide == 'y':
+        hide = True
+    processBookmark(mode, hide)
+
+def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
+    __log__.info('Image Bookmark mode.')
+    if opisvalid and len(args) > 0 :
+        hide = args.pop(0)
+        if hide == 'y' or hide == 'Y':
+            hide = True
+        else:
+            hide = False
+        if len(args) == 0:
+            args.append(0)
+        for arg in args:
+            try:
+                memberId = int(arg)
+                processImageBookmark(mode, hide, memberId)
+            except:
+                print "Invalid Member Id:", arg
+    else:
+        memberIdStr = raw_input("Member Id (0 for your bookmark): ") or 0
+        memberId = int(memberIdStr)
+        hide = False
+        if memberId == 0 :
+            hide = raw_input("Hidden bookmarks [y/n]: ")
+            if hide == 'y':
+                hide = True
+        processImageBookmark(mode, hide, memberId)
+
+def menuDownloadFromTagsList(mode, opisvalid, args):
+    __log__.info('Taglist mode.')
+    if opisvalid and len(args) > 0 :
+        filename = args[0]
+        try:
+            page = int(args[1])
+        except:
+            print "Invalid args:", args
+            return
+        processTagsList(mode, filename, page)
+    else:
+        filename = raw_input("Tags list filename: ") or './tags.txt'
+        page  = raw_input('Start Page: ') or 1
+        try:
+            page = int(page)
+        except:
+            print 'Invalid page number:', page
+            return
+        processTagsList(mode, filename, page)
+
+def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
+    __log__.info('New Illust from Bookmark mode.')
+    if opisvalid:
+        pageNum = 1
+        if len(args) > 0:
+            try:
+                pageNum = int(args[0])
+            except:
+                print "Invalid page number:", args
+                return
+    else:
+        pageNum = raw_input('Start Page: ') or 1
+        try:
+            pageNum = int(pageNum)
+        except:
+            print "Invalid page number:", pageNum
+            return
+    processNewIllustFromBookmark(mode, pageNum)
+
+def menuExportOnlineBookmark(mode, opisvalid, args):
+    __log__.info('Export Bookmark mode.')
+    filename = raw_input("Filename: ")
+    hide = raw_input("Include hidden bookmarks [y/n]: ")
+    if hide == 'y':
+        hide = True
+    exportBookmark(filename, hide)
+    
 def setTitle(title=''):
     setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' ' + title
     PixivHelper.setConsoleTitle(setTitle)
@@ -866,16 +1012,6 @@ def main():
             __dbManager__.importList(listTxt)
             print "Updated " + str(len(listTxt)) + " items."
 
-        if __config__.useProxy :
-            msg = 'Using proxy: ' + __config__.proxyAddress
-            print msg
-            __log__.info(msg)
-
-        if __config__.debugHttp :
-            msg = 'Debug HTTP enabled.'
-            print msg
-            __log__.info(msg)
-
         if __config__.overwrite :
             msg = 'Overwrite enabled.'
             print msg
@@ -920,82 +1056,27 @@ def main():
                     selection = op
                 else:
                     selection = menu()
+                    
                 if selection == '1':
-                    __log__.info('Member id mode.')
-                    if opisvalid and len(args) > 0: #Yavos: adding new lines
-                        #print "there are", len(args), "arguments"
-                        for member_id in args:
-                            try:
-                                testID = int(member_id)
-                                #print "ID", member_id, "is valid"
-                            except:
-                                print "ID", member_id, "is not valid"
-                                continue
-                            processMember(mode, int(member_id))
-                    else: #Yavos: end
-                        member_id = raw_input('Member id: ')
-                        processMember(mode, member_id.strip())
+                    menuDownloadByMemberId(mode, opisvalid, args)
                 elif selection == '2':
-                    __log__.info('Image id mode.')
-                    if opisvalid and len(args) > 0: #Yavos: start
-                        for image_id in args:
-                            try:
-                                testID = int(image_id)
-                                #print "ID", image_id, "is valid"
-                            except:
-                                print "ID", image_id, "is not valid"
-                                continue
-                            processImage(mode, None, int(image_id))
-                    else:
-                        image_id = raw_input('Image id: ')
-                        processImage(mode, None, int(image_id)) #Yavos: end
+                    menuDownloadByImageId(mode, opisvalid, args)
                 elif selection == '3':
-                    __log__.info('tags mode.')
-                    page = 1
-                    if opisvalid and len(args) > 0: #Yavos: start
-                        tags = " ".join(args)
-                    else:
-                        tags = raw_input('Tags: ') #Yavos: end
-                        page  = raw_input('Start Page: ') or 1
-                    processTags(mode, tags, int(page))
+                    menuDownloadByTags(mode, opisvalid, args)
                 elif selection == '4':
-                    __log__.info('Batch mode.')
-                    processList(mode)
+                    menuDownloadFromList(mode, opisvalid, args)
+
                 elif selection == '5':
-                    __log__.info('User Bookmark mode.')
-                    hide = raw_input("Include hidden bookmarks [y/n]: ")
-                    if hide == 'y':
-                        hide = True
-                    processBookmark(mode, hide)
+                    menuDownloadFromOnlineUserBookmark(mode, opisvalid, args)
                 elif selection == '6':
-                    __log__.info('Image Bookmark mode.')
-                    memberIdStr = raw_input("Member Id (0 for your bookmark): ") or 0
-                    memberId = int(memberIdStr)
-                    hide = False
-                    if memberId == 0 :
-                        hide = raw_input("Hidden bookmarks [y/n]: ")
-                        if hide == 'y':
-                            hide = True
-                    processImageBookmark(mode, hide, memberId)
+                    menuDownloadFromOnlineImageBookmark(mode, opisvalid, args)
                 elif selection == '7':
-                    __log__.info('Taglist mode.')
-                    filename = raw_input("Tags list filename: ")
-                    page  = raw_input('Start Page: ') or 1
-                    processTagsList(mode, filename, int(page))
+                    menuDownloadFromTagsList(mode, opisvalid, args)
                 elif selection == '8':
-                    __log__.info('New Illust from Bookmark mode.')
-                    if opisvalid:
-                        pageNum = 1
-                    else:
-                        pageNum = raw_input('Start Page: ') or 1
-                    processNewIllustFromBookmark(mode, int(pageNum))
+                    menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
+                    
                 elif selection == 'e':
-                    __log__.info('Export Bookmark mode.')
-                    filename = raw_input("Filename: ")
-                    hide = raw_input("Include hidden bookmarks [y/n]: ")
-                    if hide == 'y':
-                        hide = True
-                    exportBookmark(filename, hide)
+                    menuExportOnlineBookmark(mode, opisvalid, args)
                 elif selection == 'd':
                     __dbManager__.main()
                 elif selection == '-all':
@@ -1008,26 +1089,13 @@ def main():
                         print 'download mode reset to', __config__.numberOfPage, 'pages'
                 elif selection == 'x':
                     break
+                
                 if ewd == True: #Yavos: added lines for "exit when done"
                     break
                 opisvalid = False #Yavos: needed to prevent endless loop
+                
             if iv == True: #Yavos: adding IrfanView-handling
-                print 'starting IrfanView...'
-                if os.path.exists(dfilename):
-                    ivpath = __config__.IrfanViewPath + '\\i_view32.exe' #get first part from config.ini
-                    ivpath = ivpath.replace('\\\\', '\\')                    
-                    info = None
-                    if IrfanSlide == True:
-                        info = subprocess.STARTUPINFO()
-                        info.dwFlags = 1
-                        info.wShowWindow = 6 #start minimized in background (6)
-                        ivcommand = ivpath + ' /slideshow=' + dfilename
-                        subprocess.Popen(ivcommand)
-                    if IrfanView == True:
-                        ivcommand = ivpath + ' /filelist=' + dfilename
-                        subprocess.Popen(ivcommand, startupinfo=info)
-                else:
-                    print 'could not load', dfilename
+                PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath)
 
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -2,6 +2,7 @@
 import re
 import os
 import xml.sax.saxutils as saxutils
+import subprocess
 
 __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
@@ -54,3 +55,20 @@ def setConsoleTitle(title):
     else:
         sys.stdout.write("\x1b]2;" + title + "\x07")
 
+def startIrfanView(dfilename, irfanViewPath):
+    print 'starting IrfanView...'
+    if os.path.exists(dfilename):
+        ivpath = irfanViewPath + '\\i_view32.exe' #get first part from config.ini
+        ivpath = ivpath.replace('\\\\', '\\')                    
+        info = None
+        if IrfanSlide == True:
+            info = subprocess.STARTUPINFO()
+            info.dwFlags = 1
+            info.wShowWindow = 6 #start minimized in background (6)
+            ivcommand = ivpath + ' /slideshow=' + dfilename
+            subprocess.Popen(ivcommand)
+        if IrfanView == True:
+            ivcommand = ivpath + ' /filelist=' + dfilename
+            subprocess.Popen(ivcommand, startupinfo=info)
+    else:
+        print 'could not load', dfilename

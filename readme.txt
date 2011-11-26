@@ -42,32 +42,40 @@
 =================================================================================
 = FAQs:                                                                         =
 =================================================================================
-Q1. How to paste tags to the console?
-    - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if it show 
-      up as question mark -> Change the Language for non-Unicode program to
-      Japanese (google it).
-    - or use online url encoder (http://meyerweb.com/eric/tools/dencoder/) 
-      and paste the encoded tag back to the console.
-    - or paste it to tags.txt and select download by tags list. Separate each
-      tags with space, and separate with new line for new query.
-Q2. My password doesn't show up in the console!
-    - This is normal. The program still read it.
-    - or you can put in the config.ini if not sure.
-Q3. Where I can report for bugs?
-    - just tell me via comment in my blog (http://nandaka.wordpress.com) and I
-      will reply you back.
-Q4. Where I can support/donate to you?
-    - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
-    - or use the donation button on my blog (http://nandaka.wordpress.com).
-Q5. I want to use/modify the source code!
-    - Feel free to use/modify the source code as long you give credit to me and
-      make the modificated source code open.
-    - if you want to add feature/bug fix, you can do branch from public 
-      repository in https://git.bettercodes.org/pixiv-downloader (need to 
-      register first) and I will do the merge.
+A.Usage:
+  Q1. How to paste tags to the console?
+      - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if 
+        it show up as question mark -> Change the Language for non-Unicode 
+        program to Japanese (google it).
+      - or use online url encoder (http://meyerweb.com/eric/tools/dencoder/) 
+        and paste the encoded tag back to the console.
+      - or paste it to tags.txt and select download by tags list. Separate each
+        tags with space, and separate with new line for new query.
+  Q2. My password doesn't show up in the console!
+      - This is normal. The program still read it.
+      - or you can put in the config.ini if not sure.
+  Q3. I cannot login to pixiv!
+      - Check your password.
+      - Try to login to the Pixiv Website.
+      - Try to use the config.ini on the [Authentication] section.
+      - Disable Daylight Saving Time and try again.
+
+B.Bugs/Source Code/Supports:
+  Q1. Where I can report for bugs?
+      - just tell me via comment in my blog (http://nandaka.wordpress.com) and I
+        will reply you back.
+  Q2. Where I can support/donate to you?
+      - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
+      - or use the donation button on my blog (http://nandaka.wordpress.com).
+  Q3. I want to use/modify the source code!
+      - Feel free to use/modify the source code as long you give credit to me and
+        make the modificated source code open.
+      - if you want to add feature/bug fix, you can do branch from public 
+        repository in https://git.bettercodes.org/pixiv-downloader (need to 
+        register first) and I will do the merge.
 
 =================================================================================
-= Command Line Option (By Yavos)                                                =
+= Command Line Option                                                           =
 =================================================================================
   -h, --help            show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
@@ -81,9 +89,15 @@ Q5. I want to use/modify the source code!
                         4 - Download from list    
                             (optional: followed by path to list)
                         5 - Download from user bookmark
+                            (optional: followed by [y/n] for private bookmark)
                         6 - Download from image bookmark
+			    (required: followed by [y/n] for private bookmark
+                             optional: member_ids to process)
                         7 - Download from tags list
+                            (required: followed by path to the tags list and 
+                             starting page)
                         8 - Download new illust from bookmark
+                            (optional: followed by starting page number)
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 
@@ -227,3 +241,29 @@ member_id2 directory2
 - Yavos (Contributor)
 
 *If I forget someone, please leave me a comment in my Blog.
+
+=================================================================================
+= License Agreement                                                             =
+=================================================================================
+Copyright (c) 2011, Nandaka
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met:
+
+  - Redistributions of source code must retain the above copyright notice, this 
+    list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright notice, 
+    this list of conditions and the following disclaimer in the documentation 
+    and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -1,6 +1,9 @@
-201111xx
+20111126
 - by Nandaka
   - Add error message if R-18/R-18G is disabled.
+  - Update console swith operation.
+  - Add max limit for Download New Illust from Bookmark to 100 (Pixiv limitation).
+  - Update readme.txt, add license agreement section (BSD 2-Clause License)
 
 20111119
 - by Nandaka
