@@ -1,3 +1,7 @@
+201112xx
+- by Nandaka
+  - Fix PixivHelper, add import sys statement as reported by MikoMiko.
+
 20111126
 - by Nandaka
   - Add error message if R-18/R-18G is disabled.

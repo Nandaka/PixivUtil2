@@ -3,6 +3,7 @@ import re
 import os
 import xml.sax.saxutils as saxutils
 import subprocess
+import sys
 
 __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
