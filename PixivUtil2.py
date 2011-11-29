@@ -156,13 +156,13 @@ def downloadImage(url, filename, referer, overwrite, retry):
         except urllib2.HTTPError as httpError:
             print httpError
             print str(httpError.code)
-            __log__.error('HTTPError: '+ str(httpError))
+            __log__.error('HTTPError: '+ str(httpError) + '(' + url + ')')
             if httpError.code == 404:
                 return -1
             raise
         except urllib2.URLError as urlError:
             print urlError
-            __log__.error('URLError: '+ str(urlError))
+            __log__.error('URLError: '+ str(urlError) + '(' + url + ')')
             raise
 
         except:
@@ -282,6 +282,7 @@ def processList(mode):
                 if os.path.exists(testListFilename) :
                     listFilename = testListFilename
             result = PixivListItem.parseList(listFilename, __config__.rootDirectory)
+            printAndLog('info','List file used: ' + listFilename)
 
         print "Found "+str(len(result))+" items."
 
@@ -305,7 +306,7 @@ def processList(mode):
 
     except:
         print 'Error at processList():',sys.exc_info()
-        print 'failed'
+        print 'Failed'
         __log__.error('Error at processList(): ' + str(sys.exc_info()))
         raise
 
@@ -415,7 +416,9 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
         printAndLog('error', 'Error at processMember(): ' + str(sys.exc_info()))
         try: 
             if listPage != None :
-                dumpHtml('Error page for member ' + str(member_id) + '.html', listPage.get_data())
+                dumpFilename = 'Error page for member ' + str(member_id) + '.html'
+                dumpHtml(dumpFilename, listPage.get_data())
+                printAndLog('error', "Dumping html to: " + dumpFilename)
         except:
             printAndLog('error', 'Cannot dump page for member_id:'+str(member_id))
         raise
@@ -453,8 +456,11 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 print ''
                 ++retryCount
                 if retryCount > __config__.retry:
-                    if mediumPage != None :
-                        dumpHtml('Error page for image ' + str(image_id) + '.html', mediumPage.get_data())
+                    printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
+                    if mediumPage != None:
+                        dumpFilename = 'Error page for image ' + str(image_id) + '.html'
+                        dumpHtml(dumpFilename , mediumPage.get_data())
+                        printAndLog('error', 'Dumping html to: ' + dumpFilename);
                     return
         print "Title:", PixivHelper.safePrint(image.imageTitle)
         print "Tags :", PixivHelper.safePrint(', '.join(image.imageTags))
@@ -557,14 +563,16 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         print 'Error at processImage():',str(sys.exc_info())
         __log__.error('Error at processImage(): ' + str(sys.exc_info()))
         try:
-            dumpHtml('image_'+str(image_id)+'.html', mediumPage.get_data())
+            dumpFilename = 'image_'+str(image_id)+'.html'
+            dumpHtml(dumpFilename, mediumPage.get_data())
+            printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
 def processTags(mode, tags, page=1):
     try:
-        msg = 'Searching for tags '+tags
+        msg = 'Searching for tags: '+tags
         print msg
         __log__.info(msg)
         if not tags.startswith("%") :

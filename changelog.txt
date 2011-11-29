@@ -2,6 +2,7 @@
 - by Nandaka
   - Fix PixivHelper, add import sys statement as reported by MikoMiko.
   - Update Download/Export from online user bookmark: only process the private/hidden user bookmark.
+  - Update error logging message.
 
 20111126
 - by Nandaka
