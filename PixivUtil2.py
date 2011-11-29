@@ -629,7 +629,7 @@ def processTagsList(mode, filename, page=1):
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
         raise
 
-def processImageBookmark(mode, hide=False, member_id=0):
+def processImageBookmark(mode, hide='n', member_id=0):
     try:
         print "Importing image bookmarks..."
         #totalList = list()
@@ -646,7 +646,6 @@ def processImageBookmark(mode, hide=False, member_id=0):
             l = PixivBookmark.parseImageBookmark(parsePage)
             if len(l) == 0:
                 break
-            #totalList.extend(l)
 
             for item in l:
                 #print item
@@ -689,29 +688,32 @@ def getBookmarks(hide):
         i = i + 1
     return totalList
 
-def processBookmark(mode, hide=False):
+def processBookmark(mode, hide='n'):
     try:
-        print "Importing Bookmarks..."
-        totalList = getBookmarks(hide=False)
-        if hide:
+        totalList = list()
+        if hide != 'o':
+            print "Importing Bookmarks..."
+            totalList.extend(getBookmarks(False))
+        if hide != 'n':
             print "Importing Hidden Bookmarks..."
-            totalList.extend(getBookmarks(hide=True))
+            totalList.extend(getBookmarks(True))
         print "Result: ", str(len(totalList)), "items."        
         for item in totalList:
             processMember(mode, item.memberId, item.path)
-
     except :
         print 'Error at processBookmark():',sys.exc_info()
         __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
         raise
 
-def exportBookmark(filename, hide=False):
+def exportBookmark(filename, hide='n'):
     try:
-        print "Importing Bookmarks..." 
-        totalList = getBookmarks(hide=False)
-        if hide:
+        totalList = list()
+        if hide != 'o':
+            print "Importing Bookmarks..."
+            totalList.extend(getBookmarks(False))
+        if hide != 'n':
             print "Importing Hidden Bookmarks..."
-            totalList.extend(getBookmarks(hide=True))
+            totalList.extend(getBookmarks(True))
         print "Result: ", str(len(totalList)), "items."
         PixivBookmark.exportList(totalList, filename)
     except :
@@ -828,24 +830,29 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
     if opisvalid :
         if len(args) > 0:
             arg = args[0].lower()
-            if arg == 'y' or arg =='n':
+            if arg == 'y' or arg =='n' or arg == 'o':
                 hide = arg
             else:
                 print "Invalid args: ", args
     else :
-        hide = raw_input("Include hidden bookmarks [y/n]: ") or 'n'
-    if hide == 'y':
-        hide = True
+        arg = raw_input("Include hidden bookmarks [y/n/o]: ") or 'n'
+        arg = arg.lower()
+        if arg == 'y' or arg =='n' or arg == 'o':
+            hide = arg
+        else:
+            print "Invalid args: ", arg
     processBookmark(mode, hide)
 
 def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
     __log__.info('Image Bookmark mode.')
     if opisvalid and len(args) > 0 :
-        hide = args.pop(0)
-        if hide == 'y' or hide == 'Y':
-            hide = True
+        arg = args.pop(0)
+        arg = arg.lower()
+        arg = args[0].lower()
+        if arg == 'y' or arg =='n':
+            hide = arg
         else:
-            hide = False
+            print "Invalid args: ", args
         if len(args) == 0:
             args.append(0)
         for arg in args:
@@ -859,9 +866,12 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
         memberId = int(memberIdStr)
         hide = False
         if memberId == 0 :
-            hide = raw_input("Hidden bookmarks [y/n]: ")
-            if hide == 'y':
-                hide = True
+            arg = raw_input("Only hidden bookmarks [y/n]: ") or 'n'
+            arg = arg.lower()
+            if arg == 'y' or arg =='n':
+                hide = arg
+            else:
+                print "Invalid args: ", arg
         processImageBookmark(mode, hide, memberId)
 
 def menuDownloadFromTagsList(mode, opisvalid, args):
@@ -906,9 +916,12 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
 def menuExportOnlineBookmark(mode, opisvalid, args):
     __log__.info('Export Bookmark mode.')
     filename = raw_input("Filename: ")
-    hide = raw_input("Include hidden bookmarks [y/n]: ")
-    if hide == 'y':
-        hide = True
+    arg = raw_input("Include hidden bookmarks [y/n/o]: ") or 'n'
+    arg = arg.lower()
+    if arg == 'y' or arg =='n' or arg == 'o':
+        hide = arg
+    else:
+        print "Invalid args: ", arg
     exportBookmark(filename, hide)
     
 def setTitle(title=''):
