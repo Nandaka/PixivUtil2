@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
-
-from PixivModel import PixivArtist, PixivImage, PixivModelException
+from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark
 from BeautifulSoup import BeautifulSoup
 import unittest
 
