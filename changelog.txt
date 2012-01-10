@@ -1,4 +1,9 @@
-201112xx
+201201xx
+- by Nandaka
+  - Add BOM handler for list.txt
+  - Add End Page for download new illust from bookmark as requested by Golden Wolf
+
+20111212
 - by Nandaka
   - replace os.system() to subprocess.call()
 
