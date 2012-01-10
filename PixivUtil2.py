@@ -684,6 +684,7 @@ def getBookmarks(hide):
     totalList = list()
     i = 1
     while True:
+        print 'Exporting page', str(i)
         url = 'http://www.pixiv.net/bookmark.php?type=user&p='+str(i)
         if hide:
             url = url + "&rest=hide"
@@ -729,7 +730,7 @@ def exportBookmark(filename, hide='n'):
         __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
         raise
 
-def processNewIllustFromBookmark(mode, pageNum=1):
+def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
     try:
         print "Processing New Illust from bookmark"
         i = pageNum
@@ -754,7 +755,7 @@ def processNewIllustFromBookmark(mode, pageNum=1):
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
-            if i >= 100:
+            if ( endPageNum != 0 and i > endPageNum ) or i >= 100:
                 print "Last page, all done."
                 break
         print "Done."
@@ -910,8 +911,17 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
             try:
                 pageNum = int(args[0])
             except:
-                print "Invalid page number:", args
+                print "Invalid page number:", args[0]
                 return
+            if len(args) > 1:
+                try:
+                    endPageNum = int(args[1])
+                    if pageNum > endPageNum:
+                        print "pageNum is bigger than endPageNum, assuming as page count."
+                        endPageNum = pageNum + endPageNum
+                except:
+                    print "Invalid end page number:", args[1]
+                    return
     else:
         pageNum = raw_input('Start Page: ') or 1
         try:
@@ -919,7 +929,17 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
         except:
             print "Invalid page number:", pageNum
             return
-    processNewIllustFromBookmark(mode, pageNum)
+        
+        endPageNum = raw_input('End Page: ') or 0
+        try:
+            endPageNum = int(endPageNum)
+            if pageNum > endPageNum:
+                print "pageNum is bigger than endPageNum, assuming as page count."
+                endPageNum = pageNum + endPageNum
+        except:
+            print "Invalid end page number:", endPageNum
+            return
+    processNewIllustFromBookmark(mode, pageNum, endPageNum)
 
 def menuExportOnlineBookmark(mode, opisvalid, args):
     __log__.info('Export Bookmark mode.')

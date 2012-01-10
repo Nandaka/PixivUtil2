@@ -97,7 +97,8 @@ B.Bugs/Source Code/Supports:
                             (required: followed by path to the tags list and 
                              starting page)
                         8 - Download new illust from bookmark
-                            (optional: followed by starting page number)
+                            (optional: followed by starting page number and end 
+                             page number)
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 

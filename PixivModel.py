@@ -265,7 +265,8 @@ class PixivListItem:
     if not os.path.exists(filename) :
       raise PixivModelException("File doesn't exists or no permission to read: " + filename)
 
-    reader = open(filename, "r")
+    #reader = open(filename, "r")
+    reader = PixivHelper.OpenTextFile(filename)
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
