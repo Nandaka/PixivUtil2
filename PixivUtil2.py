@@ -318,8 +318,9 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
         page = 1
         noOfImages = 1
         avatarDownloaded = False
+        flag = True
 
-        while True:
+        while flag:
             print 'Page ',page
             setTitle("MemberId: " + str(member_id) + " Page: " + str(page))
             ## Try to get the member page
@@ -399,16 +400,21 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                 noOfImages = noOfImages + 1
             page = page + 1
 
+            if npisvalid == True: #Yavos: overwriting config-data
+                if page > np and np != 0:
+                    flag = False
+            elif page > __config__.numberOfPage and __config__.numberOfPage != 0 :
+                flag = False
+
+            if artist.isLastPage:
+                print "Last Page"
+                flag = False
+            
             del artist
             del listPage
             __br__.clear_history()
             gc.collect()
-
-            if npisvalid == True: #Yavos: overwriting config-data
-                if page > np and np != 0:
-                    break
-            elif page > __config__.numberOfPage and __config__.numberOfPage != 0 :
-                break
+            
         __dbManager__.updateLastDownloadedImage(member_id, image_id)
         print 'Done.\n'
         __log__.info('Member_id: ' + str(member_id) + ' complete, last image_id: ' + str(image_id))
@@ -570,7 +576,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
-def processTags(mode, tags, page=1):
+def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False):
     try:
         msg = 'Searching for tags: '+tags
         print msg
@@ -582,7 +588,14 @@ def processTags(mode, tags, page=1):
         images = 1
         
         while True:
-            url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags
+            if titleCaption:
+                url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p='+str(i)+'&word='+tags
+            else:
+                if wildCard:
+                    url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags
+                else:
+                    url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i)
+                    
             print 'Looping... for '+ url
             searchPage = __br__.open(url)
 
@@ -620,7 +633,9 @@ def processTags(mode, tags, page=1):
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
-
+            if endPage != 0 and endPage < i:
+                print 'End Page reached.'
+                break
             if t.isLastPage:
                 print 'Last page'
                 break
@@ -783,6 +798,7 @@ def menu():
     print '6. Download from online image bookmark'
     print '7. Download from tags list'
     print '8. Download new illust from bookmark'
+    print '9. Download by Title/Caption'
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export online bookmark'
@@ -825,13 +841,49 @@ def menuDownloadByTags(mode, opisvalid, args):
         tags = " ".join(args)
     else:
         tags = raw_input('Tags: ')
+        wildcard = raw_input('Use Wildcard[y/n]: ') or False
+        if wildcard.lower() == 'y':
+            wildcard = True
+        else:
+            wildcard = False
+        
         page = raw_input('Start Page: ') or 1
         try:
             page = int(page)
         except:
             print 'Invalid page number:', page
             return
-    processTags(mode, tags, int(page))
+
+        endPage = raw_input('End Page: ') or 0
+        try:
+            endPage = int(endPage)
+        except:
+            print 'Invalid end page number:', endPage
+            return
+    processTags(mode, tags, page, endPage, wildcard)
+
+def menuDownloadByTitleCaption(mode, opisvalid, args):
+    __log__.info('Title/Caption mode.')
+    page = 1
+    if opisvalid and len(args) > 0:
+        tags = " ".join(args)
+    else:
+        tags = raw_input('Title/Caption: ')
+        page = raw_input('Start Page: ') or 1
+        try:
+            page = int(page)
+        except:
+            print 'Invalid page number:', page
+            return
+        
+        endPage = raw_input('End Page: ') or 0
+        try:
+            endPage = int(endPage)
+        except:
+            print 'Invalid end page number:', endPage
+            return
+        
+    processTags(mode, tags, page, endPage, wildcard=False, titleCaption=True)
 
 def menuDownloadFromList(mode, opisvalid, args):
     __log__.info('Batch mode.')
@@ -984,6 +1036,7 @@ def main():
                            '6 - Download from image bookmark                         ' +
                            '7 - Download from tags list                              ' +
                            '8 - Download new illust from bookmark                    ' +
+                           '9 - Download by Title/Caption                            ' +
                            'e - Export online bookmark                               ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
@@ -996,7 +1049,7 @@ def main():
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', 'd', 'e'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', 'd', 'e'):
         opisvalid = True
     elif op == None:
         opisvalid = False
@@ -1119,7 +1172,8 @@ def main():
                     menuDownloadFromTagsList(mode, opisvalid, args)
                 elif selection == '8':
                     menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
-                    
+                elif selection == '9':
+                    menuDownloadByTitleCaption(mode, opisvalid, args)
                 elif selection == 'e':
                     menuExportOnlineBookmark(mode, opisvalid, args)
                 elif selection == 'd':

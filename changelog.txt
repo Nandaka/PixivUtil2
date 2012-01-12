@@ -3,6 +3,7 @@
   - Add BOM handler for list.txt
   - Add End Page for download new illust from bookmark as requested by Golden Wolf
   - Add Last Page Detection for download by tags as reported by tribe
+  - Add use wilcard option for download by tags and download by Title/Caption as requested by tribe
 
 20111212
 - by Nandaka

@@ -6,11 +6,14 @@ import re
 import PixivHelper
 
 class PixivArtist:
+  '''Class for parsing member page.'''
   artistId     = 0
   artistName   = ""
   artistAvatar = ""
   artistToken  = ""
   imageList    = []
+  isLastPage = None
+  haveImages = None
 
   def __init__(self, mid=0, page=None, fromImage=False):
     if page != None:
@@ -29,6 +32,15 @@ class PixivArtist:
       ## parse artist info
       self.ParseInfo(page, fromImage)
 
+      ## check if no images
+      if len(self.imageList) > 0:
+        self.haveImages = True
+      else:
+        self.haveImages = False
+
+      ## check if the last page
+      self.CheckLastPage(page)
+      
       ## check id
       if mid == self.artistId:
         print 'member_id OK'
@@ -96,6 +108,14 @@ class PixivArtist:
   def IsUserSuspended(self, page):
     errorMessage = '該当ユーザーのアカウントは停止されています。'
     return self.HaveString(page, errorMessage)
+
+  def CheckLastPage(self, page):
+    check = page.findAll('a', attrs={'class':'button', 'rel':'next'})
+    if len(check) > 0:
+      self.isLastPage = False
+    else:
+      self.isLastPage = True
+    return self.isLastPage
     
   def PrintInfo(self):
     print 'id    :',self.artistId
@@ -106,6 +126,7 @@ class PixivArtist:
       print item
     
 class PixivImage:
+  '''Class for parsing image page, including manga page and big image.'''
   artist     = None
   imageId    = 0
   imageTitle = ""
@@ -293,6 +314,7 @@ class PixivListItem:
     return l
 
 class PixivBookmark:
+  '''Class for parsing Bookmarks'''
 
   @staticmethod
   def parseBookmark(page):
@@ -352,8 +374,9 @@ class PixivBookmark:
     writer.close()
 
 class PixivTags:
+  '''Class for parsing tags search page'''
   imageList = list()
-  isHaveImage = None
+  haveImage = None
   isLastPage = None
   
   def parseTags(self, page):
@@ -370,9 +393,9 @@ class PixivTags:
 
     # Check if have image
     if len(self.imageList) > 0:
-      self.isHaveImage = True
+      self.haveImage = True
     else:
-      self.isHaveImage = False
+      self.haveImage = False
 
     # check if the last page
     check = page.findAll('li', attrs={'class':'next'})
