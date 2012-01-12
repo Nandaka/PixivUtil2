@@ -620,6 +620,10 @@ def processTags(mode, tags, page=1):
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
+
+            if t.isLastPage:
+                print 'Last page'
+                break
         print 'done'
     except:
         print 'Error at processTags():',sys.exc_info()

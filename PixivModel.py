@@ -353,8 +353,11 @@ class PixivBookmark:
 
 class PixivTags:
   imageList = list()
+  isHaveImage = None
+  isLastPage = None
   
   def parseTags(self, page):
+    '''parse tags search page and return the image list'''
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     linkList = page.findAll('a')
     for link in linkList:
@@ -364,7 +367,20 @@ class PixivTags:
         if len(result) > 0 :
           image_id = int(result[0])
           self.imageList.append(image_id)
-          
+
+    # Check if have image
+    if len(self.imageList) > 0:
+      self.isHaveImage = True
+    else:
+      self.isHaveImage = False
+
+    # check if the last page
+    check = page.findAll('li', attrs={'class':'next'})
+    if len(check) > 0:
+      self.isLastPage = False
+    else:
+      self.isLastPage = True
+      
     return self.imageList
  
   @staticmethod
