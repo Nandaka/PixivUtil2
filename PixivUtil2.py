@@ -938,7 +938,6 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
         for arg in args:
             try:
                 memberId = int(arg)
-                processImageBookmark(mode, hide, memberId)
             except:
                 print "Invalid Member Id:", arg
     else:
@@ -952,7 +951,8 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
                 hide = arg
             else:
                 print "Invalid args: ", arg
-        processImageBookmark(mode, hide, memberId)
+                
+    processImageBookmark(mode, hide, memberId)
 
 def menuDownloadFromTagsList(mode, opisvalid, args):
     __log__.info('Taglist mode.')
@@ -963,7 +963,6 @@ def menuDownloadFromTagsList(mode, opisvalid, args):
         filename = raw_input("Tags list filename: ") or './tags.txt'
         (page, endPage) = getStartAndEndNumber()
 
-    raw_input(str((page, endPage)))
     processTagsList(mode, filename, page)
 
 def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
