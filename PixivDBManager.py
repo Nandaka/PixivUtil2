@@ -103,7 +103,7 @@ class PixivDBManager:
         print 'done.'
         return 0
 
-    def exportList(self,filename):
+    def exportList(self,filename, includeArtistToken=True):
         print 'Exporting list...',
         try:
             c = self.conn.cursor()
@@ -116,10 +116,11 @@ class PixivDBManager:
             writer = codecs.open(filename, 'wb', encoding='utf-8')
             writer.write('###Export date: ' + str(datetime.today()) +'###\r\n')
             for row in c:
-                data = unicode(row[2])
-                writer.write("# ")
-                writer.write(data)
-                writer.write("\r\n")
+                if includeArtistToken:
+                    data = unicode(row[2])
+                    writer.write("# ")
+                    writer.write(data)
+                    writer.write("\r\n")
                 writer.write(str(row[0]))
                 if len(row[1]) > 0:
                     writer.write(' ' + str(row[1]))
@@ -584,7 +585,12 @@ class PixivDBManager:
                     self.printImageList()
                 if selection == '3':
                     filename = raw_input('Filename? ')
-                    self.exportList(filename)
+                    includeArtistToken = raw_input('Include Artist Token[y/n]? ')
+                    if includeArtistToken.lower() == 'y':
+                        includeArtistToken = True
+                    else:
+                        includeArtistToken = False
+                    self.exportList(filename, includeArtistToken)
                 if selection == '4':
                     filename = raw_input('Filename? ')
                     self.exportDetailedList(filename)

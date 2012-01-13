@@ -313,6 +313,41 @@ class PixivListItem:
     reader.close()        
     return l
 
+class PixivNewIllustBookmark:
+  '''Class for parsing New Illust from Bookmarks'''
+  imageList  = None
+  isLastPage = None
+  haveImages = None
+
+  def __init__(self, page):
+    self.__ParseNewIllustBookmark(page)
+    self.__CheckLastPage(page)
+    if len(self.imageList) > 0:
+      self.haveImages = True
+    else:
+      self.haveImages = False
+    
+  def __ParseNewIllustBookmark(self,page):
+    self.imageList = list()
+    try:
+      result = page.find(attrs={'class':'images autopagerize_page_element'}).findAll('a')
+      for r in result:
+        href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
+        if href != None:
+          href = href.group(1)
+          self.imageList.append(int(href))
+    except:
+      pass
+    return self.imageList
+
+  def __CheckLastPage(self, page):
+    check = page.findAll('a', attrs={'class':'button', 'rel':'next'})
+    if len(check) > 0:
+      self.isLastPage = False
+    else:
+      self.isLastPage = True
+    return self.isLastPage
+
 class PixivBookmark:
   '''Class for parsing Bookmarks'''
 
@@ -326,20 +361,6 @@ class PixivBookmark:
       for r in result:
         item = db.selectMemberByMemberId2(r['value'])
         l.append(item)
-    except:
-      pass
-    return l
-
-  @staticmethod
-  def parseNewIllustBookmark(page):
-    l = list()
-    try:
-      result = page.find(attrs={'class':'images autopagerize_page_element'}).findAll('a')
-      for r in result:
-        href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
-        if href != None:
-          href = href.group(1)
-          l.append(int(href))
     except:
       pass
     return l

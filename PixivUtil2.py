@@ -26,7 +26,7 @@ import PixivConstant
 import PixivConfig
 import PixivDBManager
 import PixivHelper
-from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags
+from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
 
 ##import pprint
 
@@ -628,11 +628,6 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             del parseSearchPage
             del searchPage
 
-            if npisvalid == True: #Yavos: overwrite config-data
-                if i > np and np != 0:
-                    break
-            elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
-                break
             if endPage != 0 and endPage < i:
                 print 'End Page reached.'
                 break
@@ -645,12 +640,12 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
-def processTagsList(mode, filename, page=1):
+def processTagsList(mode, filename, page=1, endPage=0):
     try:
-        print "Reading",filename
+        print "Reading:",filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            processTags(mode, tag, page)
+            processTags(mode, tag, page, endPage)
     except:
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
@@ -675,7 +670,6 @@ def processImageBookmark(mode, hide='n', member_id=0):
                 break
 
             for item in l:
-                #print item
                 processImage(mode, artist=None, image_id=item)
         
             i = i + 1
@@ -688,11 +682,7 @@ def processImageBookmark(mode, hide='n', member_id=0):
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
                 break
-            
-        #print "Result: ", str(len(totalList)), "items."
-        
-        #for item in totalList:
-        #    processImage(mode, artist=None, image_id=item)
+
         print "Done.\n"
     except :
         print 'Error at processImageBookmark():',sys.exc_info()
@@ -758,25 +748,22 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
             url = 'http://www.pixiv.net/bookmark_new_illust.php?p='+str(i)
             page = __br__.open(url)
             parsedPage = BeautifulSoup(page.read())
-            l = PixivBookmark.parseNewIllustBookmark(parsedPage)
-            if len(l) == 0:
+            pb = PixivNewIllustBookmark(parsedPage)
+            if not pb.haveImages:
+                print "No images!"
                 break
-            
-            for image_id in l:
+
+            for image_id in pb.imageList:
                 processImage(mode, artist=None, image_id=int(image_id))
             i = i + 1
 
             parsedPage.decompose()
             del parsedPage
 
-            if npisvalid == True: #Yavos: overwrite config-data
-                if i > np and np != 0:
-                    break
-            elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
+            if ( endPageNum != 0 and i > endPageNum ) or i >= 100 or pb.isLastPage:
+                print "Limit or last page reached."
                 break
-            if ( endPageNum != 0 and i > endPageNum ) or i >= 100:
-                print "Last page, all done."
-                break
+            
         print "Done."
     except:
         print 'Error at processNewIllustFromBookmark():',sys.exc_info()
@@ -786,7 +773,59 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
 def header():
     print 'PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION
     print PixivConstant.PIXIVUTIL_LINK
-    
+
+def getStartAndEndNumber(startOnly=False):
+    pageNum = raw_input('Start Page (default=1): ') or 1
+    try:
+        pageNum = int(pageNum)
+    except:
+        print "Invalid page number:", pageNum
+        raise
+
+    endPageNum = 0
+    if npisvalid:
+        endPageNum = np
+    else:
+        endPageNum = __config__.numberOfPage
+    if not startOnly:
+        endPageNum = raw_input('End Page (default='+ str(endPageNum) +', 0 for no limit): ') or endPageNum
+        try:
+            endPageNum = int(endPageNum)
+            if pageNum > endPageNum:
+                print "pageNum is bigger than endPageNum, assuming as page count."
+                endPageNum = pageNum + endPageNum
+        except:
+            print "Invalid end page number:", endPageNum
+            raise
+
+    return (pageNum, endPageNum)
+
+def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
+    pageNum = 1
+    if len(args) > 0+offset:
+        try:
+            pageNum = int(args[0+offset])
+        except:
+            print "Invalid page number:", args[0+offset]
+            raise
+        
+    endPageNum = 0
+    if npisvalid:
+        endPageNum = np
+    else:
+        endPageNum = __config__.numberOfPage
+    if not startOnly:
+        if len(args) > 1+offset:
+            try:
+                endPageNum = int(args[1+offset])
+                if pageNum > endPageNum:
+                    print "pageNum is bigger than endPageNum, assuming as page count."
+                    endPageNum = pageNum + endPageNum
+            except:
+                print "Invalid end page number:", args[1+offset]
+                raise
+    return (pageNum, endPageNum)
+
 def menu():
     setTitle()
     header()
@@ -846,20 +885,8 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = True
         else:
             wildcard = False
+        (page, endPage) = getStartAndEndNumber()
         
-        page = raw_input('Start Page: ') or 1
-        try:
-            page = int(page)
-        except:
-            print 'Invalid page number:', page
-            return
-
-        endPage = raw_input('End Page: ') or 0
-        try:
-            endPage = int(endPage)
-        except:
-            print 'Invalid end page number:', endPage
-            return
     processTags(mode, tags, page, endPage, wildcard)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
@@ -869,19 +896,7 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
         tags = " ".join(args)
     else:
         tags = raw_input('Title/Caption: ')
-        page = raw_input('Start Page: ') or 1
-        try:
-            page = int(page)
-        except:
-            print 'Invalid page number:', page
-            return
-        
-        endPage = raw_input('End Page: ') or 0
-        try:
-            endPage = int(endPage)
-        except:
-            print 'Invalid end page number:', endPage
-            return
+        (page, endPage) = getStartAndEndNumber()
         
     processTags(mode, tags, page, endPage, wildcard=False, titleCaption=True)
 
@@ -943,58 +958,22 @@ def menuDownloadFromTagsList(mode, opisvalid, args):
     __log__.info('Taglist mode.')
     if opisvalid and len(args) > 0 :
         filename = args[0]
-        try:
-            page = int(args[1])
-        except:
-            print "Invalid args:", args
-            return
-        processTagsList(mode, filename, page)
+        (page, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
     else:
         filename = raw_input("Tags list filename: ") or './tags.txt'
-        page  = raw_input('Start Page: ') or 1
-        try:
-            page = int(page)
-        except:
-            print 'Invalid page number:', page
-            return
-        processTagsList(mode, filename, page)
+        (page, endPage) = getStartAndEndNumber()
+
+    raw_input(str((page, endPage)))
+    processTagsList(mode, filename, page)
 
 def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
     __log__.info('New Illust from Bookmark mode.')
+
     if opisvalid:
-        pageNum = 1
-        if len(args) > 0:
-            try:
-                pageNum = int(args[0])
-            except:
-                print "Invalid page number:", args[0]
-                return
-            if len(args) > 1:
-                try:
-                    endPageNum = int(args[1])
-                    if pageNum > endPageNum:
-                        print "pageNum is bigger than endPageNum, assuming as page count."
-                        endPageNum = pageNum + endPageNum
-                except:
-                    print "Invalid end page number:", args[1]
-                    return
+        (pageNum, endPageNum) = getStartAndEndNumberFromArgs()
     else:
-        pageNum = raw_input('Start Page: ') or 1
-        try:
-            pageNum = int(pageNum)
-        except:
-            print "Invalid page number:", pageNum
-            return
-        
-        endPageNum = raw_input('End Page: ') or 0
-        try:
-            endPageNum = int(endPageNum)
-            if pageNum > endPageNum:
-                print "pageNum is bigger than endPageNum, assuming as page count."
-                endPageNum = pageNum + endPageNum
-        except:
-            print "Invalid end page number:", endPageNum
-            return
+        (pageNum, endPageNum) = getStartAndEndNumber()
+    
     processNewIllustFromBookmark(mode, pageNum, endPageNum)
 
 def menuExportOnlineBookmark(mode, opisvalid, args):
