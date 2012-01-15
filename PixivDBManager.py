@@ -43,6 +43,14 @@ class PixivDBManager:
             
             self.conn.commit()
 
+            # add column isDeleted
+            # 0 = false, 1 = true
+            try:
+                c.execute('''ALTER TABLE pixiv_master_member ADD COLUMN is_deleted INTEGER DEFAULT 0''')
+                self.conn.commit()
+            except:
+                pass
+
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_master_image (
                             image_id INTEGER PRIMARY KEY,
                             member_id INTEGER,
@@ -87,7 +95,7 @@ class PixivDBManager:
             c = self.conn.cursor()
             
             for item in listTxt:
-                c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1)''',
+                c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                                   (item.memberId, str(item.memberId), 'N\A'))
                 c.execute('''UPDATE pixiv_master_member 
                              SET save_folder = ? 
@@ -109,6 +117,7 @@ class PixivDBManager:
             c = self.conn.cursor()
             c.execute('''SELECT member_id, save_folder, name
                          FROM pixiv_master_member
+                         WHERE is_deleted = 0
                          ORDER BY member_id''')
             if not filename.endswith(".txt"):
                 filename = filename + '.txt'
@@ -141,10 +150,11 @@ class PixivDBManager:
         try:
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_master_member
+                            WHERE is_deleted = 0
                             ORDER BY member_id''')
             filename = filename + '.csv'
             writer = codecs.open(filename, 'wb', encoding='utf-8')
-            writer.write('member_id,name,save_folder,created_date,last_update_date,last_image\r\n')
+            writer.write('member_id,name,save_folder,created_date,last_update_date,last_image,is_deleted\r\n')
             for row in c:
                 for string in row:
                     #try:
@@ -170,18 +180,21 @@ class PixivDBManager:
 ##########################################
 ## III. Print DB                        ##
 ##########################################          
-    def printMemberList(self):
+    def printMemberList(self, isDeleted=False):
         print 'Printing member list:'
         try:
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_master_member
-                            ORDER BY member_id''')
-            print 'member_id\tname\tsave_folder\tcreated_date\tlast_update_date\tlast_image'
+                         WHERE is_deleted = ?
+                            ORDER BY member_id''', (int(isDeleted), ))
+            print '%10s %25s %25s %20s %20s %10s %s' % ('member_id','name','save_folder','created_date','last_update_date','last_image','is_deleted')
             i = 0
             for row in c:
                 for string in row:
                     print '\t',
                     PixivHelper.safePrint(string)
+                #PixivHelper.safePrint('%10d %#25s %#25s %20s %20s %10d %5s' % (row[0], unicode(row[1]).strip(), row[2], row[3], row[4], row[5], row[6]))
+                #PixivHelper.safePrint(u'{0:10d} {1:25s} {2:20s} {3:20s} {4:10d} {5:5d}'.format(row[0], row[1], row[2], row[4], row[5], row[6]))
                 print ''
                 i = i + 1
                 if i == 79:
@@ -255,7 +268,7 @@ class PixivDBManager:
                 if member_id > 0:
                     break
             
-            c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1)''',
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                                   (member_id, str(member_id), 'N\A'))
         except:
             print 'Error at insertNewMember():',str(sys.exc_info())
@@ -264,11 +277,11 @@ class PixivDBManager:
         finally:
             c.close()
             
-    def selectAllMember(self):
+    def selectAllMember(self, isDeleted=False):
         l = list()
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member ORDER BY member_id''')
+            c.execute('''SELECT member_id, save_folder FROM pixiv_master_member WHERE is_deleted = ? ORDER BY member_id''', (int(isDeleted), ))
             result = c.fetchall()
 
             for row in result:
@@ -283,7 +296,7 @@ class PixivDBManager:
             c.close()
             
         return l
-
+    
     def selectMembersByLastDownloadDate(self, difference):
         l = list()
         try:
@@ -295,7 +308,7 @@ class PixivDBManager:
                 
             c.execute('''SELECT member_id, save_folder,  (julianday(Date('now')) - julianday(last_update_date)) as diff
                          FROM pixiv_master_member
-                         WHERE last_image == -1 OR diff > '''+ str(int_diff) +''' ORDER BY member_id''')
+                         WHERE is_deleted = 0 AND ( last_image == -1 OR diff > '''+ str(int_diff) +''' ) ORDER BY member_id''')
             result = c.fetchall()
             for row in result:
                 item = PixivListItem(row[0], row[1])
@@ -418,6 +431,21 @@ class PixivDBManager:
             self.conn.commit()
         except:
             print 'Error at deleteCascadeMemberByMemberId():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
+
+    def setIsDeletedFlagForMemberId(self, memberId):
+        try:
+            c = self.conn.cursor()
+            c.execute('''UPDATE pixiv_master_member
+                            SET is_deleted = 1, last_update_date = datetime('now')
+                            WHERE member_id = ?''',
+                            (memberId,))
+            self.conn.commit()
+        except:
+            print 'Error at setIsDeletedMemberId():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
@@ -568,6 +596,7 @@ class PixivDBManager:
         print '10. Delete image by image_id'
         print '11. Delete member and image (cascade deletion)'
         print '12. Blacklist image by image_id'
+        print '13. Show all deleted member'
         print '==============================================='
         print 'c. Clean Up Database'
         print 'x. Exit'
@@ -581,9 +610,9 @@ class PixivDBManager:
 
                 if selection == '1':
                     self.printMemberList()
-                if selection == '2':
+                elif selection == '2':
                     self.printImageList()
-                if selection == '3':
+                elif selection == '3':
                     filename = raw_input('Filename? ')
                     includeArtistToken = raw_input('Include Artist Token[y/n]? ')
                     if includeArtistToken.lower() == 'y':
@@ -591,10 +620,10 @@ class PixivDBManager:
                     else:
                         includeArtistToken = False
                     self.exportList(filename, includeArtistToken)
-                if selection == '4':
+                elif selection == '4':
                     filename = raw_input('Filename? ')
                     self.exportDetailedList(filename)
-                if selection == '5':
+                elif selection == '5':
                     date = raw_input('Number of date? ')
                     rows = self.selectMembersByLastDownloadDate(date)
                     if rows != None:
@@ -605,7 +634,7 @@ class PixivDBManager:
                             print '\n'
                     else :
                         print 'Not Found!\n'
-                if selection == '6':
+                elif selection == '6':
                     image_id = raw_input('image_id? ')
                     row = self.selectImageByImageId(image_id)
                     if row != None:
@@ -615,7 +644,7 @@ class PixivDBManager:
                         print '\n'
                     else :
                         print 'Not Found!\n'
-                if selection == '7':
+                elif selection == '7':
                     member_id = raw_input('member_id? ')
                     row = self.selectMemberByMemberId(member_id)
                     if row != None:
@@ -625,7 +654,7 @@ class PixivDBManager:
                         print '\n'
                     else :
                         print 'Not Found!\n'
-                if selection == '8':
+                elif selection == '8':
                     member_id = raw_input('member_id? ')
                     rows = self.selectImageByMemberId(member_id)
                     if rows != None:
@@ -636,22 +665,24 @@ class PixivDBManager:
                             print '\n'
                     else :
                         print 'Not Found!\n'
-                if selection == '9':
+                elif selection == '9':
                     member_id = raw_input('member_id? ')
                     self.deleteMemberByMemberId(member_id)
-                if selection == '10':
+                elif selection == '10':
                     image_id = raw_input('image_id? ')
                     self.deleteImage(image_id)
-                if selection == '11':
+                elif selection == '11':
                     member_id = raw_input('member_id? ')
                     self.deleteCascadeMemberByMemberId(member_id)
-                if selection == '12':
+                elif selection == '12':
                     member_id = raw_input('member_id? ')
                     image_id = raw_input('image_id? ')
                     self.blacklistImage(member_id, image_id)
-                if selection == 'c':
+                elif selection == 'c':
                     self.cleanUp()
-                if selection == 'x':
+                elif selection == '13':
+                    self.printMemberList(isDeleted = True)
+                elif selection == 'x':
                     break
             print 'end PixivDBManager.'
         except:

@@ -332,8 +332,10 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                 except PixivModelException as ex:
                     print 'Error:',ex
                     if ex.errorCode == 1001 or ex.errorCode == 1002:
-                        __dbManager__.deleteMemberByMemberId(member_id)
-                        printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
+                        __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
+                        printAndLog('info', 'Set IsDelted for MemberId: ' + str(member_id) + ' not exist.')
+                        #__dbManager__.deleteMemberByMemberId(member_id)
+                        #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
                     return
                 except Exception as ue:
                     print ue
