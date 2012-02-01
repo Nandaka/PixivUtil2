@@ -1,3 +1,8 @@
+201202xx
+- by Nandaka
+  - Fix no limit for end page as reported by Troid.
+
+
 20120114
 - by Nandaka
   - Add BOM handler for list.txt.

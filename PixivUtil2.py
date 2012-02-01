@@ -745,6 +745,7 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
     try:
         print "Processing New Illust from bookmark"
         i = pageNum
+        imageCount = 1
         while True:
             print "Page #"+str(i)
             url = 'http://www.pixiv.net/bookmark_new_illust.php?p='+str(i)
@@ -756,7 +757,9 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
                 break
 
             for image_id in pb.imageList:
+                print "Image #"+str(imageCount)
                 processImage(mode, artist=None, image_id=int(image_id))
+                imageCount = imageCount + 1
             i = i + 1
 
             parsedPage.decompose()
@@ -793,7 +796,7 @@ def getStartAndEndNumber(startOnly=False):
         endPageNum = raw_input('End Page (default='+ str(endPageNum) +', 0 for no limit): ') or endPageNum
         try:
             endPageNum = int(endPageNum)
-            if pageNum > endPageNum:
+            if pageNum > endPageNum and endPageNum != 0:
                 print "pageNum is bigger than endPageNum, assuming as page count."
                 endPageNum = pageNum + endPageNum
         except:
@@ -820,7 +823,7 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
         if len(args) > 1+offset:
             try:
                 endPageNum = int(args[1+offset])
-                if pageNum > endPageNum:
+                if pageNum > endPageNum and endPageNum != 0:
                     print "pageNum is bigger than endPageNum, assuming as page count."
                     endPageNum = pageNum + endPageNum
             except:
