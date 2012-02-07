@@ -578,7 +578,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
-def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False):
+def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None):
     try:
         msg = 'Searching for tags: '+tags
         print msg
@@ -588,15 +588,21 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
         i = page
         images = 1
+
+        dateParam = ""
+        if startDate != None:
+            dateParam = dateParam + "&scd=" + startDate
+        if endDate != None:
+            dateParam = dateParam + "&ecd=" + endDate
         
         while True:
             if titleCaption:
-                url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p='+str(i)+'&word='+tags
+                url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p='+str(i)+'&word='+tags + dateParam
             else:
                 if wildCard:
-                    url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags
+                    url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags + dateParam
                 else:
-                    url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i)
+                    url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
                     
             print 'Looping... for '+ url
             searchPage = __br__.open(url)
@@ -831,6 +837,31 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
                 raise
     return (pageNum, endPageNum)
 
+def checkDateTime(inputDate):
+    split = inputDate.split("-")
+    return datetime.date(int(split[0]),int(split[1]),int(split[2])).isoformat()
+    
+def getStartAndEndDate():
+    while(True):
+        try:
+            startDate = raw_input('Start Date [YYYY-MM-DD]: ') or None
+            if startDate != None:
+                startDate = checkDateTime(startDate)
+            break
+        except Exception as e:
+            print str(e)
+            
+    while(True):
+        try:
+            endDate = raw_input('End Date [YYYY-MM-DD]: ') or None
+            if endDate != None:
+                endDate = checkDateTime(endDate)
+            break
+        except Exception as e:
+                print str(e)
+    
+    return (startDate, endDate)
+
 def menu():
     setTitle()
     header()
@@ -891,8 +922,8 @@ def menuDownloadByTags(mode, opisvalid, args):
         else:
             wildcard = False
         (page, endPage) = getStartAndEndNumber()
-        
-    processTags(mode, tags, page, endPage, wildcard)
+        (startDate, endDate) = getStartAndEndDate()
+    processTags(mode, tags, page, endPage, wildcard, startDate=startDate, endDate=endDate)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')
@@ -902,8 +933,9 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
     else:
         tags = raw_input('Title/Caption: ')
         (page, endPage) = getStartAndEndNumber()
+        (startDate, endDate) = getStartAndEndDate()
         
-    processTags(mode, tags, page, endPage, wildcard=False, titleCaption=True)
+    processTags(mode, tags, page, endPage, wildcard=False, titleCaption=True, startDate=startDate, endDate=endDate)
 
 def menuDownloadFromList(mode, opisvalid, args):
     __log__.info('Batch mode.')

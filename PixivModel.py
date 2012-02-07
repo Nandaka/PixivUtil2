@@ -396,12 +396,13 @@ class PixivBookmark:
 
 class PixivTags:
   '''Class for parsing tags search page'''
-  imageList = list()
+  imageList = None
   haveImage = None
   isLastPage = None
   
   def parseTags(self, page):
     '''parse tags search page and return the image list'''
+    self.imageList = list()
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     linkList = page.findAll('a')
     for link in linkList:
@@ -441,5 +442,5 @@ class PixivTags:
           continue
         l.append(line.strip())
 
-    reader.close()        
+    reader.close()
     return l
