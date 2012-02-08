@@ -353,14 +353,19 @@ class PixivBookmark:
 
   @staticmethod
   def parseBookmark(page):
+    '''Parse favorite artist page'''
     import PixivDBManager
     l = list()
     db = PixivDBManager.PixivDBManager()
+    __re_member = re.compile(r'member\.php\?id=(\d*)')
     try:
-      result = page.find(attrs={'class':'list_box'}).findAll('input')
+      result = page.find(attrs={'class':'members'}).findAll('a')
       for r in result:
-        item = db.selectMemberByMemberId2(r['value'])
-        l.append(item)
+        member_id = __re_member.findall(r['href'])
+        if len(member_id) > 0:
+          print member_id[0]
+          item = db.selectMemberByMemberId2(member_id[0])
+          l.append(item)
     except:
       pass
     return l

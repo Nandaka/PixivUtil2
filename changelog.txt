@@ -3,6 +3,7 @@
   - Fix no limit for end page as reported by Troid.
   - Fix parseTags method as reported by gsilver.
   - Add start/end date for download by tag as requested by UnemployedIncubator.
+  - Fix member bookmarks parsing as reported by Anonymous.
 
 20120114
 - by Nandaka
