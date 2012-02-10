@@ -81,11 +81,11 @@ B.Bugs/Source Code/Supports:
   -s STARTACTION, --startaction=STARTACTION
                         Action you want to load your program with:
                         1 - Download by member_id 
-                            (optional: followed by member_ids separated by space)
+                            (required: followed by member_ids separated by space)
                         2 - Download by image_id  
-                            (optional: folled by image_ids separated by space)
+                            (required: folled by image_ids separated by space)
                         3 - Download by tags      
-                            (optional: followed by tags)
+                            (required: followed by tags)
                         4 - Download from list    
                             (optional: followed by path to list)
                         5 - Download from user bookmark
@@ -99,6 +99,8 @@ B.Bugs/Source Code/Supports:
                         8 - Download new illust from bookmark
                             (optional: followed by starting page number and end 
                              page number)
+                        9 - Download by Title/Caption
+                            (required: followed by title/caption)
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 

@@ -1,9 +1,10 @@
-201202xx
+20120210
 - by Nandaka
   - Fix no limit for end page as reported by Troid.
   - Fix parseTags method as reported by gsilver.
   - Add start/end date for download by tag as requested by UnemployedIncubator.
   - Fix member bookmarks parsing as reported by Anonymous.
+  - Fix new illustration download if run from console as reported by ToadadnoChikara.
 
 20120114
 - by Nandaka

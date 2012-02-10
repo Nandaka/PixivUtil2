@@ -816,6 +816,7 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
     if len(args) > 0+offset:
         try:
             pageNum = int(args[0+offset])
+            print "Start Page =", str(pageNum)
         except:
             print "Invalid page number:", args[0+offset]
             raise
@@ -832,9 +833,11 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
                 if pageNum > endPageNum and endPageNum != 0:
                     print "pageNum is bigger than endPageNum, assuming as page count."
                     endPageNum = pageNum + endPageNum
+                print "End Page =", str(endPageNum)
             except:
                 print "Invalid end page number:", args[1+offset]
                 raise
+    raw_input()
     return (pageNum, endPageNum)
 
 def checkDateTime(inputDate):
@@ -912,6 +915,9 @@ def menuDownloadByImageId(mode, opisvalid, args):
 def menuDownloadByTags(mode, opisvalid, args):
     __log__.info('tags mode.')
     page = 1
+    endPage = 0
+    startDate = None
+    endDate = None
     if opisvalid and len(args) > 0:
         tags = " ".join(args)
     else:
@@ -928,6 +934,9 @@ def menuDownloadByTags(mode, opisvalid, args):
 def menuDownloadByTitleCaption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')
     page = 1
+    endPage = 0
+    startDate = None
+    endDate = None
     if opisvalid and len(args) > 0:
         tags = " ".join(args)
     else:
@@ -1006,7 +1015,7 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
     __log__.info('New Illust from Bookmark mode.')
 
     if opisvalid:
-        (pageNum, endPageNum) = getStartAndEndNumberFromArgs()
+        (pageNum, endPageNum) = getStartAndEndNumberFromArgs(args, offset=0)
     else:
         (pageNum, endPageNum) = getStartAndEndNumber()
     
