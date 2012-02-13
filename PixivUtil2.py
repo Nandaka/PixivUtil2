@@ -580,9 +580,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None):
     try:
-        msg = 'Searching for tags: '+tags
-        print msg
-        __log__.info(msg)
         if not tags.startswith("%") :
             ## Encode the tags
             tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
@@ -594,6 +591,10 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             dateParam = dateParam + "&scd=" + startDate
         if endDate != None:
             dateParam = dateParam + "&ecd=" + endDate
+
+        msg = 'Searching for: '+tags
+        print msg
+        __log__.info(msg+dateParam)
         
         while True:
             if titleCaption:
@@ -601,6 +602,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             else:
                 if wildCard:
                     url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags + dateParam
+                    print "Using Wildcard (search.php)"
                 else:
                     url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
                     
