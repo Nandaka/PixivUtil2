@@ -1,3 +1,8 @@
+201202xx
+- by Nandaka
+  - Fix filename sanitazion, replace tab character with space as reported by asm_demon.
+  - Source code formatting.
+
 20120210
 - by Nandaka
   - Fix no limit for end page as reported by Troid.
