@@ -279,7 +279,7 @@ class PixivListItem:
       self.path = ""
 
   @staticmethod
-  def parseList(filename, rootDir=""):
+  def parseList(filename, rootDir=''):
     '''read list.txt and return the list of PixivListItem'''
     l = list()
 
@@ -299,13 +299,14 @@ class PixivListItem:
           path = items[1].strip()
           path = path.replace('\"', '')
           if re.match(r'[a-zA-Z]:', path):
-              dirpath = path.split('\\', 1)
+              dirpath = path.split(os.sep, 1)
               dirpath[1] = PixivHelper.sanitizeFilename(dirpath[1], rootDir)
-              path = '\\'.join(dirpath)
+              path = os.sep.join(dirpath)
           else:
               path = PixivHelper.sanitizeFilename(path, rootDir)
           path = path.replace('%root%', rootDir)
           path = path.replace('\\\\', '\\')
+          path = path.replace('\\', os.sep)
 
         listItem = PixivListItem(member_id, path)
         l.append(listItem)

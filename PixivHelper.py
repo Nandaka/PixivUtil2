@@ -51,15 +51,15 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
     '''Build the filename from given info to the given format.'''
     if artistInfo == None:
         artistInfo = imageInfo.artist
-    nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace('\\','_'))
-    nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace('\\','_'))
+    nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace(os.sep,'_'))
+    nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace(os.sep,'_'))
     nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%member_id%',str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%',artistInfo.artistToken)
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
     tags = tagsSeparator.join(imageInfo.imageTags)
-    nameFormat = nameFormat.replace('%tags%',tags.replace('\\','_'))
+    nameFormat = nameFormat.replace('%tags%',tags.replace(os.sep,'_'))
     nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
     return nameFormat
 
@@ -80,8 +80,9 @@ def setConsoleTitle(title):
 def startIrfanView(dfilename, irfanViewPath):
     print 'starting IrfanView...'
     if os.path.exists(dfilename):
-        ivpath = irfanViewPath + '\\i_view32.exe' #get first part from config.ini
-        ivpath = ivpath.replace('\\\\', '\\')                    
+        ivpath = irfanViewPath + os.sep + 'i_view32.exe' #get first part from config.ini
+        ivpath = ivpath.replace('\\\\', '\\')
+        ivpath = ivpath.replace('\\', os.sep)
         info = None
         if IrfanSlide == True:
             info = subprocess.STARTUPINFO()

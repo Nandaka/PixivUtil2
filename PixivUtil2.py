@@ -285,9 +285,9 @@ def processList(mode):
                 result = __dbManager__.selectMembersByLastDownloadDate(__config__.dayLastUpdated)
         else :
             printAndLog('info','Processing from list file.')
-            listFilename = __config__.downloadListDirectory + '\\list.txt'
+            listFilename = __config__.downloadListDirectory + os.sep + 'list.txt'
             if op == '4' and len(args) > 0:
-                testListFilename = __config__.downloadListDirectory + '\\' + args[0]
+                testListFilename = __config__.downloadListDirectory + os.sep + args[0]
                 if os.path.exists(testListFilename) :
                     listFilename = testListFilename
             result = PixivListItem.parseList(listFilename, __config__.rootDirectory)
@@ -364,12 +364,10 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                     targetDir = __config__.rootDirectory
                 else:
                     targetDir = userDir
-                filenameFormat = filenameFormat.split('\\')[0]
+                filenameFormat = filenameFormat.split(os.sep)[0]
                 image = PixivImage(parent=artist)
                 filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
                 filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
-                #filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
-                #filename = filename.replace('\\\\', '\\')
                 result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             
@@ -533,14 +531,12 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
                 filename = PixivHelper.sanitizeFilename(filename, targetDir)
-                #filename = targetDir + '\\' + filename
-                #filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
-
+                
                 if image.imageMode == 'manga' and __config__.createMangaDir :
                     mangaPage = __re_manga_page.findall(filename)
                     splittedFilename = filename.split(mangaPage[0][0],1)
                     splittedMangaPage = mangaPage[0][0].split("_p",1)
-                    filename = splittedFilename[0] + splittedMangaPage[0] + "\\_p" + splittedMangaPage[1] + splittedFilename[1]
+                    filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
 
                 print 'Filename  :', PixivHelper.safePrint(filename)
                 result = -1
@@ -1117,11 +1113,12 @@ def main():
     
     #Yavos: adding File for downloadlist
     now = datetime.date.today()
-    dfilename = __config__.downloadListDirectory + '\\' + 'Downloaded_on_' + now.strftime('%Y-%m-%d') + '.txt'
+    dfilename = __config__.downloadListDirectory + os.sep + 'Downloaded_on_' + now.strftime('%Y-%m-%d') + '.txt'
     if not re.match(r'[a-zA-Z]:', dfilename):
-        dfilename = sys.path[0] + '\\' + dfilename
+        dfilename = sys.path[0] + os.sep + dfilename
         #dfilename = sys.path[0].rsplit('\\',1)[0] + '\\' + dfilename #Yavos: only useful for myself ;P
     dfilename = dfilename.replace('\\\\', '\\')
+    dfilename = dfilename.replace('\\', os.sep)
     directory = os.path.dirname(dfilename)
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -1141,7 +1138,7 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList :
-            listTxt = PixivListItem.parseList(__config__.downloadListDirectory+'\\list.txt')
+            listTxt = PixivListItem.parseList(__config__.downloadListDirectory+ os.sep + 'list.txt')
             __dbManager__.importList(listTxt)
             print "Updated " + str(len(listTxt)) + " items."
 
