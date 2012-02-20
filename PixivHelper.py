@@ -6,12 +6,23 @@ import xml.sax.saxutils as saxutils
 import subprocess
 import sys
 
-__badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
+if os.sep == '/':
+    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')
+else :
+    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
-def sanitizeFilename(s, rootDir=''):
-    '''Replace reserved character/name with underscore (windows).'''
+
+
+def sanitizeFilename(s, rootDir=None):
+    '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
+    ## get the absolute rootdir
+    if rootDir != None:
+        rootDir = os.path.abspath(rootDir)
+    
     ## Unescape '&amp;', '&lt;', and '&gt;'
     s = saxutils.unescape(s)
+
+    ## Replace badchars with _
     name= __badchars__.sub('_', s)
     if __badnames__.match(name):
         name= '_'+name
@@ -20,14 +31,20 @@ def sanitizeFilename(s, rootDir=''):
     while name.find('.\\') != -1:
         name = name.replace('.\\','\\')
 
+    name = name.replace('\\', os.sep)
+
     #Replace tab character with space
     name = name.replace('\t',' ')
 
     ## cut to 255 char
-    pathLen = len(rootDir) + 1
-    if len(name) + pathLen > 255:
-        newLen = 250 - pathLen
+    pathLen = 0
+    if rootDir != None:
+        name = rootDir + os.sep + name
+        
+    if len(name) > 255:
+        newLen = 254
         name = name[:newLen]
+        
     return name.strip()
 
 def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):

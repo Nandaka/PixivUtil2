@@ -2,6 +2,8 @@
 - by Nandaka
   - Fix filename sanitazion, replace tab character with space as reported by asm_demon.
   - Source code formatting.
+  - Fix sanitizeFilename method for non-windows os as reported by Joe.
+  - Fix Mechanize 'req._tunnel_host = None' if no proxy used as reported by Joe
 
 20120210
 - by Nandaka

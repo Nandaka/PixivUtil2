@@ -85,12 +85,20 @@ def printAndLog(level, msg):
     elif level == 'error':
         __log__.error(msg)
 
+def customRequest(url):
+    req = urllib2.Request(url)
+    if __config__.useProxy:
+        urllib2.Request.set_proxy(__config__.proxy, None)
+    else:
+        req._tunnel_host = None
+    return req
+
 #-T04------For download file
 def downloadImage(url, filename, referer, overwrite, retry):
     try:
         print 'Start downloading...',
         try:
-            req = urllib2.Request(url)
+            req = customRequest(url)
 
             if referer != None:
                 req.add_header('Referer', referer)
@@ -99,6 +107,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
             br2.set_cookiejar(__cj__)
             if __config__.useProxy:
                 br2.set_proxies(__config__.proxy)
+
             br2.set_handle_robots(__config__.useRobots)
             
             res = br2.open(req)
@@ -223,7 +232,7 @@ def pixivLogin(username, password):
     if len(cookieValue) > 0:
         printAndLog('info','Trying to log with saved cookie')
         loadCookie(cookieValue);
-        req = urllib2.Request('http://www.pixiv.net/mypage.php')
+        req = customRequest('http://www.pixiv.net/mypage.php')
         __br__.open(req)
         if __br__.response().geturl() == 'http://www.pixiv.net/mypage.php' :
             print 'done.'
@@ -234,7 +243,7 @@ def pixivLogin(username, password):
 
     try:
         printAndLog('info','Log in using form.')
-        req = urllib2.Request(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
+        req = customRequest(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
         __br__.open(req)
         
         form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
@@ -358,9 +367,9 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                 filenameFormat = filenameFormat.split('\\')[0]
                 image = PixivImage(parent=artist)
                 filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
-                filename = PixivHelper.sanitizeFilename(filename)
-                filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
-                filename = filename.replace('\\\\', '\\')
+                filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+                #filename = targetDir + '\\' + filename + '\\' + 'folder.jpg'
+                #filename = filename.replace('\\\\', '\\')
                 result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             
@@ -523,9 +532,9 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 if image.imageMode == 'manga':
                     filename = filename.replace(str(image_id), str(splittedUrl[0]))
                 filename = filename + '.' + imageExtension
-                filename = PixivHelper.sanitizeFilename(filename)
-                filename = targetDir + '\\' + filename
-                filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
+                filename = PixivHelper.sanitizeFilename(filename, targetDir)
+                #filename = targetDir + '\\' + filename
+                #filename = filename.replace('\\\\', '\\') #prevent double-backslash in case dir or rootDirectory has an ending \
 
                 if image.imageMode == 'manga' and __config__.createMangaDir :
                     mangaPage = __re_manga_page.findall(filename)
