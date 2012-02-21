@@ -247,6 +247,7 @@ member_id2 directory2
 =================================================================================
 - Nandaka (Main Developer)
 - Yavos (Contributor)
+- Joe (Contributor)
 
 *If I forget someone, please leave me a comment in my Blog.
 
