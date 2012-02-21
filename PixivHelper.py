@@ -2,7 +2,8 @@
 import re
 import os
 import codecs
-import xml.sax.saxutils as saxutils
+#import xml.sax.saxutils as saxutils
+from HTMLParser import HTMLParser
 import subprocess
 import sys
 
@@ -12,6 +13,7 @@ else :
     __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 
+__h__ = HTMLParser()
 
 def sanitizeFilename(s, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
@@ -20,7 +22,7 @@ def sanitizeFilename(s, rootDir=None):
         rootDir = os.path.abspath(rootDir)
     
     ## Unescape '&amp;', '&lt;', and '&gt;'
-    s = saxutils.unescape(s)
+    s = __h__.unescape(s)
 
     ## Replace badchars with _
     name= __badchars__.sub('_', s)
@@ -56,6 +58,10 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
     nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%member_id%',str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%',artistInfo.artistToken)
+    nameFormat = nameFormat.replace('%works_date%',imageInfo.worksDate)
+    nameFormat = nameFormat.replace('%works_date_only%',imageInfo.worksDate.split(' ')[0])
+    nameFormat = nameFormat.replace('%works_res%',imageInfo.worksResolution)
+    nameFormat = nameFormat.replace('%works_tools%',imageInfo.worksTools)
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
     tags = tagsSeparator.join(imageInfo.imageTags)

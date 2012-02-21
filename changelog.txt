@@ -3,7 +3,13 @@
   - Fix filename sanitazion, replace tab character with space as reported by asm_demon.
   - Source code formatting.
   - Fix sanitizeFilename method for non-windows os as reported by Joe.
-  - Fix Mechanize 'req._tunnel_host = None' if no proxy used as reported by Joe
+  - Fix Mechanize 'req._tunnel_host = None' if no proxy used as reported by Joe.
+  - Add new filenameFormat metatag as requested by Xemnarth.
+    -> %works_date%   ==> works date, complete with time.
+    -> %works_date_only% ==> only the works date.
+    -> %works_res%    ==> image resolution, will be containing the page count if manga.
+    -> %works_tools%  ==> tools used for the image.
+  - Update unittest.
 
 20120210
 - by Nandaka

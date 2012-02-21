@@ -2,7 +2,6 @@
 from BeautifulSoup import BeautifulSoup, Tag
 import os
 import re
-
 import PixivHelper
 
 class PixivArtist:
@@ -42,8 +41,8 @@ class PixivArtist:
       self.CheckLastPage(page)
       
       ## check id
-      if mid == self.artistId:
-        print 'member_id OK'
+      #if mid == self.artistId:
+      #  print 'member_id OK'
 
   def ParseInfo(self, page, fromImage=False):
     temp = str(page.find(attrs={'class':'f18b'}).find('a')['href'])
@@ -60,7 +59,7 @@ class PixivArtist:
     if self.artistAvatar == 'http://source.pixiv.net/source/images/no_profile.png':
       if fromImage:
         token = str(page.find(attrs={'class':'works_display'}).find('img')['src'])
-        print token
+        #print token
         return token.split('/')[-2]
       else :
         try:
@@ -133,6 +132,9 @@ class PixivImage:
   imageTags  = []
   imageMode  = ""
   imageUrls  = []
+  worksDate  = ""
+  worksResolution = ""
+  worksTools = ""
 
   def __init__(self, iid=0, page=None, parent=None):
     self.artist = parent
@@ -158,10 +160,11 @@ class PixivImage:
       ## parse image information
       self.ParseInfo(page)
       self.ParseTags(page)
+      self.ParseWorksData(page)
 
       ## check id
-      if iid == self.imageId:
-        print 'image_id OK'
+      #if iid == self.imageId:
+      #  print 'image_id OK'
 
   def IsErrorPage(self, page):
     errorMessage = 'エラーが発生しました'
@@ -204,6 +207,17 @@ class PixivImage:
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
     self.imageTitle = unicode(page.h3.string)
+
+  def ParseWorksData(self, page):
+    temp = page.find(attrs={'class':'works_data'}).find('p').renderContents()
+    #07/22/2011 03:09｜512×600｜RETAS STUDIO
+    #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン 
+    split = temp.split('｜')
+    self.worksDate = split[0].replace('/','-').replace(':','.')
+    if len(split) > 1:
+      self.worksResolution = split[1].replace('×', 'x')
+    if len(split) > 2:
+      self.worksTools = "".join(split[2:])
 
   def ParseTags(self, page):
     del self.imageTags[:]
@@ -364,7 +378,7 @@ class PixivBookmark:
       for r in result:
         member_id = __re_member.findall(r['href'])
         if len(member_id) > 0:
-          print member_id[0]
+          #print member_id[0]
           item = db.selectMemberByMemberId2(member_id[0])
           l.append(item)
     except:

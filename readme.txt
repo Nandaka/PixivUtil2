@@ -144,10 +144,15 @@ filenameformat ==> The format for the filename, reserved/illegal character will
                    character (Windows limitation).
 	        -> %member_token% ==> member token, doesn't change.
 	        -> %member_id%    ==> member id, in number.
-	        -> %image_id%  ==> image id, in number.
-	        -> %title%     ==> image title, usually in japanese character.
-	        -> %tags%      ==> image tags, usually in japanese character.
-	        -> %artist%    ==> artist name, may change.
+	        -> %image_id%     ==> image id, in number.
+	        -> %title%        ==> image title, usually in japanese character.
+	        -> %tags%         ==> image tags, usually in japanese character.
+	        -> %artist%       ==> artist name, may change.
+	        -> %works_date%   ==> works date, complete with time.
+	        -> %works_date_only% ==> only the works date.
+	        -> %works_res%    ==> image resolution, will be containing the page 
+                                      count if manga.
+	        -> %works_tools%  ==> tools used for the image.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
