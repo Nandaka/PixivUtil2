@@ -213,13 +213,14 @@ class PixivImage:
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
-    temp = temp.split('\xe3\x80\x80')
-    split = temp[0].split('｜')
+    temp = temp.decode('utf-8')
+    temp = temp.split(u'\xe3\x80\x80')
+    split = temp[0].split(u'｜')
     self.worksDate = split[0].replace('/','-').replace(':','.')
     if len(split) > 1:
-      self.worksResolution = split[1].replace('×', 'x')
+      self.worksResolution = split[1].replace(u'×', 'x')
     if len(split) > 2:
-      self.worksTools = "".join(split[2:])
+      self.worksTools = split[2] + ""
 
   def ParseTags(self, page):
     del self.imageTags[:]

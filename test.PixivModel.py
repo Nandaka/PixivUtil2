@@ -84,7 +84,22 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.worksDate,'07-22-2011 03.09')
       self.assertEqual(image.worksResolution,'512x600')
       self.assertEqual(image.worksTools,'RETAS STUDIO&nbsp;')
-        
+
+    def testPixivImageUnicode(self):
+      #print '\nTesting image page - big'
+      p = open('./test/test-image-unicode.htm', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+        image = PixivImage(9908869, page)
+        #image.PrintInfo()
+      except PixivModelException as ex:
+        print ex
+      page.decompose()
+      del page
+      self.assertNotEqual(image, None)
+      self.assertEqual(image.imageId, 9908869)
+      self.assertEqual(image.imageMode, 'big')
+      
     def testPixivImage(self):
       #print '\nTesting image page - big'
       p = open('./test/test-image.htm', 'r')

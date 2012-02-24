@@ -53,6 +53,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
     '''Build the filename from given info to the given format.'''
     if artistInfo == None:
         artistInfo = imageInfo.artist
+    #nameFormat = unicode(nameFormat)
     nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace(os.sep,'_'))
     nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace(os.sep,'_'))
     nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
