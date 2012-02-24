@@ -211,8 +211,10 @@ class PixivImage:
   def ParseWorksData(self, page):
     temp = page.find(attrs={'class':'works_data'}).find('p').renderContents()
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
-    #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン 
-    split = temp.split('｜')
+    #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
+    #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
+    temp = temp.split('\xe3\x80\x80')
+    split = temp[0].split('｜')
     self.worksDate = split[0].replace('/','-').replace(':','.')
     if len(split) > 1:
       self.worksResolution = split[1].replace('×', 'x')

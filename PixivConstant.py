@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20120210'
+PIXIVUTIL_VERSION = '20120224'
 PIXIVUTIL_LINK = 'http://bit.ly/pixivDownloader'
 PIXIV_URL = 'http://www.pixiv.net/'
 PIXIV_CSS_LIST_ID = 'display_works'
