@@ -2,6 +2,7 @@
 from BeautifulSoup import BeautifulSoup, Tag
 import os
 import re
+import sys
 import PixivHelper
 
 class PixivArtist:
@@ -296,39 +297,51 @@ class PixivListItem:
       self.path = ""
 
   @staticmethod
-  def parseList(filename, rootDir=''):
+  def parseList(filename, rootDir=None):
     '''read list.txt and return the list of PixivListItem'''
     l = list()
 
     if not os.path.exists(filename) :
       raise PixivModelException("File doesn't exists or no permission to read: " + filename)
 
-    #reader = open(filename, "r")
     reader = PixivHelper.OpenTextFile(filename)
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
         line = line.strip()
         items = line.split(" ", 1)
-        member_id = int(items[0])
-        path = ""
-        if len(items) > 1:
-          path = items[1].strip()
-          path = path.replace('\"', '')
-          if re.match(r'[a-zA-Z]:', path):
-              dirpath = path.split(os.sep, 1)
-              dirpath[1] = PixivHelper.sanitizeFilename(dirpath[1], rootDir)
-              path = os.sep.join(dirpath)
-          else:
-              path = PixivHelper.sanitizeFilename(path, rootDir)
-          path = path.replace('%root%', rootDir)
-          path = path.replace('\\\\', '\\')
-          path = path.replace('\\', os.sep)
+        try:
+          member_id = int(items[0])
+          path = ""
+          if len(items) > 1:
+            path = items[1].strip()
 
-        listItem = PixivListItem(member_id, path)
-        l.append(listItem)
+            path = path.replace('\"', '')
+            if rootDir != None:
+              path = path.replace('%root%', rootDir)
+            else:
+              path = path.replace('%root%', '')
+              
+            path = os.path.abspath(path)
+            # have drive letter
+            if re.match(r'[a-zA-Z]:', path):
+                dirpath = path.split(os.sep, 1)
+                dirpath[1] = PixivHelper.sanitizeFilename(dirpath[1], None)
+                path = os.sep.join(dirpath)
+            else:
+                path = PixivHelper.sanitizeFilename(path, rootDir)
+            
+            path = path.replace('\\\\', '\\')
+            path = path.replace('\\', os.sep)
 
-    reader.close()        
+          listItem = PixivListItem(member_id, path)
+          l.append(listItem)
+        except:
+          print 'Invalid line: '+line
+          (exType, value, traceback) = sys.exc_info()
+          print 'Error at PixivListItem.parseList():', exType, value
+
+    reader.close()
     return l
 
 class PixivNewIllustBookmark:

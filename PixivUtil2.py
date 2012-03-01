@@ -125,11 +125,11 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 else :
                     print "\t Found file with different filesize, removing..."
                     os.remove(filename)
-            
+
             directory = os.path.dirname(filename)
             if not os.path.exists(directory):
-                os.makedirs(directory)
                 __log__.info('Creating directory: '+directory)
+                os.makedirs(directory)
 
             try:
                 save = file(filename + '.pixiv', 'wb+', 4096)
@@ -322,7 +322,6 @@ def processList(mode):
 def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     printAndLog('info','Processing Member Id: ' + str(member_id))
     __config__.loadConfig()
-
     try:
         page = 1
         noOfImages = 1
@@ -364,10 +363,15 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                     targetDir = __config__.rootDirectory
                 else:
                     targetDir = userDir
+                #printAndLog('info','targetDir: ' + targetDir)
                 filenameFormat = filenameFormat.split(os.sep)[0]
+                #printAndLog('info','filenameFormat: ' + filenameFormat)
                 image = PixivImage(parent=artist)
                 filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
+                #printAndLog('info','makeFilename: ' + filename)
                 filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+                #printAndLog('info','sanitizeFilename: ' + filename)
+                
                 result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             

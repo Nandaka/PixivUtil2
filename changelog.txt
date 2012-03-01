@@ -1,3 +1,7 @@
+201203xx
+- by Nandaka
+  - Fix list.txt parsing if have drive letter in the path as reported by Dwayne.
+
 20120224
 - by Nandaka
   - Fix filename sanitazion, replace tab character with space as reported by asm_demon.
