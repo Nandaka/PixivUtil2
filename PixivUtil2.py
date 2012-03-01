@@ -930,7 +930,12 @@ def menuDownloadByTags(mode, opisvalid, args):
     startDate = None
     endDate = None
     if opisvalid and len(args) > 0:
-        tags = " ".join(args)
+        wildcard = args[0]
+        if wildcard.lower() == 'y':
+            wildcard = True
+        else:
+            wildcard = False
+        tags = " ".join(args[1:])
     else:
         tags = raw_input('Tags: ')
         wildcard = raw_input('Use Wildcard[y/n]: ') or False

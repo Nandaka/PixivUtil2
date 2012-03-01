@@ -1,6 +1,7 @@
 201203xx
 - by Nandaka
   - Fix list.txt parsing if have drive letter in the path as reported by Dwayne.
+  - Fix Download by Tags console command, add wildcard option [y/n] as reported by Dwayne.
 
 20120224
 - by Nandaka

@@ -85,7 +85,7 @@ B.Bugs/Source Code/Supports:
                         2 - Download by image_id  
                             (required: folled by image_ids separated by space)
                         3 - Download by tags      
-                            (required: followed by tags)
+                            (required: [y/n] for wildcard followed by tags)
                         4 - Download from list    
                             (optional: followed by path to list)
                         5 - Download from user bookmark
