@@ -960,7 +960,7 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
         
-    processTags(mode, tags, page, endPage, wildcard=False, titleCaption=True, startDate=startDate, endDate=endDate)
+    processTags(mode, tags, page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate)
 
 def menuDownloadFromList(mode, opisvalid, args):
     __log__.info('Batch mode.')
