@@ -848,7 +848,6 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
             except:
                 print "Invalid end page number:", args[1+offset]
                 raise
-    raw_input()
     return (pageNum, endPageNum)
 
 def checkDateTime(inputDate):
