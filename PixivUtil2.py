@@ -587,8 +587,12 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise
 
-def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None):
+def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False):
     try:
+        if useTagsAsDir:
+            print "Save to each directory using query tags."
+            __config__.rootDirectory += os.sep + tags
+                
         if not tags.startswith("%") :
             ## Encode the tags
             tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
@@ -621,7 +625,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             parseSearchPage = BeautifulSoup(searchPage.read())
             t = PixivTags()
             l = t.parseTags(parseSearchPage)
-            
+
             if len(l) == 0 :
                 print 'No more images'
                 break
@@ -654,6 +658,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 print 'Last page'
                 break
         print 'done'
+        __config__.loadConfig()
     except:
         print 'Error at processTags():',sys.exc_info()
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
@@ -664,7 +669,7 @@ def processTagsList(mode, filename, page=1, endPage=0):
         print "Reading:",filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            processTags(mode, tag, page, endPage)
+            processTags(mode, tag, page, endPage, useTagsAsDir=__config__.useTagsAsDir)
     except:
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
@@ -944,7 +949,7 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = False
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
-    processTags(mode, tags, page, endPage, wildcard, startDate=startDate, endDate=endDate)
+    processTags(mode, tags, page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')
@@ -959,7 +964,7 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
         
-    processTags(mode, tags, page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate)
+    processTags(mode, tags, page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
 def menuDownloadFromList(mode, opisvalid, args):
     __log__.info('Batch mode.')
@@ -1021,7 +1026,7 @@ def menuDownloadFromTagsList(mode, opisvalid, args):
         filename = args[0]
         (page, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
     else:
-        filename = raw_input("Tags list filename: ") or './tags.txt'
+        filename = raw_input("Tags list filename [tags.txt]: ") or './tags.txt'
         (page, endPage) = getStartAndEndNumber()
 
     processTagsList(mode, filename, page)

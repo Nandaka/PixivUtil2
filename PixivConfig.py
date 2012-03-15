@@ -42,6 +42,7 @@ class PixivConfig:
 
     cookie = ''
     createMangaDir = False
+    useTagsAsDir = False
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -176,6 +177,11 @@ class PixivConfig:
                 self.checkUpdatedLimit = config.getint('Settings','checkUpdatedLimit')
             except ValueError:
                 self.checkUpdatedLimit = 0
+
+            try:
+                self.useTagsAsDir = config.getboolean('Settings','useTagsAsDir')
+            except ValueError:
+                self.useTagsAsDir = False
             
         except ConfigParser.NoOptionError:
             print 'Error at loadConfig():',sys.exc_info()
@@ -221,6 +227,7 @@ class PixivConfig:
         config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
         config.set('Settings', 'createMangaDir', self.createMangaDir)
+        config.set('Settings', 'useTagsAsDir', self.useTagsAsDir)
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -265,6 +272,7 @@ class PixivConfig:
         print ' - checkUpdatedLimit =', self.checkUpdatedLimit
         print ' - downloadAvatar =', self.downloadAvatar
         print ' - createMangaDir =', self.createMangaDir
+        print ' - useTagsAsDir =', self.useTagsAsDir
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage
