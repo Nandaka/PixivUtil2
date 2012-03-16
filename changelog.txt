@@ -10,6 +10,8 @@
     - usesuppresstags = True/False
       Remove the suppressed tags from %tags% meta for filename.
       The list is taken from suppress_tags.txt, each tags is separated by new line.
+  - Add tagsLimit to be used for %tags% meta in the filename as requested by Anonymous User.
+    - Use -1 to use all tags.
 
 20120309
 - by Nandaka

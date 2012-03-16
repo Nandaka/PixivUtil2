@@ -368,7 +368,7 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                 filenameFormat = filenameFormat.split(os.sep)[0]
                 #printAndLog('info','filenameFormat: ' + filenameFormat)
                 image = PixivImage(parent=artist)
-                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
+                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
                 #printAndLog('info','makeFilename: ' + filename)
                 filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
                 #printAndLog('info','sanitizeFilename: ' + filename)
@@ -549,7 +549,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     else: #Yavos: use filename from list
                         targetDir = userDir
 
-                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
+                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
                     if image.imageMode == 'manga':
                         filename = filename.replace(str(image_id), str(splittedUrl[0]))
                     filename = filename + '.' + imageExtension
@@ -577,10 +577,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 elif result == -1:
                     printAndLog('error', 'Image url not found: '+str(image.imageId))
                 
-            del viewPage
-            del mediumPage
-            del image
-            
         ## Only save to db if all images is downloaded completely
         if result == 0 :
             try:
@@ -588,7 +584,10 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             except:
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
-        
+
+        del viewPage
+        del mediumPage
+        del image
         gc.collect()
         ##clearall()
         print '\n'

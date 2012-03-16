@@ -49,7 +49,7 @@ def sanitizeFilename(s, rootDir=None):
         
     return name.strip()
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
+def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1):
     '''Build the filename from given info to the given format.'''
     if artistInfo == None:
         artistInfo = imageInfo.artist
@@ -65,6 +65,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
     nameFormat = nameFormat.replace('%works_tools%',imageInfo.worksTools)
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
+    if tagsLimit != -1:
+        tagsLimit = tagsLimit if tagsLimit < len(imageInfo.imageTags) else len(imageInfo.imageTags)
+        imageInfo.imageTags = imageInfo.imageTags[0:tagsLimit]
     tags = tagsSeparator.join(imageInfo.imageTags)
     nameFormat = nameFormat.replace('%tags%',tags.replace(os.sep,'_'))
     nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__

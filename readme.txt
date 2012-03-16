@@ -194,6 +194,8 @@ useblacklisttags==> Skip image if containing blacklisted tags.
 usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
                     The list is taken from suppress_tags.txt, each tags is 
                     separated by new line.
+tagsLimit	==> Number of tags to be used for %tags% meta in filename.
+		    Use -1 to use all tags.
 
 =================================================================================
 = list.txt Format                                                               =

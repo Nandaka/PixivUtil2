@@ -45,6 +45,7 @@ class PixivConfig:
     useTagsAsDir = False
     useBlacklistTags = False
     useSuppressTags = False
+    tagsLimit = -1
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -194,6 +195,11 @@ class PixivConfig:
                 self.useSuppressTags = config.getboolean('Settings','useSuppressTags')
             except ValueError:
                 self.useSuppressTags = False
+
+            try:
+                self.tagsLimit = config.getint('Settings','tagsLimit')
+            except ValueError:
+                self.tagsLimit = -1
             
         except ConfigParser.NoOptionError:
             print 'Error at loadConfig():',sys.exc_info()
@@ -242,6 +248,7 @@ class PixivConfig:
         config.set('Settings', 'useTagsAsDir', self.useTagsAsDir)
         config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
+        config.set('Settings', 'tagsLimit', self.tagsLimit)
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -289,6 +296,7 @@ class PixivConfig:
         print ' - useTagsAsDir =', self.useTagsAsDir
         print ' - useBlacklistTags =', self.useBlacklistTags
         print ' - useSuppressTags =', self.useSuppressTags
+        print ' - tagsLimit =', self.tagsLimit
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage
