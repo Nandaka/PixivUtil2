@@ -591,11 +591,14 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
     try:
         if useTagsAsDir:
             print "Save to each directory using query tags."
-            __config__.rootDirectory += os.sep + tags
+            decodedTags = tags.encode('utf-8')
+            decodedTags = urllib.unquote_plus(decodedTags)#unicode(urllib.unquote_plus(tags))
+            __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(decodedTags)
                 
         if not tags.startswith("%") :
             ## Encode the tags
-            tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
+            tags = tags.encode('utf-8')
+            tags = urllib.quote_plus(tags)#.decode(sys.stdout.encoding).encode("utf8"))
         i = page
         images = 1
 
