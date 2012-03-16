@@ -472,7 +472,7 @@ class PixivTags:
     if not os.path.exists(filename) :
       raise PixivModelException("File doesn't exists or no permission to read: " + filename)
 
-    reader = PixivHelper.OpenTextFile(filename)#open(filename, "r")
+    reader = PixivHelper.OpenTextFile(filename)
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
@@ -480,3 +480,4 @@ class PixivTags:
 
     reader.close()
     return l
+  

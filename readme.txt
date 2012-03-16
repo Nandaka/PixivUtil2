@@ -185,7 +185,15 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
                     before!
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
                     IrfanView)
-downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg' 
+downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
+usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory 
+                    as save folder.
+useblacklisttags==> Skip image if containing blacklisted tags.
+                    The list is taken from blacklist_tags.txt, each tags is 
+                    separated by new line.
+usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
+                    The list is taken from suppress_tags.txt, each tags is 
+                    separated by new line.
 
 =================================================================================
 = list.txt Format                                                               =

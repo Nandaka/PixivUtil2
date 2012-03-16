@@ -72,11 +72,12 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' '):
 
 def safePrint(msg):
     '''Print empty string if UnicodeError raised.'''
-    try:
-        print msg,
-    except UnicodeError:
-        print '',
-    return ' '
+    for msgToken in msg.split(' '):
+        try:
+            print msgToken,
+        except UnicodeError:
+            print ('?' * len (msgToken)),
+    print ''
 
 def setConsoleTitle(title):
     if os.name == 'nt':

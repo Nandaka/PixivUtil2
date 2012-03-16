@@ -43,6 +43,8 @@ class PixivConfig:
     cookie = ''
     createMangaDir = False
     useTagsAsDir = False
+    useBlacklistTags = False
+    useSuppressTags = False
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -182,6 +184,16 @@ class PixivConfig:
                 self.useTagsAsDir = config.getboolean('Settings','useTagsAsDir')
             except ValueError:
                 self.useTagsAsDir = False
+
+            try:
+                self.useBlacklistTags = config.getboolean('Settings','useBlacklistTags')
+            except ValueError:
+                self.useBlacklistTags = False
+
+            try:
+                self.useSuppressTags = config.getboolean('Settings','useSuppressTags')
+            except ValueError:
+                self.useSuppressTags = False
             
         except ConfigParser.NoOptionError:
             print 'Error at loadConfig():',sys.exc_info()
@@ -228,6 +240,8 @@ class PixivConfig:
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
         config.set('Settings', 'createMangaDir', self.createMangaDir)
         config.set('Settings', 'useTagsAsDir', self.useTagsAsDir)
+        config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
+        config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -273,6 +287,8 @@ class PixivConfig:
         print ' - downloadAvatar =', self.downloadAvatar
         print ' - createMangaDir =', self.createMangaDir
         print ' - useTagsAsDir =', self.useTagsAsDir
+        print ' - useBlacklistTags =', self.useBlacklistTags
+        print ' - useSuppressTags =', self.useSuppressTags
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage

@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+#!/usr/bin/python # -*- coding: UTF-8 -*-
 
 import sys
 import os
@@ -50,7 +49,9 @@ gc.enable()
 
 __dbManager__ = PixivDBManager.PixivDBManager()
 __config__    = PixivConfig.PixivConfig()
-    
+__blacklistTags = list()
+__suppressTags = list()
+
 ### Set up logging###
 __log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
 __log__.setLevel(logging.DEBUG)
@@ -79,7 +80,7 @@ def dumpHtml(filename, html):
         pass
 
 def printAndLog(level, msg):
-    print msg
+    PixivHelper.safePrint(msg)
     if level == 'info':
         __log__.info(msg)
     elif level == 'error':
@@ -444,6 +445,7 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
 
 def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     try:
+        filename = 'N/A'
         print 'Processing Image Id:', image_id
         ## already downloaded images won't be downloaded twice - needed in processImage to catch any download
         r = __dbManager__.selectImageByImageId(image_id)
@@ -481,83 +483,104 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                         dumpHtml(dumpFilename , mediumPage.get_data())
                         printAndLog('error', 'Dumping html to: ' + dumpFilename);
                     return
-        print "Title:", PixivHelper.safePrint(image.imageTitle)
-        print "Tags :", PixivHelper.safePrint(', '.join(image.imageTags))
-        print "Mode :", image.imageMode
         
-        errorCount = 0
-        while True:
-            try :
-                bigUrl = 'http://www.pixiv.net/member_illust.php?mode='+image.imageMode+'&illust_id='+str(image_id)
-                viewPage = __br__.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image_id))
-                parseBigImage = BeautifulSoup(viewPage.read())
-                image.ParseImages(page=parseBigImage)
-                parseBigImage.decompose()
-                del parseBigImage
-                break
-            except PixivModelException as ex:
-                printAndLog('info', str(ex))
-                return
-            except urllib2.URLError as ue:
-                if errorCount > __config__.retry:
-                    printAndLog('error', 'Giving up image_id: '+str(image_id))
+        downloadImageFlag = True
+        if __config__.useBlacklistTags:
+            for item in __blacklistTags:
+                if item in image.imageTags:
+                    printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains blacklisted tags: ' + item);
+                    downloadImageFlag = False
+                    result = 0
+                    break
+                
+        if downloadImageFlag:
+
+            print "Title:", PixivHelper.safePrint(image.imageTitle)
+            print "Tags :", PixivHelper.safePrint(', '.join(image.imageTags))
+            print "Mode :", image.imageMode
+            
+            if __config__.useSuppressTags:
+                for item in __suppressTags:
+                    if item in image.imageTags:
+                        image.imageTags.remove(item)
+            
+            errorCount = 0
+            while True:
+                try :
+                    bigUrl = 'http://www.pixiv.net/member_illust.php?mode='+image.imageMode+'&illust_id='+str(image_id)
+                    viewPage = __br__.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image_id))
+                    parseBigImage = BeautifulSoup(viewPage.read())
+                    image.ParseImages(page=parseBigImage)
+                    parseBigImage.decompose()
+                    del parseBigImage
+                    break
+                except PixivModelException as ex:
+                    printAndLog('info', str(ex))
                     return
-                errorCount = errorCount + 1
-                print ue
-                repeat = range(1,__config__.retryWait)
-                for t in repeat:
-                    print t,
-                    time.sleep(1)
-                print ''
+                except urllib2.URLError as ue:
+                    if errorCount > __config__.retry:
+                        printAndLog('error', 'Giving up image_id: '+str(image_id))
+                        return
+                    errorCount = errorCount + 1
+                    print ue
+                    repeat = range(1,__config__.retryWait)
+                    for t in repeat:
+                        print t,
+                        time.sleep(1)
+                    print ''
 
-        result = 0
-        skipOne = False
-        for img in image.imageUrls:
-            if skipOne:
-                skipOne = False
-                continue
-            print 'Image URL :', img
-            url = os.path.basename(img)
-            splittedUrl = url.split('.')
-            if splittedUrl[0].startswith(str(image_id)):
-                imageExtension = splittedUrl[1]
-                imageExtension = imageExtension.split('?')[0]
+            result = 0
+            skipOne = False
+            for img in image.imageUrls:
+                if skipOne:
+                    skipOne = False
+                    continue
+                print 'Image URL :', img
+                url = os.path.basename(img)
+                splittedUrl = url.split('.')
+                if splittedUrl[0].startswith(str(image_id)):
+                    imageExtension = splittedUrl[1]
+                    imageExtension = imageExtension.split('?')[0]
 
-                #Yavos: filename will be added here if given in list
-                filenameFormat = __config__.filenameFormat
-                if userDir == '': #Yavos: use config-options
-                    targetDir = __config__.rootDirectory
-                else: #Yavos: use filename from list
-                    targetDir = userDir
+                    #Yavos: filename will be added here if given in list
+                    filenameFormat = __config__.filenameFormat
+                    if userDir == '': #Yavos: use config-options
+                        targetDir = __config__.rootDirectory
+                    else: #Yavos: use filename from list
+                        targetDir = userDir
 
-                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
-                if image.imageMode == 'manga':
-                    filename = filename.replace(str(image_id), str(splittedUrl[0]))
-                filename = filename + '.' + imageExtension
-                filename = PixivHelper.sanitizeFilename(filename, targetDir)
+                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator)
+                    if image.imageMode == 'manga':
+                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
+                    filename = filename + '.' + imageExtension
+                    filename = PixivHelper.sanitizeFilename(filename, targetDir)
+                    
+                    if image.imageMode == 'manga' and __config__.createMangaDir :
+                        mangaPage = __re_manga_page.findall(filename)
+                        splittedFilename = filename.split(mangaPage[0][0],1)
+                        splittedMangaPage = mangaPage[0][0].split("_p",1)
+                        filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
+
+                    print 'Filename  :', PixivHelper.safePrint(filename)
+                    result = -1
+       
+                    if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
+                        result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
+                    else:
+                        result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
+                    print ''
+
+                if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
+                    print 'No big manga image available, try the small one'
+                elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
+                    skipOne = True
+                elif result == -1:
+                    printAndLog('error', 'Image url not found: '+str(image.imageId))
                 
-                if image.imageMode == 'manga' and __config__.createMangaDir :
-                    mangaPage = __re_manga_page.findall(filename)
-                    splittedFilename = filename.split(mangaPage[0][0],1)
-                    splittedMangaPage = mangaPage[0][0].split("_p",1)
-                    filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
-
-                print 'Filename  :', PixivHelper.safePrint(filename)
-                result = -1
-   
-                if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
-                    result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
-                else:
-                    result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
-                print ''
-
-            if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
-                print 'No big manga image available, try the small one'
-            elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
-                skipOne = True
-            elif result == -1:
-                printAndLog('error', 'Image url not found: '+str(image.imageId))
-                
+            del viewPage
+            del mediumPage
+            del image
+            
         ## Only save to db if all images is downloaded completely
         if result == 0 :
             try:
@@ -565,13 +588,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             except:
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
-        else:
-            print "something happen."
-
-        del viewPage
-        del mediumPage
-        del image
-
+        
         gc.collect()
         ##clearall()
         print '\n'
@@ -1167,6 +1184,16 @@ def main():
             msg = 'Only process member where day last updated >= ' + str(__config__.dayLastUpdated)
             print msg
             __log__.info(msg)
+
+        if __config__.useBlacklistTags:
+            global __blacklistTags
+            __blacklistTags = PixivTags.parseTagsList("blacklist_tags.txt")
+            printAndLog('info', 'Using Blacklist Tags: ' + str(len(__blacklistTags)) + " items.")
+
+        if __config__.useSuppressTags:
+            global __suppressTags
+            __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
+            printAndLog('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
         username = __config__.username
         if username == '':
