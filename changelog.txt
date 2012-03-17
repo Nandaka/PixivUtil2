@@ -1,4 +1,4 @@
-201203xx
+20120317
 - by Nandaka
   - Fix start/end page parameter parsing as reported by repu.
   - Add option to use the query tags as the save folder (appended to root directory) as requested by Ruca.
