@@ -13,6 +13,7 @@
   - Add tagsLimit to be used for %tags% meta in the filename as requested by Anonymous User.
     - Use -1 to use all tags.
   - Fix useTagsAsDir (20120317b)
+  - Fix start/end page for Download by Tag list (20120317b)
 
 20120309
 - by Nandaka

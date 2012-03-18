@@ -1,5 +1,4 @@
 #!/usr/bin/python # -*- coding: UTF-8 -*-
-
 import sys
 import os
 import re
@@ -576,9 +575,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     skipOne = True
                 elif result == -1:
                     printAndLog('error', 'Image url not found: '+str(image.imageId))
-                    
-                del viewPage
-                
+                      
         ## Only save to db if all images is downloaded completely
         if result == 0 :
             try:
@@ -586,7 +583,9 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             except:
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
-        
+
+        del mediumPage
+        del viewPage
         del image
         gc.collect()
         ##clearall()
@@ -601,10 +600,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
-        raise
-    finally:
-        if mediumPage != None:
-            del mediumPage
+        raise            
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False):
     try:
@@ -692,7 +688,7 @@ def processTagsList(mode, filename, page=1, endPage=0):
         print "Reading:",filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            processTags(mode, tag, page, endPage, useTagsAsDir=__config__.useTagsAsDir)
+            processTags(mode, tag, page=page, endPage=endPage, useTagsAsDir=__config__.useTagsAsDir)
     except:
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
@@ -1045,6 +1041,8 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
 
 def menuDownloadFromTagsList(mode, opisvalid, args):
     __log__.info('Taglist mode.')
+    page = 1
+    endPage = 0
     if opisvalid and len(args) > 0 :
         filename = args[0]
         (page, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
@@ -1052,7 +1050,7 @@ def menuDownloadFromTagsList(mode, opisvalid, args):
         filename = raw_input("Tags list filename [tags.txt]: ") or './tags.txt'
         (page, endPage) = getStartAndEndNumber()
 
-    processTagsList(mode, filename, page)
+    processTagsList(mode, filename, page, endPage)
 
 def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
     __log__.info('New Illust from Bookmark mode.')
