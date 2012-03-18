@@ -41,7 +41,7 @@ def sanitizeFilename(s, rootDir=None):
     ## cut to 255 char
     pathLen = 0
     if rootDir != None:
-        name = unicode(rootDir, "utf-8") + os.sep + name
+        name = rootDir + os.sep + name
         
     if len(name) > 255:
         newLen = 254

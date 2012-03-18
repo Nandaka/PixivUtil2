@@ -476,8 +476,9 @@ class PixivTags:
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
-        l.append(line.strip())
-
+        line = line.strip()
+        if len(line) > 0 :
+          l.append(line)        
     reader.close()
     return l
   

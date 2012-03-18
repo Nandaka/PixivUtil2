@@ -353,7 +353,7 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                         print t,
                         time.sleep(1)
                     print ''
-            print 'Member Name  :', PixivHelper.safePrint(artist.artistName)
+            PixivHelper.safePrint('Member Name  : ' + artist.artistName)
             print 'Member Avatar:', artist.artistAvatar
             print 'Member Token :', artist.artistToken
 
@@ -464,6 +464,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
                 parseMediumPage.decompose()
                 del parseMediumPage
+                del mediumPage
                 break
             except PixivModelException as ex:
                 print ex
@@ -495,8 +496,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 
         if downloadImageFlag:
 
-            print "Title:", PixivHelper.safePrint(image.imageTitle)
-            print "Tags :", PixivHelper.safePrint(', '.join(image.imageTags))
+            PixivHelper.safePrint("Title: " + image.imageTitle)
+            PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
             print "Mode :", image.imageMode
             
             if __config__.useSuppressTags:
@@ -513,6 +514,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     image.ParseImages(page=parseBigImage)
                     parseBigImage.decompose()
                     del parseBigImage
+                    del viewPage
                     break
                 except PixivModelException as ex:
                     printAndLog('info', str(ex))
@@ -561,7 +563,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                         splittedMangaPage = mangaPage[0][0].split("_p",1)
                         filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
 
-                    print 'Filename  :', PixivHelper.safePrint(filename)
+                    PixivHelper.safePrint('Filename  : ' + filename)
                     result = -1
        
                     if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
@@ -584,9 +586,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             except:
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
-
-        del viewPage
-        del mediumPage
+        
         del image
         gc.collect()
         ##clearall()
@@ -605,10 +605,13 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False):
     try:
+        decodedTags = tags
         if useTagsAsDir:
             print "Save to each directory using query tags."
-            decodedTags = tags.encode('utf-8')
-            decodedTags = urllib.unquote_plus(decodedTags)#unicode(urllib.unquote_plus(tags))
+            if tags.startswith("%"):
+                tags = tags.encode(sys.stdout.encoding)
+                decodedTags = urllib.unquote(tags).decode('utf8')
+                print tags, '==>', decodedTags
             __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(decodedTags)
                 
         if not tags.startswith("%") :
@@ -624,9 +627,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
         if endDate != None:
             dateParam = dateParam + "&ecd=" + endDate
 
-        msg = 'Searching for: '+tags
-        print msg
-        __log__.info(msg+dateParam)
+        printAndLog('info', 'Searching for: ('+ decodedTags + ") " + tags + dateParam)
         
         while True:
             if titleCaption:
