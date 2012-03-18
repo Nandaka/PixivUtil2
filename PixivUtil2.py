@@ -569,15 +569,15 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     else:
                         result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
                     print ''
-                    del viewPage
                     
-
                 if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
                     print 'No big manga image available, try the small one'
                 elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
                     skipOne = True
                 elif result == -1:
                     printAndLog('error', 'Image url not found: '+str(image.imageId))
+                    
+                del viewPage
                 
         ## Only save to db if all images is downloaded completely
         if result == 0 :
