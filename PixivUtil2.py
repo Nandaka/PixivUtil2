@@ -446,7 +446,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
     try:
         filename = 'N/A'
         print 'Processing Image Id:', image_id
-        ## already downloaded images won't be downloaded twice - needed in processImage to catch any download
+        ## check if already downloaded. images won't be downloaded twice - needed in processImage to catch any download
         r = __dbManager__.selectImageByImageId(image_id)
         if r != None and not __config__.alwaysCheckFileSize:
             if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
@@ -456,6 +456,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
         retryCount = 0
         while 1:
+            mediumPage = None
             try :
                 mediumPage = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id='+str(image_id))
                 parseMediumPage = BeautifulSoup(mediumPage.read())
@@ -595,9 +596,10 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         print 'Error at processImage():',str(sys.exc_info())
         __log__.error('Error at processImage(): ' + str(sys.exc_info()))
         try:
-            dumpFilename = 'image_'+str(image_id)+'.html'
-            dumpHtml(dumpFilename, mediumPage.get_data())
-            printAndLog('error', 'Dumping html to: ' + dumpFilename);
+            if mediumPage != None:
+                dumpFilename = 'Error page for image ' + str(image_id) + '.html'
+                dumpHtml(dumpFilename , mediumPage.get_data())
+                printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise            
