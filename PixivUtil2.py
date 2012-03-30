@@ -338,10 +338,10 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                     artist = PixivArtist(mid=member_id, page=BeautifulSoup(listPage.read()))
                     break
                 except PixivModelException as ex:
-                    print 'Error:',ex
+                    printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
                     if ex.errorCode == 1001 or ex.errorCode == 1002:
                         __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
-                        printAndLog('info', 'Set IsDelted for MemberId: ' + str(member_id) + ' not exist.')
+                        printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
                         #__dbManager__.deleteMemberByMemberId(member_id)
                         #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
                     return
@@ -466,7 +466,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 del parseMediumPage
                 break
             except PixivModelException as ex:
-                print ex
+                printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
                 return
             except urllib2.URLError as ue:
                 print ue
@@ -515,7 +515,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     del parseBigImage
                     break
                 except PixivModelException as ex:
-                    printAndLog('info', str(ex))
+                    printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
                     return
                 except urllib2.URLError as ue:
                     if errorCount > __config__.retry:

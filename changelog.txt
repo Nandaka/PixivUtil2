@@ -1,3 +1,7 @@
+201203xx
+- by Nandaka
+  - update logging for ProcessImage and ProcessMember.
+
 20120317
 - by Nandaka
   - Fix start/end page parameter parsing as reported by repu.
