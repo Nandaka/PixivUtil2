@@ -1,6 +1,7 @@
-201203xx
+20120330
 - by Nandaka
   - update logging for ProcessImage and ProcessMember.
+  - update regex to handle private/MyPick-only image as reported by soji.
 
 20120317
 - by Nandaka

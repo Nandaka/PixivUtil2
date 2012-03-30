@@ -432,6 +432,8 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
         print 'Done.\n'
         __log__.info('Member_id: ' + str(member_id) + ' complete, last image_id: ' + str(image_id))
     except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
         printAndLog('error', 'Error at processMember(): ' + str(sys.exc_info()))
         try: 
             if listPage != None :
@@ -479,7 +481,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 if retryCount > __config__.retry:
                     printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
                     if mediumPage != None:
-                        dumpFilename = 'Error page for image ' + str(image_id) + '.html'
+                        dumpFilename = 'Error medium page for image ' + str(image_id) + '.html'
                         dumpHtml(dumpFilename , mediumPage.get_data())
                         printAndLog('error', 'Dumping html to: ' + dumpFilename);
                     return
@@ -593,12 +595,17 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         print '\n'
 
     except:
-        print 'Error at processImage():',str(sys.exc_info())
-        __log__.error('Error at processImage(): ' + str(sys.exc_info()))
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        printAndLog('error', 'Error at processImage(): ' + str(sys.exc_info()))
         try:
             if mediumPage != None:
-                dumpFilename = 'Error page for image ' + str(image_id) + '.html'
+                dumpFilename = 'Error Medium Page for image ' + str(image_id) + '.html'
                 dumpHtml(dumpFilename , mediumPage.get_data())
+                printAndLog('error', 'Dumping html to: ' + dumpFilename);
+            if parseBigImage != None:
+                dumpFilename = 'Error Big Page for image ' + str(image_id) + '.html'
+                dumpHtml(dumpFilename , parseBigImage.get_data())
                 printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))

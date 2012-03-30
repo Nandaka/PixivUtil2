@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark,PixivNewIllustBookmark
 from BeautifulSoup import BeautifulSoup
+from mechanize import Browser
+import os
 import unittest
 
 class TestPixivArtist(unittest.TestCase):
@@ -170,14 +172,27 @@ class TestPixivBookmark(unittest.TestCase):
       result = PixivNewIllustBookmark(page)
 
       self.assertEqual(len(result.imageList), 20)
-      
+
+class TestMyPickPage(unittest.TestCase):
+    def testMyPickPage(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test.image_12467674.html').replace('\\','/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivImage(12467674,page)
+        self.assertEqual(image.imageId, 12467674)
+        print image.PrintInfo()
+        #viewPage = br.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image.imageId))
+                
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-    unittest.TextTestRunner(verbosity=5).run(suite)
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
     unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    

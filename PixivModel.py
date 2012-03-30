@@ -235,8 +235,10 @@ class PixivImage:
     print 'img id:',self.imageId
     print 'title :',self.imageTitle
     print 'mode  :',self.imageMode
+    print 'tags  :'
     for item in self.imageTags:
-      print item
+      print '-',item
+    return ""
 
   def ParseImages(self, page, mode=None):
     if page == None:
@@ -250,7 +252,7 @@ class PixivImage:
     elif mode == 'manga':
       self.imageUrls = self.ParseMangaImages(page)
     if len(self.imageUrls) == 0:
-      raise PixivModelException('No images found for: '+self.imageId)
+      raise PixivModelException('No images found for: '+ str(self.imageId))
     return self.imageUrls
 
   def ParseBigImages(self, page):
@@ -263,8 +265,10 @@ class PixivImage:
     string = ''
     for script in scripts:
       string += str(script)
-    pattern = re.compile('http.*?\d+_p\d+\..{3}')
-    pattern2 = re.compile('http.*?(\d+_p\d+)\..{3}')
+    # normal: http://img04.pixiv.net/img/xxxx/12345_p0.jpg
+    # mypick: http://img04.pixiv.net/img/xxxx/12344_5baa86aaad_p0.jpg
+    pattern = re.compile('http.*?\d+[_0-9a-z_]*_p\d+\..{3}')
+    pattern2 = re.compile('http.*?(\d+[_0-9a-z_]*_p\d+)\..{3}')
     m = pattern.findall(string)
     for img in m:
       temp = str(img)
