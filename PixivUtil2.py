@@ -611,7 +611,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise            
 
-def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False):
+def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None):
     try:
         decodedTags = tags
         if useTagsAsDir:
@@ -619,7 +619,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             if tags.startswith("%"):
                 tags = tags.encode(sys.stdout.encoding)
                 decodedTags = urllib.unquote(tags).decode('utf8')
-                print tags, '==>', decodedTags
+                PixivHelper.safePrint( tags + '==>' + decodedTags)
             __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(decodedTags)
                 
         if not tags.startswith("%") :
@@ -638,14 +638,17 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
         printAndLog('info', 'Searching for: ('+ decodedTags + ") " + tags + dateParam)
         
         while True:
-            if titleCaption:
-                url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p='+str(i)+'&word='+tags + dateParam
-            else:
-                if wildCard:
-                    url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags + dateParam
-                    print "Using Wildcard (search.php)"
+            if not member_id == None:
+                url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p='+str(i)
+            else :
+                if titleCaption:
+                    url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p='+str(i)+'&word='+tags + dateParam
                 else:
-                    url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
+                    if wildCard:
+                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags + dateParam
+                        print "Using Wildcard (search.php)"
+                    else:
+                        url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
                     
             print 'Looping... for '+ url
             searchPage = __br__.open(url)
@@ -920,6 +923,7 @@ def menu():
     print '7. Download from tags list'
     print '8. Download new illust from bookmark'
     print '9. Download by Title/Caption'
+    print '10. Download by Tag and Member Id'
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export online bookmark'
@@ -994,6 +998,15 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
         
     processTags(mode, tags, page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
+def menuDownloadByTagAndMemberId(mode, opisvalid, args):
+    __log__.info('Tag and MemberId mode.')
+
+    member_id = raw_input('Member Id: ')
+    tags      = raw_input('Tag      : ')
+    
+    processTags(mode, tags, member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
+
+    
 def menuDownloadFromList(mode, opisvalid, args):
     __log__.info('Batch mode.')
     processList(mode)
@@ -1111,6 +1124,7 @@ def main():
                            '7 - Download from tags list                              ' +
                            '8 - Download new illust from bookmark                    ' +
                            '9 - Download by Title/Caption                            ' +
+                           '10 - Download by Tag and Member Id                       ' +
                            'e - Export online bookmark                               ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
@@ -1259,6 +1273,8 @@ def main():
                     menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
                 elif selection == '9':
                     menuDownloadByTitleCaption(mode, opisvalid, args)
+                elif selection == '10':
+                    menuDownloadByTagAndMemberId(mode, opisvalid, args)
                 elif selection == 'e':
                     menuExportOnlineBookmark(mode, opisvalid, args)
                 elif selection == 'd':

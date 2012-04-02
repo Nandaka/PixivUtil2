@@ -1,3 +1,7 @@
+201204xx
+- by Nandaka
+  - Add download by member_id and tags as requested by Drill.
+
 20120330
 - by Nandaka
   - update logging for ProcessImage and ProcessMember.
