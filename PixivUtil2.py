@@ -26,8 +26,6 @@ import PixivDBManager
 import PixivHelper
 from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
 
-##import pprint
-
 Yavos = True
 npisvalid = False
 np = 0
@@ -623,9 +621,12 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(decodedTags)
                 
         if not tags.startswith("%") :
-            ## Encode the tags
-            tags = tags.encode('utf-8')
-            tags = urllib.quote_plus(tags)#.decode(sys.stdout.encoding).encode("utf8"))
+            try:
+                ## Encode the tags
+                tags = tags.encode('utf-8')
+                tags = urllib.quote_plus(tags)#.decode(sys.stdout.encoding).encode("utf8"))
+            except UnicodeDecodeError as ex:
+                print "Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag."
         i = page
         images = 1
 
@@ -973,7 +974,7 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = False
         tags = " ".join(args[1:])
     else:
-        tags = raw_input('Tags: ')
+        tags = PixivHelper.uni_input('Tags: ')
         wildcard = raw_input('Use Wildcard[y/n]: ') or False
         if wildcard.lower() == 'y':
             wildcard = True
@@ -992,7 +993,7 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
     if opisvalid and len(args) > 0:
         tags = " ".join(args)
     else:
-        tags = raw_input('Title/Caption: ')
+        tags = PixivHelper.uni_input('Title/Caption: ')
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
         
@@ -1002,7 +1003,7 @@ def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     __log__.info('Tag and MemberId mode.')
 
     member_id = raw_input('Member Id: ')
-    tags      = raw_input('Tag      : ')
+    tags      = PixivHelper.uni_input('Tag      : ')
     
     processTags(mode, tags, member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
 

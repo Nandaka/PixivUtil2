@@ -75,7 +75,6 @@ class PixivArtist:
               artistToken = artistToken.split('/')[-2]
               if artistToken != 'common':
                 return artistToken
-          raw_input('cannot parse artist token')
         except TypeError:
           raise PixivModelException('Cannot parse artist token, possibly no images.')
     else :
@@ -312,7 +311,8 @@ class PixivListItem:
     for line in reader:
         if line.startswith('#') or len(line) < 1:
           continue
-        line = line.strip()
+        line = PixivHelper.toUnicode(line)
+        line = line.strip()        
         items = line.split(" ", 1)
         try:
           member_id = int(items[0])
@@ -424,6 +424,7 @@ class PixivBookmark:
     from datetime import datetime
     if not filename.endswith('.txt'):
       filename = filename + '.txt'
+    #might need to change to codecs.open
     writer = open(filename, 'w')
     writer.write('###Export date: ' + str(datetime.today()) +'###\n')
     for item in l:
@@ -482,7 +483,7 @@ class PixivTags:
           continue
         line = line.strip()
         if len(line) > 0 :
-          l.append(line)        
+          l.append(PixivHelper.toUnicode(line))
     reader.close()
     return l
   
