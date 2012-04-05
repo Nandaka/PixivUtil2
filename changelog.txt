@@ -1,6 +1,7 @@
 201204xx
 - by Nandaka
   - Add download by member_id and tags as requested by Drill.
+  - Update tags and list file unicode handing.
 
 20120330
 - by Nandaka
