@@ -1,4 +1,4 @@
-201204xx
+20120406
 - by Nandaka
   - Add download by member_id and tags as requested by Drill.
   - Update tags and list file unicode handing.
