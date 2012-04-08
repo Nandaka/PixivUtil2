@@ -140,4 +140,4 @@ def toUnicode(obj, encoding='utf-8'):
 
 def uni_input(message=''):
   result = raw_input(message)
-  return toUnicode(result)
+  return toUnicode(result, encoding=sys.stdin.encoding)

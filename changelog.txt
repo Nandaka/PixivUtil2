@@ -1,3 +1,7 @@
+201204xx
+- by Nandaka
+  - Update unicode handling.
+
 20120406
 - by Nandaka
   - Add download by member_id and tags as requested by Drill.

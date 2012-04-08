@@ -982,7 +982,7 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = False
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
-    processTags(mode, tags, page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
+    processTags(mode, tags.strip(), page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')
@@ -997,7 +997,7 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
         
-    processTags(mode, tags, page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
+    processTags(mode, tags.strip(), page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
 def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     __log__.info('Tag and MemberId mode.')
@@ -1005,7 +1005,7 @@ def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     member_id = raw_input('Member Id: ')
     tags      = PixivHelper.uni_input('Tag      : ')
     
-    processTags(mode, tags, member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
+    processTags(mode, tags.strip(), member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
 
     
 def menuDownloadFromList(mode, opisvalid, args):
