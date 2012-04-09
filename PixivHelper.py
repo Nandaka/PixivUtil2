@@ -37,6 +37,13 @@ def sanitizeFilename(s, rootDir=None):
   #Replace tab character with space
   name = name.replace('\t',' ')
 
+  #Strip leading/trailing space for each directory
+  temp = name.split(os.sep)
+  temp2 = list()
+  for item in temp:
+    temp2.append(item.strip())
+  name = os.sep.join(temp2)
+
   ## cut to 255 char
   pathLen = 0
   if rootDir != None:
@@ -86,6 +93,12 @@ def setConsoleTitle(title):
     subprocess.call('title' + ' ' + title, shell=True)
   else:
     sys.stdout.write("\x1b]2;" + title + "\x07")
+
+def clearScreen():
+  if os.name == 'nt':
+    subprocess.call('cls', shell=True)
+  else:
+    subprocess.call('clear', shell=True)
 
 def startIrfanView(dfilename, irfanViewPath):
   print 'starting IrfanView...'

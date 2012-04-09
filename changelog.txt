@@ -1,6 +1,7 @@
 201204xx
 - by Nandaka
   - Update unicode handling.
+  - Add Ctrl-C handler.
 
 20120406
 - by Nandaka

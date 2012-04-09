@@ -171,12 +171,16 @@ def downloadImage(url, filename, referer, overwrite, retry):
             print urlError
             __log__.error('URLError: '+ str(urlError) + '(' + url + ')')
             raise
-
+        except KeyboardInterrupt:
+            printAndLog('info', 'Aborted by user request => Ctrl-C')
+            raise
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
             __log__.error('Error at downloadImage(): ' + str(sys.exc_info()))
             raise
+    except KeyboardInterrupt:
+        raise
     except:
         if retry > 0:
             repeat = range(1,__config__.retryWait)
@@ -300,6 +304,8 @@ def processList(mode):
                 try:
                     processMember(mode, item.memberId, item.path)
                     break
+                except KeyboardInterrupt:
+                    raise
                 except:
                     if retryCount > __config__.retry:
                         printAndLog('error','Giving up member_id: '+str(row[0]))
@@ -310,18 +316,25 @@ def processList(mode):
             
             __br__.clear_history()
             print 'done.'
-
+    except KeyboardInterrupt:
+        raise
     except:
         print 'Error at processList():',sys.exc_info()
         print 'Failed'
         __log__.error('Error at processList(): ' + str(sys.exc_info()))
         raise
 
-def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
+def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added dir-argument which will be initialized as '' when not given
     printAndLog('info','Processing Member Id: ' + str(member_id))
+    if page != 1:
+        printAndLog('info', 'Start Page: ' + str(page))
+    if endPage != 0:
+        printAndLog('info', 'End Page: ' + str(endPage))
+        if __config__.numberOfPage != 0:
+            printAndLog('info', 'Number of page setting will be ignored')
+        
     __config__.loadConfig()
     try:
-        page = 1
         noOfImages = 1
         avatarDownloaded = False
         flag = True
@@ -399,6 +412,8 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                         processImage(mode, artist, image_id, userDir) #Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
+                    except KeyboardInterrupt:
+                        raise
                     except Exception as ex:
                         if retryCount > __config__.retry:
                             printAndLog('error', "Giving up image_id: "+str(image_id)) 
@@ -409,17 +424,22 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
                         time.sleep(2)
 
                 noOfImages = noOfImages + 1
-            page = page + 1
-
-            if npisvalid == True: #Yavos: overwriting config-data
-                if page > np and np != 0:
-                    flag = False
-            elif page > __config__.numberOfPage and __config__.numberOfPage != 0 :
+            
+            if endPage != 0 and page >= endPage:
+                print "Page limit reached"
                 flag = False
+            else:
+                if npisvalid == True: #Yavos: overwriting config-data
+                    if page > np and np != 0:
+                        flag = False
+                elif page > __config__.numberOfPage and __config__.numberOfPage != 0 :
+                    flag = False
 
             if artist.isLastPage:
                 print "Last Page"
                 flag = False
+                            
+            page = page + 1
             
             del artist
             del listPage
@@ -429,6 +449,8 @@ def processMember(mode, member_id, userDir=''): #Yavos added dir-argument which 
         __dbManager__.updateLastDownloadedImage(member_id, image_id)
         print 'Done.\n'
         __log__.info('Member_id: ' + str(member_id) + ' complete, last image_id: ' + str(image_id))
+    except KeyboardInterrupt:
+        raise
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -591,7 +613,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         gc.collect()
         ##clearall()
         print '\n'
-
+    except KeyboardInterrupt:
+        raise
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -691,6 +714,8 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 break
         print 'done'
         __config__.loadConfig()
+    except KeyboardInterrupt:
+        raise
     except:
         print 'Error at processTags():',sys.exc_info()
         __log__.error('Error at processTags(): ' + str(sys.exc_info()))
@@ -702,6 +727,8 @@ def processTagsList(mode, filename, page=1, endPage=0):
         l = PixivTags.parseTagsList(filename)
         for tag in l:
             processTags(mode, tag, page=page, endPage=endPage, useTagsAsDir=__config__.useTagsAsDir)
+    except KeyboardInterrupt:
+        raise
     except:
         print 'Error at processTagsList():',sys.exc_info()
         __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
@@ -740,6 +767,8 @@ def processImageBookmark(mode, hide='n', member_id=0):
                 break
 
         print "Done.\n"
+    except KeyboardInterrupt:
+        raise
     except :
         print 'Error at processImageBookmark():',sys.exc_info()
         __log__.error('Error at processImageBookmark(): ' + str(sys.exc_info()))
@@ -774,6 +803,8 @@ def processBookmark(mode, hide='n'):
         print "Result: ", str(len(totalList)), "items."        
         for item in totalList:
             processMember(mode, item.memberId, item.path)
+    except KeyboardInterrupt:
+        raise
     except :
         print 'Error at processBookmark():',sys.exc_info()
         __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
@@ -790,6 +821,8 @@ def exportBookmark(filename, hide='n'):
             totalList.extend(getBookmarks(True))
         print "Result: ", str(len(totalList)), "items."
         PixivBookmark.exportList(totalList, filename)
+    except KeyboardInterrupt:
+        raise
     except :
         print 'Error at exportBookmark():',sys.exc_info()
         __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
@@ -824,6 +857,8 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
                 break
             
         print "Done."
+    except KeyboardInterrupt:
+        raise
     except:
         print 'Error at processNewIllustFromBookmark():',sys.exc_info()
         __log__.error('Error at processNewIllustFromBookmark(): ' + str(sys.exc_info()))
@@ -934,6 +969,8 @@ def menu():
 
 def menuDownloadByMemberId(mode, opisvalid, args):
     __log__.info('Member id mode.')
+    page = 1
+    endPage = 0
     if opisvalid and len(args) > 0:
         for member_id in args:
             try:
@@ -944,7 +981,8 @@ def menuDownloadByMemberId(mode, opisvalid, args):
             processMember(mode, int(member_id))
     else:
         member_id = raw_input('Member id: ')
-        processMember(mode, member_id.strip())
+        (page, endPage) = getStartAndEndNumber()
+        processMember(mode, member_id.strip(), page=page, endPage=endPage)
 
 def menuDownloadByImageId(mode, opisvalid, args):
     __log__.info('Image id mode.')
@@ -1240,7 +1278,7 @@ def main():
             msg = 'Limit up to: ' +  str(__config__.numberOfPage) + ' page(s).'
             print msg
             __log__.info(msg)
-
+        
         result = pixivLogin(username,password)
 
         if result == 0 :            
@@ -1250,54 +1288,56 @@ def main():
                 mode = PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY
 
             while True:
-                if opisvalid: #Yavos (next 3 lines): if commandline then use it ;P
-                    selection = op
-                else:
-                    selection = menu()
-                    
-                if selection == '1':
-                    menuDownloadByMemberId(mode, opisvalid, args)
-                elif selection == '2':
-                    menuDownloadByImageId(mode, opisvalid, args)
-                elif selection == '3':
-                    menuDownloadByTags(mode, opisvalid, args)
-                elif selection == '4':
-                    menuDownloadFromList(mode, opisvalid, args)
-
-                elif selection == '5':
-                    menuDownloadFromOnlineUserBookmark(mode, opisvalid, args)
-                elif selection == '6':
-                    menuDownloadFromOnlineImageBookmark(mode, opisvalid, args)
-                elif selection == '7':
-                    menuDownloadFromTagsList(mode, opisvalid, args)
-                elif selection == '8':
-                    menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
-                elif selection == '9':
-                    menuDownloadByTitleCaption(mode, opisvalid, args)
-                elif selection == '10':
-                    menuDownloadByTagAndMemberId(mode, opisvalid, args)
-                elif selection == 'e':
-                    menuExportOnlineBookmark(mode, opisvalid, args)
-                elif selection == 'd':
-                    __dbManager__.main()
-                elif selection == '-all':
-                    if npisvalid == False:
-                        npisvalid = True
-                        np = 0
-                        print 'download all mode activated'
+                try:
+                    if opisvalid: #Yavos (next 3 lines): if commandline then use it ;P
+                        selection = op
                     else:
-                        npisvalid = False
-                        print 'download mode reset to', __config__.numberOfPage, 'pages'
-                elif selection == 'x':
-                    break
-                
-                if ewd == True: #Yavos: added lines for "exit when done"
-                    break
-                opisvalid = False #Yavos: needed to prevent endless loop
-                
+                        selection = menu()
+                        
+                    if selection == '1':
+                        menuDownloadByMemberId(mode, opisvalid, args)
+                    elif selection == '2':
+                        menuDownloadByImageId(mode, opisvalid, args)
+                    elif selection == '3':
+                        menuDownloadByTags(mode, opisvalid, args)
+                    elif selection == '4':
+                        menuDownloadFromList(mode, opisvalid, args)
+
+                    elif selection == '5':
+                        menuDownloadFromOnlineUserBookmark(mode, opisvalid, args)
+                    elif selection == '6':
+                        menuDownloadFromOnlineImageBookmark(mode, opisvalid, args)
+                    elif selection == '7':
+                        menuDownloadFromTagsList(mode, opisvalid, args)
+                    elif selection == '8':
+                        menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
+                    elif selection == '9':
+                        menuDownloadByTitleCaption(mode, opisvalid, args)
+                    elif selection == '10':
+                        menuDownloadByTagAndMemberId(mode, opisvalid, args)
+                    elif selection == 'e':
+                        menuExportOnlineBookmark(mode, opisvalid, args)
+                    elif selection == 'd':
+                        __dbManager__.main()
+                    elif selection == '-all':
+                        if npisvalid == False:
+                            npisvalid = True
+                            np = 0
+                            print 'download all mode activated'
+                        else:
+                            npisvalid = False
+                            print 'download mode reset to', __config__.numberOfPage, 'pages'
+                    elif selection == 'x':
+                        break
+                    
+                    if ewd == True: #Yavos: added lines for "exit when done"
+                        break
+                    opisvalid = False #Yavos: needed to prevent endless loop
+                except KeyboardInterrupt:
+                    PixivHelper.clearScreen()
+                    print "Restarting..."
             if iv == True: #Yavos: adding IrfanView-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath)
-
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -1311,4 +1351,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
     
