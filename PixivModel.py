@@ -447,7 +447,6 @@ class PixivTags:
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     linkList = page.findAll('a')
     for link in linkList:
-      link.extract()
       if link.has_key('href') :
         result = __re_illust.findall(link['href'])
         if len(result) > 0 :
@@ -466,7 +465,15 @@ class PixivTags:
       self.isLastPage = False
     else:
       self.isLastPage = True
-      
+
+    # check if the last page for member tags
+    if self.isLastPage:
+      check = page.findAll(name='a', attrs={ 'class':'button', 'rel':'next'})
+      if len(check) > 0:
+        self.isLastPage = False
+      else:
+        self.isLastPage = True
+        
     return self.imageList
  
   @staticmethod

@@ -1,5 +1,9 @@
 20120413
 - by Nandaka
+  - Fix download by member and tags page detection.
+
+20120413
+- by Nandaka
   - Update unicode handling.
   - Add Ctrl-C handler.
 

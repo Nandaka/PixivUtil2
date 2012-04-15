@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark,PixivNewIllustBookmark
+from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark,PixivNewIllustBookmark, PixivTags
 from BeautifulSoup import BeautifulSoup
 from mechanize import Browser
 import os
@@ -183,7 +183,18 @@ class TestMyPickPage(unittest.TestCase):
         self.assertEqual(image.imageId, 12467674)
         print image.PrintInfo()
         #viewPage = br.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image.imageId))
-                
+
+class TestPixivTags(unittest.TestCase):
+    def testMemberTagCheckPage(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-memberlist-checkpage.htm').replace('\\','/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseTags(page)
+        
+        self.assertEqual(image.isLastPage, False)
+      
 if __name__ == '__main__':
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
 ##    unittest.TextTestRunner(verbosity=5).run(suite)
@@ -193,6 +204,9 @@ if __name__ == '__main__':
 ##    print "================================================================"
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
 ##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
     unittest.TextTestRunner(verbosity=5).run(suite)
