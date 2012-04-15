@@ -1,4 +1,4 @@
-201204xx
+20120413
 - by Nandaka
   - Update unicode handling.
   - Add Ctrl-C handler.
