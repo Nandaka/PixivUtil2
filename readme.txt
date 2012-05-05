@@ -117,7 +117,8 @@ B.Bugs/Source Code/Supports:
 username ==> Your pixiv username.
 password ==> Your pixiv password, in clear text!
 cookie   ==> Your cookies for pixiv login, will be automatically updated in the
-             login. 
+             login.
+usessl   ==> Use secure form (https://ssl.pixiv.net/login.php).
 
 [Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.

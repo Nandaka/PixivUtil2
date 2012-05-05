@@ -1,3 +1,7 @@
+20120505
+- by Nandaka
+  - Add SSL Login support (set useSSl in Authentication to True).
+
 20120421
 - by Nandaka
   - Fix download by member and tags page detection.

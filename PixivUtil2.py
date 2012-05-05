@@ -225,11 +225,10 @@ def loadCookie(cookieValue):
     __cj__.set_cookie(ck)
     
 ### Pixiv related function ###
-def pixivLogin(username, password):
-    '''Log in to Pixiv, return 0 if success'''
-    printAndLog('info','logging in')
-
-    ## try log in with cookie
+def pixivLoginCookie():
+    '''Log in to Pixiv using saved cookie, return True if success'''
+    
+    printAndLog('info','logging in with saved cookie')
     cookieValue = __config__.cookie
     if len(cookieValue) > 0:
         printAndLog('info','Trying to log with saved cookie')
@@ -238,11 +237,15 @@ def pixivLogin(username, password):
         __br__.open(req)
         if __br__.response().geturl() == 'http://www.pixiv.net/mypage.php' :
             print 'done.'
-            __log__.info('Logged in')
-            return 0
+            __log__.info('Logged in using cookie')
+            return True
         else :
             printAndLog('info','Cookie already expired/invalid.')
-
+    return False
+            
+def pixivLogin(username, password):
+    '''Log in to Pixiv, return 0 if success'''
+    
     try:
         printAndLog('info','Log in using form.')
         req = customRequest(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
@@ -263,15 +266,45 @@ def pixivLogin(username, password):
                     __config__.cookie = cookie.value
                     __config__.writeConfig()
                     break                
-            return 0
+            return True
         else :
             printAndLog('info','Wrong username or password.')
-            return 1
+            return False
     except:
         print 'Error at pixivLogin():',sys.exc_info()
         print 'failed'
         __log__.error('Error at pixivLogin(): ' + str(sys.exc_info()))
         raise
+
+def pixivLoginSSL(username, password):
+    try:
+        printAndLog('info','Log in using secure form.')
+        req = customRequest(PixivConstant.PIXIV_URL_SSL)
+        __br__.open(req)
+        
+        form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
+        __br__['pixiv_id'] = username
+        __br__['pass'] = password
+
+        response = __br__.submit()
+        if response.geturl() == 'http://www.pixiv.net/mypage.php':
+            print 'done.'
+            __log__.info('Logged in')
+            ## write back the new cookie value
+            for cookie in  __br__._ua_handlers['_cookies'].cookiejar:
+                if cookie.name == 'PHPSESSID':
+                    print 'new cookie value:', cookie.value
+                    __config__.cookie = cookie.value
+                    __config__.writeConfig()
+                    break                
+            return True
+        else :
+            printAndLog('info','Wrong username or password.')
+            return False
+    except:
+        print 'Error at pixivLoginSSL():',sys.exc_info()
+        __log__.error('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
+        raise    
 
 def processList(mode):
     global args
@@ -1278,10 +1311,19 @@ def main():
             msg = 'Limit up to: ' +  str(__config__.numberOfPage) + ' page(s).'
             print msg
             __log__.info(msg)
-        
-        result = pixivLogin(username,password)
 
-        if result == 0 :            
+        ## Log in
+        result = False
+        if len(__config__.cookie) > 0:
+            result = pixivLoginCookie()
+
+        if not result:
+            if __config__.useSSL:
+                result = pixivLoginSSL(username,password)
+            else:
+                result = pixivLogin(username,password)                  
+
+        if result:            
             if __config__.overwrite :
                 mode = PixivConstant.PIXIVUTIL_MODE_OVERWRITE
             else :
