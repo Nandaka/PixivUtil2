@@ -79,14 +79,15 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
   return nameFormat
 
-def safePrint(msg):
+def safePrint(msg, newline=True):
   '''Print empty string if UnicodeError raised.'''
   for msgToken in msg.split(' '):
     try:
       print msgToken,
     except UnicodeError:
       print ('?' * len (msgToken)),
-  print ''
+  if newline:
+    print ''
 
 def setConsoleTitle(title):
   if os.name == 'nt':

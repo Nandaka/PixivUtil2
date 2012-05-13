@@ -190,12 +190,11 @@ class PixivDBManager:
             print '%10s %25s %25s %20s %20s %10s %s' % ('member_id','name','save_folder','created_date','last_update_date','last_image','is_deleted')
             i = 0
             for row in c:
-                for string in row:
-                    print '\t',
-                    PixivHelper.safePrint(string)
-                #PixivHelper.safePrint('%10d %#25s %#25s %20s %20s %10d %5s' % (row[0], unicode(row[1]).strip(), row[2], row[3], row[4], row[5], row[6]))
-                #PixivHelper.safePrint(u'{0:10d} {1:25s} {2:20s} {3:20s} {4:10d} {5:5d}'.format(row[0], row[1], row[2], row[4], row[5], row[6]))
-                print ''
+                #for string in row:
+                #    print '\t',
+                #    PixivHelper.safePrint(unicode(string), False)
+                PixivHelper.safePrint('%10d %#25s %#25s %20s %20s %10d %5s' % (row[0], unicode(row[1]).strip(), row[2], row[3], row[4], row[5], row[6]))
+                #print ''
                 i = i + 1
                 if i == 79:
                     select = raw_input('Continue [y/n]? ')
