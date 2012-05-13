@@ -138,6 +138,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 save = file(os.path.split(url)[1], 'wb+', 4096)
 
             prev = 0
+            curr = 0
             print '{0:22} Bytes'.format(prev),
             try:
                 while 1:
@@ -145,7 +146,11 @@ def downloadImage(url, filename, referer, overwrite, retry):
                     curr = save.tell()
                     print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
                     print '{0:9} of {1:9} Bytes'.format(curr, filesize),
-                    if curr == prev:
+
+                    ## check if downloaded file is complete
+                    if filesize > 0 and curr == filesize:
+                        break
+                    elif curr == prev:  ## no filesize info
                         break
                     prev = curr
                 if iv == True or __config__.createDownloadLists == True:
