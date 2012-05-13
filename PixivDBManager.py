@@ -228,7 +228,7 @@ class PixivDBManager:
                     for row in c:
                         for string in row:
                             print '   ',
-                            PixivHelper.safePrint(string)
+                            PixivHelper.safePrint(unicode(string), False)
                         print ''
                 else :
                     return
@@ -240,7 +240,7 @@ class PixivDBManager:
                 for row in c:
                     for string in row:
                         print '   ',
-                        PixivHelper.safePrint(string) #would it make more sense to set output to file?
+                        PixivHelper.safePrint(unicode(string), False) #would it make more sense to set output to file?
                     print ''    
             #Yavos: end of change
         except:
@@ -307,7 +307,7 @@ class PixivDBManager:
                 
             c.execute('''SELECT member_id, save_folder,  (julianday(Date('now')) - julianday(last_update_date)) as diff
                          FROM pixiv_master_member
-                         WHERE is_deleted = 0 AND ( last_image == -1 OR diff > '''+ str(int_diff) +''' ) ORDER BY member_id''')
+                         WHERE is_deleted <> 1 AND ( last_image == -1 OR diff > '''+ str(int_diff) +''' ) ORDER BY member_id''')
             result = c.fetchall()
             for row in result:
                 item = PixivListItem(row[0], row[1])
@@ -356,7 +356,7 @@ class PixivDBManager:
         for row in rows:
             for string in row:
                 print '   ',
-                PixivHelper.safePrint(string)
+                PixivHelper.safePrint(unicode(string), False)
             print '\n'
     
     def updateMemberName(self, memberId, memberName):
@@ -628,8 +628,8 @@ class PixivDBManager:
                     if rows != None:
                         for row in rows:
                             for string in row:
-                                print '\t\t',
-                                PixivHelper.safePrint(string)
+                                print '	',
+                                PixivHelper.safePrint(unicode(string), False)
                             print '\n'
                     else :
                         print 'Not Found!\n'
@@ -638,8 +638,8 @@ class PixivDBManager:
                     row = self.selectImageByImageId(image_id)
                     if row != None:
                         for string in row:
-                            print '\t\t',
-                            PixivHelper.safePrint(string)
+                            print '	',
+                            PixivHelper.safePrint(unicode(string), False)
                         print '\n'
                     else :
                         print 'Not Found!\n'
@@ -648,8 +648,8 @@ class PixivDBManager:
                     row = self.selectMemberByMemberId(member_id)
                     if row != None:
                         for string in row:
-                            print '\t\t',
-                            PixivHelper.safePrint(string)
+                            print '	',
+                            PixivHelper.safePrint(unicode(string), False)
                         print '\n'
                     else :
                         print 'Not Found!\n'
@@ -659,8 +659,8 @@ class PixivDBManager:
                     if rows != None:
                         for row in rows:
                             for string in row:
-                                print '\t\t',
-                                PixivHelper.safePrint(string)
+                                print '	',
+                                PixivHelper.safePrint(unicode(string), False)
                             print '\n'
                     else :
                         print 'Not Found!\n'
