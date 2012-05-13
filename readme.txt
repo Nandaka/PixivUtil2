@@ -254,6 +254,27 @@ member_id2 directory2
 ### END EXAMPLE LIST####
 
 =================================================================================
+= tags.txt Format                                                               =
+=================================================================================
+- This file will be used as source for Download from tags list (7)
+- Separate tags with space.
+- Each line will be treated as one search.
+
+=================================================================================
+= suppress_tags.txt Format                                                      =
+=================================================================================
+- This file is used for suppressing the tags from being used in %tags%.
+- If matches, the tags will be removed from filename.
+- Each line is one tag only.
+
+=================================================================================
+= blacklist_tags.txt Format                                                     =
+=================================================================================
+- This file is used for tag blacklist checking for downloading image.
+- If matches, the image will be skipped.
+- Each line is one tag only.
+
+=================================================================================
 = Credits                                                                       =
 =================================================================================
 - Nandaka (Main Developer)
