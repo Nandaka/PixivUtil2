@@ -2,6 +2,7 @@
 - by Nandaka
   - Add downloaded filesize check.
   - Parse image Views/Ratings/Totals information.
+  - Parse bookmark count information for tags search.
 
 20120505
 - by Nandaka

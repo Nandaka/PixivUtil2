@@ -444,15 +444,21 @@ class PixivBookmark:
     writer.write('###END-OF-FILE###')
     writer.close()
 
+import collections
+PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCount'])
+
 class PixivTags:
   '''Class for parsing tags search page'''
   imageList = None
+  itemList = None
   haveImage = None
   isLastPage = None
   
   def parseTags(self, page):
     '''parse tags search page and return the image list'''
     self.imageList = list()
+    self.itemList = list()
+
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     linkList = page.findAll('a')
     for link in linkList:
@@ -461,6 +467,12 @@ class PixivTags:
         if len(result) > 0 :
           image_id = int(result[0])
           self.imageList.append(image_id)
+    ## new parse for bookmark items
+    items = page.findAll('li', attrs={'class':'image'})
+    for item in items:
+      image_id = __re_illust.findall(item.find('a')['href'])[0]
+      bookmarkCount = item.find('ul', attrs={'class':'count-list'}).find('li').find('a').contents[1]
+      self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount)))
 
     # Check if have image
     if len(self.imageList) > 0:
