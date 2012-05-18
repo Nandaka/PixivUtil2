@@ -445,7 +445,7 @@ class PixivBookmark:
     writer.close()
 
 import collections
-PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCount'])
+PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCount', 'imageResponse'])
 
 class PixivTags:
   '''Class for parsing tags search page'''
@@ -471,8 +471,19 @@ class PixivTags:
     items = page.findAll('li', attrs={'class':'image'})
     for item in items:
       image_id = __re_illust.findall(item.find('a')['href'])[0]
-      bookmarkCount = item.find('ul', attrs={'class':'count-list'}).find('li').find('a').contents[1]
-      self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount)))
+      bookmarkCount = -1
+      imageResponse = -1
+      countList = item.find('ul', attrs={'class':'count-list'})
+      if countList != None:
+        countList = countList.findAll('li')
+        if len(countList) > 0 :
+          for count in countList:
+            temp = count.find('a')
+            if temp['class'] == 'bookmark-count ui-tooltip' :
+              bookmarkCount = temp.contents[1]
+            elif temp['class'] == 'image-response-count ui-tooltip' :
+              imageResponse = temp.contents[1]
+      self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
 
     # Check if have image
     if len(self.imageList) > 0:

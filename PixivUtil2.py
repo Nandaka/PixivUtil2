@@ -677,7 +677,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
         raise            
 
-def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None):
+def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None, bookmarkCount=None):
     try:
         decodedTags = tags
         if useTagsAsDir:
@@ -719,7 +719,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                     else:
                         url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
                     
-            print 'Looping... for '+ url
+            printAndLog('info', 'Looping... for '+ url)
             searchPage = __br__.open(url)
 
             parseSearchPage = BeautifulSoup(searchPage.read())
@@ -730,12 +730,17 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 print 'No more images'
                 break
             else:
-                for image_id in l:
-                    print 'Image #'+str(images)
-                    print 'Image id:', image_id
+                #for image_id in l:
+                for item in t.itemList:
+                    print 'Image #' + str(images)
+                    print 'Image Id:', str(item.imageId)
+                    print 'Bookmark Count:', str(item.bookmarkCount)
+                    if bookmarkCount != None and bookmarkCount >= item.bookmarkCount:
+                        printAndLog('info', 'Skipping imageId='+str(item.imageId)+' because less than bookmark count limit ('+ str(bookmarkCount) + ' >= ' + str(item.bookmarkCount) + ')')
+                        continue
                     while True:
                         try:
-                            processImage(mode, None, image_id)
+                            processImage(mode, None, item.imageId)
                             break;
                         except httplib.BadStatusLine:
                             print "Stuff happened, trying again after 2 second..."
@@ -1049,6 +1054,7 @@ def menuDownloadByTags(mode, opisvalid, args):
     endPage = 0
     startDate = None
     endDate = None
+    bookmarkCount = None
     if opisvalid and len(args) > 0:
         wildcard = args[0]
         if wildcard.lower() == 'y':
@@ -1058,6 +1064,7 @@ def menuDownloadByTags(mode, opisvalid, args):
         tags = " ".join(args[1:])
     else:
         tags = PixivHelper.uni_input('Tags: ')
+        bookmarkCount = int(raw_input('Bookmark Count: '))
         wildcard = raw_input('Use Wildcard[y/n]: ') or False
         if wildcard.lower() == 'y':
             wildcard = True
@@ -1065,7 +1072,7 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = False
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
-    processTags(mode, tags.strip(), page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
+    processTags(mode, tags.strip(), page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir,bookmarkCount=bookmarkCount)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')

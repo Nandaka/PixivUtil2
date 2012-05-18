@@ -207,10 +207,11 @@ class TestPixivTags(unittest.TestCase):
         image.parseTags(page)
         
         self.assertEqual(len(image.itemList), 20)
-        self.assertEqual(image.itemList[0].imageId, 27338605)
-        self.assertEqual(image.itemList[0].bookmarkCount, 1)
-        self.assertEqual(image.itemList[17].imageId, 27261431)
-        self.assertEqual(image.itemList[17].bookmarkCount, 742)
+        self.assertEqual(image.itemList[0].imageId, 26180887)
+        self.assertEqual(image.itemList[0].bookmarkCount, 60)
+        self.assertEqual(image.itemList[4].imageId, 25930505)
+        self.assertEqual(image.itemList[4].bookmarkCount, 45)
+        self.assertEqual(image.itemList[4].imageResponse, 1)
       
 if __name__ == '__main__':
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
