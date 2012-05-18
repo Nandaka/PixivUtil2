@@ -135,6 +135,9 @@ class PixivImage:
   worksDate  = ""
   worksResolution = ""
   worksTools = ""
+  jd_rtv = 0
+  jd_rtc = 0
+  jd_rtt = 0
 
   def __init__(self, iid=0, page=None, parent=None):
     self.artist = parent
@@ -207,6 +210,9 @@ class PixivImage:
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
     self.imageTitle = unicode(page.h3.string)
+    self.jd_rtv = int(page.find('div', attrs={'id':'jd_rtv'}).string)
+    self.jd_rtc = int(page.find('div', attrs={'id':'jd_rtc'}).string)
+    self.jd_rtt = int(page.find('div', attrs={'id':'jd_rtt'}).string)
 
   def ParseWorksData(self, page):
     temp = page.find(attrs={'class':'works_data'}).find('p').renderContents()
@@ -237,6 +243,9 @@ class PixivImage:
     print 'tags  :'
     for item in self.imageTags:
       print '-',item
+    print 'views :',self.jd_rtv
+    print 'rating:',self.jd_rtc
+    print 'total :',self.jd_rtt
     return ""
 
   def ParseImages(self, page, mode=None):

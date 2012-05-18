@@ -116,6 +116,9 @@ class TestPixivImage(unittest.TestCase):
       self.assertNotEqual(image, None)
       self.assertEqual(image.imageId, 20623238)
       self.assertEqual(image.imageMode, 'big')
+      self.assertEqual(image.jd_rtv, 1)
+      self.assertEqual(image.jd_rtc, 2)
+      self.assertEqual(image.jd_rtt, 3)
 
     def testPixivImageNoImage(self):
       #print '\nTesting image page - no image'
@@ -199,14 +202,14 @@ if __name__ == '__main__':
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
 ##    unittest.TextTestRunner(verbosity=5).run(suite)
 ##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
 ##    unittest.TextTestRunner(verbosity=5).run(suite)
 ##    print "================================================================"
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
 ##    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
-    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
