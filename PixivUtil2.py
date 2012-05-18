@@ -107,10 +107,10 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 br2.set_proxies(__config__.proxy)
 
             br2.set_handle_robots(__config__.useRobots)
-            
+            filesize = -1
             res = br2.open(req)
             try:
-                filesize = res.info()['Content-Length']
+                filesize = int(res.info()['Content-Length'])
             except KeyError:
                 filesize = 0
             except:
@@ -149,8 +149,10 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
                     ## check if downloaded file is complete
                     if filesize > 0 and curr == filesize:
+                        print ' Complete.'
                         break
                     elif curr == prev:  ## no filesize info
+                        print ''
                         break
                     prev = curr
                 if iv == True or __config__.createDownloadLists == True:
@@ -159,6 +161,11 @@ def downloadImage(url, filename, referer, overwrite, retry):
                     dfile.close()
             finally:
                 save.close()
+                if filesize > 0 and curr < filesize:
+                    printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, filesize))
+                    printAndLog('error', 'Filename = ' + unicode(filename))
+                    printAndLog('error', 'URL      = {0}'.format(url))
+                    return -1
                 if overwrite and os.path.exists(filename):
                     os.remove(filename)
                 os.rename(filename + '.pixiv', filename)
@@ -1395,6 +1402,7 @@ def main():
             if selection == None or selection != 'x' :
                 raw_input('press enter to exit.')
         __log__.info('EXIT')
+        __log__.info('#####################################################')
 
 if __name__ == '__main__':
     main()
