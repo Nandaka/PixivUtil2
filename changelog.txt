@@ -1,4 +1,4 @@
-201205xx
+20120519
 - by Nandaka
   - Add downloaded filesize check.
   - Parse image Views/Ratings/Totals information.

@@ -159,13 +159,14 @@ def downloadImage(url, filename, referer, overwrite, retry):
                     dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
                     dfile.write(filename + "\n")
                     dfile.close()
-            finally:
-                save.close()
+            except:
                 if filesize > 0 and curr < filesize:
                     printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, filesize))
                     printAndLog('error', 'Filename = ' + unicode(filename))
                     printAndLog('error', 'URL      = {0}'.format(url))
-                    return -1
+                    raise 
+            finally:
+                save.close()                
                 if overwrite and os.path.exists(filename):
                     os.remove(filename)
                 os.rename(filename + '.pixiv', filename)
@@ -203,7 +204,6 @@ def downloadImage(url, filename, referer, overwrite, retry):
             return downloadImage(url, filename, referer, overwrite, retry - 1)
         else :
             raise
-
     print ' done.'
     return 0
         
@@ -1015,7 +1015,7 @@ def menu():
     print 'e. Export online bookmark'
     print 'x. Exit'
     
-    return raw_input('Input: ')
+    return raw_input('Input: ').strip()
 
 def menuDownloadByMemberId(mode, opisvalid, args):
     __log__.info('Member id mode.')
