@@ -1,3 +1,7 @@
+201205xx
+- by Nandaka
+  - Add %R-18% filename format for R-18/R-18G tagged images, can be used for creating directory.
+
 20120519
 - by Nandaka
   - Add downloaded filesize check.

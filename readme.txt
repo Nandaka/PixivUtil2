@@ -129,7 +129,8 @@ userobots      ==> Download robots.txt for mechanize.
 rootdirectory  ==> Your root directory for saving the images.
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
 retrywait      ==> Waiting time for each retry, in seconds.
-proxyaddress   ==> Proxy server address, use this format:                    http://<username>:<password>@<proxy_server>:<port>
+proxyaddress   ==> Proxy server address, use this format:                    
+		   http://<username>:<password>@<proxy_server>:<port>
 uselist        ==> set to 'True' to parse list.txt. 
                    This will update the DB content from the list.txt
                    (member_id and custom folder).
@@ -154,6 +155,9 @@ filenameformat ==> The format for the filename, reserved/illegal character will
 	        -> %works_res%    ==> image resolution, will be containing the page 
                                       count if manga.
 	        -> %works_tools%  ==> tools used for the image.
+	        -> %R-18%         ==> Append R-18/R-18 based on image tag, can be used
+                                      for creating directory by appending directory
+                                      separator, e.g.: %R-18%\%image_id%
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.

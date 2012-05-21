@@ -75,6 +75,12 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     tagsLimit = tagsLimit if tagsLimit < len(imageInfo.imageTags) else len(imageInfo.imageTags)
     imageInfo.imageTags = imageInfo.imageTags[0:tagsLimit]
   tags = tagsSeparator.join(imageInfo.imageTags)
+  r18Dir = ""
+  if "R-18G" in imageInfo.imageTags:
+    r18Dir = "R-18G"
+  elif "R-18" in imageInfo.imageTags:
+    r18Dir = "R-18"  
+  nameFormat = nameFormat.replace('%R-18%',r18Dir)
   nameFormat = nameFormat.replace('%tags%',tags.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
   return nameFormat
