@@ -164,7 +164,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
                     printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, filesize))
                     printAndLog('error', 'Filename = ' + unicode(filename))
                     printAndLog('error', 'URL      = {0}'.format(url))
-                    raise 
+                raise 
             finally:
                 save.close()                
                 if overwrite and os.path.exists(filename):
