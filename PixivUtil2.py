@@ -84,11 +84,16 @@ def printAndLog(level, msg):
         __log__.error(msg)
 
 def customRequest(url):
-    req = urllib2.Request(url)
     if __config__.useProxy:
-        urllib2.Request.set_proxy(__config__.proxy, None)
-    else:
-        req._tunnel_host = None
+        urllib2.install_opener(
+            urllib2.build_opener(
+                urllib2.ProxyHandler(__config__.proxy)
+            )
+        )
+##        urllib2.Request.set_proxy(__config__.proxy, None)
+##    else:
+##        req._tunnel_host = None
+    req = urllib2.Request(url)
     return req
 
 #-T04------For download file
@@ -511,6 +516,10 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
 
 def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     try:
+        mediumPage = None
+        viewPage = None
+        image = None
+            
         filename = 'N/A'
         print 'Processing Image Id:', image_id
         ## check if already downloaded. images won't be downloaded twice - needed in processImage to catch any download
@@ -652,9 +661,12 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
 
-        del mediumPage
-        del viewPage
-        del image
+        if mediumPage != None:
+            del mediumPage
+        if viewPage != None:
+            del viewPage
+        if image != None:
+            del image
         gc.collect()
         ##clearall()
         print '\n'
@@ -735,8 +747,8 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                     print 'Image #' + str(images)
                     print 'Image Id:', str(item.imageId)
                     print 'Bookmark Count:', str(item.bookmarkCount)
-                    if bookmarkCount != None and bookmarkCount >= item.bookmarkCount:
-                        printAndLog('info', 'Skipping imageId='+str(item.imageId)+' because less than bookmark count limit ('+ str(bookmarkCount) + ' >= ' + str(item.bookmarkCount) + ')')
+                    if bookmarkCount != None and bookmarkCount > item.bookmarkCount:
+                        printAndLog('info', 'Skipping imageId='+str(item.imageId)+' because less than bookmark count limit ('+ str(bookmarkCount) + ' > ' + str(item.bookmarkCount) + ')')
                         continue
                     while True:
                         try:
@@ -1064,14 +1076,16 @@ def menuDownloadByTags(mode, opisvalid, args):
         tags = " ".join(args[1:])
     else:
         tags = PixivHelper.uni_input('Tags: ')
-        bookmarkCount = int(raw_input('Bookmark Count: '))
-        wildcard = raw_input('Use Wildcard[y/n]: ') or False
+        bookmarkCount = raw_input('Bookmark Count: ') or None
+        wildcard = raw_input('Use Wildcard[y/n]: ') or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
             wildcard = False
         (page, endPage) = getStartAndEndNumber()
         (startDate, endDate) = getStartAndEndDate()
+    if bookmarkCount != None:
+        bookmarkCount = int(bookmarkCount)
     processTags(mode, tags.strip(), page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir,bookmarkCount=bookmarkCount)
 
 def menuDownloadByTitleCaption(mode, opisvalid, args):
