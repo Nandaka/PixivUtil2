@@ -868,7 +868,7 @@ def processBookmark(mode, hide='n'):
             print "Importing Bookmarks..."
             totalList.extend(getBookmarks(False))
         if hide != 'n':
-            print "Importing Hidden Bookmarks..."
+            print "Importing Private Bookmarks..."
             totalList.extend(getBookmarks(True))
         print "Result: ", str(len(totalList)), "items."        
         for item in totalList:
@@ -887,7 +887,7 @@ def exportBookmark(filename, hide='n'):
             print "Importing Bookmarks..."
             totalList.extend(getBookmarks(False))
         if hide != 'n':
-            print "Importing Hidden Bookmarks..."
+            print "Importing Private Bookmarks..."
             totalList.extend(getBookmarks(True))
         print "Result: ", str(len(totalList)), "items."
         PixivBookmark.exportList(totalList, filename)
@@ -1135,7 +1135,7 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
             else:
                 print "Invalid args: ", args
     else :
-        arg = raw_input("Include hidden bookmarks [y/n/o]: ") or 'n'
+        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
         if arg == 'y' or arg =='n' or arg == 'o':
             hide = arg
@@ -1165,7 +1165,7 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
         memberId = int(memberIdStr)
         hide = False
         if memberId == 0 :
-            arg = raw_input("Only hidden bookmarks [y/n]: ") or 'n'
+            arg = raw_input("Only Private bookmarks [y/n]: ") or 'n'
             arg = arg.lower()
             if arg == 'y' or arg =='n':
                 hide = arg
@@ -1200,7 +1200,7 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
 def menuExportOnlineBookmark(mode, opisvalid, args):
     __log__.info('Export Bookmark mode.')
     filename = raw_input("Filename: ")
-    arg = raw_input("Include hidden bookmarks [y/n/o]: ") or 'n'
+    arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
     arg = arg.lower()
     if arg == 'y' or arg =='n' or arg == 'o':
         hide = arg

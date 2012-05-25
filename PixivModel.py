@@ -404,12 +404,18 @@ class PixivBookmark:
     __re_member = re.compile(r'member\.php\?id=(\d*)')
     try:
       result = page.find(attrs={'class':'members'}).findAll('a')
+
+      ##filter duplicated member_id
+      d = {}
       for r in result:
         member_id = __re_member.findall(r['href'])
         if len(member_id) > 0:
-          #print member_id[0]
-          item = db.selectMemberByMemberId2(member_id[0])
-          l.append(item)
+          d[member_id[0]] = member_id[0]
+      result2 = list(d.keys())
+      
+      for r in result2:
+        item = db.selectMemberByMemberId2(r)
+        l.append(item)
     except:
       pass
     return l
@@ -426,6 +432,10 @@ class PixivBookmark:
       if href != None:
         href = href.group(1)
         imageList.append(int(href))
+        
+    #remove duplicate
+    imageList = list(set(imageList))
+    
     return imageList
 
   @staticmethod
