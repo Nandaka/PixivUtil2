@@ -85,11 +85,9 @@ def printAndLog(level, msg):
 
 def customRequest(url):
     if __config__.useProxy:
-        urllib2.install_opener(
-            urllib2.build_opener(
-                urllib2.ProxyHandler(__config__.proxy)
-            )
-        )
+        proxy = urllib2.ProxyHandler(__config__.proxy)
+        opener = urllib2.build_opener(proxy)
+        urllib2.install_opener(opener)
 ##        urllib2.Request.set_proxy(__config__.proxy, None)
 ##    else:
 ##        req._tunnel_host = None
@@ -99,12 +97,14 @@ def customRequest(url):
 #-T04------For download file
 def downloadImage(url, filename, referer, overwrite, retry):
     try:
-        print 'Start downloading...',
+        
         try:
             req = customRequest(url)
 
             if referer != None:
                 req.add_header('Referer', referer)
+            else :
+                req.add_header('Referer', 'http://www.pixiv.net')
 
             br2 = Browser()
             br2.set_cookiejar(__cj__)
@@ -113,11 +113,18 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             br2.set_handle_robots(__config__.useRobots)
             filesize = -1
+            
+##            for item in req.headers:
+##                print str(item), "=", req.headers[str(item)]
+                
+            #res = __br__.open(req)
             res = br2.open(req)
             try:
                 filesize = int(res.info()['Content-Length'])
+##                for item in res.info():
+##                    print str(item), "=", res.info()[str(item)]
             except KeyError:
-                filesize = 0
+                filesize = -1
             except:
                 raise
 
@@ -144,6 +151,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             prev = 0
             curr = 0
+            print 'Start downloading...',
             print '{0:22} Bytes'.format(prev),
             try:
                 while 1:
