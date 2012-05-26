@@ -1,6 +1,9 @@
-201205xx
+20120526
 - by Nandaka
   - Add %R-18% filename format for R-18/R-18G tagged images, can be used for creating directory.
+  - Fix proxy handling.
+  - Fix UnboundLocalError when using the black list tag.
+  - Fix duplicate member_id when exporting user bookmark.
 
 20120519
 - by Nandaka
