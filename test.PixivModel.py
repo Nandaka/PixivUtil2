@@ -212,6 +212,16 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.itemList[4].imageId, 25930505)
         self.assertEqual(image.itemList[4].bookmarkCount, 45)
         self.assertEqual(image.itemList[4].imageResponse, 1)
+
+    def testTagsListParseMemberSearch(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-memberlist.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseMemberTags(page)
+
+        self.assertEqual(len(image.itemList), 12)
       
 if __name__ == '__main__':
 ##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)

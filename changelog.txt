@@ -1,3 +1,7 @@
+201206xx
+- by Nandaka
+  - Fix search by member_id and tags.
+
 20120526
 - by Nandaka
   - Add %R-18% filename format for R-18/R-18G tagged images, can be used for creating directory.

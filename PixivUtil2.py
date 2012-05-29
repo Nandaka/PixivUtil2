@@ -744,7 +744,11 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
 
             parseSearchPage = BeautifulSoup(searchPage.read())
             t = PixivTags()
-            l = t.parseTags(parseSearchPage)
+            l = list()
+            if not member_id == None:
+                l = t.parseMemberTags(parseSearchPage)
+            else :
+                l = t.parseTags(parseSearchPage)
 
             if len(l) == 0 :
                 print 'No more images'

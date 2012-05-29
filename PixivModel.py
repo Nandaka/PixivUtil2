@@ -459,24 +459,16 @@ PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCou
 
 class PixivTags:
   '''Class for parsing tags search page'''
-  imageList = None
+  #imageList = None
   itemList = None
   haveImage = None
   isLastPage = None
   
   def parseTags(self, page):
-    '''parse tags search page and return the image list'''
-    self.imageList = list()
+    '''parse tags search page and return the image list with bookmarkCound and imageResponse'''
     self.itemList = list()
 
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-    linkList = page.findAll('a')
-    for link in linkList:
-      if link.has_key('href') :
-        result = __re_illust.findall(link['href'])
-        if len(result) > 0 :
-          image_id = int(result[0])
-          self.imageList.append(image_id)
     ## new parse for bookmark items
     items = page.findAll('li', attrs={'class':'image'})
     for item in items:
@@ -494,9 +486,27 @@ class PixivTags:
             elif temp['class'] == 'image-response-count ui-tooltip' :
               imageResponse = temp.contents[1]
       self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+    self.checkPage(page)
+    return self.itemList
 
+  def parseMemberTags(self, page):
+    '''parse member tags search page and return the image list'''
+    self.itemList = list()
+
+    __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+    linkList = page.findAll('a')
+    for link in linkList:
+      if link.has_key('href') :
+        result = __re_illust.findall(link['href'])
+        if len(result) > 0 :
+          image_id = int(result[0])
+          self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
+    self.checkPage(page)
+    return self.itemList
+
+  def checkPage(self, page):
     # Check if have image
-    if len(self.imageList) > 0:
+    if len(self.itemList) > 0:
       self.haveImage = True
     else:
       self.haveImage = False
@@ -515,9 +525,7 @@ class PixivTags:
         self.isLastPage = False
       else:
         self.isLastPage = True
-        
-    return self.imageList
- 
+     
   @staticmethod
   def parseTagsList(filename):
     '''read tags.txt and return the tags list'''
