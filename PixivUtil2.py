@@ -524,6 +524,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
 
 def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
     try:
+        parseBigImage = None
         mediumPage = None
         viewPage = None
         image = None
@@ -591,12 +592,14 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             errorCount = 0
             while True:
                 try :
+                    parseBigImage = None
                     bigUrl = 'http://www.pixiv.net/member_illust.php?mode='+image.imageMode+'&illust_id='+str(image_id)
                     viewPage = __br__.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image_id))
                     parseBigImage = BeautifulSoup(viewPage.read())
-                    image.ParseImages(page=parseBigImage)
-                    parseBigImage.decompose()
-                    del parseBigImage
+                    if parseBigImage != None:
+                        image.ParseImages(page=parseBigImage)
+                        parseBigImage.decompose()
+                        del parseBigImage
                     break
                 except PixivModelException as ex:
                     printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
@@ -695,7 +698,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
             printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
-        raise            
+        raise
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None, bookmarkCount=None):
     try:
