@@ -1,3 +1,4 @@
+#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark,PixivNewIllustBookmark, PixivTags
 from BeautifulSoup import BeautifulSoup
@@ -224,17 +225,17 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(len(image.itemList), 12)
       
 if __name__ == '__main__':
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
     unittest.TextTestRunner(verbosity=5).run(suite)

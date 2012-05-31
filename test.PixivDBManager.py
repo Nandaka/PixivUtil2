@@ -1,3 +1,4 @@
+#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 
 from PixivDBManager import PixivDBManager
@@ -36,4 +37,7 @@ class TestPixivDBManager(unittest.TestCase):
             print item.memberId, item.path
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivDBManager)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+

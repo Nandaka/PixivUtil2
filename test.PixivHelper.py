@@ -1,3 +1,4 @@
+#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 import PixivHelper
 import os

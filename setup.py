@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 
 from distutils.core import setup
