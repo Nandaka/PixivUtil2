@@ -50,7 +50,7 @@ def sanitizeFilename(s, rootDir=None):
     name = rootDir + os.sep + name
 
   if len(name) > 255:
-    newLen = 254
+    newLen = 250
     name = name[:newLen]
 
   return name.strip()

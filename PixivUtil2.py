@@ -147,7 +147,10 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 msg = 'Error at downloadImage(): Cannot save ' + url +' to ' + filename + ' ' + str(sys.exc_info())
                 PixivHelper.safePrint(msg)
                 __log__.error(unicode(msg))
-                save = file(os.path.split(url)[1], 'wb+', 4096)
+                filename = os.path.split(url)[1]
+                filename = filename.split("?")[0]
+                filename = PixivHelper.sanitizeFilename(filename)
+                save = file(filename + '.pixiv', 'wb+', 4096)
 
             prev = 0
             curr = 0
@@ -179,7 +182,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
                     printAndLog('error', 'URL      = {0}'.format(url))
                 raise 
             finally:
-                save.close()                
+                save.close()
                 if overwrite and os.path.exists(filename):
                     os.remove(filename)
                 os.rename(filename + '.pixiv', filename)
