@@ -1,6 +1,8 @@
-201206xx
+20120601
 - by Nandaka
   - Fix search by member_id and tags.
+  - Increase log size to 10MB and log backup to 10.
+  - Fix parseBigImage UnboundLocalError exception
 
 20120526
 - by Nandaka

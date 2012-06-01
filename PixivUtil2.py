@@ -53,8 +53,8 @@ __suppressTags = list()
 __log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
 __log__.setLevel(logging.DEBUG)
 
-__logHandler__ = logging.handlers.RotatingFileHandler(PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=1024000, backupCount=5)
-__formatter__  = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+__logHandler__ = logging.handlers.RotatingFileHandler(PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+__formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
 __logHandler__.setFormatter(__formatter__)
 __log__.addHandler(__logHandler__)
 
