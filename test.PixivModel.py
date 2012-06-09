@@ -189,53 +189,135 @@ class TestMyPickPage(unittest.TestCase):
         #viewPage = br.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image.imageId))
 
 class TestPixivTags(unittest.TestCase):
-    def testMemberTagCheckPage(self):
+    ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
+    def testTagsSearchExact(self):
         br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-memberlist-checkpage.htm').replace(os.sep,'/')
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact.htm').replace(os.sep,'/')
         p = br.open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
-        
+
+        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(image.itemList[0].imageId, 27792358)
+        self.assertEqual(image.itemList[0].bookmarkCount, 2)
+        self.assertEqual(image.itemList[0].imageResponse, -1)
+        self.assertEqual(image.itemList[19].imageId, 27110688)
+        self.assertEqual(image.itemList[19].bookmarkCount, -1)
+        self.assertEqual(image.itemList[19].imageResponse, -1)
         self.assertEqual(image.isLastPage, False)
 
-    def testTagsListParsing(self):
+    def testTagsSearchExactLast(self):
         br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-list.htm').replace(os.sep,'/')
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact-last.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseTags(page)
+
+        self.assertEqual(len(image.itemList), 4)
+        self.assertEqual(image.itemList[0].imageId, 21618970)
+        self.assertEqual(image.itemList[0].bookmarkCount, -1)
+        self.assertEqual(image.itemList[0].imageResponse, -1)
+        self.assertEqual(image.itemList[3].imageId, 15060554)
+        self.assertEqual(image.itemList[3].bookmarkCount, 1)
+        self.assertEqual(image.itemList[3].imageResponse, -1)        
+        self.assertEqual(image.isLastPage, True)
+
+    ## search.php?s_mode=s_tag&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9
+    def testTagsSearchPartial(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-partial.htm').replace(os.sep,'/')
         p = br.open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
         
         self.assertEqual(len(image.itemList), 20)
-        self.assertEqual(image.itemList[0].imageId, 26180887)
-        self.assertEqual(image.itemList[0].bookmarkCount, 60)
-        self.assertEqual(image.itemList[4].imageId, 25930505)
-        self.assertEqual(image.itemList[4].bookmarkCount, 45)
-        self.assertEqual(image.itemList[4].imageResponse, 1)
+        self.assertEqual(image.itemList[0].imageId, 27792358)
+        self.assertEqual(image.itemList[0].bookmarkCount, 2)
+        self.assertEqual(image.itemList[0].imageResponse, -1)
+        self.assertEqual(image.itemList[19].imageId, 27110688)
+        self.assertEqual(image.itemList[19].bookmarkCount, -1)
+        self.assertEqual(image.itemList[19].imageResponse, -1)
+        self.assertEqual(image.isLastPage, False)
 
-    def testTagsListParseMemberSearch(self):
+    def testTagsSearchPartialLast(self):
         br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-memberlist.htm').replace(os.sep,'/')
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-partial-last.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseTags(page)
+        
+        self.assertEqual(len(image.itemList), 4)
+        self.assertEqual(image.itemList[0].imageId, 21618970)
+        self.assertEqual(image.itemList[0].bookmarkCount, -1)
+        self.assertEqual(image.itemList[0].imageResponse, -1)
+        self.assertEqual(image.itemList[3].imageId, 15060554)
+        self.assertEqual(image.itemList[3].bookmarkCount, 1)
+        self.assertEqual(image.itemList[3].imageResponse, -1)
+        self.assertEqual(image.isLastPage, True)
+
+    def testTagsSearchParseDetails(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact-parse_details.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseTags(page)
+        
+        self.assertEqual(len(image.itemList), 20)
+        ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=26563564
+        self.assertEqual(image.itemList[0].imageId, 26563564)
+        self.assertEqual(image.itemList[0].bookmarkCount, 1)
+        ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=26557089
+        self.assertEqual(image.itemList[1].imageId, 26557089)
+        self.assertEqual(image.itemList[1].bookmarkCount, 3)
+        self.assertEqual(image.itemList[1].imageResponse, 14)
+        ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=26538917
+        self.assertEqual(image.itemList[5].imageId, 26538917)
+        self.assertEqual(image.itemList[5].bookmarkCount, -1)
+        self.assertEqual(image.itemList[5].imageResponse, -1)
+
+    def testTagsMemberSearch(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-member-search.htm').replace(os.sep,'/')
         p = br.open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseMemberTags(page)
+        
+        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(image.itemList[0].imageId, 25757869)
+        self.assertEqual(image.itemList[19].imageId, 14818847)
+        self.assertEqual(image.isLastPage, False)
 
-        self.assertEqual(len(image.itemList), 12)
+    def testTagsMemberSearchLast(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-member-search-last.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseMemberTags(page)
+        
+        self.assertEqual(len(image.itemList), 10)
+        self.assertEqual(image.itemList[0].imageId, 1894295)
+        self.assertEqual(image.itemList[9].imageId, 1804545)
+        self.assertEqual(image.isLastPage, True)
       
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
     unittest.TextTestRunner(verbosity=5).run(suite)

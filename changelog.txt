@@ -1,3 +1,9 @@
+20120609
+- by Nandaka
+  - Update Download by tags parsing because of layout update.
+  - Change filename limit from 254 to 250 + 4 (for extensions)
+  - Handle '?' in filename
+
 20120601
 - by Nandaka
   - Fix search by member_id and tags.
