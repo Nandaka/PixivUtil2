@@ -5,6 +5,7 @@ import codecs
 from HTMLParser import HTMLParser
 import subprocess
 import sys
+import PixivModel
 
 if os.sep == '/':
   __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')
@@ -44,11 +45,14 @@ def sanitizeFilename(s, rootDir=None):
     temp2.append(item.strip())
   name = os.sep.join(temp2)
 
-  ## cut to 255 char
-  pathLen = 0
   if rootDir != None:
     name = rootDir + os.sep + name
 
+  #replace double os.sep
+  while name.find(os.sep+os.sep) >= 0:
+    name = name.replace(os.sep+os.sep, os.sep)
+
+  ## cut to 255 char
   if len(name) > 255:
     newLen = 250
     name = name[:newLen]
@@ -161,3 +165,15 @@ def toUnicode(obj, encoding='utf-8'):
 def uni_input(message=''):
   result = raw_input(message)
   return toUnicode(result, encoding=sys.stdin.encoding)
+
+def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, targetDir):
+  filename = ''
+  if filenameFormat.find(os.sep) == -1:
+    filenameFormat = os.sep + filenameFormat
+  filenameFormat = filenameFormat.split(os.sep)[0]
+  image = PixivModel.PixivImage(parent=artistPage)
+  filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit)  
+  filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+
+  return filename
+  

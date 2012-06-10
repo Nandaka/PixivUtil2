@@ -117,12 +117,14 @@ class PixivArtist:
     return self.isLastPage
     
   def PrintInfo(self):
+    print 'Artist Info'
     print 'id    :',self.artistId
     print 'name  :',self.artistName
     print 'avatar:',self.artistAvatar
     print 'token :',self.artistToken
+    print 'urls  :'
     for item in self.imageList:
-      print item
+      print '\t',item
     
 class PixivImage:
   '''Class for parsing image page, including manga page and big image.'''
@@ -236,7 +238,7 @@ class PixivImage:
         self.imageTags.append(unicode(tag.string))
 
   def PrintInfo(self):
-    #self.artist.PrintInfo()
+    print 'Image Info'
     print 'img id:',self.imageId
     print 'title :',self.imageTitle
     print 'mode  :',self.imageMode

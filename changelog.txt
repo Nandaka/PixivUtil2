@@ -1,251 +1,216 @@
+201206xx
+- Fix "0 -" in the avatar filename when no subfolder defined in the filename format.
+
 20120609
-- by Nandaka
-  - Update Download by tags parsing because of layout update.
-  - Change filename limit from 254 to 250 + 4 (for extensions)
-  - Handle '?' in filename
+- Update Download by tags parsing because of layout update.
+- Change filename limit from 254 to 250 + 4 (for extensions)
+- Handle '?' in filename
 
 20120601
-- by Nandaka
-  - Fix search by member_id and tags.
-  - Increase log size to 10MB and log backup to 10.
-  - Fix parseBigImage UnboundLocalError exception
+- Fix search by member_id and tags.
+- Increase log size to 10MB and log backup to 10.
+- Fix parseBigImage UnboundLocalError exception
 
 20120526
-- by Nandaka
-  - Add %R-18% filename format for R-18/R-18G tagged images, can be used for creating directory.
-  - Fix proxy handling.
-  - Fix UnboundLocalError when using the black list tag.
-  - Fix duplicate member_id when exporting user bookmark.
+- Add %R-18% filename format for R-18/R-18G tagged images, can be used for creating directory.
+- Fix proxy handling.
+- Fix UnboundLocalError when using the black list tag.
+- Fix duplicate member_id when exporting user bookmark.
 
 20120519
-- by Nandaka
-  - Add downloaded filesize check.
-  - Parse image Views/Ratings/Totals information.
-  - Parse bookmark count information for tags search.
+- Add downloaded filesize check.
+- Parse image Views/Ratings/Totals information.
+- Parse bookmark count information for tags search.
 
 20120505
-- by Nandaka
-  - Add SSL Login support (set useSSl in Authentication to True).
+- Add SSL Login support (set useSSl in Authentication to True).
 
 20120421
-- by Nandaka
-  - Fix download by member and tags page detection.
+- Fix download by member and tags page detection.
 
 20120413
-- by Nandaka
-  - Update unicode handling.
-  - Add Ctrl-C handler.
+- Update unicode handling.
+- Add Ctrl-C handler.
 
 20120406
-- by Nandaka
-  - Add download by member_id and tags as requested by Drill.
-  - Update tags and list file unicode handing.
+- Add download by member_id and tags as requested by Drill.
+- Update tags and list file unicode handing.
 
 20120330
-- by Nandaka
-  - update logging for ProcessImage and ProcessMember.
-  - update regex to handle private/MyPick-only image as reported by soji.
+- update logging for ProcessImage and ProcessMember.
+- update regex to handle private/MyPick-only image as reported by soji.
 
 20120317
-- by Nandaka
-  - Fix start/end page parameter parsing as reported by repu.
-  - Add option to use the query tags as the save folder (appended to root directory) as requested by Ruca.
-  - Update tags list parser to handle text files with BOM.
-  - Add blacklist and suppress tags list.
-    - useblacklisttags = True/False
+- Fix start/end page parameter parsing as reported by repu.
+- Add option to use the query tags as the save folder (appended to root directory) as requested by Ruca.
+- Update tags list parser to handle text files with BOM.
+- Add blacklist and suppress tags list.
+  - useblacklisttags = True/False
       Skip image if containing blacklisted tags. 
       The list is taken from blacklist_tags.txt, each tags is separated by new line.
-    - usesuppresstags = True/False
+  - usesuppresstags = True/False
       Remove the suppressed tags from %tags% meta for filename.
       The list is taken from suppress_tags.txt, each tags is separated by new line.
-  - Add tagsLimit to be used for %tags% meta in the filename as requested by Anonymous User.
-    - Use -1 to use all tags.
-  - Fix useTagsAsDir (20120317b)
-  - Fix start/end page for Download by Tag list (20120317b)
+- Add tagsLimit to be used for %tags% meta in the filename as requested by Anonymous User.
+  - Use -1 to use all tags.
+- Fix useTagsAsDir (20120317b)
+- Fix start/end page for Download by Tag list (20120317b)
 
 20120309
-- by Nandaka
-  - Fix list.txt parsing if have drive letter in the path as reported by Dwayne.
-  - Fix Download by Tags console command, add wildcard option [y/n] as reported by Dwayne.
-  - Fix Download by Title/Caption as reported by tribe.
+- Fix list.txt parsing if have drive letter in the path as reported by Dwayne.
+- Fix Download by Tags console command, add wildcard option [y/n] as reported by Dwayne.
+- Fix Download by Title/Caption as reported by tribe.
 
 20120224
-- by Nandaka
-  - Fix filename sanitazion, replace tab character with space as reported by asm_demon.
-  - Source code formatting.
-  - Fix sanitizeFilename method for non-windows os as reported by Joe.
-  - Fix Mechanize 'req._tunnel_host = None' if no proxy used as reported by Joe.
-  - Add new filenameFormat metatag as requested by Yanoflies.
+- Fix filename sanitazion, replace tab character with space as reported by asm_demon.
+- Source code formatting.
+- Fix sanitizeFilename method for non-windows os as reported by Joe.
+- Fix Mechanize 'req._tunnel_host = None' if no proxy used as reported by Joe.
+- Add new filenameFormat metatag as requested by Yanoflies.
     -> %works_date%   ==> works date, complete with time.
     -> %works_date_only% ==> only the works date.
     -> %works_res%    ==> image resolution, will be containing the page count if manga.
     -> %works_tools%  ==> tools used for the image.
-  - Update unittest.
+- Update unittest.
 
 20120210
-- by Nandaka
-  - Fix no limit for end page as reported by Troid.
-  - Fix parseTags method as reported by gsilver.
-  - Add start/end date for download by tag as requested by UnemployedIncubator.
-  - Fix member bookmarks parsing as reported by Anonymous.
-  - Fix new illustration download if run from console as reported by ToadadnoChikara.
+- Fix no limit for end page as reported by Troid.
+- Fix parseTags method as reported by gsilver.
+- Add start/end date for download by tag as requested by UnemployedIncubator.
+- Fix member bookmarks parsing as reported by Anonymous.
+- Fix new illustration download if run from console as reported by ToadadnoChikara.
 
 20120114
-- by Nandaka
-  - Add BOM handler for list.txt.
-  - Add End Page for download new illust from bookmark as requested by Golden Wolf.
-  - Add Last Page Detection for download by tags as reported by tribe.
-  - Add use wilcard option for download by tags and download by Title/Caption as requested by tribe.
-  - Refactor Start/End page number UI.
+- Add BOM handler for list.txt.
+- Add End Page for download new illust from bookmark as requested by Golden Wolf.
+- Add Last Page Detection for download by tags as reported by tribe.
+- Add use wilcard option for download by tags and download by Title/Caption as requested by tribe.
+- Refactor Start/End page number UI.
 
 20111212
-- by Nandaka
-  - replace os.system() to subprocess.call()
+- replace os.system() to subprocess.call()
 
 20111202
-- by Nandaka
-  - Fix PixivHelper, add import sys statement as reported by MikoMiko.
-  - Update Download/Export from online user bookmark: only process the private/hidden user bookmark.
-  - Update error logging message.
+- Fix PixivHelper, add import sys statement as reported by MikoMiko.
+- Update Download/Export from online user bookmark: only process the private/hidden user bookmark.
+- Update error logging message.
 
 20111126
-- by Nandaka
-  - Add error message if R-18/R-18G is disabled.
-  - Update console swith operation.
-  - Add max limit for Download New Illust from Bookmark to 100 (Pixiv limitation).
-  - Update readme.txt, add license agreement section (BSD 2-Clause License)
+- Add error message if R-18/R-18G is disabled.
+- Update console swith operation.
+- Add max limit for Download New Illust from Bookmark to 100 (Pixiv limitation).
+- Update readme.txt, add license agreement section (BSD 2-Clause License)
 
 20111119
-- by Nandaka
-  - Fix list.txt parsing the user target dir; strip() the line before split().
-  - Fix bookmark and DB exporting for member_id; remove space if no path defined.
-  - Change default value for rootdirectory to "." (same folder with apps).
-  - Add new error message for member_id page parsing.
-  - Update Console Title when downloading.
-  - Delete inactive member_id from DB.
-  - Update download by image bookmark to enter the member_id.
+- Fix list.txt parsing the user target dir; strip() the line before split().
+- Fix bookmark and DB exporting for member_id; remove space if no path defined.
+- Change default value for rootdirectory to "." (same folder with apps).
+- Add new error message for member_id page parsing.
+- Update Console Title when downloading.
+- Delete inactive member_id from DB.
+- Update download by image bookmark to enter the member_id.
 
 20111111
-- by Nandaka
-  - Add filename format in the console title.
-  - Update bookmarks processing to include hidden bookmarks.
-  - Add download by image bookmarks.
-  - Add Download new illust from bookmarks (http://www.pixiv.net/bookmark_new_illust.php).
+- Add filename format in the console title.
+- Update bookmarks processing to include hidden bookmarks.
+- Add download by image bookmarks.
+- Add Download new illust from bookmarks (http://www.pixiv.net/bookmark_new_illust.php).
 
 20111028
-- by Nandaka
-  - Fix artist name parsing.
-  - Add download by tag list. 
-    - Separate each tags by space or paste the encoded query string. 
-    - Separate with new line for each query.
-  - Add Export user bookmarks.
-  - Add Database cleanup. Go to Manage Database -> Clean Up Database.
-  - Refactor Download by tags.
-  - Fix bookmark processing if more than 1 page (20111028b).
+- Fix artist name parsing.
+- Add download by tag list. 
+  - Separate each tags by space or paste the encoded query string. 
+  - Separate with new line for each query.
+- Add Export user bookmarks.
+- Add Database cleanup. Go to Manage Database -> Clean Up Database.
+- Refactor Download by tags.
+- Fix bookmark processing if more than 1 page (20111028b).
 
 20111017
-- by Nandaka
-  - Add download by user bookmark.
-  - Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is 
+- Add download by user bookmark.
+- Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is 
     from the page marker '_p##'+ file extension.
 
 20110922
-- by Nandaka
-  - update DBManager to save custom folder from list.txt.
-  - fix download proxy error.
-  - change default value 'alwayscheckfilesize' to 'False'.
-  - refactor some method to new file.
+- update DBManager to save custom folder from list.txt.
+- fix download proxy error.
+- change default value 'alwayscheckfilesize' to 'False'.
+- refactor some method to new file.
 
 20110916
-- by Nandaka
-  - Fix filename bug if you are using member_id=directory format in the list.txt.
-  - Add option 'downloadavatar' to download artist profile avatar.
+- Fix filename bug if you are using member_id=directory format in the list.txt.
+- Add option 'downloadavatar' to download artist profile avatar.
 
 20110911
-- by Nandaka
-  - Update Login process.
-  - Add filesize checking when downloading avatar image.
-  - Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory(). 
+- Update Login process.
+- Add filesize checking when downloading avatar image.
+- Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory(). 
     For downloading still using the default factory because there is a problem (ValueError: invalid literal for int() 
     with base 10: 'some_chars') if using robust factory (20110911b).
-  - Fix artist token parser when there is no profile image (20110911b).
+- Fix artist token parser when there is no profile image (20110911b).
 
 20110821
-- by Nandaka
-  - Fix filename for manga mode.
-  - Add strip() for list.txt parsing.
-  - Fix downloadlistdirectory parsing for list.txt.
-  - Update exception handling so the console window doesn't immidiately closed.
-  - Update the readme.txt.
-  - Fix DB saving (20110821b).
+- Fix filename for manga mode.
+- Add strip() for list.txt parsing.
+- Fix downloadlistdirectory parsing for list.txt.
+- Update exception handling so the console window doesn't immidiately closed.
+- Update the readme.txt.
+- Fix DB saving (20110821b).
 
 20110729
-- by Nandaka
-  - add auto save cookie from login.
-  - refactor parsing logic to the PixivModel.
-  - update Python version to 2.7.2
-  - update mechanize version to 0.2.5
-  - update BeautifulSoup version to 3.2.0
-  - add unittest for the parsing logic
-  - fix 404 in big_manga mode (20110729b).
+- add auto save cookie from login.
+- refactor parsing logic to the PixivModel.
+- update Python version to 2.7.2
+- update mechanize version to 0.2.5
+- update BeautifulSoup version to 3.2.0
+- add unittest for the parsing logic
+- fix 404 in big_manga mode (20110729b).
 
 20110708
-- by Nandaka
-  - Add cookie option for log in as requested by Demonoid.
-  - Add __br__.clear_history() in the processList
+- Add cookie option for log in as requested by Demonoid.
+- Add __br__.clear_history() in the processList
 
 20110513:
-- by Nandaka
-  - Update ProcessByTags: Update with pixiv UI change, now based on regular expression to evaluate the links.
+- Update ProcessByTags: Update with pixiv UI change, now based on regular expression to evaluate the links.
 
 20110502:
-- by Nandaka
-  - Update ProcessByTags: handle already encoded tags (prefixed with %).
+- Update ProcessByTags: handle already encoded tags (prefixed with %).
 
 20110327:
-- by Nandaka
-  - Fixing the error handler, now it will be trying for number of times (set in the config.ini).
-  - Enable dumping the html page again, if the app cannot dumping the page, it will be listed in the log file.
+- Fixing the error handler, now it will be trying for number of times (set in the config.ini).
+- Enable dumping the html page again, if the app cannot dumping the page, it will be listed in the log file.
 
 20110227b:
-- by Nandaka
-  - Update download by tags to accept kana.
+- Update download by tags to accept kana.
 
 20110227:
-- by Nandaka
-  - handle httplib.BadStatusLine
-  - fix download by tag as informed by Sandoi&bububu.
-  - add start page in procress by tag.
+- handle httplib.BadStatusLine
+- fix download by tag as informed by Sandoi&bububu.
+- add start page in procress by tag.
 
 20110205:
-- by Nandaka
-  - add permission check for downloading image.
-  - fix overwrite mode.
-  - fix big manga again.
+- add permission check for downloading image.
+- fix overwrite mode.
+- fix big manga again.
 
 20110202 v2:
-- by Nandaka
-  - Fix big manga mode again, they using jQuery template.
+- Fix big manga mode again, they using jQuery template.
 
 20110127:
-- by Nandaka
-  - fix big manga mode
-  - add option checkUpdatedLimit to skip member by the count of already downloaded images.
+- fix big manga mode
+- add option checkUpdatedLimit to skip member by the count of already downloaded images.
 
 20110101:
 - by crust:
   - Update manga mode to download the big version.
-- by Nandaka
   - merge the code and fix memory leak.
 
-20101202b:
-- by Nandaka:
-  - add additional checking for suspended user.
+20101202b::
+- add additional checking for suspended user.
 
-20101024:
-- by Nandaka:
-  - Fix error when dumping html.
-  - Change exit behaviour, no need to press enter twice if you select exit.
+20101024::
+- Fix error when dumping html.
+- Change exit behaviour, no need to press enter twice if you select exit.
 
 20101005:
 - by Yavos:
@@ -261,9 +226,8 @@
   - added feature: start IrfanView when exiting pixivUtil (Slideshow will be started before normal IrfanView-Window).
   - added feature: typing <-all> in menu will temporarily activate/deactivate pagelimit set in config.ini (it will set commandline-option <-n 0>).
   
-20100908:
-- by Nandaka:
-  - Updated find by tags.
+20100908::
+- Updated find by tags.
 - by Yavos:
   - added commandline-OptionParser.
     (new options: -x, -s <number>, arguments may be passed in combination with -s).

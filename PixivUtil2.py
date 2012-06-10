@@ -435,16 +435,18 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                     targetDir = __config__.rootDirectory
                 else:
                     targetDir = userDir
-                #printAndLog('info','targetDir: ' + targetDir)
-                filenameFormat = filenameFormat.split(os.sep)[0]
-                #printAndLog('info','filenameFormat: ' + filenameFormat)
-                image = PixivImage(parent=artist)
-                filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
-                #printAndLog('info','makeFilename: ' + filename)
-                filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
-                #printAndLog('info','sanitizeFilename: ' + filename)
+
+                avatarFilename = PixivHelper.CreateAvatarFilename(filenameFormat, __config__.tagsSeparator, __config__.tagsLimit, artist, targetDir)
+                ##printAndLog('info','targetDir: ' + targetDir)
+                #filenameFormat = filenameFormat.split(os.sep)[0]
+                ##printAndLog('info','filenameFormat: ' + filenameFormat)
+                #image = PixivImage(parent=artist)
+                #filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
+                ##printAndLog('info','makeFilename: ' + filename)
+                #filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+                ##printAndLog('info','sanitizeFilename: ' + filename)
                 
-                result = downloadImage(artist.artistAvatar, filename, listPage.geturl(), __config__.overwrite, __config__.retry)
+                result = downloadImage(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             
             __dbManager__.updateMemberName(member_id, artist.artistName)
