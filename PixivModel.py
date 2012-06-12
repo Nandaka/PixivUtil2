@@ -117,14 +117,14 @@ class PixivArtist:
     return self.isLastPage
     
   def PrintInfo(self):
-    print 'Artist Info'
-    print 'id    :',self.artistId
-    print 'name  :',self.artistName
-    print 'avatar:',self.artistAvatar
-    print 'token :',self.artistToken
-    print 'urls  :'
+    PixivHelper.safePrint('Artist Info')
+    PixivHelper.safePrint('id    : ' + str(self.artistId))
+    PixivHelper.safePrint('name  : ' + self.artistName)
+    PixivHelper.safePrint('avatar: ' + self.artistAvatar)
+    PixivHelper.safePrint('token : ' + self.artistToken)
+    PixivHelper.safePrint('urls  : ')
     for item in self.imageList:
-      print '\t',item
+      PixivHelper.safePrint('\t' + item)
     
 class PixivImage:
   '''Class for parsing image page, including manga page and big image.'''
@@ -238,16 +238,15 @@ class PixivImage:
         self.imageTags.append(unicode(tag.string))
 
   def PrintInfo(self):
-    print 'Image Info'
-    print 'img id:',self.imageId
-    print 'title :',self.imageTitle
-    print 'mode  :',self.imageMode
-    print 'tags  :'
-    for item in self.imageTags:
-      print '-',item
-    print 'views :',self.jd_rtv
-    print 'rating:',self.jd_rtc
-    print 'total :',self.jd_rtt
+    PixivHelper.safePrint( 'Image Info')
+    PixivHelper.safePrint( 'img id: ' + str(self.imageId))
+    PixivHelper.safePrint( 'title : ' + self.imageTitle)
+    PixivHelper.safePrint( 'mode  : ' + self.imageMode)
+    PixivHelper.safePrint( 'tags  :')
+    PixivHelper.safePrint( ', '.join(self.imageTags))
+    PixivHelper.safePrint( 'views : ' + str(self.jd_rtv))
+    PixivHelper.safePrint( 'rating: ' + str(self.jd_rtc))
+    PixivHelper.safePrint( 'total : ' + str(self.jd_rtt))
     return ""
 
   def ParseImages(self, page, mode=None):
@@ -352,7 +351,7 @@ class PixivListItem:
           listItem = PixivListItem(member_id, path)
           l.append(listItem)
         except:
-          print 'Invalid line: '+line
+          PixivHelper.safePrint('Invalid line: '+line)
           (exType, value, traceback) = sys.exc_info()
           print 'Error at PixivListItem.parseList():', exType, value
 
