@@ -1262,7 +1262,7 @@ def main():
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', 'd', 'e'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'd', 'e'):
         opisvalid = True
     elif op == None:
         opisvalid = False

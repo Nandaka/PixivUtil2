@@ -101,6 +101,7 @@ B.Bugs/Source Code/Supports:
                              page number)
                         9 - Download by Title/Caption
                             (required: followed by title/caption)
+			10 - Download by Tag and Member Id 
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 
