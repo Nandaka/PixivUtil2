@@ -7,6 +7,8 @@ from PixivModel import PixivImage, PixivArtist
 from BeautifulSoup import BeautifulSoup
 
 class TestPixivHelper(unittest.TestCase):
+  currPath = unicode(os.path.abspath('.'))
+  
   def testSanitizeFilename(self):
     rootDir = '.'
     filename = '12345.jpg'
@@ -62,7 +64,7 @@ class TestPixivHelper(unittest.TestCase):
     targetDir = ''    
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     
-    self.assertEqual(filename, u'C:\\PixivDev\\folder.jpg')
+    self.assertEqual(filename, self.currPath + os.sep + u'folder.jpg')
 
   def testCreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
@@ -73,7 +75,7 @@ class TestPixivHelper(unittest.TestCase):
     tagsLimit = 0
     targetDir = ''    
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
-    self.assertEqual(filename, u'C:\\PixivDev\\kirabara29 (1107124)\\folder.jpg')
+    self.assertEqual(filename, self.currPath + os.sep + u'kirabara29 (1107124)\\folder.jpg')
 
   def testCreateAvatarFilenameFormatNoSubfolderWithRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
@@ -82,10 +84,10 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%image_id% - %title%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = '.'    
+    targetDir = os.path.abspath('.')
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     
-    self.assertEqual(filename, u'C:\\PixivDev\\folder.jpg')
+    self.assertEqual(filename, targetDir + os.sep + u'folder.jpg')
                                                          
   def testCreateAvatarFilenameFormatWithSubfolderWithRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
@@ -94,10 +96,10 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%member_token% (%member_id%)\%R-18%\%image_id% - %title% - %tags%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = '.'    
+    targetDir = os.path.abspath('.')
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     
-    self.assertEqual(filename, u'C:\\PixivDev\\kirabara29 (1107124)\\folder.jpg')
+    self.assertEqual(filename, targetDir + os.sep + u'kirabara29 (1107124)\\folder.jpg')
 
   def testCreateAvatarFilenameFormatNoSubfolderWithCustomRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
