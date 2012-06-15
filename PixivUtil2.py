@@ -1125,9 +1125,15 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
 
 def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     __log__.info('Tag and MemberId mode.')
-
-    member_id = raw_input('Member Id: ')
-    tags      = PixivHelper.uni_input('Tag      : ')
+    member_id = 0
+    tags = None
+    
+    if opisvalid and len(args) > 2:
+        member_id = int(args[0])
+        tags = " ".join(args[1:])
+    else:
+        member_id = raw_input('Member Id: ')
+        tags      = PixivHelper.uni_input('Tag      : ')
     
     processTags(mode, tags.strip(), member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
 

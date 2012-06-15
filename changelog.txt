@@ -1,5 +1,6 @@
 201206xx
 - Fix "0 -" in the avatar filename when no subfolder defined in the filename format.
+- Add start action 10 - Download by member_id and tags to the start action list.
 
 20120609
 - Update Download by tags parsing because of layout update.
