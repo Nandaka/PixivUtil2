@@ -722,7 +722,8 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 tags = tags.encode('utf-8')
                 tags = urllib.quote_plus(tags)#.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError as ex:
-                print "Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag."
+                printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
+                __log__.exception('decodeTags()')
         i = page
         images = 1
 
