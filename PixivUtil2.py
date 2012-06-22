@@ -96,8 +96,7 @@ def customRequest(url):
 
 #-T04------For download file
 def downloadImage(url, filename, referer, overwrite, retry):
-    try:
-        
+    try:        
         try:
             req = customRequest(url)
 
@@ -151,6 +150,8 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 filename = filename.split("?")[0]
                 filename = PixivHelper.sanitizeFilename(filename)
                 save = file(filename + '.pixiv', 'wb+', 4096)
+                msg2 = 'File is saved to ' + filename
+                __log__.info(msg2)
 
             prev = 0
             curr = 0
@@ -206,7 +207,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
-            __log__.error('Error at downloadImage(): ' + str(sys.exc_info()))
+            __log__.error('Error at downloadImage(): ' + str(sys.exc_info()) + '(' + url + ')')
             raise
     except KeyboardInterrupt:
         raise
@@ -1443,7 +1444,8 @@ def main():
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        __log__.error('Unknown Error: '+ str(exc_value))
+        ##__log__.error('Unknown Error: '+ str(exc_value))
+        __log__.exception('Unknown Error: '+ str(exc_value))
     finally:
         __dbManager__.close()
         if ewd == False: ### Yavos: prevent input on exitwhendone

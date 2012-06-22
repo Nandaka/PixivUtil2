@@ -74,6 +74,30 @@ B.Bugs/Source Code/Supports:
         repository in https://git.bettercodes.org/pixiv-downloader (need to 
         register first) and I will do the merge.
 
+C.Log Messages:
+- HTTPError: HTTP Error 404: Not Found
+  This is because the file doesn't exists in the pixiv server, usually because there
+  is no big images version for the manga mode (currently the apps will try to 
+  download the big version first then try the normal size if failed, this is only 
+  for the manga mode and it is normal).
+- Error at processImage(): (<type 'exceptions.WindowsError'>, WindowsError(32, 
+  'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin kaytossa')
+  The file is being used by another process (google translate). Either you ran 
+  multiple instace of pixiv downloader from the same folder, or there are other 
+  processes locking the file/db.sqllite (usually from antivirus or some sync/backup 
+  application).
+- Error at processImage(): (<type 'exceptions.AttributeError'>, AttributeError
+  ("'NoneType' object has no attribute 'find'",)
+  Usually this because pixiv have changed the layout code, so the pixiv downloader 
+  cannot parse the page correctly. Please tell me by put a comment if this happen.
+- URLError: <urlopen error [Errno 11004] getaddrinfo failed>
+  This is because the pixiv downloader cannot resolve the address to download the 
+  images, please try to restart the network connection or do ipconfig /flushdns to 
+  refresh the dns cache (windows).
+- Error at downloadImage(): (<class 'socket.timeout'>, timeout('timed out',)
+  This is because the pixiv downloaded didn't receive any reply for specified time 
+  in config.ini from pixiv. Please retry the download again later.
+
 =================================================================================
 = Command Line Option                                                           =
 =================================================================================
