@@ -3,6 +3,8 @@ from BeautifulSoup import BeautifulSoup, Tag
 import os
 import re
 import sys
+import codecs
+import collections
 import PixivHelper
 
 class PixivArtist:
@@ -407,7 +409,7 @@ class PixivBookmark:
       result = page.find(attrs={'class':'members'}).findAll('a')
 
       ##filter duplicated member_id
-      d = {}
+      d = collections.OrderedDict()
       for r in result:
         member_id = __re_member.findall(r['href'])
         if len(member_id) > 0:
@@ -444,14 +446,14 @@ class PixivBookmark:
     from datetime import datetime
     if not filename.endswith('.txt'):
       filename = filename + '.txt'
-    #might need to change to codecs.open
-    writer = open(filename, 'w')
-    writer.write('###Export date: ' + str(datetime.today()) +'###\n')
+    writer = codecs.open(filename, 'wb', encoding='utf-8')
+    writer.write(u'###Export date: ' + str(datetime.today()) +'###\n')
     for item in l:
-      writer.write(str(item.memberId))
-      if len(item.path) > 0:
-        writer.write(' ' + str(item.path))
-      writer.write('\n')
+      data = unicode(str(item.memberId))
+      if len(item.path) > 0:        
+        data = data + unicode(' ' + item.path)
+      writer.write(data)
+      writer.write(u'\r\n')
     writer.write('###END-OF-FILE###')
     writer.close()
 

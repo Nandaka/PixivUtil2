@@ -1,3 +1,7 @@
+20120704
+- Reload config before downloading tags to reset root directory value.
+- Fix export bookmark ordering to follow pixiv page.
+
 20120616
 - Fix "0 -" in the avatar filename when no subfolder defined in the filename format.
 - Add start action 10 - Download by member_id and tags to the start action list.

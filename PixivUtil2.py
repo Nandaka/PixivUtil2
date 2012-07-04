@@ -863,7 +863,7 @@ def getBookmarks(hide):
     totalList = list()
     i = 1
     while True:
-        print 'Exporting page', str(i)
+        print 'Exporting page', str(i),
         url = 'http://www.pixiv.net/bookmark.php?type=user&p='+str(i)
         if hide:
             url = url + "&rest=hide"
@@ -871,9 +871,11 @@ def getBookmarks(hide):
         parsePage = BeautifulSoup(page.read())
         l = PixivBookmark.parseBookmark(parsePage)
         if len(l) == 0:
+            print 'No data'
             break
         totalList.extend(l)
         i = i + 1
+        print str(len(l)), 'items'
     return totalList
 
 def processBookmark(mode, hide='n'):
