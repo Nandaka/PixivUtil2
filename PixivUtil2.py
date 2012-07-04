@@ -708,6 +708,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None, bookmarkCount=None):
     try:
+        __config__.loadConfig() ## Reset the config for root directory
+        
         decodedTags = tags
         if useTagsAsDir:
             print "Save to each directory using query tags."
@@ -797,7 +799,6 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 print 'Last page'
                 break
         print 'done'
-        __config__.loadConfig()
     except KeyboardInterrupt:
         raise
     except:
