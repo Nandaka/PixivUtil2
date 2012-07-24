@@ -115,7 +115,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   while nameFormat.find('  ') > -1:
     nameFormat = nameFormat.replace('  ', ' ')
   
-  nameFormat = nameFormat + imageExtension  
+  nameFormat = nameFormat + '.' + imageExtension  
   
   return nameFormat
 
