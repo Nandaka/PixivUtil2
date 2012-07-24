@@ -167,7 +167,8 @@ debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
 timeout        ==> Time to wait before giving up the connection, in seconds.
 filenameformat ==> The format for the filename, reserved/illegal character will
-                   be replaced with underscore '_'
+                   be replaced with underscore '_', repeated space will be 
+                   trimmed to single space.
                 -> The filename (+full path) will be trimmed to the first 250
                    character (Windows limitation).
 	        -> %member_token% ==> member token, doesn't change.
@@ -183,7 +184,12 @@ filenameformat ==> The format for the filename, reserved/illegal character will
 	        -> %works_tools%  ==> tools used for the image.
 	        -> %R-18%         ==> Append R-18/R-18 based on image tag, can be used
                                       for creating directory by appending directory
-                                      separator, e.g.: %R-18%\%image_id%
+                                      separator, e.g.: %R-18%\%image_id%.
+	        -> %urlFilename%  ==> the actual filename stored in server without
+                                      the file extensions.
+	        -> %page_big%     ==> for manga mode, add big in the filename.
+	        -> %page_index%   ==> for manga mode, add page number with 0-index.
+	        -> %page_number%  ==> for manga mode, add page number with 1-index.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.

@@ -14,6 +14,7 @@ else :
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 
 __h__ = HTMLParser()
+__re_manga_index = re.compile('_p(\d+)')
 
 def sanitizeFilename(s, rootDir=None):
   '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
@@ -59,11 +60,16 @@ def sanitizeFilename(s, rootDir=None):
 
   return name.strip()
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1):
+def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl=''):
   '''Build the filename from given info to the given format.'''
   if artistInfo == None:
     artistInfo = imageInfo.artist
-  #nameFormat = unicode(nameFormat)
+
+  ## Get the image extension
+  splittedUrl = fileUrl.split('.')
+  imageExtension = splittedUrl[1]
+  imageExtension = imageExtension.split('?')[0]
+  
   nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
@@ -73,6 +79,23 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('%works_date_only%',imageInfo.worksDate.split(' ')[0])
   nameFormat = nameFormat.replace('%works_res%',imageInfo.worksResolution)
   nameFormat = nameFormat.replace('%works_tools%',imageInfo.worksTools)
+  nameFormat = nameFormat.replace('%urlFilename%',splittedUrl[0])
+  
+  ## get the page index & big mode if manga
+  page_index = ''
+  page_number = ''
+  page_big = ''
+  if imageInfo.imageMode == 'manga':
+    idx = __re_manga_index.findall(fileUrl)
+    if len(idx) > 0:
+      page_index = idx[0][0]
+      page_number = str(int(page_index) + 1)
+    if fileUrl.find('_big') > -1 or not fileUrl.find('_m') > -1:
+      page_big = 'big'
+  nameFormat = nameFormat.replace('%page_big%',page_big)
+  nameFormat = nameFormat.replace('%page_index%',page_index)
+  nameFormat = nameFormat.replace('%page_number%',page_number)
+  
   if tagsSeparator == '%space%':
     tagsSeparator = ' '
   if tagsLimit != -1:
@@ -87,6 +110,13 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('%R-18%',r18Dir)
   nameFormat = nameFormat.replace('%tags%',tags.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
+
+  ## clean up double space
+  while nameFormat.find('  ') > -1:
+    nameFormat = nameFormat.replace('  ', ' ')
+  
+  nameFormat = nameFormat + imageExtension  
+  
   return nameFormat
 
 def safePrint(msg, newline=True):

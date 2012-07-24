@@ -1,3 +1,13 @@
+201207xx
+- Update makeFilename
+  - clean up double space
+- Update filenameFormat
+  - %urlFilename%
+- Add filenameMangaFormat
+  - %page_index%
+  - %page_number%
+  - %page_big%
+
 20120704
 - Reload config before downloading tags to reset root directory value.
 - Fix export bookmark ordering to follow pixiv page.

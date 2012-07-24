@@ -632,8 +632,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 url = os.path.basename(img)
                 splittedUrl = url.split('.')
                 if splittedUrl[0].startswith(str(image_id)):
-                    imageExtension = splittedUrl[1]
-                    imageExtension = imageExtension.split('?')[0]
+##                    imageExtension = splittedUrl[1]
+##                    imageExtension = imageExtension.split('?')[0]
 
                     #Yavos: filename will be added here if given in list
                     filenameFormat = __config__.filenameFormat
@@ -645,10 +645,10 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     else: #Yavos: use filename from list
                         targetDir = userDir
 
-                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
-                    if image.imageMode == 'manga':
-                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
-                    filename = filename + '.' + imageExtension
+                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url)
+##                    if image.imageMode == 'manga':
+##                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
+##                    filename = filename + '.' + imageExtension
                     filename = PixivHelper.sanitizeFilename(filename, targetDir)
                     
                     if image.imageMode == 'manga' and __config__.createMangaDir :

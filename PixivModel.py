@@ -142,6 +142,7 @@ class PixivImage:
   jd_rtv = 0
   jd_rtc = 0
   jd_rtt = 0
+  imageCount = 0
 
   def __init__(self, iid=0, page=None, parent=None):
     self.artist = parent
@@ -268,6 +269,7 @@ class PixivImage:
 
   def ParseBigImages(self, page):
     temp = page.find('img')['src']
+    imageCount = 1
     return str(temp)
 
   def ParseMangaImages(self, page):
@@ -281,6 +283,7 @@ class PixivImage:
     pattern = re.compile('http.*?\d+[_0-9a-z_]*_p\d+\..{3}')
     pattern2 = re.compile('http.*?(\d+[_0-9a-z_]*_p\d+)\..{3}')
     m = pattern.findall(string)
+    imageCount = len(m)
     for img in m:
       temp = str(img)
       m2 = pattern2.findall(temp)         ## 1234_p0
