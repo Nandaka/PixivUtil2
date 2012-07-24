@@ -653,9 +653,10 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                     
                     if image.imageMode == 'manga' and __config__.createMangaDir :
                         mangaPage = __re_manga_page.findall(filename)
-                        splittedFilename = filename.split(mangaPage[0][0],1)
-                        splittedMangaPage = mangaPage[0][0].split("_p",1)
-                        filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
+                        if len(mangaPage) > 0:
+                            splittedFilename = filename.split(mangaPage[0][0],1)
+                            splittedMangaPage = mangaPage[0][0].split("_p",1)
+                            filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
 
                     PixivHelper.safePrint('Filename  : ' + filename)
                     result = -1

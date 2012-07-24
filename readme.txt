@@ -204,6 +204,7 @@ checkUpdatedLimit     ==> Number of already downloaded image to be check before
 createDownloadLists   ==> set to <True> to automatically create download-lists.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
+                    This setting is depended on %urlFilename% format.
 downloadListDirectory ==> set directory for download-lists needed for 
                           createDownloadLists and IrfanView-Handling
 	               -> if leaved blank it will create download-lists in 
