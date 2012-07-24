@@ -60,12 +60,13 @@ def sanitizeFilename(s, rootDir=None):
 
   return name.strip()
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl=''):
+def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True):
   '''Build the filename from given info to the given format.'''
   if artistInfo == None:
     artistInfo = imageInfo.artist
 
   ## Get the image extension
+  fileUrl = os.path.basename(fileUrl)
   splittedUrl = fileUrl.split('.')
   imageExtension = splittedUrl[1]
   imageExtension = imageExtension.split('?')[0]
@@ -114,8 +115,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   ## clean up double space
   while nameFormat.find('  ') > -1:
     nameFormat = nameFormat.replace('  ', ' ')
-  
-  nameFormat = nameFormat + '.' + imageExtension  
+
+  if appendExtension:
+    nameFormat = nameFormat + '.' + imageExtension
   
   return nameFormat
 
@@ -202,8 +204,7 @@ def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, t
     filenameFormat = os.sep + filenameFormat
   filenameFormat = filenameFormat.split(os.sep)[0]
   image = PixivModel.PixivImage(parent=artistPage)
-  filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit)  
+  filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit, fileUrl=artistPage.artistAvatar, appendExtension=False)
   filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
-
   return filename
   
