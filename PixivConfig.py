@@ -23,7 +23,7 @@ class PixivConfig:
     numberOfPage = 0
     useRobots = True
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
-    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %page_index% - %title%'
+    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %page_index% - %title%'
     rootDirectory = '.'
     overwrite = False
     timeout = 60

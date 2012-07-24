@@ -1,4 +1,4 @@
-201207xx
+20120724
 - Update makeFilename
   - clean up double space
 - Update filenameFormat
