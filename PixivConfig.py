@@ -23,7 +23,7 @@ class PixivConfig:
     numberOfPage = 0
     useRobots = True
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
-    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
+    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %page_index% - %title%'
     rootDirectory = '.'
     overwrite = False
     timeout = 60
@@ -59,7 +59,7 @@ class PixivConfig:
     def loadConfig(self):
         print 'Reading config file...',
         oldSetting = False
-        
+        haveError = False
         config = ConfigParser.RawConfigParser()
         try:
             config.read('config.ini')
@@ -83,27 +83,32 @@ class PixivConfig:
                 self.processFromDb = config.getboolean('Settings','processfromdb')
             except ValueError:
                 self.processFromDb = True
+                haveError = True
 
             try:
                 self.dayLastUpdated = config.getint('Settings','daylastupdated')
             except ValueError:
                 self.dayLastUpdated = 7
+                haveError = True
 
             try:
                 self.proxyAddress = config.get('Settings','proxyaddress')
             except ValueError:
                 self.proxyAddress = ''
+                haveError = True
             self.proxy = {'http': self.proxyAddress}
             
             try:
                 self.useProxy = config.getboolean('Settings','useproxy')
             except ValueError:
                 self.useProxy = False
+                haveError = True
                 
             try:
                 self.useList = config.getboolean('Settings','uselist')
             except ValueError:
                 self.useList = False
+                haveError = True
                 
             _useragent = config.get('Settings','useragent')
             if _useragent != None:
@@ -112,105 +117,131 @@ class PixivConfig:
             _filenameFormat = config.get('Settings','filenameformat')
             if _filenameFormat != None:
                 self.filenameFormat = _filenameFormat
+                haveError = True
 
             _filenameMangaFormat = config.get('Settings','filenamemangaformat')
             if _filenameMangaFormat != None:
+                ## check if the filename format have page identifier if not using %urlFilename%
+                if _filenameMangaFormat.find('%urlFilename%') == -1:
+                    if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_index%') == -1:
+                        print 'No page identifier, appending %page_index% to the filename manga format.'
+                        _filenameMangaFormat = _filenameMangaFormat + ' %page_index%'
+                        haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
                 
             try:
                 self.debugHttp = config.getboolean('Settings','debughttp')
             except ValueError:
                 self.debugHttp = False
+                haveError = True
                 
             try:
                 self.useRobots = config.getboolean('Settings','userobots')
             except ValueError:
                 self.useRobots = False
+                haveError = True
 
             try:
                 self.overwrite = config.getboolean('Settings','overwrite')
             except ValueError:
                 self.overwrite = False
+                haveError = True
 
             try:
                 self.createMangaDir = config.getboolean('Settings','createMangaDir')
             except ValueError:
                 self.createMangaDir = False
+                haveError = True
 
             try:
                 self.timeout = config.getint('Settings','timeout')
             except ValueError:
                 self.timeout = 60
+                haveError = True
                 
             try:
                 self.retry = config.getint('Settings','retry')
             except ValueError:
                 self.retry = 3
+                haveError = True
 
             try:
                 self.retryWait = config.getint('Settings','retrywait')
             except ValueError:
                 self.retryWait = 5
+                haveError = True
                 
             try:
                 self.numberOfPage = config.getint('Pixiv','numberofpage')
             except ValueError:
                 self.numberOfPage = 0
+                haveError = True
                 
             try:
                 self.createDownloadLists = config.getboolean('Settings','createDownloadLists')
             except ValueError:
                 self.createDownloadLists = False
+                haveError = True
                 
             try:
                 self.startIrfanView = config.getboolean('Settings','startIrfanView')
             except ValueError:
                 self.startIrfanView = False
+                haveError = True
                 
             try:
                 self.startIrfanSlide = config.getboolean('Settings','startIrfanSlide')
             except ValueError:
                 self.startIrfanSlide = False
+                haveError = True
 
             try:
                 self.alwaysCheckFileSize = config.getboolean('Settings','alwaysCheckFileSize')
             except ValueError:
                 self.alwaysCheckFileSize = False
+                haveError = True
 
             try:
                 self.downloadAvatar = config.getboolean('Settings','downloadAvatar')
             except ValueError:
                 self.downloadAvatar = False
+                haveError = True
                 
             try:
                 self.checkUpdatedLimit = config.getint('Settings','checkUpdatedLimit')
             except ValueError:
                 self.checkUpdatedLimit = 0
+                haveError = True
 
             try:
                 self.useTagsAsDir = config.getboolean('Settings','useTagsAsDir')
             except ValueError:
                 self.useTagsAsDir = False
+                haveError = True
 
             try:
                 self.useBlacklistTags = config.getboolean('Settings','useBlacklistTags')
             except ValueError:
                 self.useBlacklistTags = False
+                haveError = True
 
             try:
                 self.useSuppressTags = config.getboolean('Settings','useSuppressTags')
             except ValueError:
                 self.useSuppressTags = False
+                haveError = True
 
             try:
                 self.tagsLimit = config.getint('Settings','tagsLimit')
             except ValueError:
                 self.tagsLimit = -1
+                haveError = True
 
             try:
                 self.useSSL = config.getboolean('Authentication','useSSL')
             except ValueError:
                 self.useSSL = False
+                haveError = True
             
         except ConfigParser.NoOptionError:
             print 'Error at loadConfig():',sys.exc_info()
@@ -219,6 +250,10 @@ class PixivConfig:
         except ConfigParser.NoSectionError:
             print 'Error at loadConfig():',sys.exc_info()
             print 'Failed to read configuration.'
+            self.writeConfig()
+
+        if haveError:
+            print 'Some configuration have invalid value, replacing with the default value.'
             self.writeConfig()
             
         print 'done.'
