@@ -637,6 +637,9 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
                     #Yavos: filename will be added here if given in list
                     filenameFormat = __config__.filenameFormat
+                    if image.imageMode == 'manga':
+                        filenameFormat = __config__.filenameMangaFormat
+                    
                     if userDir == '': #Yavos: use config-options
                         targetDir = __config__.rootDirectory
                     else: #Yavos: use filename from list

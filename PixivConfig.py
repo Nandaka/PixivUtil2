@@ -23,6 +23,7 @@ class PixivConfig:
     numberOfPage = 0
     useRobots = True
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
+    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
     rootDirectory = '.'
     overwrite = False
     timeout = 60
@@ -111,7 +112,11 @@ class PixivConfig:
             _filenameFormat = config.get('Settings','filenameformat')
             if _filenameFormat != None:
                 self.filenameFormat = _filenameFormat
-            
+
+            _filenameMangaFormat = config.get('Settings','filenamemangaformat')
+            if _filenameMangaFormat != None:
+                self.filenameMangaFormat = _filenameMangaFormat
+                
             try:
                 self.debugHttp = config.getboolean('Settings','debughttp')
             except ValueError:
@@ -233,6 +238,7 @@ class PixivConfig:
         config.set('Settings', 'debugHttp', self.debugHttp)
         config.set('Settings', 'useRobots', self.useRobots)
         config.set('Settings', 'filenameFormat', self.filenameFormat)
+        config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
         config.set('Settings', 'timeout', self.timeout)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
@@ -278,6 +284,7 @@ class PixivConfig:
         
         print ' [Settings]'
         print ' - filename_format =', self.filenameFormat
+        print ' - filename_manga_format =', self.filenameMangaFormat
         print ' - useproxy  =' , self.useProxy
         print ' - proxyaddress =', self.proxyAddress
         print ' - debug_http =', self.debugHttp
