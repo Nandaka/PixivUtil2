@@ -5,6 +5,8 @@ import ConfigParser
 import sys
 import os
 import traceback
+import PixivHelper
+script_path = PixivHelper.module_path()
 
 class PixivConfig:
     '''Configuration class'''
@@ -22,8 +24,8 @@ class PixivConfig:
 
     numberOfPage = 0
     useRobots = True
-    filenameFormat = '%artist% (%member_id%)' + os.sep + '%image_id% - %title%'
-    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %page_index% - %title%'
+    filenameFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
+    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
     rootDirectory = '.'
     overwrite = False
     timeout = 60
@@ -57,12 +59,13 @@ class PixivConfig:
     IrfanViewPath = 'C:\Program Files\IrfanView'
     
     def loadConfig(self):
-        print 'Reading config file...',
+        configFile = script_path + os.sep + 'config.ini'
+        print 'Reading', configFile, '...'
         oldSetting = False
         haveError = False
         config = ConfigParser.RawConfigParser()
         try:
-            config.read('config.ini')
+            config.read(configFile)
 
             self.username = config.get('Authentication','username')
         

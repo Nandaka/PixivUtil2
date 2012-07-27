@@ -1,3 +1,6 @@
+20120727
+- Fix config.ini path resolution to the actual path where the script reside, not the working dir.
+
 20120724
 - Update makeFilename
   - clean up double space

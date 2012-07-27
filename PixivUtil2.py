@@ -25,6 +25,7 @@ import PixivConfig
 import PixivDBManager
 import PixivHelper
 from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
+script_path = PixivHelper.module_path()
 
 Yavos = True
 npisvalid = False
@@ -53,7 +54,7 @@ __suppressTags = list()
 __log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
 __log__.setLevel(logging.DEBUG)
 
-__logHandler__ = logging.handlers.RotatingFileHandler(PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+__logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
 __formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
 __logHandler__.setFormatter(__formatter__)
 __log__.addHandler(__logHandler__)

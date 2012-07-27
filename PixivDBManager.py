@@ -13,11 +13,12 @@ from datetime import datetime
 
 from PixivModel import PixivListItem
 import PixivHelper
+script_path = PixivHelper.module_path()
 
 class PixivDBManager:
     """Pixiv Database Manager"""
     
-    def __init__(self, target = "db.sqlite"):
+    def __init__(self, target = script_path + os.sep + "db.sqlite"):
         self.conn = sqlite3.connect(target)
 
     def close(self):
