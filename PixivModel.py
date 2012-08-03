@@ -214,24 +214,24 @@ class PixivImage:
     temp = str(page.find(attrs={'class':'works_display'}).find('a')['href'])
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
-    self.imageTitle = unicode(page.h3.string)
-    self.jd_rtv = int(page.find('div', attrs={'id':'jd_rtv'}).string)
-    self.jd_rtc = int(page.find('div', attrs={'id':'jd_rtc'}).string)
-    self.jd_rtt = int(page.find('div', attrs={'id':'jd_rtt'}).string)
+    self.imageTitle = unicode(page.find(attrs={'class':'title'}).string)
+    self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
+    self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
+    self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)
 
   def ParseWorksData(self, page):
-    temp = page.find(attrs={'class':'works_data'}).find('p').renderContents()
+    temp = page.find(attrs={'class':'meta'}).findAll('li')
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
-    temp = temp.decode('utf-8')
-    temp = temp.split(u'\xe3\x80\x80')
-    split = temp[0].split(u'｜')
-    self.worksDate = split[0].replace('/','-').replace(':','.')
-    if len(split) > 1:
-      self.worksResolution = split[1].replace(u'×', 'x')
-    if len(split) > 2:
-      self.worksTools = split[2] + ""
+    self.worksDate = temp[0].renderContents() 
+    self.worksResolution = temp[1].renderContents().replace('×','x')
+    toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
+    if len(toolsTemp) > 0:
+      tools = toolsTemp.findAll('li')
+      for tool in tools:
+        self.worksTools = self.worksTools + ' ' + tool.renderContents()
+      self.worksTools = self.worksTools.strip()
 
   def ParseTags(self, page):
     del self.imageTags[:]

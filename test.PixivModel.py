@@ -72,11 +72,11 @@ class TestPixivArtist(unittest.TestCase):
 class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):
       #print '\nTesting artist page without avatar image'
-      p = open('./test/test-membernoimage2.htm', 'r')
+      p = open('./test/test-image-noavatar.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage(20496355, page)
-      #image.PrintInfo()
-      #image.artist.PrintInfo()
+##      image.PrintInfo()
+##      image.artist.PrintInfo()
       page.decompose()
       del page
       self.assertNotEqual(image, None)
@@ -84,49 +84,53 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.imageId, 20496355)
       #07/22/2011 03:09｜512×600｜RETAS STUDIO&nbsp;
       #print image.worksDate, image.worksResolution, image.worksTools
-      self.assertEqual(image.worksDate,'07-22-2011 03.09')
+      self.assertEqual(image.worksDate,'07/22/2011 03:09')
       self.assertEqual(image.worksResolution,'512x600')
-      self.assertEqual(image.worksTools,'RETAS STUDIO&nbsp;')
+      self.assertEqual(image.worksTools,'RETAS STUDIO')
 
     def testPixivImageUnicode(self):
       #print '\nTesting image page - big'
       p = open('./test/test-image-unicode.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
-        image = PixivImage(9908869, page)
+        image = PixivImage(28129352, page)
         #image.PrintInfo()
       except PixivModelException as ex:
         print ex
       page.decompose()
       del page
       self.assertNotEqual(image, None)
-      self.assertEqual(image.imageId, 9908869)
+      self.assertEqual(image.imageId, 2493913)
       self.assertEqual(image.imageMode, 'big')
+      self.assertEqual(image.worksDate,'12/23/2008 21:01')
+      self.assertEqual(image.worksResolution,'852x1200')
+      self.assertEqual(image.worksTools,'Photoshop SAI つけペン')
       
     def testPixivImage(self):
-      #print '\nTesting image page - big'
+      #print '\nTesting image page - manga'
       p = open('./test/test-image.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
-        image = PixivImage(20623238, page)
+        image = PixivImage(28865189, page)
         #image.PrintInfo()
       except PixivModelException as ex:
         print ex
       page.decompose()
       del page
       self.assertNotEqual(image, None)
-      self.assertEqual(image.imageId, 20623238)
-      self.assertEqual(image.imageMode, 'big')
-      self.assertEqual(image.jd_rtv, 1)
-      self.assertEqual(image.jd_rtc, 2)
-      self.assertEqual(image.jd_rtt, 3)
+      self.assertEqual(image.imageId, 28865189)
+      self.assertEqual(image.imageMode, 'manga')
+      self.assertEqual(image.jd_rtv, 5671)
+      self.assertEqual(image.jd_rtc, 234)
+      self.assertEqual(image.jd_rtt, 2300)
+      self.assertEqual(image.worksTools, "Photoshop")
 
     def testPixivImageNoImage(self):
       #print '\nTesting image page - no image'
-      p = open('./test/test-noimage2.htm', 'r')
+      p = open('./test/test-image-noimage.htm', 'r')
       page = BeautifulSoup(p.read())
       with self.assertRaises(PixivModelException):
-          PixivImage(20623238, page)
+          PixivImage(123, page)
       page.decompose()
       del page
 
@@ -135,19 +139,19 @@ class TestPixivImage(unittest.TestCase):
       p = open('./test/test-image-manga.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
-        image = PixivImage(20581412, page)
+        image = PixivImage(28820443, page)
         #image.PrintInfo()
       except PixivModelException as ex:
         print ex
       page.decompose()
       del page
       self.assertNotEqual(image, None)
-      self.assertEqual(image.imageId, 20581412)
+      self.assertEqual(image.imageId, 28820443)
       self.assertEqual(image.imageMode, 'manga')
 
     def testPixivImageParseBig(self):
       #print '\nTesting parse Big Image'
-      p = open('./test/test-bigimage.htm', 'r')
+      p = open('./test/test-image-parsebig.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage()
       urls = image.ParseImages(page, mode='big')
@@ -158,7 +162,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseManga(self):
       #print '\nTesting parse Manga Images'
-      p = open('./test/test-manga.htm', 'r')
+      p = open('./test/test-image-parsemanga.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage()
       urls = image.ParseImages(page, mode='manga')
@@ -307,17 +311,17 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, True)
       
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
     unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
-    unittest.TextTestRunner(verbosity=5).run(suite)
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
