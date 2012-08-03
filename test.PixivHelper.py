@@ -34,24 +34,25 @@ class TestPixivHelper(unittest.TestCase):
   def testCreateFilename(self):
     p = open('./test/test-image.htm', 'r')
     page = BeautifulSoup(p.read())
-    imageInfo = PixivImage(20623238, page)
+    imageInfo = PixivImage(28865189, page)
     page.decompose()
     del page
-    expected = u'test-image_files (1108823)\\20623238 07-27-2011 1200x1200 SAI&nbsp; \u3010\u3074\u304f\u30dd\u30d7\u3011\u30b9\u30da\u30fc\u30c9\u306e\u30a8\u30fc\u30b9 - \u3074\u304f\u30dd\u30d7 \u3074\u304f\u30dd\u30d7\u30c8\u30e9\u30f3\u30d7'
-    nameFormat = '%member_token% (%member_id%)\%image_id% %works_date_only% %works_res% %works_tools% %title% - %tags%'
-    result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ')
+    expected = unicode(u'ffei (554800)\\28865189_p0 07/25/2012 Manga 2P Photoshop 「SUN PLAY! 毒島先輩温感ポスター」サンプル - C82 R-18 おっぱい ローション 学園黙示録 極上のおっぱい 毒島冴子 水着 漫画 足.jpg')
+    nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
+    result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
+    print result
     self.assertEqual(result, expected)
 
   def testCreateFilenameUnicode(self):
     p = open('./test/test-image-unicode.htm', 'r')
     page = BeautifulSoup(p.read())
-    imageInfo = PixivImage(9908869, page)
+    imageInfo = PixivImage(2493913, page)
     page.decompose()
     del page
     
-    expected = u'eyegasm (450777)\9908869 04-08-2010 594x990 \u304a\u7d75\u63cf\u304d\u30c1\u30e3\u30c3\u30c8&nbsp; VCR - \u30aa\u30ea\u30b8\u30ca\u30eb'
-    nameFormat = '%member_token% (%member_id%)\%image_id% %works_date_only% %works_res% %works_tools% %title% - %tags%'
-    result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ')
+    expected = unicode(u'balzehn (267014)\\2493913 12/23/2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える ぱるぱるぱるぱる アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘.jpg')
+    nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
+    result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
     self.assertEqual(result, expected)
 
   def testCreateAvatarFilenameFormatNoSubfolderNoRootDir(self):

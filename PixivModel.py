@@ -138,7 +138,7 @@ class PixivImage:
   imageUrls  = []
   worksDate  = ""
   worksResolution = ""
-  worksTools = ""
+  worksTools = unicode("")
   jd_rtv = 0
   jd_rtc = 0
   jd_rtt = 0
@@ -230,7 +230,7 @@ class PixivImage:
     if len(toolsTemp) > 0:
       tools = toolsTemp.findAll('li')
       for tool in tools:
-        self.worksTools = self.worksTools + ' ' + tool.renderContents()
+        self.worksTools = self.worksTools + ' ' + unicode(tool.string)
       self.worksTools = self.worksTools.strip()
 
   def ParseTags(self, page):

@@ -104,7 +104,8 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.imageMode, 'big')
       self.assertEqual(image.worksDate,'12/23/2008 21:01')
       self.assertEqual(image.worksResolution,'852x1200')
-      self.assertEqual(image.worksTools,'Photoshop SAI つけペン')
+      #print image.worksTools
+      self.assertEqual(image.worksTools,u'Photoshop SAI つけペン')
       
     def testPixivImage(self):
       #print '\nTesting image page - manga'
