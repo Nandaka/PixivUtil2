@@ -1,7 +1,7 @@
 20120803
 - Fix config.ini path resolution to the actual path where the script reside, not the working dir.
-- Update page parser
-- Update unittest
+- Update page parser and unittest
+- Append 0 for %page_number%
 
 20120724
 - Update makeFilename
