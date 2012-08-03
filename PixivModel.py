@@ -227,7 +227,7 @@ class PixivImage:
     self.worksDate = temp[0].renderContents() 
     self.worksResolution = temp[1].renderContents().replace('×','x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
-    if len(toolsTemp) > 0:
+    if toolsTemp!= None and len(toolsTemp) > 0:
       tools = toolsTemp.findAll('li')
       for tool in tools:
         self.worksTools = self.worksTools + ' ' + unicode(tool.string)

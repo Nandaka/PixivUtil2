@@ -1297,7 +1297,7 @@ def main():
         npisvalid = False
         parser.error('Value %s used for numberOfPage is not an integer.' % options.numberofpages) #Yavos: use print option instead when program should be running even with this error
     ### end new lines by Yavos ###
-    
+    __log__.info('###############################################################')
     __log__.info('Starting...')
     try:
         __config__.loadConfig()
@@ -1460,7 +1460,7 @@ def main():
             if selection == None or selection != 'x' :
                 raw_input('press enter to exit.')
         __log__.info('EXIT')
-        __log__.info('#####################################################')
+        __log__.info('###############################################################')
 
 if __name__ == '__main__':
     main()
