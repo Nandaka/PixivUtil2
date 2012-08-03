@@ -384,7 +384,7 @@ def processList(mode):
     except:
         print 'Error at processList():',sys.exc_info()
         print 'Failed'
-        __log__.error('Error at processList(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processList(): ' + str(sys.exc_info()))
         raise
 
 def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added dir-argument which will be initialized as '' when not given
@@ -520,6 +520,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         printAndLog('error', 'Error at processMember(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processMember(): '+ str(member_id))
         try: 
             if listPage != None :
                 dumpFilename = 'Error page for member ' + str(member_id) + '.html'
@@ -698,6 +699,7 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         printAndLog('error', 'Error at processImage(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processImage(): ' +str(image_id))
         try:
             if mediumPage != None:
                 dumpFilename = 'Error Medium Page for image ' + str(image_id) + '.html'
@@ -808,7 +810,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
         raise
     except:
         print 'Error at processTags():',sys.exc_info()
-        __log__.error('Error at processTags(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processTags(): ' + str(sys.exc_info()))
         raise
 
 def processTagsList(mode, filename, page=1, endPage=0):
@@ -821,7 +823,7 @@ def processTagsList(mode, filename, page=1, endPage=0):
         raise
     except:
         print 'Error at processTagsList():',sys.exc_info()
-        __log__.error('Error at processTagsList(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processTagsList(): ' + str(sys.exc_info()))
         raise
 
 def processImageBookmark(mode, hide='n', member_id=0):
@@ -861,7 +863,7 @@ def processImageBookmark(mode, hide='n', member_id=0):
         raise
     except :
         print 'Error at processImageBookmark():',sys.exc_info()
-        __log__.error('Error at processImageBookmark(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processImageBookmark(): ' + str(sys.exc_info()))
         raise
     
 def getBookmarks(hide):
@@ -953,7 +955,7 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
         raise
     except:
         print 'Error at processNewIllustFromBookmark():',sys.exc_info()
-        __log__.error('Error at processNewIllustFromBookmark(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processNewIllustFromBookmark(): ' + str(sys.exc_info()))
         raise
         
 def header():
