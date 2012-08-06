@@ -1,3 +1,6 @@
+20120806
+- Update PixivConfig to handle Unicode path.
+
 20120803
 - Fix config.ini path resolution to the actual path where the script reside, not the working dir.
 - Update page parser and unittest

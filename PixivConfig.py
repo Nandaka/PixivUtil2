@@ -10,7 +10,7 @@ script_path = PixivHelper.module_path()
 
 class PixivConfig:
     '''Configuration class'''
-
+    __logger = PixivHelper.GetLogger()
     ## default value
     proxyAddress = ''
     proxy = {'http': proxyAddress}
@@ -24,9 +24,9 @@ class PixivConfig:
 
     numberOfPage = 0
     useRobots = True
-    filenameFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
-    filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
-    rootDirectory = '.'
+    filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    rootDirectory = unicode('.')
     overwrite = False
     timeout = 60
 
@@ -34,7 +34,7 @@ class PixivConfig:
     processFromDb = True
     dayLastUpdated = 7
 
-    tagsSeparator = ', '
+    tagsSeparator = unicode(', ')
 
     retry = 3
     retryWait = 5
@@ -53,10 +53,10 @@ class PixivConfig:
     
     #Yavos: added next three lines
     createDownloadLists = False
-    downloadListDirectory = '.'
+    downloadListDirectory = unicode('.')
     startIrfanView = False
     startIrfanSlide = False
-    IrfanViewPath = 'C:\Program Files\IrfanView'
+    IrfanViewPath = unicode('C:\Program Files\IrfanView')
     
     def loadConfig(self):
         configFile = script_path + os.sep + 'config.ini'
@@ -73,14 +73,14 @@ class PixivConfig:
 
             self.cookie = config.get('Authentication','cookie')
 
-            self.tagsSeparator = config.get('Settings','tagsseparator')
-            self.rootDirectory = config.get('Settings','rootdirectory')
+            self.tagsSeparator = PixivHelper.toUnicode(config.get('Settings','tagsseparator'), encoding=sys.stdin.encoding)
+            self.rootDirectory = PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding)
             
             try:
-                self.IrfanViewPath = config.get('Settings','IrfanViewPath')
-                self.downloadListDirectory = config.get('Settings','downloadListDirectory')
+                self.IrfanViewPath = PixivHelper.toUnicode(config.get('Settings','IrfanViewPath'), encoding=sys.stdin.encoding)
+                self.downloadListDirectory = PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding)
             except:
-                self.rootDirectory = ''
+                pass
 
             try:
                 self.processFromDb = config.getboolean('Settings','processfromdb')
@@ -123,16 +123,18 @@ class PixivConfig:
                 self.useragent = _useragent
 
             _filenameFormat = config.get('Settings','filenameformat')
+            _filenameFormat = PixivHelper.toUnicode(_filenameFormat, encoding=sys.stdin.encoding)
             if _filenameFormat != None:
                 self.filenameFormat = _filenameFormat
 
             _filenameMangaFormat = config.get('Settings','filenamemangaformat')
+            _filenameMangaFormat = PixivHelper.toUnicode(_filenameMangaFormat, encoding=sys.stdin.encoding)
             if _filenameMangaFormat != None:
                 ## check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
                     if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_index%') == -1:
                         print 'No page identifier, appending %page_index% to the filename manga format.'
-                        _filenameMangaFormat = _filenameMangaFormat + ' %page_index%'
+                        _filenameMangaFormat = _filenameMangaFormat + unicode(' %page_index%')
                         print "_filenameMangaFormat =", _filenameMangaFormat
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
@@ -270,14 +272,17 @@ class PixivConfig:
                 print "useSSL = False"                              
                 haveError = True
             
-        except ConfigParser.NoOptionError:
+##        except ConfigParser.NoOptionError:
+##            print 'Error at loadConfig():',sys.exc_info()
+##            print 'Failed to read configuration.'
+##            self.writeConfig()
+##        except ConfigParser.NoSectionError:
+##            print 'Error at loadConfig():',sys.exc_info()
+##            print 'Failed to read configuration.'
+##            self.writeConfig()
+        except:
             print 'Error at loadConfig():',sys.exc_info()
-            print 'Failed to read configuration.'
-            self.writeConfig()
-        except ConfigParser.NoSectionError:
-            print 'Error at loadConfig():',sys.exc_info()
-            print 'Failed to read configuration.'
-            self.writeConfig()
+            self.__logger.exception('Error at loadConfig()')
 
         if haveError:
             print 'Some configuration have invalid value, replacing with the default value.'

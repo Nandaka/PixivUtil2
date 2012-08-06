@@ -5,7 +5,25 @@ import codecs
 from HTMLParser import HTMLParser
 import subprocess
 import sys
-import PixivModel
+import PixivModel, PixivConstant
+import logging
+
+Logger = None
+
+def GetLogger():
+  '''Set up logging'''
+  global Logger
+  if Logger == None:
+    script_path = module_path()
+    Logger = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
+    Logger.setLevel(logging.DEBUG)
+    __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
+                                                          maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
+                                                          backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+    __formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
+    __logHandler__.setFormatter(__formatter__)
+    Logger.addHandler(__logHandler__)
+  return Logger
 
 if os.sep == '/':
   __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')

@@ -51,13 +51,14 @@ __blacklistTags = list()
 __suppressTags = list()
 
 ### Set up logging###
-__log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
-__log__.setLevel(logging.DEBUG)
-
-__logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
-__formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
-__logHandler__.setFormatter(__formatter__)
-__log__.addHandler(__logHandler__)
+##__log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
+##__log__.setLevel(logging.DEBUG)
+##
+##__logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+##__formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
+##__logHandler__.setFormatter(__formatter__)
+##__log__.addHandler(__logHandler__)
+__log__ = PixivHelper.GetLogger()
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
@@ -1305,7 +1306,7 @@ def main():
         __config__.loadConfig()
     except:
         print 'Failed to read configuration.'
-        __log__.error('Failed to read configuration.')
+        __log__.exception('Failed to read configuration.')
 
     configBrowser()
     selection = None
