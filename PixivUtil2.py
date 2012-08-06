@@ -624,6 +624,8 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                         print t,
                         time.sleep(1)
                     print ''
+            if image.imageMode == 'manga':
+                print "Page Count :", image.imageCount
 
             result = 0
             skipOne = False

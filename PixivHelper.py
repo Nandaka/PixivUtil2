@@ -6,7 +6,7 @@ from HTMLParser import HTMLParser
 import subprocess
 import sys
 import PixivModel, PixivConstant
-import logging
+import logging, logging.handlers
 
 Logger = None
 
@@ -107,9 +107,11 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   if imageInfo.imageMode == 'manga':
     idx = __re_manga_index.findall(fileUrl)
     if len(idx) > 0:
-      page_index = idx[0][0]
+      page_index = idx[0]#[0]
       page_number = str(int(page_index) + 1)
-      page_number = str(page_number).zfill(len(str(imageInfo.imageCount)))
+      padding = len(str(imageInfo.imageCount))
+      page_number = str(page_number)
+      page_number = page_number.zfill(padding)
     if fileUrl.find('_big') > -1 or not fileUrl.find('_m') > -1:
       page_big = 'big'
   nameFormat = nameFormat.replace('%page_big%',page_big)

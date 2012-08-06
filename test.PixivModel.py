@@ -184,14 +184,16 @@ class TestPixivBookmark(unittest.TestCase):
 
 class TestMyPickPage(unittest.TestCase):
     def testMyPickPage(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test.image_12467674.html').replace(os.sep,'/')
-        p = br.open(path, 'r')
-        page = BeautifulSoup(p.read())
-        image = PixivImage(12467674,page)
-        self.assertEqual(image.imageId, 12467674)
-        image.PrintInfo()
-        #viewPage = br.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image.imageId))
+        try:
+            br = Browser()
+            path = 'file:///' + os.path.abspath('./test/test-image-my_pick.html').replace(os.sep,'/')
+            p = br.open(path, 'r')
+            page = BeautifulSoup(p.read())
+            image = PixivImage(12467674,page)
+        
+            self.assertRaises(PixivModelException)
+        except PixivModelException:
+            pass
 
 class TestPixivTags(unittest.TestCase):
     ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
@@ -312,17 +314,18 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, True)
       
 if __name__ == '__main__':
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
     unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
-##    print "================================================================"
-##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
-##    unittest.TextTestRunner(verbosity=5).run(suite)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+

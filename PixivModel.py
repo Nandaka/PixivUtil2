@@ -190,7 +190,7 @@ class PixivImage:
     return self.HaveString(page, errorMessage)
   
   def IsNeedPermission(self, page):
-    errorMessage = 'この作品は、.+さんのマイピクにのみ公開されています'
+    errorMessage = 'この作品は、.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています'
     return self.HaveString(page, errorMessage)
 
   def IsDeleted(self, page):
@@ -224,7 +224,7 @@ class PixivImage:
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
-    self.worksDate = unicode(temp[0]) 
+    self.worksDate = unicode(temp[0].string)
     self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
     if toolsTemp!= None and len(toolsTemp) > 0:
@@ -250,6 +250,9 @@ class PixivImage:
     PixivHelper.safePrint( 'views : ' + str(self.jd_rtv))
     PixivHelper.safePrint( 'rating: ' + str(self.jd_rtc))
     PixivHelper.safePrint( 'total : ' + str(self.jd_rtt))
+    PixivHelper.safePrint( 'Date : ' + self.worksDate)
+    PixivHelper.safePrint( 'Resolution : ' + self.worksResolution)
+    PixivHelper.safePrint( 'Tools : ' + self.worksTools)
     return ""
 
   def ParseImages(self, page, mode=None):
@@ -283,7 +286,7 @@ class PixivImage:
     pattern = re.compile('http.*?\d+[_0-9a-z_]*_p\d+\..{3}')
     pattern2 = re.compile('http.*?(\d+[_0-9a-z_]*_p\d+)\..{3}')
     m = pattern.findall(string)
-    imageCount = len(m)
+    self.imageCount = len(m)
     for img in m:
       temp = str(img)
       m2 = pattern2.findall(temp)         ## 1234_p0

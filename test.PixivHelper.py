@@ -41,6 +41,8 @@ class TestPixivHelper(unittest.TestCase):
     expected = unicode(u'ffei (554800)\\28865189_p0 001 07/25/2012 Manga 2P Photoshop 「SUN PLAY! 毒島先輩温感ポスター」サンプル - C82 R-18 おっぱい ローション 学園黙示録 極上のおっぱい 毒島冴子 水着 漫画 足.jpg')
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title% - %tags%'
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
+
+    print imageInfo.PrintInfo()
     self.assertEqual(result, expected)
 
   def testCreateFilenameUnicode(self):
@@ -53,6 +55,7 @@ class TestPixivHelper(unittest.TestCase):
     expected = unicode(u'balzehn (267014)\\2493913 12/23/2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える ぱるぱるぱるぱる アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘.jpg')
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
+    print imageInfo.PrintInfo()
     self.assertEqual(result, expected)
 
   def testCreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
