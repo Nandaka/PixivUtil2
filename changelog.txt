@@ -1,6 +1,7 @@
 20120806
 - Update PixivConfig to handle Unicode path.
 - Fix %page_index% and %page_number% bug: truncate the length to 1 character only.
+- Fix PixivConfig: recreate config.ini if there is any error (20120806b)
 
 20120803
 - Fix config.ini path resolution to the actual path where the script reside, not the working dir.

@@ -283,6 +283,7 @@ class PixivConfig:
         except:
             print 'Error at loadConfig():',sys.exc_info()
             self.__logger.exception('Error at loadConfig()')
+            self.writeConfig()
 
         if haveError:
             print 'Some configuration have invalid value, replacing with the default value.'
