@@ -1,3 +1,6 @@
+20120828
+- Update readConfig to handle Unicode, please note writing Unicode value still have error.
+
 20120806
 - Update PixivConfig to handle Unicode path.
 - Fix %page_index% and %page_number% bug: truncate the length to 1 character only.

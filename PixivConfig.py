@@ -4,6 +4,7 @@
 import ConfigParser
 import sys
 import os
+import codecs
 import traceback
 import PixivHelper
 script_path = PixivHelper.module_path()
@@ -65,7 +66,7 @@ class PixivConfig:
         haveError = False
         config = ConfigParser.RawConfigParser()
         try:
-            config.read(configFile)
+            config.readfp(PixivHelper.OpenTextFile(configFile))
 
             self.username = config.get('Authentication','username')
         
@@ -336,9 +337,14 @@ class PixivConfig:
         config.set('Authentication', 'useSSL', self.useSSL)
         
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
-        
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
+
+        try:
+            with codecs.open('config.ini.bak', encoding = 'utf8', mode = 'wb') as configfile:
+                config.write(configfile)
+            os.rename('config.ini.bak', 'config.ini')
+        except:
+            self.__logger.exception('Error at writeConfig()')
+            raise 
             
         print 'done.'
 
