@@ -1322,10 +1322,13 @@ def main():
         #dfilename = sys.path[0].rsplit('\\',1)[0] + '\\' + dfilename #Yavos: only useful for myself ;P
     dfilename = dfilename.replace('\\\\', '\\')
     dfilename = dfilename.replace('\\', os.sep)
+    dfilename = dfilename.replace(os.sep + 'library.zip' + os.sep + '.','')
+
     directory = os.path.dirname(dfilename)
     if not os.path.exists(directory):
         os.makedirs(directory)
         __log__.info('Creating directory: '+directory)
+    
         
     #Yavos: adding IrfanView-Handling
     if __config__.startIrfanSlide == True or __config__.startIrfanView == True:
