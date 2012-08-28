@@ -192,6 +192,13 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 del save
                 del req
                 del res
+        except IOError as ioex:
+            if ioex.errno == 28:
+                printAndLog('error', ioex.message)
+                raw_input("Press Enter to retry.");
+                return -1
+            else:
+                raise
         except urllib2.HTTPError as httpError:
             print httpError
             print str(httpError.code)
@@ -209,7 +216,7 @@ def downloadImage(url, filename, referer, overwrite, retry):
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
-            __log__.error('Error at downloadImage(): ' + str(sys.exc_info()) + '(' + url + ')')
+            __log__.exception('Error at downloadImage(): ' + str(sys.exc_info()) + '(' + url + ')')
             raise
     except KeyboardInterrupt:
         raise
@@ -304,7 +311,7 @@ def pixivLogin(username, password):
     except:
         print 'Error at pixivLogin():',sys.exc_info()
         print 'failed'
-        __log__.error('Error at pixivLogin(): ' + str(sys.exc_info()))
+        __log__.exception('Error at pixivLogin(): ' + str(sys.exc_info()))
         raise
 
 def pixivLoginSSL(username, password):
@@ -334,7 +341,7 @@ def pixivLoginSSL(username, password):
             return False
     except:
         print 'Error at pixivLoginSSL():',sys.exc_info()
-        __log__.error('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
+        __log__.exception('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
         raise    
 
 def processList(mode):
@@ -904,7 +911,7 @@ def processBookmark(mode, hide='n'):
         raise
     except :
         print 'Error at processBookmark():',sys.exc_info()
-        __log__.error('Error at processBookmark(): ' + str(sys.exc_info()))
+        __log__.exception('Error at processBookmark(): ' + str(sys.exc_info()))
         raise
 
 def exportBookmark(filename, hide='n'):
@@ -922,7 +929,7 @@ def exportBookmark(filename, hide='n'):
         raise
     except :
         print 'Error at exportBookmark():',sys.exc_info()
-        __log__.error('Error at exportBookmark(): ' + str(sys.exc_info()))
+        __log__.exception('Error at exportBookmark(): ' + str(sys.exc_info()))
         raise
 
 def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):

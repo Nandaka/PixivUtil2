@@ -1,6 +1,7 @@
 20120828
 - Update readConfig to handle Unicode, please note writing Unicode value still have error.
 - Fix createDownloadList to handle relative path / remove library.zip from path.
+- Handle IOError: [Errno 28] No space left on device exception.
 
 20120806
 - Update PixivConfig to handle Unicode path.
