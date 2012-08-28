@@ -339,8 +339,11 @@ class PixivConfig:
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
 
         try:
-            with codecs.open('config.ini.bak', encoding = 'utf8', mode = 'wb') as configfile:
+            ##with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
+            with open('config.ini.bak', 'w') as configfile:
                 config.write(configfile)
+            if os.path.exists('config.ini'):
+                os.remove('config.ini')
             os.rename('config.ini.bak', 'config.ini')
         except:
             self.__logger.exception('Error at writeConfig()')
