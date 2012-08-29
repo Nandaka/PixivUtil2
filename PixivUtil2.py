@@ -192,13 +192,6 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 del save
                 del req
                 del res
-        except IOError as ioex:
-            if ioex.errno == 28:
-                printAndLog('error', ioex.message)
-                raw_input("Press Enter to retry.");
-                return -1
-            else:
-                raise
         except urllib2.HTTPError as httpError:
             print httpError
             print str(httpError.code)
@@ -209,6 +202,12 @@ def downloadImage(url, filename, referer, overwrite, retry):
         except urllib2.URLError as urlError:
             print urlError
             __log__.error('URLError: '+ str(urlError) + '(' + url + ')')
+            raise
+        except IOError as ioex:
+            if ioex.errno == 28:
+                printAndLog('error', ioex.message)
+                raw_input("Press Enter to retry.");
+                return -1
             raise
         except KeyboardInterrupt:
             printAndLog('info', 'Aborted by user request => Ctrl-C')

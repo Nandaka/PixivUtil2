@@ -2,6 +2,7 @@
 - Update readConfig to handle Unicode, please note writing Unicode value still have error.
 - Fix createDownloadList to handle relative path / remove library.zip from path.
 - Handle IOError: [Errno 28] No space left on device exception.
+- Fix mechanize._httperror_seek_wrapper (20120828b)
 
 20120806
 - Update PixivConfig to handle Unicode path.

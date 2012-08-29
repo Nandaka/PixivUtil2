@@ -340,11 +340,11 @@ class PixivConfig:
 
         try:
             ##with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
-            with open('config.ini.bak', 'w') as configfile:
+            with open('config.ini.tmp', 'w') as configfile:
                 config.write(configfile)
             if os.path.exists('config.ini'):
                 os.remove('config.ini')
-            os.rename('config.ini.bak', 'config.ini')
+            os.rename('config.ini.tmp', 'config.ini')
         except:
             self.__logger.exception('Error at writeConfig()')
             raise 
