@@ -425,6 +425,9 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                         printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
                         #__dbManager__.deleteMemberByMemberId(member_id)
                         #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
+                    if ex.errorCode == 1003:
+                        PixivHelper.safePrint(ex.message)
+                        raw_input('New Error Message, please inform the developer. Press enter to continue.')
                     return
                 except Exception as ue:
                     print ue
@@ -566,7 +569,11 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 del parseMediumPage
                 break
             except PixivModelException as ex:
-                printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
+                if ex.errorCode == 2006:
+                    PixivHelper.safePrint(ex.message)
+                    raw_input('New Error Message, please inform the developer. Press enter to continue.')
+                else:
+                    printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
                 return
             except urllib2.URLError as ue:
                 print ue

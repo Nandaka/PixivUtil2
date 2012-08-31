@@ -1,3 +1,6 @@
+20120831
+- Update error detection for new error messages.
+
 20120828
 - Update readConfig to handle Unicode, please note writing Unicode value still have error.
 - Fix createDownloadList to handle relative path / remove library.zip from path.

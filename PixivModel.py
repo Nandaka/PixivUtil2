@@ -26,7 +26,12 @@ class PixivArtist:
       ## detect if artist account is suspended.
       if self.IsUserSuspended(page):
         raise PixivModelException('User Account is Suspended!', errorCode=1002)
-      
+
+      ## detect if there is any other error
+      errorMessage = self.IsErrorExist(page)
+      if errorMessage != None:
+        raise PixivModelException('Member Error: ' + errorMessage, errorCode=1003)
+        
       ## detect if image count != 0
       if not fromImage:
         self.ParseImages(page)
@@ -104,12 +109,22 @@ class PixivArtist:
   
   def IsUserNotExist(self, page):
     errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
-    return self.HaveString(page, errorMessage)
+    errorMessage2 = 'The user has either left pixiv, or the user ID does not exist.'
+    return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
     
   def IsUserSuspended(self, page):
     errorMessage = '該当ユーザーのアカウントは停止されています。'
     return self.HaveString(page, errorMessage)
 
+  def IsErrorExist(self, page):
+    check = page.findAll('span', attrs={'class':'error'})
+    if len(check) > 0:
+      check2 = page.findAll('strong')
+      if len(check2) > 0:
+        return check2[0].renderContents()
+      return check[0].renderContents()
+    return None
+  
   def CheckLastPage(self, page):
     check = page.findAll('a', attrs={'class':'button', 'rel':'next'})
     if len(check) > 0:
@@ -149,18 +164,21 @@ class PixivImage:
     if page != None:
       ## check is error page
       if self.IsErrorPage(page):
-        raise PixivModelException('An error occurred!')
+        raise PixivModelException('An error occurred!', errorCode=2001)
       if self.IsNeedPermission(page):
-        raise PixivModelException('Not in MyPick List, Need Permission!')
+        raise PixivModelException('Not in MyPick List, Need Permission!', errorCode=2002)
       if self.IsNeedAppropriateLevel(page):
-        raise PixivModelException('Public works can not be viewed by the appropriate level!')
+        raise PixivModelException('Public works can not be viewed by the appropriate level!', errorCode=2003)
       if self.IsDeleted(page):
-        raise PixivModelException('Image not found/already deleted!')
+        raise PixivModelException('Image not found/already deleted!', errorCode=2004)
       if self.IsGuroDisabled(page):
-        raise PixivModelException('Image is disabled for under 18, check your setting page (R-18/R-18G)!')
-      unknownError = self.CheckUnknownError(page)
-      if not unknownError == None:
-        raise PixivModelException('Unknown Error: '+unknownError)
+        raise PixivModelException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=2005)
+
+      ## detect if there is any other error
+      errorMessage = self.IsErrorExist(page)
+      if errorMessage != None:
+        raise PixivModelException('Image Error: ' + errorMessage, errorCode=2006)
+        
       ## parse artist information
       if self.artist == None:
         self.artist = PixivArtist(page=page, fromImage=True)
@@ -178,13 +196,6 @@ class PixivImage:
     errorMessage = 'エラーが発生しました'
     return self.HaveString(page, errorMessage)
 
-  def CheckUnknownError(self, page):
-    test = page.findAll('span', {'class':'error'})
-    if not test == None and len(test) > 0:
-      return test[0].contents[0].renderContents()
-    else :
-      return None
-
   def IsNeedAppropriateLevel(self, page):
     errorMessage = '該当作品の公開レベルにより閲覧できません。'
     return self.HaveString(page, errorMessage)
@@ -195,11 +206,21 @@ class PixivImage:
 
   def IsDeleted(self, page):
     errorMessage = '該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。'
-    return self.HaveString(page, errorMessage)
+    errorMessage2 = 'The following work is either deleted, or the ID does not exist.'
+    return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
 
   def IsGuroDisabled(self, page):
     errorMessage = '表示されるページには、18歳未満の方には不適切な表現内容が含まれています。'
     return self.HaveString(page, errorMessage)
+
+  def IsErrorExist(self, page):
+    check = page.findAll('span', attrs={'class':'error'})
+    if len(check) > 0:
+      check2 = page.findAll('strong')
+      if len(check2) > 0:
+        return check2[0].renderContents()
+      return check[0].renderContents()
+    return None
   
   def HaveString(self, page, string):
     pattern = re.compile(string)
