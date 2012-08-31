@@ -191,7 +191,7 @@ filenameformat ==> The format for the filename, reserved/illegal character will
 	        -> %page_index%   ==> for manga mode, add page number with 0-index.
 	        -> %page_number%  ==> for manga mode, add page number with 1-index.
 useragent      ==> Browser user agent to spoof.
-tagsseparator  ==> Separator for each tag, put %space% for space.
+tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
 alwaysCheckFileSize   ==> Check the file size, if different then it will be

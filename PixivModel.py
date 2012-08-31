@@ -114,7 +114,8 @@ class PixivArtist:
     
   def IsUserSuspended(self, page):
     errorMessage = '該当ユーザーのアカウントは停止されています。'
-    return self.HaveString(page, errorMessage)
+    errorMessage2 = 'This user account has been suspended.'
+    return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
 
   def IsErrorExist(self, page):
     check = page.findAll('span', attrs={'class':'error'})
