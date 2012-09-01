@@ -86,6 +86,18 @@ class PixivDBManager:
             c.close()
         print 'done.'
 
+    def compactDatabase(self):
+        print 'Compacting Database, this might take a while...'
+        try:
+            c = self.conn.cursor()
+            c.execute('''VACUUM''')
+            self.conn.commit()
+        except:
+            print 'Error at compactDatabase():',str(sys.exc_info())
+            raise
+        finally:
+            c.close()
+        print 'done.'
 ##########################################
 ## II. Export/Import DB                 ##
 ##########################################                    
@@ -599,6 +611,7 @@ class PixivDBManager:
         print '13. Show all deleted member'
         print '==============================================='
         print 'c. Clean Up Database'
+        print 'p. Compact Database'
         print 'x. Exit'
         selection = raw_input('Select one?')
         return selection
@@ -677,11 +690,13 @@ class PixivDBManager:
                 elif selection == '12':
                     member_id = raw_input('member_id? ')
                     image_id = raw_input('image_id? ')
-                    self.blacklistImage(member_id, image_id)
-                elif selection == 'c':
-                    self.cleanUp()
+                    self.blacklistImage(member_id, image_id)                
                 elif selection == '13':
                     self.printMemberList(isDeleted = True)
+                elif selection == 'c':
+                    self.cleanUp()
+                elif selection == 'p':
+                    self.compactDatabase()                    
                 elif selection == 'x':
                     break
             print 'end PixivDBManager.'

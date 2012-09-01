@@ -1,3 +1,6 @@
+20120901
+- Add option to compact database.
+
 20120831
 - Update error detection for new error messages.
 
