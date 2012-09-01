@@ -323,6 +323,7 @@ class PixivModelException(Exception):
   
   def __init__(self, value, errorCode = 0):
     self.value = value
+    self.message = value
     self.errorCode = errorCode
     
   def __str__(self):

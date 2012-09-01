@@ -77,6 +77,16 @@ class TestPixivArtist(unittest.TestCase):
           PixivArtist(123, page)
       page.decompose()
       del page
+
+    def testPixivArtistSuspended(self):
+      #print '\nTesting member page - suspended member'
+      p = open('./test/test-member-suspended.htm', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivModelException) as ex:
+          PixivArtist(123, page)
+      self.assertEqual(ex.exception.errorCode, 1002)
+      page.decompose()
+      del page
       
 class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):
