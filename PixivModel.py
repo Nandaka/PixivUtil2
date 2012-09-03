@@ -246,7 +246,7 @@ class PixivImage:
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
-    self.worksDate = unicode(temp[0].string)
+    self.worksDate = unicode(temp[0].string).replace(u'/', u'-')
     self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
     if toolsTemp!= None and len(toolsTemp) > 0:

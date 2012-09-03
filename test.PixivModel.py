@@ -103,7 +103,7 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.imageId, 20496355)
       #07/22/2011 03:09｜512×600｜RETAS STUDIO&nbsp;
       #print image.worksDate, image.worksResolution, image.worksTools
-      self.assertEqual(image.worksDate,'07/22/2011 03:09')
+      self.assertEqual(image.worksDate,'07-22-2011 03:09')
       self.assertEqual(image.worksResolution,'512x600')
       self.assertEqual(image.worksTools,'RETAS STUDIO')
 
@@ -121,7 +121,7 @@ class TestPixivImage(unittest.TestCase):
       self.assertNotEqual(image, None)
       self.assertEqual(image.imageId, 2493913)
       self.assertEqual(image.imageMode, 'big')
-      self.assertEqual(image.worksDate,'12/23/2008 21:01')
+      self.assertEqual(image.worksDate,'12-23-2008 21:01')
       self.assertEqual(image.worksResolution,'852x1200')
       #print image.worksTools
       self.assertEqual(image.worksTools,u'Photoshop SAI つけペン')

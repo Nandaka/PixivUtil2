@@ -1,5 +1,6 @@
-20120901
+20120903
 - Add option to compact database.
+- Format %works_date*% to use dash '-', instead of slash '/'.
 
 20120831
 - Update error detection for new error messages.
