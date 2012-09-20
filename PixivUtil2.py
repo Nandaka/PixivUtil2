@@ -49,15 +49,6 @@ __dbManager__ = PixivDBManager.PixivDBManager()
 __config__    = PixivConfig.PixivConfig()
 __blacklistTags = list()
 __suppressTags = list()
-
-### Set up logging###
-##__log__ = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
-##__log__.setLevel(logging.DEBUG)
-##
-##__logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE, maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE, backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
-##__formatter__  = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
-##__logHandler__.setFormatter(__formatter__)
-##__log__.addHandler(__logHandler__)
 __log__ = PixivHelper.GetLogger()
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
@@ -90,9 +81,6 @@ def customRequest(url):
         proxy = urllib2.ProxyHandler(__config__.proxy)
         opener = urllib2.build_opener(proxy)
         urllib2.install_opener(opener)
-##        urllib2.Request.set_proxy(__config__.proxy, None)
-##    else:
-##        req._tunnel_host = None
     req = urllib2.Request(url)
     return req
 
@@ -114,16 +102,10 @@ def downloadImage(url, filename, referer, overwrite, retry):
 
             br2.set_handle_robots(__config__.useRobots)
             filesize = -1
-            
-##            for item in req.headers:
-##                print str(item), "=", req.headers[str(item)]
-                
-            #res = __br__.open(req)
+
             res = br2.open(req)
             try:
                 filesize = int(res.info()['Content-Length'])
-##                for item in res.info():
-##                    print str(item), "=", res.info()[str(item)]
             except KeyError:
                 filesize = -1
             except:
