@@ -1,4 +1,7 @@
 20120903
+- Fix login method to use correct form.
+
+20120903
 - Add option to compact database.
 - Format %works_date*% to use dash '-', instead of slash '/'.
 
