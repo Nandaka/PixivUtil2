@@ -431,15 +431,6 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                     targetDir = userDir
 
                 avatarFilename = PixivHelper.CreateAvatarFilename(filenameFormat, __config__.tagsSeparator, __config__.tagsLimit, artist, targetDir)
-                ##printAndLog('info','targetDir: ' + targetDir)
-                #filenameFormat = filenameFormat.split(os.sep)[0]
-                ##printAndLog('info','filenameFormat: ' + filenameFormat)
-                #image = PixivImage(parent=artist)
-                #filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit)
-                ##printAndLog('info','makeFilename: ' + filename)
-                #filename = PixivHelper.sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
-                ##printAndLog('info','sanitizeFilename: ' + filename)
-                
                 result = downloadImage(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry)
                 avatarDownloaded = True
             
@@ -471,7 +462,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                         break
                     except KeyboardInterrupt:
                         raise
-                    except Exception as ex:
+                    except:
                         if retryCount > __config__.retry:
                             printAndLog('error', "Giving up image_id: "+str(image_id)) 
                             return
@@ -523,12 +514,11 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
         raise
 
 def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
-    try:
-        parseBigImage = None
-        mediumPage = None
-        viewPage = None
-        image = None
-            
+    parseBigImage = None
+    mediumPage = None
+    viewPage = None
+    image = None
+    try:            
         filename = 'N/A'
         print 'Processing Image Id:', image_id
         ## check if already downloaded. images won't be downloaded twice - needed in processImage to catch any download
@@ -541,7 +531,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
         retryCount = 0
         while 1:
-            mediumPage = None
             try :
                 mediumPage = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id='+str(image_id))
                 parseMediumPage = BeautifulSoup(mediumPage.read())
@@ -596,7 +585,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
             errorCount = 0
             while True:
                 try :
-                    parseBigImage = None
                     bigUrl = 'http://www.pixiv.net/member_illust.php?mode='+image.imageMode+'&illust_id='+str(image_id)
                     viewPage = __br__.follow_link(url_regex='mode='+image.imageMode+'&illust_id='+str(image_id))
                     parseBigImage = BeautifulSoup(viewPage.read())
@@ -632,9 +620,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                 url = os.path.basename(img)
                 splittedUrl = url.split('.')
                 if splittedUrl[0].startswith(str(image_id)):
-##                    imageExtension = splittedUrl[1]
-##                    imageExtension = imageExtension.split('?')[0]
-
                     #Yavos: filename will be added here if given in list
                     filenameFormat = __config__.filenameFormat
                     if image.imageMode == 'manga':
@@ -646,9 +631,6 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                         targetDir = userDir
 
                     filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url)
-##                    if image.imageMode == 'manga':
-##                        filename = filename.replace(str(image_id), str(splittedUrl[0]))
-##                    filename = filename + '.' + imageExtension
                     filename = PixivHelper.sanitizeFilename(filename, targetDir)
                     
                     if image.imageMode == 'manga' and __config__.createMangaDir :
@@ -660,20 +642,23 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
 
                     PixivHelper.safePrint('Filename  : ' + filename)
                     result = -1
-       
-                    if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
-                        result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
-                    else:
-                        result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
+                    try:
+                        if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
+                            result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
+                        else:
+                            result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
+
+                        if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
+                            print 'No big manga image available, try the small one'
+                        elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
+                            skipOne = True
+                        elif result == -1:
+                            printAndLog('error', 'Image url not found: '+str(image.imageId))
+                    except urllib2.URLError as ue:
+                        printAndLog('error', 'Giving up url: '+str(img))
+                        __log__.exception('Error when downloadImage(): ' +str(img))
                     print ''
                     
-                if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
-                    print 'No big manga image available, try the small one'
-                elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
-                    skipOne = True
-                elif result == -1:
-                    printAndLog('error', 'Image url not found: '+str(image.imageId))
-                      
         ## Only save to db if all images is downloaded completely
         if result == 0 :
             try:
@@ -699,16 +684,19 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
         printAndLog('error', 'Error at processImage(): ' + str(sys.exc_info()))
         __log__.exception('Error at processImage(): ' +str(image_id))
         try:
+            if viewPage != None:
+                dumpFilename = 'Error Big Page for image ' + str(image_id) + '.html'
+                dumpHtml(dumpFilename , viewPage.get_data())
+                printAndLog('error', 'Dumping html to: ' + dumpFilename);
+        except:
+            printAndLog('error', 'Cannot dump big page for image_id: '+str(image_id))
+        try:
             if mediumPage != None:
                 dumpFilename = 'Error Medium Page for image ' + str(image_id) + '.html'
                 dumpHtml(dumpFilename , mediumPage.get_data())
                 printAndLog('error', 'Dumping html to: ' + dumpFilename);
-            if parseBigImage != None:
-                dumpFilename = 'Error Big Page for image ' + str(image_id) + '.html'
-                dumpHtml(dumpFilename , parseBigImage.get_data())
-                printAndLog('error', 'Dumping html to: ' + dumpFilename);
         except:
-            printAndLog('error', 'Cannot dump page for image_id: '+str(image_id))
+            printAndLog('error', 'Cannot medium dump page for image_id: '+str(image_id))
         raise
 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None, bookmarkCount=None):
