@@ -133,7 +133,7 @@ class PixivConfig:
             if _filenameMangaFormat != None:
                 ## check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
-                    if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_index%') == -1:
+                    if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_number%') == -1:
                         print 'No page identifier, appending %page_index% to the filename manga format.'
                         _filenameMangaFormat = _filenameMangaFormat + unicode(' %page_index%')
                         print "_filenameMangaFormat =", _filenameMangaFormat
