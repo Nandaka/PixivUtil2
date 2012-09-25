@@ -257,7 +257,7 @@ class PixivImage:
 
   def ParseTags(self, page):
     del self.imageTags[:]
-    temp = page.find(id='tags').findAll('a')
+    temp = page.find(attrs={'class':'tags'}).findAll('a')
     for tag in temp:
       if not tag.string == None:
         self.imageTags.append(unicode(tag.string))

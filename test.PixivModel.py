@@ -94,11 +94,9 @@ class TestPixivImage(unittest.TestCase):
       p = open('./test/test-image-noavatar.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage(20496355, page)
-##      image.PrintInfo()
-##      image.artist.PrintInfo()
       page.decompose()
       del page
-      self.assertNotEqual(image, None)
+      ##self.assertNotEqual(image, None)
       self.assertEqual(image.artist.artistToken, 'iymt')
       self.assertEqual(image.imageId, 20496355)
       #07/22/2011 03:09｜512×600｜RETAS STUDIO&nbsp;
@@ -107,12 +105,27 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.worksResolution,'512x600')
       self.assertEqual(image.worksTools,'RETAS STUDIO')
 
+    def testPixivImageParseTags(self):
+      p = open('./test/test-image-parse-tags.htm', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+        image = PixivImage(11164869, page)
+      except PixivModelException as ex:
+        print ex
+      page.decompose()
+      del page
+      self.assertNotEqual(image, None)
+      self.assertEqual(image.imageId, 11164869)
+      self.assertEqual(image.worksDate,'06-09-2010 02:33')
+      self.assertEqual(image.worksResolution,'1009x683')
+      self.assertEqual(image.worksTools,u'SAI')
+      
     def testPixivImageUnicode(self):
       #print '\nTesting image page - big'
       p = open('./test/test-image-unicode.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
-        image = PixivImage(28129352, page)
+        image = PixivImage(2493913, page)
         #image.PrintInfo()
       except PixivModelException as ex:
         print ex
@@ -126,9 +139,8 @@ class TestPixivImage(unittest.TestCase):
       #print image.worksTools
       self.assertEqual(image.worksTools,u'Photoshop SAI つけペン')
       
-    def testPixivImage(self):
-      #print '\nTesting image page - manga'
-      p = open('./test/test-image.htm', 'r')
+    def testPixivImageRateCount(self):
+      p = open('./test/test-image-rate_count.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
         image = PixivImage(28865189, page)
@@ -140,9 +152,9 @@ class TestPixivImage(unittest.TestCase):
       self.assertNotEqual(image, None)
       self.assertEqual(image.imageId, 28865189)
       self.assertEqual(image.imageMode, 'manga')
-      self.assertEqual(image.jd_rtv, 5671)
-      self.assertEqual(image.jd_rtc, 234)
-      self.assertEqual(image.jd_rtt, 2300)
+      self.assertEqual(image.jd_rtv, 8941)
+      self.assertEqual(image.jd_rtc, 294)
+      self.assertEqual(image.jd_rtt, 2895)
       self.assertEqual(image.worksTools, "Photoshop")
 
     def testPixivImageNoImage(self):
