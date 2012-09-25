@@ -1,5 +1,8 @@
+20120925
+- Update medium image page parser for tags and unit test.
+
 20120923
-- Fix PixivConfig doesn't allow %page_number% in settings
+- Fix PixivConfig doesn't allow %page_number% in settings.
 
 20120921
 - Fix login method to use correct form.
