@@ -1,4 +1,4 @@
-20120925
+20120928
 - Update medium image page parser for tags and unit test.
 
 20120923
