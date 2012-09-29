@@ -31,25 +31,25 @@ class TestPixivHelper(unittest.TestCase):
     self.assertEqual(result, expected)
     self.assertTrue(len(result) < 255)
 
-  def testCreateFilename(self):
-    p = open('./test/test-image.htm', 'r')
+  def testCreateMangaFilename(self):
+    p = open('./test/test-image-manga.htm', 'r')
     page = BeautifulSoup(p.read())
-    imageInfo = PixivImage(28865189, page)
+    imageInfo = PixivImage(28820443, page)
     imageInfo.imageCount = 100
     page.decompose()
     del page
     print imageInfo.PrintInfo()
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title% - %tags%'
 
-    expected = unicode(u'ffei (554800)\\28865189_p0 001 07/25/2012 Manga 2P Photoshop 「SUN PLAY! 毒島先輩温感ポスター」サンプル - C82 R-18 おっぱい ローション 学園黙示録 極上のおっぱい 毒島冴子 水着 漫画 足.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p0 001 07-23-2012 Manga 2P Photoshop C82\u304a\u307e\u3051\u672c \u300c\u6c99\u8036\u306f\u4ffa\u306e\u5ac1\u300d\u30b5\u30f3\u30d7\u30eb - C82 R-18 \u304a\u3063\u3071\u3044 \u3076\u3063\u304b\u3051 \u5b66\u5712\u9ed9\u793a\u9332 \u6f2b\u753b \u773c\u93e1 \u9ad8\u57ce\u6c99\u8036.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
     self.assertEqual(result, expected)
 
-    expected = unicode(u'ffei (554800)\\28865189_p14 015 07/25/2012 Manga 2P Photoshop 「SUN PLAY! 毒島先輩温感ポスター」サンプル - C82 R-18 おっぱい ローション 学園黙示録 極上のおっぱい 毒島冴子 水着 漫画 足.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p14 015 07-23-2012 Manga 2P Photoshop C82\u304a\u307e\u3051\u672c \u300c\u6c99\u8036\u306f\u4ffa\u306e\u5ac1\u300d\u30b5\u30f3\u30d7\u30eb - C82 R-18 \u304a\u3063\u3071\u3044 \u3076\u3063\u304b\u3051 \u5b66\u5712\u9ed9\u793a\u9332 \u6f2b\u753b \u773c\u93e1 \u9ad8\u57ce\u6c99\u8036.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
     self.assertEqual(result, expected)
     
-    expected = unicode(u'ffei (554800)\\28865189_p921 922 07/25/2012 Manga 2P Photoshop 「SUN PLAY! 毒島先輩温感ポスター」サンプル - C82 R-18 おっぱい ローション 学園黙示録 極上のおっぱい 毒島冴子 水着 漫画 足.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p921 922 07-23-2012 Manga 2P Photoshop C82\u304a\u307e\u3051\u672c \u300c\u6c99\u8036\u306f\u4ffa\u306e\u5ac1\u300d\u30b5\u30f3\u30d7\u30eb - C82 R-18 \u304a\u3063\u3071\u3044 \u3076\u3063\u304b\u3051 \u5b66\u5712\u9ed9\u793a\u9332 \u6f2b\u753b \u773c\u93e1 \u9ad8\u57ce\u6c99\u8036.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
     self.assertEqual(result, expected)
 
@@ -62,7 +62,7 @@ class TestPixivHelper(unittest.TestCase):
     print imageInfo.PrintInfo()
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
     
-    expected = unicode(u'balzehn (267014)\\2493913 12/23/2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える ぱるぱるぱるぱる アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘.jpg')
+    expected = unicode(u'balzehn (267014)\\2493913 12-23-2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える ぱるぱるぱるぱる アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
     self.assertEqual(result, expected)
 
