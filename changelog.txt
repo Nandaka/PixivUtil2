@@ -1,3 +1,6 @@
+20120929
+- Update medium image parser to handle no tags.
+
 20120928
 - Update medium image page parser for tags and unit test.
 

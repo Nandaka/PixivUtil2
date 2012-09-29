@@ -257,10 +257,12 @@ class PixivImage:
 
   def ParseTags(self, page):
     del self.imageTags[:]
-    temp = page.find(attrs={'class':'tags'}).findAll('a')
-    for tag in temp:
-      if not tag.string == None:
-        self.imageTags.append(unicode(tag.string))
+    temp = page.find(attrs={'class':'tags'})
+    if temp != None and len(temp) > 0:
+      temp2 = temp.findAll('a')
+      for tag in temp2:
+        if not tag.string == None:
+          self.imageTags.append(unicode(tag.string))
 
   def PrintInfo(self):
     PixivHelper.safePrint( 'Image Info')

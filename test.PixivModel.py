@@ -119,6 +119,23 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.worksDate,'06-09-2010 02:33')
       self.assertEqual(image.worksResolution,'1009x683')
       self.assertEqual(image.worksTools,u'SAI')
+      self.assertEqual(image.imageTags,[u'VOCALOID', u'VOCALOID100users\u5165\u308a', u'\u3075\u3064\u304f\u3057\u3044', u'\u30ed\u30fc\u30a2\u30f3\u30b0\u30eb', u'\u521d\u97f3\u30df\u30af', u'\u6b4c\u3046', u'\u717d\u308a_\u4ef0\u8996'])
+
+    def testPixivImageParseNoTags(self):
+      p = open('./test/test-image-no_tags.htm', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+        image = PixivImage(9175987, page)
+      except PixivModelException as ex:
+        print ex
+      page.decompose()
+      del page
+      self.assertNotEqual(image, None)
+      self.assertEqual(image.imageId, 9175987)
+      self.assertEqual(image.worksDate,'03-06-2010 03:04')
+      self.assertEqual(image.worksResolution,'1155x768')
+      self.assertEqual(image.worksTools,u'SAI')
+      self.assertEqual(image.imageTags,[])
       
     def testPixivImageUnicode(self):
       #print '\nTesting image page - big'
