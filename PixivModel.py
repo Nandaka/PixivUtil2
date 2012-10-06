@@ -19,6 +19,10 @@ class PixivArtist:
 
   def __init__(self, mid=0, page=None, fromImage=False):
     if page != None:
+      ## check if logged in
+      if self.IsNotLoggedIn(page):
+        raise PixivModelException('Not Logged In!', errorCode=100)
+      
       ## detect if artist exist
       if self.IsUserNotExist(page):
         raise PixivModelException('User ID not exist/deleted!', errorCode=1001)
@@ -106,6 +110,11 @@ class PixivArtist:
             return True
     else :
       return False
+  def IsNotLoggedIn(self, page):
+    check = page.findAll('a', attrs={'class':'signup_button'})
+    if check != None and len(check) > 0:
+      return True
+    return False
   
   def IsUserNotExist(self, page):
     errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
@@ -164,6 +173,8 @@ class PixivImage:
     self.artist = parent
     if page != None:
       ## check is error page
+      if self.IsNotLoggedIn(page):
+        raise PixivModelException('Not Logged In!', errorCode=100)
       if self.IsErrorPage(page):
         raise PixivModelException('An error occurred!', errorCode=2001)
       if self.IsNeedPermission(page):
@@ -193,6 +204,12 @@ class PixivImage:
       #if iid == self.imageId:
       #  print 'image_id OK'
 
+  def IsNotLoggedIn(self, page):
+    check = page.findAll('a', attrs={'class':'signup_button'})
+    if check != None and len(check) > 0:
+      return True
+    return False
+    
   def IsErrorPage(self, page):
     errorMessage = 'エラーが発生しました'
     return self.HaveString(page, errorMessage)
@@ -260,9 +277,10 @@ class PixivImage:
     temp = page.find(attrs={'class':'tags'})
     if temp != None and len(temp) > 0:
       temp2 = temp.findAll('a')
-      for tag in temp2:
-        if not tag.string == None:
-          self.imageTags.append(unicode(tag.string))
+      if temp2 != None and len(temp2) > 0:
+        for tag in temp2:
+          if not tag.string == None:
+            self.imageTags.append(unicode(tag.string))
 
   def PrintInfo(self):
     PixivHelper.safePrint( 'Image Info')

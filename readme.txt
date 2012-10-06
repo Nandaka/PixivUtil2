@@ -58,6 +58,7 @@ A.Usage:
       - Check your password.
       - Try to login to the Pixiv Website.
       - Try to use the config.ini on the [Authentication] section.
+      - Check your date and time setting (e.g.: http://www.timeanddate.com/)
       - Disable Daylight Saving Time and try again.
 
 B.Bugs/Source Code/Supports:

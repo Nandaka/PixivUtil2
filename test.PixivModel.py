@@ -87,6 +87,15 @@ class TestPixivArtist(unittest.TestCase):
       self.assertEqual(ex.exception.errorCode, 1002)
       page.decompose()
       del page
+
+    def testPixivArtistNotLoggedIn(self):
+      p = open('./test/test-member-nologin.htm', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivModelException) as ex:
+          PixivArtist(143229, page)
+      self.assertEqual(ex.exception.errorCode, 100)
+      page.decompose()
+      del page
       
 class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):
@@ -229,6 +238,16 @@ class TestPixivImage(unittest.TestCase):
       imageId = urls[0].split('/')[-1].split('.')[0]
       #print 'imageId:',imageId
       self.assertEqual(imageId, '20592252_big_p0')
+
+    def testPixivImageNoLogin(self):
+      #print '\nTesting not logged in'
+      p = open('./test/test-image-nologin.htm', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+          image = PixivImage(9138317, page)
+          self.assertRaises(PixivModelException)
+      except PixivModelException as ex:
+          self.assertEqual(ex.errorCode, 100)
       
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):

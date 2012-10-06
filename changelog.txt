@@ -1,3 +1,7 @@
+20121006
+- Fix unbound variable error.
+- Update parser to check if user logged in.
+
 20120929
 - Update medium image parser to handle no tags.
 
