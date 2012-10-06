@@ -468,7 +468,9 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                             return
                         retryCount = retryCount + 1
                         print "Stuff happened, trying again after 2 second (", retryCount,")"
-                        print ex
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        traceback.print_exception(exc_type, exc_value, exc_traceback)
+                        __log__.exception('Error at processMember(): ' + str(sys.exc_info()) + ' Member Id: ' + str(member_id))
                         time.sleep(2)
 
                 noOfImages = noOfImages + 1
