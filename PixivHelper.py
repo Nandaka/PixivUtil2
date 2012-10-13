@@ -164,21 +164,23 @@ def clearScreen():
   else:
     subprocess.call('clear', shell=True)
 
-def startIrfanView(dfilename, irfanViewPath):
+def startIrfanView(_config, dfilename, irfanViewPath):
   print 'starting IrfanView...'
   if os.path.exists(dfilename):
     ivpath = irfanViewPath + os.sep + 'i_view32.exe' #get first part from config.ini
     ivpath = ivpath.replace('\\\\', '\\')
     ivpath = ivpath.replace('\\', os.sep)
     info = None
-    if IrfanSlide == True:
+    if _config.startIrfanSlide == True:
       info = subprocess.STARTUPINFO()
       info.dwFlags = 1
       info.wShowWindow = 6 #start minimized in background (6)
       ivcommand = ivpath + ' /slideshow=' + dfilename
+      Logger.info(ivcommand)
       subprocess.Popen(ivcommand)
-    if IrfanView == True:
+    elif _config.startIrfanView == True:
       ivcommand = ivpath + ' /filelist=' + dfilename
+      Logger.info(ivcommand)
       subprocess.Popen(ivcommand, startupinfo=info)
   else:
     print 'could not load', dfilename

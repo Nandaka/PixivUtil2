@@ -1,4 +1,5 @@
-#!/usr/bin/python # -*- coding: UTF-8 -*-
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
 import sys
 import os
 import re
@@ -1441,7 +1442,7 @@ def main():
                     PixivHelper.clearScreen()
                     print "Restarting..."
             if iv == True: #Yavos: adding IrfanView-handling
-                PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath)
+                PixivHelper.startIrfanView(__config__, dfilename, __config__.IrfanViewPath)
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)

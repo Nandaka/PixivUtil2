@@ -1,3 +1,6 @@
+20121013
+- Fix irfanView slide show.
+
 20121006
 - Fix unbound variable error.
 - Update parser to check if user logged in.
