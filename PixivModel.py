@@ -220,7 +220,8 @@ class PixivImage:
   
   def IsNeedPermission(self, page):
     errorMessage = 'この作品は、.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています'
-    return self.HaveString(page, errorMessage)
+    errorMessage2 = 'This work is viewable only for users who are in .+\'s My pixiv list'
+    return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
 
   def IsDeleted(self, page):
     errorMessage = '該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。'
@@ -229,7 +230,8 @@ class PixivImage:
 
   def IsGuroDisabled(self, page):
     errorMessage = '表示されるページには、18歳未満の方には不適切な表現内容が含まれています。'
-    return self.HaveString(page, errorMessage)
+    errorMessage2 = 'The page you are trying to access contains content that may be unsuitable for minors'
+    return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
 
   def IsErrorExist(self, page):
     check = page.findAll('span', attrs={'class':'error'})

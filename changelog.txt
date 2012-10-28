@@ -1,3 +1,6 @@
+20121028
+- Update error message detection for MyPick and Ero/Guro page.
+
 20121013
 - Fix irfanView slide show.
 

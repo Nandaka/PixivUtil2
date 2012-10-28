@@ -268,9 +268,46 @@ class TestMyPickPage(unittest.TestCase):
             image = PixivImage(12467674,page)
         
             self.assertRaises(PixivModelException)
-        except PixivModelException:
-            pass
+        except PixivModelException as ex:
+            self.assertEqual(ex.errorCode, 2002)
 
+    def testMyPickPageEng(self):
+        try:
+            br = Browser()
+            path = 'file:///' + os.path.abspath('./test/test-image-my_pick-e.html').replace(os.sep,'/')
+            p = br.open(path, 'r')
+            page = BeautifulSoup(p.read())
+            image = PixivImage(28688383,page)
+        
+            self.assertRaises(PixivModelException)
+        except PixivModelException as ex:
+            self.assertEqual(ex.errorCode, 2002)
+
+    def testGuroPageEng(self):
+        try:
+            br = Browser()
+            path = 'file:///' + os.path.abspath('./test/test-image-guro-e.html').replace(os.sep,'/')
+            p = br.open(path, 'r')
+            page = BeautifulSoup(p.read())
+            image = PixivImage(31111130,page)
+        
+            self.assertRaises(PixivModelException)
+        except PixivModelException as ex:
+            self.assertEqual(ex.errorCode, 2005)
+
+    def testEroPageEng(self):
+        try:
+            br = Browser()
+            path = 'file:///' + os.path.abspath('./test/test-image-ero-e.html').replace(os.sep,'/')
+            p = br.open(path, 'r')
+            page = BeautifulSoup(p.read())
+            image = PixivImage(31115956,page)
+        
+            self.assertRaises(PixivModelException)
+        except PixivModelException as ex:
+            self.assertEqual(ex.errorCode, 2005)
+
+            
 class TestPixivTags(unittest.TestCase):
     ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
