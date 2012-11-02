@@ -257,7 +257,9 @@ class PixivImage:
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
     self.imageTitle = unicode(page.find(attrs={'class':'title'}).string)
-    self.imageCaption = unicode(page.find(attrs={'class':'caption'}).string);
+    caption = page.find(attrs={'class':'caption'})
+    if caption != None :
+      self.imageCaption = unicode(caption.string);
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
     self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)
