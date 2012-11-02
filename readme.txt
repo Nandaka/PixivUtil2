@@ -235,6 +235,8 @@ usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
                     separated by new line.
 tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
+writeimageinfo  ==> set to 'True' to export the image information to text file.
+                    The filename is following the image filename + .txt.
 
 =================================================================================
 = list.txt Format                                                               =

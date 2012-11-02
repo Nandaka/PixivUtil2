@@ -661,7 +661,10 @@ def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir
                         printAndLog('error', 'Giving up url: '+str(img))
                         __log__.exception('Error when downloadImage(): ' +str(img))
                     print ''
-                    
+
+            if __config__.writeImageInfo:
+                image.WriteInfo(filename + ".txt")
+                
         ## Only save to db if all images is downloaded completely
         if result == 0 :
             try:

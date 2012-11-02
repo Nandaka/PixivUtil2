@@ -158,6 +158,7 @@ class PixivImage:
   artist     = None
   imageId    = 0
   imageTitle = ""
+  imageCaption = ""
   imageTags  = []
   imageMode  = ""
   imageUrls  = []
@@ -256,6 +257,7 @@ class PixivImage:
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
     self.imageTitle = unicode(page.find(attrs={'class':'title'}).string)
+    self.imageCaption = unicode(page.find(attrs={'class':'caption'}).string);
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
     self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)
@@ -288,6 +290,7 @@ class PixivImage:
     PixivHelper.safePrint( 'Image Info')
     PixivHelper.safePrint( 'img id: ' + str(self.imageId))
     PixivHelper.safePrint( 'title : ' + self.imageTitle)
+    PixivHelper.safePrint( 'caption : ' + self.imageCaption)
     PixivHelper.safePrint( 'mode  : ' + self.imageMode)
     PixivHelper.safePrint( 'tags  :')
     PixivHelper.safePrint( ', '.join(self.imageTags))
@@ -338,7 +341,23 @@ class PixivImage:
       urls.append(temp)
       temp = str(img)
       urls.append(temp)
-    return urls    
+    return urls
+
+  def WriteInfo(self, filename):
+    info = codecs.open(filename, 'wb', encoding='utf-8')
+    info.write("ArtistID   = " + str(self.artist.artistId) + "\r\n")
+    info.write("ArtistName = " + self.artist.artistName + "\r\n")
+    info.write("ImageID    = " + str(self.imageId) + "\r\n")
+    info.write("Title      = " + self.imageTitle + "\r\n")
+    info.write("Caption    = " + self.imageCaption + "\r\n")
+    info.write("Tags       = " + ", ".join(self.imageTags) + "\r\n")
+    info.write("Image Mode = " + self.imageMode + "\r\n")
+    info.write("Pages      = " + str(self.imageCount) + "\r\n")
+    info.write("Date       = " + self.worksDate + "\r\n")
+    info.write("Resolution = " + self.worksResolution + "\r\n")
+    info.write("Tools      = " + self.worksTools + "\r\n")
+    info.write("Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
+    info.close()
 
 class PixivModelException(Exception):
   errorCode = 0

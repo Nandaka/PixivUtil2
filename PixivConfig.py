@@ -51,6 +51,7 @@ class PixivConfig:
     useSuppressTags = False
     tagsLimit = -1
     useSSL = False
+    writeImageInfo = False
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -272,6 +273,13 @@ class PixivConfig:
                 self.useSSL = False
                 print "useSSL = False"                              
                 haveError = True
+
+            try:
+                self.writeImageInfo = config.getboolean('Settings','writeImageInfo')
+            except ValueError:
+                self.writeImageInfo = False
+                print "writeImageInfo = False"                              
+                haveError = True
             
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
@@ -330,6 +338,7 @@ class PixivConfig:
         config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
+        config.set('Settings', 'writeImageInfo', self.writeImageInfo)        
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -389,6 +398,7 @@ class PixivConfig:
         print ' - useBlacklistTags =', self.useBlacklistTags
         print ' - useSuppressTags =', self.useSuppressTags
         print ' - tagsLimit =', self.tagsLimit
+        print ' - writeImageInfo =', self.writeImageInfo
         
         print ' [Pixiv]'
         print ' - number_of_page =', self.numberOfPage
