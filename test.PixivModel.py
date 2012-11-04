@@ -13,7 +13,7 @@ class TestPixivArtist(unittest.TestCase):
       page = BeautifulSoup(p.read())
       try:
         artist = PixivArtist(363073, page)
-        #artist.PrintInfo()
+        artist.PrintInfo()
       except PixivModelException as ex:
         print ex
       page.decompose()
@@ -96,6 +96,20 @@ class TestPixivArtist(unittest.TestCase):
       self.assertEqual(ex.exception.errorCode, 100)
       page.decompose()
       del page
+
+    def testPixivArtistBookmark(self):
+      #print '\nTesting member page'
+      p = open('./test/test-member-bookmark.htm', 'r')
+      page = BeautifulSoup(p.read())
+      try:
+        artist = PixivArtist(3281699, page)
+        artist.PrintInfo()
+      except PixivModelException as ex:
+        print ex
+      page.decompose()
+      del page
+      self.assertNotEqual(artist, None)
+      self.assertEqual(artist.artistId, 3281699)
       
 class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):

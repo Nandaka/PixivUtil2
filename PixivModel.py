@@ -99,8 +99,14 @@ class PixivArtist:
     if temp == None or len(temp) == 0:
       raise PixivModelException('No image found!')
     for item in temp:
-      href = re.search('illust_id=(\d+)', str(item)).group(1)
-      self.imageList.append(int(href))
+      #print item
+      href = re.search('member_illust.php.*illust_id=(\d+)', str(item))
+      if href != None:
+        #print href.group(0)
+        href = href.group(1)
+        self.imageList.append(int(href))
+    ## Remove duplicates
+    ##self.imageList = list(set(self.imageList))
 
   def HaveString(self, page, string):
     pattern = re.compile(string)
@@ -151,7 +157,7 @@ class PixivArtist:
     PixivHelper.safePrint('token : ' + self.artistToken)
     PixivHelper.safePrint('urls  : ')
     for item in self.imageList:
-      PixivHelper.safePrint('\t' + item)
+      PixivHelper.safePrint('\t' + str(item))
     
 class PixivImage:
   '''Class for parsing image page, including manga page and big image.'''
@@ -257,7 +263,9 @@ class PixivImage:
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
     self.imageTitle = unicode(page.find(attrs={'class':'title'}).string)
-    self.imageCaption = unicode(page.find(attrs={'class':'caption'}).string);
+    caption = page.find(attrs={'class':'caption'})
+    if caption != None:
+      self.imageCaption = unicode(caption.string)
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
     self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)

@@ -377,7 +377,7 @@ def processList(mode):
         __log__.exception('Error at processList(): ' + str(sys.exc_info()))
         raise
 
-def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added dir-argument which will be initialized as '' when not given
+def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False): #Yavos added dir-argument which will be initialized as '' when not given
     printAndLog('info','Processing Member Id: ' + str(member_id))
     if page != 1:
         printAndLog('info', 'Start Page: ' + str(page))
@@ -398,7 +398,12 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
             ## Try to get the member page
             while True:
                 try:
-                    listPage = __br__.open('http://www.pixiv.net/member_illust.php?id='+str(member_id)+'&p='+str(page))
+                    if bookmark:
+                        memberUrl = 'http://www.pixiv.net/bookmark.php?id='+str(member_id)+'&p='+str(page)
+                    else:
+                        memberUrl = 'http://www.pixiv.net/member_illust.php?id='+str(member_id)+'&p='+str(page)
+                    print memberUrl
+                    listPage = __br__.open(memberUrl)
                     artist = PixivArtist(mid=member_id, page=BeautifulSoup(listPage.read()))
                     break
                 except PixivModelException as ex:
@@ -459,7 +464,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                 retryCount = 0
                 while True :
                     try:
-                        processImage(mode, artist, image_id, userDir) #Yavos added dir-argument to pass
+                        processImage(mode, artist, image_id, userDir, bookmark) #Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except KeyboardInterrupt:
@@ -517,7 +522,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
             printAndLog('error', 'Cannot dump page for member_id:'+str(member_id))
         raise
 
-def processImage(mode, artist=None, image_id=None, userDir=''): #Yavos added dir-argument which will be initialized as '' when not given
+def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): #Yavos added dir-argument which will be initialized as '' when not given
     parseBigImage = None
     mediumPage = None
     viewPage = None
@@ -1047,6 +1052,7 @@ def menu():
     print '8. Download new illust from bookmark'
     print '9. Download by Title/Caption'
     print '10. Download by Tag and Member Id'
+    print '11. Download Member Bookmark'
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export online bookmark'
@@ -1071,6 +1077,23 @@ def menuDownloadByMemberId(mode, opisvalid, args):
         (page, endPage) = getStartAndEndNumber()
         processMember(mode, member_id.strip(), page=page, endPage=endPage)
 
+def menuDownloadByMemberBookmark(mode, opisvalid, args):
+    __log__.info('Member Bookmark mode.')
+    page = 1
+    endPage = 0
+    if opisvalid and len(args) > 0:
+        for member_id in args:
+            try:
+                testID = int(member_id)
+            except:
+                print "ID", member_id, "is not valid"
+                continue
+            processMember(mode, int(member_id))
+    else:
+        member_id = raw_input('Member id: ')
+        (page, endPage) = getStartAndEndNumber()
+        processMember(mode, member_id.strip(), page=page, endPage=endPage, bookmark=True)
+        
 def menuDownloadByImageId(mode, opisvalid, args):
     __log__.info('Image id mode.')
     if opisvalid and len(args) > 0:
@@ -1261,6 +1284,7 @@ def main():
                            '8 - Download new illust from bookmark                    ' +
                            '9 - Download by Title/Caption                            ' +
                            '10 - Download by Tag and Member Id                       ' +
+                           '11 - Download Member Bookmark                            ' +
                            'e - Export online bookmark                               ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
@@ -1273,7 +1297,7 @@ def main():
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'd', 'e'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e'):
         opisvalid = True
     elif op == None:
         opisvalid = False
@@ -1424,6 +1448,8 @@ def main():
                         menuDownloadByTitleCaption(mode, opisvalid, args)
                     elif selection == '10':
                         menuDownloadByTagAndMemberId(mode, opisvalid, args)
+                    elif selection == '11':
+                        menuDownloadByMemberBookmark(mode, opisvalid, args)
                     elif selection == 'e':
                         menuExportOnlineBookmark(mode, opisvalid, args)
                     elif selection == 'd':
