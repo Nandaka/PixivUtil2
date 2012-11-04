@@ -625,4 +625,3 @@ class PixivTags:
           l.append(PixivHelper.toUnicode(line))
     reader.close()
     return l
-  

@@ -639,7 +639,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): 
                     else: #Yavos: use filename from list
                         targetDir = userDir
 
-                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url)
+                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark)
                     filename = PixivHelper.sanitizeFilename(filename, targetDir)
                     
                     if image.imageMode == 'manga' and __config__.createMangaDir :

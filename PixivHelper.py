@@ -78,7 +78,7 @@ def sanitizeFilename(s, rootDir=None):
 
   return name.strip()
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True):
+def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True, bookmark=False):
   '''Build the filename from given info to the given format.'''
   if artistInfo == None:
     artistInfo = imageInfo.artist
@@ -114,9 +114,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
       page_number = page_number.zfill(padding)
     if fileUrl.find('_big') > -1 or not fileUrl.find('_m') > -1:
       page_big = 'big'
-  nameFormat = nameFormat.replace('%page_big%',page_big)
-  nameFormat = nameFormat.replace('%page_index%',page_index)
-  nameFormat = nameFormat.replace('%page_number%',page_number)
+  nameFormat = nameFormat.replace('%page_big%', page_big)
+  nameFormat = nameFormat.replace('%page_index%', page_index)
+  nameFormat = nameFormat.replace('%page_number%', page_number)
   
   if tagsSeparator == '%space%':
     tagsSeparator = ' '
@@ -129,9 +129,13 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     r18Dir = "R-18G"
   elif "R-18" in imageInfo.imageTags:
     r18Dir = "R-18"  
-  nameFormat = nameFormat.replace('%R-18%',r18Dir)
-  nameFormat = nameFormat.replace('%tags%',tags.replace(os.sep,'_'))
-  nameFormat = nameFormat.replace('&#039;','\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
+  nameFormat = nameFormat.replace('%R-18%', r18Dir)
+  nameFormat = nameFormat.replace('%tags%', tags.replace(os.sep,'_'))
+  nameFormat = nameFormat.replace('&#039;', '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
+  if bookmark:
+    nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
+  else:
+    nameFormat = nameFormat.replace('%bookmark%', '')
 
   ## clean up double space
   while nameFormat.find('  ') > -1:
