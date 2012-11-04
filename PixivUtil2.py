@@ -403,6 +403,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0): #Yavos added 
                     break
                 except PixivModelException as ex:
                     printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
+                    dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
                     if ex.errorCode == 1001 or ex.errorCode == 1002:
                         __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
                         printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
