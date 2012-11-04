@@ -162,6 +162,7 @@ class PixivArtist:
 class PixivImage:
   '''Class for parsing image page, including manga page and big image.'''
   artist     = None
+  originalArtist  = None
   imageId    = 0
   imageTitle = ""
   imageCaption = ""
@@ -175,9 +176,12 @@ class PixivImage:
   jd_rtc = 0
   jd_rtt = 0
   imageCount = 0
+  fromBookmark = False
 
-  def __init__(self, iid=0, page=None, parent=None):
+  def __init__(self, iid=0, page=None, parent=None, fromBookmark=False):
     self.artist = parent
+    self.fromBookmark = fromBookmark
+      
     if page != None:
       ## check is error page
       if self.IsNotLoggedIn(page):
@@ -201,6 +205,9 @@ class PixivImage:
       ## parse artist information
       if self.artist == None:
         self.artist = PixivArtist(page=page, fromImage=True)
+
+      if fromBookmark and self.originalArtist == None:
+        self.originalArtist = PixivArtist(page=page, fromImage=True)
 
       ## parse image information
       self.ParseInfo(page)

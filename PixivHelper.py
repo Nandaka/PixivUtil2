@@ -134,8 +134,14 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('&#039;', '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
   if bookmark:
     nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
+    nameFormat = nameFormat.replace('%original_member_id%', str(imageInfo.originalArtist.artistId))
+    nameFormat = nameFormat.replace('%original_member_token%', imageInfo.originalArtist.artistToken)
+    nameFormat = nameFormat.replace('%original_artist%', imageInfo.originalArtist.artistName.replace(os.sep,'_'))
   else:
     nameFormat = nameFormat.replace('%bookmark%', '')
+    nameFormat = nameFormat.replace('%original_member_id%', str(artistInfo.artistId))
+    nameFormat = nameFormat.replace('%original_member_token%', artistInfo.artistToken)
+    nameFormat = nameFormat.replace('%original_artist%',artistInfo.artistName.replace(os.sep,'_'))
 
   ## clean up double space
   while nameFormat.find('  ') > -1:

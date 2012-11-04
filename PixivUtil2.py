@@ -543,7 +543,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): 
             try :
                 mediumPage = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id='+str(image_id))
                 parseMediumPage = BeautifulSoup(mediumPage.read())
-                image = PixivImage(iid=image_id, page=parseMediumPage, parent=artist)
+                image = PixivImage(iid=image_id, page=parseMediumPage, parent=artist, fromBookmark=bookmark)
                 setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
                 parseMediumPage.decompose()
                 del parseMediumPage
