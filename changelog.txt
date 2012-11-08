@@ -1,3 +1,11 @@
+20121108
+- Add feature for download member's bookmarked images.
+- Add new filename format for member's bookmark mode.
+  - %bookmark% ==> for bookmark mode, add 'Bookmarks' string.
+  - %original_member_id%    ==> for bookmark mode, put original member id.
+  - %original_member_token% ==> for bookmark mode, put original member token.
+  - %original_artist%       ==> for bookmark mode, put original artist name.
+
 20121102
 - Add feature to export image information to text file. 
   - Set writeimageinfo = True to use.

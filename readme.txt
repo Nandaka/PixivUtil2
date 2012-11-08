@@ -43,7 +43,7 @@
 = FAQs:                                                                         =
 =================================================================================
 A.Usage:
-  Q1. How to paste tags to the console?
+  Q1. How to paste japanese tags to the console window?
       - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if 
         it show up as question mark -> Change the Language for non-Unicode 
         program to Japanese (google it).
@@ -128,6 +128,8 @@ C.Log Messages:
                             (required: followed by title/caption)
 			10 - Download by Tag and Member Id
 			    (required: followed a member_id and tags)
+                        11 - Download Member's Bookmarked Images
+                            (required: followed by member_ids separated by space)
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 
@@ -191,6 +193,13 @@ filenameformat ==> The format for the filename, reserved/illegal character will
 	        -> %page_big%     ==> for manga mode, add big in the filename.
 	        -> %page_index%   ==> for manga mode, add page number with 0-index.
 	        -> %page_number%  ==> for manga mode, add page number with 1-index.
+	        -> %bookmark%     ==> for bookmark mode, add 'Bookmarks' string.
+	        -> %original_member_id%    ==> for bookmark mode, put original member
+                                               id.
+	        -> %original_member_token% ==> for bookmark mode, put original member 
+                                               token.
+	        -> %original_artist%       ==> for bookmark mode, put original artist
+                                               name.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
