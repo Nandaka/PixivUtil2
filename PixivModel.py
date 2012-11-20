@@ -186,8 +186,6 @@ class PixivImage:
       ## check is error page
       if self.IsNotLoggedIn(page):
         raise PixivModelException('Not Logged In!', errorCode=100)
-      if self.IsErrorPage(page):
-        raise PixivModelException('An error occurred!', errorCode=2001)
       if self.IsNeedPermission(page):
         raise PixivModelException('Not in MyPick List, Need Permission!', errorCode=2002)
       if self.IsNeedAppropriateLevel(page):
@@ -196,6 +194,10 @@ class PixivImage:
         raise PixivModelException('Image not found/already deleted!', errorCode=2004)
       if self.IsGuroDisabled(page):
         raise PixivModelException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=2005)
+
+      # check if there is any other error
+      if self.IsErrorPage(page):
+        raise PixivModelException('An error occurred!', errorCode=2001)
 
       ## detect if there is any other error
       errorMessage = self.IsErrorExist(page)
@@ -225,8 +227,15 @@ class PixivImage:
     return False
     
   def IsErrorPage(self, page):
-    errorMessage = 'エラーが発生しました'
-    return self.HaveString(page, errorMessage)
+    ##errorMessage = 'エラーが発生しました'
+    ##return self.HaveString(page, errorMessage)
+    check = page.findAll('span', attrs={'class':'error'})
+    if len(check) > 0:
+      check2 = page.findAll('strong')
+      if len(check2) > 0:
+        return check2[0].renderContents()
+      return check[0].renderContents()
+    return None
 
   def IsNeedAppropriateLevel(self, page):
     errorMessage = '該当作品の公開レベルにより閲覧できません。'

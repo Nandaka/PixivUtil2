@@ -1,3 +1,6 @@
+20121121
+- Update error detection for image page.
+
 20121108
 - Add feature for download member's bookmarked images.
 - Add new filename format for member's bookmark mode.

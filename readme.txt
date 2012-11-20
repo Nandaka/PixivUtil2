@@ -308,6 +308,7 @@ member_id2 directory2
 - This file will be used as source for Download from tags list (7)
 - Separate tags with space.
 - Each line will be treated as one search.
+- Save the files with UTF-8 encoding
 
 =================================================================================
 = suppress_tags.txt Format                                                      =
@@ -315,6 +316,7 @@ member_id2 directory2
 - This file is used for suppressing the tags from being used in %tags%.
 - If matches, the tags will be removed from filename.
 - Each line is one tag only.
+- Save the files with UTF-8 encoding
 
 =================================================================================
 = blacklist_tags.txt Format                                                     =
@@ -322,6 +324,7 @@ member_id2 directory2
 - This file is used for tag blacklist checking for downloading image.
 - If matches, the image will be skipped.
 - Each line is one tag only.
+- Save the files with UTF-8 encoding
 
 =================================================================================
 = Credits                                                                       =
