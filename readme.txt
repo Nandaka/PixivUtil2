@@ -151,7 +151,8 @@ usessl   ==> Use secure form (https://ssl.pixiv.net/login.php).
 
 [Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
-formorder    ==> Pixiv login form order, do not change.
+r18mode      ==> Only list images tagged R18, for member and member's bookmark.
+                 Set to 'True' to apply.
 
 [Settings]
 userobots      ==> Download robots.txt for mechanize.

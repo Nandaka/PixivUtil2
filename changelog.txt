@@ -1,5 +1,8 @@
-20121121
+20121124
 - Update error detection for image page.
+- Add R18 mode only for member/member's bookmarks download.
+  - Set r18mode = True to apply.
+- Fix page limit detection.
 
 20121108
 - Add feature for download member's bookmarked images.

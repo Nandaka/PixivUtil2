@@ -385,6 +385,10 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
         printAndLog('info', 'End Page: ' + str(endPage))
         if __config__.numberOfPage != 0:
             printAndLog('info', 'Number of page setting will be ignored')
+    elif np != 0:
+        printAndLog('info', 'End Page from command line: ' + str(np))
+    elif __config__.numberOfPage != 0:
+        printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
         
     __config__.loadConfig()
     try:
@@ -402,7 +406,10 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                         memberUrl = 'http://www.pixiv.net/bookmark.php?id='+str(member_id)+'&p='+str(page)
                     else:
                         memberUrl = 'http://www.pixiv.net/member_illust.php?id='+str(member_id)+'&p='+str(page)
-                    print memberUrl
+                    if __config__.r18mode:
+                        memberUrl = memberUrl + '&tag=R-18'
+                        printAndLog('info', 'R-18 Mode only.')
+                    printAndLog('info', 'Member Url: ' + memberUrl)
                     listPage = __br__.open(memberUrl)
                     artist = PixivArtist(mid=member_id, page=BeautifulSoup(listPage.read()))
                     break
@@ -481,23 +488,26 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                         time.sleep(2)
 
                 noOfImages = noOfImages + 1
-            
-            if endPage != 0 and page >= endPage:
-                print "Page limit reached"
-                flag = False
-            else:
-                if npisvalid == True: #Yavos: overwriting config-data
-                    if page > np and np != 0:
-                        flag = False
-                elif page > __config__.numberOfPage and __config__.numberOfPage != 0 :
-                    flag = False
 
             if artist.isLastPage:
                 print "Last Page"
                 flag = False
-                            
+            
             page = page + 1
             
+            ## page limit checking
+            if endPage > 0 and page >= endPage:
+                print "Page limit reached (from endPage limit =" + str(endPage) + ")"
+                flag = False
+            else:
+                if npisvalid == True: #Yavos: overwriting config-data
+                    if page > np and np > 0:
+                        print "Page limit reached (from command line =" + str(np) + ")"
+                        flag = False
+                elif page > __config__.numberOfPage and __config__.numberOfPage > 0 :
+                    print "Page limit reached (from config =" + str(__config__.numberOfPage) + ")"
+                    flag = False
+
             del artist
             del listPage
             __br__.clear_history()
@@ -973,6 +983,7 @@ def getStartAndEndNumber(startOnly=False):
         endPageNum = np
     else:
         endPageNum = __config__.numberOfPage
+        
     if not startOnly:
         endPageNum = raw_input('End Page (default='+ str(endPageNum) +', 0 for no limit): ') or endPageNum
         try:
@@ -1001,6 +1012,7 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
         endPageNum = np
     else:
         endPageNum = __config__.numberOfPage
+        
     if not startOnly:
         if len(args) > 1+offset:
             try:

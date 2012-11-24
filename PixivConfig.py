@@ -52,6 +52,7 @@ class PixivConfig:
     tagsLimit = -1
     useSSL = False
     writeImageInfo = False
+    r18mode = False
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -118,6 +119,13 @@ class PixivConfig:
             except ValueError:
                 print "useList = False"
                 self.useList = False
+                haveError = True
+
+            try:
+                self.r18mode = config.getboolean('Pixiv','r18mode')
+            except ValueError:
+                print "r18mode = False"
+                self.r18mode = False
                 haveError = True
                 
             _useragent = config.get('Settings','useragent')
@@ -346,6 +354,7 @@ class PixivConfig:
         config.set('Authentication', 'useSSL', self.useSSL)
         
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
+        config.set('Pixiv', 'R18Mode', self.r18mode)
 
         try:
             ##with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
@@ -401,5 +410,5 @@ class PixivConfig:
         print ' - writeImageInfo =', self.writeImageInfo
         
         print ' [Pixiv]'
-        print ' - number_of_page =', self.numberOfPage
-        
+        print ' - numberOfPage =', self.numberOfPage
+        print ' - R18Mode =', self.r18mode
