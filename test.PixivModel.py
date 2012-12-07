@@ -110,6 +110,14 @@ class TestPixivArtist(unittest.TestCase):
       del page
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 3281699)
+
+    def testPixivArtistNoImage(self):
+      #print '\nTesting member page'
+      p = open('./test/test-member-no-images.htm', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivModelException) as ex:
+          artist = PixivArtist(2252, page)
+      self.assertEqual(ex.exception.errorCode, 1004)
       
 class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):

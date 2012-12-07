@@ -415,15 +415,18 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                     break
                 except PixivModelException as ex:
                     printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
-                    dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
-                    if ex.errorCode == 1001 or ex.errorCode == 1002:
-                        __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
-                        printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
-                        #__dbManager__.deleteMemberByMemberId(member_id)
-                        #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
-                    if ex.errorCode == 1003:
+                    if ex.errorCode == 1004:
                         PixivHelper.safePrint(ex.message)
-                        raw_input('New Error Message, please inform the developer. Press enter to continue.')
+                    else:
+                        dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
+                        if ex.errorCode == 1001 or ex.errorCode == 1002:
+                            __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
+                            printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
+                            #__dbManager__.deleteMemberByMemberId(member_id)
+                            #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
+                        if ex.errorCode == 1003:
+                            PixivHelper.safePrint(ex.message)
+                            raw_input('New Error Message, please inform the developer. Press enter to continue.')
                     return
                 except Exception as ue:
                     print ue
