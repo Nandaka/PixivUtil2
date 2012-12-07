@@ -1,3 +1,9 @@
+20121208
+- Update no image detection for member
+- Fix issue #14: ignore showcase for download by tag 
+- Fix issue #15: Update query for search by tag
+- Add R-18 mode in search by tag 
+
 20121124
 - Update error detection for image page.
 - Add R18 mode only for member/member's bookmarks download.

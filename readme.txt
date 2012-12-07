@@ -151,7 +151,8 @@ usessl   ==> Use secure form (https://ssl.pixiv.net/login.php).
 
 [Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
-r18mode      ==> Only list images tagged R18, for member and member's bookmark.
+r18mode      ==> Only list images tagged R18, for member, member's bookmark,
+                 and search by tag.
                  Set to 'True' to apply.
 
 [Settings]

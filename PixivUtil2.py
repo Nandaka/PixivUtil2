@@ -416,7 +416,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                 except PixivModelException as ex:
                     printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
                     if ex.errorCode == 1004:
-                        PixivHelper.safePrint(ex.message)
+                        pass
                     else:
                         dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
                         if ex.errorCode == 1001 or ex.errorCode == 1002:
