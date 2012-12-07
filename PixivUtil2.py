@@ -764,8 +764,11 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                         url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p='+str(i)+'&word='+tags + dateParam
                         print "Using Wildcard (search.php)"
                     else:
-                        url = 'http://www.pixiv.net/tags.php?tag='+tags+'&p='+str(i) + dateParam
-                    
+                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word='+tags+'&p='+str(i) + dateParam
+
+            if __config__.r18mode:
+                url = url + '&r18=1'
+            
             printAndLog('info', 'Looping... for '+ url)
             searchPage = __br__.open(url)
 
