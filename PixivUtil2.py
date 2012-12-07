@@ -451,6 +451,11 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
             __dbManager__.updateMemberName(member_id, artist.artistName)
 
             updatedLimitCount = 0
+            if not artist.haveImages:
+                printAndLog('info', "No image found for: " + str(member_id))
+                flag = False
+                continue
+            
             for image_id in artist.imageList:
                 print '#'+ str(noOfImages)
                 if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
