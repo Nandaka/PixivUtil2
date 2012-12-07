@@ -566,11 +566,24 @@ class PixivTags:
     self.itemList = list()
 
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+
+    ## get showcase
+    ignore = list()
+    showcases = page.findAll('section', attrs={'class': 'showcase'})
+    for showcase in showcases:
+      lis = showcase.findAll('li', attrs={'class':'image'})
+      for li in lis:
+        if str(li).find('member_illust.php?') > -1:
+          image_id = __re_illust.findall(li.find('a')['href'])[0]
+          ignore.append(image_id)
+    
     ## new parse for bookmark items
     items = page.findAll('li', attrs={'class':'image'})
     for item in items:
       if str(item).find('member_illust.php?') > -1:
         image_id = __re_illust.findall(item.find('a')['href'])[0]
+        if image_id in ignore:
+          continue
         bookmarkCount = -1
         imageResponse = -1
         countList = item.find('ul', attrs={'class':'count-list'})

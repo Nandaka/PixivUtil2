@@ -439,7 +439,17 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.itemList[0].imageId, 1894295)
         self.assertEqual(image.itemList[9].imageId, 1804545)
         self.assertEqual(image.isLastPage, True)
-      
+        
+    def testTagsSkipShowcase(self):
+        br = Browser()
+        path = 'file:///' + os.path.abspath('./test/test-tags-search-skip-showcase.htm').replace(os.sep,'/')
+        p = br.open(path, 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivTags()
+        image.parseTags(page)        
+    
+        self.assertEqual(len(image.itemList), 20)
+        
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
     unittest.TextTestRunner(verbosity=5).run(suite)
