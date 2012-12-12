@@ -278,7 +278,11 @@ class PixivImage:
     temp = str(page.find(attrs={'class':'works_display'}).find('a')['href'])
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
-    self.imageTitle = unicode(page.find(attrs={'class':'title'}).string)
+    titles = page.findAll('h1', attrs={'class':'title'})
+    for title in titles:
+      if title.string != None and title.string != "pixiv":
+        self.imageTitle = unicode(title.string)
+        break
     caption = page.find(attrs={'class':'caption'})
     if caption != None:
       self.imageCaption = unicode(caption.string)
