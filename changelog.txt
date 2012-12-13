@@ -1,3 +1,6 @@
+20121213
+- Fix title and caption parsing
+
 20121208
 - Update no image detection for member
 - Fix issue #14: ignore showcase for download by tag 

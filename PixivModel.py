@@ -181,6 +181,7 @@ class PixivImage:
   def __init__(self, iid=0, page=None, parent=None, fromBookmark=False):
     self.artist = parent
     self.fromBookmark = fromBookmark
+    self.imageUrls = []
       
     if page != None:
       ## check is error page
@@ -283,9 +284,9 @@ class PixivImage:
       if title.string != None and title.string != "pixiv":
         self.imageTitle = unicode(title.string)
         break
-    caption = page.find(attrs={'class':'caption'})
-    if caption != None:
-      self.imageCaption = unicode(caption.string)
+    captions = page.findAll('p', attrs={'class':'caption'})
+    if captions != None and len(captions) > 0:
+       self.imageCaption = unicode("".join(unicode(item) for item in captions[0].contents))
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
     self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)

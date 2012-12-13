@@ -120,6 +120,26 @@ class TestPixivArtist(unittest.TestCase):
       self.assertEqual(ex.exception.errorCode, 1004)
       
 class TestPixivImage(unittest.TestCase):
+    def testPixivImageParseInfo(self):
+      p = open('./test/test-image-info.html', 'r')
+      page = BeautifulSoup(p.read())
+      image2 = PixivImage(32039274, page)
+      page.decompose()
+      del page
+
+      self.assertEqual(image2.imageId, 32039274)
+      self.assertEqual(image2.imageTitle, u"新しいお姫様")
+      self.assertEqual(image2.imageCaption, u'EXIT TUNES様より冬コミ発売予定の「MAYU画集(仮)」に１枚描かせて頂きました。詳しくはこちらをご確認下さい！★ <a href="/jump.php?http%3A%2F%2Fexittunes.com%2Fevent%2Fc83%2Findex.html" target="_blank">http://exittunes.com/event/c83/index.html</a> ★「MAYU」公式サイト<a href="/jump.php?http%3A%2F%2Fmayusan.jp%2F" target="_blank">http://mayusan.jp/</a>')
+      self.assertEqual(",".join(image2.imageTags), u"10点じゃ足りない,MAYU,VOCALOID,VOCALOID3,VOCALOID5000users入り,なにこれかわいい,やはり存在する斧")
+      self.assertEqual(image2.imageMode, "big")
+      self.assertEqual(image2.worksDate,'12-11-2012 00:23')
+      self.assertEqual(image2.worksResolution,'642x900')
+      self.assertEqual(image2.worksTools, 'Photoshop SAI')
+      self.assertEqual(image2.jd_rtv, 88190)
+      self.assertEqual(image2.jd_rtc, 6711)
+      self.assertEqual(image2.jd_rtt, 66470)
+      self.assertEqual(image2.artist.artistToken, 'nardack')
+
     def testPixivImageNoAvatar(self):
       #print '\nTesting artist page without avatar image'
       p = open('./test/test-image-noavatar.htm', 'r')
