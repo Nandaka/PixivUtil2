@@ -78,7 +78,7 @@ def sanitizeFilename(s, rootDir=None):
 
   return name.strip()
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True, bookmark=False):
+def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True, bookmark=False, searchTags=''):
   '''Build the filename from given info to the given format.'''
   if artistInfo == None:
     artistInfo = imageInfo.artist
@@ -99,6 +99,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('%works_res%',imageInfo.worksResolution)
   nameFormat = nameFormat.replace('%works_tools%',imageInfo.worksTools)
   nameFormat = nameFormat.replace('%urlFilename%',splittedUrl[0])
+  nameFormat = nameFormat.replace('%searchTags%',searchTags)
   
   ## get the page index & big mode if manga
   page_index = ''

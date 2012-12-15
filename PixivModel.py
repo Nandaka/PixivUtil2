@@ -312,7 +312,7 @@ class PixivImage:
       temp2 = temp.findAll('a')
       if temp2 != None and len(temp2) > 0:
         for tag in temp2:
-          if not tag.string == None:
+          if not tag.string == None and tag['class'] == 'text':
             self.imageTags.append(unicode(tag.string))
 
   def PrintInfo(self):

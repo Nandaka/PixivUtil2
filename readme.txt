@@ -202,6 +202,7 @@ filenameformat ==> The format for the filename, reserved/illegal character will
                                                token.
 	        -> %original_artist%       ==> for bookmark mode, put original artist
                                                name.
+	        -> %searchTags%   ==> for download by tags, put searched tags.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.

@@ -540,7 +540,8 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
             printAndLog('error', 'Cannot dump page for member_id:'+str(member_id))
         raise
 
-def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): #Yavos added dir-argument which will be initialized as '' when not given
+def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, searchTags=''):
+    #Yavos added dir-argument which will be initialized as '' when not given
     parseBigImage = None
     mediumPage = None
     viewPage = None
@@ -657,7 +658,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): 
                     else: #Yavos: use filename from list
                         targetDir = userDir
 
-                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark)
+                    filename = PixivHelper.makeFilename(filenameFormat, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark, searchTags=searchTags)
                     filename = PixivHelper.sanitizeFilename(filename, targetDir)
                     
                     if image.imageMode == 'manga' and __config__.createMangaDir :
@@ -732,7 +733,8 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False): 
 def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False, startDate=None, endDate=None, useTagsAsDir=False, member_id=None, bookmarkCount=None):
     try:
         __config__.loadConfig() ## Reset the config for root directory
-        
+
+        searchTags = tags
         decodedTags = tags
         if useTagsAsDir:
             print "Save to each directory using query tags."
@@ -802,7 +804,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                         continue
                     while True:
                         try:
-                            processImage(mode, None, item.imageId)
+                            processImage(mode, None, item.imageId, searchTags=searchTags)
                             break;
                         except httplib.BadStatusLine:
                             print "Stuff happened, trying again after 2 second..."

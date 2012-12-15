@@ -1,5 +1,7 @@
-20121213
-- Fix title and caption parsing
+20121215
+- Fix title, tags, and caption parsing.
+- Add new filename format for download by tags:
+  -%searchTags%  ==> for download by tags, add searched tag keyword.
 
 20121208
 - Update no image detection for member
