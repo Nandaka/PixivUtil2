@@ -734,24 +734,32 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
     try:
         __config__.loadConfig() ## Reset the config for root directory
 
-        searchTags = tags
-        decodedTags = tags
+        try:
+            if tags.startswith("%") :
+                searchTags = PixivHelper.toUnicode(urllib.unquote_plus(tags))
+            else:
+                searchTags = PixivHelper.toUnicode(tags)
+        except UnicodeDecodeError as ex:
+            ## From command prompt
+            searchTags = tags.decode(sys.stdout.encoding).encode("utf8")
+            searchTags = PixivHelper.toUnicode(searchTags)
+
         if useTagsAsDir:
             print "Save to each directory using query tags."
-            if tags.startswith("%"):
-                tags = tags.encode(sys.stdout.encoding)
-                decodedTags = urllib.unquote(tags).decode('utf8')
-                PixivHelper.safePrint( tags + '==>' + decodedTags)
-            __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(decodedTags)
-                
+            __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(searchTags)
+
         if not tags.startswith("%") :
             try:
                 ## Encode the tags
                 tags = tags.encode('utf-8')
-                tags = urllib.quote_plus(tags)#.decode(sys.stdout.encoding).encode("utf8"))
+                tags = urllib.quote_plus(tags)
             except UnicodeDecodeError as ex:
-                printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
-                __log__.exception('decodeTags()')
+                try:
+                    ## from command prompt
+                    tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
+                except UnicodeDecodeError as ex:
+                    printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
+                    __log__.exception('decodeTags()')
         i = page
         images = 1
 
@@ -761,7 +769,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
         if endDate != None:
             dateParam = dateParam + "&ecd=" + endDate
 
-        printAndLog('info', 'Searching for: ('+ decodedTags + ") " + tags + dateParam)
+        printAndLog('info', 'Searching for: ('+ searchTags + ") " + tags + dateParam)
         
         while True:
             if not member_id == None:
