@@ -140,6 +140,21 @@ C.Log Messages:
                         temporarily overwrites numberOfPage set in config.ini
 
 =================================================================================
+= error codes                                                                   =
+=================================================================================
+- 100  = Not Logged in.
+- 1001 = User ID not exist/deleted.
+- 1002 = User Account is Suspended.
+- 1003 = Unknown Member Error.
+- 1004 = No image found.
+- 2001 = Unknown Error in Image Page.
+- 2002 = Not in MyPick List, Need Permission.
+- 2003 = Public works can not be viewed by the appropriate level.
+- 2004 = Image not found/already deleted.
+- 2005 = Image is disabled for under 18, check your setting page (R-18/R-18G).
+- 2006 = Unknown Image Error.
+
+=================================================================================
 = config.ini                                                                    =
 =================================================================================
 [Authentication]
