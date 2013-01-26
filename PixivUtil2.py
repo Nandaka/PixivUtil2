@@ -504,7 +504,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
             page = page + 1
             
             ## page limit checking
-            if endPage > 0 and page >= endPage:
+            if endPage > 0 and page > endPage:
                 print "Page limit reached (from endPage limit =" + str(endPage) + ")"
                 flag = False
             else:

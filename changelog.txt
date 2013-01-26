@@ -1,3 +1,6 @@
+20130126
+- Fix end page limit.
+
 20121215
 - Fix title, tags, and caption parsing.
 - Add new filename format for download by tags:
