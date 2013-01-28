@@ -584,7 +584,7 @@ class PixivTags:
           ignore.append(image_id)
     
     ## new parse for bookmark items
-    items = page.findAll('li', attrs={'class':'image'})
+    items = page.findAll('li', attrs={'class':'image-item'})
     for item in items:
       if str(item).find('member_illust.php?') > -1:
         image_id = __re_illust.findall(item.find('a')['href'])[0]
