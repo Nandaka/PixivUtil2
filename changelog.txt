@@ -1,5 +1,6 @@
-20130126
+20130128
 - Fix end page limit.
+- Update parser for pixivArtist.
 
 20121215
 - Fix title, tags, and caption parsing.
