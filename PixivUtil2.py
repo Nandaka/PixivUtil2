@@ -429,7 +429,10 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                             raw_input('New Error Message, please inform the developer. Press enter to continue.')
                     return
                 except Exception as ue:
-                    print ue
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    traceback.print_exception(exc_type, exc_value, exc_traceback)
+                    printAndLog('error', 'Error at processing Artist Info: ' + str(sys.exc_info()))
+                    __log__.exception('Error at processing Artist Info: '+ str(member_id))
                     repeat = range(1,__config__.retryWait)
                     for t in repeat:
                         print t,

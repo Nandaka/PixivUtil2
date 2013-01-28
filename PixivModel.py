@@ -57,13 +57,14 @@ class PixivArtist:
       #  print 'member_id OK'
 
   def ParseInfo(self, page, fromImage=False):
-    temp = str(page.find(attrs={'class':'f18b'}).find('a')['href'])
+    temp = str(page.find(attrs={'class':'_unit user-unit'}).find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
     try:
-      self.artistName = unicode(page.h2.span.a.string.extract())
+      ##self.artistName = unicode(page.h2.span.a.string.extract())
+      self.artistName = unicode(page.find('h1', attrs={'class':'user'}).string.extract())
     except:
       self.artistName = unicode(page.findAll(attrs={"class":"avatar_m"})[0]["title"])
-    self.artistAvatar = str(page.find(attrs={'class':'avatar_m'}).find('img')['src'])
+    self.artistAvatar = str(page.find('img', attrs={'class':'user-image'})['src'])
     self.artistToken = self.ParseToken(page, fromImage)
       
 
