@@ -629,19 +629,19 @@ class PixivTags:
       self.haveImage = False
 
     # check if the last page
-    check = page.findAll('li', attrs={'class':'next'})
+    check = page.findAll('i', attrs={'class':'_icon sprites-next'})
     if len(check) > 0:
       self.isLastPage = False
     else:
       self.isLastPage = True
-
-    # check if the last page for member tags
-    if self.isLastPage:
-      check = page.findAll(name='a', attrs={ 'class':'button', 'rel':'next'})
-      if len(check) > 0:
-        self.isLastPage = False
-      else:
-        self.isLastPage = True
+##
+##    # check if the last page for member tags
+##    if self.isLastPage:
+##      check = page.findAll(name='a', attrs={ 'rel':'next'})
+##      if len(check) > 0:
+##        self.isLastPage = False
+##      else:
+##        self.isLastPage = True
      
   @staticmethod
   def parseTagsList(filename):
