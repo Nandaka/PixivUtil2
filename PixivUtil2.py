@@ -176,15 +176,14 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 del req
                 del res
         except urllib2.HTTPError as httpError:
-            print httpError
-            print str(httpError.code)
-            __log__.error('HTTPError: '+ str(httpError) + '(' + url + ')')
+            printAndLog('error', '[downloadImage()] ' + str(httpError) + ' (' + url + ')')
             if httpError.code == 404:
+                return -1
+            if httpError.code == 502:
                 return -1
             raise
         except urllib2.URLError as urlError:
-            print urlError
-            __log__.error('URLError: '+ str(urlError) + '(' + url + ')')
+            printAndLog('error', '[downloadImage()] ' + str(urlError) + ' (' + url + ')')
             raise
         except IOError as ioex:
             if ioex.errno == 28:
