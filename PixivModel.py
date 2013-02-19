@@ -479,7 +479,7 @@ class PixivNewIllustBookmark:
   def __ParseNewIllustBookmark(self,page):
     self.imageList = list()
     try:
-      result = page.find(attrs={'class':'images autopagerize_page_element'}).findAll('a')
+      result = page.find(attrs={'class':'image-items autopagerize_page_element'}).findAll('a')
       for r in result:
         href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
         if href != None:
