@@ -96,15 +96,18 @@ def downloadImage(url, filename, referer, overwrite, retry):
             else :
                 req.add_header('Referer', 'http://www.pixiv.net')
 
-            br2 = Browser()
-            br2.set_cookiejar(__cj__)
-            if __config__.useProxy:
-                br2.set_proxies(__config__.proxy)
+            print "Using Referer:", str(referer)
 
-            br2.set_handle_robots(__config__.useRobots)
+            ##br2 = Browser()
+            ##br2.set_cookiejar(__cj__)
+            ##if __config__.useProxy:
+            ##    br2.set_proxies(__config__.proxy)
+
+            ##br2.set_handle_robots(__config__.useRobots)
             filesize = -1
 
-            res = br2.open(req)
+            ##res = br2.open(req)
+            res = __br__.open(req)
             try:
                 filesize = int(res.info()['Content-Length'])
             except KeyError:
@@ -229,9 +232,7 @@ def configBrowser():
     
     __br__.set_debug_http(__config__.debugHttp)
     if __config__.debugHttp :
-        msg = 'Debug HTTP enabled.'
-        print msg
-        __log__.info(msg)
+        printAndLog('info','Debug HTTP enabled.')
         
     __br__.visit_response
     __br__.addheaders = [('User-agent', __config__.useragent)]

@@ -57,8 +57,10 @@ class PixivArtist:
       #  print 'member_id OK'
 
   def ParseInfo(self, page, fromImage=False):
-    temp = str(page.find(attrs={'class':'_unit user-unit'}).find('a')['href'])
+    avatarBox = page.find(attrs={'class':'_unit profile-unit'})
+    temp = str(avatarBox.find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
+    
     try:
       ##self.artistName = unicode(page.h2.span.a.string.extract())
       self.artistName = unicode(page.find('h1', attrs={'class':'user'}).string.extract())
