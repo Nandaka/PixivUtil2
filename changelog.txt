@@ -1,3 +1,6 @@
+20130222
+- Update parser to the latest pixiv layout.
+
 20130201
 - Update imageDownload to skip if got 502 error.
 - Fix end page detection for download by tags.
