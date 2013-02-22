@@ -145,7 +145,7 @@ class PixivArtist:
     return None
   
   def CheckLastPage(self, page):
-    check = page.findAll('a', attrs={'class':'button', 'rel':'next'})
+    check = page.findAll('a', attrs={'class':'_button', 'rel':'next'})
     if len(check) > 0:
       self.isLastPage = False
     else:
@@ -490,7 +490,7 @@ class PixivNewIllustBookmark:
     return self.imageList
 
   def __CheckLastPage(self, page):
-    check = page.findAll('a', attrs={'class':'button', 'rel':'next'})
+    check = page.findAll('a', attrs={'class':'_button', 'rel':'next'})
     if len(check) > 0:
       self.isLastPage = False
     else:
@@ -605,7 +605,7 @@ class PixivTags:
               elif temp['class'] == 'image-response-count ui-tooltip' :
                 imageResponse = temp.contents[1]
         self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
-    self.checkPage(page)
+    self.checkLastPage(page)
     return self.itemList
 
   def parseMemberTags(self, page):
@@ -620,10 +620,10 @@ class PixivTags:
         if len(result) > 0 :
           image_id = int(result[0])
           self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
-    self.checkPage(page)
+    self.checkLastPage(page)
     return self.itemList
 
-  def checkPage(self, page):
+  def checkLastPage(self, page):
     # Check if have image
     if len(self.itemList) > 0:
       self.haveImage = True
@@ -631,7 +631,7 @@ class PixivTags:
       self.haveImage = False
 
     # check if the last page
-    check = page.findAll('i', attrs={'class':'_icon sprites-next'})
+    check = page.findAll('i', attrs={'class':'_icon sprites-next-linked'})
     if len(check) > 0:
       self.isLastPage = False
     else:
