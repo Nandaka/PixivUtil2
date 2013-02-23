@@ -361,7 +361,7 @@ def processList(mode):
                     raise
                 except:
                     if retryCount > __config__.retry:
-                        printAndLog('error','Giving up member_id: '+str(row[0]))
+                        printAndLog('error','Giving up member_id: '+str(item.memberId))
                         break
                     retryCount = retryCount + 1
                     print 'Something wrong, retrying after 2 second (', retryCount, ')'
