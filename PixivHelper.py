@@ -48,6 +48,10 @@ def sanitizeFilename(s, rootDir=None):
   if __badnames__.match(name):
     name= '_'+name
 
+  ## Replace new line with space
+  name = name.replace("\r", '')
+  name = name.replace("\n", ' ')
+    
   #Yavos: when foldername ends with "." PixivUtil won't find it
   while name.find('.\\') != -1:
     name = name.replace('.\\','\\')
