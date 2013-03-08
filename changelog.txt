@@ -1,3 +1,7 @@
+20130308
+- Add menu to reload config.ini
+- Add %date% for filename format (YYYYMMMDD).
+
 20130222
 - Update parser to the latest pixiv layout.
 - Update last page detection (20130222b).

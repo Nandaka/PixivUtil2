@@ -7,6 +7,7 @@ import subprocess
 import sys
 import PixivModel, PixivConstant
 import logging, logging.handlers
+import datetime
 
 Logger = None
 
@@ -104,6 +105,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('%works_tools%',imageInfo.worksTools)
   nameFormat = nameFormat.replace('%urlFilename%',splittedUrl[0])
   nameFormat = nameFormat.replace('%searchTags%',searchTags)
+
+  ## date
+  nameFormat = nameFormat.replace('%date%', datetime.date.today().strftime('%Y%m%d'))
   
   ## get the page index & big mode if manga
   page_index = ''

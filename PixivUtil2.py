@@ -1092,6 +1092,7 @@ def menu():
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export online bookmark'
+    print 'r. Reload config.ini'
     print 'x. Exit'
     
     return raw_input('Input: ').strip()
@@ -1289,6 +1290,10 @@ def menuExportOnlineBookmark(mode, opisvalid, args):
     else:
         print "Invalid args: ", arg
     exportBookmark(filename, hide)
+
+def menuReloadConfigIni():
+    __log__.info('Manual Reload Config.')
+    __config__.loadConfig()
     
 def setTitle(title=''):
     setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' ' + title
@@ -1490,6 +1495,8 @@ def main():
                         menuExportOnlineBookmark(mode, opisvalid, args)
                     elif selection == 'd':
                         __dbManager__.main()
+                    elif selection == 'r':
+                        menuReloadConfigIni()
                     elif selection == '-all':
                         if npisvalid == False:
                             npisvalid = True
