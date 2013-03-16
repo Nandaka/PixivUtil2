@@ -6,6 +6,7 @@ import sys
 import codecs
 import collections
 import PixivHelper
+import datetime
 
 class PixivArtist:
   '''Class for parsing member page.'''
@@ -110,6 +111,9 @@ class PixivArtist:
         self.imageList.append(int(href))
     ## Remove duplicates
     ##self.imageList = list(set(self.imageList))
+##    for item in self.imageList:
+##      print item
+##    raw_input()
 
   def HaveString(self, page, string):
     pattern = re.compile(string)
@@ -180,6 +184,7 @@ class PixivImage:
   jd_rtt = 0
   imageCount = 0
   fromBookmark = False
+  worksDateDateTime = datetime.datetime.fromordinal(1)
 
   def __init__(self, iid=0, page=None, parent=None, fromBookmark=False):
     self.artist = parent
@@ -300,6 +305,8 @@ class PixivImage:
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
     self.worksDate = unicode(temp[0].string).replace(u'/', u'-')
+    self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, '%m-%d-%Y %H:%M')
+    
     self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
     if toolsTemp!= None and len(toolsTemp) > 0:
@@ -536,11 +543,8 @@ class PixivBookmark:
       href = re.search('member_illust.php?.*illust_id=(\d+)', str(item))
       if href != None:
         href = href.group(1)
-        imageList.append(int(href))
-        
-    #remove duplicate
-    imageList = list(set(imageList))
-    
+        if not int(href) in imageList:
+          imageList.append(int(href))
     return imageList
 
   @staticmethod

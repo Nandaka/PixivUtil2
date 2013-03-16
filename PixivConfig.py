@@ -53,6 +53,7 @@ class PixivConfig:
     useSSL = False
     writeImageInfo = False
     r18mode = False
+    dateDiff = 0
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -97,6 +98,13 @@ class PixivConfig:
             except ValueError:
                 print "dayLastUpdated = 7"
                 self.dayLastUpdated = 7
+                haveError = True
+
+            try:
+                self.dateDiff = config.getint('Settings','datediff')
+            except ValueError:
+                print "dateDiff = 0"
+                self.dateDiff = 0
                 haveError = True
 
             try:
@@ -347,6 +355,7 @@ class PixivConfig:
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)        
+        config.set('Settings', 'dateDiff', self.dateDiff)
         
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -408,6 +417,7 @@ class PixivConfig:
         print ' - useSuppressTags =', self.useSuppressTags
         print ' - tagsLimit =', self.tagsLimit
         print ' - writeImageInfo =', self.writeImageInfo
+        print ' - dateDiff =', self.dateDiff
         
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

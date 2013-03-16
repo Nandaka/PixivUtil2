@@ -9,6 +9,7 @@ import logging.handlers
 import gc
 import time
 import xml.sax.saxutils as saxutils
+import datetime
 
 from mechanize import Browser
 import mechanize
@@ -462,6 +463,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                 flag = False
                 continue
             
+            result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
                 print '#'+ str(noOfImages)
                 if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
@@ -482,7 +484,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                 retryCount = 0
                 while True :
                     try:
-                        processImage(mode, artist, image_id, userDir, bookmark) #Yavos added dir-argument to pass
+                        result = processImage(mode, artist, image_id, userDir, bookmark) #Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except KeyboardInterrupt:
@@ -499,6 +501,12 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                         time.sleep(2)
 
                 noOfImages = noOfImages + 1
+
+                ## return code from process image
+                if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
+                    print "Reached older images, skippin to next member."
+                    flag = False
+                    break
 
             if artist.isLastPage:
                 print "Last Page"
@@ -594,12 +602,20 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                     return
         
         downloadImageFlag = True
+
+        if __config__.dateDiff > 0:
+            if image.worksDateDateTime != datetime.datetime.fromordinal(1):
+                if image.worksDateDateTime < datetime.datetime.today() - datetime.timedelta(__config__.dateDiff):
+                    printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains older than: ' + str(__config__.dateDiff) + ' day(s).');
+                    downloadImageFlag = False
+                    result = PixivConstant.PIXIVUTIL_SKIP_OLDER
+        
         if __config__.useBlacklistTags:
             for item in __blacklistTags:
                 if item in image.imageTags:
                     printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains blacklisted tags: ' + item);
                     downloadImageFlag = False
-                    result = 0
+                    result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
                 
         if downloadImageFlag:
@@ -641,7 +657,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
             if image.imageMode == 'manga':
                 print "Page Count :", image.imageCount
 
-            result = 0
+            result = PixivConstant.PIXIVUTIL_OK
             skipOne = False
             for img in image.imageUrls:
                 if skipOne:
@@ -672,18 +688,18 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                             filename = splittedFilename[0] + splittedMangaPage[0] + os.sep + "_p" + splittedMangaPage[1] + splittedFilename[1]
 
                     PixivHelper.safePrint('Filename  : ' + filename)
-                    result = -1
+                    result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
                         else:
                             result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
 
-                        if result == -1 and image.imageMode == 'manga' and img.find('_big') > -1:
+                        if result == PixivConstant.PIXIVUTIL_NOT_OK and image.imageMode == 'manga' and img.find('_big') > -1:
                             print 'No big manga image available, try the small one'
-                        elif result == 0 and image.imageMode == 'manga' and img.find('_big') > -1:
+                        elif result == PixivConstant.PIXIVUTIL_OK and image.imageMode == 'manga' and img.find('_big') > -1:
                             skipOne = True
-                        elif result == -1:
+                        elif result == PixivConstant.PIXIVUTIL_NOT_OK:
                             printAndLog('error', 'Image url not found: '+str(image.imageId))
                     except urllib2.URLError as ue:
                         printAndLog('error', 'Giving up url: '+str(img))
@@ -694,7 +710,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                 image.WriteInfo(filename + ".txt")
                 
         ## Only save to db if all images is downloaded completely
-        if result == 0 :
+        if result == PixivConstant.PIXIVUTIL_OK :
             try:
                 __dbManager__.insertImage(image.artist.artistId, image.imageId)
             except:
@@ -710,6 +726,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
         gc.collect()
         ##clearall()
         print '\n'
+        return result
     except KeyboardInterrupt:
         raise
     except:
@@ -959,7 +976,8 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
         print "Processing New Illust from bookmark"
         i = pageNum
         imageCount = 1
-        while True:
+        flag = True
+        while flag:
             print "Page #"+str(i)
             url = 'http://www.pixiv.net/bookmark_new_illust.php?p='+str(i)
             page = __br__.open(url)
@@ -971,8 +989,12 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
 
             for image_id in pb.imageList:
                 print "Image #"+str(imageCount)
-                processImage(mode, artist=None, image_id=int(image_id))
+                result = processImage(mode, artist=None, image_id=int(image_id))
                 imageCount = imageCount + 1
+
+                if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
+                    flag = False
+                    break
             i = i + 1
 
             parsedPage.decompose()
@@ -980,7 +1002,7 @@ def processNewIllustFromBookmark(mode, pageNum=1, endPageNum=0):
 
             if ( endPageNum != 0 and i > endPageNum ) or i >= 100 or pb.isLastPage:
                 print "Limit or last page reached."
-                break
+                flag = False
             
         print "Done."
     except KeyboardInterrupt:
@@ -1409,9 +1431,10 @@ def main():
             __log__.info(msg)
 
         if __config__.dayLastUpdated != 0  and __config__.processFromDb:
-            msg = 'Only process member where day last updated >= ' + str(__config__.dayLastUpdated)
-            print msg
-            __log__.info(msg)
+            printAndLog('info', 'Only process member where day last updated >= ' + str(__config__.dayLastUpdated))
+            
+        if __config__.dateDiff > 0:
+            printAndLog('info', 'Only process image where day last updated >= ' + str(__config__.dateDiff))
 
         if __config__.useBlacklistTags:
             global __blacklistTags

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20130308'
+PIXIVUTIL_VERSION = '20130316'
 PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
 PIXIV_URL = 'http://www.pixiv.net'
 PIXIV_URL_SSL = 'https://ssl.pixiv.net/login.php'
@@ -22,3 +22,9 @@ PIXIVUTIL_LOG_FILE = 'pixivutil.log'
 PIXIVUTIL_LOG_SIZE = 10485760
 PIXIVUTIL_LOG_COUNT = 10
 PIXIVUTIL_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+## Download Results
+PIXIVUTIL_NOT_OK = -1
+PIXIVUTIL_OK = 0
+PIXIVUTIL_SKIP_OLDER = 1
+PIXIVUTIL_SKIP_BLACKLIST = 2

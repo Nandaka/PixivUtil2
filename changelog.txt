@@ -1,3 +1,7 @@
+20130316
+- Add option to skip image if worksDate < dateDiff, this will skip to next 
+  member, or stop processing for download from new bookmark.
+
 20130308
 - Add menu to reload config.ini
 - Add %date% for filename format (YYYYMMMDD).
