@@ -622,6 +622,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
 
             PixivHelper.safePrint("Title: " + image.imageTitle)
             PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
+            PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
             print "Mode :", image.imageMode
             
             if __config__.useSuppressTags:

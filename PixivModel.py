@@ -304,8 +304,13 @@ class PixivImage:
     #07/22/2011 03:09｜512×600｜RETAS STUDIO
     #07/26/2011 00:30｜Manga 39P｜ComicStudio 鉛筆 つけペン
     #1/05/2011 07:09｜723×1023｜Photoshop SAI 　[ R-18 ]
-    self.worksDate = unicode(temp[0].string).replace(u'/', u'-')
-    self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, '%m-%d-%Y %H:%M')
+    #2013年3月16日 06:44 | 800×1130 | Photoshop ComicStudio | R-18
+    self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding).replace(u'/', u'-')
+    if self.worksDate.find('-') > -1:
+      self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+    else:
+      tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
+      self.worksDateDateTime = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
     
     self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
