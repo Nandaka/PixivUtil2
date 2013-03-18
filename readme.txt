@@ -218,6 +218,7 @@ filenameformat ==> The format for the filename, reserved/illegal character will
 	        -> %original_artist%       ==> for bookmark mode, put original artist
                                                name.
 	        -> %searchTags%   ==> for download by tags, put searched tags.
+	        -> %date%         ==> current date in YYYYMMMDD format.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
@@ -264,6 +265,9 @@ tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
+dateDiff        ==> Gets only pictures that were posted X days before the system 
+                    date. Set 0 to disable. Skip to next member id if in Download
+                    by Member, stop processing if in Download New Illust.
 
 =================================================================================
 = list.txt Format                                                               =
