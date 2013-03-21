@@ -1216,9 +1216,10 @@ def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     member_id = 0
     tags = None
     
-    if opisvalid and len(args) > 2:
+    if opisvalid and len(args) >= 2:
         member_id = int(args[0])
         tags = " ".join(args[1:])
+        PixivHelper.safePrint("Looking tags: " + tags + " from memberId: " + str(member_id))
     else:
         member_id = raw_input('Member Id: ')
         tags      = PixivHelper.uni_input('Tag      : ')
