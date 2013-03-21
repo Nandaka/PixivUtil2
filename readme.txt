@@ -74,6 +74,9 @@ B.Bugs/Source Code/Supports:
       - if you want to add feature/bug fix, you can do branch from public 
         repository in https://git.bettercodes.org/pixiv-downloader (need to 
         register first) and I will do the merge.
+  Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
+      - Please modify _html.py from mechanize library with patch in 
+        http://pastebin.com/5bT5HFkb
 
 C.Log Messages:
 - HTTPError: HTTP Error 404: Not Found
