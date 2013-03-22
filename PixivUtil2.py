@@ -98,21 +98,16 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 req.add_header('Referer', 'http://www.pixiv.net')
 
             print "Using Referer:", str(referer)
-
-            ##br2 = Browser()
-            ##br2.set_cookiejar(__cj__)
-            ##if __config__.useProxy:
-            ##    br2.set_proxies(__config__.proxy)
-
-            ##br2.set_handle_robots(__config__.useRobots)
             filesize = -1
 
-            ##res = br2.open(req)
-            res = __br__.open(req)
+            print 'Start downloading...',
+            startTime = datetime.datetime.now()
+            res = __br__.open_novisit(req)
             try:
                 filesize = int(res.info()['Content-Length'])
             except KeyError:
                 filesize = -1
+                print "\tNo file size information!"
             except:
                 raise
 
@@ -143,22 +138,24 @@ def downloadImage(url, filename, referer, overwrite, retry):
                 __log__.info(msg2)
 
             prev = 0
-            curr = 0
-            print 'Start downloading...',
+            curr = 0            
+            
             print '{0:22} Bytes'.format(prev),
             try:
                 while 1:
-                    save.write(res.read(4096))
+                    save.write(res.read(PixivConstant.BUFFER_SIZE))
                     curr = save.tell()
                     print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
                     print '{0:9} of {1:9} Bytes'.format(curr, filesize),
 
                     ## check if downloaded file is complete
                     if filesize > 0 and curr == filesize:
-                        print ' Complete.'
+                        totalTime = (datetime.datetime.now() - startTime).total_seconds()
+                        print ' Completed in ' + str(totalTime) + 's (' + PixivHelper.speedInStr(filesize, totalTime) + ')'
                         break
                     elif curr == prev:  ## no filesize info
-                        print ''
+                        totalTime = (datetime.datetime.now() - startTime).total_seconds()
+                        print ' Completed in ' + str(totalTime) + 's (' + PixivHelper.speedInStr(curr, totalTime) + ')'
                         break
                     prev = curr
                 if iv == True or __config__.createDownloadLists == True:

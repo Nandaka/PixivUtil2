@@ -7,6 +7,7 @@ import os
 import codecs
 import traceback
 import PixivHelper
+import shutil
 script_path = PixivHelper.module_path()
 
 class PixivConfig:
@@ -308,7 +309,7 @@ class PixivConfig:
         except:
             print 'Error at loadConfig():',sys.exc_info()
             self.__logger.exception('Error at loadConfig()')
-            self.writeConfig()
+            haveError = True
 
         if haveError:
             print 'Some configuration have invalid value, replacing with the default value.'
@@ -319,6 +320,7 @@ class PixivConfig:
 
     #-UI01B------write config
     def writeConfig(self):
+        '''Backup old config if exist and write updated config.ini'''
         print 'Writing config file...',
         config = ConfigParser.RawConfigParser()
         config.add_section('Settings')
@@ -370,7 +372,8 @@ class PixivConfig:
             with open('config.ini.tmp', 'w') as configfile:
                 config.write(configfile)
             if os.path.exists('config.ini'):
-                os.remove('config.ini')
+                print "Backing up old config to config.ini.bak"
+                shutil.move('config.ini', 'config.ini.bak')
             os.rename('config.ini.tmp', 'config.ini')
         except:
             self.__logger.exception('Error at writeConfig()')

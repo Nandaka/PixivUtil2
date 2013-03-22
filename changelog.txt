@@ -1,3 +1,7 @@
+20130322
+- Add download time and speed.
+- Backup config.ini when saving to config.ini.bak.
+
 20130321
 - Fix command line option for download by member id and tags to allow single
   tag search.

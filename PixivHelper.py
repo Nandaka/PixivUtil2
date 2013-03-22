@@ -267,3 +267,15 @@ def module_path():
 
   return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))
 
+def speedInStr(totalSize, totalTime):
+  speed = totalSize / totalTime
+  if speed < 1024:
+    return "{0:.0f} B/s".format(speed)
+  speed = speed / 1024
+  if speed < 1024:
+    return  "{0:.2f} KiB/s".format(speed)
+  speed = speed / 1024
+  if speed < 1024:
+    return  "{0:.2f} MiB/s".format(speed)
+  speed = speed / 1024
+  return  "{0:.2f} GiB/s".format(speed)
