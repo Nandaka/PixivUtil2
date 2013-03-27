@@ -137,6 +137,13 @@ class TestPixivHelper(unittest.TestCase):
     
     self.assertEqual(filename, u'C:\\images\\kirabara29 (1107124)\\folder.jpg')                                                      
 
+  def testParseLoginError(self):
+    p = open('./test/test-login-error.htm', 'r')
+    page = BeautifulSoup(p.read())
+    r = page.findAll('span', attrs={'class':'error'})
+    self.assertTrue(len(r)>0)
+    self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
+    
 if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivHelper)

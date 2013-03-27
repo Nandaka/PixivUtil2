@@ -1,3 +1,8 @@
+20130327
+- Add option to keed signed in, set keepsignedin = 1 in config.ini on 
+  [Authentication] section.
+- Add login error message parser.
+
 20130322
 - Add download time and speed.
 - Backup config.ini when saving to config.ini.bak.

@@ -55,6 +55,7 @@ class PixivConfig:
     writeImageInfo = False
     r18mode = False
     dateDiff = 0
+    keepSignedIn = 0
     
     #Yavos: added next three lines
     createDownloadLists = False
@@ -297,6 +298,13 @@ class PixivConfig:
                 self.writeImageInfo = False
                 print "writeImageInfo = False"                              
                 haveError = True
+
+            try:
+                self.keepSignedIn = config.getint('Authentication','keepSignedIn')
+            except ValueError:
+                print "keepSignedIn = 0"
+                self.keepSignedIn = 0
+                haveError = True
             
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
@@ -363,6 +371,7 @@ class PixivConfig:
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
         config.set('Authentication', 'useSSL', self.useSSL)
+        config.set('Authentication', 'keepSignedIn', self.keepSignedIn)        
         
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
@@ -384,43 +393,44 @@ class PixivConfig:
     def printConfig(self):
         print 'Configuration: '
         print ' [Authentication]'
-        print ' - username    =', self.username
-        print ' - password    = ', self.password
-        print ' - cookie      = ', self.cookie
-        print ' - useSSL      = ', self.useSSL
+        print ' - username     =', self.username
+        print ' - password     = ', self.password
+        print ' - cookie       = ', self.cookie
+        print ' - useSSL       = ', self.useSSL
+        print ' - keepSignedIn = ', self.keepSignedIn
         
         print ' [Settings]'
         print ' - filename_format =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
-        print ' - useproxy  =' , self.useProxy
+        print ' - useproxy     =' , self.useProxy
         print ' - proxyaddress =', self.proxyAddress
-        print ' - debug_http =', self.debugHttp
-        print ' - use_robots =', self.useRobots
-        print ' - useragent  =', self.useragent
-        print ' - overwrite =', self.overwrite
-        print ' - timeout   =', self.timeout
-        print ' - useList   =', self.useList
+        print ' - debug_http  =', self.debugHttp
+        print ' - use_robots  =', self.useRobots
+        print ' - useragent   =', self.useragent
+        print ' - overwrite   =', self.overwrite
+        print ' - timeout     =', self.timeout
+        print ' - useList     =', self.useList
         print ' - processFromDb  =', self.processFromDb
         print ' - tagsSeparator  =', self.tagsSeparator
         print ' - dayLastUpdated =', self.dayLastUpdated
         print ' - rootDirectory  =', self.rootDirectory
-        print ' - retry  =', self.retry
+        print ' - retry     =', self.retry
         print ' - retryWait =', self.retryWait
-        print ' - createDownloadLists =', self.createDownloadLists
+        print ' - createDownloadLists   =', self.createDownloadLists
         print ' - downloadListDirectory =', self.downloadListDirectory
-        print ' - IrfanViewPath =', self.IrfanViewPath
-        print ' - startIrfanView =', self.startIrfanView
+        print ' - IrfanViewPath   =', self.IrfanViewPath
+        print ' - startIrfanView  =', self.startIrfanView
         print ' - startIrfanSlide =', self.startIrfanSlide
         print ' - alwaysCheckFileSize =', self.alwaysCheckFileSize
-        print ' - checkUpdatedLimit =', self.checkUpdatedLimit
+        print ' - checkUpdatedLimit   =', self.checkUpdatedLimit
         print ' - downloadAvatar =', self.downloadAvatar
         print ' - createMangaDir =', self.createMangaDir
-        print ' - useTagsAsDir =', self.useTagsAsDir
+        print ' - useTagsAsDir   =', self.useTagsAsDir
         print ' - useBlacklistTags =', self.useBlacklistTags
-        print ' - useSuppressTags =', self.useSuppressTags
+        print ' - useSuppressTags  =', self.useSuppressTags
         print ' - tagsLimit =', self.tagsLimit
         print ' - writeImageInfo =', self.writeImageInfo
-        print ' - dateDiff =', self.dateDiff
+        print ' - dateDiff  =', self.dateDiff
         
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

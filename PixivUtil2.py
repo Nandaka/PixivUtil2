@@ -272,6 +272,8 @@ def pixivLogin(username, password):
         form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
         __br__['pixiv_id'] = username
         __br__['pass'] = password
+        if __config__.keepSignedIn:
+            __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
         if response.geturl() == 'http://www.pixiv.net/mypage.php':
@@ -286,7 +288,12 @@ def pixivLogin(username, password):
                     break                
             return True
         else :
-            printAndLog('info','Wrong username or password.')
+            errors = parseLoginError(response)
+            if len(errors)>0:
+                for error in errors:
+                    printAndLog('error','Server Reply: ' + error.string)
+            else:
+                printAndLog('info','Wrong username or password.')
             return False
     except:
         print 'Error at pixivLogin():',sys.exc_info()
@@ -303,6 +310,8 @@ def pixivLoginSSL(username, password):
         form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
         __br__['pixiv_id'] = username
         __br__['pass'] = password
+        if __config__.keepSignedIn:
+            __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
         if response.geturl() == 'http://www.pixiv.net/mypage.php':
@@ -317,12 +326,22 @@ def pixivLoginSSL(username, password):
                     break                
             return True
         else :
-            printAndLog('info','Wrong username or password.')
+            errors = parseLoginError(response)
+            if len(errors)>0:
+                for error in errors:
+                    printAndLog('error','Server Reply: ' + error.string)
+            else:
+                printAndLog('info','Wrong username or password.')
             return False
     except:
         print 'Error at pixivLoginSSL():',sys.exc_info()
         __log__.exception('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
         raise    
+
+def parseLoginError(res):
+    page = BeautifulSoup(res.read())
+    r = page.findAll('span', attrs={'class':'error'})
+    return r
 
 def processList(mode):
     global args
