@@ -276,30 +276,37 @@ def pixivLogin(username, password):
             __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
-        if response.geturl() == 'http://www.pixiv.net/mypage.php':
-            print 'done.'
-            __log__.info('Logged in')
-            ## write back the new cookie value
-            for cookie in  __br__._ua_handlers['_cookies'].cookiejar:
-                if cookie.name == 'PHPSESSID':
-                    print 'new cookie value:', cookie.value
-                    __config__.cookie = cookie.value
-                    __config__.writeConfig()
-                    break                
-            return True
-        else :
-            errors = parseLoginError(response)
-            if len(errors)>0:
-                for error in errors:
-                    printAndLog('error','Server Reply: ' + error.string)
-            else:
-                printAndLog('info','Wrong username or password.')
-            return False
+        return pixivProcessLogin(response)
     except:
         print 'Error at pixivLogin():',sys.exc_info()
         print 'failed'
         __log__.exception('Error at pixivLogin(): ' + str(sys.exc_info()))
         raise
+
+def pixivProcessLogin(response):
+    __log__.info('Logging in, return url: ' + response.geturl())
+    ## failed login will return to either of these page:
+    ## http://www.pixiv.net/login.php
+    ## https://www.secure.pixiv.net/login.php
+    if response.geturl().find('pixiv.net/login.php') == -1:
+        print 'done.'
+        __log__.info('Logged in')
+        ## write back the new cookie value
+        for cookie in  __br__._ua_handlers['_cookies'].cookiejar:
+            if cookie.name == 'PHPSESSID':
+                print 'new cookie value:', cookie.value
+                __config__.cookie = cookie.value
+                __config__.writeConfig()
+                break                
+        return True
+    else :
+        errors = parseLoginError(response)
+        if len(errors)>0:
+            for error in errors:
+                printAndLog('error','Server Reply: ' + error.string)
+        else:
+            printAndLog('info','Wrong username or password.')
+        return False
 
 def pixivLoginSSL(username, password):
     try:
@@ -314,25 +321,7 @@ def pixivLoginSSL(username, password):
             __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
-        if response.geturl() == 'http://www.pixiv.net/mypage.php':
-            print 'done.'
-            __log__.info('Logged in')
-            ## write back the new cookie value
-            for cookie in  __br__._ua_handlers['_cookies'].cookiejar:
-                if cookie.name == 'PHPSESSID':
-                    print 'new cookie value:', cookie.value
-                    __config__.cookie = cookie.value
-                    __config__.writeConfig()
-                    break                
-            return True
-        else :
-            errors = parseLoginError(response)
-            if len(errors)>0:
-                for error in errors:
-                    printAndLog('error','Server Reply: ' + error.string)
-            else:
-                printAndLog('info','Wrong username or password.')
-            return False
+        return pixivProcessLogin(response)
     except:
         print 'Error at pixivLoginSSL():',sys.exc_info()
         __log__.exception('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
