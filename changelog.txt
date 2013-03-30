@@ -3,7 +3,7 @@
   allow user to skip to next image or abort the whole process.
 
 20130327
-- Add option to keed signed in, set keepsignedin = 1 in config.ini on 
+- Add option to keep signed in, set keepsignedin = 1 in config.ini on 
   [Authentication] section.
 - Add login error message parser.
 
