@@ -1,3 +1,7 @@
+20130330
+- Add Ctrl+C handler for download by member id and download by tags to
+  allow user to skip to next image or abort the whole process.
+
 20130327
 - Add option to keed signed in, set keepsignedin = 1 in config.ini on 
   [Authentication] section.

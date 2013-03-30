@@ -493,7 +493,8 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except KeyboardInterrupt:
-                        raise
+                        result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
+                        break
                     except:
                         if retryCount > __config__.retry:
                             printAndLog('error', "Giving up image_id: "+str(image_id)) 
@@ -507,9 +508,18 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
 
                 noOfImages = noOfImages + 1
 
+                if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
+                    choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)")
+                    if choice.upper() == 'N':
+                        printAndLog("info", "Member: " + str(member_id) + ", processing aborted")
+                        flag = False
+                        break
+                    else :
+                        continue
+
                 ## return code from process image
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
-                    print "Reached older images, skippin to next member."
+                    printAndLog("info", "Reached older images, skippin to next member.")
                     flag = False
                     break
 
@@ -796,8 +806,8 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
             dateParam = dateParam + "&ecd=" + endDate
 
         printAndLog('info', 'Searching for: ('+ searchTags + ") " + tags + dateParam)
-        
-        while True:
+        flag = True
+        while flag:
             if not member_id == None:
                 url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p='+str(i)
             else :
@@ -826,7 +836,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
 
             if len(l) == 0 :
                 print 'No more images'
-                break
+                flag = False
             else:
                 #for image_id in l:
                 for item in t.itemList:
@@ -836,15 +846,28 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                     if bookmarkCount != None and bookmarkCount > item.bookmarkCount:
                         printAndLog('info', 'Skipping imageId='+str(item.imageId)+' because less than bookmark count limit ('+ str(bookmarkCount) + ' > ' + str(item.bookmarkCount) + ')')
                         continue
+                    result = 0
                     while True:
                         try:
                             processImage(mode, None, item.imageId, searchTags=searchTags)
-                            break;
+                            break
+                        except KeyboardInterrupt:
+                            result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
+                            break
                         except httplib.BadStatusLine:
                             print "Stuff happened, trying again after 2 second..."
                             time.sleep(2)
                         
                     images = images + 1
+
+                    if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
+                        choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)")
+                        if choice.upper() == 'N':
+                            printAndLog("info", "Tags: " + tags + ", processing aborted")
+                            flag = False
+                            break
+                        else :
+                            continue
 
             __br__.clear_history()
 
@@ -856,10 +879,10 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
 
             if endPage != 0 and endPage < i:
                 print 'End Page reached.'
-                break
+                flag = False
             if t.isLastPage:
                 print 'Last page'
-                break
+                flag = False
         print 'done'
     except KeyboardInterrupt:
         raise
@@ -1542,7 +1565,8 @@ def main():
                         break
                     opisvalid = False #Yavos: needed to prevent endless loop
                 except KeyboardInterrupt:
-                    PixivHelper.clearScreen()
+                    printAndLog("info", "Keyboard Interrupt pressed, selection: " + selection)
+                    PixivHelper.clearScreen()                    
                     print "Restarting..."
             if iv == True: #Yavos: adding IrfanView-handling
                 PixivHelper.startIrfanView(__config__, dfilename, __config__.IrfanViewPath)
