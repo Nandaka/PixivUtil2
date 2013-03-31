@@ -7,41 +7,26 @@ import os
 import unittest
 
 class TestPixivArtist(unittest.TestCase):
-    def testPixivArtistPage(self):
-      #print '\nTesting member page'
-      p = open('./test/test.htm', 'r')
-      page = BeautifulSoup(p.read())
-      try:
-        artist = PixivArtist(363073, page)
-        artist.PrintInfo()
-      except PixivModelException as ex:
-        print ex
-      page.decompose()
-      del page
-      self.assertNotEqual(artist, None)
-      self.assertEqual(artist.artistId, 363073)
-
     def testPixivArtistProfileDataSrc(self):
       #print '\nTesting member page ProfileDataSrc'
-      p = open('./test/test-profile-datasrc.html', 'r')
+      p = open('./test/test-helper-avatar-name.htm', 'r')
       page = BeautifulSoup(p.read())
       try:
-        artist = PixivArtist(1295112, page)
-        #artist.PrintInfo()
+        artist = PixivArtist(1107124, page)
       except PixivModelException as ex:
         print ex
       page.decompose()
       del page
       self.assertNotEqual(artist, None)
-      self.assertEqual(artist.artistId, 1295112)
-      self.assertEqual(artist.artistToken, 'naoel')
+      self.assertEqual(artist.artistId, 1107124)
+      self.assertEqual(artist.artistToken, 'kirabara29')
     
     def testPixivArtistNoImage(self):
       #print '\nTesting member page - no image'
       p = open('./test/test-noimage.htm', 'r')
       page = BeautifulSoup(p.read())
       with self.assertRaises(PixivModelException):
-          PixivArtist(363073, page)
+          PixivArtist(1233, page)
       page.decompose()
       del page
 
@@ -50,7 +35,7 @@ class TestPixivArtist(unittest.TestCase):
       p = open('./test/test-nouser.htm', 'r')
       page = BeautifulSoup(p.read())
       with self.assertRaises(PixivModelException):
-          PixivArtist(363073, page)
+          PixivArtist(1, page)
       page.decompose()
       del page
 
@@ -68,15 +53,6 @@ class TestPixivArtist(unittest.TestCase):
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 26357)
       self.assertEqual(artist.artistToken, 'yukimaruko')
-      
-    def testPixivArtistDeleted(self):
-      #print '\nTesting member page - deleted member'
-      p = open('./test/test-member-deleted.htm', 'r')
-      page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException):
-          PixivArtist(123, page)
-      page.decompose()
-      del page
 
     def testPixivArtistSuspended(self):
       #print '\nTesting member page - suspended member'
@@ -110,14 +86,6 @@ class TestPixivArtist(unittest.TestCase):
       del page
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 3281699)
-
-    def testPixivArtistNoImage(self):
-      #print '\nTesting member page'
-      p = open('./test/test-member-no-images.htm', 'r')
-      page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException) as ex:
-          artist = PixivArtist(2252, page)
-      self.assertEqual(ex.exception.errorCode, 1004)
       
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
