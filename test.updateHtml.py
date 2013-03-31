@@ -59,7 +59,15 @@ def main():
 
     downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=32039274', './test/test-image-info.html')
     downloadPage('http://www.pixiv.net/bookmark_new_illust.php', './test/test-bookmarks_new_ilust.htm')
-                 
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=12467674', './test/test-image-my_pick.html')
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=20496355', './test/test-image-noavatar.htm')
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=11164869', './test/test-image-parse-tags.htm')
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=9175987', './test/test-image-no_tags.htm')
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=28865189', './test/test-image-rate_count.htm')
+    ## downloadPage('http://www.pixiv.net/member_illust.php?mode=big&illust_id=20644633', './test/test-image-parsebig.htm')
+    downloadPage('http://www.pixiv.net/member_illust.php?mode=manga&illust_id=20592252', './test/test-image-parsemanga.htm')
+    
+    
     ## Not updated:
     ## ./test/test-login-error.htm
     ## ./test/test-member-suspended.htm

@@ -372,7 +372,109 @@ pixiv.text.showBookmarkLogin = Handlebars.compile(jQuery('#template-show-bookmar
 pixiv.text.showStaccRegister = Handlebars.compile(jQuery('#template-show-stacc-register-text').html())({'author_name': pixiv.text.AuthorName});
 pixiv.text.showStaccLogin = Handlebars.compile(jQuery('#template-show-stacc-login-text').html())({'author_name': pixiv.text.AuthorName});
 </script>
-<nav><ul class="tabs"><li><a href="/member.php?id=341433">Profile</a></li><li><a href="/member_illust.php?id=341433" class="current">Works</a></li><li><a href="/bookmark.php?id=341433">Bookmarks</a></li><li><a href="http://www.pixiv.net/stacc/nardack">Staccfeed</a></li></ul></nav></nav></div><nav class="column-menu"><ul class="sibling-items"><li class="newer"><a href="/member_illust.php?mode=medium&amp;illust_id=32571298">Happy New Year 2013</a></li><li class="list"><a href="/member_illust.php?id=341433">Works list</a></li><li class="older"><a href="/member_illust.php?mode=medium&amp;illust_id=31980479">紅炎のアシュカ</a></li></ul></nav><section class="work-info"><div class="user-reaction"><section class="score"><dl><dt>Views</dt><dd class="view-count">170519</dd><dt>Ratings</dt><dd class="rated-count">10241</dd><dt>Total</dt><dd class="score-count">101402</dd></dl><script>pixiv.context.rated = false;</script><div class="rating"><div class="rate"></div><div class="star"></div><div class="status"></div></div></section></div><ul class="meta"><li>12/11/2012 00:23</li><li>642×900</li><li><ul class="tools"><li>Photoshop</li><li>SAI</li></ul></li></ul><h1 class="title">新しいお姫様</h1><p class="caption">EXIT TUNES様より冬コミ発売予定の「MAYU画集(仮)」に１枚描かせて頂きました。詳しくはこちらをご確認下さい！★ <a href="/jump.php?http%3A%2F%2Fexittunes.com%2Fevent%2Fc83%2Findex.html" target="_blank">http://exittunes.com/event/c83/index.html</a> ★「MAYU」公式サイト<a href="/jump.php?http%3A%2F%2Fmayusan.jp%2F" target="_blank">http://mayusan.jp/</a></p></section><div align="center">
+<nav><ul class="tabs"><li><a href="/member.php?id=341433">Profile</a></li><li><a href="/member_illust.php?id=341433" class="current">Works</a></li><li><a href="/bookmark.php?id=341433">Bookmarks</a></li><li><a href="http://www.pixiv.net/stacc/nardack">Staccfeed</a></li></ul></nav></nav></div><nav class="column-menu"><ul class="sibling-items"><li class="newer"><a href="/member_illust.php?mode=medium&amp;illust_id=32571298">Happy New Year 2013</a></li><li class="list"><a href="/member_illust.php?id=341433">Works list</a></li><li class="older"><a href="/member_illust.php?mode=medium&amp;illust_id=31980479">紅炎のアシュカ</a></li></ul></nav><section class="work-info"><div class="user-reaction"><section class="score"><dl><dt>Views</dt><dd class="view-count">170526</dd><dt>Ratings</dt><dd class="rated-count">10241</dd><dt>Total</dt><dd class="score-count">101402</dd></dl><script>pixiv.context.rated = false;</script><div class="rating"><div class="rate"></div><div class="star"></div><div class="status"></div></div></section></div><ul class="meta"><li>12/11/2012 00:23</li><li>642×900</li><li><ul class="tools"><li>Photoshop</li><li>SAI</li></ul></li></ul><h1 class="title">新しいお姫様</h1><p class="caption">EXIT TUNES様より冬コミ発売予定の「MAYU画集(仮)」に１枚描かせて頂きました。詳しくはこちらをご確認下さい！★ <a href="/jump.php?http%3A%2F%2Fexittunes.com%2Fevent%2Fc83%2Findex.html" target="_blank">http://exittunes.com/event/c83/index.html</a> ★「MAYU」公式サイト<a href="/jump.php?http%3A%2F%2Fmayusan.jp%2F" target="_blank">http://mayusan.jp/</a></p></section>
+
+
+
+<script type="text/javascript" language="javascript"><!--
+
+
+
+
+
+function ads_textads_show(ad_title, ad_redirecturl, ad_url, ad_description, link_box, pr, is_topic)
+{
+var box_start = '';
+var box_end = '';
+var text_link_start = '';
+var text_link_end = '';
+
+box_start += '<div class="ads_value">';
+box_start += '<div class="ads_inner">';
+box_end += '</div>';
+box_end += '</div>';
+
+if (link_box) {
+box_start = '<a class="ads_anchor" href="' + ad_redirecturl + '" target="_blank">' + box_start;
+box_end = box_end + '</a>';
+} else {
+text_link_start = '<a class="ads_anchor" href="' + ad_redirecturl + '" target="_blank">';
+text_link_end = '</a>';
+}
+if (pr) {
+box_start += '<span class="ads_pr">【PR】</span>';
+}
+
+var html_ads = '';
+
+if (is_topic) {
+html_ads += box_start;
+html_ads += text_link_start + '<span class="ads_title">' + ad_title + '</span>' + text_link_end;
+html_ads += '  　';
+html_ads += text_link_start + '<span class="ads_link">' + ad_url + '</span>' + text_link_end;
+html_ads += '<br />';
+html_ads += '<span class="ads_desc" style="display: inline-block">' + ad_description + '</span>';
+html_ads += '<div class="ads_clear"></div>';
+html_ads += box_end;
+} else {
+html_ads += box_start;
+html_ads += text_link_start + '<div class="ads_title" style="display: inline-block">' + ad_title + '</div>' + text_link_end + '<br>';
+html_ads += '<div class="ads_desc" style="display: inline-block">' + ad_description + '</div><br>';
+html_ads += text_link_start + '<div class="ads_link" style="display: inline-block">' + ad_url + '</div>' + text_link_end;
+html_ads += '<div class="ads_clear"></div>';
+html_ads += box_end;
+}
+
+document.write(html_ads);
+}
+
+
+//--></script>
+
+
+
+
+
+<script type="text/javascript"><!--
+
+
+
+var ads_google_data = [];
+function google_ad_request_done(google_ads) {
+ads_google_data = google_ads;
+}
+
+
+
+function ads_google_available_num() {
+return ads_google_data.length;
+}
+
+
+
+
+function ads_google_show(begin, link_box, pr, is_topic) {
+if (begin >= ads_google_data.length) return;
+var data = ads_google_data[begin];
+ads_textads_show(data.line1, data.url, data.visible_url , data.line2 + data.line3, link_box, pr, is_topic);
+}
+
+
+google_ad_client = "ca-pub-7329746023076980";
+google_ad_channel = "7350810515";
+google_encoding = "UTF-8";
+google_language = "ja";
+google_ad_output = 'js';
+google_max_num_ads = '2';
+google_ad_type = 'text';
+
+//--></script>
+<script language="JavaScript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+
+
+
+
+<div>
 <style type="text/css">
 
 .one_column .ads_area_no_margin{
@@ -380,16 +482,19 @@ background-color: #FFFFFF;
 text-align: center;
 width: 968px;
 }
+
 .ads_anchor {
 outline: none;
 }
 
-.ads_anchor:hover .ads_value,
-.ads_anchor:hover {
-text-decoration: none;
-cursor: pointer;
-background-color: #FFFFFF;
+.ads_area {
+margin: 0;
+
+padding: 5px 20px 0px 20px;
+
+position: relative;
 }
+
 .ads_inner .ads_anchor:hover {
 cursor: pointer;
 background-color: #FFFFCC;
@@ -401,24 +506,17 @@ text-decoration: none;
 text-align: left;
 }
 
-.ads_area {
-position: relative;
-margin: 0;
-padding: 0px;
-}
-.ads_value .ads_inner {
-
-padding: 25px 0px 25px 20px;
-
-line-height: 14px;
-}
-
 .ads_pr {
 padding: 0;
 float: left;
 color:#A0A0A0;
 font-size:13px;
 padding-right: 10px;
+}
+
+.ads_value .ads_inner {
+padding: 5px 0;
+line-height: 13px;
 }
 
 .ads_anchor .ads_title,
@@ -428,9 +526,8 @@ font-size: 15px;
 font-weight: bold;
 text-decoration: underline;
 
-
 display: inline;
-float: left;
+float: none;
 padding-right: 10px;
 }
 
@@ -441,10 +538,34 @@ float: left;
 font-size: 13px;
 padding: 0;
 }
+
+.ads_anchor:hover .ads_value,
+.ads_anchor:hover {
+text-decoration: none;
+cursor: pointer;
+background-color: #FFFFFF;
+}
+
+.ads_pr,
+.ads_anchor .ads_title,
+.ads_anchor:hover .ads_title {
+line-height: 14px;
+padding-top: 1px;
+padding-bottom: 1px;
+}
+
 .ads_value .ads_link {
 color: #008000;
 font-size:13px;
-display: none;
+}
+
+.ads_value .ads_desc,
+.ads_value .ads_link {
+display: block;
+float: none;
+clear: both;
+padding-top: 1px;
+padding-bottom: 1px;
 }
 
 .ads_value .ads_clear {
@@ -465,8 +586,19 @@ color: #A0A0A0;
 text-decoration: underline;
 }
 
-</style><script>
-window.pixivComicHotWorks = [{"title":"\u30a2\u30a4\u30c9\u30eb\u30de\u30b9\u30bf\u30fc2 The world is all one !!","desc":"\u8d85\u8a71\u984c\u306e\u56fd\u6c11\u7684\u30a2\u30a4\u30c9\u30eb\u30e6\u30cb\u30c3\u30c8\u30d7\u30ed\u30c7\u30e5\u30fc\u30b9\u30b2\u30fc\u30e0\u300e\u30a2\u30a4\u30c9\u30eb\u30de\u30b9\u30bf\u30fc2\u300f\u3092\u539f\u4f5c\u306b\u3057\u305f\u3001\u30d0\u30f3\u30c0\u30a4\u30ca\u30e0\u30b3\u30b2\u30fc\u30e0\u30b9\u516c\u8a8d\u30b3\u30df\u30c3\u30af\u304c\u767b\u5834! \u82b8\u80fd\u4e8b\u52d9\u6240\u30fb765\u30d7\u30ed\u306b\u6240\u5c5e\u3059\u308b\u5929\u6d77\u6625\u9999\u3001\u6211\u90a3\u8987 \u97ff\u3001\u8429\u539f\u96ea\u6b69\u306f\u3001\u534a\u5e74\u307b\u2026","id":107},{"title":"\u846c\u9664\u5c4b\u00d7LORD","desc":"\u300c\u30e2\u30ce\u30af\u30ed\u30fc\u30e0\u300d\u306f\u3001\u4eca\u8a71\u984c\u306e\u5927\u4eba\u6c17\u30a2\u30a4\u30c9\u30eb\u30b0\u30eb\u30fc\u30d7\u3002\u5f7c\u3089\uff15\u4eba\u306e\u9b45\u529b\u306b\u4eba\u3005\u306f\u5922\u4e2d\u306b\u306a\u308a\u3001\u9b45\u4e86\u3055\u308c\u3066\u3044\u308b\u3002\u3057\u304b\u3057\u3001\u5f7c\u3089\u306b\u306f\u3082\u3046\u3072\u3068\u3064\u306e\u9854\u304c\u3042\u3063\u305f\u3002\u4e16\u306e\u4e2d\u306b\u3042\u308b\u88c1\u3051\u306a\u3044\u300c\u60aa\u300d\u3092\u81ea\u3089\u306e\u624b\u3067\u88c1\u304f\u300c\u846c\u9664\u5c4b\u300d\u3068\u3044\u3046\u2026","id":280},{"title":"\u30a2\u30f3\u30c9\u30ed\u30de\u30ea\u30a6\u30b9","desc":"\u300c\u4eba\u751f\u306f\u5730\u7344\u3088\u308a\u3082\u5730\u7344\u7684\u3060\u3002\u300d\r\n\r\n\u51f6\u60aa\u3067\u51f6\u66b4\u306a\u72af\u7f6a\u8005\u3092\u5bfe\u8c61\u3068\u3057\u3001\u8ffd\u3044\u304b\u3051\u3001\u300c\u51e6\u5211\u300d\u3092\u57f7\u884c\u3059\u308b\u7d44\u7e54\u3001\u30a2\u30f3\u30c9\u30ed\u30de\u30ea\u30a6\u30b9\u3002\r\n\u30a2\u30f3\u30c9\u30ed\u30de\u30ea\u30a6\u30b9\u306e\u51e6\u5211\u4eba\u30fb\u30a2\u30a4\u30f3\u30b9\u306f5\u672c\u306e\u65e5\u672c\u5200\u3092\u624b\u306b\u3001\u5e38\u52dd\u7121\u6557\u306e\u51e6\u5211\u4eba\u3068\u3057\u2026","id":459},{"title":"\u5909\u614b\u738b\u5b50\u3068\u7b11\u308f\u306a\u3044\u732b\u3002","desc":"TV\u30a2\u30cb\u30e1\u5316\u6c7a\u5b9a!! \u6a2a\u5bfa\u967d\u4eba\u306f\u982d\u306e\u4e2d\u8eab\u304c\u7169\u60a9\u307e\u307f\u308c\u306a\u9ad8\u6821\u4e8c\u5e74\u751f\u3002\u3072\u3087\u3093\u306a\u3053\u3068\u3067\u201c\u7b11\u308f\u306a\u3044\u732b\u50cf\u201d\u306b\u7948\u3063\u305f\u3089\u3001\u5fc3\u3067\u601d\u3063\u305f\u3053\u3068\u304c\u5782\u308c\u6d41\u3057\u72b6\u614b\u306b! \u305d\u3093\u306a\u4eba\u751f\u5927\u30d4\u30f3\u30c1\u3092\u6551\u3063\u3066\u304f\u308c\u305f\u306e\u306f\u3001\u53ef\u611b\u304f\u3066\u30af\u30fc\u30eb\u306a\u7121\u8868\u2026","id":55},{"title":"\u4e88\u544a \u8133\u6f3f\u70b8\u88c2\u30ac\u30fc\u30eb","desc":"\u30cb\u30b3\u30cb\u30b3\u52d5\u753b\u30672012\u5e74\u4e0b\u534a\u671f\u30dc\u30ab\u30ed\u66f2\u306e\u6700\u5927\u30d2\u30c3\u30c8\u66f2\u3092\u65e9\u304f\u3082\u30b3\u30df\u30c3\u30af\u5316\u3002\u300e\u8133\u6f3f\u300f\u5236\u4f5c\u8005\u30fb\u308c\u308b\u308a\u308a\u6c0f\u672c\u4eba\u306b\u3088\u308b\u539f\u4f5c\u3092\u5b8c\u5168\u6f2b\u753b\u5316\u3057\u307e\u3059!!\u3000\u9023\u8f09\u306f\u30012013\u5e74\uff15\u6708\u914d\u4fe1\u306evol.\uff12\u304b\u3089\u958b\u59cb\u3067\u3001vol.\uff11\u3067\u306f\u2026","id":456},{"title":"\u30db\u30ea\u30df\u30e4","desc":"\u5927\u4eba\u6c17\uff37\uff25\uff22\u4f5c\u5bb6\u30fb\uff28\uff25\uff32\uff2f\u306e\u300c\u5800\u3055\u3093\u3068\u5bae\u6751\u304f\u3093\u300d\u304c\u69cb\u6210\u30fb\u4f5c\u753b\u3092\u65b0\u305f\u306b\u30b3\u30df\u30c3\u30af\u5316!!\u3000\u30af\u30e9\u30b9\u4e00\u306e\u30e2\u30c6\u5973\u5b50\u30fb\u5800\u3068\u30cd\u30af\u30e9\u7537\u5b50\u30fb\u5bae\u6751\u304c\u5b66\u6821\u306e\u5916\u3067\u51fa\u4f1a\u3063\u305f\u3089\u2026\uff01?\u3000\u7518\u304f\u3066\u5207\u306a\u3044\u8d85\u5fae\u70ad\u9178\u7cfb\u30b9\u30af\u30fc\u30eb\u30e9\u30a4\u30d5\u3001\u30b9\u30bf\u30fc\u30c8\u2026","id":319}];
+</style><div class="ads_area">
+<div style="clear:both;"></div>
+<script type="text/javascript" language="javascript"><!--
+var ads_writed = false;
+var ads_google_begin = parseInt('0');
+if (ads_google_begin < ads_google_available_num()) {
+ads_writed = true;
+ads_google_show(ads_google_begin, 0, 1);
+}
+// --></script>
+
+<script>
+window.pixivComicHotWorks = [{"title":"4\u30b3\u30de\u307e\u3093\u304c \u30de\u30b8\u30aa\u30c1\u304f\u3093","desc":"\u6642\u306f\u897f\u66a62010\u5e74\u2015\u3002\u30ae\u30e3\u30b0\u540c\u4eba\u8a8c\u754c\u306b\u5f57\u661f\u306e\u3054\u3068\u304f\u767b\u5834\u3057\u305f\u30c8\u30f3\u30ac\u30ea\u4f5c\u5bb6\u3001\u305d\u306e\u540d\u306f\u9060\u85e4\u3002 \u30b3\u30a4\u30c4\u306e\u63cf\u304f\u8352\u3005\u3057\u3044\u753b\u98a8\u3068\u30b7\u30e5\u30fc\u30eb\u306a\u30cd\u30bf\u306f\u4e00\u5ea6\u8aad\u3080\u3068\u30af\u30bb\u306b\u306a\u308b\u4e2d\u6bd2\u6027\u30a2\u30ea!!! \u4e16\u754c\u4e2d\u63a2\u3057\u305f\u3063\u3066\u3001\u3053\u3093\u306a\u30de\u30f3\u30ac\u306f\u2026","id":145},{"title":"\u8a60\u3046\uff01\u3000\u5e73\u5b89\u4eac","desc":"\u4e2d\u5b66\u751f\u30fb\u5b9a\u5bb6\u306f\u4fee\u5b66\u65c5\u884c\u3067\u8a2a\u308c\u305f\u4eac\u90fd\u3067\u3001\u5e73\u5b89\u6642\u4ee3\u3078\u3068\u30bf\u30a4\u30e0\u30b9\u30ea\u30c3\u30d7\u3057\u3066\u3057\u307e\u3046\u3002\u305d\u3053\u3067\u51fa\u9022\u3063\u305f\u306e\u306f\u3001\u5e73\u5b89\u6700\u5f37\u306e\u30d7\u30ec\u30a4\u30dc\u30fc\u30a4\u30fb\u5728\u539f\u696d\u5e73\u3060\u3063\u305f\u2026!? \u300c\u9ce5\u7c60\u5b66\u6821\u300d\u306e\u771f\u67f4\u771f\u6700\u65b0\u4f5c\u306f\u3001\u767e\u4eba\u4e00\u9996\u306e\u6b4c\u4eba\u305f\u3061\u304c\u3001\u548c\u6b4c\u3067\u2026","id":234},{"title":"\u30e2\u30b6\u30a4\u30af\u30ed\u30fc\u30eb","desc":"\u30cb\u30b3\u30cb\u30b3\u52d5\u753b\u3067540\u4e07\u518d\u751f\u306e\u30e1\u30ac\u30d2\u30c3\u30c8\u66f2\u3092DECO*27\u6c0f\uff08\u539f\u6848\uff09\u00d7akka\u6c0f\uff08\u6f2b\u753b\uff09\u306e\u30aa\u30ea\u30b8\u30ca\u30eb\u30b3\u30f3\u30d3\u3067\u8d08\u308b\u3001\u30dc\u30ab\u30ed\u754c\u885d\u6483\u306e\u6f2b\u753b\u4f5c\u54c1\u304c\u8868\u7d19\uff06\u65b0\u9023\u8f09\u3067\u30b9\u30bf\u30fc\u30c8\uff01\u3000\u697d\u66f2\u306b\u79d8\u3081\u3089\u308c\u305f\u611b\u3068\u6b20\u5982\u306e\u7269\u8a9e\u304c\u59cb\u307e\u308a\u2026","id":336},{"title":"GUMIcs BEST 02 \u30ad\u30ea\u30c8\u30ea\u30bb\u30f3","desc":"GUMI\u306e\u540d\u66f2\u3092\u5b9f\u529b\u6d3e\u30af\u30ea\u30a8\u30a4\u30bf\u30fc\u304c\u6f2b\u753b\u5316\u3059\u308b\u30b7\u30ea\u30fc\u30ba\u9023\u8f09\u300cGUMIcs BEST\u300d\uff08\u30b0\u30df\u30c3\u30af\u30b9\u30fb\u30d9\u30b9\u30c8\uff09\u3002\r\n\r\n\u305d\u306e\u7b2c\uff12\u5f3e\u306e\u697d\u66f2\u306f\u300140mP\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u66f2\u300e\u30ad\u30ea\u30c8\u30ea\u30bb\u30f3\u300f\u3002\r\n\r\n\u5973\u5b50\u9ad8\u751f\u306e\u7518\u9178\u3063\u2026","id":457},{"title":"\u30e1\u30b0\u30e1\u30b0\u2606\u30b7\u30f3\u30ac\u30fc\u30bd\u30f3\u30b0\u30d5\u30a1\u30a4\u30bf\u30fc","desc":"\u682a\u5f0f\u4f1a\u793e\u30a4\u30f3\u30bf\u30fc\u30cd\u30c3\u30c8\u304b\u3089\u767a\u58f2\u3055\u308c\u3066\u3044\u308b\u300cVOCALOID Megpoid\u300d\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u30fbGUMI\u3092\u30d5\u30a3\u30fc\u30c1\u30e3\u30fc\u3057\u305f\u3001\u62b1\u8179\u7d76\u5012\u306e\u30dc\u30ab\u30ed\u30b3\u30e1\u30c7\u30a3\u3002vol.\uff11\u63b2\u8f09\u306e\u7b2c\uff12\u8a71\u3067\u306f\u3001Lily\u3084CUL\u304c\u306a\u3093\u3068\u5f37\u2026","id":334},{"title":"GUMIcs BEST 03 \u604b\u611b\u52c7\u8005","desc":"\u300cGUMIcs BEST\u300d\u306e\u7b2c\uff13\u5f3e\u3002\r\n\u300e\u30bb\u30c4\u30ca\u30c8\u30ea\u30c3\u30d7\u300f\u3084\u300e\u653e\u8ab2\u5f8c\u30b9\u30c8\u30e9\u30a4\u30c9\u300f\u3092\u751f\u307f\u51fa\u3057\u305f\u4eba\u6c17\u30dc\u30ab\u30ed\uff30\u30fbLast Note\uff0e\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u30d2\u30c3\u30c8\u66f2\u300e\u604b\u611b\u52c7\u8005\u300f\u3092\u6f2b\u753b\u5316\u3002\r\n\u30a4\u30e9\u30b9\u30c8\u30ec\u30fc\u30bf\u30fc\u30fb\u3057\u307e\u3069\u308a\u308b\u2026","id":458}];
 </script>
 
 <script>
@@ -539,16 +671,9 @@ window.documentWritePixivComicAd = function() {
   );
 };
 </script>
-<script>
+<script type="text/javascript" language="javascript"><!--
 
-var ads_dokoiku_notfound_count = 0;
-function ads_dokoiku_callback_make(apikey) {
-return function(data) {
-for (var i = 0, l = data.ads.length; i < l; ++i) {
-var ads = data.ads[i];
-
-
-if (ads.adType == 'u') {
+if (!ads_writed) {
 
 if (window.documentWritePixivComicAd) {
 documentWritePixivComicAd();
@@ -556,68 +681,27 @@ documentWritePixivComicAd();
 document.write(
 ''
 + '<a class="ads_anchor" target="_blank" href="http://comic.pixiv.net/?ads=tx">'
-+ '<div class="ads_value">'
-+ '<div class="ads_inner">'
++ '<div class="ads_value" style="padding-top:5px; padding-bottom:5px;">'
++ '<div class="ads_inner" style="padding-top:5px; padding-bottom:5px;">'
 + '<span class="ads_pr">【PR】</span>'
 + '<div class="ads_title">pixivコミック</div>'
 + '<br>'
-+ '<div class="ads_desc">pixivコミックで漫画を無料を試し読み</div>'
-+ '<div class="ads_link">comic.pixiv.net</div>'
++ '<div class="ads_desc" style="display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;">pixivコミックで漫画を無料で試し読み</div>'
++ '<div class="ads_link" style="display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;">comic.pixiv.net</div>'
 + '<div class="ads_clear"></div>'
 + '</div>'
 + '</div>'
 + '</a>'
 );
 }
-} else {
-document.write(
-''
-+ '<a class="ads_anchor" target="_blank" href="' + ads.clickUrl + '">'
-+ '<div class="ads_value">'
-+ '<div class="ads_inner">'
-+ '<span class="ads_title">' + ads.adTitle + '</span>'
-+ '<span class="ads_desc">' + ads.adBodyText1 /*+ ads.adBodyText2*/ + '</span>'
-+ '<span class="ads_link">' + ads.adFooterText + '</span>'
-+ '<span class="ads_clear"></span>'
-+ '</div>'
-+ '</div>'
-+ '</a>'
-);
 }
-}
-}
-}
-var ads_dokoiku_callback_1 = ads_dokoiku_callback_make('0049600016'); // is_top == 1
-var ads_dokoiku_callback_0 = ads_dokoiku_callback_make('0049600017');
 
-</script>
-<div class="ads_area">
-<script>
-
-(function () {
-try {
-var id = 'ads_dokoiku_iframe_1';
-document.write('<iframe style="clear:both;display:block;width:100%;" id="'+id+'" src="about:blank" height="68" scrolling="no" frameborder="0"></iframe>');
-var ifr = document.getElementById(id).contentWindow;
-
-
-ifr.document.open();
-ifr.document.close();
-var content = (
-'<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=UTF-8">'
-+ '<style>body{font-family:"メイリオ","Meiryo",Sans-Serif;}ul{margin:0;padding:0;}a{color:#258FB8}.ads_anchor{text-decoration:none;}</style>'
-+ '<body class="ads_area" style="padding:0;margin:0;font-size:12px;line-height:1.5;background-color:#fff;">'
-+ '<script>setTimeout(function(){document.write(\'<style type=\\\"text/css\\\">\\n\\n.one_column .ads_area_no_margin{\\nbackground-color: #FFFFFF;\\ntext-align: center;\\nwidth: 968px;\\n}\\n.ads_anchor {\\noutline: none;\\n}\\n\\n.ads_anchor:hover .ads_value,\\n.ads_anchor:hover {\\ntext-decoration: none;\\ncursor: pointer;\\nbackground-color: #FFFFFF;\\n}\\n.ads_inner .ads_anchor:hover {\\ncursor: pointer;\\nbackground-color: #FFFFCC;\\n}\\n\\n.ads_value {\\nwidth: 100%;\\ntext-decoration: none;\\ntext-align: left;\\n}\\n\\n.ads_area {\\nposition: relative;\\nmargin: 0;\\npadding: 0px;\\n}\\n.ads_value .ads_inner {\\n\\npadding: 25px 0px 25px 20px;\\n\\nline-height: 14px;\\n}\\n\\n.ads_pr {\\npadding: 0;\\nfloat: left;\\ncolor:#A0A0A0;\\nfont-size:13px;\\npadding-right: 10px;\\n}\\n\\n.ads_anchor .ads_title,\\n.ads_anchor:hover .ads_title {\\ncolor: #258FB8;\\nfont-size: 15px;\\nfont-weight: bold;\\ntext-decoration: underline;\\n\\n\\ndisplay: inline;\\nfloat: left;\\npadding-right: 10px;\\n}\\n\\n.ads_value .ads_desc {\\ncolor: #000000;\\ndisplay: inline;\\nfloat: left;\\nfont-size: 13px;\\npadding: 0;\\n}\\n.ads_value .ads_link {\\ncolor: #008000;\\nfont-size:13px;\\ndisplay: none;\\n}\\n\\n.ads_value .ads_clear {\\ndisplay: block;\\nclear: both;\\n}\\n\\n.ads_sponcer {\\ncolor: #A0A0A0;\\nfont-size: 13px;\\nposition: absolute;\\nbottom: 0;\\nright: 0;\\n}\\n.ads_sponcer a,\\n.ads_sponcer a:hover {\\ncolor: #A0A0A0;\\ntext-decoration: underline;\\n}\\n\\n<\\/style><script>\\nwindow.pixivComicHotWorks = [{\\\"title\\\":\\\"\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30de\\\\u30b9\\\\u30bf\\\\u30fc2 The world is all one !!\\\",\\\"desc\\\":\\\"\\\\u8d85\\\\u8a71\\\\u984c\\\\u306e\\\\u56fd\\\\u6c11\\\\u7684\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30e6\\\\u30cb\\\\u30c3\\\\u30c8\\\\u30d7\\\\u30ed\\\\u30c7\\\\u30e5\\\\u30fc\\\\u30b9\\\\u30b2\\\\u30fc\\\\u30e0\\\\u300e\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30de\\\\u30b9\\\\u30bf\\\\u30fc2\\\\u300f\\\\u3092\\\\u539f\\\\u4f5c\\\\u306b\\\\u3057\\\\u305f\\\\u3001\\\\u30d0\\\\u30f3\\\\u30c0\\\\u30a4\\\\u30ca\\\\u30e0\\\\u30b3\\\\u30b2\\\\u30fc\\\\u30e0\\\\u30b9\\\\u516c\\\\u8a8d\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u304c\\\\u767b\\\\u5834! \\\\u82b8\\\\u80fd\\\\u4e8b\\\\u52d9\\\\u6240\\\\u30fb765\\\\u30d7\\\\u30ed\\\\u306b\\\\u6240\\\\u5c5e\\\\u3059\\\\u308b\\\\u5929\\\\u6d77\\\\u6625\\\\u9999\\\\u3001\\\\u6211\\\\u90a3\\\\u8987 \\\\u97ff\\\\u3001\\\\u8429\\\\u539f\\\\u96ea\\\\u6b69\\\\u306f\\\\u3001\\\\u534a\\\\u5e74\\\\u307b\\\\u2026\\\",\\\"id\\\":107},{\\\"title\\\":\\\"\\\\u846c\\\\u9664\\\\u5c4b\\\\u00d7LORD\\\",\\\"desc\\\":\\\"\\\\u300c\\\\u30e2\\\\u30ce\\\\u30af\\\\u30ed\\\\u30fc\\\\u30e0\\\\u300d\\\\u306f\\\\u3001\\\\u4eca\\\\u8a71\\\\u984c\\\\u306e\\\\u5927\\\\u4eba\\\\u6c17\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30b0\\\\u30eb\\\\u30fc\\\\u30d7\\\\u3002\\\\u5f7c\\\\u3089\\\\uff15\\\\u4eba\\\\u306e\\\\u9b45\\\\u529b\\\\u306b\\\\u4eba\\\\u3005\\\\u306f\\\\u5922\\\\u4e2d\\\\u306b\\\\u306a\\\\u308a\\\\u3001\\\\u9b45\\\\u4e86\\\\u3055\\\\u308c\\\\u3066\\\\u3044\\\\u308b\\\\u3002\\\\u3057\\\\u304b\\\\u3057\\\\u3001\\\\u5f7c\\\\u3089\\\\u306b\\\\u306f\\\\u3082\\\\u3046\\\\u3072\\\\u3068\\\\u3064\\\\u306e\\\\u9854\\\\u304c\\\\u3042\\\\u3063\\\\u305f\\\\u3002\\\\u4e16\\\\u306e\\\\u4e2d\\\\u306b\\\\u3042\\\\u308b\\\\u88c1\\\\u3051\\\\u306a\\\\u3044\\\\u300c\\\\u60aa\\\\u300d\\\\u3092\\\\u81ea\\\\u3089\\\\u306e\\\\u624b\\\\u3067\\\\u88c1\\\\u304f\\\\u300c\\\\u846c\\\\u9664\\\\u5c4b\\\\u300d\\\\u3068\\\\u3044\\\\u3046\\\\u2026\\\",\\\"id\\\":280},{\\\"title\\\":\\\"\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\",\\\"desc\\\":\\\"\\\\u300c\\\\u4eba\\\\u751f\\\\u306f\\\\u5730\\\\u7344\\\\u3088\\\\u308a\\\\u3082\\\\u5730\\\\u7344\\\\u7684\\\\u3060\\\\u3002\\\\u300d\\\\r\\\\n\\\\r\\\\n\\\\u51f6\\\\u60aa\\\\u3067\\\\u51f6\\\\u66b4\\\\u306a\\\\u72af\\\\u7f6a\\\\u8005\\\\u3092\\\\u5bfe\\\\u8c61\\\\u3068\\\\u3057\\\\u3001\\\\u8ffd\\\\u3044\\\\u304b\\\\u3051\\\\u3001\\\\u300c\\\\u51e6\\\\u5211\\\\u300d\\\\u3092\\\\u57f7\\\\u884c\\\\u3059\\\\u308b\\\\u7d44\\\\u7e54\\\\u3001\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\\u3002\\\\r\\\\n\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\\u306e\\\\u51e6\\\\u5211\\\\u4eba\\\\u30fb\\\\u30a2\\\\u30a4\\\\u30f3\\\\u30b9\\\\u306f5\\\\u672c\\\\u306e\\\\u65e5\\\\u672c\\\\u5200\\\\u3092\\\\u624b\\\\u306b\\\\u3001\\\\u5e38\\\\u52dd\\\\u7121\\\\u6557\\\\u306e\\\\u51e6\\\\u5211\\\\u4eba\\\\u3068\\\\u3057\\\\u2026\\\",\\\"id\\\":459},{\\\"title\\\":\\\"\\\\u5909\\\\u614b\\\\u738b\\\\u5b50\\\\u3068\\\\u7b11\\\\u308f\\\\u306a\\\\u3044\\\\u732b\\\\u3002\\\",\\\"desc\\\":\\\"TV\\\\u30a2\\\\u30cb\\\\u30e1\\\\u5316\\\\u6c7a\\\\u5b9a!! \\\\u6a2a\\\\u5bfa\\\\u967d\\\\u4eba\\\\u306f\\\\u982d\\\\u306e\\\\u4e2d\\\\u8eab\\\\u304c\\\\u7169\\\\u60a9\\\\u307e\\\\u307f\\\\u308c\\\\u306a\\\\u9ad8\\\\u6821\\\\u4e8c\\\\u5e74\\\\u751f\\\\u3002\\\\u3072\\\\u3087\\\\u3093\\\\u306a\\\\u3053\\\\u3068\\\\u3067\\\\u201c\\\\u7b11\\\\u308f\\\\u306a\\\\u3044\\\\u732b\\\\u50cf\\\\u201d\\\\u306b\\\\u7948\\\\u3063\\\\u305f\\\\u3089\\\\u3001\\\\u5fc3\\\\u3067\\\\u601d\\\\u3063\\\\u305f\\\\u3053\\\\u3068\\\\u304c\\\\u5782\\\\u308c\\\\u6d41\\\\u3057\\\\u72b6\\\\u614b\\\\u306b! \\\\u305d\\\\u3093\\\\u306a\\\\u4eba\\\\u751f\\\\u5927\\\\u30d4\\\\u30f3\\\\u30c1\\\\u3092\\\\u6551\\\\u3063\\\\u3066\\\\u304f\\\\u308c\\\\u305f\\\\u306e\\\\u306f\\\\u3001\\\\u53ef\\\\u611b\\\\u304f\\\\u3066\\\\u30af\\\\u30fc\\\\u30eb\\\\u306a\\\\u7121\\\\u8868\\\\u2026\\\",\\\"id\\\":55},{\\\"title\\\":\\\"\\\\u4e88\\\\u544a \\\\u8133\\\\u6f3f\\\\u70b8\\\\u88c2\\\\u30ac\\\\u30fc\\\\u30eb\\\",\\\"desc\\\":\\\"\\\\u30cb\\\\u30b3\\\\u30cb\\\\u30b3\\\\u52d5\\\\u753b\\\\u30672012\\\\u5e74\\\\u4e0b\\\\u534a\\\\u671f\\\\u30dc\\\\u30ab\\\\u30ed\\\\u66f2\\\\u306e\\\\u6700\\\\u5927\\\\u30d2\\\\u30c3\\\\u30c8\\\\u66f2\\\\u3092\\\\u65e9\\\\u304f\\\\u3082\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u5316\\\\u3002\\\\u300e\\\\u8133\\\\u6f3f\\\\u300f\\\\u5236\\\\u4f5c\\\\u8005\\\\u30fb\\\\u308c\\\\u308b\\\\u308a\\\\u308a\\\\u6c0f\\\\u672c\\\\u4eba\\\\u306b\\\\u3088\\\\u308b\\\\u539f\\\\u4f5c\\\\u3092\\\\u5b8c\\\\u5168\\\\u6f2b\\\\u753b\\\\u5316\\\\u3057\\\\u307e\\\\u3059!!\\\\u3000\\\\u9023\\\\u8f09\\\\u306f\\\\u30012013\\\\u5e74\\\\uff15\\\\u6708\\\\u914d\\\\u4fe1\\\\u306evol.\\\\uff12\\\\u304b\\\\u3089\\\\u958b\\\\u59cb\\\\u3067\\\\u3001vol.\\\\uff11\\\\u3067\\\\u306f\\\\u2026\\\",\\\"id\\\":456},{\\\"title\\\":\\\"\\\\u30db\\\\u30ea\\\\u30df\\\\u30e4\\\",\\\"desc\\\":\\\"\\\\u5927\\\\u4eba\\\\u6c17\\\\uff37\\\\uff25\\\\uff22\\\\u4f5c\\\\u5bb6\\\\u30fb\\\\uff28\\\\uff25\\\\uff32\\\\uff2f\\\\u306e\\\\u300c\\\\u5800\\\\u3055\\\\u3093\\\\u3068\\\\u5bae\\\\u6751\\\\u304f\\\\u3093\\\\u300d\\\\u304c\\\\u69cb\\\\u6210\\\\u30fb\\\\u4f5c\\\\u753b\\\\u3092\\\\u65b0\\\\u305f\\\\u306b\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u5316!!\\\\u3000\\\\u30af\\\\u30e9\\\\u30b9\\\\u4e00\\\\u306e\\\\u30e2\\\\u30c6\\\\u5973\\\\u5b50\\\\u30fb\\\\u5800\\\\u3068\\\\u30cd\\\\u30af\\\\u30e9\\\\u7537\\\\u5b50\\\\u30fb\\\\u5bae\\\\u6751\\\\u304c\\\\u5b66\\\\u6821\\\\u306e\\\\u5916\\\\u3067\\\\u51fa\\\\u4f1a\\\\u3063\\\\u305f\\\\u3089\\\\u2026\\\\uff01?\\\\u3000\\\\u7518\\\\u304f\\\\u3066\\\\u5207\\\\u306a\\\\u3044\\\\u8d85\\\\u5fae\\\\u70ad\\\\u9178\\\\u7cfb\\\\u30b9\\\\u30af\\\\u30fc\\\\u30eb\\\\u30e9\\\\u30a4\\\\u30d5\\\\u3001\\\\u30b9\\\\u30bf\\\\u30fc\\\\u30c8\\\\u2026\\\",\\\"id\\\":319}];\\n<\\/script>\\n\\n<script>\\nwindow.pixivComicAds = [];\\nif (window.pixivComicHotWorks) {\\n  pixivComicAds = pixivComicAds.concat(pixivComicHotWorks);\\n}\\nwindow.documentWritePixivComicAd = function() {\\n  try {\\n    if (window.pixivComicAds) {\\n      var ads = [];\\n      var pixiv = window.pixiv;\\n      if (!pixiv) {\\n        try {\\n          pixiv = window.parent.pixiv;\\n        } catch (e) {}\\n      }\\n      if (pixiv && pixiv.user && pixiv.user.gender) {\\n        var seg = pixiv.user.gender === \\\'male\\\' ? 1 : pixiv.user.gender === \\\'female\\\' ? 2 : 0;\\n        for (var i = 0, l = pixivComicAds.length; i < l; i++) {\\n          var ad = pixivComicAds[i];\\n          if (!ad.seg || ad.seg === seg) {\\n            ads.push(ad);\\n          }\\n        }\\n      }\\n      if (ads.length === 0) {\\n        ads = pixivComicAds;\\n      }\\n      var ad = ads[Math.floor(Math.random() * 10000) % ads.length];\\n      var link;\\n      if (!ad.type || ad.type === \\\'w\\\') {\\n        link = \\\'http://comic.pixiv.net/works/\\\' + ad.id + \\\'?ads=tx-w\\\' + ad.id;\\n      } else if (ad.type === \\\'m\\\') {\\n        link = \\\'http://comic.pixiv.net/magazines/\\\' + ad.id + \\\'?ads=tx-m\\\' + ad.id;\\n      }\\n      document.write(\\n        \\\'\\\'\\n        + \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"\\\' + link + \\\'\\\">\\\'\\n        + \\\'<div class=\\\"ads_value\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n        + \\\'<div class=\\\"ads_inner\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n        + \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n        + \\\'<div class=\\\"ads_title\\\">pixivコミックで『\\\' + ad.title + \\\'』を読もう！<\\/div>\\\'\\n        + \\\'<br>\\\'\\n        + \\\'<div class=\\\"ads_desc\\\" style=\\\"display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;\\\">\\\' + ad.desc + \\\'<\\/div>\\\'\\n        + \\\'<div class=\\\"ads_link\\\" style=\\\"display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;\\\">comic.pixiv.net<\\/div>\\\'\\n        + \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n        + \\\'<\\/div>\\\'\\n        + \\\'<\\/div>\\\'\\n        + \\\'<\\/a>\\\'\\n      );\\n      return;\\n    }\\n  } catch(e) {\\n  }\\n  document.write(\\n    \\\'\\\'\\n    + \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"http://comic.pixiv.net/?ads=tx\\\">\\\'\\n    + \\\'<div class=\\\"ads_value\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n    + \\\'<div class=\\\"ads_inner\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n    + \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n    + \\\'<div class=\\\"ads_title\\\">pixivコミック<\\/div>\\\'\\n    + \\\'<br>\\\'\\n    + \\\'<div class=\\\"ads_desc\\\" style=\\\"display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;\\\">pixivコミックで漫画を無料で試し読み<\\/div>\\\'\\n    + \\\'<div class=\\\"ads_link\\\" style=\\\"display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;\\\">comic.pixiv.net<\\/div>\\\'\\n    + \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n    + \\\'<\\/div>\\\'\\n    + \\\'<\\/div>\\\'\\n    + \\\'<\\/a>\\\'\\n  );\\n};\\n<\\/script>\\n<script>\\n\\nvar ads_dokoiku_notfound_count = 0;\\nfunction ads_dokoiku_callback_make(apikey) {\\nreturn function(data) {\\nfor (var i = 0, l = data.ads.length; i < l; ++i) {\\nvar ads = data.ads[i];\\n\\n\\nif (ads.adType == \\\'u\\\') {\\n\\nif (window.documentWritePixivComicAd) {\\ndocumentWritePixivComicAd();\\n} else {\\ndocument.write(\\n\\\'\\\'\\n+ \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"http://comic.pixiv.net/?ads=tx\\\">\\\'\\n+ \\\'<div class=\\\"ads_value\\\">\\\'\\n+ \\\'<div class=\\\"ads_inner\\\">\\\'\\n+ \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n+ \\\'<div class=\\\"ads_title\\\">pixivコミック<\\/div>\\\'\\n+ \\\'<br>\\\'\\n+ \\\'<div class=\\\"ads_desc\\\">pixivコミックで漫画を無料を試し読み<\\/div>\\\'\\n+ \\\'<div class=\\\"ads_link\\\">comic.pixiv.net<\\/div>\\\'\\n+ \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/a>\\\'\\n);\\n}\\n} else {\\ndocument.write(\\n\\\'\\\'\\n+ \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"\\\' + ads.clickUrl + \\\'\\\">\\\'\\n+ \\\'<div class=\\\"ads_value\\\">\\\'\\n+ \\\'<div class=\\\"ads_inner\\\">\\\'\\n+ \\\'<span class=\\\"ads_title\\\">\\\' + ads.adTitle + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_desc\\\">\\\' + ads.adBodyText1 /*+ ads.adBodyText2*/ + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_link\\\">\\\' + ads.adFooterText + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_clear\\\"><\\/span>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/a>\\\'\\n);\\n}\\n}\\n}\\n}\\nvar ads_dokoiku_callback_1 = ads_dokoiku_callback_make(\\\'0049600016\\\'); // is_top == 1\\nvar ads_dokoiku_callback_0 = ads_dokoiku_callback_make(\\\'0049600017\\\');\\n\\n<\\/script><script type="text/javascript" src="http://nw.ads.doko.jp/adparts/ad?sid=IGPIXIVN&prj=j&chn=illust&rnd=1&fmt=125X125&mfm=0&geo=1&bf=4&zyxrqp=5&callback=ads_dokoiku_callback_1"><\\/script>\');if(navigator.userAgent.match(/msie/i));else document.close();},1);<\/script>'
-);
-ifr.document.write(content);
-} catch (e) {
-}
-})();
-
-</script>
+// --></script>
 <div style="clear:both;"></div>
 </div>
-</div><div id="tag-editor"></div><section class="work-tags"><dl><dt style="display:none;">Tags</dt><dd><span class="tags-container"><ul class="tags"><li class="tag"><a href="/tags.php?tag=MAYU" class="portal">c</a><span class="self-tag">*</span><a href="/search.php?s_mode=s_tag_full&amp;word=MAYU" class="text">MAYU</a><a href="http://dic.pixiv.net/a/MAYU" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="MAYU on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID" class="portal">c</a><span class="self-tag">*</span><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID" class="text">VOCALOID</a><a href="http://dic.pixiv.net/a/VOCALOID" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID3" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID3" class="text">VOCALOID3</a><a href="http://dic.pixiv.net/a/VOCALOID3" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID3 on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID5000users%E5%85%A5%E3%82%8A" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID5000users%E5%85%A5%E3%82%8A" class="text">VOCALOID5000users入り</a><a href="http://dic.pixiv.net/a/VOCALOID5000users%E5%85%A5%E3%82%8A" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID5000users入り on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" class="text">うさぎになりたい</a><a href="http://dic.pixiv.net/a/%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for うさぎになりたい"></a></li><li class="tag"><a href="/tags.php?tag=%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" class="text">なにこれかわいい</a><a href="http://dic.pixiv.net/a/%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="なにこれかわいい on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" class="text">やはり存在する斧</a><a href="http://dic.pixiv.net/a/%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for やはり存在する斧"></a></li><li class="tag"><a href="/tags.php?tag=%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" class="text">ヤンデレ</a><a href="http://dic.pixiv.net/a/%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="ヤンデレ on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" class="text">吸いこまれそうな瞳の色</a><a href="http://dic.pixiv.net/a/%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for 吸いこまれそうな瞳の色"></a></li></ul></span><script id="template-work-tags" type="text/x-handlebars-template">
+</div>
+
+<div id="tag-editor"></div><section class="work-tags"><dl><dt style="display:none;">Tags</dt><dd><span class="tags-container"><ul class="tags"><li class="tag"><a href="/tags.php?tag=MAYU" class="portal">c</a><span class="self-tag">*</span><a href="/search.php?s_mode=s_tag_full&amp;word=MAYU" class="text">MAYU</a><a href="http://dic.pixiv.net/a/MAYU" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="MAYU on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID" class="portal">c</a><span class="self-tag">*</span><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID" class="text">VOCALOID</a><a href="http://dic.pixiv.net/a/VOCALOID" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID3" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID3" class="text">VOCALOID3</a><a href="http://dic.pixiv.net/a/VOCALOID3" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID3 on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=VOCALOID5000users%E5%85%A5%E3%82%8A" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=VOCALOID5000users%E5%85%A5%E3%82%8A" class="text">VOCALOID5000users入り</a><a href="http://dic.pixiv.net/a/VOCALOID5000users%E5%85%A5%E3%82%8A" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="VOCALOID5000users入り on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" class="text">うさぎになりたい</a><a href="http://dic.pixiv.net/a/%E3%81%86%E3%81%95%E3%81%8E%E3%81%AB%E3%81%AA%E3%82%8A%E3%81%9F%E3%81%84" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for うさぎになりたい"></a></li><li class="tag"><a href="/tags.php?tag=%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" class="text">なにこれかわいい</a><a href="http://dic.pixiv.net/a/%E3%81%AA%E3%81%AB%E3%81%93%E3%82%8C%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="なにこれかわいい on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" class="text">やはり存在する斧</a><a href="http://dic.pixiv.net/a/%E3%82%84%E3%81%AF%E3%82%8A%E5%AD%98%E5%9C%A8%E3%81%99%E3%82%8B%E6%96%A7" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for やはり存在する斧"></a></li><li class="tag"><a href="/tags.php?tag=%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" class="text">ヤンデレ</a><a href="http://dic.pixiv.net/a/%E3%83%A4%E3%83%B3%E3%83%87%E3%83%AC" target="_blank" class="icon-pixpedia ui-tooltip" data-tooltip="ヤンデレ on pixiv Encyclopedia"></a></li><li class="tag"><a href="/tags.php?tag=%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" class="portal">c</a><a href="/search.php?s_mode=s_tag_full&amp;word=%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" class="text">吸いこまれそうな瞳の色</a><a href="http://dic.pixiv.net/a/%E5%90%B8%E3%81%84%E3%81%93%E3%81%BE%E3%82%8C%E3%81%9D%E3%81%86%E3%81%AA%E7%9E%B3%E3%81%AE%E8%89%B2" target="_blank" class="icon-pixpedia-no-item ui-tooltip" data-tooltip="Create article for 吸いこまれそうな瞳の色"></a></li></ul></span><script id="template-work-tags" type="text/x-handlebars-template">
 {{#if tags}}
 <ul class="tags">
 {{#tags}}
@@ -632,34 +716,237 @@ ifr.document.write(content);
 {{else}}
 <span class="no-item">No registered tags found</span>
 {{/if}}
-</script></li><a href="#" onclick="startTagEdit(); return false;" class="edit">Edit tags</a></dd></dl></section><section class="action" style="margin-bottom:0"><ul class="share-button"><li><a class="twitter-share-button" data-url="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-text="新しいお姫様 | Nardack #pixiv" data-count="horizontal"></a></li><li><div class="g-plusone" data-href="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-size="medium"></div></li><li><div class="fb-like" data-href="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-layout="button_count" data-send="false"></div></li><li class="more ui-share-button ui-modal-trigger">▾ Share more</li></ul><script id="template-ui-share-container" type="text/x-jquery-tmpl"><div class="share-container group-modal has_button"><div class="ui-close-button-light" onclick="pixiv.modal.close()"></div><div class="html5-section buttons"><div class="stacc"><a href="javascript:void(0);" title="Stacc! this work" class="ui-stacc-button modal">stacc!</a></div><div class="mixi-favorite"><iframe src="http://plugins.mixi.jp/favorite.pl?service_key=c5847e67e23f16e343f9799178cd4a2beea3ad93&amp;href=http%3A%2F%2Fwww.pixiv.net%2Fmember_illust.php%3Fillust_id%3D32039274%26mode%3Dmedium&amp;width=58" frameborder="0" allowtransparency="true" scrolling="no"></iframe></div><div class="hatena-bookmark"><a href="http://b.hatena.ne.jp/entry/http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard"></a></div></div></div></script><div class="bookmark"><a href="bookmark_add.php?type=illust&amp;illust_id=32039274" class="ui-button">Add to Bookmarks</a></div></section><div align="center">
-<div class="ads_area">
-<script>
-
-(function () {
-try {
-var id = 'ads_dokoiku_iframe_0';
-document.write('<iframe style="clear:both;display:block;width:100%;" id="'+id+'" src="about:blank" height="68" scrolling="no" frameborder="0"></iframe>');
-var ifr = document.getElementById(id).contentWindow;
+</script></li><a href="#" onclick="startTagEdit(); return false;" class="edit">Edit tags</a></dd></dl></section><section class="action" style="margin-bottom:0"><ul class="share-button"><li><a class="twitter-share-button" data-url="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-text="新しいお姫様 | Nardack #pixiv" data-count="horizontal"></a></li><li><div class="g-plusone" data-href="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-size="medium"></div></li><li><div class="fb-like" data-href="http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" data-layout="button_count" data-send="false"></div></li><li class="more ui-share-button ui-modal-trigger">▾ Share more</li></ul><script id="template-ui-share-container" type="text/x-jquery-tmpl"><div class="share-container group-modal has_button"><div class="ui-close-button-light" onclick="pixiv.modal.close()"></div><div class="html5-section buttons"><div class="stacc"><a href="javascript:void(0);" title="Stacc! this work" class="ui-stacc-button modal">stacc!</a></div><div class="mixi-favorite"><iframe src="http://plugins.mixi.jp/favorite.pl?service_key=c5847e67e23f16e343f9799178cd4a2beea3ad93&amp;href=http%3A%2F%2Fwww.pixiv.net%2Fmember_illust.php%3Fillust_id%3D32039274%26mode%3Dmedium&amp;width=58" frameborder="0" allowtransparency="true" scrolling="no"></iframe></div><div class="hatena-bookmark"><a href="http://b.hatena.ne.jp/entry/http://www.pixiv.net/member_illust.php?illust_id=32039274&amp;mode=medium" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard"></a></div></div></div></script><div class="bookmark"><a href="bookmark_add.php?type=illust&amp;illust_id=32039274" class="ui-button">Add to Bookmarks</a></div></section>
 
 
-ifr.document.open();
-ifr.document.close();
-var content = (
-'<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=UTF-8">'
-+ '<style>body{font-family:"メイリオ","Meiryo",Sans-Serif;}ul{margin:0;padding:0;}a{color:#258FB8}.ads_anchor{text-decoration:none;}</style>'
-+ '<body class="ads_area" style="padding:0;margin:0;font-size:12px;line-height:1.5;background-color:#fff;">'
-+ '<script>setTimeout(function(){document.write(\'<style type=\\\"text/css\\\">\\n\\n.one_column .ads_area_no_margin{\\nbackground-color: #FFFFFF;\\ntext-align: center;\\nwidth: 968px;\\n}\\n.ads_anchor {\\noutline: none;\\n}\\n\\n.ads_anchor:hover .ads_value,\\n.ads_anchor:hover {\\ntext-decoration: none;\\ncursor: pointer;\\nbackground-color: #FFFFFF;\\n}\\n.ads_inner .ads_anchor:hover {\\ncursor: pointer;\\nbackground-color: #FFFFCC;\\n}\\n\\n.ads_value {\\nwidth: 100%;\\ntext-decoration: none;\\ntext-align: left;\\n}\\n\\n.ads_area {\\nposition: relative;\\nmargin: 0;\\npadding: 0px;\\n}\\n.ads_value .ads_inner {\\n\\npadding: 25px 0px 25px 20px;\\n\\nline-height: 14px;\\n}\\n\\n.ads_pr {\\npadding: 0;\\nfloat: left;\\ncolor:#A0A0A0;\\nfont-size:13px;\\npadding-right: 10px;\\n}\\n\\n.ads_anchor .ads_title,\\n.ads_anchor:hover .ads_title {\\ncolor: #258FB8;\\nfont-size: 15px;\\nfont-weight: bold;\\ntext-decoration: underline;\\n\\n\\ndisplay: inline;\\nfloat: left;\\npadding-right: 10px;\\n}\\n\\n.ads_value .ads_desc {\\ncolor: #000000;\\ndisplay: inline;\\nfloat: left;\\nfont-size: 13px;\\npadding: 0;\\n}\\n.ads_value .ads_link {\\ncolor: #008000;\\nfont-size:13px;\\ndisplay: none;\\n}\\n\\n.ads_value .ads_clear {\\ndisplay: block;\\nclear: both;\\n}\\n\\n.ads_sponcer {\\ncolor: #A0A0A0;\\nfont-size: 13px;\\nposition: absolute;\\nbottom: 0;\\nright: 0;\\n}\\n.ads_sponcer a,\\n.ads_sponcer a:hover {\\ncolor: #A0A0A0;\\ntext-decoration: underline;\\n}\\n\\n<\\/style><script>\\nwindow.pixivComicHotWorks = [{\\\"title\\\":\\\"\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30de\\\\u30b9\\\\u30bf\\\\u30fc2 The world is all one !!\\\",\\\"desc\\\":\\\"\\\\u8d85\\\\u8a71\\\\u984c\\\\u306e\\\\u56fd\\\\u6c11\\\\u7684\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30e6\\\\u30cb\\\\u30c3\\\\u30c8\\\\u30d7\\\\u30ed\\\\u30c7\\\\u30e5\\\\u30fc\\\\u30b9\\\\u30b2\\\\u30fc\\\\u30e0\\\\u300e\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30de\\\\u30b9\\\\u30bf\\\\u30fc2\\\\u300f\\\\u3092\\\\u539f\\\\u4f5c\\\\u306b\\\\u3057\\\\u305f\\\\u3001\\\\u30d0\\\\u30f3\\\\u30c0\\\\u30a4\\\\u30ca\\\\u30e0\\\\u30b3\\\\u30b2\\\\u30fc\\\\u30e0\\\\u30b9\\\\u516c\\\\u8a8d\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u304c\\\\u767b\\\\u5834! \\\\u82b8\\\\u80fd\\\\u4e8b\\\\u52d9\\\\u6240\\\\u30fb765\\\\u30d7\\\\u30ed\\\\u306b\\\\u6240\\\\u5c5e\\\\u3059\\\\u308b\\\\u5929\\\\u6d77\\\\u6625\\\\u9999\\\\u3001\\\\u6211\\\\u90a3\\\\u8987 \\\\u97ff\\\\u3001\\\\u8429\\\\u539f\\\\u96ea\\\\u6b69\\\\u306f\\\\u3001\\\\u534a\\\\u5e74\\\\u307b\\\\u2026\\\",\\\"id\\\":107},{\\\"title\\\":\\\"\\\\u846c\\\\u9664\\\\u5c4b\\\\u00d7LORD\\\",\\\"desc\\\":\\\"\\\\u300c\\\\u30e2\\\\u30ce\\\\u30af\\\\u30ed\\\\u30fc\\\\u30e0\\\\u300d\\\\u306f\\\\u3001\\\\u4eca\\\\u8a71\\\\u984c\\\\u306e\\\\u5927\\\\u4eba\\\\u6c17\\\\u30a2\\\\u30a4\\\\u30c9\\\\u30eb\\\\u30b0\\\\u30eb\\\\u30fc\\\\u30d7\\\\u3002\\\\u5f7c\\\\u3089\\\\uff15\\\\u4eba\\\\u306e\\\\u9b45\\\\u529b\\\\u306b\\\\u4eba\\\\u3005\\\\u306f\\\\u5922\\\\u4e2d\\\\u306b\\\\u306a\\\\u308a\\\\u3001\\\\u9b45\\\\u4e86\\\\u3055\\\\u308c\\\\u3066\\\\u3044\\\\u308b\\\\u3002\\\\u3057\\\\u304b\\\\u3057\\\\u3001\\\\u5f7c\\\\u3089\\\\u306b\\\\u306f\\\\u3082\\\\u3046\\\\u3072\\\\u3068\\\\u3064\\\\u306e\\\\u9854\\\\u304c\\\\u3042\\\\u3063\\\\u305f\\\\u3002\\\\u4e16\\\\u306e\\\\u4e2d\\\\u306b\\\\u3042\\\\u308b\\\\u88c1\\\\u3051\\\\u306a\\\\u3044\\\\u300c\\\\u60aa\\\\u300d\\\\u3092\\\\u81ea\\\\u3089\\\\u306e\\\\u624b\\\\u3067\\\\u88c1\\\\u304f\\\\u300c\\\\u846c\\\\u9664\\\\u5c4b\\\\u300d\\\\u3068\\\\u3044\\\\u3046\\\\u2026\\\",\\\"id\\\":280},{\\\"title\\\":\\\"\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\",\\\"desc\\\":\\\"\\\\u300c\\\\u4eba\\\\u751f\\\\u306f\\\\u5730\\\\u7344\\\\u3088\\\\u308a\\\\u3082\\\\u5730\\\\u7344\\\\u7684\\\\u3060\\\\u3002\\\\u300d\\\\r\\\\n\\\\r\\\\n\\\\u51f6\\\\u60aa\\\\u3067\\\\u51f6\\\\u66b4\\\\u306a\\\\u72af\\\\u7f6a\\\\u8005\\\\u3092\\\\u5bfe\\\\u8c61\\\\u3068\\\\u3057\\\\u3001\\\\u8ffd\\\\u3044\\\\u304b\\\\u3051\\\\u3001\\\\u300c\\\\u51e6\\\\u5211\\\\u300d\\\\u3092\\\\u57f7\\\\u884c\\\\u3059\\\\u308b\\\\u7d44\\\\u7e54\\\\u3001\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\\u3002\\\\r\\\\n\\\\u30a2\\\\u30f3\\\\u30c9\\\\u30ed\\\\u30de\\\\u30ea\\\\u30a6\\\\u30b9\\\\u306e\\\\u51e6\\\\u5211\\\\u4eba\\\\u30fb\\\\u30a2\\\\u30a4\\\\u30f3\\\\u30b9\\\\u306f5\\\\u672c\\\\u306e\\\\u65e5\\\\u672c\\\\u5200\\\\u3092\\\\u624b\\\\u306b\\\\u3001\\\\u5e38\\\\u52dd\\\\u7121\\\\u6557\\\\u306e\\\\u51e6\\\\u5211\\\\u4eba\\\\u3068\\\\u3057\\\\u2026\\\",\\\"id\\\":459},{\\\"title\\\":\\\"\\\\u5909\\\\u614b\\\\u738b\\\\u5b50\\\\u3068\\\\u7b11\\\\u308f\\\\u306a\\\\u3044\\\\u732b\\\\u3002\\\",\\\"desc\\\":\\\"TV\\\\u30a2\\\\u30cb\\\\u30e1\\\\u5316\\\\u6c7a\\\\u5b9a!! \\\\u6a2a\\\\u5bfa\\\\u967d\\\\u4eba\\\\u306f\\\\u982d\\\\u306e\\\\u4e2d\\\\u8eab\\\\u304c\\\\u7169\\\\u60a9\\\\u307e\\\\u307f\\\\u308c\\\\u306a\\\\u9ad8\\\\u6821\\\\u4e8c\\\\u5e74\\\\u751f\\\\u3002\\\\u3072\\\\u3087\\\\u3093\\\\u306a\\\\u3053\\\\u3068\\\\u3067\\\\u201c\\\\u7b11\\\\u308f\\\\u306a\\\\u3044\\\\u732b\\\\u50cf\\\\u201d\\\\u306b\\\\u7948\\\\u3063\\\\u305f\\\\u3089\\\\u3001\\\\u5fc3\\\\u3067\\\\u601d\\\\u3063\\\\u305f\\\\u3053\\\\u3068\\\\u304c\\\\u5782\\\\u308c\\\\u6d41\\\\u3057\\\\u72b6\\\\u614b\\\\u306b! \\\\u305d\\\\u3093\\\\u306a\\\\u4eba\\\\u751f\\\\u5927\\\\u30d4\\\\u30f3\\\\u30c1\\\\u3092\\\\u6551\\\\u3063\\\\u3066\\\\u304f\\\\u308c\\\\u305f\\\\u306e\\\\u306f\\\\u3001\\\\u53ef\\\\u611b\\\\u304f\\\\u3066\\\\u30af\\\\u30fc\\\\u30eb\\\\u306a\\\\u7121\\\\u8868\\\\u2026\\\",\\\"id\\\":55},{\\\"title\\\":\\\"\\\\u4e88\\\\u544a \\\\u8133\\\\u6f3f\\\\u70b8\\\\u88c2\\\\u30ac\\\\u30fc\\\\u30eb\\\",\\\"desc\\\":\\\"\\\\u30cb\\\\u30b3\\\\u30cb\\\\u30b3\\\\u52d5\\\\u753b\\\\u30672012\\\\u5e74\\\\u4e0b\\\\u534a\\\\u671f\\\\u30dc\\\\u30ab\\\\u30ed\\\\u66f2\\\\u306e\\\\u6700\\\\u5927\\\\u30d2\\\\u30c3\\\\u30c8\\\\u66f2\\\\u3092\\\\u65e9\\\\u304f\\\\u3082\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u5316\\\\u3002\\\\u300e\\\\u8133\\\\u6f3f\\\\u300f\\\\u5236\\\\u4f5c\\\\u8005\\\\u30fb\\\\u308c\\\\u308b\\\\u308a\\\\u308a\\\\u6c0f\\\\u672c\\\\u4eba\\\\u306b\\\\u3088\\\\u308b\\\\u539f\\\\u4f5c\\\\u3092\\\\u5b8c\\\\u5168\\\\u6f2b\\\\u753b\\\\u5316\\\\u3057\\\\u307e\\\\u3059!!\\\\u3000\\\\u9023\\\\u8f09\\\\u306f\\\\u30012013\\\\u5e74\\\\uff15\\\\u6708\\\\u914d\\\\u4fe1\\\\u306evol.\\\\uff12\\\\u304b\\\\u3089\\\\u958b\\\\u59cb\\\\u3067\\\\u3001vol.\\\\uff11\\\\u3067\\\\u306f\\\\u2026\\\",\\\"id\\\":456},{\\\"title\\\":\\\"\\\\u30db\\\\u30ea\\\\u30df\\\\u30e4\\\",\\\"desc\\\":\\\"\\\\u5927\\\\u4eba\\\\u6c17\\\\uff37\\\\uff25\\\\uff22\\\\u4f5c\\\\u5bb6\\\\u30fb\\\\uff28\\\\uff25\\\\uff32\\\\uff2f\\\\u306e\\\\u300c\\\\u5800\\\\u3055\\\\u3093\\\\u3068\\\\u5bae\\\\u6751\\\\u304f\\\\u3093\\\\u300d\\\\u304c\\\\u69cb\\\\u6210\\\\u30fb\\\\u4f5c\\\\u753b\\\\u3092\\\\u65b0\\\\u305f\\\\u306b\\\\u30b3\\\\u30df\\\\u30c3\\\\u30af\\\\u5316!!\\\\u3000\\\\u30af\\\\u30e9\\\\u30b9\\\\u4e00\\\\u306e\\\\u30e2\\\\u30c6\\\\u5973\\\\u5b50\\\\u30fb\\\\u5800\\\\u3068\\\\u30cd\\\\u30af\\\\u30e9\\\\u7537\\\\u5b50\\\\u30fb\\\\u5bae\\\\u6751\\\\u304c\\\\u5b66\\\\u6821\\\\u306e\\\\u5916\\\\u3067\\\\u51fa\\\\u4f1a\\\\u3063\\\\u305f\\\\u3089\\\\u2026\\\\uff01?\\\\u3000\\\\u7518\\\\u304f\\\\u3066\\\\u5207\\\\u306a\\\\u3044\\\\u8d85\\\\u5fae\\\\u70ad\\\\u9178\\\\u7cfb\\\\u30b9\\\\u30af\\\\u30fc\\\\u30eb\\\\u30e9\\\\u30a4\\\\u30d5\\\\u3001\\\\u30b9\\\\u30bf\\\\u30fc\\\\u30c8\\\\u2026\\\",\\\"id\\\":319}];\\n<\\/script>\\n\\n<script>\\nwindow.pixivComicAds = [];\\nif (window.pixivComicHotWorks) {\\n  pixivComicAds = pixivComicAds.concat(pixivComicHotWorks);\\n}\\nwindow.documentWritePixivComicAd = function() {\\n  try {\\n    if (window.pixivComicAds) {\\n      var ads = [];\\n      var pixiv = window.pixiv;\\n      if (!pixiv) {\\n        try {\\n          pixiv = window.parent.pixiv;\\n        } catch (e) {}\\n      }\\n      if (pixiv && pixiv.user && pixiv.user.gender) {\\n        var seg = pixiv.user.gender === \\\'male\\\' ? 1 : pixiv.user.gender === \\\'female\\\' ? 2 : 0;\\n        for (var i = 0, l = pixivComicAds.length; i < l; i++) {\\n          var ad = pixivComicAds[i];\\n          if (!ad.seg || ad.seg === seg) {\\n            ads.push(ad);\\n          }\\n        }\\n      }\\n      if (ads.length === 0) {\\n        ads = pixivComicAds;\\n      }\\n      var ad = ads[Math.floor(Math.random() * 10000) % ads.length];\\n      var link;\\n      if (!ad.type || ad.type === \\\'w\\\') {\\n        link = \\\'http://comic.pixiv.net/works/\\\' + ad.id + \\\'?ads=tx-w\\\' + ad.id;\\n      } else if (ad.type === \\\'m\\\') {\\n        link = \\\'http://comic.pixiv.net/magazines/\\\' + ad.id + \\\'?ads=tx-m\\\' + ad.id;\\n      }\\n      document.write(\\n        \\\'\\\'\\n        + \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"\\\' + link + \\\'\\\">\\\'\\n        + \\\'<div class=\\\"ads_value\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n        + \\\'<div class=\\\"ads_inner\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n        + \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n        + \\\'<div class=\\\"ads_title\\\">pixivコミックで『\\\' + ad.title + \\\'』を読もう！<\\/div>\\\'\\n        + \\\'<br>\\\'\\n        + \\\'<div class=\\\"ads_desc\\\" style=\\\"display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;\\\">\\\' + ad.desc + \\\'<\\/div>\\\'\\n        + \\\'<div class=\\\"ads_link\\\" style=\\\"display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;\\\">comic.pixiv.net<\\/div>\\\'\\n        + \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n        + \\\'<\\/div>\\\'\\n        + \\\'<\\/div>\\\'\\n        + \\\'<\\/a>\\\'\\n      );\\n      return;\\n    }\\n  } catch(e) {\\n  }\\n  document.write(\\n    \\\'\\\'\\n    + \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"http://comic.pixiv.net/?ads=tx\\\">\\\'\\n    + \\\'<div class=\\\"ads_value\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n    + \\\'<div class=\\\"ads_inner\\\" style=\\\"padding-top:5px; padding-bottom:5px;\\\">\\\'\\n    + \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n    + \\\'<div class=\\\"ads_title\\\">pixivコミック<\\/div>\\\'\\n    + \\\'<br>\\\'\\n    + \\\'<div class=\\\"ads_desc\\\" style=\\\"display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;\\\">pixivコミックで漫画を無料で試し読み<\\/div>\\\'\\n    + \\\'<div class=\\\"ads_link\\\" style=\\\"display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;\\\">comic.pixiv.net<\\/div>\\\'\\n    + \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n    + \\\'<\\/div>\\\'\\n    + \\\'<\\/div>\\\'\\n    + \\\'<\\/a>\\\'\\n  );\\n};\\n<\\/script>\\n<script>\\n\\nvar ads_dokoiku_notfound_count = 0;\\nfunction ads_dokoiku_callback_make(apikey) {\\nreturn function(data) {\\nfor (var i = 0, l = data.ads.length; i < l; ++i) {\\nvar ads = data.ads[i];\\n\\n\\nif (ads.adType == \\\'u\\\') {\\n\\nif (window.documentWritePixivComicAd) {\\ndocumentWritePixivComicAd();\\n} else {\\ndocument.write(\\n\\\'\\\'\\n+ \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"http://comic.pixiv.net/?ads=tx\\\">\\\'\\n+ \\\'<div class=\\\"ads_value\\\">\\\'\\n+ \\\'<div class=\\\"ads_inner\\\">\\\'\\n+ \\\'<span class=\\\"ads_pr\\\">【PR】<\\/span>\\\'\\n+ \\\'<div class=\\\"ads_title\\\">pixivコミック<\\/div>\\\'\\n+ \\\'<br>\\\'\\n+ \\\'<div class=\\\"ads_desc\\\">pixivコミックで漫画を無料を試し読み<\\/div>\\\'\\n+ \\\'<div class=\\\"ads_link\\\">comic.pixiv.net<\\/div>\\\'\\n+ \\\'<div class=\\\"ads_clear\\\"><\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/a>\\\'\\n);\\n}\\n} else {\\ndocument.write(\\n\\\'\\\'\\n+ \\\'<a class=\\\"ads_anchor\\\" target=\\\"_blank\\\" href=\\\"\\\' + ads.clickUrl + \\\'\\\">\\\'\\n+ \\\'<div class=\\\"ads_value\\\">\\\'\\n+ \\\'<div class=\\\"ads_inner\\\">\\\'\\n+ \\\'<span class=\\\"ads_title\\\">\\\' + ads.adTitle + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_desc\\\">\\\' + ads.adBodyText1 /*+ ads.adBodyText2*/ + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_link\\\">\\\' + ads.adFooterText + \\\'<\\/span>\\\'\\n+ \\\'<span class=\\\"ads_clear\\\"><\\/span>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/div>\\\'\\n+ \\\'<\\/a>\\\'\\n);\\n}\\n}\\n}\\n}\\nvar ads_dokoiku_callback_1 = ads_dokoiku_callback_make(\\\'0049600016\\\'); // is_top == 1\\nvar ads_dokoiku_callback_0 = ads_dokoiku_callback_make(\\\'0049600017\\\');\\n\\n<\\/script><script type="text/javascript" src="http://nw.ads.doko.jp/adparts/ad?sid=IGPIXIVN&prj=j&chn=illust&rnd=1&fmt=125X125&mfm=0&geo=1&bf=4&zyxrqp=5&callback=ads_dokoiku_callback_0"><\\/script>\');if(navigator.userAgent.match(/msie/i));else document.close();},1);<\/script>'
-);
-ifr.document.write(content);
-} catch (e) {
+<div>
+<style type="text/css">
+
+.one_column .ads_area_no_margin{
+background-color: #FFFFFF;
+text-align: center;
+width: 968px;
 }
-})();
 
+.ads_anchor {
+outline: none;
+}
+
+.ads_area {
+margin: 0;
+
+padding: 5px 20px 0px 20px;
+
+position: relative;
+}
+
+.ads_inner .ads_anchor:hover {
+cursor: pointer;
+background-color: #FFFFCC;
+}
+
+.ads_value {
+width: 100%;
+text-decoration: none;
+text-align: left;
+}
+
+.ads_pr {
+padding: 0;
+float: left;
+color:#A0A0A0;
+font-size:13px;
+padding-right: 10px;
+}
+
+.ads_value .ads_inner {
+padding: 5px 0;
+line-height: 13px;
+}
+
+.ads_anchor .ads_title,
+.ads_anchor:hover .ads_title {
+color: #258FB8;
+font-size: 15px;
+font-weight: bold;
+text-decoration: underline;
+
+display: inline;
+float: none;
+padding-right: 10px;
+}
+
+.ads_value .ads_desc {
+color: #000000;
+display: inline;
+float: left;
+font-size: 13px;
+padding: 0;
+}
+
+.ads_anchor:hover .ads_value,
+.ads_anchor:hover {
+text-decoration: none;
+cursor: pointer;
+background-color: #FFFFFF;
+}
+
+.ads_pr,
+.ads_anchor .ads_title,
+.ads_anchor:hover .ads_title {
+line-height: 14px;
+padding-top: 1px;
+padding-bottom: 1px;
+}
+
+.ads_value .ads_link {
+color: #008000;
+font-size:13px;
+}
+
+.ads_value .ads_desc,
+.ads_value .ads_link {
+display: block;
+float: none;
+clear: both;
+padding-top: 1px;
+padding-bottom: 1px;
+}
+
+.ads_value .ads_clear {
+display: block;
+clear: both;
+}
+
+.ads_sponcer {
+color: #A0A0A0;
+font-size: 13px;
+position: absolute;
+bottom: 0;
+right: 0;
+}
+.ads_sponcer a,
+.ads_sponcer a:hover {
+color: #A0A0A0;
+text-decoration: underline;
+}
+
+</style><div class="ads_area">
+<div style="clear:both;"></div>
+<script type="text/javascript" language="javascript"><!--
+var ads_writed = false;
+var ads_google_begin = parseInt('1');
+if (ads_google_begin < ads_google_available_num()) {
+ads_writed = true;
+ads_google_show(ads_google_begin, 0, 1);
+}
+// --></script>
+
+<script>
+window.pixivComicHotWorks = [{"title":"4\u30b3\u30de\u307e\u3093\u304c \u30de\u30b8\u30aa\u30c1\u304f\u3093","desc":"\u6642\u306f\u897f\u66a62010\u5e74\u2015\u3002\u30ae\u30e3\u30b0\u540c\u4eba\u8a8c\u754c\u306b\u5f57\u661f\u306e\u3054\u3068\u304f\u767b\u5834\u3057\u305f\u30c8\u30f3\u30ac\u30ea\u4f5c\u5bb6\u3001\u305d\u306e\u540d\u306f\u9060\u85e4\u3002 \u30b3\u30a4\u30c4\u306e\u63cf\u304f\u8352\u3005\u3057\u3044\u753b\u98a8\u3068\u30b7\u30e5\u30fc\u30eb\u306a\u30cd\u30bf\u306f\u4e00\u5ea6\u8aad\u3080\u3068\u30af\u30bb\u306b\u306a\u308b\u4e2d\u6bd2\u6027\u30a2\u30ea!!! \u4e16\u754c\u4e2d\u63a2\u3057\u305f\u3063\u3066\u3001\u3053\u3093\u306a\u30de\u30f3\u30ac\u306f\u2026","id":145},{"title":"\u8a60\u3046\uff01\u3000\u5e73\u5b89\u4eac","desc":"\u4e2d\u5b66\u751f\u30fb\u5b9a\u5bb6\u306f\u4fee\u5b66\u65c5\u884c\u3067\u8a2a\u308c\u305f\u4eac\u90fd\u3067\u3001\u5e73\u5b89\u6642\u4ee3\u3078\u3068\u30bf\u30a4\u30e0\u30b9\u30ea\u30c3\u30d7\u3057\u3066\u3057\u307e\u3046\u3002\u305d\u3053\u3067\u51fa\u9022\u3063\u305f\u306e\u306f\u3001\u5e73\u5b89\u6700\u5f37\u306e\u30d7\u30ec\u30a4\u30dc\u30fc\u30a4\u30fb\u5728\u539f\u696d\u5e73\u3060\u3063\u305f\u2026!? \u300c\u9ce5\u7c60\u5b66\u6821\u300d\u306e\u771f\u67f4\u771f\u6700\u65b0\u4f5c\u306f\u3001\u767e\u4eba\u4e00\u9996\u306e\u6b4c\u4eba\u305f\u3061\u304c\u3001\u548c\u6b4c\u3067\u2026","id":234},{"title":"\u30e2\u30b6\u30a4\u30af\u30ed\u30fc\u30eb","desc":"\u30cb\u30b3\u30cb\u30b3\u52d5\u753b\u3067540\u4e07\u518d\u751f\u306e\u30e1\u30ac\u30d2\u30c3\u30c8\u66f2\u3092DECO*27\u6c0f\uff08\u539f\u6848\uff09\u00d7akka\u6c0f\uff08\u6f2b\u753b\uff09\u306e\u30aa\u30ea\u30b8\u30ca\u30eb\u30b3\u30f3\u30d3\u3067\u8d08\u308b\u3001\u30dc\u30ab\u30ed\u754c\u885d\u6483\u306e\u6f2b\u753b\u4f5c\u54c1\u304c\u8868\u7d19\uff06\u65b0\u9023\u8f09\u3067\u30b9\u30bf\u30fc\u30c8\uff01\u3000\u697d\u66f2\u306b\u79d8\u3081\u3089\u308c\u305f\u611b\u3068\u6b20\u5982\u306e\u7269\u8a9e\u304c\u59cb\u307e\u308a\u2026","id":336},{"title":"GUMIcs BEST 02 \u30ad\u30ea\u30c8\u30ea\u30bb\u30f3","desc":"GUMI\u306e\u540d\u66f2\u3092\u5b9f\u529b\u6d3e\u30af\u30ea\u30a8\u30a4\u30bf\u30fc\u304c\u6f2b\u753b\u5316\u3059\u308b\u30b7\u30ea\u30fc\u30ba\u9023\u8f09\u300cGUMIcs BEST\u300d\uff08\u30b0\u30df\u30c3\u30af\u30b9\u30fb\u30d9\u30b9\u30c8\uff09\u3002\r\n\r\n\u305d\u306e\u7b2c\uff12\u5f3e\u306e\u697d\u66f2\u306f\u300140mP\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u66f2\u300e\u30ad\u30ea\u30c8\u30ea\u30bb\u30f3\u300f\u3002\r\n\r\n\u5973\u5b50\u9ad8\u751f\u306e\u7518\u9178\u3063\u2026","id":457},{"title":"\u30e1\u30b0\u30e1\u30b0\u2606\u30b7\u30f3\u30ac\u30fc\u30bd\u30f3\u30b0\u30d5\u30a1\u30a4\u30bf\u30fc","desc":"\u682a\u5f0f\u4f1a\u793e\u30a4\u30f3\u30bf\u30fc\u30cd\u30c3\u30c8\u304b\u3089\u767a\u58f2\u3055\u308c\u3066\u3044\u308b\u300cVOCALOID Megpoid\u300d\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u30fbGUMI\u3092\u30d5\u30a3\u30fc\u30c1\u30e3\u30fc\u3057\u305f\u3001\u62b1\u8179\u7d76\u5012\u306e\u30dc\u30ab\u30ed\u30b3\u30e1\u30c7\u30a3\u3002vol.\uff11\u63b2\u8f09\u306e\u7b2c\uff12\u8a71\u3067\u306f\u3001Lily\u3084CUL\u304c\u306a\u3093\u3068\u5f37\u2026","id":334},{"title":"GUMIcs BEST 03 \u604b\u611b\u52c7\u8005","desc":"\u300cGUMIcs BEST\u300d\u306e\u7b2c\uff13\u5f3e\u3002\r\n\u300e\u30bb\u30c4\u30ca\u30c8\u30ea\u30c3\u30d7\u300f\u3084\u300e\u653e\u8ab2\u5f8c\u30b9\u30c8\u30e9\u30a4\u30c9\u300f\u3092\u751f\u307f\u51fa\u3057\u305f\u4eba\u6c17\u30dc\u30ab\u30ed\uff30\u30fbLast Note\uff0e\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u30d2\u30c3\u30c8\u66f2\u300e\u604b\u611b\u52c7\u8005\u300f\u3092\u6f2b\u753b\u5316\u3002\r\n\u30a4\u30e9\u30b9\u30c8\u30ec\u30fc\u30bf\u30fc\u30fb\u3057\u307e\u3069\u308a\u308b\u2026","id":458}];
 </script>
+
+<script>
+window.pixivComicAds = [];
+if (window.pixivComicHotWorks) {
+  pixivComicAds = pixivComicAds.concat(pixivComicHotWorks);
+}
+window.documentWritePixivComicAd = function() {
+  try {
+    if (window.pixivComicAds) {
+      var ads = [];
+      var pixiv = window.pixiv;
+      if (!pixiv) {
+        try {
+          pixiv = window.parent.pixiv;
+        } catch (e) {}
+      }
+      if (pixiv && pixiv.user && pixiv.user.gender) {
+        var seg = pixiv.user.gender === 'male' ? 1 : pixiv.user.gender === 'female' ? 2 : 0;
+        for (var i = 0, l = pixivComicAds.length; i < l; i++) {
+          var ad = pixivComicAds[i];
+          if (!ad.seg || ad.seg === seg) {
+            ads.push(ad);
+          }
+        }
+      }
+      if (ads.length === 0) {
+        ads = pixivComicAds;
+      }
+      var ad = ads[Math.floor(Math.random() * 10000) % ads.length];
+      var link;
+      if (!ad.type || ad.type === 'w') {
+        link = 'http://comic.pixiv.net/works/' + ad.id + '?ads=tx-w' + ad.id;
+      } else if (ad.type === 'm') {
+        link = 'http://comic.pixiv.net/magazines/' + ad.id + '?ads=tx-m' + ad.id;
+      }
+      document.write(
+        ''
+        + '<a class="ads_anchor" target="_blank" href="' + link + '">'
+        + '<div class="ads_value" style="padding-top:5px; padding-bottom:5px;">'
+        + '<div class="ads_inner" style="padding-top:5px; padding-bottom:5px;">'
+        + '<span class="ads_pr">【PR】</span>'
+        + '<div class="ads_title">pixivコミックで『' + ad.title + '』を読もう！</div>'
+        + '<br>'
+        + '<div class="ads_desc" style="display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;">' + ad.desc + '</div>'
+        + '<div class="ads_link" style="display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;">comic.pixiv.net</div>'
+        + '<div class="ads_clear"></div>'
+        + '</div>'
+        + '</div>'
+        + '</a>'
+      );
+      return;
+    }
+  } catch(e) {
+  }
+  document.write(
+    ''
+    + '<a class="ads_anchor" target="_blank" href="http://comic.pixiv.net/?ads=tx">'
+    + '<div class="ads_value" style="padding-top:5px; padding-bottom:5px;">'
+    + '<div class="ads_inner" style="padding-top:5px; padding-bottom:5px;">'
+    + '<span class="ads_pr">【PR】</span>'
+    + '<div class="ads_title">pixivコミック</div>'
+    + '<br>'
+    + '<div class="ads_desc" style="display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;">pixivコミックで漫画を無料で試し読み</div>'
+    + '<div class="ads_link" style="display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;">comic.pixiv.net</div>'
+    + '<div class="ads_clear"></div>'
+    + '</div>'
+    + '</div>'
+    + '</a>'
+  );
+};
+</script>
+<script type="text/javascript" language="javascript"><!--
+
+if (!ads_writed) {
+
+if (window.documentWritePixivComicAd) {
+documentWritePixivComicAd();
+} else {
+document.write(
+''
++ '<a class="ads_anchor" target="_blank" href="http://comic.pixiv.net/?ads=tx">'
++ '<div class="ads_value" style="padding-top:5px; padding-bottom:5px;">'
++ '<div class="ads_inner" style="padding-top:5px; padding-bottom:5px;">'
++ '<span class="ads_pr">【PR】</span>'
++ '<div class="ads_title">pixivコミック</div>'
++ '<br>'
++ '<div class="ads_desc" style="display: block; float: none; clear: both; padding-top: 1px; padding-bottom: 1px;">pixivコミックで漫画を無料で試し読み</div>'
++ '<div class="ads_link" style="display: block; float: none; clear: both; padding-top: 0px; padding-bottom: 1px;">comic.pixiv.net</div>'
++ '<div class="ads_clear"></div>'
++ '</div>'
++ '</div>'
++ '</a>'
+);
+}
+}
+
+// --></script>
 <div style="clear:both;"></div>
 </div>
-</div><div class="works_display"><a href="member_illust.php?mode=big&amp;illust_id=32039274" target="_blank"><img src="http://i1.pixiv.net/img19/img/nardack/32039274_m.jpg" alt="新しいお姫様" title="新しいお姫様" border="0"></a></div><div class="works_info"><div class="worksOption"><form action="member_illust.php" method="post"><input type="hidden" name="mode" value="comment_save" /><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef" /><input type="hidden" name="illust_id" value="32039274" id="illust_id" /><a name="one_comment" id="one_comment"></a><strong>Comments</strong><input name="comment" maxlength="255" style="width: 440px;" type="text" />　<input name="submit" type="submit" class="_button" value="Send" /></form><form class="comment-area"><button type="button" class="comment-show-button _button">View comments</button><ul class="comment-list"></ul><p class="comment-no-comment">Sorry, comments could not be found</p><button type="button" class="comment-more-button _button">View more</button></form><div class="worksImageresponse" style="text-align: center;">
+</div>
+
+<div class="works_display"><a href="member_illust.php?mode=big&amp;illust_id=32039274" target="_blank"><img src="http://i1.pixiv.net/img19/img/nardack/32039274_m.jpg" alt="新しいお姫様" title="新しいお姫様" border="0"></a></div><div class="works_info"><div class="worksOption"><form action="member_illust.php" method="post"><input type="hidden" name="mode" value="comment_save" /><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef" /><input type="hidden" name="illust_id" value="32039274" id="illust_id" /><a name="one_comment" id="one_comment"></a><strong>Comments</strong><input name="comment" maxlength="255" style="width: 440px;" type="text" />　<input name="submit" type="submit" class="_button" value="Send" /></form><form class="comment-area"><button type="button" class="comment-show-button _button">View comments</button><ul class="comment-list"></ul><p class="comment-no-comment">Sorry, comments could not be found</p><button type="button" class="comment-more-button _button">View more</button></form><div class="worksImageresponse" style="text-align: center;">
 <span class='multi-ads-area'>
     
 <!--/* adfunnel.microad.jp Javascript Tag v */-->

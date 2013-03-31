@@ -251,7 +251,7 @@ class PixivImage:
     return self.HaveString(page, errorMessage)
   
   def IsNeedPermission(self, page):
-    errorMessage = 'この作品は、.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています'
+    errorMessage = 'この作品は.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています'
     errorMessage2 = 'This work is viewable only for users who are in .+\'s My pixiv list'
     return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
 
