@@ -236,6 +236,7 @@ def configBrowser():
     __br__.addheaders = [('User-agent', __config__.useragent)]
 
     socket.setdefaulttimeout(__config__.timeout)
+    return __br__
 
 def loadCookie(cookieValue):
     '''Load cookie to the Browser instance'''
@@ -910,7 +911,7 @@ def processImageBookmark(mode, hide='n', member_id=0):
         #totalList = list()
         i = 1
         while True:
-            print "Importing page", str(i)
+            print "Importing page", str(i), 
             url = 'http://www.pixiv.net/bookmark.php?p='+str(i)
             if member_id > 0:
                 url = url + "&id=" + str(member_id)
@@ -920,7 +921,10 @@ def processImageBookmark(mode, hide='n', member_id=0):
             parsePage = BeautifulSoup(page.read())
             l = PixivBookmark.parseImageBookmark(parsePage)
             if len(l) == 0:
+                print "No more images."
                 break
+            else :
+                print " found " + str(len(l)) + " images."
 
             for item in l:
                 processImage(mode, artist=None, image_id=item)
