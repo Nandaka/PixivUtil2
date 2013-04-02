@@ -271,6 +271,18 @@ class TestPixivBookmark(unittest.TestCase):
 
       self.assertEqual(len(result.imageList), 20)
 
+    def testPixivImageBookmark(self):
+      #print '\nTesting PixivImageBookmark'
+      p = open('./test/test-image-bookmark.htm', 'r')
+      page = BeautifulSoup(p.read())
+      result = PixivBookmark.parseImageBookmark(page)
+
+      self.assertEqual(len(result), 4)
+      self.assertEqual(result[0], 28370430)
+      self.assertEqual(result[1], 23353599)
+      self.assertEqual(result[2], 27249307)
+      self.assertEqual(result[3], 22814356)
+
 class TestMyPickPage(unittest.TestCase):
     def testMyPickPage(self):
         try:
