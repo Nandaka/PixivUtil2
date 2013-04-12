@@ -120,7 +120,7 @@ C.Log Messages:
                             (optional: followed by [y/n] for private bookmark)
                         6 - Download from image bookmark
 			    (required: followed by [y/n] for private bookmark
-                             optional: member_ids to process)
+                             optional: starting page number and end page number)
                         7 - Download from tags list
                             (required: followed by path to the tags list and 
                              starting page)

@@ -905,17 +905,20 @@ def processTagsList(mode, filename, page=1, endPage=0):
         __log__.exception('Error at processTagsList(): ' + str(sys.exc_info()))
         raise
 
-def processImageBookmark(mode, hide='n', member_id=0):
+def processImageBookmark(mode, hide='n', startPage = 1, endPage = 0):
     try:
         print "Importing image bookmarks..."
         #totalList = list()
-        i = 1
+        i = startPage
+        imageCount = 1
         while True:
-            print "Importing page", str(i), 
+            if endPage != 0 and i > endPage:
+                print "Page Limit reached: " + str(endPage)
+                break
+            
+            print "Importing user's bookmarked image from page", str(i), 
             url = 'http://www.pixiv.net/bookmark.php?p='+str(i)
-            if member_id > 0:
-                url = url + "&id=" + str(member_id)
-            if member_id == 0 and hide == 'y':
+            if hide == 'y':
                 url = url + "&rest=hide"
             page = __br__.open(url)
             parsePage = BeautifulSoup(page.read())
@@ -927,7 +930,9 @@ def processImageBookmark(mode, hide='n', member_id=0):
                 print " found " + str(len(l)) + " images."
 
             for item in l:
+                print "Image #" + str(imageCount)
                 processImage(mode, artist=None, image_id=item)
+                imageCount = imageCount + 1
         
             i = i + 1
 
@@ -1283,35 +1288,27 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
     processBookmark(mode, hide)
 
 def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
-    __log__.info('Image Bookmark mode.')
+    __log__.info("User's Image Bookmark mode.")
+    startPage = 1
+    endPage = 0
     if opisvalid and len(args) > 0 :
-        arg = args.pop(0)
-        arg = arg.lower()
         arg = args[0].lower()
         if arg == 'y' or arg =='n':
             hide = arg
         else:
             print "Invalid args: ", args
-        if len(args) == 0:
-            args.append(0)
-        for arg in args:
-            try:
-                memberId = int(arg)
-            except:
-                print "Invalid Member Id:", arg
+        (startPage, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
     else:
-        memberIdStr = raw_input("Member Id (0 for your bookmark): ") or 0
-        memberId = int(memberIdStr)
         hide = False
-        if memberId == 0 :
-            arg = raw_input("Only Private bookmarks [y/n]: ") or 'n'
-            arg = arg.lower()
-            if arg == 'y' or arg =='n':
-                hide = arg
-            else:
-                print "Invalid args: ", arg
-                
-    processImageBookmark(mode, hide, memberId)
+        arg = raw_input("Only Private bookmarks [y/n]: ") or 'n'
+        arg = arg.lower()
+        if arg == 'y' or arg =='n':
+            hide = arg
+        else:
+            print "Invalid args: ", arg
+        (startPage, endPage) = getStartAndEndNumber()
+        
+    processImageBookmark(mode, hide, startPage, endPage)
 
 def menuDownloadFromTagsList(mode, opisvalid, args):
     __log__.info('Taglist mode.')
@@ -1376,12 +1373,12 @@ def main():
                            '3 - Download by tags                                    ' +
                            '4 - Download from list                                  ' +
                            '5 - Download from user bookmark                          ' +
-                           '6 - Download from image bookmark                         ' +
+                           '6 - Download from user\'s image bookmark                 ' +
                            '7 - Download from tags list                              ' +
                            '8 - Download new illust from bookmark                    ' +
                            '9 - Download by Title/Caption                            ' +
                            '10 - Download by Tag and Member Id                       ' +
-                           '11 - Download Member Bookmark                            ' +
+                           '11 - Download images from Member Bookmark                ' +
                            'e - Export online bookmark                               ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
