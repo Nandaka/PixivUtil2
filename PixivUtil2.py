@@ -254,11 +254,13 @@ def pixivLoginCookie():
         loadCookie(cookieValue);
         req = customRequest('http://www.pixiv.net/mypage.php')
         __br__.open(req)
-        if __br__.response().geturl() == 'http://www.pixiv.net/mypage.php' :
+        resUrl = __br__.response().geturl()
+        if resUrl == 'http://www.pixiv.net/mypage.php' :
             print 'done.'
             __log__.info('Logged in using cookie')
             return True
         else :
+            __log__.info('Failed to login using cookie, returned page: ' + resUrl)
             printAndLog('info','Cookie already expired/invalid.')
     return False
             
