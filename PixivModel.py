@@ -79,17 +79,23 @@ class PixivArtist:
         return token.split('/')[-2]
       else :
         try:
-          temp = page.find(attrs={'class':'display_works linkStyleWorks'})
+          temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
           if temp != None:
-            tokens = temp.ul.findAll('li')
+            tokens = temp.findAll('img', attrs={'class':'_thumbnail'})
             for token in tokens:
               try:
-                artistToken = token.find('img')['data-src']
+                tempImage = token['data-src']
               except:
-                artistToken = token.find('img')['src']
-              artistToken = artistToken.split('/')[-2]
+                tempImage = token['src']
+              print tempImage
+              folders = tempImage.split('/')
+              ## skip http://i2.pixiv.net/img-inf/img/2013/04/07/03/08/21/34846113_s.jpg
+              if folders[3] == 'img-inf':
+                continue              
+              artistToken = folders[-2]
               if artistToken != 'common':
                 return artistToken
+            raise PixivModelException('Cannot parse artist token, possibly different image structure.')
         except TypeError:
           raise PixivModelException('Cannot parse artist token, possibly no images.')
     else :
