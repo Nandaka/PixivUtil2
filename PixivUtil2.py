@@ -955,10 +955,14 @@ def processImageBookmark(mode, hide='n', startPage = 1, endPage = 0):
         __log__.exception('Error at processImageBookmark(): ' + str(sys.exc_info()))
         raise
     
-def getBookmarks(hide):
+def getBookmarks(hide, startPage = 1, endPage = 0):
+    '''Get user/artists bookmark'''
     totalList = list()
-    i = 1
+    i = startPage
     while True:
+        if endPage != 0 and i > endPage:
+            print 'Limit reached'
+            break
         print 'Exporting page', str(i),
         url = 'http://www.pixiv.net/bookmark.php?type=user&p='+str(i)
         if hide:
@@ -967,22 +971,22 @@ def getBookmarks(hide):
         parsePage = BeautifulSoup(page.read())
         l = PixivBookmark.parseBookmark(parsePage)
         if len(l) == 0:
-            print 'No data'
+            print 'No more data'
             break
         totalList.extend(l)
         i = i + 1
         print str(len(l)), 'items'
     return totalList
 
-def processBookmark(mode, hide='n'):
+def processBookmark(mode, hide='n', startPage = 1, endPage = 0):
     try:
         totalList = list()
         if hide != 'o':
             print "Importing Bookmarks..."
-            totalList.extend(getBookmarks(False))
+            totalList.extend(getBookmarks(False, startPage, endPage))
         if hide != 'n':
             print "Importing Private Bookmarks..."
-            totalList.extend(getBookmarks(True))
+            totalList.extend(getBookmarks(True, startPage, endPage))
         print "Result: ", str(len(totalList)), "items."        
         for item in totalList:
             processMember(mode, item.memberId, item.path)
@@ -993,15 +997,15 @@ def processBookmark(mode, hide='n'):
         __log__.exception('Error at processBookmark(): ' + str(sys.exc_info()))
         raise
 
-def exportBookmark(filename, hide='n'):
+def exportBookmark(filename, hide='n', startPage = 1, endPage = 0):
     try:
         totalList = list()
         if hide != 'o':
             print "Importing Bookmarks..."
-            totalList.extend(getBookmarks(False))
+            totalList.extend(getBookmarks(False, startPage, endPage))
         if hide != 'n':
             print "Importing Private Bookmarks..."
-            totalList.extend(getBookmarks(True))
+            totalList.extend(getBookmarks(True, startPage, endPage))
         print "Result: ", str(len(totalList)), "items."
         PixivBookmark.exportList(totalList, filename)
     except KeyboardInterrupt:
@@ -1272,6 +1276,8 @@ def menuDownloadFromList(mode, opisvalid, args):
 
 def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
     __log__.info('User Bookmark mode.')
+    startPage = 1
+    endPage = 0
     hide = 'n'
     if opisvalid :
         if len(args) > 0:
@@ -1280,6 +1286,8 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
                 hide = arg
             else:
                 print "Invalid args: ", args
+                return
+            (startPage, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
     else :
         arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
@@ -1287,7 +1295,9 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
             hide = arg
         else:
             print "Invalid args: ", arg
-    processBookmark(mode, hide)
+            return
+        (startPage, endPage) = getStartAndEndNumber()
+    processBookmark(mode, hide, startPage, endPage)
 
 def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
     __log__.info("User's Image Bookmark mode.")
@@ -1299,6 +1309,7 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
             hide = arg
         else:
             print "Invalid args: ", args
+            return
         (startPage, endPage) = getStartAndEndNumberFromArgs(args, offset=1)
     else:
         hide = False
@@ -1308,6 +1319,7 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
             hide = arg
         else:
             print "Invalid args: ", arg
+            return
         (startPage, endPage) = getStartAndEndNumber()
         
     processImageBookmark(mode, hide, startPage, endPage)

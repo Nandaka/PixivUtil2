@@ -1,3 +1,9 @@
+20130430
+- Update parser.
+- Add start/end page for Download from Bookmarked Members (option 5).
+- Remove member id from option 6, use option 11, Download bookmarked images by member_id.
+- Add url logging for failed login using cookie.
+
 20130330
 - Add Ctrl+C handler for download by member id and download by tags to
   allow user to skip to next image or abort the whole process.
