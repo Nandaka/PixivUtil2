@@ -79,6 +79,7 @@ class PixivArtist:
         #print token
         return token.split('/')[-2]
       else :
+        artistToken = None
         try:
           temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
           if temp != None:
@@ -88,7 +89,6 @@ class PixivArtist:
                 tempImage = token['data-src']
               except:
                 tempImage = token['src']
-              print tempImage
               folders = tempImage.split('/')
               ## skip http://i2.pixiv.net/img-inf/img/2013/04/07/03/08/21/34846113_s.jpg
               if folders[3] == 'img-inf':
@@ -96,6 +96,21 @@ class PixivArtist:
               artistToken = folders[-2]
               if artistToken != 'common':
                 return artistToken
+
+            ## all thumb images are using img-inf
+            ## take the first image and check the medium page
+            if artistToken == None or artistToken != 'common':
+              PixivHelper.GetLogger().info("Unable to parse Artist Token from image list, try to parse from the first image")
+              import PixivBrowserFactory, PixivConstant
+              firstImageLink = temp.find('a', attrs={'class':'work'})['href']
+              if firstImageLink.find("http") != 0:
+                firstImageLink = PixivConstant.PIXIV_URL + firstImageLink
+              PixivHelper.GetLogger().info("Using: " + firstImageLink + " for parsing artist token")
+              imagePage = PixivBrowserFactory.getBrowser().open(firstImageLink)
+              imageResult = BeautifulSoup(imagePage.read())
+              token = str(imageResult.find(attrs={'class':'works_display'}).find('img')['src'])
+              return token.split('/')[-2]              
+              
             raise PixivException('Cannot parse artist token, possibly different image structure.', errorCode = PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE)
         except TypeError:
           raise PixivException('Cannot parse artist token, possibly no images.', errorCode = PixivException.PARSE_TOKEN_NO_IMAGES)

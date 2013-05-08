@@ -28,6 +28,8 @@ import PixivDBManager
 import PixivHelper
 from PixivModel import PixivArtist, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
 from PixivException import PixivException
+import PixivBrowserFactory
+
 script_path = PixivHelper.module_path()
 
 Yavos = True
@@ -41,15 +43,12 @@ import datetime
 import codecs
 import subprocess
 
-__cj__ = cookielib.LWPCookieJar()
-__br__ = Browser(factory=mechanize.RobustFactory())
-__br__.set_cookiejar(__cj__)
-
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
 __dbManager__ = PixivDBManager.PixivDBManager()
 __config__    = PixivConfig.PixivConfig()
+__br__        = PixivBrowserFactory.getBrowser(config=__config__)
 __blacklistTags = list()
 __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
@@ -215,34 +214,11 @@ def downloadImage(url, filename, referer, overwrite, retry):
             raise
     print ' done.'
     return 0
-        
-def configBrowser():
-    if __config__.useProxy:
-        __br__.set_proxies(__config__.proxy)
-        msg = 'Using proxy: ' + __config__.proxyAddress
-        print msg
-        __log__.info(msg)
-        
-    __br__.set_handle_equiv(True)
-    #__br__.set_handle_gzip(True)
-    __br__.set_handle_redirect(True)
-    __br__.set_handle_referer(True)
-    __br__.set_handle_robots(__config__.useRobots)
-    
-    __br__.set_debug_http(__config__.debugHttp)
-    if __config__.debugHttp :
-        printAndLog('info','Debug HTTP enabled.')
-        
-    __br__.visit_response
-    __br__.addheaders = [('User-agent', __config__.useragent)]
-
-    socket.setdefaulttimeout(__config__.timeout)
-    return __br__
 
 def loadCookie(cookieValue):
     '''Load cookie to the Browser instance'''
     ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookieValue, port=None, port_specified=False, domain='pixiv.net', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-    __cj__.set_cookie(ck)
+    PixivBrowserFactory.addCookie(ck)
     
 ### Pixiv related function ###
 def pixivLoginCookie():
@@ -1433,7 +1409,8 @@ def main():
         print 'Failed to read configuration.'
         __log__.exception('Failed to read configuration.')
 
-    configBrowser()
+    PixivBrowserFactory.configureBrowser(__br__, __config__)
+
     selection = None
     global dfilename
     
