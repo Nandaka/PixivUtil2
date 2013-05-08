@@ -9,6 +9,8 @@ import PixivModel, PixivConstant
 import logging, logging.handlers
 import datetime
 
+import unicodedata
+
 Logger = None
 
 def GetLogger():
@@ -81,7 +83,16 @@ def sanitizeFilename(s, rootDir=None):
     newLen = 250
     name = name[:newLen]
 
-  return name.strip()
+  ## Remove unicode control character
+  tempName = ""
+  for c in name:
+    if unicodedata.category(c) == 'Cc':
+      tempName = tempName + '_'
+    else:
+      tempName = tempName + c
+  Logger.debug("Sanitized Filename: " + tempName.strip())
+
+  return tempName.strip()
 
 def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='', appendExtension=True, bookmark=False, searchTags=''):
   '''Build the filename from given info to the given format.'''
