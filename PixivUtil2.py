@@ -26,7 +26,8 @@ import PixivConstant
 import PixivConfig
 import PixivDBManager
 import PixivHelper
-from PixivModel import PixivArtist, PixivModelException, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
+from PixivModel import PixivArtist, PixivImage, PixivListItem, PixivBookmark, PixivTags, PixivNewIllustBookmark
+from PixivException import PixivException
 script_path = PixivHelper.module_path()
 
 Yavos = True
@@ -422,18 +423,18 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                     listPage = __br__.open(memberUrl)
                     artist = PixivArtist(mid=member_id, page=BeautifulSoup(listPage.read()))
                     break
-                except PixivModelException as ex:
+                except PixivException as ex:
                     printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
-                    if ex.errorCode == 1004:
+                    if ex.errorCode == PixivException.NO_IMAGES:
                         pass
                     else:
                         dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
-                        if ex.errorCode == 1001 or ex.errorCode == 1002:
+                        if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
                             __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
                             printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
                             #__dbManager__.deleteMemberByMemberId(member_id)
                             #printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
-                        if ex.errorCode == 1003:
+                        if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
                             PixivHelper.safePrint(ex.message)
                             raw_input('New Error Message, please inform the developer. Press enter to continue.')
                     return
@@ -596,8 +597,8 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                 parseMediumPage.decompose()
                 del parseMediumPage
                 break
-            except PixivModelException as ex:
-                if ex.errorCode == 2006:
+            except PixivException as ex:
+                if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
                     PixivHelper.safePrint(ex.message)
                     raw_input('New Error Message, please inform the developer. Press enter to continue.')
                 else:
@@ -659,7 +660,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                         parseBigImage.decompose()
                         del parseBigImage
                     break
-                except PixivModelException as ex:
+                except PixivException as ex:
                     printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
                     return
                 except urllib2.URLError as ue:

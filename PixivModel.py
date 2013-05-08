@@ -6,6 +6,7 @@ import sys
 import codecs
 import collections
 import PixivHelper
+from PixivException import PixivException
 import datetime
 
 class PixivArtist:
@@ -22,20 +23,20 @@ class PixivArtist:
     if page != None:
       ## check if logged in
       if self.IsNotLoggedIn(page):
-        raise PixivModelException('Not Logged In!', errorCode=100)
+        raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN)
       
       ## detect if artist exist
       if self.IsUserNotExist(page):
-        raise PixivModelException('User ID not exist/deleted!', errorCode=1001)
+        raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS)
 
       ## detect if artist account is suspended.
       if self.IsUserSuspended(page):
-        raise PixivModelException('User Account is Suspended!', errorCode=1002)
+        raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED)
 
       ## detect if there is any other error
       errorMessage = self.IsErrorExist(page)
       if errorMessage != None:
-        raise PixivModelException('Member Error: ' + errorMessage, errorCode=1003)
+        raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR)
         
       ## detect if image count != 0
       if not fromImage:
@@ -95,9 +96,9 @@ class PixivArtist:
               artistToken = folders[-2]
               if artistToken != 'common':
                 return artistToken
-            raise PixivModelException('Cannot parse artist token, possibly different image structure.')
+            raise PixivException('Cannot parse artist token, possibly different image structure.', errorCode = PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE)
         except TypeError:
-          raise PixivModelException('Cannot parse artist token, possibly no images.')
+          raise PixivException('Cannot parse artist token, possibly no images.', errorCode = PixivException.PARSE_TOKEN_NO_IMAGES)
     else :
       temp = self.artistAvatar.split('/')
       return temp[-2]
@@ -107,7 +108,7 @@ class PixivArtist:
     temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
     temp = temp.findAll('a')
     if temp == None or len(temp) == 0:
-      raise PixivModelException('No image found!', errorCode=1004)
+      raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
     for item in temp:
       #print item
       href = re.search('member_illust.php.*illust_id=(\d+)', str(item))
@@ -200,24 +201,24 @@ class PixivImage:
     if page != None:
       ## check is error page
       if self.IsNotLoggedIn(page):
-        raise PixivModelException('Not Logged In!', errorCode=100)
+        raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN)
       if self.IsNeedPermission(page):
-        raise PixivModelException('Not in MyPick List, Need Permission!', errorCode=2002)
+        raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK)
       if self.IsNeedAppropriateLevel(page):
-        raise PixivModelException('Public works can not be viewed by the appropriate level!', errorCode=2003)
+        raise PixivException('Public works can not be viewed by the appropriate level!', errorCode=PixivException.NO_APPROPRIATE_LEVEL)
       if self.IsDeleted(page):
-        raise PixivModelException('Image not found/already deleted!', errorCode=2004)
+        raise PixivException('Image not found/already deleted!', errorCode=PixivException.PixivException.IMAGE_DELETED)
       if self.IsGuroDisabled(page):
-        raise PixivModelException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=2005)
+        raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=PixivException.R_18_DISABLED)
 
       # check if there is any other error
       if self.IsErrorPage(page):
-        raise PixivModelException('An error occurred!', errorCode=2001)
+        raise PixivException('An error occurred!', errorCode=PixivException.OTHER_IMAGE_ERROR)
 
       ## detect if there is any other error
       errorMessage = self.IsErrorExist(page)
       if errorMessage != None:
-        raise PixivModelException('Image Error: ' + errorMessage, errorCode=2006)
+        raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR)
         
       ## parse artist information
       if self.artist == None:
@@ -354,7 +355,7 @@ class PixivImage:
 
   def ParseImages(self, page, mode=None):
     if page == None:
-      raise PixivModelException('No page given')
+      raise PixivException('No page given', errorCode = PixivException.NO_PAGE_GIVEN)
     if mode == None:
       mode = self.imageMode
 
@@ -364,7 +365,7 @@ class PixivImage:
     elif mode == 'manga':
       self.imageUrls = self.ParseMangaImages(page)
     if len(self.imageUrls) == 0:
-      raise PixivModelException('No images found for: '+ str(self.imageId))
+      raise PixivException('No images found for: '+ str(self.imageId), errorCode = PixivException.NO_IMAGES)
     return self.imageUrls
 
   def ParseBigImages(self, page):
@@ -394,7 +395,13 @@ class PixivImage:
     return urls
 
   def WriteInfo(self, filename):
-    info = codecs.open(filename, 'wb', encoding='utf-8')
+    info = None
+    try:
+      info = codecs.open(filename, 'wb', encoding='utf-8')
+    except IOError:
+      info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
+      PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
+      
     info.write("ArtistID   = " + str(self.artist.artistId) + "\r\n")
     info.write("ArtistName = " + self.artist.artistName + "\r\n")
     info.write("ImageID    = " + str(self.imageId) + "\r\n")
@@ -408,17 +415,6 @@ class PixivImage:
     info.write("Tools      = " + self.worksTools + "\r\n")
     info.write("Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
     info.close()
-
-class PixivModelException(Exception):
-  errorCode = 0
-  
-  def __init__(self, value, errorCode = 0):
-    self.value = value
-    self.message = value
-    self.errorCode = errorCode
-    
-  def __str__(self):
-    return repr(self.value)
 
 class PixivListItem:
   '''Class for item in list.txt'''
@@ -437,7 +433,7 @@ class PixivListItem:
     l = list()
 
     if not os.path.exists(filename) :
-      raise PixivModelException("File doesn't exists or no permission to read: " + filename)
+      raise PixivException("File doesn't exists or no permission to read: " + filename, errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION)
 
     reader = PixivHelper.OpenTextFile(filename)
     for line in reader:
@@ -666,7 +662,7 @@ class PixivTags:
     l = list()
 
     if not os.path.exists(filename) :
-      raise PixivModelException("File doesn't exists or no permission to read: " + filename)
+      raise PixivException("File doesn't exists or no permission to read: " + filename, FILE_NOT_EXISTS_OR_NO_READ_PERMISSION)
 
     reader = PixivHelper.OpenTextFile(filename)
     for line in reader:
