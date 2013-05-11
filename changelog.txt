@@ -1,3 +1,9 @@
+20130511
+- Refactor out PixivException and PixivBrowserFactory.
+- Update error codes.
+- Update artist token parser to handle all img-inf in image list.
+- Update filename sanitizer to remove all Unicode Control Character (Cc).
+
 20130430
 - Update parser.
 - Add start/end page for Download from Bookmarked Members (option 5).
