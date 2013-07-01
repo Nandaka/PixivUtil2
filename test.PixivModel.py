@@ -1,6 +1,7 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from PixivModel import PixivArtist, PixivImage, PixivModelException, PixivBookmark,PixivNewIllustBookmark, PixivTags
+from PixivModel import PixivArtist, PixivImage, PixivBookmark,PixivNewIllustBookmark, PixivTags
+from PixivException import PixivException
 from BeautifulSoup import BeautifulSoup
 from mechanize import Browser
 import os
@@ -13,7 +14,7 @@ class TestPixivArtist(unittest.TestCase):
       page = BeautifulSoup(p.read())
       try:
         artist = PixivArtist(1107124, page)
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -25,7 +26,7 @@ class TestPixivArtist(unittest.TestCase):
       #print '\nTesting member page - no image'
       p = open('./test/test-noimage.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException):
+      with self.assertRaises(PixivException):
           PixivArtist(1233, page)
       page.decompose()
       del page
@@ -34,7 +35,7 @@ class TestPixivArtist(unittest.TestCase):
       #print '\nTesting member page - no member'
       p = open('./test/test-nouser.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException):
+      with self.assertRaises(PixivException):
           PixivArtist(1, page)
       page.decompose()
       del page
@@ -46,7 +47,7 @@ class TestPixivArtist(unittest.TestCase):
       try:
         artist = PixivArtist(26357, page)
         #artist.PrintInfo()
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -58,7 +59,7 @@ class TestPixivArtist(unittest.TestCase):
       #print '\nTesting member page - suspended member'
       p = open('./test/test-member-suspended.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException) as ex:
+      with self.assertRaises(PixivException) as ex:
           PixivArtist(123, page)
       self.assertEqual(ex.exception.errorCode, 1002)
       page.decompose()
@@ -67,7 +68,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistNotLoggedIn(self):
       p = open('./test/test-member-nologin.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException) as ex:
+      with self.assertRaises(PixivException) as ex:
           PixivArtist(143229, page)
       self.assertEqual(ex.exception.errorCode, 100)
       page.decompose()
@@ -80,7 +81,7 @@ class TestPixivArtist(unittest.TestCase):
       try:
         artist = PixivArtist(3281699, page)
         #artist.PrintInfo()
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -130,7 +131,7 @@ class TestPixivImage(unittest.TestCase):
       page = BeautifulSoup(p.read())
       try:
         image = PixivImage(11164869, page)
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -148,7 +149,7 @@ class TestPixivImage(unittest.TestCase):
       page = BeautifulSoup(p.read())
       try:
         image = PixivImage(9175987, page)
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -166,7 +167,7 @@ class TestPixivImage(unittest.TestCase):
       try:
         image = PixivImage(2493913, page)
         #image.PrintInfo()
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -184,7 +185,7 @@ class TestPixivImage(unittest.TestCase):
       try:
         image = PixivImage(28865189, page)
         #image.PrintInfo()
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -200,7 +201,7 @@ class TestPixivImage(unittest.TestCase):
       #print '\nTesting image page - no image'
       p = open('./test/test-image-noimage.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException):
+      with self.assertRaises(PixivException):
           PixivImage(123, page)
       page.decompose()
       del page
@@ -209,7 +210,7 @@ class TestPixivImage(unittest.TestCase):
       #print '\nTesting image page - no image'
       p = open('./test/test-image-noimage-eng.htm', 'r')
       page = BeautifulSoup(p.read())
-      with self.assertRaises(PixivModelException):
+      with self.assertRaises(PixivException):
           PixivImage(123, page)
       page.decompose()
       del page
@@ -221,7 +222,7 @@ class TestPixivImage(unittest.TestCase):
       try:
         image = PixivImage(28820443, page)
         #image.PrintInfo()
-      except PixivModelException as ex:
+      except PixivException as ex:
         print ex
       page.decompose()
       del page
@@ -246,7 +247,7 @@ class TestPixivImage(unittest.TestCase):
       page = BeautifulSoup(p.read())
       image = PixivImage()
       urls = image.ParseImages(page, mode='manga')
-      #print urls
+      print urls
       self.assertEqual(len(urls), 39*2)
       imageId = urls[0].split('/')[-1].split('.')[0]
       #print 'imageId:',imageId
@@ -258,8 +259,8 @@ class TestPixivImage(unittest.TestCase):
       page = BeautifulSoup(p.read())
       try:
           image = PixivImage(9138317, page)
-          self.assertRaises(PixivModelException)
-      except PixivModelException as ex:
+          self.assertRaises(PixivException)
+      except PixivException as ex:
           self.assertEqual(ex.errorCode, 100)
       
 class TestPixivBookmark(unittest.TestCase):
@@ -292,8 +293,8 @@ class TestMyPickPage(unittest.TestCase):
             page = BeautifulSoup(p.read())
             image = PixivImage(12467674,page)
         
-            self.assertRaises(PixivModelException)
-        except PixivModelException as ex:
+            self.assertRaises(PixivException)
+        except PixivException as ex:
             self.assertEqual(ex.errorCode, 2002)
 
     def testMyPickPageEng(self):
@@ -304,8 +305,8 @@ class TestMyPickPage(unittest.TestCase):
             page = BeautifulSoup(p.read())
             image = PixivImage(28688383,page)
         
-            self.assertRaises(PixivModelException)
-        except PixivModelException as ex:
+            self.assertRaises(PixivException)
+        except PixivException as ex:
             self.assertEqual(ex.errorCode, 2002)
 
     def testGuroPageEng(self):
@@ -316,8 +317,8 @@ class TestMyPickPage(unittest.TestCase):
             page = BeautifulSoup(p.read())
             image = PixivImage(31111130,page)
         
-            self.assertRaises(PixivModelException)
-        except PixivModelException as ex:
+            self.assertRaises(PixivException)
+        except PixivException as ex:
             self.assertEqual(ex.errorCode, 2005)
 
     def testEroPageEng(self):
@@ -328,8 +329,8 @@ class TestMyPickPage(unittest.TestCase):
             page = BeautifulSoup(p.read())
             image = PixivImage(31115956,page)
         
-            self.assertRaises(PixivModelException)
-        except PixivModelException as ex:
+            self.assertRaises(PixivException)
+        except PixivException as ex:
             self.assertEqual(ex.errorCode, 2005)
 
             

@@ -24,7 +24,7 @@ class PixivArtist:
       ## check if logged in
       if self.IsNotLoggedIn(page):
         raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN)
-      
+
       ## detect if artist exist
       if self.IsUserNotExist(page):
         raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS)
@@ -37,11 +37,11 @@ class PixivArtist:
       errorMessage = self.IsErrorExist(page)
       if errorMessage != None:
         raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR)
-        
+
       ## detect if image count != 0
       if not fromImage:
         self.ParseImages(page)
-      
+
       ## parse artist info
       self.ParseInfo(page, fromImage)
 
@@ -53,7 +53,7 @@ class PixivArtist:
 
       ## check if the last page
       self.CheckLastPage(page)
-      
+
       ## check id
       #if mid == self.artistId:
       #  print 'member_id OK'
@@ -62,7 +62,7 @@ class PixivArtist:
     avatarBox = page.find(attrs={'class':'_unit profile-unit'})
     temp = str(avatarBox.find('a')['href'])
     self.artistId = int(re.search('id=(\d+)', temp).group(1))
-    
+
     try:
       ##self.artistName = unicode(page.h2.span.a.string.extract())
       self.artistName = unicode(page.find('h1', attrs={'class':'user'}).string.extract())
@@ -70,7 +70,7 @@ class PixivArtist:
       self.artistName = unicode(page.findAll(attrs={"class":"avatar_m"})[0]["title"])
     self.artistAvatar = str(page.find('img', attrs={'class':'user-image'})['src'])
     self.artistToken = self.ParseToken(page, fromImage)
-      
+
 
   def ParseToken(self, page, fromImage=False):
     if self.artistAvatar == 'http://source.pixiv.net/source/images/no_profile.png':
@@ -92,7 +92,7 @@ class PixivArtist:
               folders = tempImage.split('/')
               ## skip http://i2.pixiv.net/img-inf/img/2013/04/07/03/08/21/34846113_s.jpg
               if folders[3] == 'img-inf':
-                continue              
+                continue
               artistToken = folders[-2]
               if artistToken != 'common':
                 return artistToken
@@ -109,15 +109,15 @@ class PixivArtist:
               imagePage = PixivBrowserFactory.getBrowser().open(firstImageLink)
               imageResult = BeautifulSoup(imagePage.read())
               token = str(imageResult.find(attrs={'class':'works_display'}).find('img')['src'])
-              return token.split('/')[-2]              
-              
+              return token.split('/')[-2]
+
             raise PixivException('Cannot parse artist token, possibly different image structure.', errorCode = PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE)
         except TypeError:
           raise PixivException('Cannot parse artist token, possibly no images.', errorCode = PixivException.PARSE_TOKEN_NO_IMAGES)
     else :
       temp = self.artistAvatar.split('/')
       return temp[-2]
-    
+
   def ParseImages(self, page):
     del self.imageList[:]
     temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
@@ -150,12 +150,12 @@ class PixivArtist:
     if check != None and len(check) > 0:
       return True
     return False
-  
+
   def IsUserNotExist(self, page):
     errorMessage = '該当ユーザーは既に退会したか、存在しないユーザーIDです'
     errorMessage2 = 'The user has either left pixiv, or the user ID does not exist.'
     return self.HaveString(page, errorMessage) or self.HaveString(page, errorMessage2)
-    
+
   def IsUserSuspended(self, page):
     errorMessage = '該当ユーザーのアカウントは停止されています。'
     errorMessage2 = 'This user account has been suspended.'
@@ -169,7 +169,7 @@ class PixivArtist:
         return check2[0].renderContents()
       return check[0].renderContents()
     return None
-  
+
   def CheckLastPage(self, page):
     check = page.findAll('a', attrs={'class':'_button', 'rel':'next'})
     if len(check) > 0:
@@ -177,7 +177,7 @@ class PixivArtist:
     else:
       self.isLastPage = True
     return self.isLastPage
-    
+
   def PrintInfo(self):
     PixivHelper.safePrint('Artist Info')
     PixivHelper.safePrint('id    : ' + str(self.artistId))
@@ -187,7 +187,7 @@ class PixivArtist:
     PixivHelper.safePrint('urls  : ')
     for item in self.imageList:
       PixivHelper.safePrint('\t' + str(item))
-    
+
 class PixivImage:
   '''Class for parsing image page, including manga page and big image.'''
   artist     = None
@@ -212,7 +212,7 @@ class PixivImage:
     self.artist = parent
     self.fromBookmark = fromBookmark
     self.imageUrls = []
-      
+
     if page != None:
       ## check is error page
       if self.IsNotLoggedIn(page):
@@ -222,7 +222,7 @@ class PixivImage:
       if self.IsNeedAppropriateLevel(page):
         raise PixivException('Public works can not be viewed by the appropriate level!', errorCode=PixivException.NO_APPROPRIATE_LEVEL)
       if self.IsDeleted(page):
-        raise PixivException('Image not found/already deleted!', errorCode=PixivException.PixivException.IMAGE_DELETED)
+        raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED)
       if self.IsGuroDisabled(page):
         raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=PixivException.R_18_DISABLED)
 
@@ -234,7 +234,7 @@ class PixivImage:
       errorMessage = self.IsErrorExist(page)
       if errorMessage != None:
         raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR)
-        
+
       ## parse artist information
       if self.artist == None:
         self.artist = PixivArtist(page=page, fromImage=True)
@@ -256,7 +256,7 @@ class PixivImage:
     if check != None and len(check) > 0:
       return True
     return False
-    
+
   def IsErrorPage(self, page):
     ##errorMessage = 'エラーが発生しました'
     ##return self.HaveString(page, errorMessage)
@@ -271,7 +271,7 @@ class PixivImage:
   def IsNeedAppropriateLevel(self, page):
     errorMessage = '該当作品の公開レベルにより閲覧できません。'
     return self.HaveString(page, errorMessage)
-  
+
   def IsNeedPermission(self, page):
     errorMessage = 'この作品は.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています'
     errorMessage2 = 'This work is viewable only for users who are in .+\'s My pixiv list'
@@ -295,7 +295,7 @@ class PixivImage:
         return check2[0].renderContents()
       return check[0].renderContents()
     return None
-  
+
   def HaveString(self, page, string):
     pattern = re.compile(string)
     test_2 = pattern.findall(str(page))
@@ -304,7 +304,7 @@ class PixivImage:
             return True
     else :
       return False
-  
+
   def ParseInfo(self, page):
     temp = str(page.find(attrs={'class':'works_display'}).find('a')['href'])
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
@@ -333,7 +333,7 @@ class PixivImage:
     else:
       tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
       self.worksDateDateTime = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
-    
+
     self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
     toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
     if toolsTemp!= None and len(toolsTemp) > 0:
@@ -396,14 +396,22 @@ class PixivImage:
       string += str(script)
     # normal: http://img04.pixiv.net/img/xxxx/12345_p0.jpg
     # mypick: http://img04.pixiv.net/img/xxxx/12344_5baa86aaad_p0.jpg
-    pattern = re.compile('http.*?\d+[_0-9a-z_]*_p\d+\..{3}')
-    pattern2 = re.compile('http.*?(\d+[_0-9a-z_]*_p\d+)\..{3}')
+    pattern = re.compile('http.*?(?<!mobile)\d+[_0-9a-z_]*_p\d+\..{3}')
+    pattern2 = re.compile('http.*?(?<!mobile)(\d+[_0-9a-z_]*_p\d+)\..{3}')
     m = pattern.findall(string)
+
+    # filter mobile thumb: http://i1.pixiv.net/img01/img/sokusekimaou/mobile/20592252_128x128_p8.jpg
+    m2 = []
+    for img in m:
+        if img.find('/mobile/') == -1:
+            m2.append(img)
+    m = m2
+
     self.imageCount = len(m)
     for img in m:
       temp = str(img)
       m2 = pattern2.findall(temp)         ## 1234_p0
-      temp = temp.replace(m2[0], m2[0].replace('_p', '_big_p')) 
+      temp = temp.replace(m2[0], m2[0].replace('_p', '_big_p'))
       urls.append(temp)
       temp = str(img)
       urls.append(temp)
@@ -416,7 +424,7 @@ class PixivImage:
     except IOError:
       info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
       PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
-      
+
     info.write("ArtistID   = " + str(self.artist.artistId) + "\r\n")
     info.write("ArtistName = " + self.artist.artistName + "\r\n")
     info.write("ImageID    = " + str(self.imageId) + "\r\n")
@@ -455,7 +463,7 @@ class PixivListItem:
         if line.startswith('#') or len(line) < 1:
           continue
         line = PixivHelper.toUnicode(line)
-        line = line.strip()        
+        line = line.strip()
         items = line.split(" ", 1)
         try:
           member_id = int(items[0])
@@ -468,7 +476,7 @@ class PixivListItem:
               path = path.replace('%root%', rootDir)
             else:
               path = path.replace('%root%', '')
-              
+
             path = os.path.abspath(path)
             # have drive letter
             if re.match(r'[a-zA-Z]:', path):
@@ -477,7 +485,7 @@ class PixivListItem:
                 path = os.sep.join(dirpath)
             else:
                 path = PixivHelper.sanitizeFilename(path, rootDir)
-            
+
             path = path.replace('\\\\', '\\')
             path = path.replace('\\', os.sep)
 
@@ -504,7 +512,7 @@ class PixivNewIllustBookmark:
       self.haveImages = True
     else:
       self.haveImages = False
-    
+
   def __ParseNewIllustBookmark(self,page):
     self.imageList = list()
     try:
@@ -546,7 +554,7 @@ class PixivBookmark:
         if len(member_id) > 0:
           d[member_id[0]] = member_id[0]
       result2 = list(d.keys())
-      
+
       for r in result2:
         item = db.selectMemberByMemberId2(r)
         l.append(item)
@@ -578,7 +586,7 @@ class PixivBookmark:
     writer.write(u'###Export date: ' + str(datetime.today()) +'###\n')
     for item in l:
       data = unicode(str(item.memberId))
-      if len(item.path) > 0:        
+      if len(item.path) > 0:
         data = data + unicode(' ' + item.path)
       writer.write(data)
       writer.write(u'\r\n')
@@ -594,7 +602,7 @@ class PixivTags:
   itemList = None
   haveImage = None
   isLastPage = None
-  
+
   def parseTags(self, page):
     '''parse tags search page and return the image list with bookmarkCound and imageResponse'''
     self.itemList = list()
@@ -610,7 +618,7 @@ class PixivTags:
         if str(li).find('member_illust.php?') > -1:
           image_id = __re_illust.findall(li.find('a')['href'])[0]
           ignore.append(image_id)
-    
+
     ## new parse for bookmark items
     items = page.findAll('li', attrs={'class':'image-item'})
     for item in items:
@@ -670,7 +678,7 @@ class PixivTags:
 ##        self.isLastPage = False
 ##      else:
 ##        self.isLastPage = True
-     
+
   @staticmethod
   def parseTagsList(filename):
     '''read tags.txt and return the tags list'''

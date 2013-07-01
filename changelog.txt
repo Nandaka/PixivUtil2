@@ -1,3 +1,6 @@
+20130701
+- Update manga parser.
+
 20130511
 - Refactor out PixivException and PixivBrowserFactory.
 - Update error codes.
