@@ -87,7 +87,7 @@ def customRequest(url):
     return req
 
 #-T04------For download file
-def downloadImage(url, filename, referer, overwrite, retry):
+def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False):
     try:
         try:
             req = customRequest(url)
@@ -111,13 +111,25 @@ def downloadImage(url, filename, referer, overwrite, retry):
             except:
                 raise
 
-            if not overwrite and os.path.exists(filename) and os.path.isfile(filename) :
-                if int(filesize) == os.path.getsize(filename) :
+            if os.path.exists(filename) and os.path.isfile(filename) :
+                oldSize = os.path.getsize(filename)
+                if not overwrite and int(filesize) == oldSize :
                     print "\tFile exist! (Identical Size)"
                     return 0 #Yavos: added 0 -> updateImage() will be executed
                 else :
-                    print "\t Found file with different filesize, removing..."
-                    os.remove(filename)
+                    if backupOldFile:
+                        import time
+                        splitName = filename.rsplit(".", 1)
+                        newName = filename + "." + str(int(time.time()))
+                        if len(splitName) == 2:
+                            newName = splitName[0] + "." + str(int(time.time())) + "." + splitName[1]
+                        PixivHelper.safePrint("\t Found file with different filesize, backing up to: " + newName)
+                        __log__.info("Found file with different filesize, backing up to: " + newName)
+                        os.rename(filename, newName)
+                    else:
+                        print "\t Found file with different filesize, removing..."
+                        __log__.info("Found file with different filesize, removing old file (old: " + str(oldSize) + " vs new: " + str(filesize) + ")")
+                        os.remove(filename)
 
             directory = os.path.dirname(filename)
             if not os.path.exists(directory):
@@ -440,7 +452,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                     targetDir = userDir
 
                 avatarFilename = PixivHelper.CreateAvatarFilename(filenameFormat, __config__.tagsSeparator, __config__.tagsLimit, artist, targetDir)
-                result = downloadImage(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry)
+                result = downloadImage(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry, __config__.backupOldFile)
                 avatarDownloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
@@ -689,10 +701,10 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                     PixivHelper.safePrint('Filename  : ' + filename)
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
+                        overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
-                            result = downloadImage(img, filename, viewPage.geturl(), True, __config__.retry)
-                        else:
-                            result = downloadImage(img, filename, viewPage.geturl(), False, __config__.retry)
+                            overwrite = True
+                        result = downloadImage(img, filename, viewPage.geturl(), overwrite, __config__.retry, __config__.backupOldFile)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK and image.imageMode == 'manga' and img.find('_big') > -1:
                             print 'No big manga image available, try the small one'

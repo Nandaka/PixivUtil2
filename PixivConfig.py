@@ -56,14 +56,16 @@ class PixivConfig:
     r18mode = False
     dateDiff = 0
     keepSignedIn = 0
-    
+
     #Yavos: added next three lines
     createDownloadLists = False
     downloadListDirectory = unicode('.')
     startIrfanView = False
     startIrfanSlide = False
     IrfanViewPath = unicode('C:\Program Files\IrfanView')
-    
+
+    backupOldFile = False
+
     def loadConfig(self):
         configFile = script_path + os.sep + 'config.ini'
         print 'Reading', configFile, '...'
@@ -74,14 +76,14 @@ class PixivConfig:
             config.readfp(PixivHelper.OpenTextFile(configFile))
 
             self.username = config.get('Authentication','username')
-        
+
             self.password = config.get('Authentication','password')
 
             self.cookie = config.get('Authentication','cookie')
 
             self.tagsSeparator = PixivHelper.toUnicode(config.get('Settings','tagsseparator'), encoding=sys.stdin.encoding)
             self.rootDirectory = PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding)
-            
+
             try:
                 self.IrfanViewPath = PixivHelper.toUnicode(config.get('Settings','IrfanViewPath'), encoding=sys.stdin.encoding)
                 self.downloadListDirectory = PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding)
@@ -116,14 +118,14 @@ class PixivConfig:
                 self.proxyAddress = ''
                 haveError = True
             self.proxy = {'http': self.proxyAddress}
-            
+
             try:
                 self.useProxy = config.getboolean('Settings','useproxy')
             except ValueError:
                 print "useProxy = False"
                 self.useProxy = False
                 haveError = True
-                
+
             try:
                 self.useList = config.getboolean('Settings','uselist')
             except ValueError:
@@ -137,7 +139,7 @@ class PixivConfig:
                 print "r18mode = False"
                 self.r18mode = False
                 haveError = True
-                
+
             _useragent = config.get('Settings','useragent')
             if _useragent != None:
                 self.useragent = _useragent
@@ -158,14 +160,14 @@ class PixivConfig:
                         print "_filenameMangaFormat =", _filenameMangaFormat
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
-                
+
             try:
                 self.debugHttp = config.getboolean('Settings','debughttp')
             except ValueError:
                 self.debugHttp = False
                 print "debugHttp = False"
                 haveError = True
-                
+
             try:
                 self.useRobots = config.getboolean('Settings','userobots')
             except ValueError:
@@ -193,7 +195,7 @@ class PixivConfig:
                 print "timeout = 60"
                 self.timeout = 60
                 haveError = True
-                
+
             try:
                 self.retry = config.getint('Settings','retry')
             except ValueError:
@@ -207,28 +209,28 @@ class PixivConfig:
                 print "retryWait = 5"
                 self.retryWait = 5
                 haveError = True
-                
+
             try:
                 self.numberOfPage = config.getint('Pixiv','numberofpage')
             except ValueError:
                 self.numberOfPage = 0
                 print "numberOfPage = 0"
                 haveError = True
-                
+
             try:
                 self.createDownloadLists = config.getboolean('Settings','createDownloadLists')
             except ValueError:
                 self.createDownloadLists = False
                 print "createDownloadLists = False"
                 haveError = True
-                
+
             try:
                 self.startIrfanView = config.getboolean('Settings','startIrfanView')
             except ValueError:
                 self.startIrfanView = False
                 print "startIrfanView = False"
                 haveError = True
-                
+
             try:
                 self.startIrfanSlide = config.getboolean('Settings','startIrfanSlide')
             except ValueError:
@@ -249,7 +251,7 @@ class PixivConfig:
                 self.downloadAvatar = False
                 print "alwaysCheckFileSize = False"
                 haveError = True
-                
+
             try:
                 self.checkUpdatedLimit = config.getint('Settings','checkUpdatedLimit')
             except ValueError:
@@ -289,14 +291,14 @@ class PixivConfig:
                 self.useSSL = config.getboolean('Authentication','useSSL')
             except ValueError:
                 self.useSSL = False
-                print "useSSL = False"                              
+                print "useSSL = False"
                 haveError = True
 
             try:
                 self.writeImageInfo = config.getboolean('Settings','writeImageInfo')
             except ValueError:
                 self.writeImageInfo = False
-                print "writeImageInfo = False"                              
+                print "writeImageInfo = False"
                 haveError = True
 
             try:
@@ -305,7 +307,14 @@ class PixivConfig:
                 print "keepSignedIn = 0"
                 self.keepSignedIn = 0
                 haveError = True
-            
+
+            try:
+                self.backupOldFile = config.getboolean('Settings','backupOldFile')
+            except ValueError:
+                self.backupOldFile = False
+                print "backupOldFile = False"
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -322,7 +331,7 @@ class PixivConfig:
         if haveError:
             print 'Some configuration have invalid value, replacing with the default value.'
             self.writeConfig()
-            
+
         print 'done.'
 
 
@@ -364,15 +373,16 @@ class PixivConfig:
         config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
-        config.set('Settings', 'writeImageInfo', self.writeImageInfo)        
+        config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'dateDiff', self.dateDiff)
-        
+        config.set('Settings', 'backupOldFile', self.backupOldFile)
+
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
         config.set('Authentication', 'useSSL', self.useSSL)
-        config.set('Authentication', 'keepSignedIn', self.keepSignedIn)        
-        
+        config.set('Authentication', 'keepSignedIn', self.keepSignedIn)
+
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
 
@@ -386,8 +396,8 @@ class PixivConfig:
             os.rename('config.ini.tmp', 'config.ini')
         except:
             self.__logger.exception('Error at writeConfig()')
-            raise 
-            
+            raise
+
         print 'done.'
 
     def printConfig(self):
@@ -398,7 +408,7 @@ class PixivConfig:
         print ' - cookie       = ', self.cookie
         print ' - useSSL       = ', self.useSSL
         print ' - keepSignedIn = ', self.keepSignedIn
-        
+
         print ' [Settings]'
         print ' - filename_format =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
@@ -428,10 +438,11 @@ class PixivConfig:
         print ' - useTagsAsDir   =', self.useTagsAsDir
         print ' - useBlacklistTags =', self.useBlacklistTags
         print ' - useSuppressTags  =', self.useSuppressTags
-        print ' - tagsLimit =', self.tagsLimit
+        print ' - tagsLimit      =', self.tagsLimit
         print ' - writeImageInfo =', self.writeImageInfo
-        print ' - dateDiff  =', self.dateDiff
-        
+        print ' - dateDiff       =', self.dateDiff
+        print ' - backupOldFile  =', self.backupOldFile
+
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
         print ' - R18Mode =', self.r18mode

@@ -272,6 +272,8 @@ writeimageinfo  ==> set to 'True' to export the image information to text file.
 dateDiff        ==> Gets only pictures that were posted X days before the system 
                     date. Set 0 to disable. Skip to next member id if in Download
                     by Member, stop processing if in Download New Illust.
+backupOldFile   ==> Set to True to backup old file if the file size is different.
+                    Old filename will be renamed to filename.unix-time.extension.
 
 =================================================================================
 = list.txt Format                                                               =

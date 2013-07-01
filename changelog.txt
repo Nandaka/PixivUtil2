@@ -1,5 +1,6 @@
 20130701
 - Update manga parser.
+- Add new option to back up old file if the filesize is different (backupOldFile).
 
 20130511
 - Refactor out PixivException and PixivBrowserFactory.
