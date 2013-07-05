@@ -314,9 +314,16 @@ class PixivImage:
       if title.string != None and title.string != "pixiv":
         self.imageTitle = unicode(title.string)
         break
+
+    # remove premium-introduction-modal so we can get caption from work-info
+    # somehow selecting section doesn't works
+    premium_introduction_modal = page.find('div', attrs={'id':'premium-introduction-modal'})
+    if premium_introduction_modal != None:
+        premium_introduction_modal.extract()
     captions = page.findAll('p', attrs={'class':'caption'})
     if captions != None and len(captions) > 0:
-       self.imageCaption = unicode("".join(unicode(item) for item in captions[0].contents))
+        self.imageCaption = unicode("".join(unicode(item) for item in captions[0].contents))
+
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
     self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)
@@ -654,10 +661,10 @@ class PixivTags:
         if len(result) > 0 :
           image_id = int(result[0])
           self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
-    self.checkLastPage(page)
+    self.checkLastPage(page, fromMember=True)
     return self.itemList
 
-  def checkLastPage(self, page):
+  def checkLastPage(self, page, fromMember=False):
     # Check if have image
     if len(self.itemList) > 0:
       self.haveImage = True
@@ -670,14 +677,13 @@ class PixivTags:
       self.isLastPage = False
     else:
       self.isLastPage = True
-##
-##    # check if the last page for member tags
-##    if self.isLastPage:
-##      check = page.findAll(name='a', attrs={ 'rel':'next'})
-##      if len(check) > 0:
-##        self.isLastPage = False
-##      else:
-##        self.isLastPage = True
+
+    if fromMember:
+        # check if the last page for member tags
+        if self.isLastPage:
+          check = page.findAll(name='a', attrs={'class':'button', 'rel':'next'})
+          if len(check) > 0:
+            self.isLastPage = False
 
   @staticmethod
   def parseTagsList(filename):

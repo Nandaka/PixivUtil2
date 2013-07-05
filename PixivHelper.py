@@ -54,7 +54,7 @@ def sanitizeFilename(s, rootDir=None):
   ## Replace new line with space
   name = name.replace("\r", '')
   name = name.replace("\n", ' ')
-    
+
   #Yavos: when foldername ends with "." PixivUtil won't find it
   while name.find('.\\') != -1:
     name = name.replace('.\\','\\')
@@ -104,7 +104,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   splittedUrl = fileUrl.split('.')
   imageExtension = splittedUrl[1]
   imageExtension = imageExtension.split('?')[0]
-  
+
   nameFormat = nameFormat.replace('%artist%',artistInfo.artistName.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('%title%',imageInfo.imageTitle.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('%image_id%',str(imageInfo.imageId))
@@ -119,7 +119,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
 
   ## date
   nameFormat = nameFormat.replace('%date%', datetime.date.today().strftime('%Y%m%d'))
-  
+
   ## get the page index & big mode if manga
   page_index = ''
   page_number = ''
@@ -137,7 +137,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   nameFormat = nameFormat.replace('%page_big%', page_big)
   nameFormat = nameFormat.replace('%page_index%', page_index)
   nameFormat = nameFormat.replace('%page_number%', page_number)
-  
+
   if tagsSeparator == '%space%':
     tagsSeparator = ' '
   if tagsLimit != -1:
@@ -148,7 +148,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
   if "R-18G" in imageInfo.imageTags:
     r18Dir = "R-18G"
   elif "R-18" in imageInfo.imageTags:
-    r18Dir = "R-18"  
+    r18Dir = "R-18"
   nameFormat = nameFormat.replace('%R-18%', r18Dir)
   nameFormat = nameFormat.replace('%tags%', tags.replace(os.sep,'_'))
   nameFormat = nameFormat.replace('&#039;', '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
@@ -169,7 +169,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
 
   if appendExtension:
     nameFormat = nameFormat + '.' + imageExtension
-  
+
   return nameFormat
 
 def safePrint(msg, newline=True):
@@ -260,7 +260,7 @@ def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, t
   filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit, fileUrl=artistPage.artistAvatar, appendExtension=False)
   filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
   return filename
-  
+
 ## Get actual script directory
 ## http://www.py2exe.org/index.cgi/WhereAmI
 def we_are_frozen():

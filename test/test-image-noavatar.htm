@@ -15,8 +15,7 @@
 <meta property="og:title" content="C80PV完成 | ぃやまと（iYAMATO） [pixiv]">
 <meta property="og:type" content="article">
 <meta property="og:url" content="http://www.pixiv.net/member_illust.php?mode=medium&amp;illust_id=20496355">
-<meta property="og:image" content="http://i1.pixiv.net/img01/img/iymt/20496355_s.jpg">
-<meta property="og:description" content="C80のPVからの1カット。 （・∀・）PVできたのでよろしく！  http://www.youtube.com/watch?v=eN53ZyuX4Ps ">
+<meta property="og:image" content="http://i1.pixiv.net/img01/img/iymt/20496355_s.jpg"><meta property="og:description" content="C80のPVからの1カット。 （・∀・）PVできたのでよろしく！  http://www.youtube.com/watch?v=eN53ZyuX4Ps ">
 
 <meta name="application-name" content="pixiv">
 <meta name="msapplication-tooltip" content="Online Artist Community">
@@ -25,7 +24,7 @@
 <meta name="msapplication-task" content="name=Manage Works;action-uri=http://www.pixiv.net/member_illust.php;icon-uri=http://source.pixiv.net/source/images/ico/settings.ico">
 <meta name="msapplication-task" content="name=Bookmarks;action-uri=http://www.pixiv.net/bookmark.php;icon-uri=http://source.pixiv.net/source/images/ico/bookmarks.ico">
 <meta name="msapplication-task" content="name=Inbox;action-uri=http://www.pixiv.net/msgbox.php;icon-uri=http://source.pixiv.net/source/images/ico/messages.ico">
-<meta name="msapplication-task" content="name=Staccfeed;action-uri=http://www.pixiv.net/stacc/;icon-uri=http://source.pixiv.net/source/images/ico/stacc.ico">
+<meta name="msapplication-task" content="name=Feed;action-uri=http://www.pixiv.net/stacc/;icon-uri=http://source.pixiv.net/source/images/ico/stacc.ico">
 
 <title>「C80PV完成」/「ぃやまと（iYAMATO）」のイラスト [pixiv]</title>
 <meta name="keywords" content="pixiv,ピクシブ,イラスト,イラストレーション,マンガ,漫画,manga,コミュニティ,SNS,投稿,コンテスト">
@@ -90,19 +89,15 @@ pixivErrorLogger(message, url, line);
 ++error_count;
 }
 })(0);
-
-
-
 </script>
-<link rel="stylesheet" href="http://source.pixiv.net/source/css/global.css?20130329">
-<link rel="stylesheet" href="http://source.pixiv.net/source/css/global_2.css?20130329">
+<link rel="stylesheet" href="http://source.pixiv.net/source/css/global.css?70b80a4c6c8988a977a44ae3458bd701">
 <!--[if IE 9]>
-<link rel="stylesheet" href="http://source.pixiv.net/source/css/ie9.css?20130319">
+<link rel="stylesheet" href="http://source.pixiv.net/source/css/ie9.css?cc54424810608bbe7da95876308a9c7e">
 <![endif]-->
 <!--[if lt IE 9]>
-<link rel="stylesheet" href="http://source.pixiv.net/source/css/ie.css?20130319">
+<link rel="stylesheet" href="http://source.pixiv.net/source/css/ie.css?0c82313ca3d7e355327deecc560fac1c">
 <![endif]-->
-
+<link rel="stylesheet" href="http://source.pixiv.net/source/css/test.css?a963a2192a81afcf86c0e34740ad6bad">
 
 
 <!--[if lt IE 9]>
@@ -112,12 +107,14 @@ pixivErrorLogger(message, url, line);
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="http://source.pixiv.net/source/js/lib/jquery-1.8.3.min.js"></scr' + 'ipt>');</script>
 <script src="http://source.pixiv.net/source/js/lib.js?20120926"></script>
-<script src="http://source.pixiv.net/source/js/pixiv.js?20130326"></script>
-<script src="http://source.pixiv.net/source/js/pixiv.group.js?20130218"></script>
+<script src="http://source.pixiv.net/source/js/pixiv.js?20130704"></script>
+<script src="http://source.pixiv.net/source/js/pixiv.group.js?20130603"></script>
+    
 <script>
-pixiv.aprilfool = null;
+pixiv.context.userId = '3473';
+pixiv.context.favorite = false;
+pixiv.context.myPixiv = false;
 </script>
-<script src="http://source.pixiv.net/source/mememe/js/kick.js?mememe1"></script>
 <script>
 pixiv.user.loggedIn = true;
 pixiv.user.id = '189816';
@@ -125,17 +122,9 @@ pixiv.user.anonymousHash = '80fd8177631d66ed35c3d70ab4f53fef';
 pixiv.user.abTestId = '6';
 pixiv.user.premium = false;
 pixiv.user.gender = "male";
-</script>
-<script>
-pixiv.context.token = '1788f68452bf43a739101591257a2eef';
-</script>
-<script>
-pixiv.context.userId = '3473';
-pixiv.context.favorite = false;
-pixiv.context.myPixiv = false;
-</script>
-<script>
+
 pixiv.config.facebookAppId = '140810032656374';
+pixiv.context.token = '202cfc8ebba77c2aaf7a578fe0ac1c88';
 </script>
 <script>
 
@@ -232,82 +221,69 @@ _gaq.push(['_setCustomVar', 2, "login ever", "no", 1]);
 </script>
 <script>
 
-var _kmq = _kmq || [];
-var _kmk = _kmk || 'b789ce38b266f4882a46fa9145140a02307cd57b';
-(function() {
-pixiv.metric.setup(pixiv.user);
-var mx;
-if (/[?&]ref=mail-mx(\d+)/.test(location.search)) {
-mx = RegExp.$1;
-pixiv.metric.force();
-} else if ("/signup.php" === location.pathname) {
-pixiv.metric.forceOnThisPage();
-} else if ("/premium.php" === location.pathname) {
-pixiv.metric.forceOnThisPage();
-}
-if (pixiv.metric.isActive) {
-pixiv.metric.loadJS('//i.kissmetrics.com/i.js');
-pixiv.metric.loadJS('//doug1izaerwt3.cloudfront.net/' + _kmk + '.1.js');
-pixiv.metric.provider = _kmq;
-if ("/signup.php" === location.pathname) {
-if (pixiv.context.signupStep === "step0") {
-pixiv.metric.record('Viewed Signup Form');
-} else if (pixiv.context.signupStep === "step1") {
-pixiv.metric.record('Viewed Signup Captcha');
-}
-if (/[?&]ref=([^&]+)/.test(location.search)) {
-pixiv.metric.set({'Signup Ref': RegExp.$1});
-}
-} else if ("/premium.php" === location.pathname) {
-pixiv.metric.record('Viewed Premium Info');
-if (/[?&]ref=([^&]+)/.test(location.search)) {
-pixiv.metric.set({'Premium Ref': RegExp.$1});
-}
-} else if (mx) {
-pixiv.metric.record('Mail Experiment', {'Mail Experiment': mx});
-} else if ("/index.php" === location.pathname || "/" === location.pathname) {
-pixiv.metric.record('Viewed Index', {'p_ab_id': pixiv.storage.cookie('p_ab_id')});
-}
-}
-} ());
-
-</script>
-<script>
-
 if (window.pixiv && !pixiv.text) pixiv.text = {};
 
 
 pixiv.text.searchModalPremium = 'Upgrade to Premium today & sort works by popularity!';
 </script>
 
-<script>
-window['ga-disable-UA-30239335-3'] = true;
-window['ga-disable-UA-33172287-1'] = true;
-window['ga-disable-UA-33166294-1'] = true;
-window['ga-disable-UA-33172462-1'] = true;
-window['ga-disable-UA-33172462-1'] = true;
-window['ga-disable-UA-33154786-1'] = true;
-window['ga-disable-UA-33166472-1'] = true;
-window['ga-disable-UA-33157279-1'] = true;
-window['ga-disable-UA-33174873-1'] = true;
-window['ga-disable-UA-33157694-1'] = true;
-window['ga-disable-UA-33173091-1'] = true;
-window['ga-disable-UA-33158282-1'] = true;
-window['ga-disable-UA-33164991-1'] = true;
+
+
+
+<script type='text/javascript'>
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') +
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
 </script>
 
+<script type='text/javascript'>
+googletag.cmd.push(function() {
+googletag.defineSlot('/21259798/Pixiv_468x60_rotation', [468, 60], 'div-gpt-ad-1371201129431-0').addService(googletag.pubads());
+googletag.enableServices();
+});
+</script>
 
+<script type='text/javascript'>
+googletag.cmd.push(function() {
+googletag.defineSlot('/21259798/Pixiv_728x90_footer', [728, 90], 'div-gpt-ad-1371201257600-0').addService(googletag.pubads());
+googletag.enableServices();
+});
+</script>
 
-
-
+<script type='text/javascript'>
+googletag.cmd.push(function() {
+googletag.defineSlot('/21259798/Pixiv_300x250_ログイン前レクタングル', [300, 250], 'div-gpt-ad-1371538199648-0').addService(googletag.pubads());
+googletag.enableServices();
+});
+</script>
 </head>
 <body class="abtest-u6">
 
 
-    <header class="header"><div class="layout-wrapper"><h1 class="title"><a href="http://www.pixiv.net/mypage.php" class="_icon sprites-logo">pixiv</a></h1><nav class="link-list"><ul><li><a href="/cate_r18.php">R-18</a></li><li><a href="http://www.pixiv.net/help.php">Help</a></li><li><a href="http://www.pixiv.net/setting_user.php">Settings</a></li><li><a href="/logout.php" data-text-confirm="Are you sure you want to logout?" onclick="return confirm(this.getAttribute('data-text-confirm'))">Logout</a></li></ul></nav><nav class="navigation-list"><ul><li class="home"><a href="http://www.pixiv.net/mypage.php"><i class="_icon sprites-home"></i>Home</a></li><li class="upload"><i class="_icon sprites-upload"></i><a href="http://www.pixiv.net/content_upload.php">Submit</a><a href="http://www.pixiv.net/member_illust.php">Manage</a></li><li class="bookmarks"><a href="http://www.pixiv.net/bookmark.php"><i class="_icon sprites-bookmarks"></i>Bookmarks</a></li><li class="stacc"><a href="http://www.pixiv.net/stacc/?mode=unify"><i class="_icon sprites-stacc"></i>Staccfeed</a></li></ul></nav><ul class="notifications"><li class="message"><a href="/msgbox.php" class="notification-button ui-modal-trigger" data-type="message"><span class="count">0</span></a></li><li class="popboard"><a href="/notify_all.php" class="notification-button ui-modal-trigger" data-type="popboard"><span class="count">0</span></a></li></ul><script>pixiv.user.unreadCount = {message : 0,popboard: 0};</script><div id="notification-message" class="notification-popup"><h2>Messages<a href="/setting_info.php" class="setting ui-tooltip" data-tooltip="Settings">Settings</a></h2><ul class="notification-list"></ul><p class="more"><a href="/msgbox.php">View all messages</a></p></div><div id="notification-popboard" class="notification-popup"><h2>Pop Board<a href="/setting_info.php" class="setting ui-tooltip" data-tooltip="Settings">Settings</a></h2><ul class="notification-list"></ul><p class="more"><a href="/notify_all.php">Show all notifications</a></p><script id="template-notification-permission" type="text/plain">
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-55FG"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-55FG');</script>
+<!-- End Google Tag Manager -->
+
+    
+<header class="header"><div class="layout-wrapper"><h1 class="title"><a href="http://www.pixiv.net/mypage.php" class="_icon sprites-logo">pixiv</a></h1><nav class="link-list"><ul><li><a href="/cate_r18.php">R-18</a></li><li><a href="http://www.pixiv.net/premium.php?ref=header">Premium</a></li><li><a href="http://www.pixiv.net/help.php">Help</a></li><li><a href="http://www.pixiv.net/setting_user.php">Settings</a></li><li><a href="/logout.php" data-text-confirm="Are you sure you want to logout?" onclick="return confirm(this.getAttribute('data-text-confirm'))">Logout</a></li></ul></nav><nav class="navigation-list"><ul><li class="home"><a href="http://www.pixiv.net/mypage.php"><i class="_icon sprites-home"></i>Home</a></li><li class="upload"><i class="_icon sprites-upload"></i><a href="http://www.pixiv.net/content_upload.php">Submit</a><a href="http://www.pixiv.net/member_illust.php" class="header-manage "><span class="text">Manage</span><span class="new-badge">NEW!</span></a></li><li class="bookmarks"><a href="http://www.pixiv.net/bookmark.php"><i class="_icon sprites-bookmarks"></i>Bookmarks</a></li><li class="stacc"><a href="http://www.pixiv.net/stacc/?mode=unify"><i class="_icon sprites-stacc"></i>Feed</a></li></ul></nav><ul class="notifications"><li class="message"><a href="/msgbox.php" class="notification-button ui-modal-trigger" data-type="message"><span class="count">0</span></a></li><li class="popboard"><a href="/notify_all.php" class="notification-button ui-modal-trigger" data-type="popboard"><span class="count">0</span></a></li></ul><script>pixiv.user.unreadCount = {message : 0,popboard: 0};</script><div id="notification-message" class="notification-popup"><h2>Messages<a href="/setting_info.php" class="setting ui-tooltip" data-tooltip="Settings">Settings</a></h2><ul class="notification-list"></ul><p class="more"><a href="/msgbox.php">View all messages</a></p></div><div id="notification-popboard" class="notification-popup"><h2>Pop Board<a href="/setting_info.php" class="setting ui-tooltip" data-tooltip="Settings">Settings</a></h2><ul class="notification-list"></ul><p class="more"><a href="/notify_all.php">Show all notifications</a></p><script id="template-notification-permission" type="text/plain">
 <div class="notification-request-permission">Switch to Desktop Notification</div>
-</script></div><nav class="category-list"><ul><li><a href="http://www.pixiv.net/novel/"><i class="_icon sprites-novel"></i>Novels</a></li><li><a href="/event.php"><i class="_icon sprites-event"></i>Event<span class="count-badge">139 results</span></a></li></ul></nav>
-<form method="get" class="ui-search" action="/search.php"><input type="hidden" name="s_mode" value="s_tag"><div class="container"><input type="text" id="suggest-input" name="word" value="" placeholder="Search"><div class="clear"></div></div><input type="submit" class="submit sprites-search" value="Search"></form><div class="ad"></div></div></header>    
+</script></div><nav class="category-list"><ul><li><a href="http://www.pixiv.net/novel/"><i class="_icon sprites-novel"></i>Novels</a></li><li><a href="/event.php"><i class="_icon sprites-event"></i>Event<span class="count-badge">134 results</span></a></li></ul></nav>
+<form method="get" class="ui-search" action="/search.php"><input type="hidden" name="s_mode" value="s_tag"><div class="container"><input type="text" id="suggest-input" name="word" value="" placeholder="Search results"><div class="clear"></div></div><input type="submit" class="submit sprites-search" value="Search results"></form><div class="ad"></div></div></header>    
 <!--[if lt IE 8]>
 <div id="outdated-browser-banner" style="display:none">
 <p>It looks like you're using an old version of your browser. Please ensure that you are running the latest version of your browser.</p>
@@ -320,6 +296,264 @@ pixiv.outdatedBrowser.showBanner();
 </script>
 <![endif]-->
 
+
+<div id="back-to-top" class="sprites-back-to-top ui-scroll"></div>
+
+<div id="toolbar-items"></div>
+<div id="ui-tooltip-container">
+<p></p>
+<div class="arrow"></div>
+</div>
+
+<script id="template-thumbnail-filter" type="text/x-handlebars-template">
+<div class="toolbar-item require-premium{{#if checked}} off{{/if}}" id="thumbnail-filter-container">
+<span class="label" onclick="pixiv.thumbnailFilter.toggle()"><i class="_icon sprites-premium"></i>Thumbnail Filter Settings</span>
+
+<div class="toolbar-menu">
+<div class="close" onclick="pixiv.thumbnailFilter.close()"></div>
+
+<div class="disabled">
+
+<div class="_icon sprites-help ui-modal-trigger ui-tooltip" data-tooltip="How to specify tags or user ID" data-target="thumbnail-filter-help">?</div>
+<section class="positive">
+<h1 class="title">Highlighted Works</h1>
+<p class="_notes"{{#if positiveItems.length}} style="display:none"{{/if}}>When this mode is enabled, work related to these tags or user IDs will have their thumbnails highlighted.</p>
+<div class="submit-form">
+<input class="item-name" type="text" placeholder="Tags / User ID" disabled>
+<button class="add-button"></button>
+</div>
+
+</section>
+<section class="negative">
+<h1 class="title">Hidden Works</h1>
+<p class="_notes"{{#if negativeItems.length}} style="display:none"{{/if}}>When this mode is enabled, work related to these tags or user IDs will have their thumbnails blocked. A mouseover will reveal details about what is blocked.</p>
+<div class="submit-form"><input class="item-name" type="text" placeholder="Tags / User ID" disabled><button class="add-button"></button>
+</div>
+
+</section>
+
+</div>
+<div class="require-premium"><a href="/premium.php?ref=thumbnail_filter" target="_blank">Join pixiv Premium to enable highlighted or hidden tags!</a></div>
+<div class="hide _clickable" onclick="pixiv.thumbnailFilter.hide()">Hide Guide</div>
+
+</div>
+</div>
+</script>
+
+<script id="template-thumbnail-filter-list-item" type="text/x-handlebars-template">
+<li style="display:none">
+<a href="{{#if user_item}}/member.php?id={{value}}{{else}}/tags.php?tag={{url_encode value}}{{/if}}" class="item{{#if user_item}} user{{/if}}" target="_blank">{{label}}</a>
+<span class="remove-button ui-tooltip" data-type="{{type}}" data-label="{{label}}" data-tooltip="Delete"></span>
+</li>
+</script>
+
+<div id="thumbnail-filter-help" class="introduction-modal-container action-modal">
+<section class="introduction-modal">
+<div class="close" onclick="pixiv.modal.close()"></div>
+
+<p class="label">How to specify tags or user ID</p>
+<ul class="_list">
+<li>Specifying "<span class="_info">a tag (e.g. Chobi)</span>" will <strong>display partial tag matches</strong> into your filter.</li>
+<li>Specifying "<span class="_info">&quot;a tag (e.g. Chobi)&quot;</span>" and "<span class="_info">&quot;11&quot;</span>" will <strong>display exact tag matches</strong> into your filter.</li>
+<li>Specifying only a number like "<span class="_info">&quot;11&quot;</span>" will filter by either <strong>user ID</strong> or <strong>similar tags</strong>. If you want a more specific filter, please add more details.</li>
+</ul>
+</section>
+<section class="introduction-modal submit">
+<button class="modal-button submit" onclick="pixiv.modal.close()">Close</button>
+</section>
+</div>
+
+
+<script>
+pixiv.text.today = '本日';
+pixiv.text.yesterday = '昨日';
+pixiv.text.notifications = 'メッセージ・ポップボード';
+
+pixiv.text.rankingContexts = {
+daily    : 'Daily ranking',
+weekly   : 'Weekly Ranking',
+monthly  : 'Monthly Ranking',
+rookie   : 'Rookie Ranking',
+daily_r18: 'R-18 Daily Ranking',
+r18g     : 'R-18G Ranking',
+male     : 'Popular ranking (Male members)',
+female   : 'Popular ranking (Female members)'
+};
+</script>
+
+<script id="template-notification-text" type="text/x-handlebars-template">
+{{count}}件の更新があります
+</script>
+
+<script id="template-notification-message" type="text/x-handlebars-template">
+<a href="/msg_view.php?mode=get&amp;id={{target.id}}">
+<div class="image"><img src="{{user.url}}"></div>
+<span>{{user.name}}</span> sent a message to you: <span>"{{target.title}}"</span>
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-bookmarked" type="text/x-handlebars-template">
+<a href="{{#eq target.type "novel"}}/novel/bookmark_detail.php?id={{else}}/bookmark_detail.php?illust_id={{/eq}}{{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+Over {{count}} users bookmarked your work, <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-scored" type="text/x-handlebars-template">
+<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/eq}}{{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+<span>"{{target.title}}"</span> has received over {{score}} stars.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-commented" type="text/x-handlebars-template">
+<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=comment_chk&amp;illust_id={{/eq}}{{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+<span>{{count}} user(s)</span> commented on <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-tagged" type="text/x-handlebars-template">
+<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/eq}}{{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+The tag, <span>"{{tag.0.this}}"</span> has been added to <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-content_response" type="text/x-handlebars-template">
+<a href="{{#if approved}}{{#if from.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/if}}{{from.id}}{{else}}/response.php?mode=chk{{/if}}">
+<div class="image"><img src="{{target.url}}"></div>
+<span>{{from.user.name}}</span> tagged you an image response on <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-favorited" type="text/x-handlebars-template">
+<a href="/bookmark.php?type=reg_user">
+<div class="image"><img src="{{users.0.url}}"></div>
+{{#join users separator="、"}}<span>{{this.name}}</span>さん{{/join}}{{#if otherCount}}他<span>{{otherCount}}人</span>のユーザー{{/if}}}があなたをフォローしました。
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-requested_friend" type="text/x-handlebars-template">
+<a href="/mypixiv_request.php">
+<div class="image"><img src="{{users.0.url}}"></div>
+You received a My pixiv request from <span>{{users.0.name}}</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-approved_friend" type="text/x-handlebars-template">
+<a href="/mypixiv_all.php">
+<div class="image"><img src="{{users.0.url}}"></div>
+<span>{{users.0.name}}</span> approved your My pixiv request.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-received_stacc_message" type="text/x-handlebars-template">
+<a href="/stacc/my/home/all/message_from">
+<div class="image"><img src="{{users.0.url}}"></div>
+<span>{{users.0.name}}</span> commented on your Feed.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-ranked_in" type="text/x-handlebars-template">
+<a href="/ranking.php?mode={{context}}&amp;content={{type}}">
+<div class="image"><img src="{{target.url}}"></div>
+<span>"{{target.title}}"</span> has entered rank no.<span>{{= position}}</span> on the {{ranking}} ranking board!
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-group_like" type="text/x-handlebars-template">
+<a href="/group/comment.php?id={{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+Over <span>{{count}} users</span> liked your post in <span>{{target.title}}</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-group_comment" type="text/x-handlebars-template">
+<a href="/group/comment.php?id={{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+Over <span>{{count}} users</span> commented in your group post: <span>{{target.title}}</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-group_application" type="text/x-handlebars-template">
+<a href="/group/?id={{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+<span>{{count}} user(s)</span> sent a request to join your group: <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-group_approve" type="text/x-handlebars-template">
+<a href="/group/?id={{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+Your request to join the group <span>"{{target.title}}"</span> has been approved.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-group_content_reference" type="text/x-handlebars-template">
+<a href="/group/comment.php?id={{target.id}}">
+<div class="image"><img src="{{target.url}}"></div>
+Your work is featured in the group: <span>"{{target.title}}"</span>.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-comic_new" type="text/x-handlebars-template">
+<a href="http://comic.pixiv.net/my?ads=popnew" class="icon-comic-new" target="_blank">
+<div class="image"><img src="http://source.pixiv.net/source/images/notification/comic.png"></div>
+The comic you liked on pixiv Comic has been updated.
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-comic_book" type="text/x-handlebars-template">
+<a href="http://comic.pixiv.net/my?ads=popbook#books" class="icon-comic-book" target="_blank">
+<div class="image"><img src="http://source.pixiv.net/source/images/notification/comic.png"></div>
+{{#if dateText}}{{dateText}}{{else}}{{date}}に{{/if}}
+{{#eq titles.length 2}}
+{{#join titles separator="and"}}<span>"{{this}}"</span>{{/join}} are now on sale.
+{{else}}
+<span>"{{titles.0.this}}"</span>{{#if otherCount}} and other <span>{{otherCount}}</span>{{/if}} are currently on sale!
+{{/eq}}
+{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
+</a>
+</script>
+
+<script id="template-notification-continue" type="text/x-handlebars-template">
+<a href="/{{#eq type "message"}}msgbox{{else}}notify_all{{/eq}}.php">
+There are over <span>{{count}}</span> other {{#eq type "message"}}messages{{else}}notifications{{/eq}}.
+</a>
+</script>
+<div id="premium-introduction-modal" class="introduction-modal-container">
+<section class="introduction-modal">
+<div class="close" onclick="pixiv.modal.close()"></div>
+<h1 class="title"></h1>
+<p class="caption">Hide ads and resubmit your work without deleting, along with many other great benefits!</p>
+<a href="/premium.php" class="button-container premium" target="_blank" onclick="pixiv.modal.close()">
+<div class="label layout-cell">Upgrade to pixiv Premium</div>
+<div class="layout-cell">
+<i class="_icon sprites-go"></i>
+</div>
+</a>
+</section>
+</div>
+
+
 <div id="wrapper">
 <noscript>
 <div style="background-color:#F2F4F6;text-align:center;margin-bottom:10px;padding:5px;">
@@ -328,7 +562,7 @@ pixiv.outdatedBrowser.showBanner();
 </noscript>
 
 
-<script>pixiv.context.illustId         = '20496355';pixiv.context.illustTitle      = 'C80PV完成';pixiv.context.userId           = '3473';pixiv.context.userName         = 'ぃやまと（iYAMATO）';pixiv.context.hasQuestionnaire = false;pixiv.context.embedId          = '20496355_ca22340c5fcbee277ee9e68867381600';</script><div style="display:none;"><div id="rpc_i_id" title="20496355">20496355</div><div id="rpc_u_id" title="3473">3473</div><div id="rpc_e_id" title="189816">189816</div><div id="rpc_qr" value="0">0</div></div><div class="layout-body"><div class="layout-a"><div class="layout-column-2"><div class="_unit work-detail-unit"><div class="column-header"><nav><script>pixiv.text.AuthorName = "ぃやまと（iYAMATO）";</script>
+<script>pixiv.context.illustId         = '20496355';pixiv.context.illustTitle      = 'C80PV完成';pixiv.context.userId           = '3473';pixiv.context.userName         = 'ぃやまと（iYAMATO）';pixiv.context.hasQuestionnaire = false;pixiv.context.embedId          = '20496355_ca22340c5fcbee277ee9e68867381600';</script><div style="display:none;"><div id="rpc_i_id" title="20496355">20496355</div><div id="rpc_u_id" title="3473">3473</div><div id="rpc_e_id" title="189816">189816</div><div id="rpc_qr" value="0">0</div></div><div class="layout-a"><div class="layout-column-2"><div class="_unit work-detail-unit"><div class="column-header"><nav><script>pixiv.text.AuthorName = "ぃやまと（iYAMATO）";</script>
 <script id="template-show-work-more-register-text" type="text/x-handlebars-template">
 Sign up now to view more of {{author_name}}'s works!
 </script>
@@ -346,11 +580,11 @@ Log in with your pixiv account now to view more of {{author_name}}'s bookmarked 
 </script>
 
 <script id="template-show-stacc-register-text" type="text/x-handlebars-template">
-Sign up now to view {{author_name}}'s Staccfeed!
+Sign up now to view {{author_name}}'s Feed!
 </script>
 
 <script id="template-show-stacc-login-text" type="text/x-handlebars-template">
-Log in with your pixiv account now to view {{author_name}}'s Staccfeed!
+Log in with your pixiv account now to view {{author_name}}'s Feed!
 </script>
 
 <script>
@@ -367,7 +601,7 @@ pixiv.text.showBookmarkLogin = Handlebars.compile(jQuery('#template-show-bookmar
 pixiv.text.showStaccRegister = Handlebars.compile(jQuery('#template-show-stacc-register-text').html())({'author_name': pixiv.text.AuthorName});
 pixiv.text.showStaccLogin = Handlebars.compile(jQuery('#template-show-stacc-login-text').html())({'author_name': pixiv.text.AuthorName});
 </script>
-<nav><ul class="tabs"><li><a href="/member.php?id=3473">Profile</a></li><li><a href="/member_illust.php?id=3473" class="current">Works</a></li><li><a href="/bookmark.php?id=3473">Bookmarks</a></li><li><a href="http://www.pixiv.net/stacc/iymt">Staccfeed</a></li></ul></nav></nav></div><nav class="column-menu"><ul class="sibling-items"><li class="newer"><a href="/member_illust.php?mode=medium&amp;illust_id=21649383">例大祭SP2 iPhoneカバー</a></li><li class="list"><a href="/member_illust.php?id=3473">Works list</a></li><li class="older"><a href="/member_illust.php?mode=medium&amp;illust_id=19496488">C80ゲスト</a></li></ul></nav><section class="work-info"><div class="user-reaction"><section class="score"><dl><dt>Views</dt><dd class="view-count">1404</dd><dt>Ratings</dt><dd class="rated-count">35</dd><dt>Total</dt><dd class="score-count">347</dd></dl><script>pixiv.context.rated = false;</script><div class="rating"><div class="rate"></div><div class="star"></div><div class="status"></div></div></section></div><ul class="meta"><li>7/22/2011 03:09</li><li>512×600</li><li><ul class="tools"><li>RETAS STUDIO</li></ul></li></ul><h1 class="title">C80PV完成</h1><p class="caption">C80のPVからの1カット。  （・∀・）PVできたのでよろしく！ <a href="/jump.php?http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DeN53ZyuX4Ps" target="_blank">http://www.youtube.com/watch?v=eN53ZyuX4Ps</a></p></section>
+<nav><ul class="tabs"><li><a href="/member.php?id=3473">Profile</a></li><li><a href="/member_illust.php?id=3473" class="current">Works</a></li><li><a href="/bookmark.php?id=3473">Bookmarks</a></li><li><a href="http://www.pixiv.net/stacc/iymt">Feed</a></li></ul></nav></nav></div><nav class="column-menu"><ul class="sibling-items"><li class="before"><a href="/member_illust.php?mode=medium&amp;illust_id=21649383">例大祭SP2 iPhoneカバー</a></li><li><a href="/member_illust.php?id=3473">Works list</a></li><li class="after"><a href="/member_illust.php?mode=medium&amp;illust_id=19496488">C80ゲスト</a></li></ul></nav><section class="work-info"><div class="user-reaction"><section class="score"><dl><dt>Views</dt><dd class="view-count">1461</dd><dt>Ratings</dt><dd class="rated-count">35</dd><dt>Total</dt><dd class="score-count">347</dd></dl><script>pixiv.context.rated = false;</script><div class="rating"><div class="rate"></div><div class="star"></div><div class="status"></div></div></section></div><ul class="meta"><li>7/22/2011 03:09</li><li>512×600</li><li><ul class="tools"><li>RETAS STUDIO</li></ul></li></ul><h1 class="title">C80PV完成</h1><p class="caption">C80のPVからの1カット。  （・∀・）PVできたのでよろしく！ <a href="/jump.php?http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DeN53ZyuX4Ps" target="_blank">http://www.youtube.com/watch?v=eN53ZyuX4Ps</a></p></section>
 
 
 
@@ -593,7 +827,7 @@ ads_google_show(ads_google_begin, 0, 1);
 // --></script>
 
 <script>
-window.pixivComicHotWorks = [{"title":"4\u30b3\u30de\u307e\u3093\u304c \u30de\u30b8\u30aa\u30c1\u304f\u3093","desc":"\u6642\u306f\u897f\u66a62010\u5e74\u2015\u3002\u30ae\u30e3\u30b0\u540c\u4eba\u8a8c\u754c\u306b\u5f57\u661f\u306e\u3054\u3068\u304f\u767b\u5834\u3057\u305f\u30c8\u30f3\u30ac\u30ea\u4f5c\u5bb6\u3001\u305d\u306e\u540d\u306f\u9060\u85e4\u3002 \u30b3\u30a4\u30c4\u306e\u63cf\u304f\u8352\u3005\u3057\u3044\u753b\u98a8\u3068\u30b7\u30e5\u30fc\u30eb\u306a\u30cd\u30bf\u306f\u4e00\u5ea6\u8aad\u3080\u3068\u30af\u30bb\u306b\u306a\u308b\u4e2d\u6bd2\u6027\u30a2\u30ea!!! \u4e16\u754c\u4e2d\u63a2\u3057\u305f\u3063\u3066\u3001\u3053\u3093\u306a\u30de\u30f3\u30ac\u306f\u2026","id":145},{"title":"\u8a60\u3046\uff01\u3000\u5e73\u5b89\u4eac","desc":"\u4e2d\u5b66\u751f\u30fb\u5b9a\u5bb6\u306f\u4fee\u5b66\u65c5\u884c\u3067\u8a2a\u308c\u305f\u4eac\u90fd\u3067\u3001\u5e73\u5b89\u6642\u4ee3\u3078\u3068\u30bf\u30a4\u30e0\u30b9\u30ea\u30c3\u30d7\u3057\u3066\u3057\u307e\u3046\u3002\u305d\u3053\u3067\u51fa\u9022\u3063\u305f\u306e\u306f\u3001\u5e73\u5b89\u6700\u5f37\u306e\u30d7\u30ec\u30a4\u30dc\u30fc\u30a4\u30fb\u5728\u539f\u696d\u5e73\u3060\u3063\u305f\u2026!? \u300c\u9ce5\u7c60\u5b66\u6821\u300d\u306e\u771f\u67f4\u771f\u6700\u65b0\u4f5c\u306f\u3001\u767e\u4eba\u4e00\u9996\u306e\u6b4c\u4eba\u305f\u3061\u304c\u3001\u548c\u6b4c\u3067\u2026","id":234},{"title":"\u30e2\u30b6\u30a4\u30af\u30ed\u30fc\u30eb","desc":"\u30cb\u30b3\u30cb\u30b3\u52d5\u753b\u3067540\u4e07\u518d\u751f\u306e\u30e1\u30ac\u30d2\u30c3\u30c8\u66f2\u3092DECO*27\u6c0f\uff08\u539f\u6848\uff09\u00d7akka\u6c0f\uff08\u6f2b\u753b\uff09\u306e\u30aa\u30ea\u30b8\u30ca\u30eb\u30b3\u30f3\u30d3\u3067\u8d08\u308b\u3001\u30dc\u30ab\u30ed\u754c\u885d\u6483\u306e\u6f2b\u753b\u4f5c\u54c1\u304c\u8868\u7d19\uff06\u65b0\u9023\u8f09\u3067\u30b9\u30bf\u30fc\u30c8\uff01\u3000\u697d\u66f2\u306b\u79d8\u3081\u3089\u308c\u305f\u611b\u3068\u6b20\u5982\u306e\u7269\u8a9e\u304c\u59cb\u307e\u308a\u2026","id":336},{"title":"GUMIcs BEST 02 \u30ad\u30ea\u30c8\u30ea\u30bb\u30f3","desc":"GUMI\u306e\u540d\u66f2\u3092\u5b9f\u529b\u6d3e\u30af\u30ea\u30a8\u30a4\u30bf\u30fc\u304c\u6f2b\u753b\u5316\u3059\u308b\u30b7\u30ea\u30fc\u30ba\u9023\u8f09\u300cGUMIcs BEST\u300d\uff08\u30b0\u30df\u30c3\u30af\u30b9\u30fb\u30d9\u30b9\u30c8\uff09\u3002\r\n\r\n\u305d\u306e\u7b2c\uff12\u5f3e\u306e\u697d\u66f2\u306f\u300140mP\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u66f2\u300e\u30ad\u30ea\u30c8\u30ea\u30bb\u30f3\u300f\u3002\r\n\r\n\u5973\u5b50\u9ad8\u751f\u306e\u7518\u9178\u3063\u2026","id":457},{"title":"\u30e1\u30b0\u30e1\u30b0\u2606\u30b7\u30f3\u30ac\u30fc\u30bd\u30f3\u30b0\u30d5\u30a1\u30a4\u30bf\u30fc","desc":"\u682a\u5f0f\u4f1a\u793e\u30a4\u30f3\u30bf\u30fc\u30cd\u30c3\u30c8\u304b\u3089\u767a\u58f2\u3055\u308c\u3066\u3044\u308b\u300cVOCALOID Megpoid\u300d\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u30fbGUMI\u3092\u30d5\u30a3\u30fc\u30c1\u30e3\u30fc\u3057\u305f\u3001\u62b1\u8179\u7d76\u5012\u306e\u30dc\u30ab\u30ed\u30b3\u30e1\u30c7\u30a3\u3002vol.\uff11\u63b2\u8f09\u306e\u7b2c\uff12\u8a71\u3067\u306f\u3001Lily\u3084CUL\u304c\u306a\u3093\u3068\u5f37\u2026","id":334},{"title":"GUMIcs BEST 03 \u604b\u611b\u52c7\u8005","desc":"\u300cGUMIcs BEST\u300d\u306e\u7b2c\uff13\u5f3e\u3002\r\n\u300e\u30bb\u30c4\u30ca\u30c8\u30ea\u30c3\u30d7\u300f\u3084\u300e\u653e\u8ab2\u5f8c\u30b9\u30c8\u30e9\u30a4\u30c9\u300f\u3092\u751f\u307f\u51fa\u3057\u305f\u4eba\u6c17\u30dc\u30ab\u30ed\uff30\u30fbLast Note\uff0e\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u30d2\u30c3\u30c8\u66f2\u300e\u604b\u611b\u52c7\u8005\u300f\u3092\u6f2b\u753b\u5316\u3002\r\n\u30a4\u30e9\u30b9\u30c8\u30ec\u30fc\u30bf\u30fc\u30fb\u3057\u307e\u3069\u308a\u308b\u2026","id":458}];
+window.pixivComicHotWorks = [{"title":"\u30ef\u30f3\u30c9 \u30aa\u30d6 \u30d5\u30a9\u30fc\u30c1\u30e5\u30f3","desc":"\u300c\u3053\u306e\u6756\u306f\u304d\u3063\u3068\u304a\u307e\u3048\u306b\u300e\u5e78\u904b\u300f\u3092\u559a\u3076\u3060\u308d\u3046\u300d\r\n\u304a\u3070\u3042\u3061\u3083\u3093\u306e\u9b54\u6cd5\u306b\u61a7\u308c\u3001\u9b54\u6cd5\u4f7f\u3044\u3092\u5fd7\u3059\u30eb\u30eb\u306f\u3001\r\n\u5922\u3068\u5e0c\u671b\u306b\u3042\u3075\u308c\u308b\u8d85\u30dd\u30b8\u30c6\u30a3\u30d6\u5c11\u5973\u3002\r\n\u3057\u304b\u3057\u5f7c\u5973\u306f\u3001\u9b54\u6cd5\u4f7f\u3044\u306e\u8ab0\u3082\u304c\u6301\u3064\r\n\uff1c\u5c5e\u6027\uff1e\u3092\u6301\u305f\u306a\u3044\u8d85\u2026","id":523},{"title":"\u50d5\u3068\u30d5\u30eb\u30b5\u30c8\u30ec\u30b9\u30c8\u30e9\u30f3","desc":"\u8ca7\u5f31\u30c0\u30e1\u7537\u5b50\u30fb\u6625\u98a8\u304c\u653e\u308a\u8fbc\u307e\u308c\u305f\u306e\u306f\u3001\u3068\u3042\u308b\u7530\u820e\u306e\u30d8\u30f3\u30c6\u30b3\u30ec\u30b9\u30c8\u30e9\u30f3\u300c\u30d9\u30eb\u300d\u3002\u30a6\u30a7\u30a4\u30bf\u30fc\u306b\u306a\u3063\u305f\u6625\u98a8\u306e\u904b\u547d\u306f!?","id":496},{"title":"\u30a2\u30cd\u30e2\u30cd","desc":"\u3010\u3042\u3089\u3059\u3058\u3011\r\n\u4e3b\u4eba\u516c\u306e\u5c11\u5e74\u306f\u3001\u5b9f\u306f\u30a2\u30cd\u30e2\u30cd\u306e\u82b1\u3002\r\n\u82b1\u5c4b\u3067\u666f\u5b50\u3055\u3093\u3068\u3044\u3046\u5973\u6027\u306b\u8cb7\u308f\u308c\u3001\u5f7c\u5973\u306b\u604b\u3092\u3057\u3066\u3057\u307e\u3046\u3002\r\n\u3042\u308b\u65e5\u3001\u5f7c\u6c0f\u3068\u306e\u30c7\u30fc\u30c8\u304b\u3089\u5e30\u3063\u3066\u304d\u3066\u6ce3\u3044\u3066\u3044\u308b\u666f\u5b50\u3055\u3093\u3092\u898b\u3066\u3001\r\n\u81ea\u5206\u304c\u4eba\u9593\u3060\u3063\u305f\u3089\u3001\u2026","id":541},{"title":"\u95c7\u306e\u7687\u592a\u5b50","desc":"\u300c\u95c7\u306e\u7687\u592a\u5b50\u300d\u30b3\u30df\u30c3\u30af\u7248\u304c\u9023\u8f09\u518d\u958b\uff01\r\n\u6b21\u671f\u30fb\u95c7\u7687\u306b\u306a\u308b\u3079\u304f\u7687\u592a\u5b50\u306e\u540e\uff08\u3053\u3046\uff09\u306f\u3001\u65e5\u3005\u4fee\u884c\u306e\u8eab\u3002\u3067\u3082\u3001\u540e\u3092\u597d\u304d\u3059\u304e\u308b\u7570\u6bcd\u5f1f\u30fb\u8a00\uff08\u3053\u3068\u3044\uff09\u3084\u5074\u8fd1\u517c\u6559\u80b2\u4fc2\u308a\u306e\r\n\u30c9S\u9670\u967d\u5e2b\u30fb\u6674\u660e\uff08\u305b\u3044\u3081\u3044\uff09\u305f\u3061\u306b\u632f\u308a\u56de\u3055\u2026","id":556},{"title":"\u305d\u308c\u306f\u79c1\u3068\u5c11\u5973\u306f\u8a00\u3063\u305f","desc":"\u5947\u8de1\u306e\u3088\u3046\u306a\u7f8e\u5c11\u5973\u3001\u9ce5\u5b50\u304c \u81ea\u3089\u6b7b\u3092\u9078\u3093\u3067\u304b\u30893\u5e74\u3002 \u305d\u306e\u77ac\u9593\u306b\u5c45\u5408\u308f\u305b\u3001 \u3084\u304c\u3066\u9ad8\u6821\u751f\u306b\u306a\u3063\u305f5\u4eba\u306e\u5c11\u5973\u305f\u3061\u304c\u3001 \u305d\u308c\u305e\u308c\u306b\u5de1\u308a\u5408\u3046\u3001 \u81ea\u5206\u306e\u306a\u304b\u306e\u201d\u9ce5\u5b50\u201d\u3002 \u5c11\u5973\u306e\u7f8e\u306f\u4f55\u5ea6\u3067\u3082\u7526\u308b\u3002","id":470},{"title":"\u304b\u307f\u304b\u307f\u304b\u3048\u3057","desc":"\u307e\u3057\u308d\u306f\u3001\u9aea\u306e\u4e2d\u3067\u795e\u69d8\u3092\u7652\u3059\u795e\u4e8b\u300c\u795e\u3005\u8fd4\u3057\u300d\u3092\u62c5\u3046\u300c\u795e\u675f\u5bb6\u300d\u306e\u5deb\u5973\u3002\u5e7c\u3044\u3053\u308d\u3042\u3084\u307e\u3063\u3066\u795e\u69d8\u305f\u3061\u304c\u304c\u9aea\u306e\u4e2d\u306b\u5165\u3063\u3066\u3057\u307e\u3063\u3066\u304b\u3089\u300113\u5e74\u9593\u5e7d\u9589\u306e\u8eab\u3002\u3042\u308b\u65e5\u3001\u81ea\u7531\u3092\u5f37\u304f\u9858\u3063\u305f\u3068\u304d\u3001\u4e0d\u601d\u8b70\u306a\u58f0\u304c\u3057\u3066--!?","id":76}];
 </script>
 
 <script>
@@ -701,17 +935,23 @@ document.write(
 <ul class="tags">
 {{#tags}}
 <li class="tag">
-<a href="/tags.php?tag={{url tag_name}}" class="portal">c</a>
+<a href="/tags.php?tag={{url_encode tag_name}}" class="portal">c</a>
 {{#self}}<span class="self-tag">*</span>{{/self}}
-<a href="/search.php?s_mode=s_tag_full&word={{url tag_name}}">{{tag_name}}</a>
-<a href="http://dic.pixiv.net/a/{{url tag_name}}" target="_blank" class="icon-pixpedia{{#unless pixpedia}}-no-item{{/unless}} ui-tooltip" data-tooltip=""{{tag_name}}" on pixiv Encyclopedia{{#unless pixpedia}}does not have an article, do you want to create an article on pixiv Encyclopedia?{{/unless}}"></a>
+<a href="/search.php?s_mode=s_tag_full&word={{url_encode tag_name}}">{{tag_name}}</a>
+<a href="http://dic.pixiv.net/a/{{url_encode tag_name}}" target="_blank" class="icon-pixpedia{{#unless pixpedia}}-no-item{{/unless}} ui-tooltip" data-tooltip=""{{tag_name}}" on pixiv Encyclopedia{{#unless pixpedia}}does not have an article, do you want to create an article on pixiv Encyclopedia?{{/unless}}"></a>
 </li>
 {{/tags}}
 </ul>
 {{else}}
 <span class="no-item">No registered tags found</span>
 {{/if}}
-</script></li><a href="#" onclick="startTagEdit(); return false;" class="edit">Edit tags</a></dd></dl></section><section class="action" style="margin-bottom:0"><ul class="share-button"><li><a class="twitter-share-button" data-url="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-text="C80PV完成 | ぃやまと（iYAMATO） #pixiv" data-count="horizontal"></a></li><li><div class="g-plusone" data-href="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-size="medium"></div></li><li><div class="fb-like" data-href="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-layout="button_count" data-send="false"></div></li><li class="more ui-share-button ui-modal-trigger">▾ Share more</li></ul><script id="template-ui-share-container" type="text/x-jquery-tmpl"><div class="share-container group-modal has_button"><div class="ui-close-button-light" onclick="pixiv.modal.close()"></div><div class="html5-section buttons"><div class="stacc"><a href="javascript:void(0);" title="Stacc! this work" class="ui-stacc-button modal">stacc!</a></div><div class="mixi-favorite"><iframe src="http://plugins.mixi.jp/favorite.pl?service_key=c5847e67e23f16e343f9799178cd4a2beea3ad93&amp;href=http%3A%2F%2Fwww.pixiv.net%2Fmember_illust.php%3Fillust_id%3D20496355%26mode%3Dmedium&amp;width=58" frameborder="0" allowtransparency="true" scrolling="no"></iframe></div><div class="hatena-bookmark"><a href="http://b.hatena.ne.jp/entry/http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard"></a></div></div></div></script><div class="bookmark"><a href="bookmark_add.php?type=illust&amp;illust_id=20496355" class="ui-button">Add to Bookmarks</a></div></section>
+</script></li><a href="#" onclick="startTagEdit(); return false;" class="edit">Edit tags</a></dd></dl></section><section class="action" style="margin-bottom:0"><ul class="share-button"><li><a class="twitter-share-button" data-url="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-text="C80PV完成 | ぃやまと（iYAMATO） #pixiv"></a></li><li><div class="fb-like" data-href="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-layout="button_count" data-send="false"></div></li><li><div class="g-plusone" data-href="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-size="medium"></div></li><li class="google-plus-share"><span class="g-interactivepost" data-clientid="89993436389.apps.googleusercontent.com" data-contenturl="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" data-calltoactionlabel="BOOKMARK" data-calltoactionurl="http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium&amp;action=bookmark" data-cookiepolicy="single_host_origin" data-prefilltext="C80PV完成 | ぃやまと（iYAMATO） #pixiv"><i class="_icon sprites-google-plus"></i><span class="icon-text">Share</span></span><script>
+$(function() {
+var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+po.src = 'https://apis.google.com/js/client:plusone.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+});
+</script></li><li class="more ui-share-button ui-modal-trigger">▾ Share more</li></ul><script id="template-ui-share-container" type="text/x-jquery-tmpl"><div class="share-container group-modal has_button"><div class="ui-close-button-light" onclick="pixiv.modal.close()"></div><div class="html5-section buttons" style="height: 45px;"><div class="stacc"><a href="javascript:void(0);" title="Feed this work" class="ui-stacc-button modal">You have Feed'd this work</a></div><div class="mixi-favorite"><iframe src="http://plugins.mixi.jp/favorite.pl?service_key=c5847e67e23f16e343f9799178cd4a2beea3ad93&amp;href=http%3A%2F%2Fwww.pixiv.net%2Fmember_illust.php%3Fillust_id%3D20496355%26mode%3Dmedium&amp;width=58" frameborder="0" allowtransparency="true" scrolling="no"></iframe></div><div class="hatena-bookmark"><a href="http://b.hatena.ne.jp/entry/http://www.pixiv.net/member_illust.php?illust_id=20496355&amp;mode=medium" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard"></a></div></div></div></script><div class="bookmark-container"><a href="bookmark_add.php?type=illust&amp;illust_id=20496355" class="_button">Add to Bookmarks</a></div></section>
 
 
 <div>
@@ -838,7 +1078,7 @@ ads_google_show(ads_google_begin, 0, 1);
 // --></script>
 
 <script>
-window.pixivComicHotWorks = [{"title":"4\u30b3\u30de\u307e\u3093\u304c \u30de\u30b8\u30aa\u30c1\u304f\u3093","desc":"\u6642\u306f\u897f\u66a62010\u5e74\u2015\u3002\u30ae\u30e3\u30b0\u540c\u4eba\u8a8c\u754c\u306b\u5f57\u661f\u306e\u3054\u3068\u304f\u767b\u5834\u3057\u305f\u30c8\u30f3\u30ac\u30ea\u4f5c\u5bb6\u3001\u305d\u306e\u540d\u306f\u9060\u85e4\u3002 \u30b3\u30a4\u30c4\u306e\u63cf\u304f\u8352\u3005\u3057\u3044\u753b\u98a8\u3068\u30b7\u30e5\u30fc\u30eb\u306a\u30cd\u30bf\u306f\u4e00\u5ea6\u8aad\u3080\u3068\u30af\u30bb\u306b\u306a\u308b\u4e2d\u6bd2\u6027\u30a2\u30ea!!! \u4e16\u754c\u4e2d\u63a2\u3057\u305f\u3063\u3066\u3001\u3053\u3093\u306a\u30de\u30f3\u30ac\u306f\u2026","id":145},{"title":"\u8a60\u3046\uff01\u3000\u5e73\u5b89\u4eac","desc":"\u4e2d\u5b66\u751f\u30fb\u5b9a\u5bb6\u306f\u4fee\u5b66\u65c5\u884c\u3067\u8a2a\u308c\u305f\u4eac\u90fd\u3067\u3001\u5e73\u5b89\u6642\u4ee3\u3078\u3068\u30bf\u30a4\u30e0\u30b9\u30ea\u30c3\u30d7\u3057\u3066\u3057\u307e\u3046\u3002\u305d\u3053\u3067\u51fa\u9022\u3063\u305f\u306e\u306f\u3001\u5e73\u5b89\u6700\u5f37\u306e\u30d7\u30ec\u30a4\u30dc\u30fc\u30a4\u30fb\u5728\u539f\u696d\u5e73\u3060\u3063\u305f\u2026!? \u300c\u9ce5\u7c60\u5b66\u6821\u300d\u306e\u771f\u67f4\u771f\u6700\u65b0\u4f5c\u306f\u3001\u767e\u4eba\u4e00\u9996\u306e\u6b4c\u4eba\u305f\u3061\u304c\u3001\u548c\u6b4c\u3067\u2026","id":234},{"title":"\u30e2\u30b6\u30a4\u30af\u30ed\u30fc\u30eb","desc":"\u30cb\u30b3\u30cb\u30b3\u52d5\u753b\u3067540\u4e07\u518d\u751f\u306e\u30e1\u30ac\u30d2\u30c3\u30c8\u66f2\u3092DECO*27\u6c0f\uff08\u539f\u6848\uff09\u00d7akka\u6c0f\uff08\u6f2b\u753b\uff09\u306e\u30aa\u30ea\u30b8\u30ca\u30eb\u30b3\u30f3\u30d3\u3067\u8d08\u308b\u3001\u30dc\u30ab\u30ed\u754c\u885d\u6483\u306e\u6f2b\u753b\u4f5c\u54c1\u304c\u8868\u7d19\uff06\u65b0\u9023\u8f09\u3067\u30b9\u30bf\u30fc\u30c8\uff01\u3000\u697d\u66f2\u306b\u79d8\u3081\u3089\u308c\u305f\u611b\u3068\u6b20\u5982\u306e\u7269\u8a9e\u304c\u59cb\u307e\u308a\u2026","id":336},{"title":"GUMIcs BEST 02 \u30ad\u30ea\u30c8\u30ea\u30bb\u30f3","desc":"GUMI\u306e\u540d\u66f2\u3092\u5b9f\u529b\u6d3e\u30af\u30ea\u30a8\u30a4\u30bf\u30fc\u304c\u6f2b\u753b\u5316\u3059\u308b\u30b7\u30ea\u30fc\u30ba\u9023\u8f09\u300cGUMIcs BEST\u300d\uff08\u30b0\u30df\u30c3\u30af\u30b9\u30fb\u30d9\u30b9\u30c8\uff09\u3002\r\n\r\n\u305d\u306e\u7b2c\uff12\u5f3e\u306e\u697d\u66f2\u306f\u300140mP\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u66f2\u300e\u30ad\u30ea\u30c8\u30ea\u30bb\u30f3\u300f\u3002\r\n\r\n\u5973\u5b50\u9ad8\u751f\u306e\u7518\u9178\u3063\u2026","id":457},{"title":"\u30e1\u30b0\u30e1\u30b0\u2606\u30b7\u30f3\u30ac\u30fc\u30bd\u30f3\u30b0\u30d5\u30a1\u30a4\u30bf\u30fc","desc":"\u682a\u5f0f\u4f1a\u793e\u30a4\u30f3\u30bf\u30fc\u30cd\u30c3\u30c8\u304b\u3089\u767a\u58f2\u3055\u308c\u3066\u3044\u308b\u300cVOCALOID Megpoid\u300d\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u30fbGUMI\u3092\u30d5\u30a3\u30fc\u30c1\u30e3\u30fc\u3057\u305f\u3001\u62b1\u8179\u7d76\u5012\u306e\u30dc\u30ab\u30ed\u30b3\u30e1\u30c7\u30a3\u3002vol.\uff11\u63b2\u8f09\u306e\u7b2c\uff12\u8a71\u3067\u306f\u3001Lily\u3084CUL\u304c\u306a\u3093\u3068\u5f37\u2026","id":334},{"title":"GUMIcs BEST 03 \u604b\u611b\u52c7\u8005","desc":"\u300cGUMIcs BEST\u300d\u306e\u7b2c\uff13\u5f3e\u3002\r\n\u300e\u30bb\u30c4\u30ca\u30c8\u30ea\u30c3\u30d7\u300f\u3084\u300e\u653e\u8ab2\u5f8c\u30b9\u30c8\u30e9\u30a4\u30c9\u300f\u3092\u751f\u307f\u51fa\u3057\u305f\u4eba\u6c17\u30dc\u30ab\u30ed\uff30\u30fbLast Note\uff0e\u6c0f\u306e\u30df\u30ea\u30aa\u30f3\u30d2\u30c3\u30c8\u66f2\u300e\u604b\u611b\u52c7\u8005\u300f\u3092\u6f2b\u753b\u5316\u3002\r\n\u30a4\u30e9\u30b9\u30c8\u30ec\u30fc\u30bf\u30fc\u30fb\u3057\u307e\u3069\u308a\u308b\u2026","id":458}];
+window.pixivComicHotWorks = [{"title":"\u30ef\u30f3\u30c9 \u30aa\u30d6 \u30d5\u30a9\u30fc\u30c1\u30e5\u30f3","desc":"\u300c\u3053\u306e\u6756\u306f\u304d\u3063\u3068\u304a\u307e\u3048\u306b\u300e\u5e78\u904b\u300f\u3092\u559a\u3076\u3060\u308d\u3046\u300d\r\n\u304a\u3070\u3042\u3061\u3083\u3093\u306e\u9b54\u6cd5\u306b\u61a7\u308c\u3001\u9b54\u6cd5\u4f7f\u3044\u3092\u5fd7\u3059\u30eb\u30eb\u306f\u3001\r\n\u5922\u3068\u5e0c\u671b\u306b\u3042\u3075\u308c\u308b\u8d85\u30dd\u30b8\u30c6\u30a3\u30d6\u5c11\u5973\u3002\r\n\u3057\u304b\u3057\u5f7c\u5973\u306f\u3001\u9b54\u6cd5\u4f7f\u3044\u306e\u8ab0\u3082\u304c\u6301\u3064\r\n\uff1c\u5c5e\u6027\uff1e\u3092\u6301\u305f\u306a\u3044\u8d85\u2026","id":523},{"title":"\u50d5\u3068\u30d5\u30eb\u30b5\u30c8\u30ec\u30b9\u30c8\u30e9\u30f3","desc":"\u8ca7\u5f31\u30c0\u30e1\u7537\u5b50\u30fb\u6625\u98a8\u304c\u653e\u308a\u8fbc\u307e\u308c\u305f\u306e\u306f\u3001\u3068\u3042\u308b\u7530\u820e\u306e\u30d8\u30f3\u30c6\u30b3\u30ec\u30b9\u30c8\u30e9\u30f3\u300c\u30d9\u30eb\u300d\u3002\u30a6\u30a7\u30a4\u30bf\u30fc\u306b\u306a\u3063\u305f\u6625\u98a8\u306e\u904b\u547d\u306f!?","id":496},{"title":"\u30a2\u30cd\u30e2\u30cd","desc":"\u3010\u3042\u3089\u3059\u3058\u3011\r\n\u4e3b\u4eba\u516c\u306e\u5c11\u5e74\u306f\u3001\u5b9f\u306f\u30a2\u30cd\u30e2\u30cd\u306e\u82b1\u3002\r\n\u82b1\u5c4b\u3067\u666f\u5b50\u3055\u3093\u3068\u3044\u3046\u5973\u6027\u306b\u8cb7\u308f\u308c\u3001\u5f7c\u5973\u306b\u604b\u3092\u3057\u3066\u3057\u307e\u3046\u3002\r\n\u3042\u308b\u65e5\u3001\u5f7c\u6c0f\u3068\u306e\u30c7\u30fc\u30c8\u304b\u3089\u5e30\u3063\u3066\u304d\u3066\u6ce3\u3044\u3066\u3044\u308b\u666f\u5b50\u3055\u3093\u3092\u898b\u3066\u3001\r\n\u81ea\u5206\u304c\u4eba\u9593\u3060\u3063\u305f\u3089\u3001\u2026","id":541},{"title":"\u95c7\u306e\u7687\u592a\u5b50","desc":"\u300c\u95c7\u306e\u7687\u592a\u5b50\u300d\u30b3\u30df\u30c3\u30af\u7248\u304c\u9023\u8f09\u518d\u958b\uff01\r\n\u6b21\u671f\u30fb\u95c7\u7687\u306b\u306a\u308b\u3079\u304f\u7687\u592a\u5b50\u306e\u540e\uff08\u3053\u3046\uff09\u306f\u3001\u65e5\u3005\u4fee\u884c\u306e\u8eab\u3002\u3067\u3082\u3001\u540e\u3092\u597d\u304d\u3059\u304e\u308b\u7570\u6bcd\u5f1f\u30fb\u8a00\uff08\u3053\u3068\u3044\uff09\u3084\u5074\u8fd1\u517c\u6559\u80b2\u4fc2\u308a\u306e\r\n\u30c9S\u9670\u967d\u5e2b\u30fb\u6674\u660e\uff08\u305b\u3044\u3081\u3044\uff09\u305f\u3061\u306b\u632f\u308a\u56de\u3055\u2026","id":556},{"title":"\u305d\u308c\u306f\u79c1\u3068\u5c11\u5973\u306f\u8a00\u3063\u305f","desc":"\u5947\u8de1\u306e\u3088\u3046\u306a\u7f8e\u5c11\u5973\u3001\u9ce5\u5b50\u304c \u81ea\u3089\u6b7b\u3092\u9078\u3093\u3067\u304b\u30893\u5e74\u3002 \u305d\u306e\u77ac\u9593\u306b\u5c45\u5408\u308f\u305b\u3001 \u3084\u304c\u3066\u9ad8\u6821\u751f\u306b\u306a\u3063\u305f5\u4eba\u306e\u5c11\u5973\u305f\u3061\u304c\u3001 \u305d\u308c\u305e\u308c\u306b\u5de1\u308a\u5408\u3046\u3001 \u81ea\u5206\u306e\u306a\u304b\u306e\u201d\u9ce5\u5b50\u201d\u3002 \u5c11\u5973\u306e\u7f8e\u306f\u4f55\u5ea6\u3067\u3082\u7526\u308b\u3002","id":470},{"title":"\u304b\u307f\u304b\u307f\u304b\u3048\u3057","desc":"\u307e\u3057\u308d\u306f\u3001\u9aea\u306e\u4e2d\u3067\u795e\u69d8\u3092\u7652\u3059\u795e\u4e8b\u300c\u795e\u3005\u8fd4\u3057\u300d\u3092\u62c5\u3046\u300c\u795e\u675f\u5bb6\u300d\u306e\u5deb\u5973\u3002\u5e7c\u3044\u3053\u308d\u3042\u3084\u307e\u3063\u3066\u795e\u69d8\u305f\u3061\u304c\u304c\u9aea\u306e\u4e2d\u306b\u5165\u3063\u3066\u3057\u307e\u3063\u3066\u304b\u3089\u300113\u5e74\u9593\u5e7d\u9589\u306e\u8eab\u3002\u3042\u308b\u65e5\u3001\u81ea\u7531\u3092\u5f37\u304f\u9858\u3063\u305f\u3068\u304d\u3001\u4e0d\u601d\u8b70\u306a\u58f0\u304c\u3057\u3066--!?","id":76}];
 </script>
 
 <script>
@@ -941,7 +1181,7 @@ document.write(
 </div>
 </div>
 
-<div class="works_display"><a href="member_illust.php?mode=big&amp;illust_id=20496355" target="_blank"><img src="http://i1.pixiv.net/img01/img/iymt/20496355_m.jpg" alt="C80PV完成" title="C80PV完成" border="0"></a></div><div class="works_info"><div class="worksOption"><form action="member_illust.php" method="post"><input type="hidden" name="mode" value="comment_save" /><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef" /><input type="hidden" name="illust_id" value="20496355" id="illust_id" /><a name="one_comment" id="one_comment"></a><strong>Comments</strong><input name="comment" maxlength="255" style="width: 440px;" type="text" />　<input name="submit" type="submit" class="_button" value="Send" /></form><form class="comment-area"><button type="button" class="comment-show-button _button">View comments</button><ul class="comment-list"></ul><p class="comment-no-comment">Sorry, comments could not be found</p><button type="button" class="comment-more-button _button">View more</button></form><div class="worksImageresponse" style="text-align: center;">
+<div class="works_display"><a href="member_illust.php?mode=big&amp;illust_id=20496355" target="_blank"><img src="http://i1.pixiv.net/img01/img/iymt/20496355_m.jpg" alt="C80PV完成" title="C80PV完成" border="0"></a></div><div class="works_info"><div class="worksOption"><form action="member_illust.php" method="post"><input type="hidden" name="mode" value="comment_save" /><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88" /><input type="hidden" name="illust_id" value="20496355" id="illust_id" /><a name="one_comment" id="one_comment"></a><strong>Comments</strong><input name="comment" maxlength="255" style="width: 440px;" type="text" />　<input name="submit" type="submit" class="_button" value="Send" /></form><form class="comment-area"><button type="button" class="comment-show-button _button">View comments</button><ul class="comment-list"></ul><p class="comment-no-comment">Sorry, comments could not be found</p><button type="button" class="comment-more-button _button">View more</button></form><div class="worksImageresponse" style="text-align: center;">    
 <span class='multi-ads-area'>
     
 <!--/* adfunnel.microad.jp Javascript Tag v */-->
@@ -976,8 +1216,9 @@ if (location.protocol=='https:') {
 <option value="large|off">Large: 600px wide</option>
 <option value="medium|off">Middle: 240px wide</option>
 <option value="small|off">Small: 150px wide</option>
-</select></div><div class="sample ui-anchor ui-modal-trigger" onclick="pixiv.embed.showSample()">Embed samples</div></dd></dl></div></div><p class="worksOptionRightInfo"> <a href="illust_infomsg.php?illust_id=20496355">Report this work</a></p></div></div></div></div><div class="layout-column-1"><div class="ui-layout-west">
-<div class="_unit profile-unit"><a href="/member.php?id=3473" class="user-link"><img src="http://i1.pixiv.net/img01/profile/iymt/5622373.png" alt="" class="user-image"><h1 class="user">ぃやまと（iYAMATO）</h1></a><ul class="user-relation"><li><a id="favorite-button" class="follow" href="/bookmark.php?type=user" data-text-follow="Add to favorites"><i class="_icon sprites-follow"></i><span class="text">Add to favorites</span></a><div id="favorite-preference" class="dialog"><div class="close"></div><form action="/bookmark_add.php" method="post"><input type="hidden" name="mode" value="add"><input type="hidden" name="type" value="user"><input type="hidden" name="user_id" value="3473"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="from_sid" value=""><p class="recommend premium"><a href="/premium.php?ref=bookmark_user" target="_blank" class="floleft ui-tooltip" data-tooltip="pixiv Premium members can categorize their favorite users under different folders.">premium</a><a href="/premium.php?ref=bookmark_user" target="_blank">Categorize your favorite users under different folders with pixiv Premium.</a></p><dl><dt>Privacy level</dt><dd class="permission"><label><input type="radio" name="restrict" value="0" checked> Public</label><label><input type="radio" name="restrict" value="1"> Private</label></dd></dl><div class="action"><input type="submit" name="left_column" value="OK" class="button"></div></form></div></li><li><a id="mypixiv-button" class=" request-mypixiv" href="/mypixiv_add.php?id=3473"><i class="_icon sprites-mypixiv"></i>Request My pixiv</a><div id="mypixiv-preference" class="dialog"><div class="close"></div><p class="recommend premium"><a href="/premium.php" target="_blank" class="floleft ui-tooltip" data-tooltip="pixiv Premium members can choose to enable and disable the viewing of new works listed on their 'My pixiv' page.">premium</a><a href="/premium.php" target="_blank">Enable/disable viewing My pixiv latest work settings &<br>Categorize your favorite users under different folders with pixiv Premium.</a></p><div class="action"><input type="button" value="Remove My pixiv" class="button remove"></div></div></li><li><a href="/msg_send.php?id=3473"><i class="_icon sprites-mail"></i><span class="icon-text">Send Message</span></a></li></ul></div>
+</select></div><div class="sample ui-anchor ui-modal-trigger" onclick="pixiv.embed.showSample()">Embed samples</div></dd></dl></div></div><p class="worksOptionRightInfo"> <a href="illust_infomsg.php?illust_id=20496355">Report this work</a></p></div></div></div></div><div class="layout-column-1">
+<div class="ui-layout-west">
+<div class="_unit profile-unit"><a href="/member.php?id=3473" class="user-link"><img src="http://i1.pixiv.net/img01/profile/iymt/5622373.png" alt="" class="user-image"><h1 class="user">ぃやまと（iYAMATO）</h1></a><ul class="user-relation"><li><a id="favorite-button" class="follow" href="/bookmark.php?type=user" data-text-follow="Add to Follow"><i class="_icon sprites-follow"></i><span class="text">Add to Follow</span></a><div id="favorite-preference" class="dialog"><div class="close"></div><form action="/bookmark_add.php" method="post"><input type="hidden" name="mode" value="add"><input type="hidden" name="type" value="user"><input type="hidden" name="user_id" value="3473"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="from_sid" value=""><p class="recommend premium"><a href="/premium.php?ref=bookmark_user" target="_blank" class="floleft ui-tooltip" data-tooltip="pixiv Premium members can categorize their favorite users under different folders.">premium</a><a href="/premium.php?ref=bookmark_user" target="_blank">Categorize your favorite users under different folders with pixiv Premium.</a></p><dl><dt>Privacy level</dt><dd class="permission"><label><input type="radio" name="restrict" value="0" checked> Public</label><label><input type="radio" name="restrict" value="1"> Private</label></dd></dl><div class="action"><input type="submit" name="left_column" value="OK" class="button"></div></form></div></li><li><a id="mypixiv-button" class=" request-mypixiv" href="/mypixiv_add.php?id=3473"><i class="_icon sprites-mypixiv"></i>Request My pixiv</a><div id="mypixiv-preference" class="dialog"><div class="close"></div><p class="recommend premium"><a href="/premium.php" target="_blank" class="floleft ui-tooltip" data-tooltip="pixiv Premium members can choose to enable and disable the viewing of new works listed on their 'My pixiv' page.">premium</a><a href="/premium.php" target="_blank">Enable/disable viewing My pixiv latest work settings &<br>Categorize your favorite users under different folders with pixiv Premium.</a></p><div class="action"><input type="button" value="Remove My pixiv" class="button remove"></div></div></li><li><a href="/msg_send.php?id=3473"><i class="_icon sprites-mail"></i><span class="icon-text">Send Message</span></a></li></ul></div>
 
 
 
@@ -994,26 +1235,26 @@ if (location.protocol=='https:') {
 </div>
 <div class="area_inside">
 <ul class="tagCloud">
-<li class="level5"><a href="/member_illust.php?id=3473&tag=3D">3D<span class="cnt">(9)</span></a></li>
-<li class="level1"><a href="/member_illust.php?id=3473&tag=R-18">R-18<span class="cnt">(58)</span></a></li>
+<li class="level6"><a href="/member_illust.php?id=3473&tag=3D">3D<span class="cnt">(9)</span></a></li>
+<li class="level1"><a href="/member_illust.php?id=3473&tag=R-18">R-18<span class="cnt">(73)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=beatmaniaIIDX">beatmaniaIIDX<span class="cnt">(5)</span></a></li>
-<li class="level5"><a href="/member_illust.php?id=3473&tag=%E3%81%8A%E3%81%A3%E3%81%B1%E3%81%84">おっぱい<span class="cnt">(9)</span></a></li>
-<li class="level4"><a href="/member_illust.php?id=3473&tag=%E3%81%B5%E3%81%9F%E3%81%AA%E3%82%8A">ふたなり<span class="cnt">(10)</span></a></li>
-<li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%82%A2%E3%83%8A%E3%83%AB">アナル<span class="cnt">(4)</span></a></li>
+<li class="level4"><a href="/member_illust.php?id=3473&tag=%E3%81%8A%E3%81%A3%E3%81%B1%E3%81%84">おっぱい<span class="cnt">(13)</span></a></li>
+<li class="level4"><a href="/member_illust.php?id=3473&tag=%E3%81%B5%E3%81%9F%E3%81%AA%E3%82%8A">ふたなり<span class="cnt">(13)</span></a></li>
+<li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%82%A2%E3%83%8A%E3%83%AB">アナル<span class="cnt">(5)</span></a></li>
+<li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB">オリジナル<span class="cnt">(5)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%82%AF%E3%82%A4%E3%83%BC%E3%83%B3%E3%82%BA%E3%83%96%E3%83%AC%E3%82%A4%E3%83%89">クイーンズブレイド<span class="cnt">(6)</span></a></li>
+<li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%82%B9%E3%83%A9%E3%82%A4%E3%83%A0%E5%A8%98">スライム娘<span class="cnt">(6)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%83%91%E3%82%A4%E3%82%BA%E3%83%AA">パイズリ<span class="cnt">(8)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E3%83%95%E3%83%A9%E3%83%B3%E3%83%89%E3%83%BC%E3%83%AB%E3%83%BB%E3%82%B9%E3%82%AB%E3%83%BC%E3%83%AC%E3%83%83%E3%83%88">フランドール・スカーレット<span class="cnt">(4)</span></a></li>
-<li class="level3"><a href="/member_illust.php?id=3473&tag=%E5%8D%81%E5%85%AD%E5%A4%9C%E5%92%B2%E5%A4%9C">十六夜咲夜<span class="cnt">(20)</span></a></li>
+<li class="level3"><a href="/member_illust.php?id=3473&tag=%E5%8D%81%E5%85%AD%E5%A4%9C%E5%92%B2%E5%A4%9C">十六夜咲夜<span class="cnt">(25)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E5%8F%A4%E4%BB%A3%E3%81%AE%E7%8E%8B%E5%A5%B3%E3%83%A1%E3%83%8A%E3%82%B9">古代の王女メナス<span class="cnt">(6)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E5%91%8A%E7%9F%A5">告知<span class="cnt">(8)</span></a></li>
-<li class="level6"><a href="/member_illust.php?id=3473&tag=%E5%B7%A8%E4%B9%B3%E9%95%B7">巨乳長<span class="cnt">(8)</span></a></li>
+<li class="level5"><a href="/member_illust.php?id=3473&tag=%E5%B7%A8%E4%B9%B3%E9%95%B7">巨乳長<span class="cnt">(12)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E5%B9%BB%E6%83%B3%E8%82%A5%E5%BE%8C%E3%83%8E%E7%A5%AD%E5%85%B8">幻想肥後ノ祭典<span class="cnt">(6)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E6%8A%B1%E3%81%8D%E6%9E%95%E3%82%AB%E3%83%90%E3%83%BC">抱き枕カバー<span class="cnt">(8)</span></a></li>
-<li class="level2"><a href="/member_illust.php?id=3473&tag=%E6%9D%B1%E6%96%B9">東方<span class="cnt">(38)</span></a></li>
-<li class="level6"><a href="/member_illust.php?id=3473&tag=%E6%B0%B4%E5%9F%8E%E3%82%BB%E3%83%AA%E3%82%AB">水城セリカ<span class="cnt">(3)</span></a></li>
+<li class="level2"><a href="/member_illust.php?id=3473&tag=%E6%9D%B1%E6%96%B9">東方<span class="cnt">(45)</span></a></li>
 <li class="level6"><a href="/member_illust.php?id=3473&tag=%E7%B7%B4%E7%BF%92">練習<span class="cnt">(4)</span></a></li>
-<li class="level5"><a href="/member_illust.php?id=3473&tag=%E8%90%BD%E6%8F%8F%E3%81%8D">落描き<span class="cnt">(9)</span></a></li>
-<li class="level6"><a href="/member_illust.php?id=3473&tag=%E9%95%B7%E4%B9%B3%E9%A6%96">長乳首<span class="cnt">(3)</span></a></li>
+<li class="level6"><a href="/member_illust.php?id=3473&tag=%E8%90%BD%E6%8F%8F%E3%81%8D">落描き<span class="cnt">(9)</span></a></li>
 </ul>
 <p class="view_mypixiv"><a href="/member_tag_all.php?id=3473" title="View list">View list</a></p>
 </div>
@@ -1036,8 +1277,8 @@ if (location.protocol=='https:') {
 
 
 
-</div></div></div></div><!-- modal content --><input type="hidden" value="1788f68452bf43a739101591257a2eef" id="tt"><input type="hidden" id="STACC_SYSTEM_URL" value="http://www.pixiv.net/stacc/"><div id="modal-content"><div class="floright"><a class="simplemodal-close">×&nbsp;Close</a></div><div id="modal-data"><h2 style="text-align:center;margin:30px 0 0 0;">Do you want to stacc this work?</h2><form><p><div class="floleft" style="margin:10px 0 0 0;">Comments&nbsp;<span style="font-size:11px;">(Omissions allowed)</span></div><div class="chars_left"></div><div class="clear"></div></p><p><textarea row="2" col="20" maxlength="140" id="intro_stacc" tabindex="2"></textarea></p><p style="text-align:center;"><input type="button" class="simplemodal-post btn_type04" value="OK" tabindex="3" /><span id="simplemodal-posted">You have stacc!'d this work</span></p></form></div></div><script id="template-embed-sample" type="text/plain"><div id="embed-sample" class="group-modal ui-modal-container"><div class="ui-modal-background" onclick="pixiv.modal.close()"></div><div class="ui-modal large"><div class="close" onclick="pixiv.modal.close()"></div><div class="html5-section content"><p class="html5-h1">Embed samples</p><p class="html5-h2">Large: 700px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;large&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="large" data-border="on"></div><p class="html5-h2">Middle: 390px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;medium&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="medium" data-border="on"></div><p class="html5-h2">Small: 220px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;small&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="small" data-border="on"></div><p class="html5-h2">Small: 380px wide + frames</p><p><input type="text" value="&lt;iframe src=&quot;http://embed.pixiv.net/code.php?id=20496355_ca22340c5fcbee277ee9e68867381600&quot; width=&quot;380&quot; height=&quot;168&quot; style=&quot;background:transparent&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;"></p><iframe src="http://embed.pixiv.net/code.php?id=20496355_ca22340c5fcbee277ee9e68867381600" width="380" height="168" style="background:transparent" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe><p class="html5-h2">Large: 600px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;large&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="large" data-border="off"></div><p class="html5-h2">Middle: 240px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;medium&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="medium" data-border="off"></div><p class="html5-h2">Small: 150px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;small&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="small" data-border="off"></div></div></div></div></script>
-<script>pixiv.setupBeforeReady();</script><div id="header-banner">
+</div></div></div><!-- modal content --><input type="hidden" value="202cfc8ebba77c2aaf7a578fe0ac1c88" id="tt"><input type="hidden" id="STACC_SYSTEM_URL" value="http://www.pixiv.net/stacc/"><div id="modal-content"><div class="floright"><a class="simplemodal-close">×&nbsp;Close</a></div><div id="modal-data"><h2 style="text-align:center;margin:30px 0 0 0;">Do you want to stacc this work?</h2><form><p><div class="floleft" style="margin:10px 0 0 0;">Comments&nbsp;<span style="font-size:11px;">(Omissions allowed)</span></div><div class="chars_left"></div><div class="clear"></div></p><p><textarea row="2" col="20" maxlength="140" id="intro_stacc" tabindex="2"></textarea></p><p style="text-align:center;"><input type="button" class="simplemodal-post btn_type04" value="OK" tabindex="3" /><span id="simplemodal-posted">フィードに追加しました</span></p></form></div></div><script id="template-embed-sample" type="text/plain"><div id="embed-sample" class="group-modal ui-modal-container"><div class="ui-modal-background" onclick="pixiv.modal.close()"></div><div class="ui-modal large"><div class="close" onclick="pixiv.modal.close()"></div><div class="html5-section content"><p class="html5-h1">Embed samples</p><p class="html5-h2">Large: 700px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;large&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="large" data-border="on"></div><p class="html5-h2">Middle: 390px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;medium&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="medium" data-border="on"></div><p class="html5-h2">Small: 220px wide + frames</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;small&quot; data-border=&quot;on&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="small" data-border="on"></div><p class="html5-h2">Small: 380px wide + frames</p><p><input type="text" value="&lt;iframe src=&quot;http://embed.pixiv.net/code.php?id=20496355_ca22340c5fcbee277ee9e68867381600&quot; width=&quot;380&quot; height=&quot;168&quot; style=&quot;background:transparent&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;"></p><iframe src="http://embed.pixiv.net/code.php?id=20496355_ca22340c5fcbee277ee9e68867381600" width="380" height="168" style="background:transparent" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe><p class="html5-h2">Large: 600px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;large&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="large" data-border="off"></div><p class="html5-h2">Middle: 240px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;medium&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="medium" data-border="off"></div><p class="html5-h2">Small: 150px wide</p><p><input type="text" value="&lt;script src=&quot;http://source.pixiv.net/source/embed.js&quot; data-id=&quot;20496355_ca22340c5fcbee277ee9e68867381600&quot; data-size=&quot;small&quot; data-border=&quot;off&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;&lt;noscript&gt;&lt;p&gt;&lt;a href=&quot;http://www.pixiv.net/member_illust.php?mode=medium&amp;amp;illust_id=20496355&quot; target=&quot;_blank&quot;&gt;C80PV完成&lt;/a&gt; by &lt;a href=&quot;http://www.pixiv.net/member.php?id=3473&quot; target=&quot;_blank&quot;&gt;ぃやまと（iYAMATO）&lt;/a&gt; on &lt;a href=&quot;http://www.pixiv.net/&quot; target=&quot;_blank&quot;&gt;pixiv&lt;/a&gt;&lt;/p&gt;&lt;/noscript&gt;"></p><div class="pixiv-embed" data-id="20496355_ca22340c5fcbee277ee9e68867381600" data-size="small" data-border="off"></div></div></div></div></script>
+<script>pixiv.setupBeforeReady();</script><div id="header-banner">    
 <span class='multi-ads-area'>
     
 <script type="text/javascript"><!--
@@ -1052,7 +1293,7 @@ google_page_url = "http://www.pixiv.net/";
 <script type="text/javascript"
 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
-</span></div><div class="ad-footer">
+</span></div><div class="ad-footer">    
 <span class='multi-ads-area'>
     
 <script type="text/javascript"><!--
@@ -1067,7 +1308,7 @@ google_page_url = "http://www.pixiv.net/";
 <script type="text/javascript"
 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
-</span></div><footer class="footer"><div class="container"><ul class="languages"><li><form name="setja" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="ja"><a href="#" onclick="document.setja.submit();return false">日本語</a></form></li><li class="current">English</li><li><form name="setfr" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="fr"><a href="#" onclick="document.setfr.submit();return false">Français</a></form></li><li><form name="setko" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="ko"><a href="#" onclick="document.setko.submit();return false">한국어</a></form></li><li><form name="setru" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="ru"><a href="#" onclick="document.setru.submit();return false">Русский</a></form></li><li><form name="setth" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="th"><a href="#" onclick="document.setth.submit();return false">ไทย</a></form></li><li><form name="setzh" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="zh"><a href="#" onclick="document.setzh.submit();return false">简体中文</a></form></li><li><form name="setzh_tw" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="zh_tw"><a href="#" onclick="document.setzh_tw.submit();return false">繁体中文</a></form></li><li><form name="setes" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="1788f68452bf43a739101591257a2eef"><input type="hidden" name="user_language" value="es"><a href="#" onclick="document.setes.submit();return false">Español</a></form></li></ul><dl class="links"><dt>Services</dt><dd><ul><li><a href="http://comic.pixiv.net/" target="_blank">pixiv Comic</a></li><li><a href="http://en.dic.pixiv.net/" target="_blank">pixiv Encyclopedia</a></li><li><a href="http://drawr.net/" target="_blank">drawr</a></li><li><a href="http://chat.pixiv.net/" target="_blank">pixiv Chat</a></li><li><a href="http://p.tl/" target="_blank">URL Shortener - p.tl</a></li><li><a href="http://p2.pixiv.net/" target="_blank">pixiv Communications</a></li><li><a href="http://www.pixiv.net/news/" target="_blank">News</a></li><li><a href="http://www.pixiv.net/group/" target="_blank">Groups</a></li><li><a href="http://www.pixiv.net/premium.php?ref=footer" class="ui-tooltip" data-tooltip="Various premium only features awaiting you!"><i class="_icon sprites-premium"></i><span class="icon-text">pixiv Premium</span></a></li></ul></dd></dl><dl class="links"><dt>About pixiv</dt><dd><ul><li><a href="http://www.pixiv.net/terms.php">Terms of Use</a></li><li><a href="http://www.pixiv.net/guideline.php">Guidelines</a></li><li><a href="http://www.pixiv.net/privacy.php">Privacy Policy</a></li><li><a href="http://www.pixiv.net/support.php">Support</a></li><li><a href="http://www.pixiv.net/help.php">Help</a></li></ul></dd></dl><dl class="links"><dt>Announcements</dt><dd><ul><li></li><li><a href="http://www.pixiv.net/info.php">Announcements</a></li><li><a href="http://dev.pixiv.net/" target="_blank">pixiv Developers Blog</a></li><li><a href="http://times.pixiv.net/" target="_blank">pixiv Times</a></li><li><a href="http://twitter.com/pixiv" target="_blank">Twitter</a></li><li><a href="http://www.facebook.com/pixiv" target="_blank">Facebook</a></li><li><a href="http://www.plurk.com/pixiv_tw" target="_blank">Plurk</a></li><li><a href="http://weibo.com/2230227495" target="_blank">weibo</a></li></ul></dd></dl><dl class="links"><dt>Advertising</dt><dd><ul><li><a href="http://www.pixiv.net/contact.php">Advertise on pixiv</a></li><li><a href="http://www.pixiv.net/archive.php">Advertising Archives</a></li></ul></dd></dl><dl class="links"><dt>Company Info</dt><dd><ul><li><a href="http://www.pixiv.co.jp/" target="_blank">About pixiv Inc.</a></li><li><a href="http://recruit.pixiv.net/recruit-job-en.html" target="_blank">Jobs</a></li></ul></dd></dl><div class="copyright">&copy; 2013 pixiv TOKYO JAPAN</div></div></footer>
+</span></div><footer class="footer"><div class="container"><ul class="languages"><li><form name="setja" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="ja"><a href="#" onclick="document.setja.submit();return false">日本語</a></form></li><li class="current">English</li><li><form name="setfr" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="fr"><a href="#" onclick="document.setfr.submit();return false">Français</a></form></li><li><form name="setko" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="ko"><a href="#" onclick="document.setko.submit();return false">한국어</a></form></li><li><form name="setru" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="ru"><a href="#" onclick="document.setru.submit();return false">Русский</a></form></li><li><form name="setth" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="th"><a href="#" onclick="document.setth.submit();return false">ไทย</a></form></li><li><form name="setzh" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="zh"><a href="#" onclick="document.setzh.submit();return false">简体中文</a></form></li><li><form name="setzh_tw" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="zh_tw"><a href="#" onclick="document.setzh_tw.submit();return false">繁体中文</a></form></li><li><form name="setes" method="POST" action="/rpc_language_setting.php"><input type="hidden" name="mode" value="set"><input type="hidden" name="tt" value="202cfc8ebba77c2aaf7a578fe0ac1c88"><input type="hidden" name="user_language" value="es"><a href="#" onclick="document.setes.submit();return false">Español</a></form></li></ul><dl class="links"><dt>Services</dt><dd><ul><li><a href="http://comic.pixiv.net/" target="_blank">pixiv Comic</a></li><li><a href="http://en.dic.pixiv.net/" target="_blank">pixiv Encyclopedia</a></li><li><a href="http://drawr.net/" target="_blank">drawr</a></li><li><a href="http://chat.pixiv.net/" target="_blank">pixiv Chat</a></li><li><a href="http://p.tl/" target="_blank">URL Shortener - p.tl</a></li><li><a href="http://www.pixiv.net/news/" target="_blank">News</a></li><li><a href="http://www.pixiv.net/group/" target="_blank">Groups</a></li><li><a href="http://www.pixiv.net/premium.php?ref=footer" class="ui-tooltip" data-tooltip="Various premium only features awaiting you!"><i class="_icon sprites-premium"></i><span class="icon-text">pixiv Premium</span></a></li></ul></dd></dl><dl class="links"><dt>About pixiv</dt><dd><ul><li><a href="http://www.pixiv.net/terms.php">Terms of Use</a></li><li><a href="http://www.pixiv.net/guideline.php">Guidelines</a></li><li><a href="http://www.pixiv.net/privacy.php">Privacy Policy</a></li><li><a href="http://www.pixiv.net/support.php">Support</a></li><li><a href="http://www.pixiv.net/help.php">Help</a></li></ul></dd></dl><dl class="links"><dt>Announcements</dt><dd><ul><li></li><li><a href="http://www.pixiv.net/info.php">Announcements</a></li><li><a href="http://times.pixiv.net/" target="_blank">pixiv Times</a></li><li><a href="http://twitter.com/pixiv" target="_blank">Twitter</a></li><li><a href="http://www.facebook.com/pixiv" target="_blank">Facebook</a></li><li><a href="https://plus.google.com/108650212710562225539" target="_blank" rel="publisher">Google+</a></li><li><a href="http://www.plurk.com/pixiv_tw" target="_blank">Plurk</a></li><li><a href="http://weibo.com/2230227495" target="_blank">weibo</a></li></ul></dd></dl><dl class="links"><dt>Advertising</dt><dd><ul><li><a href="http://www.pixiv.net/contact.php">Advertise on pixiv</a></li><li><a href="http://www.pixiv.net/archive.php">Advertising Archives</a></li></ul></dd></dl><dl class="links"><dt>Company Info</dt><dd><ul><li><a href="http://www.pixiv.co.jp/" target="_blank">About pixiv Inc.</a></li><li><a href="http://recruit.pixiv.net/recruit-job-en.html" target="_blank" onclick="pixiv.tracking.event('recruit', 'From_Footer_en', '')">Jobs</a></li></ul></dd></dl><div class="copyright">&copy; 2013 pixiv TOKYO JAPAN</div></div></footer>
 
 
 <script type='text/javascript'><!--//<![CDATA[
@@ -1081,261 +1322,6 @@ jQuery(document).ready(function() {
 //]]>--></script>
 </div>
 
-<div id="back-to-top" class="sprites-back-to-top ui-scroll"></div>
-
-<div id="toolbar-items"></div>
-<div id="ui-tooltip-container">
-<p></p>
-<div class="allow"></div>
-</div>
-
-<script id="template-thumbnail-filter" type="text/x-handlebars-template">
-<div class="toolbar-item require-premium{{#if checked}} off{{/if}}" id="thumbnail-filter-container">
-<span class="label" onclick="pixiv.thumbnailFilter.toggle()"><i class="_icon sprites-premium"></i>Thumbnail filter settings</span>
-
-<div class="toolbar-menu">
-<div class="close" onclick="pixiv.thumbnailFilter.close()"></div>
-
-<div class="disabled">
-
-<div class="_icon sprites-help ui-modal-trigger ui-tooltip" data-tooltip="タグ / ユーザーIDの指定方法" data-target="thumbnail-filter-help">?</div>
-<section class="positive">
-<h1 class="title">強調する作品</h1>
-<p class="_notes"{{#if positiveItems.length}} style="display:none"{{/if}}>指定したタグやユーザーIDを含む作品のサムネイルを強調表示します。</p>
-<div class="submit-form">
-<input class="item-name" type="text" placeholder="Tags / ユーザーID" disabled>
-<button class="add-button"></button>
-</div>
-
-</section>
-<section class="negative">
-<h1 class="title">隠す作品</h1>
-<p class="_notes"{{#if negativeItems.length}} style="display:none"{{/if}}>指定したタグやユーザーIDを含む作品のサムネイルを隠します。隠されたサムネイルをマウスオーバーすると作品を確認できます。</p>
-<div class="submit-form"><input class="item-name" type="text" placeholder="Tags / ユーザーID" disabled><button class="add-button"></button>
-</div>
-
-</section>
-
-</div>
-<div class="require-premium"><a href="/premium.php?ref=thumbnail_filter" target="_blank">Join pixiv Premium today to enable the option to highlight or hide tags!</a></div>
-<div class="hide _clickable" onclick="pixiv.thumbnailFilter.hide()">Hide Guide</div>
-
-</div>
-</div>
-</script>
-
-<script id="template-thumbnail-filter-list-item" type="text/x-handlebars-template">
-<li style="display:none">
-<a href="{{#if user_item}}/member.php?id={{value}}{{else}}/tags.php?tag={{url value}}{{/if}}" class="item{{#if user_item}} user{{/if}}" target="_blank">{{label}}</a>
-<span class="remove-button ui-tooltip" data-type="{{type}}" data-label="{{label}}" data-tooltip="Delete"></span>
-</li>
-</script>
-
-<div id="thumbnail-filter-help" class="introduction-modal-container action-modal">
-<section class="introduction-modal">
-<div class="close" onclick="pixiv.modal.close()"></div>
-
-<p class="label">タグ / ユーザーIDの指定方法</p>
-<ul class="_list">
-<li>「<span class="_info">チョビ</span>」のように指定すると<strong>タグを部分一致で</strong>チェックします</li>
-<li>「<span class="_info">&quot;チョビ&quot;</span>」「<span class="_info">&quot;11&quot;</span>」のように&quot;&quot;で囲んで指定すると<strong>タグを完全一致で</strong>チェックします</li>
-<li>「<span class="_info">11</span>」のように数字のみで指定すると<strong>ユーザーID</strong>または<strong>タグを部分一致で</strong>チェックします。どちらでチェックするかを選択してから指定してください</li>
-</ul>
-</section>
-<section class="introduction-modal submit">
-<button class="modal-button submit" onclick="pixiv.modal.close()">Close</button>
-</section>
-</div>
-
-
-<script>
-pixiv.text.today = '本日';
-pixiv.text.yesterday = '昨日';
-pixiv.text.notifications = 'メッセージ・ポップボード';
-
-pixiv.text.rankingContexts = {
-daily    : 'Daily Ranking',
-weekly   : 'Weekly Ranking',
-monthly  : 'Monthly Ranking',
-rookie   : 'Rookie Ranking',
-daily_r18: 'R-18 Daily Ranking',
-r18g     : 'R-18G Ranking',
-male     : 'Popular Among Males',
-female   : 'Popular Among Females'
-};
-</script>
-
-<script id="template-notification-text" type="text/x-handlebars-template">
-{{count}}件の更新があります
-</script>
-
-<script id="template-notification-message" type="text/x-handlebars-template">
-<a href="/msg_view.php?mode=get&amp;id={{target.id}}">
-<div class="image"><img src="{{user.url}}"></div>
-<span>{{user.name}}</span> sent a message to you: <span>"{{target.title}}"</span>
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-bookmarked" type="text/x-handlebars-template">
-<a href="{{#eq target.type "novel"}}/novel/bookmark_detail.php?id={{else}}/bookmark_detail.php?illust_id={{/eq}}{{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-Over {{count}} users bookmarked your work, <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-scored" type="text/x-handlebars-template">
-<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/eq}}{{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-<span>"{{target.title}}"</span> has received over {{score}} stars.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-commented" type="text/x-handlebars-template">
-<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=comment_chk&amp;illust_id={{/eq}}{{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-<span>{{count}} user(s)</span> commented on <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-tagged" type="text/x-handlebars-template">
-<a href="{{#eq target.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/eq}}{{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-The tag, <span>"{{tag.0.this}}"</span> has been added to <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-content_response" type="text/x-handlebars-template">
-<a href="{{#if approved}}{{#if from.type "novel"}}/novel/show.php?id={{else}}/member_illust.php?mode=medium&amp;illust_id={{/if}}{{from.id}}{{else}}/response.php?mode=chk{{/if}}">
-<div class="image"><img src="{{target.url}}"></div>
-<span>{{from.user.name}}</span> tagged you an image response on <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-favorited" type="text/x-handlebars-template">
-<a href="/bookmark.php?type=reg_user">
-<div class="image"><img src="{{users.0.url}}"></div>
-{{#join users separator="、"}}<span>{{this.name}}</span> {{/join}}{{#if otherCount}}and other <span>{{otherCount}} users</span>{{/if}}} has added you in their favorite users list.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-requested_friend" type="text/x-handlebars-template">
-<a href="/mypixiv_request.php">
-<div class="image"><img src="{{users.0.url}}"></div>
-You received a My pixiv request from <span>{{users.0.name}}</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-approved_friend" type="text/x-handlebars-template">
-<a href="/mypixiv_all.php">
-<div class="image"><img src="{{users.0.url}}"></div>
-<span>{{users.0.name}}</span> approved your My pixiv request.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-received_stacc_message" type="text/x-handlebars-template">
-<a href="/stacc/my/home/all/message_from">
-<div class="image"><img src="{{users.0.url}}"></div>
-<span>{{users.0.name}}</span> commented on your Staccfeed.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-ranked_in" type="text/x-handlebars-template">
-<a href="/ranking.php?mode={{context}}&amp;content={{type}}">
-<div class="image"><img src="{{target.url}}"></div>
-<span>"{{target.title}}"</span> has entered rank no.<span>{{= position}}</span> on the {{ranking}} ranking board!
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-group_like" type="text/x-handlebars-template">
-<a href="/group/comment.php?id={{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-Over <span>{{count}} users</span> liked your post in <span>{{target.title}}</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-group_comment" type="text/x-handlebars-template">
-<a href="/group/comment.php?id={{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-Over <span>{{count}} users</span> commented in your group post: <span>{{target.title}}</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-group_application" type="text/x-handlebars-template">
-<a href="/group/?id={{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-<span>{{count}} user(s)</span> sent a request to join your group: <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-group_approve" type="text/x-handlebars-template">
-<a href="/group/?id={{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-Your request to join the group <span>"{{target.title}}"</span> has been approved.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-group_content_reference" type="text/x-handlebars-template">
-<a href="/group/comment.php?id={{target.id}}">
-<div class="image"><img src="{{target.url}}"></div>
-Your work is featured in the group: <span>"{{target.title}}"</span>.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-comic_new" type="text/x-handlebars-template">
-<a href="http://comic.pixiv.net/my?ads=popnew" class="icon-comic-new" target="_blank">
-<div class="image"><img src="http://source.pixiv.net/source/images/notification/comic.png"></div>
-The comic you liked on pixiv Comic has been updated.
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-comic_book" type="text/x-handlebars-template">
-<a href="http://comic.pixiv.net/my?ads=popbook#books" class="icon-comic-book" target="_blank">
-<div class="image"><img src="http://source.pixiv.net/source/images/notification/comic.png"></div>
-{{#if dateText}}{{dateText}}{{else}}{{date}}に{{/if}}
-{{#eq titles.length 2}}
-{{#join titles separator="and"}}<span>"{{this}}"</span>{{/join}} are now on sale.
-{{else}}
-<span>"{{titles.0.this}}"</span>{{#if otherCount}} and other <span>{{otherCount}}</span>{{/if}} are currently on sale!
-{{/eq}}
-{{#if more}}<div class="notified-at">{{dateTime}}</div>{{/if}}
-</a>
-</script>
-
-<script id="template-notification-continue" type="text/x-handlebars-template">
-<a href="/{{#eq type "message"}}msgbox{{else}}notify_all{{/eq}}.php">
-There are over <span>{{count}}</span> other {{#eq type "message"}}messages{{else}}notifications{{/eq}}.
-</a>
-</script>
-<div id="premium-introduction-modal" class="introduction-modal-container">
-<section class="introduction-modal">
-<div class="close" onclick="pixiv.modal.close()"></div>
-<h1 class="title"></h1>
-<p class="caption">Enjoy the ability to hide ads and resubmit your works, among many other great benefits!</p>
-<a href="/premium.php" class="button-container premium" target="_blank" onclick="pixiv.modal.close()">
-<div class="label layout-cell">Upgrade to Premium</div>
-<div class="layout-cell">
-<i class="_icon sprites-go"></i>
-</div>
-</a>
-</section>
-</div>
 
 </body>
 </html>

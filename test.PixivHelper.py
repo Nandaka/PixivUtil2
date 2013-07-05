@@ -8,13 +8,14 @@ from BeautifulSoup import BeautifulSoup
 
 class TestPixivHelper(unittest.TestCase):
   currPath = unicode(os.path.abspath('.'))
-  
+  PixivHelper.GetLogger()
+
   def testSanitizeFilename(self):
     rootDir = '.'
-    filename = '12345.jpg'
+    filename = u'12345.jpg'
     currentDir = os.path.abspath('.')
-    expected = currentDir + os.sep + filename        
-    
+    expected = currentDir + os.sep + filename
+
     result = PixivHelper.sanitizeFilename(filename, rootDir)
 
     self.assertEqual(result, expected)
@@ -22,10 +23,10 @@ class TestPixivHelper(unittest.TestCase):
 
   def testSanitizeFilename2(self):
     rootDir = '.'
-    filename = '12345.jpg'
+    filename = u'12345.jpg'
     currentDir = os.path.abspath('.')
-    expected = currentDir + os.sep + filename        
-    
+    expected = currentDir + os.sep + filename
+
     result = PixivHelper.sanitizeFilename(filename, rootDir)
 
     self.assertEqual(result, expected)
@@ -50,7 +51,7 @@ class TestPixivHelper(unittest.TestCase):
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
     ##print result
     self.assertEqual(result, expected)
-    
+
     expected = unicode(u'ffei (554800)\\28865189_p921 922 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル - C82 R-18 おっぱい ぶっかけ 学園黙示録 漫画 眼鏡 高城沙耶.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
     ##print result
@@ -64,9 +65,9 @@ class TestPixivHelper(unittest.TestCase):
     del page
 
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
-    expected = unicode(u'balzehn (267014)\\2493913 12-23-2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘 魔界全土喝采.jpg')                       
+    expected = unicode(u'balzehn (267014)\\2493913 12-23-2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘 魔界全土喝采.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
-    ##print result    
+    ##print result
     self.assertEqual(result, expected)
 
   def testCreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
@@ -76,7 +77,7 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%image_id% - %title%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = ''    
+    targetDir = ''
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     ##print filename
     self.assertEqual(filename, self.currPath + os.sep + u'folder.jpg')
@@ -88,7 +89,7 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%member_token% (%member_id%)\%R-18%\%image_id% - %title% - %tags%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = ''    
+    targetDir = ''
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     ##print filename
     self.assertEqual(filename, self.currPath + os.sep + u'kirabara29 (1107124)\\folder.jpg')
@@ -104,7 +105,7 @@ class TestPixivHelper(unittest.TestCase):
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     ##print filename
     self.assertEqual(filename, targetDir + os.sep + u'folder.jpg')
-                                                         
+
   def testCreateAvatarFilenameFormatWithSubfolderWithRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
     page = BeautifulSoup(p.read())
@@ -124,11 +125,11 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%image_id% - %title%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = 'C:\\images'    
+    targetDir = 'C:\\images'
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     ##print filename
     self.assertEqual(filename, u'C:\\images\\folder.jpg')
-                                                         
+
   def testCreateAvatarFilenameFormatWithSubfolderWithCustomRootDir(self):
     p = open('./test/test-helper-avatar-name.htm', 'r')
     page = BeautifulSoup(p.read())
@@ -136,10 +137,10 @@ class TestPixivHelper(unittest.TestCase):
     filenameFormat = '%member_token% (%member_id%)\%R-18%\%image_id% - %title% - %tags%'
     tagsSeparator = ' '
     tagsLimit = 0
-    targetDir = 'C:\\images'    
+    targetDir = 'C:\\images'
     filename = PixivHelper.CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artist, targetDir)
     ##print filename
-    self.assertEqual(filename, u'C:\\images\\kirabara29 (1107124)\\folder.jpg')                                                      
+    self.assertEqual(filename, u'C:\\images\\kirabara29 (1107124)\\folder.jpg')
 
   def testParseLoginError(self):
     p = open('./test/test-login-error.htm', 'r')
@@ -147,7 +148,7 @@ class TestPixivHelper(unittest.TestCase):
     r = page.findAll('span', attrs={'class':'error'})
     self.assertTrue(len(r)>0)
     self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
-    
+
 if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivHelper)

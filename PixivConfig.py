@@ -249,7 +249,7 @@ class PixivConfig:
                 self.downloadAvatar = config.getboolean('Settings','downloadAvatar')
             except ValueError:
                 self.downloadAvatar = False
-                print "alwaysCheckFileSize = False"
+                print "downloadAvatar = False"
                 haveError = True
 
             try:
@@ -410,39 +410,40 @@ class PixivConfig:
         print ' - keepSignedIn = ', self.keepSignedIn
 
         print ' [Settings]'
-        print ' - filename_format =', self.filenameFormat
+        print ' - filename_format       =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
-        print ' - useproxy     =' , self.useProxy
-        print ' - proxyaddress =', self.proxyAddress
-        print ' - debug_http  =', self.debugHttp
-        print ' - use_robots  =', self.useRobots
-        print ' - useragent   =', self.useragent
-        print ' - overwrite   =', self.overwrite
-        print ' - timeout     =', self.timeout
-        print ' - useList     =', self.useList
-        print ' - processFromDb  =', self.processFromDb
-        print ' - tagsSeparator  =', self.tagsSeparator
-        print ' - dayLastUpdated =', self.dayLastUpdated
-        print ' - rootDirectory  =', self.rootDirectory
-        print ' - retry     =', self.retry
-        print ' - retryWait =', self.retryWait
+        print ' - useproxy         =' , self.useProxy
+        print ' - proxyaddress     =', self.proxyAddress
+        print ' - debug_http       =', self.debugHttp
+        print ' - use_robots       =', self.useRobots
+        print ' - useragent        =', self.useragent
+        print ' - overwrite        =', self.overwrite
+        print ' - timeout          =', self.timeout
+        print ' - useList          =', self.useList
+        print ' - processFromDb    =', self.processFromDb
+        print ' - tagsSeparator    =', self.tagsSeparator
+        print ' - dayLastUpdated   =', self.dayLastUpdated
+        print ' - rootDirectory    =', self.rootDirectory
+        print ' - retry            =', self.retry
+        print ' - retryWait        =', self.retryWait
         print ' - createDownloadLists   =', self.createDownloadLists
         print ' - downloadListDirectory =', self.downloadListDirectory
-        print ' - IrfanViewPath   =', self.IrfanViewPath
-        print ' - startIrfanView  =', self.startIrfanView
-        print ' - startIrfanSlide =', self.startIrfanSlide
-        print ' - alwaysCheckFileSize =', self.alwaysCheckFileSize
-        print ' - checkUpdatedLimit   =', self.checkUpdatedLimit
-        print ' - downloadAvatar =', self.downloadAvatar
-        print ' - createMangaDir =', self.createMangaDir
-        print ' - useTagsAsDir   =', self.useTagsAsDir
+        print ' - IrfanViewPath    =', self.IrfanViewPath
+        print ' - startIrfanView   =', self.startIrfanView
+        print ' - startIrfanSlide  =', self.startIrfanSlide
+        print ' - alwaysCheckFileSize   =', self.alwaysCheckFileSize
+        print ' - checkUpdatedLimit     =', self.checkUpdatedLimit
+        print ' - downloadAvatar   =', self.downloadAvatar
+        print ' - createMangaDir   =', self.createMangaDir
+        print ' - useTagsAsDir     =', self.useTagsAsDir
         print ' - useBlacklistTags =', self.useBlacklistTags
         print ' - useSuppressTags  =', self.useSuppressTags
-        print ' - tagsLimit      =', self.tagsLimit
-        print ' - writeImageInfo =', self.writeImageInfo
-        print ' - dateDiff       =', self.dateDiff
-        print ' - backupOldFile  =', self.backupOldFile
+        print ' - tagsLimit        =', self.tagsLimit
+        print ' - writeImageInfo   =', self.writeImageInfo
+        print ' - dateDiff         =', self.dateDiff
+        print ' - backupOldFile    =', self.backupOldFile
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
-        print ' - R18Mode =', self.r18mode
+        print ' - R18Mode      =', self.r18mode
+        print ''
