@@ -1,5 +1,6 @@
 20130705
 - Update manga parser.
+- Update caption parser.
 - Add new option to back up old file if the filesize is different (backupOldFile).
 - Auto Backup old config.ini if error detected (e.g.: missing entries) to config.ini.error-xxx.
 - Update test cases.
