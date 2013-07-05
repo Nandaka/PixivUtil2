@@ -330,13 +330,13 @@ class PixivConfig:
 
         if haveError:
             print 'Some configuration have invalid value, replacing with the default value.'
-            self.writeConfig()
+            self.writeConfig(error=True)
 
         print 'done.'
 
 
     #-UI01B------write config
-    def writeConfig(self):
+    def writeConfig(self, error=False):
         '''Backup old config if exist and write updated config.ini'''
         print 'Writing config file...',
         config = ConfigParser.RawConfigParser()
@@ -391,8 +391,14 @@ class PixivConfig:
             with open('config.ini.tmp', 'w') as configfile:
                 config.write(configfile)
             if os.path.exists('config.ini'):
-                print "Backing up old config to config.ini.bak"
-                shutil.move('config.ini', 'config.ini.bak')
+                if error:
+                    import time
+                    backupName = 'config.ini.error-' + str(int(time.time()))
+                    print "Backing up old config (error exist!) to " + backupName
+                    shutil.move('config.ini', backupName)
+                else:
+                    print "Backing up old config to config.ini.bak"
+                    shutil.move('config.ini', 'config.ini.bak')
             os.rename('config.ini.tmp', 'config.ini')
         except:
             self.__logger.exception('Error at writeConfig()')
