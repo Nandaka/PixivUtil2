@@ -118,7 +118,6 @@ def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False)
                     return 0 #Yavos: added 0 -> updateImage() will be executed
                 else :
                     if backupOldFile:
-                        import time
                         splitName = filename.rsplit(".", 1)
                         newName = filename + "." + str(int(time.time()))
                         if len(splitName) == 2:

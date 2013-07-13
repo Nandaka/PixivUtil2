@@ -8,6 +8,8 @@ import codecs
 import traceback
 import PixivHelper
 import shutil
+import time
+
 script_path = PixivHelper.module_path()
 
 class PixivConfig:
@@ -392,7 +394,6 @@ class PixivConfig:
                 config.write(configfile)
             if os.path.exists('config.ini'):
                 if error:
-                    import time
                     backupName = 'config.ini.error-' + str(int(time.time()))
                     print "Backing up old config (error exist!) to " + backupName
                     shutil.move('config.ini', backupName)
