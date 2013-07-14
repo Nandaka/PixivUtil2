@@ -1,3 +1,8 @@
+20130714
+- Add logLevel option.
+- Fix UnboundLocalError for time as reported by Janice.
+- Add handler for server error: "An error has occured".
+
 20130705
 - Update manga parser.
 - Update caption parser.

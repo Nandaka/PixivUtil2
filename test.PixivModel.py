@@ -88,6 +88,16 @@ class TestPixivArtist(unittest.TestCase):
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 3281699)
 
+    def testPixivArtistServerError(self):
+      #print '\nTesting member page'
+      p = open('./test/test-server-error.html', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivException) as ex:
+        artist = PixivArtist(234753, page)
+      self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
+      page.decompose()
+      del page
+
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
       p = open('./test/test-image-info.html', 'r')
@@ -269,7 +279,17 @@ class TestPixivImage(unittest.TestCase):
           image = PixivImage(9138317, page)
           self.assertRaises(PixivException)
       except PixivException as ex:
-          self.assertEqual(ex.errorCode, 100)
+          self.assertEqual(ex.errorCode, PixivException.NOT_LOGGED_IN)
+
+    def testPixivImageServerError(self):
+      #print '\nTesting image page'
+      p = open('./test/test-server-error.html', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivException) as ex:
+        image = PixivImage(9138317, page)
+      self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
+      page.decompose()
+      del page
 
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):

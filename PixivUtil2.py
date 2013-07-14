@@ -48,7 +48,7 @@ gc.enable()
 
 __dbManager__ = PixivDBManager.PixivDBManager()
 __config__    = PixivConfig.PixivConfig()
-__br__        = PixivBrowserFactory.getBrowser(config=__config__)
+__br__        = None ##PixivBrowserFactory.getBrowser(config=__config__)
 __blacklistTags = list()
 __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
@@ -388,6 +388,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
         printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
 
     __config__.loadConfig()
+
     try:
         noOfImages = 1
         avatarDownloaded = False
@@ -414,6 +415,13 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                     printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
+                    if ex.errorCode == PixivException.SERVER_ERROR:
+                        print "Retrying... ",
+                        repeat = range(1,__config__.retryWait)
+                        for t in repeat:
+                            print t,
+                            time.sleep(1)
+                        print ''
                     else:
                         dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", listPage.get_data())
                         if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
@@ -591,6 +599,21 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                 if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
                     PixivHelper.safePrint(ex.message)
                     raw_input('New Error Message, please inform the developer. Press enter to continue.')
+                elif ex.errorCode == PixivException.SERVER_ERROR:
+                    print ex
+                    repeat = range(1,__config__.retryWait)
+                    for t in repeat:
+                        print t,
+                        time.sleep(1)
+                    print ''
+                    ++retryCount
+                    if retryCount > __config__.retry:
+                        printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
+                        if mediumPage != None:
+                            dumpFilename = 'Error medium page for image ' + str(image_id) + '.html'
+                            dumpHtml(dumpFilename , mediumPage.get_data())
+                            printAndLog('error', 'Dumping html to: ' + dumpFilename);
+                        return
                 else:
                     printAndLog('info', 'Image ID (' + str(image_id) +'): ' + str(ex))
                 return
@@ -1374,6 +1397,7 @@ def main():
     global iv
     global op
     global args
+    global __br__
 
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
@@ -1428,6 +1452,9 @@ def main():
         print 'Failed to read configuration.'
         __log__.exception('Failed to read configuration.')
 
+    PixivHelper.setLogLevel(__config__.logLevel)
+    if __br__ == None:
+        __br__ = PixivBrowserFactory.getBrowser(config=__config__)
     PixivBrowserFactory.configureBrowser(__br__, __config__)
 
     selection = None
@@ -1594,6 +1621,7 @@ def main():
         if ewd == False: ### Yavos: prevent input on exitwhendone
             if selection == None or selection != 'x' :
                 raw_input('press enter to exit.')
+        __log__.setLevel("INFO")
         __log__.info('EXIT')
         __log__.info('###############################################################')
 

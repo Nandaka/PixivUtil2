@@ -68,6 +68,8 @@ class PixivConfig:
 
     backupOldFile = False
 
+    logLevel = "DEBUG"
+
     def loadConfig(self):
         configFile = script_path + os.sep + 'config.ini'
         print 'Reading', configFile, '...'
@@ -317,6 +319,15 @@ class PixivConfig:
                 print "backupOldFile = False"
                 haveError = True
 
+            try:
+                self.logLevel = config.get('Settings','logLevel').upper()
+                if not self.logLevel in ['CRITICAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']:
+                    raise ValueError("Value not in list: " + self.logLevel)
+            except ValueError:
+                print "logLevel = DEBUG"
+                self.logLevel = 'DEBUG'
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -378,6 +389,7 @@ class PixivConfig:
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'dateDiff', self.dateDiff)
         config.set('Settings', 'backupOldFile', self.backupOldFile)
+        config.set('Settings', 'logLevel', self.logLevel)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -449,6 +461,7 @@ class PixivConfig:
         print ' - writeImageInfo   =', self.writeImageInfo
         print ' - dateDiff         =', self.dateDiff
         print ' - backupOldFile    =', self.backupOldFile
+        print ' - logLevel    =', self.logLevel
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

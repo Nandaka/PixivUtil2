@@ -13,13 +13,13 @@ import unicodedata
 
 Logger = None
 
-def GetLogger():
+def GetLogger(level=logging.DEBUG):
   '''Set up logging'''
   global Logger
   if Logger == None:
     script_path = module_path()
     Logger = logging.getLogger('PixivUtil'+PixivConstant.PIXIVUTIL_VERSION)
-    Logger.setLevel(logging.DEBUG)
+    Logger.setLevel(level)
     __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
                                                           maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
                                                           backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
@@ -27,6 +27,10 @@ def GetLogger():
     __logHandler__.setFormatter(__formatter__)
     Logger.addHandler(__logHandler__)
   return Logger
+
+def setLogLevel(level):
+    Logger.info("Setting log level to: " + level)
+    GetLogger(level).setLevel(level)
 
 if os.sep == '/':
   __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')

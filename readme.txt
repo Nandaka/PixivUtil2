@@ -274,6 +274,8 @@ dateDiff        ==> Gets only pictures that were posted X days before the system
                     by Member, stop processing if in Download New Illust.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
+logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING, 
+                    INFO, DEBUG, and NOTSET
 
 =================================================================================
 = list.txt Format                                                               =

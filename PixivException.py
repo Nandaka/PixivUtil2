@@ -22,12 +22,14 @@ class PixivException(Exception):
   R_18_DISABLED        = 2005
   UNKNOWN_IMAGE_ERROR  = 2006
 
+  SERVER_ERROR  = 9005
+
   errorCode = 0
-  
+
   def __init__(self, value, errorCode):
     self.value = value
     self.message = value
     self.errorCode = errorCode
-    
+
   def __str__(self):
     return str(self.errorCode) + " " + repr(self.value)

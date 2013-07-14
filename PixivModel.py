@@ -38,6 +38,11 @@ class PixivArtist:
       if errorMessage != None:
         raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR)
 
+      ## detect if there is server error
+      errorMessage = self.IsServerErrorExist(page)
+      if errorMessage != None:
+        raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR)
+
       ## detect if image count != 0
       if not fromImage:
         self.ParseImages(page)
@@ -145,6 +150,7 @@ class PixivArtist:
             return True
     else :
       return False
+
   def IsNotLoggedIn(self, page):
     check = page.findAll('a', attrs={'class':'signup_button'})
     if check != None and len(check) > 0:
@@ -165,6 +171,15 @@ class PixivArtist:
     check = page.findAll('span', attrs={'class':'error'})
     if len(check) > 0:
       check2 = page.findAll('strong')
+      if len(check2) > 0:
+        return check2[0].renderContents()
+      return check[0].renderContents()
+    return None
+
+  def IsServerErrorExist(self, page):
+    check = page.findAll('div', attrs={'class':'errorArea'})
+    if len(check) > 0:
+      check2 = page.findAll('h2')
       if len(check2) > 0:
         return check2[0].renderContents()
       return check[0].renderContents()
@@ -235,6 +250,11 @@ class PixivImage:
       if errorMessage != None:
         raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR)
 
+      ## detect if there is server error
+      errorMessage = self.IsServerErrorExist(page)
+      if errorMessage != None:
+        raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR)
+
       ## parse artist information
       if self.artist == None:
         self.artist = PixivArtist(page=page, fromImage=True)
@@ -291,6 +311,15 @@ class PixivImage:
     check = page.findAll('span', attrs={'class':'error'})
     if len(check) > 0:
       check2 = page.findAll('strong')
+      if len(check2) > 0:
+        return check2[0].renderContents()
+      return check[0].renderContents()
+    return None
+
+  def IsServerErrorExist(self, page):
+    check = page.findAll('div', attrs={'class':'errorArea'})
+    if len(check) > 0:
+      check2 = page.findAll('h2')
       if len(check2) > 0:
         return check2[0].renderContents()
       return check[0].renderContents()
