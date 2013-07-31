@@ -393,6 +393,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
         noOfImages = 1
         avatarDownloaded = False
         flag = True
+        updatedLimitCount = 0
 
         while flag:
             print 'Page ',page
@@ -464,7 +465,6 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
 
-            updatedLimitCount = 0
             if not artist.haveImages:
                 printAndLog('info', "No image found for: " + str(member_id))
                 flag = False
