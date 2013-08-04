@@ -1,3 +1,6 @@
+20130804
+- Move updatedLimitCount to outer loop of member.
+
 20130714
 - Add logLevel option.
 - Fix UnboundLocalError for time as reported by Janice.
