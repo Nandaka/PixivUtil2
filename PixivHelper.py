@@ -294,3 +294,18 @@ def speedInStr(totalSize, totalTime):
     return  "{0:.2f} MiB/s".format(speed)
   speed = speed / 1024
   return  "{0:.2f} GiB/s".format(speed)
+
+def dumpHtml(filename, html):
+    try:
+        dump = file(filename, 'wb')
+        dump.write(html)
+        dump.close()
+    except :
+        pass
+
+def printAndLog(level, msg):
+    safePrint(msg)
+    if level == 'info':
+        GetLogger().info(msg)
+    elif level == 'error':
+        GetLogger().error(msg)

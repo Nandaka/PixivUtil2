@@ -1,6 +1,6 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from PixivModel import PixivArtist, PixivImage, PixivBookmark,PixivNewIllustBookmark, PixivTags
+from PixivModel import PixivArtist, PixivImage, PixivBookmark,PixivNewIllustBookmark, PixivTags, PixivGroup
 from PixivException import PixivException
 from BeautifulSoup import BeautifulSoup
 from mechanize import Browser
@@ -458,6 +458,16 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 20)
 
+class TestPixivGroup(unittest.TestCase):
+    def testParseJson(self):
+        path = os.path.abspath('./test/group.json').replace(os.sep,'/')
+        p = open(path)
+        result = PixivGroup(p)
+
+        self.assertEqual(len(result.imageList), 34)
+        self.assertEqual(len(result.externalImageList), 2)
+        self.assertEqual(result.maxId, 626288)
+        
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
     unittest.TextTestRunner(verbosity=5).run(suite)
@@ -472,5 +482,8 @@ if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
+    unittest.TextTestRunner(verbosity=5).run(suite)
+    print "================================================================"
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivGroup)
     unittest.TextTestRunner(verbosity=5).run(suite)
 
