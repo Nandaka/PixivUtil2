@@ -12,6 +12,11 @@ import datetime
 import unicodedata
 
 Logger = None
+_config = None
+
+def setConfig(config):
+   global _config
+   _config = config
 
 def GetLogger(level=logging.DEBUG):
   '''Set up logging'''
@@ -296,12 +301,24 @@ def speedInStr(totalSize, totalTime):
   return  "{0:.2f} GiB/s".format(speed)
 
 def dumpHtml(filename, html):
-    try:
-        dump = file(filename, 'wb')
-        dump.write(html)
-        dump.close()
-    except :
-        pass
+    isDumpEnabled = True
+    if _config != None:
+       isDumpEnabled = _config.enableDump
+       if _config.enableDump:
+         if len(_config.skipDumpFilter) > 0:
+            matchResult = re.findall(_config.skipDumpFilter, filename)
+            if matchResult != None and len(matchResult) > 0:
+               isDumpEnabled = False
+
+    if isDumpEnabled:
+       try:
+           dump = file(filename, 'wb')
+           dump.write(html)
+           dump.close()
+       except :
+           pass
+    else:
+      print "No Dump"
 
 def printAndLog(level, msg):
     safePrint(msg)

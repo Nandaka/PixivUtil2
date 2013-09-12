@@ -69,6 +69,8 @@ class PixivConfig:
     backupOldFile = False
 
     logLevel = "DEBUG"
+    enableDump = True
+    skipDumpFilter = ""
 
     def loadConfig(self):
         configFile = script_path + os.sep + 'config.ini'
@@ -328,6 +330,21 @@ class PixivConfig:
                 self.logLevel = 'DEBUG'
                 haveError = True
 
+
+            try:
+                self.enableDump = config.getboolean('Settings','enableDump')
+            except ValueError:
+                print "enableDump = True"
+                self.enableDump = True
+                haveError = True
+
+            try:
+                self.skipDumpFilter = config.get('Settings','skipDumpFilter')
+            except ValueError:
+                print "skipDumpFilter = ''"
+                self.skipDumpFilter = ''
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -390,6 +407,8 @@ class PixivConfig:
         config.set('Settings', 'dateDiff', self.dateDiff)
         config.set('Settings', 'backupOldFile', self.backupOldFile)
         config.set('Settings', 'logLevel', self.logLevel)
+        config.set('Settings', 'enableDump', self.enableDump)
+        config.set('Settings', 'skipDumpFilter', self.skipDumpFilter)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -461,7 +480,9 @@ class PixivConfig:
         print ' - writeImageInfo   =', self.writeImageInfo
         print ' - dateDiff         =', self.dateDiff
         print ' - backupOldFile    =', self.backupOldFile
-        print ' - logLevel    =', self.logLevel
+        print ' - logLevel         =', self.logLevel
+        print ' - enableDump       =', self.enableDump
+        print ' - skipDumpFilter   =', self.skipDumpFilter
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

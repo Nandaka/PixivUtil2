@@ -1515,6 +1515,7 @@ def main():
     __log__.info('Starting...')
     try:
         __config__.loadConfig()
+        PixivHelper.setConfig(__config__)
     except:
         print 'Failed to read configuration.'
         __log__.exception('Failed to read configuration.')
