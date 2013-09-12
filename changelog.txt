@@ -1,3 +1,8 @@
+20130912
+- Add option to disable html dump and skipDumpFilter.
+- Update console title for download by member and download by tags.
+- Add download by group id.
+
 20130804
 - Move updatedLimitCount to outer loop of member.
 

@@ -276,6 +276,9 @@ backupOldFile   ==> Set to True to backup old file if the file size is different
                     Old filename will be renamed to filename.unix-time.extension.
 logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING, 
                     INFO, DEBUG, and NOTSET
+enableDump      ==> Enable HTML Dump. Set to False to disable.
+skipDumpFilter  ==> Skip HTML Dump based on error code (using regex format).
+                    E.g.: 1.*|2.* => skip all HTML dump for error code 1xxx/2xxx.
 
 =================================================================================
 = list.txt Format                                                               =
