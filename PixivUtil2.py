@@ -476,7 +476,8 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                 retryCount = 0
                 while True :
                     try:
-                        result = processImage(mode, artist, image_id, userDir, bookmark) #Yavos added dir-argument to pass
+                        titlePrefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id, page, noOfImages, updatedLimitCount, ((page - 1) * 20 ) + len(artist.imageList))
+                        result = processImage(mode, artist, image_id, userDir, bookmark, titlePrefix=titlePrefix) #Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except KeyboardInterrupt:
@@ -553,7 +554,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
             PixivHelper.printAndLog('error', 'Cannot dump page for member_id:'+str(member_id))
         raise
 
-def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, searchTags=''):
+def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, searchTags='', titlePrefix=None):
     #Yavos added dir-argument which will be initialized as '' when not given
     parseBigImage = None
     mediumPage = None
@@ -576,7 +577,10 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                 mediumPage = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id='+str(image_id))
                 parseMediumPage = BeautifulSoup(mediumPage.read())
                 image = PixivImage(iid=image_id, page=parseMediumPage, parent=artist, fromBookmark=bookmark)
-                setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
+                if titlePrefix != None:
+                  setTitle(titlePrefix + " ImageId: {0}".format(image.imageId))
+                else:
+                  setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
                 parseMediumPage.decompose()
                 del parseMediumPage
                 break
@@ -800,6 +804,7 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                     __log__.exception('decodeTags()')
         i = page
         images = 1
+        skippedCount = 0
 
         dateParam = ""
         if startDate != None:
@@ -840,18 +845,22 @@ def processTags(mode, tags, page=1, endPage=0, wildCard=True, titleCaption=False
                 print 'No more images'
                 flag = False
             else:
-                #for image_id in l:
                 for item in t.itemList:
                     print 'Image #' + str(images)
                     print 'Image Id:', str(item.imageId)
                     print 'Bookmark Count:', str(item.bookmarkCount)
                     if bookmarkCount != None and bookmarkCount > item.bookmarkCount:
                         PixivHelper.printAndLog('info', 'Skipping imageId='+str(item.imageId)+' because less than bookmark count limit ('+ str(bookmarkCount) + ' > ' + str(item.bookmarkCount) + ')')
+                        skippedCount = skippedCount + 1
                         continue
                     result = 0
                     while True:
                         try:
-                            processImage(mode, None, item.imageId, searchTags=searchTags)
+                            totalImage = ((i - 1) * 20) + len(t.itemList)
+                            titlePrefix = "Tags:{0} Page:{1} Image {2}+{3} of {4}".format(tags, i, images, skippedCount, totalImage)
+                            if not member_id == None:
+                              titlePrefix = "MemberId: {0} Tags:{1} Page:{2} Image {3}+{4} of {5}".format(member_id, tags, i, images, skippedCount, totalImage)
+                            processImage(mode, None, item.imageId, searchTags=searchTags, titlePrefix=titlePrefix)
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
