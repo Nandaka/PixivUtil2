@@ -177,9 +177,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('  ', ' ')
 
   if appendExtension:
-    nameFormat = nameFormat + '.' + imageExtension
+    nameFormat = nameFormat.strip() + '.' + imageExtension
 
-  return nameFormat
+  return nameFormat.strip()
 
 def safePrint(msg, newline=True):
   '''Print empty string if UnicodeError raised.'''
