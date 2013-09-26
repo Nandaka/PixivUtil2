@@ -119,7 +119,8 @@ C.Log Messages:
                         2 - Download by image_id  
                             (required: folled by image_ids separated by space)
                         3 - Download by tags      
-                            (required: [y/n] for wildcard followed by tags)
+                            (required: [y/n] for wildcard, start page, end page, 
+                             followed by tags)
                         4 - Download from list    
                             (optional: followed by path to list)
                         5 - Download from user bookmark
@@ -128,17 +129,21 @@ C.Log Messages:
 			    (required: followed by [y/n] for private bookmark
                              optional: starting page number and end page number)
                         7 - Download from tags list
-                            (required: followed by path to the tags list and 
-                             starting page)
+                            (required: followed by path to the tags list, 
+                             start page, and end page)
                         8 - Download new illust from bookmark
                             (optional: followed by starting page number and end 
                              page number)
                         9 - Download by Title/Caption
-                            (required: followed by title/caption)
+                            (required: start page, end page, followed by 
+                             title/caption)
 			10 - Download by Tag and Member Id
-			    (required: followed a member_id and tags)
+			    (required: member_id, start page, end page, followed 
+                             by tags)
                         11 - Download Member's Bookmarked Images
                             (required: followed by member_ids separated by space)
+                        12 - Download by Group ID
+                            (required: Group ID, limit, and process external[y/n])
                         e - Export online bookmark
                         d - Manage database
   -x, --exitwhendone    Exit programm when done. 

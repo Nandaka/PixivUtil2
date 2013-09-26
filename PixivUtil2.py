@@ -1287,7 +1287,8 @@ def menuDownloadByTags(mode, opisvalid, args):
             wildcard = True
         else:
             wildcard = False
-        tags = " ".join(args[1:])
+        (page, endPage) = getStartAndEndNumberFromArgs(args, 1)
+        tags = " ".join(args[3:])
     else:
         tags = PixivHelper.uni_input('Tags: ')
         bookmarkCount = raw_input('Bookmark Count: ') or None
@@ -1309,7 +1310,8 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
     startDate = None
     endDate = None
     if opisvalid and len(args) > 0:
-        tags = " ".join(args)
+        (page, endPage) = getStartAndEndNumberFromArgs(args)
+        tags = " ".join(args[2:])
     else:
         tags = PixivHelper.uni_input('Title/Caption: ')
         (page, endPage) = getStartAndEndNumber()
@@ -1324,7 +1326,8 @@ def menuDownloadByTagAndMemberId(mode, opisvalid, args):
 
     if opisvalid and len(args) >= 2:
         member_id = int(args[0])
-        tags = " ".join(args[1:])
+        (page, endPage) = getStartAndEndNumberFromArgs(args, 1)
+        tags = " ".join(args[3:])
         PixivHelper.safePrint("Looking tags: " + tags + " from memberId: " + str(member_id))
     else:
         member_id = raw_input('Member Id: ')
@@ -1418,7 +1421,8 @@ def menuDownloadByGroupId(mode, opisvalid, args):
     if opisvalid and len(args) > 0 :
         groupId = args[0]
         limit = int(args[1])
-        processExternal = bool(args[2])
+        if args[2].lower() == 'y':
+            processExternal = True
     else:
         groupId = raw_input("Group Id: ")
         limit = int(raw_input("Limit: "))
@@ -1473,14 +1477,15 @@ def main():
                            '2 - Download by image_id                                ' +
                            '3 - Download by tags                                    ' +
                            '4 - Download from list                                  ' +
-                           '5 - Download from user bookmark                          ' +
-                           '6 - Download from user\'s image bookmark                 ' +
-                           '7 - Download from tags list                              ' +
-                           '8 - Download new illust from bookmark                    ' +
-                           '9 - Download by Title/Caption                            ' +
-                           '10 - Download by Tag and Member Id                       ' +
-                           '11 - Download images from Member Bookmark                ' +
-                           'e - Export online bookmark                               ' +
+                           '5 - Download from user bookmark                         ' +
+                           '6 - Download from user\'s image bookmark                ' +
+                           '7 - Download from tags list                             ' +
+                           '8 - Download new illust from bookmark                   ' +
+                           '9 - Download by Title/Caption                           ' +
+                           '10 - Download by Tag and Member Id                      ' +
+                           '11 - Download images from Member Bookmark               ' +
+                           '12 - Download images by Group Id                        ' +
+                           'e - Export online bookmark                              ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
                       help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
@@ -1492,7 +1497,7 @@ def main():
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'd', 'e'):
         opisvalid = True
     elif op == None:
         opisvalid = False

@@ -366,7 +366,11 @@ class PixivImage:
     #2013年3月16日 06:44 | 800×1130 | Photoshop ComicStudio | R-18
     self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding).replace(u'/', u'-')
     if self.worksDate.find('-') > -1:
-      self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+      try:
+         self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+      except ValueError as ve:
+         PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId))
+         self.worksDateDateTime = datetime.datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
     else:
       tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
       self.worksDateDateTime = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
@@ -496,7 +500,10 @@ class PixivListItem:
       raise PixivException("File doesn't exists or no permission to read: " + filename, errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION)
 
     reader = PixivHelper.OpenTextFile(filename)
+    lineNo = 0
     for line in reader:
+        lineNo = lineNo + 1
+        originalLine = line
         if line.startswith('#') or len(line) < 1:
           continue
         line = PixivHelper.toUnicode(line)
@@ -529,9 +536,8 @@ class PixivListItem:
           listItem = PixivListItem(member_id, path)
           l.append(listItem)
         except:
-          PixivHelper.safePrint('Invalid line: '+line)
-          (exType, value, traceback) = sys.exc_info()
-          print 'Error at PixivListItem.parseList():', exType, value
+          PixivHelper.GetLogger().exception("PixivListItem.parseList(): Invalid value when parsing list")
+          PixivHelper.printAndLog('error', 'Invalid value: {0} at line {1}'.format(originalLine, lineNo))
 
     reader.close()
     return l
