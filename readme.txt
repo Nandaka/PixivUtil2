@@ -60,6 +60,10 @@ A.Usage:
       - Try to use the config.ini on the [Authentication] section.
       - Check your date and time setting (e.g.: http://www.timeanddate.com/)
       - Disable Daylight Saving Time and try again.
+  Q4. PixivUtil working from local terminal on Linux box but not working when I 
+      used SSH with PuTTY!
+      - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are 
+        not set, python does not know what to write.
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
