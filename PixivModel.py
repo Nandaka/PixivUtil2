@@ -180,7 +180,7 @@ class PixivArtist:
   def IsServerErrorExist(self, page):
     check = page.findAll('div', attrs={'class':'errorArea'})
     if len(check) > 0:
-      check2 = page.findAll('h2')
+      check2 = check[0].findAll('h2')
       if len(check2) > 0:
         return check2[0].renderContents()
       return check[0].renderContents()
@@ -320,7 +320,7 @@ class PixivImage:
   def IsServerErrorExist(self, page):
     check = page.findAll('div', attrs={'class':'errorArea'})
     if len(check) > 0:
-      check2 = page.findAll('h2')
+      check2 = check[0].findAll('h2')
       if len(check2) > 0:
         return check2[0].renderContents()
       return check[0].renderContents()

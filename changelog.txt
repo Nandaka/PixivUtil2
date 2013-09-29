@@ -1,3 +1,13 @@
+20130927
+- Change some command line syntax:
+  - Download by Tags (3): wilcard[y/n], start page, end page, tags  
+  - Download by Title Caption (9): start page, end page, title/captions
+  - Download by Tags and MemberId (10): MemberId, start page, end page, tags
+  - Download by Group ID (12): GroupId, limit, process external[y/n]
+- Fix trailing space before extensions in filename
+- Add SOCKS proxy support, use socks5:// or socks4:// format.
+- Add temporary fix for datetime parsing (pixiv server bug).
+
 20130912
 - Add option to disable html dump and skipDumpFilter.
 - Update console title for download by member and download by tags.

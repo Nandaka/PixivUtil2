@@ -291,6 +291,16 @@ class TestPixivImage(unittest.TestCase):
       page.decompose()
       del page
 
+    def testPixivImageServerError2(self):
+      #print '\nTesting image page'
+      p = open('./test/test-image-generic-error.html', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivException) as ex:
+        image = PixivImage(37882549, page)
+      self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
+      page.decompose()
+      del page
+
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
       #print '\nTesting BookmarkNewIlust'
@@ -467,7 +477,7 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(len(result.imageList), 34)
         self.assertEqual(len(result.externalImageList), 2)
         self.assertEqual(result.maxId, 626288)
-        
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
     unittest.TextTestRunner(verbosity=5).run(suite)
