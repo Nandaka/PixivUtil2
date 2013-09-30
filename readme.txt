@@ -103,7 +103,7 @@ C.Log Messages:
   This is because the pixiv downloader cannot resolve the address to download the 
   images, please try to restart the network connection or do ipconfig /flushdns to 
   refresh the dns cache (windows).
-- Error at downloadImage(): (<class 'socket.timeout'>, timeout('timed out',)
+- Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
   This is because the pixiv downloaded didn't receive any reply for specified time 
   in config.ini from pixiv. Please retry the download again later.
 

@@ -4,23 +4,16 @@ import sys
 import os
 import re
 import traceback
-import logging
-import logging.handlers
 import gc
 import time
-import xml.sax.saxutils as saxutils
 import datetime
-
-from mechanize import Browser
-import mechanize
-from BeautifulSoup import BeautifulSoup, Tag
 import urllib2
 import urllib
-
 import getpass
-import socket
 import httplib
 import cookielib
+
+from BeautifulSoup import BeautifulSoup
 
 import PixivConstant
 import PixivConfig
@@ -30,25 +23,21 @@ from PixivModel import PixivArtist, PixivImage, PixivListItem, PixivBookmark, Pi
 from PixivException import PixivException
 import PixivBrowserFactory
 
+from optparse import OptionParser
+import codecs
+
 script_path = PixivHelper.module_path()
 
 Yavos = True
-npisvalid = False
 np = 0
-opisvalid = False
 op = ''
-
-from optparse import OptionParser
-import datetime
-import codecs
-import subprocess
 
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
 __dbManager__ = PixivDBManager.PixivDBManager()
 __config__    = PixivConfig.PixivConfig()
-__br__        = None ##PixivBrowserFactory.getBrowser(config=__config__)
+__br__        = None
 __blacklistTags = list()
 __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
@@ -58,12 +47,13 @@ __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
 ### Utilities function ###
-def clearall():
-    all = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clearall"]
-    for var in all:
+def clear_all():
+    all_vars = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clear_all"]
+    for var in all_vars:
         del globals()[var]
 
-def customRequest(url):
+
+def custom_request(url):
     if __config__.useProxy:
         proxy = urllib2.ProxyHandler(__config__.proxy)
         opener = urllib2.build_opener(proxy)
@@ -71,48 +61,49 @@ def customRequest(url):
     req = urllib2.Request(url)
     return req
 
+
 #-T04------For download file
-def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False):
+def download_image(url, filename, referer, overwrite, retry, backup_old_file=False):
     try:
         try:
-            req = customRequest(url)
+            req = custom_request(url)
 
-            if referer != None:
+            if referer is not None:
                 req.add_header('Referer', referer)
             else :
                 req.add_header('Referer', 'http://www.pixiv.net')
 
             print "Using Referer:", str(referer)
-            filesize = -1
 
             print 'Start downloading...',
-            startTime = datetime.datetime.now()
+            start_time = datetime.datetime.now()
             res = __br__.open_novisit(req)
+            file_size = -1
             try:
-                filesize = int(res.info()['Content-Length'])
+                file_size = int(res.info()['Content-Length'])
             except KeyError:
-                filesize = -1
+                file_size = -1
                 print "\tNo file size information!"
             except:
                 raise
 
-            if os.path.exists(filename) and os.path.isfile(filename) :
-                oldSize = os.path.getsize(filename)
-                if not overwrite and int(filesize) == oldSize :
+            if os.path.exists(filename) and os.path.isfile(filename):
+                old_size = os.path.getsize(filename)
+                if not overwrite and int(file_size) == old_size:
                     print "\tFile exist! (Identical Size)"
-                    return 0 #Yavos: added 0 -> updateImage() will be executed
+                    return 0  # Yavos: added 0 -> updateImage() will be executed
                 else :
-                    if backupOldFile:
-                        splitName = filename.rsplit(".", 1)
-                        newName = filename + "." + str(int(time.time()))
-                        if len(splitName) == 2:
-                            newName = splitName[0] + "." + str(int(time.time())) + "." + splitName[1]
-                        PixivHelper.safePrint("\t Found file with different filesize, backing up to: " + newName)
-                        __log__.info("Found file with different filesize, backing up to: " + newName)
-                        os.rename(filename, newName)
+                    if backup_old_file:
+                        split_name = filename.rsplit(".", 1)
+                        new_name = filename + "." + str(int(time.time()))
+                        if len(split_name) == 2:
+                            new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
+                        PixivHelper.safePrint("\t Found file with different file size, backing up to: " + new_name)
+                        __log__.info("Found file with different file size, backing up to: " + new_name)
+                        os.rename(filename, new_name)
                     else:
-                        print "\t Found file with different filesize, removing..."
-                        __log__.info("Found file with different filesize, removing old file (old: " + str(oldSize) + " vs new: " + str(filesize) + ")")
+                        print "\t Found file with different file size, removing..."
+                        __log__.info("Found file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
                         os.remove(filename)
 
             directory = os.path.dirname(filename)
@@ -123,7 +114,7 @@ def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False)
             try:
                 save = file(filename + '.pixiv', 'wb+', 4096)
             except IOError:
-                msg = 'Error at downloadImage(): Cannot save ' + url +' to ' + filename + ' ' + str(sys.exc_info())
+                msg = "Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info())
                 PixivHelper.safePrint(msg)
                 __log__.error(unicode(msg))
                 filename = os.path.split(url)[1]
@@ -142,25 +133,25 @@ def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False)
                     save.write(res.read(PixivConstant.BUFFER_SIZE))
                     curr = save.tell()
                     print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
-                    print '{0:9} of {1:9} Bytes'.format(curr, filesize),
+                    print '{0:9} of {1:9} Bytes'.format(curr, file_size),
 
                     ## check if downloaded file is complete
-                    if filesize > 0 and curr == filesize:
-                        totalTime = (datetime.datetime.now() - startTime).total_seconds()
-                        print ' Completed in ' + str(totalTime) + 's (' + PixivHelper.speedInStr(filesize, totalTime) + ')'
+                    if file_size > 0 and curr == file_size:
+                        total_time = (datetime.datetime.now() - start_time).total_seconds()
+                        print ' Completed in {0}s ({1})'.format(total_time, PixivHelper.speedInStr(file_size, total_time))
                         break
-                    elif curr == prev:  ## no filesize info
-                        totalTime = (datetime.datetime.now() - startTime).total_seconds()
-                        print ' Completed in ' + str(totalTime) + 's (' + PixivHelper.speedInStr(curr, totalTime) + ')'
+                    elif curr == prev:  # no file size info
+                        total_time = (datetime.datetime.now() - start_time).total_seconds()
+                        print ' Completed in {0}s ({1})'.format(total_time, PixivHelper.speedInStr(curr, total_time))
                         break
                     prev = curr
-                if iv == True or __config__.createDownloadLists == True:
+                if iv or __config__.createDownloadLists:
                     dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
                     dfile.write(filename + "\n")
                     dfile.close()
             except:
-                if filesize > 0 and curr < filesize:
-                    PixivHelper.printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, filesize))
+                if file_size > 0 and curr < file_size:
+                    PixivHelper.printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
                     PixivHelper.printAndLog('error', 'Filename = ' + unicode(filename))
                     PixivHelper.printAndLog('error', 'URL      = {0}'.format(url))
                 raise
@@ -173,19 +164,19 @@ def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False)
                 del req
                 del res
         except urllib2.HTTPError as httpError:
-            PixivHelper.printAndLog('error', '[downloadImage()] ' + str(httpError) + ' (' + url + ')')
+            PixivHelper.printAndLog('error', '[download_image()] ' + str(httpError) + ' (' + url + ')')
             if httpError.code == 404:
                 return -1
             if httpError.code == 502:
                 return -1
             raise
         except urllib2.URLError as urlError:
-            PixivHelper.printAndLog('error', '[downloadImage()] ' + str(urlError) + ' (' + url + ')')
+            PixivHelper.printAndLog('error', '[download_image()] ' + str(urlError) + ' (' + url + ')')
             raise
         except IOError as ioex:
             if ioex.errno == 28:
                 PixivHelper.printAndLog('error', ioex.message)
-                raw_input("Press Enter to retry.");
+                raw_input("Press Enter to retry.")
                 return -1
             raise
         except KeyboardInterrupt:
@@ -194,72 +185,80 @@ def downloadImage(url, filename, referer, overwrite, retry, backupOldFile=False)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
-            __log__.exception('Error at downloadImage(): ' + str(sys.exc_info()) + '(' + url + ')')
+            __log__.exception('Error at download_image(): ' + str(sys.exc_info()) + '(' + url + ')')
             raise
     except KeyboardInterrupt:
         raise
     except:
         if retry > 0:
-            repeat = range(1,__config__.retryWait)
+            repeat = range(1, __config__.retryWait)
             for t in repeat:
                 print t,
                 time.sleep(1)
             print ''
-            return downloadImage(url, filename, referer, overwrite, retry - 1)
-        else :
+            return download_image(url, filename, referer, overwrite, retry - 1)
+        else:
             raise
     print ' done.'
     return 0
 
-def loadCookie(cookieValue):
-    '''Load cookie to the Browser instance'''
-    ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookieValue, port=None, port_specified=False, domain='pixiv.net', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+
+def load_cookie(cookie_value):
+    """ Load cookie to the Browser instance """
+    ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None, 
+                          port_specified=False, domain='pixiv.net', domain_specified=False, 
+                          domain_initial_dot=False, path='/', path_specified=True, 
+                          secure=False, expires=None, discard=True, comment=None, 
+                          comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
     PixivBrowserFactory.addCookie(ck)
 
-### Pixiv related function ###
-def pixivLoginCookie():
-    '''Log in to Pixiv using saved cookie, return True if success'''
 
-    PixivHelper.printAndLog('info','logging in with saved cookie')
-    cookieValue = __config__.cookie
-    if len(cookieValue) > 0:
-        PixivHelper.printAndLog('info','Trying to log with saved cookie')
-        loadCookie(cookieValue);
-        req = customRequest('http://www.pixiv.net/mypage.php')
+### Pixiv login related function ###
+def pixiv_login_cookie():
+    """  Log in to Pixiv using saved cookie, return True if success """
+
+    PixivHelper.printAndLog('info', 'logging in with saved cookie')
+    cookie_value = __config__.cookie
+    if len(cookie_value) > 0:
+        PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
+        load_cookie(cookie_value);
+        req = custom_request('http://www.pixiv.net/mypage.php')
         __br__.open(req)
-        resUrl = __br__.response().geturl()
-        if resUrl == 'http://www.pixiv.net/mypage.php' :
+        res_url = __br__.response().geturl()
+        if res_url == 'http://www.pixiv.net/mypage.php':
             print 'done.'
             __log__.info('Logged in using cookie')
             return True
         else :
-            __log__.info('Failed to login using cookie, returned page: ' + resUrl)
+            __log__.info('Failed to login using cookie, returned page: ' + res_url)
             PixivHelper.printAndLog('info','Cookie already expired/invalid.')
     return False
 
-def pixivLogin(username, password):
-    '''Log in to Pixiv, return 0 if success'''
+
+def pixiv_login(username, password):
+    """ Log in to Pixiv, return 0 if success """
 
     try:
-        PixivHelper.printAndLog('info','Log in using form.')
-        req = customRequest(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
+        PixivHelper.printAndLog('info', 'Log in using form.')
+        req = custom_request(PixivConstant.PIXIV_URL+PixivConstant.PIXIV_LOGIN_URL)
         __br__.open(req)
 
-        form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
+        __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
         __br__['pixiv_id'] = username
         __br__['pass'] = password
         if __config__.keepSignedIn:
             __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
-        return pixivProcessLogin(response)
+        return pixiv_process_login(response)
     except:
-        print 'Error at pixivLogin():',sys.exc_info()
+        print 'Error at pixiv_login():', sys.exc_info()
         print 'failed'
-        __log__.exception('Error at pixivLogin(): ' + str(sys.exc_info()))
+        __log__.exception('Error at pixiv_login(): ' + str(sys.exc_info()))
         raise
 
-def pixivProcessLogin(response):
+
+def pixiv_process_login(response):
     __log__.info('Logging in, return url: ' + response.geturl())
     ## failed login will return to either of these page:
     ## http://www.pixiv.net/login.php
@@ -275,19 +274,20 @@ def pixivProcessLogin(response):
                 __config__.writeConfig()
                 break
         return True
-    else :
-        errors = parseLoginError(response)
+    else:
+        errors = parse_login_error(response)
         if len(errors)>0:
             for error in errors:
-                PixivHelper.printAndLog('error','Server Reply: ' + error.string)
+                PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
         else:
-            PixivHelper.printAndLog('info','Wrong username or password.')
+            PixivHelper.printAndLog('info', 'Wrong username or password.')
         return False
 
-def pixivLoginSSL(username, password):
+
+def pixiv_login_ssl(username, password):
     try:
-        PixivHelper.printAndLog('info','Log in using secure form.')
-        req = customRequest(PixivConstant.PIXIV_URL_SSL)
+        PixivHelper.printAndLog('info', 'Log in using secure form.')
+        req = custom_request(PixivConstant.PIXIV_URL_SSL)
         __br__.open(req)
 
         form = __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
@@ -297,38 +297,34 @@ def pixivLoginSSL(username, password):
             __br__.find_control('skip').items[0].selected = True
 
         response = __br__.submit()
-        return pixivProcessLogin(response)
+        return pixiv_process_login(response)
     except:
-        print 'Error at pixivLoginSSL():',sys.exc_info()
-        __log__.exception('Error at pixivLoginSSL(): ' + str(sys.exc_info()))
+        print 'Error at pixiv_login_ssl():', sys.exc_info()
+        __log__.exception('Error at pixiv_login_ssl(): ' + str(sys.exc_info()))
         raise
 
-def parseLoginError(res):
+
+def parse_login_error(res):
     page = BeautifulSoup(res.read())
     r = page.findAll('span', attrs={'class':'error'})
     return r
 
-def processList(mode):
-    global args
+
+## Start of main processing logic
+def process_list(mode, list_file_name=None):
     result = None
     try:
         ## Getting the list
         if __config__.processFromDb :
-            PixivHelper.printAndLog('info','Processing from database.')
+            PixivHelper.printAndLog('info', 'Processing from database.')
             if __config__.dayLastUpdated == 0:
                 result = __dbManager__.selectAllMember()
-            else :
-                print 'Select only last',__config__.dayLastUpdated, 'days.'
+            else:
+                print 'Select only last', __config__.dayLastUpdated, 'days.'
                 result = __dbManager__.selectMembersByLastDownloadDate(__config__.dayLastUpdated)
-        else :
-            PixivHelper.printAndLog('info','Processing from list file.')
-            listFilename = __config__.downloadListDirectory + os.sep + 'list.txt'
-            if op == '4' and len(args) > 0:
-                testListFilename = __config__.downloadListDirectory + os.sep + args[0]
-                if os.path.exists(testListFilename) :
-                    listFilename = testListFilename
-            result = PixivListItem.parseList(listFilename, __config__.rootDirectory)
-            PixivHelper.printAndLog('info','List file used: ' + listFilename)
+        else:
+            PixivHelper.printAndLog('info', 'Processing from list file: {0}'.format(list_file_name))
+            result = PixivListItem.parseList(list_file_name, __config__.rootDirectory)
 
         print "Found "+str(len(result))+" items."
 
@@ -343,7 +339,7 @@ def processList(mode):
                     raise
                 except:
                     if retryCount > __config__.retry:
-                        PixivHelper.printAndLog('error','Giving up member_id: '+str(item.memberId))
+                        PixivHelper.printAndLog('error', 'Giving up member_id: '+str(item.memberId))
                         break
                     retryCount = retryCount + 1
                     print 'Something wrong, retrying after 2 second (', retryCount, ')'
@@ -354,9 +350,9 @@ def processList(mode):
     except KeyboardInterrupt:
         raise
     except:
-        print 'Error at processList():',sys.exc_info()
+        print 'Error at process_list():', sys.exc_info()
         print 'Failed'
-        __log__.exception('Error at processList(): ' + str(sys.exc_info()))
+        __log__.exception('Error at process_list(): ' + str(sys.exc_info()))
         raise
 
 def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False): #Yavos added dir-argument which will be initialized as '' when not given
@@ -382,7 +378,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
 
         while flag:
             print 'Page ',page
-            setTitle("MemberId: " + str(member_id) + " Page: " + str(page))
+            set_console_title("MemberId: " + str(member_id) + " Page: " + str(page))
             ## Try to get the member page
             while True:
                 try:
@@ -445,7 +441,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                     targetDir = userDir
 
                 avatarFilename = PixivHelper.CreateAvatarFilename(filenameFormat, __config__.tagsSeparator, __config__.tagsLimit, artist, targetDir)
-                result = downloadImage(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry, __config__.backupOldFile)
+                result = download_image(artist.artistAvatar, avatarFilename, listPage.geturl(), __config__.overwrite, __config__.retry, __config__.backupOldFile)
                 avatarDownloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
@@ -522,7 +518,7 @@ def processMember(mode, member_id, userDir='', page=1, endPage=0, bookmark=False
                 print "Page limit reached (from endPage limit =" + str(endPage) + ")"
                 flag = False
             else:
-                if npisvalid == True: #Yavos: overwriting config-data
+                if np_is_valid == True: #Yavos: overwriting config-data
                     if page > np and np > 0:
                         print "Page limit reached (from command line =" + str(np) + ")"
                         flag = False
@@ -578,9 +574,9 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                 parseMediumPage = BeautifulSoup(mediumPage.read())
                 image = PixivImage(iid=image_id, page=parseMediumPage, parent=artist, fromBookmark=bookmark)
                 if titlePrefix != None:
-                  setTitle(titlePrefix + " ImageId: {0}".format(image.imageId))
+                  set_console_title(titlePrefix + " ImageId: {0}".format(image.imageId))
                 else:
-                  setTitle('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
+                  set_console_title('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
                 parseMediumPage.decompose()
                 del parseMediumPage
                 break
@@ -715,7 +711,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                         overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             overwrite = True
-                        result = downloadImage(img, filename, viewPage.geturl(), overwrite, __config__.retry, __config__.backupOldFile)
+                        result = download_image(img, filename, viewPage.geturl(), overwrite, __config__.retry, __config__.backupOldFile)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK and image.imageMode == 'manga' and img.find('_big') > -1:
                             print 'No big manga image available, try the small one'
@@ -725,7 +721,7 @@ def processImage(mode, artist=None, image_id=None, userDir='', bookmark=False, s
                             PixivHelper.printAndLog('error', 'Image url not found: '+str(image.imageId))
                     except urllib2.URLError as ue:
                         PixivHelper.printAndLog('error', 'Giving up url: '+str(img))
-                        __log__.exception('Error when downloadImage(): ' +str(img))
+                        __log__.exception('Error when download_image(): ' +str(img))
                     print ''
 
             if __config__.writeImageInfo:
@@ -949,7 +945,7 @@ def processImageBookmark(mode, hide='n', startPage = 1, endPage = 0):
             parsePage.decompose()
             del parsePage
 
-            if npisvalid == True: #Yavos: overwrite config-data
+            if np_is_valid == True: #Yavos: overwrite config-data
                 if i > np and np != 0:
                     break
             elif i > __config__.numberOfPage and __config__.numberOfPage != 0 :
@@ -1105,7 +1101,7 @@ def processFromGroup(mode, groupId, limit = 0, processExternal=True):
                filename = PixivHelper.makeFilename(__config__.filenameFormat, imageInfo=image_data, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=image_data.imageUrls[0])
                filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
                PixivHelper.safePrint("Filename  : "+ filename)
-               downloadImage(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
+               download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
                imageCount = imageCount + 1
 
          if (groupData.imageList == None or len(groupData.imageList) == 0) and (groupData.externalImageList == None or len(groupData.externalImageList) == 0):
@@ -1130,7 +1126,7 @@ def getStartAndEndNumber(startOnly=False):
         raise
 
     endPageNum = 0
-    if npisvalid:
+    if np_is_valid:
         endPageNum = np
     else:
         endPageNum = __config__.numberOfPage
@@ -1159,7 +1155,7 @@ def getStartAndEndNumberFromArgs(args, offset=0, startOnly=False):
             raise
 
     endPageNum = 0
-    if npisvalid:
+    if np_is_valid:
         endPageNum = np
     else:
         endPageNum = __config__.numberOfPage
@@ -1203,7 +1199,7 @@ def getStartAndEndDate():
     return (startDate, endDate)
 
 def menu():
-    setTitle()
+    set_console_title()
     header()
     print '1. Download by member_id'
     print '2. Download by image_id'
@@ -1302,7 +1298,8 @@ def menuDownloadByTags(mode, opisvalid, args):
         bookmarkCount = int(bookmarkCount)
     processTags(mode, tags.strip(), page, endPage, wildcard, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir,bookmarkCount=bookmarkCount)
 
-def menuDownloadByTitleCaption(mode, opisvalid, args):
+
+def menu_download_by_title_caption(mode, opisvalid, args):
     __log__.info('Title/Caption mode.')
     page = 1
     endPage = 0
@@ -1317,7 +1314,8 @@ def menuDownloadByTitleCaption(mode, opisvalid, args):
 
     processTags(mode, tags.strip(), page, endPage, wildCard=False, titleCaption=True, startDate=startDate, endDate=endDate, useTagsAsDir=__config__.useTagsAsDir)
 
-def menuDownloadByTagAndMemberId(mode, opisvalid, args):
+
+def menu_download_by_tag_and_member_id(mode, opisvalid, args):
     __log__.info('Tag and MemberId mode.')
     member_id = 0
     tags = None
@@ -1333,9 +1331,19 @@ def menuDownloadByTagAndMemberId(mode, opisvalid, args):
     processTags(mode, tags.strip(), member_id=int(member_id), useTagsAsDir=__config__.useTagsAsDir)
 
 
-def menuDownloadFromList(mode, opisvalid, args):
+def menu_download_from_list(mode, opisvalid, args):
     __log__.info('Batch mode.')
-    processList(mode)
+    global op
+    global __config__
+
+    list_file_name = __config__.downloadListDirectory + os.sep + 'list.txt'
+    if opisvalid and op == '4' and len(args) > 0:
+        test_file_name = __config__.downloadListDirectory + os.sep + args[0]
+        if os.path.exists(test_file_name):
+            list_file_name = test_file_name
+
+    process_list(mode, list_file_name)
+
 
 def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
     __log__.info('User Bookmark mode.')
@@ -1362,7 +1370,8 @@ def menuDownloadFromOnlineUserBookmark(mode, opisvalid, args):
         (startPage, endPage) = getStartAndEndNumber()
     processBookmark(mode, hide, startPage, endPage)
 
-def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
+
+def menu_download_from_online_image_bookmark(mode, opisvalid, args):
     __log__.info("User's Image Bookmark mode.")
     startPage = 1
     endPage = 0
@@ -1387,7 +1396,8 @@ def menuDownloadFromOnlineImageBookmark(mode, opisvalid, args):
 
     processImageBookmark(mode, hide, startPage, endPage)
 
-def menuDownloadFromTagsList(mode, opisvalid, args):
+
+def menu_download_from_tags_list(mode, opisvalid, args):
     __log__.info('Taglist mode.')
     page = 1
     endPage = 0
@@ -1400,7 +1410,7 @@ def menuDownloadFromTagsList(mode, opisvalid, args):
 
     processTagsList(mode, filename, page, endPage)
 
-def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
+def menu_download_new_illust_from_bookmark(mode, opisvalid, args):
     __log__.info('New Illust from Bookmark mode.')
 
     if opisvalid:
@@ -1410,69 +1420,62 @@ def menuDownloadNewIllustFromBookmark(mode, opisvalid, args):
 
     processNewIllustFromBookmark(mode, pageNum, endPageNum)
 
-def menuDownloadByGroupId(mode, opisvalid, args):
+
+def menu_download_by_group_id(mode, opisvalid, args):
     __log__.info('Group mode.')
-    processExternal = False
+    process_external = False
     limit = 0
 
     if opisvalid and len(args) > 0 :
-        groupId = args[0]
+        group_id = args[0]
         limit = int(args[1])
-        processExternal = bool(args[2])
+        process_external = bool(args[2])
     else:
-        groupId = raw_input("Group Id: ")
+        group_id = raw_input("Group Id: ")
         limit = int(raw_input("Limit: "))
         arg = raw_input("Process External Image [y/n]: ") or 'n'
         arg = arg.lower()
         if arg == 'y':
-            processExternal = True
+            process_external = True
 
-    processFromGroup(mode, groupId, limit, processExternal)
+    processFromGroup(mode, group_id, limit, process_external)
 
-def menuExportOnlineBookmark(mode, opisvalid, args):
+
+def menu_export_online_bookmark(mode, opisvalid, args):
     __log__.info('Export Bookmark mode.')
     filename = raw_input("Filename: ")
     arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
     arg = arg.lower()
-    if arg == 'y' or arg =='n' or arg == 'o':
+    if arg == 'y' or arg == 'n' or arg == 'o':
         hide = arg
     else:
         print "Invalid args: ", arg
     exportBookmark(filename, hide)
 
-def menuReloadConfigIni():
+
+def menu_reload_config():
     __log__.info('Manual Reload Config.')
     __config__.loadConfig()
 
-def menuPrintConfigIni():
+
+def menu_print_config():
     __log__.info('Manual Reload Config.')
     __config__.printConfig()
 
-def setTitle(title=''):
-    setTitle = 'PixivDownloader ' + str(PixivConstant.PIXIVUTIL_VERSION) + ' ' + title
-    PixivHelper.setConsoleTitle(setTitle)
 
-### Main thread ###
-def main():
-    setTitle()
-    header()
+def set_console_title(title=''):
+    set_title = 'PixivDownloader {0} {1}'.format(PixivConstant.PIXIVUTIL_VERSION, title)
+    PixivHelper.setConsoleTitle(set_title)
 
-    ## Option Parser
-    global npisvalid
-    global opisvalid
-    global np
-    global iv
-    global op
-    global args
-    global __br__
 
+def setup_option_parser():
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
-                      help='Action you want to load your program with:              ' +
-                           '1 - Download by member_id                               ' +
-                           '2 - Download by image_id                                ' +
-                           '3 - Download by tags                                    ' +
-                           '4 - Download from list                                  ' +
+                      help='Action you want to load your program with:               ' +
+                           '1 - Download by member_id                                ' +
+                           '2 - Download by image_id                                 ' +
+                           '3 - Download by tags                                     ' +
+                           '4 - Download from list                                   ' +
                            '5 - Download from user bookmark                          ' +
                            '6 - Download from user\'s image bookmark                 ' +
                            '7 - Download from tags list                              ' +
@@ -1480,37 +1483,56 @@ def main():
                            '9 - Download by Title/Caption                            ' +
                            '10 - Download by Tag and Member Id                       ' +
                            '11 - Download images from Member Bookmark                ' +
+                           '12 - Download images by Group Id                         ' +
                            'e - Export online bookmark                               ' +
                            'd - Manage database' )
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
-                      help='Exit programm when done. (only useful when not using DB-Manager)', action='store_true', default=False)
+                      help='Exit programm when done. (only useful when not using DB-Manager)',
+                      action='store_true', default=False)
     parser.add_option('-i', '--irfanview', dest='iv',
-                      help='start IrfanView after downloading images using downloaded_on_%date%.txt', action='store_true', default=False)
+                      help='start IrfanView after downloading images using downloaded_on_%date%.txt',
+                      action='store_true', default=False)
     parser.add_option('-n', '--numberofpages', dest='numberofpages',
                       help='temporarily overwrites numberOfPage set in config.ini')
+    return parser
 
+
+### Main thread ###
+def main():
+    set_console_title()
+    header()
+
+    ## Option Parser
+    global np  # used in various places for number of page overwriting
+    global iv  # used in download_image
+    global op
+    global __br__
+
+    parser = setup_option_parser()
     (options, args) = parser.parse_args()
 
     op = options.startaction
     if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e'):
-        opisvalid = True
-    elif op == None:
-        opisvalid = False
+        op_is_valid = True
+    elif op is None:
+        op_is_valid = False
     else:
-        opisvalid = False
-        parser.error('%s is not valid operation' % op) #Yavos: use print option instead when program should be running even with this error
+        op_is_valid = False
+        parser.error('%s is not valid operation' % op)  # Yavos: use print option instead when program should be running even with this error
 
     ewd = options.exitwhendone
+
     try:
-        if options.numberofpages != None:
+        if options.numberofpages is not None:
             np = int(options.numberofpages)
-            npisvalid = True
+            np_is_valid = True
         else:
-            npisvalid = False
+            np_is_valid = False
     except:
-        npisvalid = False
+        np_is_valid = False
         parser.error('Value %s used for numberOfPage is not an integer.' % options.numberofpages) #Yavos: use print option instead when program should be running even with this error
     ### end new lines by Yavos ###
+
     __log__.info('###############################################################')
     __log__.info('Starting...')
     try:
@@ -1521,7 +1543,7 @@ def main():
         __log__.exception('Failed to read configuration.')
 
     PixivHelper.setLogLevel(__config__.logLevel)
-    if __br__ == None:
+    if __br__ is None:
         __br__ = PixivBrowserFactory.getBrowser(config=__config__)
     PixivBrowserFactory.configureBrowser(__br__, __config__)
 
@@ -1536,7 +1558,7 @@ def main():
         #dfilename = sys.path[0].rsplit('\\',1)[0] + '\\' + dfilename #Yavos: only useful for myself ;P
     dfilename = dfilename.replace('\\\\', '\\')
     dfilename = dfilename.replace('\\', os.sep)
-    dfilename = dfilename.replace(os.sep + 'library.zip' + os.sep + '.','')
+    dfilename = dfilename.replace(os.sep + 'library.zip' + os.sep + '.', '')
 
     directory = os.path.dirname(dfilename)
     if not os.path.exists(directory):
@@ -1545,11 +1567,11 @@ def main():
 
 
     #Yavos: adding IrfanView-Handling
-    if __config__.startIrfanSlide == True or __config__.startIrfanView == True:
+    if __config__.startIrfanSlide or __config__.startIrfanView:
         iv = True
         IrfanSlide = __config__.startIrfanSlide
         IrfanView = __config__.startIrfanView
-    elif options.iv != None:
+    elif options.iv is not None:
         iv = options.iv
         IrfanView = True
         IrfanSlide = False
@@ -1557,7 +1579,7 @@ def main():
     try:
         __dbManager__.createDatabase()
 
-        if __config__.useList :
+        if __config__.useList:
             listTxt = PixivListItem.parseList(__config__.downloadListDirectory+ os.sep + 'list.txt')
             __dbManager__.importList(listTxt)
             print "Updated " + str(len(listTxt)) + " items."
@@ -1567,7 +1589,7 @@ def main():
             print msg
             __log__.info(msg)
 
-        if __config__.dayLastUpdated != 0  and __config__.processFromDb:
+        if __config__.dayLastUpdated != 0 and __config__.processFromDb:
             PixivHelper.printAndLog('info', 'Only process member where day last updated >= ' + str(__config__.dayLastUpdated))
 
         if __config__.dateDiff > 0:
@@ -1595,25 +1617,25 @@ def main():
         if password == '':
             password = getpass.getpass('Password ? ')
 
-        if npisvalid == True and np != 0: #Yavos: overwrite config-data
-            msg = 'Limit up to: ' +  str(np) + ' page(s). (set via commandline)'
+        if np_is_valid and np != 0:  # Yavos: overwrite config-data
+            msg = 'Limit up to: ' + str(np) + ' page(s). (set via commandline)'
             print msg
             __log__.info(msg)
         elif __config__.numberOfPage != 0:
-            msg = 'Limit up to: ' +  str(__config__.numberOfPage) + ' page(s).'
+            msg = 'Limit up to: ' + str(__config__.numberOfPage) + ' page(s).'
             print msg
             __log__.info(msg)
 
         ## Log in
         result = False
         if len(__config__.cookie) > 0:
-            result = pixivLoginCookie()
+            result = pixiv_login_cookie()
 
         if not result:
             if __config__.useSSL:
-                result = pixivLoginSSL(username,password)
+                result = pixiv_login_ssl(username,password)
             else:
-                result = pixivLogin(username,password)
+                result = pixiv_login(username,password)
 
         if result:
             if __config__.overwrite :
@@ -1623,73 +1645,72 @@ def main():
 
             while True:
                 try:
-                    if opisvalid: #Yavos (next 3 lines): if commandline then use it ;P
+                    if op_is_valid:  # Yavos (next 3 lines): if commandline then use it ;P
                         selection = op
                     else:
                         selection = menu()
 
                     if selection == '1':
-                        menuDownloadByMemberId(mode, opisvalid, args)
+                        menuDownloadByMemberId(mode, op_is_valid, args)
                     elif selection == '2':
-                        menuDownloadByImageId(mode, opisvalid, args)
+                        menuDownloadByImageId(mode, op_is_valid, args)
                     elif selection == '3':
-                        menuDownloadByTags(mode, opisvalid, args)
+                        menuDownloadByTags(mode, op_is_valid, args)
                     elif selection == '4':
-                        menuDownloadFromList(mode, opisvalid, args)
+                        menu_download_from_list(mode, op_is_valid, args)
 
                     elif selection == '5':
-                        menuDownloadFromOnlineUserBookmark(mode, opisvalid, args)
+                        menuDownloadFromOnlineUserBookmark(mode, op_is_valid, args)
                     elif selection == '6':
-                        menuDownloadFromOnlineImageBookmark(mode, opisvalid, args)
+                        menu_download_from_online_image_bookmark(mode, op_is_valid, args)
                     elif selection == '7':
-                        menuDownloadFromTagsList(mode, opisvalid, args)
+                        menu_download_from_tags_list(mode, op_is_valid, args)
                     elif selection == '8':
-                        menuDownloadNewIllustFromBookmark(mode, opisvalid, args)
+                        menu_download_new_illust_from_bookmark(mode, op_is_valid, args)
                     elif selection == '9':
-                        menuDownloadByTitleCaption(mode, opisvalid, args)
+                        menu_download_by_title_caption(mode, op_is_valid, args)
                     elif selection == '10':
-                        menuDownloadByTagAndMemberId(mode, opisvalid, args)
+                        menu_download_by_tag_and_member_id(mode, op_is_valid, args)
                     elif selection == '11':
-                        menuDownloadByMemberBookmark(mode, opisvalid, args)
+                        menuDownloadByMemberBookmark(mode, op_is_valid, args)
                     elif selection == '12':
-                        menuDownloadByGroupId(mode, opisvalid, args)
+                        menu_download_by_group_id(mode, op_is_valid, args)
                     elif selection == 'e':
-                        menuExportOnlineBookmark(mode, opisvalid, args)
+                        menu_export_online_bookmark(mode, op_is_valid, args)
                     elif selection == 'd':
                         __dbManager__.main()
                     elif selection == 'r':
-                        menuReloadConfigIni()
+                        menu_reload_config()
                     elif selection == 'p':
-                        menuPrintConfigIni()
+                        menu_print_config()
                     elif selection == '-all':
-                        if npisvalid == False:
-                            npisvalid = True
+                        if not np_is_valid:
+                            np_is_valid = True
                             np = 0
                             print 'download all mode activated'
                         else:
-                            npisvalid = False
+                            np_is_valid = False
                             print 'download mode reset to', __config__.numberOfPage, 'pages'
                     elif selection == 'x':
                         break
 
-                    if ewd == True: #Yavos: added lines for "exit when done"
+                    if ewd:  # Yavos: added lines for "exit when done"
                         break
-                    opisvalid = False #Yavos: needed to prevent endless loop
+                    op_is_valid = False  # Yavos: needed to prevent endless loop
                 except KeyboardInterrupt:
                     PixivHelper.printAndLog("info", "Keyboard Interrupt pressed, selection: " + selection)
                     PixivHelper.clearScreen()
                     print "Restarting..."
-            if iv == True: #Yavos: adding IrfanView-handling
+            if iv:  # Yavos: adding IrfanView-handling
                 PixivHelper.startIrfanView(__config__, dfilename, __config__.IrfanViewPath)
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        ##__log__.error('Unknown Error: '+ str(exc_value))
-        __log__.exception('Unknown Error: '+ str(exc_value))
+        __log__.exception('Unknown Error: ' + str(exc_value))
     finally:
         __dbManager__.close()
-        if ewd == False: ### Yavos: prevent input on exitwhendone
-            if selection == None or selection != 'x' :
+        if not ewd:  # Yavos: prevent input on exitwhendone
+            if selection is None or selection != 'x' :
                 raw_input('press enter to exit.')
         __log__.setLevel("INFO")
         __log__.info('EXIT')
