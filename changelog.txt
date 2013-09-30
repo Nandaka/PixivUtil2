@@ -337,7 +337,7 @@
 
 20110708
 - Add cookie option for log in as requested by Demonoid.
-- Add __br__.clear_history() in the processList
+- Add __br__.clear_history() in the process_list
 
 20110513:
 - Update ProcessByTags: Update with pixiv UI change, now based on regular expression to evaluate the links.

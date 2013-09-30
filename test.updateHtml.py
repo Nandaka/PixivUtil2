@@ -19,13 +19,13 @@ def prepare():
 
     result = False
     if len(__config__.cookie) > 0:
-        result = PixivUtil2.pixivLoginCookie()
+        result = PixivUtil2.pixiv_login_cookie()
 
     if not result:
         if __config__.useSSL:
-            result = PixivUtil2.pixivLoginSSL(username,password)
+            result = PixivUtil2.pixiv_login_ssl(username,password)
         else:
-            result = PixivUtil2.pixivLogin(username,password)
+            result = PixivUtil2.pixiv_login(username,password)
 
     return result
 
