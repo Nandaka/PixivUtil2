@@ -7,8 +7,8 @@ import py2exe
 setup(
     console = [
         {
-            "script": "PixivUtil2.py",                    ### Main Python script    
-            "icon_resources": [(0, "icon2.ico")]     ### Icon to embed into the PE file.
+            "script": "PixivUtil2.py",               # Main Python script
+            "icon_resources": [(0, "icon2.ico")]     # Icon to embed into the PE file.
         }
-    ],
+    ], requires=['BeautifulSoup'],
 ) 
