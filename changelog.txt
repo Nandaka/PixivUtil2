@@ -1,3 +1,8 @@
+20131005
+- Fix image parsing.
+- Update test case.
+- Add new option dumpMediumPage for debugging.
+
 20130927
 - Change some command line syntax:
   - Download by Tags (3): wilcard[y/n], start page, end page, tags  
