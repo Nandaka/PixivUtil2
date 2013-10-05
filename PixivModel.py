@@ -339,20 +339,32 @@ class PixivImage:
     temp = str(page.find(attrs={'class':'works_display'}).find('a')['href'])
     self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
     self.imageMode = re.search('mode=(big|manga)',temp).group(1)
-    titles = page.findAll('h1', attrs={'class':'title'})
-    for title in titles:
-      if title.string != None and title.string != "pixiv":
-        self.imageTitle = unicode(title.string)
-        break
 
     # remove premium-introduction-modal so we can get caption from work-info
     # somehow selecting section doesn't works
-    premium_introduction_modal = page.find('div', attrs={'id':'premium-introduction-modal'})
-    if premium_introduction_modal != None:
-        premium_introduction_modal.extract()
-    captions = page.findAll('p', attrs={'class':'caption'})
-    if captions != None and len(captions) > 0:
-        self.imageCaption = unicode("".join(unicode(item) for item in captions[0].contents))
+    premium_introduction_modal = page.findAll('div', attrs={'id':'premium-introduction-modal'})
+    for modal in premium_introduction_modal:
+        modal.extract()
+
+    meta_data = page.findAll('meta')
+    for meta in meta_data:
+        if meta.has_key("property"):
+            if "og:title" == meta["property"]:
+                self.imageTitle = meta["content"].split("|")[0].strip()
+            if "og:description" in meta["property"]:
+                self.imageCaption = meta["content"]
+
+##    work_details_unit = page.findAll('div', {'class':'_unit work-detail-unit'})
+##    if work_details_unit is not None and len(work_details_unit) > 0:
+##        titles = work_details_unit[0].findAll('h1', attrs={'class':'title'})
+##        for title in titles:
+##          if title.string != None and title.string != "pixiv":
+##            self.imageTitle = unicode(title.string)
+##            break
+##
+##        captions = work_details_unit[0].findAll('p', attrs={'class':'caption'})
+##        if captions != None and len(captions) > 0:
+##            self.imageCaption = unicode("".join(unicode(item) for item in captions[0].contents))
 
     self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
     self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)

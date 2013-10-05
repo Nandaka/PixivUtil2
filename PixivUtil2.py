@@ -604,10 +604,13 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         retry_count = 0
         while 1:
             try:
-                medium_page = __br__.open(
-                    'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id))
+                medium_page = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id))
                 parse_medium_page = BeautifulSoup(medium_page.read())
                 image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark)
+                # dump medium page
+                if __config__.dumpMediumPage :
+                    dump_filename = "medium page for image {0}.html".format(image_id)
+                    PixivHelper.dumpHtml(dump_filename, medium_page.get_data())
                 if title_prefix is not None:
                     set_console_title(title_prefix + " ImageId: {0}".format(image.imageId))
                 else:

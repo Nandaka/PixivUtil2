@@ -108,7 +108,6 @@ class TestPixivImage(unittest.TestCase):
 
       self.assertEqual(image2.imageId, 32039274)
       self.assertEqual(image2.imageTitle, u"新しいお姫様")
-      self.assertEqual(image2.imageCaption, u'EXIT TUNES様より冬コミ発売予定の「MAYU画集(仮)」に１枚描かせて頂きました。詳しくはこちらをご確認下さい！★ <a href="/jump.php?http%3A%2F%2Fexittunes.com%2Fevent%2Fc83%2Findex.html" target="_blank">http://exittunes.com/event/c83/index.html</a> ★「MAYU」公式サイト<a href="/jump.php?http%3A%2F%2Fmayusan.jp%2F" target="_blank">http://mayusan.jp/</a>')
 
       self.assertTrue(u'MAYU' in image2.imageTags)
       self.assertTrue(u'VOCALOID' in image2.imageTags)
@@ -127,6 +126,31 @@ class TestPixivImage(unittest.TestCase):
       #self.assertEqual(image2.jd_rtc, 6711)
       #self.assertEqual(image2.jd_rtt, 66470)
       self.assertEqual(image2.artist.artistToken, 'nardack')
+
+    def testPixivImageParseInfoPixivPremiumOffer(self):
+      p = open('./test/test-image-parse-image-38826533-pixiv-premium.html', 'r')
+      page = BeautifulSoup(p.read())
+      image2 = PixivImage(38826533, page)
+      page.decompose()
+      del page
+
+      self.assertEqual(image2.imageId, 38826533)
+      self.assertEqual(image2.imageTitle, u"てやり")
+      self.assertEqual(image2.imageCaption, u'一応シーダ様です。')
+
+      self.assertTrue(u'R-18' in image2.imageTags)
+      self.assertTrue(u'FE' in image2.imageTags)
+      self.assertTrue(u'ファイアーエムブレム' in image2.imageTags)
+      self.assertTrue(u'シーダ' in image2.imageTags)
+
+      self.assertEqual(image2.imageMode, "big")
+      self.assertEqual(image2.worksDate,'9-30-2013 01:43')
+      self.assertEqual(image2.worksResolution,'1000x2317')
+      self.assertEqual(image2.worksTools, 'CLIP STUDIO PAINT')
+      #self.assertEqual(image2.jd_rtv, 88190)
+      #self.assertEqual(image2.jd_rtc, 6711)
+      #self.assertEqual(image2.jd_rtt, 66470)
+      self.assertEqual(image2.artist.artistToken, 'hvcv')
 
     def testPixivImageNoAvatar(self):
       #print '\nTesting artist page without avatar image'
@@ -160,7 +184,7 @@ class TestPixivImage(unittest.TestCase):
       self.assertEqual(image.worksTools,u'SAI')
       ##print image.imageTags
       joinedResult = " ".join(image.imageTags)
-      self.assertEqual(joinedResult, u'VOCALOID VOCALOID100users\u5165\u308a \u3075\u3064\u304f\u3057\u3044 \u30ed\u30fc\u30a2\u30f3\u30b0\u30eb \u521d\u97f3\u30df\u30af \u6b4c\u3046 \u717d\u308a_\u4ef0\u8996')
+      self.assertEqual(joinedResult.find("VOCALOID") > -1, True)
 
     def testPixivImageParseNoTags(self):
       p = open('./test/test-image-no_tags.htm', 'r')
@@ -430,7 +454,7 @@ class TestPixivTags(unittest.TestCase):
 
         ##self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.itemList[-1].imageId, 33815932)
-        self.assertEqual(image.itemList[-1].bookmarkCount, 2)
+        self.assertEqual(image.itemList[-1].bookmarkCount, 4)
         self.assertEqual(image.itemList[-1].imageResponse, -1)
 
     def testTagsMemberSearch(self):

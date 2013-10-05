@@ -17,7 +17,7 @@ class PixivConfig:
     __logger = PixivHelper.GetLogger()
     ## default value
     proxyAddress = ''
-    proxy = {'http': proxyAddress}
+    proxy = {'http': proxyAddress, 'https': proxyAddress, }
     useProxy = False
 
     username = ''
@@ -71,6 +71,7 @@ class PixivConfig:
     logLevel = "DEBUG"
     enableDump = True
     skipDumpFilter = ""
+    dumpMediumPage = False
 
     def loadConfig(self):
         configFile = script_path + os.sep + 'config.ini'
@@ -123,7 +124,7 @@ class PixivConfig:
                 print "proxyAddress = ''"
                 self.proxyAddress = ''
                 haveError = True
-            self.proxy = {'http': self.proxyAddress}
+            self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
             try:
                 self.useProxy = config.getboolean('Settings','useproxy')
@@ -345,6 +346,13 @@ class PixivConfig:
                 self.skipDumpFilter = ''
                 haveError = True
 
+            try:
+                self.dumpMediumPage = config.getboolean('Settings','dumpMediumPage')
+            except ValueError:
+                print "dumpMediumPage = False"
+                self.dumpMediumPage = False
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -409,6 +417,7 @@ class PixivConfig:
         config.set('Settings', 'logLevel', self.logLevel)
         config.set('Settings', 'enableDump', self.enableDump)
         config.set('Settings', 'skipDumpFilter', self.skipDumpFilter)
+        config.set('Settings', 'dumpMediumPage', self.dumpMediumPage)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -483,6 +492,7 @@ class PixivConfig:
         print ' - logLevel         =', self.logLevel
         print ' - enableDump       =', self.enableDump
         print ' - skipDumpFilter   =', self.skipDumpFilter
+        print ' - dumpMediumPage   =', self.dumpMediumPage
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
