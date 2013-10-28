@@ -64,7 +64,9 @@ A.Usage:
   Q4. PixivUtil working from local terminal on Linux box but not working when I 
       used SSH with PuTTY!
       - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are 
-        not set, python does not know what to write.
+        not set, python does not know what to write (Thanks to nho!)
+      - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate 
+        it properly (Thanks to Mailia!)
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
