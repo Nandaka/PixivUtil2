@@ -5,10 +5,10 @@
   - Windows XP and up.
 
 - Running from source code:
-  - Python 2.7.2++
-  - mechanize 0.2.5
-  - BeautifulSoup 3.2.0
-  - socksipy-branch 1.02+
+  - Python 2.7.2++ (http://www.python.org/)
+  - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
+  - BeautifulSoup 3.2.0 (http://www.crummy.com/software/BeautifulSoup/)
+  - socksipy-branch 1.02+ (https://socksipy-branch.googlecode.com/)
 
 ================================================================================
 = Capabilities:                                                                =
@@ -85,6 +85,10 @@ B.Bugs/Source Code/Supports:
       - Please modify _html.py from mechanize library, search for 
         'def unescape_charref(data, encoding):' and replace with patch in 
         http://pastebin.com/5bT5HFkb.
+  Q5. I got '<library_name> module no found error'
+      - Download the library from the source (see links from the Requirements 
+        section) and copy the file into your Lib\site-packages directory.
+      - Or use pip install (google on how to use).
 
 C.Log Messages:
 - HTTPError: HTTP Error 404: Not Found
