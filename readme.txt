@@ -91,28 +91,47 @@ B.Bugs/Source Code/Supports:
       - Or use pip install (google on how to use).
 
 C.Log Messages:
-- HTTPError: HTTP Error 404: Not Found
-  This is because the file doesn't exists in the pixiv server, usually because there
-  is no big images version for the manga mode (currently the apps will try to 
-  download the big version first then try the normal size if failed, this is only 
-  for the manga mode and it is normal).
-- Error at process_image(): (<type 'exceptions.WindowsError'>, WindowsError(32,
-  'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin kaytossa')
-  The file is being used by another process (google translate). Either you ran 
-  multiple instace of pixiv downloader from the same folder, or there are other 
-  processes locking the file/db.sqllite (usually from antivirus or some sync/backup 
-  application).
-- Error at process_image(): (<type 'exceptions.AttributeError'>, AttributeError
-  ("'NoneType' object has no attribute 'find'",)
-  Usually this because pixiv have changed the layout code, so the pixiv downloader 
-  cannot parse the page correctly. Please tell me by put a comment if this happen.
-- URLError: <urlopen error [Errno 11004] getaddrinfo failed>
-  This is because the pixiv downloader cannot resolve the address to download the 
-  images, please try to restart the network connection or do ipconfig /flushdns to 
-  refresh the dns cache (windows).
-- Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
-  This is because the pixiv downloaded didn't receive any reply for specified time 
-  in config.ini from pixiv. Please retry the download again later.
+Q1: HTTPError: HTTP Error 404: Not Found
+    - This is because the file doesn't exists in the pixiv server, usually 
+       because there is no big images version for the manga mode (currently the
+       apps will try to download the big version first then try the normal size
+       if failed, this is only for the manga mode and it is normal).
+
+Q2: Error at process_image(): (<type 'exceptions.WindowsError'>, WindowsError
+    (32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin 
+    kaytossa')
+    - The file is being used by another process (google translate). Either you 
+      ran multiple instace of pixiv downloader from the same folder, or there 
+      are other processes locking the file/db.sqllite (usually from antivirus 
+      or some sync/backup application).
+
+Q3: Error at process_image(): (<type 'exceptions.AttributeError'>, 
+    AttributeError ("'NoneType' object has no attribute 'find'",)
+    - Usually this is because of login failed (cookie not valid). Try to change
+      your password to simple one for testing, or copy the cookie from browser:
+      1. Open Firefox.
+      2. Login to your pixiv, remember to enable [Remember Me] check box.
+      3. Right click the page and select View Page Info.
+      4. Click the Security tab.
+      5. Click the View Cookies button.
+      6. Look for Cookie named = PHPSESSID.
+      7. Copy the content value.
+      8. Open config.ini, go to [Authentication] section, paste the value to 
+         cookie, set 'keepsignedin = 1'.
+    - Or because pixiv have changed the layout code, so the pixiv 
+      downloader cannot parse the page correctly. Please tell me by put a 
+      comment if this happen and include the details, such as the member/image id,
+      dump html, and log file (check on the application folder).
+
+Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
+    - This is because the pixiv downloader cannot resolve the address to 
+      download the images, please try to restart the network connection or do 
+      ipconfig /flushdns to refresh the dns cache (windows).
+
+Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
+    - This is because the pixiv downloaded didn't receive any reply for 
+      specified time in config.ini from pixiv. Please retry the download again 
+      later.
 
 =================================================================================
 = Command Line Option                                                           =
