@@ -873,6 +873,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             if __config__.r18mode:
                 url = url + '&r18=1'
 
+            # encode to ascii
+            url = unicode(url).encode('iso_8859_1')
+
             PixivHelper.printAndLog('info', 'Looping... for ' + url)
             search_page = __br__.open(url)
 
