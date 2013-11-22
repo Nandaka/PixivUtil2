@@ -12,14 +12,21 @@ import codecs
 from datetime import datetime
 
 from PixivModel import PixivListItem
+import PixivConfig
 import PixivHelper
 script_path = PixivHelper.module_path()
 
 class PixivDBManager:
     """Pixiv Database Manager"""
-    
-    def __init__(self, target = script_path + os.sep + "db.sqlite"):
+    __config__ = None
+
+    def __init__(self, target = script_path + os.sep + "db.sqlite", config=None):
         self.conn = sqlite3.connect(target)
+        if config is not None:
+            self.__config__ = config
+        else:
+            self.__config__ = PixivConfig.PixivConfig()
+            self.__config__.loadConfig()
 
     def close(self):
         self.conn.close()
@@ -29,7 +36,7 @@ class PixivDBManager:
 ##########################################
     def createDatabase(self):
         print 'Creating database...',
-        
+
         try:
             c = self.conn.cursor()
 
@@ -41,7 +48,7 @@ class PixivDBManager:
                             last_update_date DATE,
                             last_image INTEGER
                             )''')
-            
+
             self.conn.commit()
 
             # add column isDeleted
@@ -61,7 +68,7 @@ class PixivDBManager:
                             last_update_date DATE
                             )''')
             self.conn.commit()
-            
+
             print 'done.'
         except:
             print 'Error at createDatabase():',str(sys.exc_info())
@@ -100,18 +107,18 @@ class PixivDBManager:
         print 'done.'
 ##########################################
 ## II. Export/Import DB                 ##
-##########################################                    
+##########################################
     def importList(self,listTxt):
         print 'Importing list...',
         print 'Found', len(listTxt),'items',
         try:
             c = self.conn.cursor()
-            
+
             for item in listTxt:
                 c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                                   (item.memberId, str(item.memberId), 'N\A'))
-                c.execute('''UPDATE pixiv_master_member 
-                             SET save_folder = ? 
+                c.execute('''UPDATE pixiv_master_member
+                             SET save_folder = ?
                              WHERE member_id = ? ''',
                           (item.path, item.memberId))
             self.conn.commit()
@@ -192,7 +199,7 @@ class PixivDBManager:
 
 ##########################################
 ## III. Print DB                        ##
-##########################################          
+##########################################
     def printMemberList(self, isDeleted=False):
         print 'Printing member list:'
         try:
@@ -223,7 +230,7 @@ class PixivDBManager:
         finally:
             c.close()
         print 'done.'
-        
+
     def printImageList(self):
         print 'Printing image list:'
         try:
@@ -254,7 +261,7 @@ class PixivDBManager:
                     for string in row:
                         print '   ',
                         PixivHelper.safePrint(unicode(string), False) #would it make more sense to set output to file?
-                    print ''    
+                    print ''
             #Yavos: end of change
         except:
             print 'Error at printImageList():',str(sys.exc_info())
@@ -279,7 +286,7 @@ class PixivDBManager:
                     pass
                 if member_id > 0:
                     break
-            
+
             c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                                   (member_id, str(member_id), 'N\A'))
         except:
@@ -288,7 +295,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-            
+
     def selectAllMember(self, isDeleted=False):
         l = list()
         try:
@@ -299,16 +306,16 @@ class PixivDBManager:
             for row in result:
                 item = PixivListItem(row[0], row[1])
                 l.append(item)
-                
+
         except:
             print 'Error at selectAllMember():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
-            
+
         return l
-    
+
     def selectMembersByLastDownloadDate(self, difference):
         l = list()
         try:
@@ -317,24 +324,24 @@ class PixivDBManager:
                 int_diff = int(difference)
             except ValueError:
                 int_diff = 7
-                
+
             c.execute('''SELECT member_id, save_folder,  (julianday(Date('now')) - julianday(last_update_date)) as diff
                          FROM pixiv_master_member
                          WHERE is_deleted <> 1 AND ( last_image == -1 OR diff > '''+ str(int_diff) +''' ) ORDER BY member_id''')
             result = c.fetchall()
             for row in result:
                 item = PixivListItem(row[0], row[1])
-                l.append(item)           
-            
+                l.append(item)
+
         except:
             print 'Error at selectMembersByLastDownloadDate():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
-            
+
         return l
-    
+
     def selectMemberByMemberId(self, member_id):
         try:
             c = self.conn.cursor()
@@ -362,7 +369,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-            
+
     def printMembersByLastDownloadDate(self, difference):
         rows = self.selectMembersByLastDownloadDate(difference)
 
@@ -371,7 +378,7 @@ class PixivDBManager:
                 print '   ',
                 PixivHelper.safePrint(unicode(string), False)
             print '\n'
-    
+
     def updateMemberName(self, memberId, memberName):
         try:
             c = self.conn.cursor()
@@ -386,7 +393,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-            
+
     def updateSaveFolder(self, memberId, saveFolder):
         try:
             c = self.conn.cursor()
@@ -430,7 +437,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-            
+
     def deleteCascadeMemberByMemberId(self, memberId):
         try:
             c = self.conn.cursor()
@@ -493,7 +500,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-        
+
     def selectImageByMemberId(self, memberId):
         try:
             c = self.conn.cursor()
@@ -505,7 +512,7 @@ class PixivDBManager:
             raise
         finally:
             c.close()
-        
+
     def selectImageByMemberIdAndImageId(self, memberId, imageId):
         try:
             c = self.conn.cursor()
@@ -571,10 +578,36 @@ class PixivDBManager:
                 #print row[0],"==>",row[1]
                 if not os.path.exists(row[1]):
                     PixivHelper.safePrint("Missing: " + str(row[0]) + " at " + row[1] + "\n")
-                    self.deleteImage(row[0])                
+                    self.deleteImage(row[0])
             self.conn.commit()
         except:
             print 'Error at cleanUp():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
+
+    def replaceRootPath(self):
+        oldPath = raw_input("Old Path to Replace = ")
+        PixivHelper.safePrint("Replacing " + oldPath + " to " + self.__config__.rootDirectory)
+        cont = raw_input("continue[y/n]?") or 'n'
+        if cont != "y":
+            print "Aborted"
+            return
+
+        try:
+            print "Start replace Root Path operation."
+            print "Updating images, this may take some times."
+
+            c = self.conn.cursor()
+            c.execute('''UPDATE pixiv_master_image
+                         SET save_name = replace(save_name, ?, ?)
+                         WHERE save_name like ?''', (oldPath, self.__config__.rootDirectory, oldPath +  "%", ))
+            print "Updated image:", c.rowcount
+            print "Done"
+
+        except:
+            print 'Error at replaceRootPath():',str(sys.exc_info())
             print 'failed'
             raise
         finally:
@@ -592,8 +625,8 @@ class PixivDBManager:
                 pass
             if inputInt != None:
                 return inputInt
-            
-            
+
+
     def menu(self):
         print 'Pixiv DB Manager Console'
         print '1. Show all member'
@@ -612,6 +645,7 @@ class PixivDBManager:
         print '==============================================='
         print 'c. Clean Up Database'
         print 'p. Compact Database'
+        print 'r. Replace Root Path'
         print 'x. Exit'
         selection = raw_input('Select one?')
         return selection
@@ -690,13 +724,15 @@ class PixivDBManager:
                 elif selection == '12':
                     member_id = raw_input('member_id? ')
                     image_id = raw_input('image_id? ')
-                    self.blacklistImage(member_id, image_id)                
+                    self.blacklistImage(member_id, image_id)
                 elif selection == '13':
                     self.printMemberList(isDeleted = True)
                 elif selection == 'c':
                     self.cleanUp()
                 elif selection == 'p':
-                    self.compactDatabase()                    
+                    self.compactDatabase()
+                elif selection == 'r':
+                    self.replaceRootPath()
                 elif selection == 'x':
                     break
             print 'end PixivDBManager.'
@@ -704,7 +740,7 @@ class PixivDBManager:
             print 'Error: ', sys.exc_info()
             ##raw_input('Press enter to exit.')
             self.main()
-    
+
 if __name__ == '__main__':
     apps = PixivDBManager()
     apps.main()

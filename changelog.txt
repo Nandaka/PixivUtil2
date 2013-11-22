@@ -1,3 +1,7 @@
+20131122
+- Fix Unicode error for Download by Tag.
+- Add feature to replace the root path of image in database.
+
 20131005
 - Fix image parsing.
 - Update test case.

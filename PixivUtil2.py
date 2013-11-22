@@ -37,8 +37,8 @@ op = ''
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
-__dbManager__ = PixivDBManager.PixivDBManager()
 __config__ = PixivConfig.PixivConfig()
+__dbManager__ = PixivDBManager.PixivDBManager(config = __config__)
 __br__ = None
 __blacklistTags = list()
 __suppressTags = list()
