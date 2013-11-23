@@ -133,6 +133,9 @@ Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
       specified time in config.ini from pixiv. Please retry the download again 
       later.
 
+Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
+    - Set userobots = False in config.ini
+
 =================================================================================
 = Command Line Option                                                           =
 =================================================================================
