@@ -512,16 +512,19 @@ class PixivListItem:
       raise PixivException("File doesn't exists or no permission to read: " + filename, errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION)
 
     reader = PixivHelper.OpenTextFile(filename)
-    lineNo = 0
-    for line in reader:
-        lineNo = lineNo + 1
-        originalLine = line
-        if line.startswith('#') or len(line) < 1:
-          continue
-        line = PixivHelper.toUnicode(line)
-        line = line.strip()
-        items = line.split(" ", 1)
-        try:
+    lineNo = 1
+    try:
+      for line in reader:
+          originalLine = line
+          ##PixivHelper.safePrint("Processing: " + line)
+          if line.startswith('#') or len(line) < 1:
+            continue
+          if len(line.strip()) == 0:
+            continue
+          line = PixivHelper.toUnicode(line)
+          line = line.strip()
+          items = line.split(" ", 1)
+
           member_id = int(items[0])
           path = ""
           if len(items) > 1:
@@ -547,9 +550,14 @@ class PixivListItem:
 
           listItem = PixivListItem(member_id, path)
           l.append(listItem)
-        except:
-          PixivHelper.GetLogger().exception("PixivListItem.parseList(): Invalid value when parsing list")
-          PixivHelper.printAndLog('error', 'Invalid value: {0} at line {1}'.format(originalLine, lineNo))
+          lineNo = lineNo + 1
+          originalLine = ""
+    except UnicodeDecodeError:
+      PixivHelper.GetLogger().exception("PixivListItem.parseList(): Invalid value when parsing list")
+      PixivHelper.printAndLog('error', 'Invalid value: {0} at line {1}, try to save the list.txt in UTF-8.'.format(originalLine, lineNo))
+    except:
+      PixivHelper.GetLogger().exception("PixivListItem.parseList(): Invalid value when parsing list")
+      PixivHelper.printAndLog('error', 'Invalid value: {0} at line {1}'.format(originalLine, lineNo))
 
     reader.close()
     return l
