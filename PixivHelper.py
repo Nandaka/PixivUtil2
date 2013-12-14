@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+﻿# -*- coding: UTF-8 -*-
 import re
 import os
 import codecs
@@ -349,3 +349,12 @@ def printAndLog(level, msg):
         GetLogger().info(msg)
     elif level == 'error':
         GetLogger().error(msg)
+
+def HaveStrings(page, strings):
+    for string in strings:
+       pattern = re.compile(string)
+       test_2 = pattern.findall(str(page))
+       if len(test_2) > 0 :
+           if len(test_2[-1]) > 0 :
+               return True
+    return False

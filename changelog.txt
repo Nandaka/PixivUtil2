@@ -1,3 +1,8 @@
+20131214
+- Add 404 handler when processing member.
+- Reset selection when Ctrl-C pressed.
+- Reindent and encode source code to UTF-8.
+
 20131122
 - Fix Unicode error for Download by Tag.
 - Add feature to replace the root path of image in database.
