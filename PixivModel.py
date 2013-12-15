@@ -325,7 +325,8 @@ class PixivImage:
         #07/22/2011 03:09|512×600|RETAS STUDIO
         #07/26/2011 00:30|Manga 39P|ComicStudio 鉛筆 つけペン
         #1/05/2011 07:09|723×1023|Photoshop SAI  [ R-18 ]
-        #2013?3?16? 06:44 | 800×1130 | Photoshop ComicStudio | R-18
+        #2013年3月16日 06:44 | 800×1130 | Photoshop ComicStudio | R-18
+        #2013年12月14日 19:00 855×1133 PhotoshopSAI
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding).replace(u'/', u'-')
         if self.worksDate.find('-') > -1:
             try:
@@ -334,7 +335,7 @@ class PixivImage:
                 PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId))
                 self.worksDateDateTime = datetime.datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
-            tempDate = self.worksDate.replace(u'?', '-').replace(u'?','-').replace(u'?', '')
+            tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
             self.worksDateDateTime = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
 
         self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
