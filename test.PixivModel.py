@@ -1,4 +1,4 @@
-#!/c/Python27/python.exe
+﻿#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 from PixivModel import PixivArtist, PixivImage, PixivBookmark,PixivNewIllustBookmark, PixivTags, PixivGroup
 from PixivException import PixivException
@@ -126,6 +126,30 @@ class TestPixivImage(unittest.TestCase):
       #self.assertEqual(image2.jd_rtc, 6711)
       #self.assertEqual(image2.jd_rtt, 66470)
       self.assertEqual(image2.artist.artistToken, 'nardack')
+
+    def testPixivImageParseInfoJa(self):
+      p = open('./test/test-image-parse-image-40273739-ja.html', 'r')
+      page = BeautifulSoup(p.read())
+      image2 = PixivImage(40273739, page)
+      page.decompose()
+      del page
+
+      self.assertEqual(image2.imageId, 40273739)
+      self.assertEqual(image2.imageTitle, u"Cos-Nurse")
+
+      self.assertTrue(u'東方' in image2.imageTags)
+      self.assertTrue(u'幽々子' in image2.imageTags)
+      self.assertTrue(u'むちむち' in image2.imageTags)
+      self.assertTrue(u'おっぱい' in image2.imageTags)
+      self.assertTrue(u'尻' in image2.imageTags)
+      self.assertTrue(u'東方グラマラス' in image2.imageTags)
+      self.assertTrue(u'誰だお前' in image2.imageTags)
+
+      self.assertEqual(image2.imageMode, "big")
+      self.assertEqual(image2.worksDate,u"2013年12月14日 19:00")
+      self.assertEqual(image2.worksResolution,'855x1133')
+      self.assertEqual(image2.worksTools, 'Photoshop SAI')
+      self.assertEqual(image2.artist.artistToken, 'k2321656')
 
     def testPixivImageParseInfoPixivPremiumOffer(self):
       p = open('./test/test-image-parse-image-38826533-pixiv-premium.html', 'r')

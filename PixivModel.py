@@ -72,9 +72,10 @@ class PixivArtist:
 
 
     def ParseToken(self, page, fromImage=False):
-        if self.artistAvatar == 'http://source.pixiv.net/source/images/no_profile.png':
+        if self.artistAvatar.endswith("no_profile.png"):
             if fromImage:
-                token = str(page.find(attrs={'class':'works_display'}).find('img')['src'])
+                temp = page.findAll(attrs={'class':'works_display'})
+                token = str(temp[0].find('img')['src'])
                 return token.split('/')[-2]
             else :
                 artistToken = None
