@@ -411,7 +411,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     try:
                         list_page = __br__.open(member_url)
                     except urllib2.HTTPError as hex:
-                        if hex.code in [404]:
+                        if hex.code in [403, 404]:
                             list_page = hex
                         else:
                             raise

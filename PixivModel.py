@@ -138,6 +138,7 @@ class PixivArtist:
     def IsUserNotExist(self, page):
         errorMessages = ['該当ユーザーは既に退会したか、存在しないユーザーIDです',
                          'The user has either left pixiv, or the user ID does not exist.',
+                         '該当作品は削除されたか、存在しない作品IDです。',
                          'The following work is either deleted, or the ID does not exist.']
         return PixivHelper.HaveStrings(page, errorMessages)
 

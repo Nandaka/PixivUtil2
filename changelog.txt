@@ -1,3 +1,7 @@
+20131218
+- Add 403 handler when processing member.
+- Fix Japanese worksdate parser.
+
 20131214
 - Add 404 handler when processing member.
 - Reset selection when Ctrl-C pressed.
