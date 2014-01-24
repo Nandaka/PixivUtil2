@@ -640,7 +640,7 @@ class PixivTags:
         for item in items:
             if str(item).find('member_illust.php?') > -1:
                 image_id = __re_illust.findall(item.find('a')['href'])[0]
-                if image_id in ignore:
+                if image_id in ignore or len(image_id) == 0:
                     continue
                 bookmarkCount = -1
                 imageResponse = -1
@@ -654,6 +654,7 @@ class PixivTags:
                                 bookmarkCount = temp.contents[1]
                             elif temp['class'] == 'image-response-count ui-tooltip' :
                                 imageResponse = temp.contents[1]
+
                 self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
         self.checkLastPage(page)
         return self.itemList

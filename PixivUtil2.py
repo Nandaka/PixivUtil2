@@ -891,7 +891,11 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             if not member_id is None:
                 l = t.parseMemberTags(parse_search_page)
             else:
-                l = t.parseTags(parse_search_page)
+                try:
+                    l = t.parseTags(parse_search_page)
+                except:
+                    PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", search_page.get_data())
+                    raise
 
             if len(l) == 0:
                 print 'No more images'
