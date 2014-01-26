@@ -1,3 +1,6 @@
+20140126
+- Fix download by Tags.
+
 20131218
 - Add 403 handler when processing member.
 - Fix Japanese worksdate parser.
