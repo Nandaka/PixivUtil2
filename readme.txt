@@ -61,6 +61,17 @@ A.Usage:
       - Try to use the config.ini on the [Authentication] section.
       - Check your date and time setting (e.g.: http://www.timeanddate.com/)
       - Disable Daylight Saving Time and try again.
+      - Copy your session values from browser:
+        1. Open Firefox.
+        2. Go to Pixiv website and login, remember to enable [Remember Me] 
+           check box.
+        3. Right click the page and select View Page Info.
+        4. Click the Security tab.
+        5. Click the View Cookies button.
+        6. Look for Cookie named = PHPSESSID.
+        7. Copy the content value.
+        8. Open config.ini, go to [Authentication] section, paste the value 
+           to cookie, set keepsignedin = 1.
   Q4. PixivUtil working from local terminal on Linux box but not working when I 
       used SSH with PuTTY!
       - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are 
