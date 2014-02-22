@@ -40,19 +40,19 @@ class TestPixivHelper(unittest.TestCase):
     page.decompose()
     del page
     ##print imageInfo.PrintInfo()
-    nameFormat = '%member_token% (%member_id%)\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title% - %tags%'
+    nameFormat = '%member_token% (%member_id%)\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
-    expected = unicode(u'ffei (554800)\\28865189_p0 001 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル - C82 R-18 おっぱい ぶっかけ 学園黙示録 漫画 眼鏡 高城沙耶.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p0 001 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
     ##print result
     self.assertEqual(result, expected)
 
-    expected = unicode(u'ffei (554800)\\28865189_p14 015 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル - C82 R-18 おっぱい ぶっかけ 学園黙示録 漫画 眼鏡 高城沙耶.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p14 015 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
     ##print result
     self.assertEqual(result, expected)
 
-    expected = unicode(u'ffei (554800)\\28865189_p921 922 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル - C82 R-18 おっぱい ぶっかけ 学園黙示録 漫画 眼鏡 高城沙耶.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p921 922 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
     ##print result
     self.assertEqual(result, expected)
@@ -64,8 +64,8 @@ class TestPixivHelper(unittest.TestCase):
     page.decompose()
     del page
 
-    nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title% - %tags%'
-    expected = unicode(u'balzehn (267014)\\2493913 12-23-2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２ - R-18 これは萌える アラクネ ツンデレ ピロートークの上手さに定評のある兄弟 モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘 魔界全土喝采.jpg')
+    nameFormat = '%member_token% (%member_id%)\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
+    expected = unicode(u'balzehn (267014)\\2493913 12-23-2008 852x1200 Photoshop SAI つけペン アラクネのいる日常２.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
     ##print result
     self.assertEqual(result, expected)
