@@ -374,6 +374,7 @@ def process_list(mode, list_file_name=None):
 
 
 def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=False):
+    global __errorList
     # Yavos added dir-argument which will be initialized as '' when not given
     PixivHelper.printAndLog('info', 'Processing Member Id: ' + str(member_id))
     if page != 1:
@@ -590,6 +591,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 
 
 def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None):
+    global __errorList
     #Yavos added dir-argument which will be initialized as '' when not given
     parse_big_image = None
     medium_page = None
@@ -1602,7 +1604,8 @@ def setup_option_parser():
 
 
 ### Main thread ###
-def main_loop(ewd, mode, op_is_valid, selection):
+def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
+    global __errorList
     while True:
         try:
             if len(__errorList) > 0:
@@ -1616,7 +1619,7 @@ def main_loop(ewd, mode, op_is_valid, selection):
                 selection = op
             else:
                 selection = menu()
-    
+
             if selection == '1':
                 menu_download_by_member_id(mode, op_is_valid, args)
             elif selection == '2':
@@ -1659,7 +1662,7 @@ def main_loop(ewd, mode, op_is_valid, selection):
                     print 'download mode reset to', __config__.numberOfPage, 'pages'
             elif selection == 'x':
                 break
-    
+
             if ewd:  # Yavos: added lines for "exit when done"
                 break
             op_is_valid = False  # Yavos: needed to prevent endless loop
@@ -1821,7 +1824,7 @@ def main():
             else:
                 mode = PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY
 
-            np_is_valid, op_is_valid, selection = main_loop(ewd, mode, op_is_valid, selection)
+            np_is_valid, op_is_valid, selection = main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args)
 
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)

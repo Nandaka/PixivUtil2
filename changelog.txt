@@ -1,3 +1,6 @@
+20140324
+- Update unknown error handler.
+
 20140222
 - Update model.
 - Update test cases.
