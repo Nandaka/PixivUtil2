@@ -1,4 +1,4 @@
-﻿# -*- coding: UTF-8 -*-
+﻿# -*- coding: utf-8 -*-
 import re
 import os
 import codecs
@@ -237,11 +237,8 @@ def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfa
         print 'could not load', dfilename
 
 
-''' taken from: '''
-''' http://www.velocityreviews.com/forums/t328920-remove-bom-from-string-read-from-utf-8-file.html'''
-
-
 def OpenTextFile(filename, mode='r', encoding='utf-8'):
+    ''' taken from: http://www.velocityreviews.com/forums/t328920-remove-bom-from-string-read-from-utf-8-file.html'''
     hasBOM = False
     if os.path.isfile(filename):
         f = open(filename, 'rb')
@@ -289,11 +286,12 @@ def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, t
     filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
     return filename
 
-## Get actual script directory
-## http://www.py2exe.org/index.cgi/WhereAmI
+
 def we_are_frozen():
     """Returns whether we are frozen via py2exe.
-  This will affect how we find out where we are located."""
+        This will affect how we find out where we are located.
+        Get actual script directory
+        http://www.py2exe.org/index.cgi/WhereAmI"""
 
     return hasattr(sys, "frozen")
 
@@ -349,6 +347,7 @@ def printAndLog(level, msg):
         GetLogger().info(msg)
     elif level == 'error':
         GetLogger().error(msg)
+
 
 def HaveStrings(page, strings):
     for string in strings:

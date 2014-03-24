@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 import os
 import re
@@ -43,6 +43,7 @@ __br__ = None
 __blacklistTags = list()
 __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
+__errorList = list()
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
@@ -440,7 +441,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                             #PixivHelper.printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
                         if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
                             PixivHelper.safePrint(ex.message)
-                            raw_input('New Error Message, please inform the developer. Press enter to continue.')
+                            __errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
                     return
                 except AttributeError:
                     # Possible layout changes, try to dump the file below
@@ -627,7 +628,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             except PixivException as ex:
                 if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
                     PixivHelper.safePrint(ex.message)
-                    raw_input('New Error Message, please inform the developer. Press enter to continue.')
+                    __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
                 elif ex.errorCode == PixivException.SERVER_ERROR:
                     print ex
                     repeat = range(1, __config__.retryWait)
@@ -1601,6 +1602,75 @@ def setup_option_parser():
 
 
 ### Main thread ###
+def main_loop(ewd, mode, op_is_valid, selection):
+    while True:
+        try:
+            if len(__errorList) > 0:
+                print "Unknown errors from previous operation"
+                for err in __errorList:
+                    message = __errorList["type"], ":", __errorList["id"], "==>", __errorList["message"]
+                    PixivHelper.printAndLog('error', message)
+                __errorList = list()
+
+            if op_is_valid:  # Yavos (next 3 lines): if commandline then use it
+                selection = op
+            else:
+                selection = menu()
+    
+            if selection == '1':
+                menu_download_by_member_id(mode, op_is_valid, args)
+            elif selection == '2':
+                menu_download_by_image_id(mode, op_is_valid, args)
+            elif selection == '3':
+                menu_download_by_tags(mode, op_is_valid, args)
+            elif selection == '4':
+                menu_download_from_list(mode, op_is_valid, args)
+            elif selection == '5':
+                menu_download_from_online_user_bookmark(mode, op_is_valid, args)
+            elif selection == '6':
+                menu_download_from_online_image_bookmark(mode, op_is_valid, args)
+            elif selection == '7':
+                menu_download_from_tags_list(mode, op_is_valid, args)
+            elif selection == '8':
+                menu_download_new_illust_from_bookmark(mode, op_is_valid, args)
+            elif selection == '9':
+                menu_download_by_title_caption(mode, op_is_valid, args)
+            elif selection == '10':
+                menu_download_by_tag_and_member_id(mode, op_is_valid, args)
+            elif selection == '11':
+                menu_download_by_member_bookmark(mode, op_is_valid, args)
+            elif selection == '12':
+                menu_download_by_group_id(mode, op_is_valid, args)
+            elif selection == 'e':
+                menu_export_online_bookmark(mode, op_is_valid, args)
+            elif selection == 'd':
+                __dbManager__.main()
+            elif selection == 'r':
+                menu_reload_config()
+            elif selection == 'p':
+                menu_print_config()
+            elif selection == '-all':
+                if not np_is_valid:
+                    np_is_valid = True
+                    np = 0
+                    print 'download all mode activated'
+                else:
+                    np_is_valid = False
+                    print 'download mode reset to', __config__.numberOfPage, 'pages'
+            elif selection == 'x':
+                break
+    
+            if ewd:  # Yavos: added lines for "exit when done"
+                break
+            op_is_valid = False  # Yavos: needed to prevent endless loop
+        except KeyboardInterrupt:
+            PixivHelper.printAndLog("info", "Keyboard Interrupt pressed, selection: " + selection)
+            PixivHelper.clearScreen()
+            print "Restarting..."
+            selection = menu()
+    return np_is_valid, op_is_valid, selection
+
+
 def main():
     set_console_title()
     header()
@@ -1751,64 +1821,8 @@ def main():
             else:
                 mode = PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY
 
-            while True:
-                try:
-                    if op_is_valid:  # Yavos (next 3 lines): if commandline then use it
-                        selection = op
-                    else:
-                        selection = menu()
+            np_is_valid, op_is_valid, selection = main_loop(ewd, mode, op_is_valid, selection)
 
-                    if selection == '1':
-                        menu_download_by_member_id(mode, op_is_valid, args)
-                    elif selection == '2':
-                        menu_download_by_image_id(mode, op_is_valid, args)
-                    elif selection == '3':
-                        menu_download_by_tags(mode, op_is_valid, args)
-                    elif selection == '4':
-                        menu_download_from_list(mode, op_is_valid, args)
-                    elif selection == '5':
-                        menu_download_from_online_user_bookmark(mode, op_is_valid, args)
-                    elif selection == '6':
-                        menu_download_from_online_image_bookmark(mode, op_is_valid, args)
-                    elif selection == '7':
-                        menu_download_from_tags_list(mode, op_is_valid, args)
-                    elif selection == '8':
-                        menu_download_new_illust_from_bookmark(mode, op_is_valid, args)
-                    elif selection == '9':
-                        menu_download_by_title_caption(mode, op_is_valid, args)
-                    elif selection == '10':
-                        menu_download_by_tag_and_member_id(mode, op_is_valid, args)
-                    elif selection == '11':
-                        menu_download_by_member_bookmark(mode, op_is_valid, args)
-                    elif selection == '12':
-                        menu_download_by_group_id(mode, op_is_valid, args)
-                    elif selection == 'e':
-                        menu_export_online_bookmark(mode, op_is_valid, args)
-                    elif selection == 'd':
-                        __dbManager__.main()
-                    elif selection == 'r':
-                        menu_reload_config()
-                    elif selection == 'p':
-                        menu_print_config()
-                    elif selection == '-all':
-                        if not np_is_valid:
-                            np_is_valid = True
-                            np = 0
-                            print 'download all mode activated'
-                        else:
-                            np_is_valid = False
-                            print 'download mode reset to', __config__.numberOfPage, 'pages'
-                    elif selection == 'x':
-                        break
-
-                    if ewd:  # Yavos: added lines for "exit when done"
-                        break
-                    op_is_valid = False  # Yavos: needed to prevent endless loop
-                except KeyboardInterrupt:
-                    PixivHelper.printAndLog("info", "Keyboard Interrupt pressed, selection: " + selection)
-                    PixivHelper.clearScreen()
-                    print "Restarting..."
-                    selection = menu()
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
     except Exception:
