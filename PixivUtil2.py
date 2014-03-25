@@ -1611,7 +1611,7 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
             if len(__errorList) > 0:
                 print "Unknown errors from previous operation"
                 for err in __errorList:
-                    message = __errorList["type"], ":", __errorList["id"], "==>", __errorList["message"]
+                    message = err["type"], ":", err["id"], "==>", err["message"]
                     PixivHelper.printAndLog('error', message)
                 __errorList = list()
 
