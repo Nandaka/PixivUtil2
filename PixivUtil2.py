@@ -510,8 +510,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                                                                              no_of_images,
                                                                                              updated_limit_count,
                                                                                              total_image_page_count)
-                        result = process_image(mode, artist, image_id, user_dir, bookmark,
-                                             title_prefix=title_prefix)  # Yavos added dir-argument to pass
+                        result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
                         __dbManager__.insertImage(member_id, image_id)
                         break
                     except KeyboardInterrupt:
@@ -590,7 +589,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         raise
 
 
-def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None):
+def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1):
     global __errorList
     #Yavos added dir-argument which will be initialized as '' when not given
     parse_big_image = None
@@ -615,7 +614,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             try:
                 medium_page = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id))
                 parse_medium_page = BeautifulSoup(medium_page.read())
-                image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark)
+                image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count)
                 # dump medium page
                 if __config__.dumpMediumPage :
                     dump_filename = "medium page for image {0}.html".format(image_id)
@@ -924,7 +923,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                                                                                                               images,
                                                                                                               skipped_count,
                                                                                                               total_image)
-                            process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix)
+                            process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount)
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -964,6 +963,13 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
     except:
         print 'Error at process_tags():', sys.exc_info()
         __log__.exception('Error at process_tags(): ' + str(sys.exc_info()))
+        try:
+            if search_page is not None:
+                dump_filename = 'Error page for search tags ' + tags + '.html'
+                PixivHelper.dumpHtml(dump_filename, search_page.get_data())
+                PixivHelper.printAndLog('error', "Dumping html to: " + dump_filename)
+        except:
+            PixivHelper.printAndLog('error', 'Cannot dump page for search tags:' + search_tags)
         raise
 
 

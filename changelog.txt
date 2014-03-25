@@ -1,5 +1,6 @@
-20140324
+20140325
 - Update unknown error handler.
+- Add %bookmark_count% for filename format, only available for download by tags.
 
 20140222
 - Update model.

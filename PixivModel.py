@@ -202,10 +202,12 @@ class PixivImage:
     imageCount = 0
     fromBookmark = False
     worksDateDateTime = datetime.datetime.fromordinal(1)
+    bookmark_count = -1
 
-    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False):
+    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1):
         self.artist = parent
         self.fromBookmark = fromBookmark
+        self.bookmark_count = bookmark_count
         self.imageUrls = []
 
         if page != None:

@@ -167,9 +167,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         r18Dir = "R-18"
     nameFormat = nameFormat.replace('%R-18%', r18Dir)
     nameFormat = nameFormat.replace('%tags%', tags.replace(os.sep, '_'))
-    nameFormat = nameFormat.replace('&#039;',
-                                    '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
-    if bookmark:
+    nameFormat = nameFormat.replace('&#039;', '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
+
+    if bookmark: # from member bookmarks
         nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
         nameFormat = nameFormat.replace('%original_member_id%', str(imageInfo.originalArtist.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', imageInfo.originalArtist.artistToken)
@@ -180,6 +180,10 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         nameFormat = nameFormat.replace('%original_member_token%', artistInfo.artistToken)
         nameFormat = nameFormat.replace('%original_artist%', artistInfo.artistName.replace(os.sep, '_'))
 
+    if imageInfo.bookmark_count > 0:   # only applicable for search by tags
+        nameFormat = nameFormat.replace('%bookmark_count%', str(imageInfo.bookmark_count))
+    else:
+        nameFormat = nameFormat.replace('%bookmark_count%', '')
     ## clean up double space
     while nameFormat.find('  ') > -1:
         nameFormat = nameFormat.replace('  ', ' ')
