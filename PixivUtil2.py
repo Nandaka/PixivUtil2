@@ -388,7 +388,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
     elif __config__.numberOfPage != 0:
         PixivHelper.printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
 
-    __config__.loadConfig()
+    __config__.loadConfig(options.configlocation)
     list_page = None
     try:
         no_of_images = 1
@@ -824,7 +824,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None):
     try:
-        __config__.loadConfig()  # Reset the config for root directory
+        __config__.loadConfig(options.configlocation)  # Reset the config for root directory
 
         try:
             if tags.startswith("%"):
@@ -1567,7 +1567,7 @@ def menu_export_online_bookmark(mode, opisvalid, args):
 
 def menu_reload_config():
     __log__.info('Manual Reload Config.')
-    __config__.loadConfig()
+    __config__.loadConfig(options.configlocation)
 
 
 def menu_print_config():
@@ -1606,6 +1606,9 @@ def setup_option_parser():
                       action='store_true', default=False)
     parser.add_option('-n', '--numberofpages', dest='numberofpages',
                       help='temporarily overwrites numberOfPage set in config.ini')
+    parser.add_option('-c', '--config', dest='configlocation',
+                      help='load the config file from a custom location',
+                      default=None)
     return parser
 
 
@@ -1721,7 +1724,7 @@ def main():
     __log__.info('###############################################################')
     __log__.info('Starting...')
     try:
-        __config__.loadConfig()
+        __config__.loadConfig(options.configlocation)
         PixivHelper.setConfig(__config__)
     except:
         print 'Failed to read configuration.'

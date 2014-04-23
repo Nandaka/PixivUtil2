@@ -73,8 +73,12 @@ class PixivConfig:
     skipDumpFilter = ""
     dumpMediumPage = False
 
-    def loadConfig(self):
-        configFile = script_path + os.sep + 'config.ini'
+    def loadConfig(self, path=None):
+        if path != None:
+            configFile = path
+        else:
+            configFile = script_path + os.sep + 'config.ini'
+        
         print 'Reading', configFile, '...'
         oldSetting = False
         haveError = False
