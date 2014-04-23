@@ -287,7 +287,7 @@ def pixiv_process_login(response):
             if cookie.name == 'PHPSESSID':
                 print 'new cookie value:', cookie.value
                 __config__.cookie = cookie.value
-                __config__.writeConfig()
+                __config__.writeConfig(path=configfile)
                 break
         return True
     else:
@@ -388,7 +388,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
     elif __config__.numberOfPage != 0:
         PixivHelper.printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
 
-    __config__.loadConfig(options.configlocation)
+    __config__.loadConfig(path=configfile)
     list_page = None
     try:
         no_of_images = 1
@@ -824,7 +824,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None):
     try:
-        __config__.loadConfig(options.configlocation)  # Reset the config for root directory
+        __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
         try:
             if tags.startswith("%"):
@@ -1567,7 +1567,7 @@ def menu_export_online_bookmark(mode, opisvalid, args):
 
 def menu_reload_config():
     __log__.info('Manual Reload Config.')
-    __config__.loadConfig(options.configlocation)
+    __config__.loadConfig(path=configfile)
 
 
 def menu_print_config():
@@ -1693,6 +1693,7 @@ def main():
     global start_iv  # used in download_image
     global op
     global __br__
+    global configfile
 
     parser = setup_option_parser()
     (options, args) = parser.parse_args()
@@ -1708,6 +1709,7 @@ def main():
         # Yavos: use print option instead when program should be running even with this error
 
     ewd = options.exitwhendone
+    configfile = options.configlocation
 
     try:
         if options.numberofpages is not None:
@@ -1724,7 +1726,7 @@ def main():
     __log__.info('###############################################################')
     __log__.info('Starting...')
     try:
-        __config__.loadConfig(options.configlocation)
+        __config__.loadConfig(path=configfile)
         PixivHelper.setConfig(__config__)
     except:
         print 'Failed to read configuration.'
