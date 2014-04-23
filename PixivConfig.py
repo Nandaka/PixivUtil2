@@ -439,7 +439,7 @@ class PixivConfig:
 
         try:
             ##with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
-            with open(configlocation + 'tmp', 'w') as configfile:
+            with open(configlocation + '.tmp', 'w') as configfile:
                 config.write(configfile)
             if os.path.exists(configlocation):
                 if error:
@@ -449,7 +449,7 @@ class PixivConfig:
                 else:
                     print "Backing up old config to config.ini.bak"
                     shutil.move(configlocation, configlocation + '.bak')
-            os.rename(configlocation + 'tmp', configlocation)
+            os.rename(configlocation + '.tmp', configlocation)
         except:
             self.__logger.exception('Error at writeConfig()')
             raise
