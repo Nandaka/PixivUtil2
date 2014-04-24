@@ -73,8 +73,12 @@ class PixivConfig:
     skipDumpFilter = ""
     dumpMediumPage = False
 
-    def loadConfig(self):
-        configFile = script_path + os.sep + 'config.ini'
+    def loadConfig(self, path=None):
+        if path != None:
+            configFile = path
+        else:
+            configFile = script_path + os.sep + 'config.ini'
+        
         print 'Reading', configFile, '...'
         oldSetting = False
         haveError = False
@@ -374,7 +378,7 @@ class PixivConfig:
 
 
     #-UI01B------write config
-    def writeConfig(self, error=False):
+    def writeConfig(self, error=False, path=None):
         '''Backup old config if exist and write updated config.ini'''
         print 'Writing config file...',
         config = ConfigParser.RawConfigParser()
@@ -428,19 +432,24 @@ class PixivConfig:
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
 
+        if path != None:
+            configlocation = path
+        else:
+            configlocation = 'config.ini'
+
         try:
             ##with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
-            with open('config.ini.tmp', 'w') as configfile:
+            with open(configlocation + '.tmp', 'w') as configfile:
                 config.write(configfile)
-            if os.path.exists('config.ini'):
+            if os.path.exists(configlocation):
                 if error:
-                    backupName = 'config.ini.error-' + str(int(time.time()))
+                    backupName = configlocation + '.error-' + str(int(time.time()))
                     print "Backing up old config (error exist!) to " + backupName
-                    shutil.move('config.ini', backupName)
+                    shutil.move(configlocation, backupName)
                 else:
                     print "Backing up old config to config.ini.bak"
-                    shutil.move('config.ini', 'config.ini.bak')
-            os.rename('config.ini.tmp', 'config.ini')
+                    shutil.move(configlocation, configlocation + '.bak')
+            os.rename(configlocation + '.tmp', configlocation)
         except:
             self.__logger.exception('Error at writeConfig()')
             raise
