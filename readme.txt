@@ -275,7 +275,10 @@ filenameformat ==> The format for the filename, reserved/illegal character will
                                                name.
 	        -> %searchTags%   ==> for download by tags, put searched tags.
 	        -> %date%         ==> current date in YYYYMMMDD format.
-	        -> %bookmark_count% ==> Bookmark count in download by tags.
+	        -> %bookmark_count% ==> Bookmark count, will have overhead except on
+                                        download by tags.
+                -> %image_response_count%  ==> Image respose count, will have overhead 
+					       except on download by tags.
 useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.

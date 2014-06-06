@@ -589,7 +589,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         raise
 
 
-def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1):
+def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
     #Yavos added dir-argument which will be initialized as '' when not given
     parse_big_image = None
@@ -690,7 +690,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
             print "Mode :", image.imageMode
 
-            if "%bookmarkCount%" in __config__.filenameFormat and image.bookmark_count == -1:
+            if ("%bookmark_count%" in __config__.filenameFormat or "%image_response_count%" in __config__.filenameFormat) and image.bookmark_count == -1:
                 print "Parsing bookmark page",
                 bookmark_page = __br__.open('http://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id))
                 parse_bookmark_page = BeautifulSoup(bookmark_page.read())
@@ -933,7 +933,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                                                                                                               images,
                                                                                                               skipped_count,
                                                                                                               total_image)
-                            process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount)
+                            process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT

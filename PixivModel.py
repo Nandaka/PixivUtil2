@@ -208,8 +208,9 @@ class PixivImage:
     fromBookmark = False
     worksDateDateTime = datetime.datetime.fromordinal(1)
     bookmark_count = -1
+    image_response_count = -1
 
-    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1):
+    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
@@ -436,16 +437,18 @@ class PixivImage:
         try:
             countUl = page.findAll('ul', attrs={'class':'count-list'})
             if countUl is not None and len(countUl) > 0:
-                countLi = countUl[0].findAll('li')
-                if countLi is not None and len(countLi) > 0:
-                    self.bookmark_count = int(countLi[0].text)
+                countA = countUl[0].findAll('a')
+                if countA is not None and len(countA) > 0:
+                    for a in countA:
+                        if "bookmark-count" in a["class"]:
+                            self.bookmark_count = int(a.text)
+                        elif "image-response-count" in a["class"]:
+                            self.image_response_count = int(a.text)
                     return
 
             ## no bookmark count
             self.bookmark_count = 0
-
-            ## TODO: parse the image response
-
+            self.image_response_count = 0
         except:
             PixivHelper.GetLogger().exception("Cannot parse bookmark count for: " + str(self.imageId))
 

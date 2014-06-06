@@ -133,9 +133,6 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
     nameFormat = nameFormat.replace('%searchTags%', searchTags)
 
-    ## bookmark count
-    nameFormat = nameFormat.replace('%bookmarkCount%', str(imageInfo.bookmark_count))
-
     ## date
     nameFormat = nameFormat.replace('%date%', datetime.date.today().strftime('%Y%m%d'))
 
@@ -183,10 +180,16 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         nameFormat = nameFormat.replace('%original_member_token%', artistInfo.artistToken)
         nameFormat = nameFormat.replace('%original_artist%', artistInfo.artistName.replace(os.sep, '_'))
 
-    if imageInfo.bookmark_count > 0:   # only applicable for search by tags
+    if imageInfo.bookmark_count > 0:
         nameFormat = nameFormat.replace('%bookmark_count%', str(imageInfo.bookmark_count))
     else:
         nameFormat = nameFormat.replace('%bookmark_count%', '')
+
+    if imageInfo.image_response_count > 0:
+        nameFormat = nameFormat.replace('%image_response_count%', str(imageInfo.image_response_count))
+    else:
+        nameFormat = nameFormat.replace('%image_response_count%', '')
+
     ## clean up double space
     while nameFormat.find('  ') > -1:
         nameFormat = nameFormat.replace('  ', ' ')
