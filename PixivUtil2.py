@@ -690,6 +690,16 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
             print "Mode :", image.imageMode
 
+            if "%bookmarkCount%" in __config__.filenameFormat and image.bookmark_count == -1:
+                print "Parsing bookmark page",
+                bookmark_page = __br__.open('http://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id))
+                parse_bookmark_page = BeautifulSoup(bookmark_page.read())
+                image.ParseBookmarkDetails(parse_bookmark_page)
+                parse_bookmark_page.decompose()
+                del parse_bookmark_page
+                print "Bookmark Count :", str(image.bookmark_count)
+                __br__.back();
+
             if __config__.useSuppressTags:
                 for item in __suppressTags:
                     if item in image.imageTags:

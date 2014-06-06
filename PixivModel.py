@@ -430,6 +430,25 @@ class PixivImage:
             urls.append(temp)
         return urls
 
+    def ParseBookmarkDetails(self, page):
+        if page == None:
+            raise PixivException('No page given', errorCode = PixivException.NO_PAGE_GIVEN)
+        try:
+            countUl = page.findAll('ul', attrs={'class':'count-list'})
+            if countUl is not None and len(countUl) > 0:
+                countLi = countUl[0].findAll('li')
+                if countLi is not None and len(countLi) > 0:
+                    self.bookmark_count = int(countLi[0].text)
+                    return
+
+            ## no bookmark count
+            self.bookmark_count = 0
+
+            ## TODO: parse the image response
+
+        except:
+            PixivHelper.GetLogger().exception("Cannot parse bookmark count for: " + str(self.imageId))
+
     def WriteInfo(self, filename):
         info = None
         try:
@@ -449,6 +468,7 @@ class PixivImage:
         info.write("Date       = " + self.worksDate + "\r\n")
         info.write("Resolution = " + self.worksResolution + "\r\n")
         info.write("Tools      = " + self.worksTools + "\r\n")
+        info.write("BookmarkCount= " + str(self.bookmark_count) + "\r\n")
         info.write("Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
         info.close()
 
@@ -649,8 +669,8 @@ class PixivTags:
                 image_id = __re_illust.findall(item.find('a')['href'])[0]
                 if image_id in ignore:
                     continue
-                bookmarkCount = -1
-                imageResponse = -1
+                bookmarkCount = 0
+                imageResponse = 0
                 countList = item.find('ul', attrs={'class':'count-list'})
                 if countList != None:
                     countList = countList.findAll('li')

@@ -133,6 +133,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
     nameFormat = nameFormat.replace('%searchTags%', searchTags)
 
+    ## bookmark count
+    nameFormat = nameFormat.replace('%bookmarkCount%', str(imageInfo.bookmark_count))
+
     ## date
     nameFormat = nameFormat.replace('%date%', datetime.date.today().strftime('%Y%m%d'))
 
