@@ -124,7 +124,7 @@ class PixivArtist:
 
     def ParseImages(self, page):
         del self.imageList[:]
-        temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
+        temp = page.find(attrs={'class':'display_works linkStyleWorks '}).ul
         temp = temp.findAll('a')
         if temp == None or len(temp) == 0:
             raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
