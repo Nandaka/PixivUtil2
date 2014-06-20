@@ -38,6 +38,7 @@ gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
 __config__ = PixivConfig.PixivConfig()
+configfile = "config.ini"
 __dbManager__ = PixivDBManager.PixivDBManager(config = __config__)
 __br__ = None
 __blacklistTags = list()
@@ -275,6 +276,7 @@ def pixiv_login(username, password):
 
 #noinspection PyProtectedMember
 def pixiv_process_login(response):
+    global configfile
     __log__.info('Logging in, return url: ' + response.geturl())
     ## failed login will return to either of these page:
     ## http://www.pixiv.net/login.php

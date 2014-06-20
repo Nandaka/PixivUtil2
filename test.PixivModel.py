@@ -479,7 +479,7 @@ class TestPixivTags(unittest.TestCase):
         ##self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.itemList[-1].imageId, 33815932)
         self.assertEqual(image.itemList[-1].bookmarkCount, 4)
-        self.assertEqual(image.itemList[-1].imageResponse, -1)
+        self.assertEqual(image.itemList[-1].imageResponse, 0)
 
     def testTagsMemberSearch(self):
         br = Browser()
@@ -503,7 +503,7 @@ class TestPixivTags(unittest.TestCase):
         image.parseMemberTags(page)
 
         ##self.assertEqual(len(image.itemList), 10)
-        self.assertEqual(image.itemList[-1].imageId, 1804545)
+        self.assertEqual(image.itemList[-1].imageId, 1809179)
         self.assertEqual(image.isLastPage, True)
 
     def testTagsSkipShowcase(self):

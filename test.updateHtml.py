@@ -3,8 +3,10 @@ import PixivUtil2
 import PixivBrowserFactory
 import PixivConfig
 import getpass
+import mechanize
 
-__config__    = PixivConfig.PixivConfig()
+__config__  = PixivConfig.PixivConfig()
+PixivUtil2.__config__ = __config__
 __config__.loadConfig()
 __br__ = PixivUtil2.__br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
@@ -31,7 +33,13 @@ def prepare():
 
 def downloadPage(url, filename):
     print "Dumping " + url + " to " + filename
-    html = __br__.open(url).read()
+    try:
+        html = __br__.open(url).read()
+    except mechanize.HTTPError as e:
+        if e.code in [403, 404]:
+            html = e.read()
+        else:
+            raise
     try:
         dump = file(filename, 'wb')
         dump.write(html)

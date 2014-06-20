@@ -85,7 +85,7 @@ class PixivArtist:
             else :
                 artistToken = None
                 try:
-                    temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
+                    temp = page.find(attrs={'class':'display_works linkStyleWorks '}).ul
                     if temp != None:
                         tokens = temp.findAll('img', attrs={'class':'_thumbnail'})
                         for token in tokens:
@@ -611,7 +611,7 @@ class PixivBookmark:
     @staticmethod
     def parseImageBookmark(page):
         imageList = list()
-        temp = page.find(attrs={'class':'display_works linkStyleWorks'}).ul
+        temp = page.find(attrs={'class':'display_works linkStyleWorks display_editable_works'}).ul
         temp = temp.findAll('a')
         if temp == None or len(temp) == 0:
             return imageList
