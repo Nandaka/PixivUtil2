@@ -9,7 +9,7 @@ class PixivException(Exception):
   NO_IMAGES          = 1004
 
   PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE = 1005
-  PARSE_TOKEN_PARSE_NO_IMAGES           = 1006
+  PARSE_TOKEN_NO_IMAGES                 = 1006
   NO_PAGE_GIVEN                         = 1007
 
   FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION = 4002

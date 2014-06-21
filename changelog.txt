@@ -1,3 +1,6 @@
+20140621
+- Update artist token parser.
+
 20140620
 - Fix issue #36: Member illustration parser update.
 - Fix issue #37: Bookmark parser update.
