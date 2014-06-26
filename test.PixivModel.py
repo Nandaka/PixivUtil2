@@ -115,8 +115,6 @@ class TestPixivImage(unittest.TestCase):
       self.assertTrue(u'うさぎになりたい' in image2.imageTags)
       self.assertTrue(u'なにこれかわいい' in image2.imageTags)
       self.assertTrue(u'やはり存在する斧' in image2.imageTags)
-      self.assertTrue(u'ヤンデレ' in image2.imageTags)
-      self.assertTrue(u'吸いこまれそうな瞳の色' in image2.imageTags)
 
       self.assertEqual(image2.imageMode, "big")
       self.assertEqual(image2.worksDate,'12-11-2012 00:23')
@@ -349,6 +347,17 @@ class TestPixivImage(unittest.TestCase):
       page.decompose()
       del page
 
+    def testPixivImageUgoira(self):
+      #print '\nTesting image page'
+      p = open('./test/test-image-ugoira.htm', 'r')
+      page = BeautifulSoup(p.read())
+      image = PixivImage(44301046, page)
+      urls = image.ParseImages(page)
+      print image.imageUrls
+      self.assertTrue(image.imageUrls[0].find(".zip") > -1)
+      page.decompose()
+      del page
+
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
       #print '\nTesting BookmarkNewIlust'
@@ -527,21 +536,21 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(result.maxId, 626288)
 
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
     unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivGroup)
-    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
+##    print "================================================================"
+##    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivGroup)
+##    unittest.TextTestRunner(verbosity=5).run(suite)
 

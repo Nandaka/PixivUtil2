@@ -599,6 +599,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
     view_page = None
     image = None
     result = None
+    referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
 
     try:
         filename = 'N/A'
@@ -614,9 +615,11 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         retry_count = 0
         while 1:
             try:
-                medium_page = __br__.open('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id))
+                medium_page = __br__.open(referer)
                 parse_medium_page = BeautifulSoup(medium_page.read())
                 image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count)
+                if image.imageMode == "ugoira_view":
+                    image.ParseImages(page=parse_medium_page)
                 # dump medium page
                 if __config__.dumpMediumPage :
                     dump_filename = "medium page for image {0}.html".format(image_id)
@@ -708,32 +711,33 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         image.imageTags.remove(item)
 
             error_count = 0
-            while True:
-                try:
-                    #big_url = 'http://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
-                    view_page = __br__.follow_link(url_regex='mode=' + image.imageMode + '&illust_id=' + str(image_id))
-                    parse_big_image = BeautifulSoup(view_page.read())
-                    if parse_big_image is not None:
-                        image.ParseImages(page=parse_big_image)
-                        parse_big_image.decompose()
-                        del parse_big_image
-                    break
-                except PixivException as ex:
-                    PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
-                    return
-                except urllib2.URLError as ue:
-                    if error_count > __config__.retry:
-                        PixivHelper.printAndLog('error', 'Giving up image_id: ' + str(image_id))
+            if image.imageMode == 'manga' or image.imageMode == 'big':
+                while True:
+                    try:
+                        #big_url = 'http://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
+                        view_page = __br__.follow_link(url_regex='mode=' + image.imageMode + '&illust_id=' + str(image_id))
+                        parse_big_image = BeautifulSoup(view_page.read())
+                        if parse_big_image is not None:
+                            image.ParseImages(page=parse_big_image)
+                            parse_big_image.decompose()
+                            del parse_big_image
+                        break
+                    except PixivException as ex:
+                        PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
                         return
-                    error_count = error_count + 1
-                    print ue
-                    repeat = range(1, __config__.retryWait)
-                    for t in repeat:
-                        print t,
-                        time.sleep(1)
-                    print ''
-            if image.imageMode == 'manga':
-                print "Page Count :", image.imageCount
+                    except urllib2.URLError as ue:
+                        if error_count > __config__.retry:
+                            PixivHelper.printAndLog('error', 'Giving up image_id: ' + str(image_id))
+                            return
+                        error_count = error_count + 1
+                        print ue
+                        repeat = range(1, __config__.retryWait)
+                        for t in repeat:
+                            print t,
+                            time.sleep(1)
+                        print ''
+                if image.imageMode == 'manga':
+                    print "Page Count :", image.imageCount
 
             result = PixivConstant.PIXIVUTIL_OK
             skip_one = False
@@ -773,7 +777,9 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             overwrite = True
-                        result = download_image(img, filename, view_page.geturl(), overwrite, __config__.retry,
+                        if view_page is not None:
+                            referer = view_page.geturl()
+                        result = download_image(img, filename, referer, overwrite, __config__.retry,
                                                 __config__.backupOldFile)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK and image.imageMode == 'manga' and img.find('_big') > -1:

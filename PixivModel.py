@@ -82,8 +82,9 @@ class PixivArtist:
             tabFeeds = page.findAll('a', attrs={'class':'tab-feed'})
             if tabFeeds is not None and len(tabFeeds) > 0:
                 for a in tabFeeds:
-                    if str(a["href"]).startswith("/stacc/"):
-                        return a["href"].replace("/stacc/", "")
+                    if str(a["href"]).find("stacc/") > 0:
+                        self.artistToken = a["href"].split("/")[-1]
+                        return self.artistToken
         except:
             raise PixivException('Cannot parse artist token, possibly different image structure.', errorCode = PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE)
 
@@ -179,6 +180,7 @@ class PixivImage:
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
+        self.imageId = iid
         self.imageUrls = []
 
         if page != None:
@@ -273,9 +275,15 @@ class PixivImage:
         return None
 
     def ParseInfo(self, page):
-        temp = str(page.find(attrs={'class':'works_display'}).find('a')['href'])
-        self.imageId = int(re.search('illust_id=(\d+)',temp).group(1))
-        self.imageMode = re.search('mode=(big|manga)',temp).group(1)
+        links = page.find(attrs={'class':'works_display'}).findAll('a')
+        for a in links:
+            if re.search('illust_id=(\d+)',a['href']) is not None:
+                temp = str(a['href'])
+                break
+
+        temp_id = int(re.search('illust_id=(\d+)',temp).group(1))
+        assert temp_id == self.imageId, "Invalid Id detected ==> %i != %i" % (temp_id, self.imageId)
+        self.imageMode = re.search('mode=(big|manga|ugoira_view)',temp).group(1)
 
         # remove premium-introduction-modal so we can get caption from work-info
         # somehow selecting section doesn't works
@@ -358,14 +366,30 @@ class PixivImage:
             self.imageUrls.append(self.ParseBigImages(page))
         elif mode == 'manga':
             self.imageUrls = self.ParseMangaImages(page)
+        elif mode == 'ugoira_view':
+            self.imageUrls.append(self.ParseUgoira(page))
         if len(self.imageUrls) == 0:
             raise PixivException('No images found for: '+ str(self.imageId), errorCode = PixivException.NO_IMAGES)
         return self.imageUrls
 
     def ParseBigImages(self, page):
         temp = page.find('img')['src']
-        imageCount = 1
+        self.imageCount = 1
         return str(temp)
+
+    def ParseUgoira(self, page):
+        scripts = page.findAll('script')
+        for scr in scripts:
+            if scr.text.startswith("pixiv.context.illustId"):
+                lines = scr.text.split(";")
+                for line in lines:
+                    if line.startswith ("pixiv.context.ugokuIllustFullscreenData"):
+                        line = line.split("=", 2)[1].strip()
+                        import json
+                        js = json.loads(line)
+                        self.imageCount = 1
+                        return js["src"]
+
 
     def ParseMangaImages(self, page):
         urls = []
