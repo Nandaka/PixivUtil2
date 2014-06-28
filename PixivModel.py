@@ -175,6 +175,7 @@ class PixivImage:
     worksDateDateTime = datetime.datetime.fromordinal(1)
     bookmark_count = -1
     image_response_count = -1
+    ugoira_data = ""
 
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1):
         self.artist = parent
@@ -387,9 +388,9 @@ class PixivImage:
                         line = line.split("=", 2)[1].strip()
                         import json
                         js = json.loads(line)
+                        self.ugoira_data = line
                         self.imageCount = 1
                         return js["src"]
-
 
     def ParseMangaImages(self, page):
         urls = []
@@ -462,6 +463,7 @@ class PixivImage:
         info.write("Tools      = " + self.worksTools + "\r\n")
         info.write("BookmarkCount= " + str(self.bookmark_count) + "\r\n")
         info.write("Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
+        info.write("Ugoira Data= " + str(self.ugoira_data) + "\r\n")
         info.close()
 
 class PixivListItem:

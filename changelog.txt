@@ -1,3 +1,6 @@
+20140628
+- Update parser to support animation (ugoira_view).
+
 20140621
 - Update artist token parser.
 
