@@ -367,3 +367,16 @@ def HaveStrings(page, strings):
            if len(test_2[-1]) > 0 :
                return True
     return False
+
+def getIdsFromCsv(ids_str):
+    ids = list()
+    ids_str = str(ids_str).split(",")
+    for id_str in ids_str:
+        try:
+            _id = int(id_str.strip())
+            ids.append(_id)
+        except:
+            printAndLog('error', "ID: {0} is not valid".format(id_str))
+    if len(ids) > 1:
+        printAndLog('info', "Found {0} ids".format(len(ids)))
+    return ids

@@ -1354,9 +1354,12 @@ def menu_download_by_member_id(mode, opisvalid, args):
                 PixivHelper.printAndLog('error', "Member ID: {0} is not valid".format(member_id))
                 continue
     else:
-        member_id = raw_input('Member id: ')
+        member_ids = raw_input('Member ids: ')
         (page, end_page) = get_start_and_end_number()
-        process_member(mode, member_id.strip(), page=page, end_page=end_page)
+
+        member_ids = PixivHelper.getIdsFromCsv(member_ids)
+        for member_id in member_ids:
+            process_member(mode, member_id, page=page, end_page=end_page)
 
 
 def menu_download_by_member_bookmark(mode, opisvalid, args):
@@ -1388,8 +1391,10 @@ def menu_download_by_image_id(mode, opisvalid, args):
                 PixivHelper.printAndLog('error', "Image ID: {0} is not valid".format(image_id))
                 continue
     else:
-        image_id = raw_input('Image id: ')
-        process_image(mode, None, int(image_id))
+        image_ids = raw_input('Image ids: ')
+        image_ids = PixivHelper.getIdsFromCsv(image_ids)
+        for image_id in image_ids:
+            process_image(mode, None, int(image_id))
 
 
 def menu_download_by_tags(mode, opisvalid, args):
