@@ -1,3 +1,6 @@
+20140712
+- Fix parser for Option 8: Download new illust from bookmark.
+
 20140705
 - Update download by member id to accept comma-separated list from console.
 - Update download by image id to accept comma-separated list from console.
