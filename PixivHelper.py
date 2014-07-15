@@ -368,15 +368,17 @@ def HaveStrings(page, strings):
                return True
     return False
 
-def getIdsFromCsv(ids_str):
+def getIdsFromCsv(ids_str, sep=','):
     ids = list()
-    ids_str = str(ids_str).split(",")
+    ids_str = str(ids_str).split(sep)
     for id_str in ids_str:
-        try:
-            _id = int(id_str.strip())
-            ids.append(_id)
-        except:
-            printAndLog('error', "ID: {0} is not valid".format(id_str))
+        temp = id_str.strip()
+        if len(temp) > 0:
+            try:
+                _id = int(temp)
+                ids.append(_id)
+            except:
+                printAndLog('error', "ID: {0} is not valid".format(id_str))
     if len(ids) > 1:
         printAndLog('info', "Found {0} ids".format(len(ids)))
     return ids

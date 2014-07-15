@@ -1298,7 +1298,7 @@ def menu_download_by_member_id(mode, opisvalid, args):
         member_ids = raw_input('Member ids: ')
         (page, end_page) = get_start_and_end_number()
 
-        member_ids = PixivHelper.getIdsFromCsv(member_ids)
+        member_ids = PixivHelper.getIdsFromCsv(member_ids, sep=" ")
         for member_id in member_ids:
             process_member(mode, member_id, page=page, end_page=end_page)
 
@@ -1333,7 +1333,7 @@ def menu_download_by_image_id(mode, opisvalid, args):
                 continue
     else:
         image_ids = raw_input('Image ids: ')
-        image_ids = PixivHelper.getIdsFromCsv(image_ids)
+        image_ids = PixivHelper.getIdsFromCsv(image_ids, sep=" ")
         for image_id in image_ids:
             process_image(mode, None, int(image_id))
 
