@@ -576,7 +576,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
     parse_big_image = None
-    medium_page = None
+    parse_medium_page = None
     view_page = None
     image = None
     result = None
@@ -612,10 +612,11 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.safePrint(ex.message)
             elif ex.errorCode == PixivException.SERVER_ERROR:
                 PixivHelper.printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
-                if parse_medium_page is not None:
-                    dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
-                    PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
-                    PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
+
+            if parse_medium_page is not None:
+                dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
+                PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
+                PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
             else:
                 PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
 
@@ -745,8 +746,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
 
-        if medium_page is not None:
-            del medium_page
         if view_page is not None:
             del view_page
         if image is not None:
@@ -770,9 +769,9 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         except:
             PixivHelper.printAndLog('error', 'Cannot dump big page for image_id: ' + str(image_id))
         try:
-            if medium_page is not None:
+            if parse_medium_page is not None:
                 dump_filename = 'Error Medium Page for image ' + str(image_id) + '.html'
-                PixivHelper.dumpHtml(dump_filename, medium_page.get_data())
+                PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
         except:
             PixivHelper.printAndLog('error', 'Cannot medium dump page for image_id: ' + str(image_id))
