@@ -345,6 +345,15 @@ def process_list(mode, list_file_name=None):
             PixivHelper.printAndLog('info', 'Processing from list file: {0}'.format(list_file_name))
             result = PixivListItem.parseList(list_file_name, __config__.rootDirectory)
 
+        if os.path.exists("ignore_list.txt"):
+            PixivHelper.printAndLog('info', 'Processing ignore list for member: {0}'.format("ignore_list.txt"))
+            ignoreList = PixivListItem.parseList("ignore_list.txt", __config__.rootDirectory)
+            for ignore in ignoreList:
+                for item in result:
+                    if item.memberId == ignore.memberId:
+                        result.remove(item)
+                        break
+
         print "Found " + str(len(result)) + " items."
 
         ## iterating the list
