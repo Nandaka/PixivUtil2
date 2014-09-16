@@ -621,6 +621,8 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.safePrint(ex.message)
             elif ex.errorCode == PixivException.SERVER_ERROR:
                 PixivHelper.printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
+            elif ex.errorCode > 2000:
+                PixivHelper.printAndLog('error', 'Image Error for ' + str(image_id) + ': ' + ex.message)
 
             if parse_medium_page is not None:
                 dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
