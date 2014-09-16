@@ -466,6 +466,16 @@ class PixivImage:
         info.write("Ugoira Data= " + str(self.ugoira_data) + "\r\n")
         info.close()
 
+    def WriteUgoiraData(self, filename):
+        info = None
+        try:
+            info = codecs.open(filename, 'wb', encoding='utf-8')
+        except IOError:
+            info = codecs.open(str(self.imageId) + ".js", 'wb', encoding='utf-8')
+            PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".js")
+        info.write(str(self.ugoira_data))
+        info.close()
+
 class PixivListItem:
     '''Class for item in list.txt'''
     memberId = ""

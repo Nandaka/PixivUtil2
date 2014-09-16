@@ -748,6 +748,8 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
             if __config__.writeImageInfo:
                 image.WriteInfo(filename + ".txt")
+            if __config__.writeUgoiraInfo and image.imageMode == 'ugoira_view':
+                image.WriteUgoiraData(filename + ".js")
 
         ## Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK:

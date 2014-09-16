@@ -1,5 +1,6 @@
 20140916
 - Fix Issue #44: process image to handle known image exception.
+- Implement #43: write ugoira data to separate file.
 
 20140712
 - Fix parser for Option 8: Download new illust from bookmark.

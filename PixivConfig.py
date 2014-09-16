@@ -72,13 +72,14 @@ class PixivConfig:
     enableDump = True
     skipDumpFilter = ""
     dumpMediumPage = False
+    writeUgoiraInfo = False
 
     def loadConfig(self, path=None):
         if path != None:
             configFile = path
         else:
             configFile = script_path + os.sep + 'config.ini'
-        
+
         print 'Reading', configFile, '...'
         oldSetting = False
         haveError = False
@@ -355,6 +356,13 @@ class PixivConfig:
             except ValueError:
                 print "dumpMediumPage = False"
                 self.dumpMediumPage = False
+                haveError = True
+
+            try:
+                self.writeUgoiraInfo = config.getboolean('Settings','writeUgoiraInfo')
+            except ValueError:
+                self.writeUgoiraInfo = False
+                print "writeUgoiraInfo = False"
                 haveError = True
 
 ##        except ConfigParser.NoOptionError:
