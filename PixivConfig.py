@@ -430,6 +430,7 @@ class PixivConfig:
         config.set('Settings', 'enableDump', self.enableDump)
         config.set('Settings', 'skipDumpFilter', self.skipDumpFilter)
         config.set('Settings', 'dumpMediumPage', self.dumpMediumPage)
+        config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -510,6 +511,7 @@ class PixivConfig:
         print ' - enableDump       =', self.enableDump
         print ' - skipDumpFilter   =', self.skipDumpFilter
         print ' - dumpMediumPage   =', self.dumpMediumPage
+        print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
