@@ -407,6 +407,8 @@ class PixivImage:
         # filter mobile thumb: http://i1.pixiv.net/img01/img/sokusekimaou/mobile/20592252_128x128_p8.jpg
         m2 = []
         for img in m:
+            # decode url http:\/\/i2.pixiv.net\/img30\/img\/yukinokeisuke\/46132631_big_p0.png
+            img = img.replace('\\/', "/")
             if img.find('/mobile/') == -1:
                 m2.append(img)
         m = m2
@@ -419,6 +421,7 @@ class PixivImage:
             urls.append(temp)
             temp = str(img)
             urls.append(temp)
+
         return urls
 
     def ParseBookmarkDetails(self, page):

@@ -1,3 +1,6 @@
+20140926
+- Fix Issue #47: Update manga parser.
+
 20140916
 - Fix Issue #44: process image to handle known image exception.
 - Implement #43: write ugoira data to separate file.
