@@ -1,6 +1,7 @@
-20141004b:
+20141004c:
 - Update parser.
 - Update download logic for manga page (20141004b)
+- Update parser for the new 2 page manga mode (20141004c)
 
 20140926
 - Fix Issue #47: Update manga parser.
