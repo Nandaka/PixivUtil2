@@ -11,7 +11,7 @@ import httplib
 import time
 
 import PixivHelper
-import PixivException
+from PixivException import PixivException
 
 defaultCookieJar = None
 defaultConfig = None
@@ -137,6 +137,13 @@ def getBrowser(config = None, cookieJar = None):
         _browser = PixivBrowser(defaultConfig, defaultCookieJar)
 
     return _browser
+
+def getExistingBrowser():
+    global _browser
+    if _browser is None:
+        raise PixivException("Browser is not initialized yet!", errorCode = PixivException.NOT_LOGGED_IN)
+    return _browser
+
 
 
 

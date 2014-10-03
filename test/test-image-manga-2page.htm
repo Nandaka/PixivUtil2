@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en" class="_book-viewer rtl"><head><meta charset="utf-8"><title>【創作百合】雨と君の向こう#4</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=1280px"><link rel="canonical" href="http://www.pixiv.net/member_illust.php?mode=medium&amp;illust_id=46322053"><script>var pageLoadStartTime = +(new Date);</script><script>
+new function() {
+
+var user_id = "189816";
+var service = 'www.pixiv.net';
+var api = 'http://www.pixiv.net/rpc/js_error.php';
+
+
+window.onerror = function(message, url, line) {
+window.onerror = null;
+if (!url && line === 0)return;
+
+// Googleのスクリプトがエラー出しまくってるので一時的に対処
+if (url.indexOf('https://apis.google.com/_/scs/apps-static/') === 0) {
+if (Math.random() > 0.01) return;
+}
+
+// IE9がエラー出しまくってるので一時的に対処
+if (message === "null" && line === 1 && window.navigator.userAgent.indexOf("MSIE 9.0") >= 0) {
+if (Math.random() > 0.01) return;
+}
+
+// Safariがエラー出しまくってるので一時的に対処
+if ((message === null || message === "null") && line === 0 && window.navigator.userAgent.indexOf("Safari") >= 0) {
+if (Math.random() > 0.01) return;
+}
+
+
+window._send(message, url, line);
+
+};
+
+window._time = function(html_end_sec, dom_ready_sec, onload_sec) {
+window._send('js_time', location.href, 0, html_end_sec, dom_ready_sec, onload_sec);
+}
+
+window._send = function(message, url, line, html_end_sec, dom_ready_sec, onload_sec) {
+var result, q, e = window.encodeURIComponent;
+try {
+if ('' + message === '[object Event]') {
+message = [
+'type: ' + message.type,
+'' + message.target === '[object HTMLScriptElement]' ?
+'target: {src: ' + message.target.src + '}' :
+'target: ' + message.target,
+'currentTarget: ' + message.currentTarget,
+'eventPhase: ' + message.eventPhase,
+].join(', ');
+}
+q = [
+'service=' + e(service),
+'message=' + e(message),
+'url=' + e(url),
+'line=' + e(line),
+'location=' + e(location.href),
+'user_id=' + e(user_id),
+'premium=' + (window.pixiv && pixiv.user ? +!!pixiv.user.premium : '')
+];
+html_end_sec === undefined || q.push(
+'html_end_sec=' + e(html_end_sec),
+'dom_ready_sec=' + e(dom_ready_sec || 0),
+'onload_sec=' + e(onload_sec || 0)
+);
+new Image().src = api + '?' + q.join('&');
+}
+catch (error) {
+new Image().src = api + '?service=' + e(service) + '&message=' + e('send error: ' + error.message) + '&line=' + e(error.line || '');
+}
+};
+};
+</script><link rel="stylesheet" href="http://source.pixiv.net/www/css/global.css?2fcc6126c419944a3964c525f82ee6bb"><link rel="stylesheet" href="http://source.pixiv.net/www/css/global_2.css?2fcc6126c419944a3964c525f82ee6bb"><link rel="stylesheet" href="http://source.pixiv.net/www/css/app.css?d59b4d574a6ae22481797a55973b385d"><!--[if IE 8]><script src="http://source.pixiv.net/www/js/lib/html5shiv/html5shiv.js"></script><![endif]--><script src="http://source.pixiv.net/www/js/files/lib.min.js?b1242549530a94496defa06df8f456f3"></script><script src="http://source.pixiv.net/www/js/files/colon.min.js?db9a01511954654810a7cf283385a46d"></script><script src="http://source.pixiv.net/www/js/files/app.min.js?2c4fac4218b741ace075bfcfed1b2179"></script><script src="http://source.pixiv.net/www/js/files/book-viewer.min.js?b46ee63d4d2ef13ec45c430895615bae"></script><script>pixiv.development = false;pixiv.securePath = 'https://www.secure.pixiv.net/';pixiv.user.loggedIn = true;pixiv.user.id = '"189816"';pixiv.user.premium = false;pixiv.context.rated = false;pixiv.context.hasQuestionnaire = false;pixiv.context.userId = '"36527"';pixiv.context.illustId = '"46322053"';pixiv.context.bound = true;pixiv.context.rtl = true;pixiv.context.pages = [];pixiv.context.images = [];pixiv.context.thumbnailImages = [];pixiv.context.originalImages = [];pixiv.context.originalSizes = [];pixiv.text.action = 'Ratings / Bookmarks';pixiv.text.fit = '画像をウィンドウサイズに合わせる';pixiv.text.expanded = '画像を広げる';
+var _gaq = _gaq || [];
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+
+
+
+_gaq.push(['_setAccount', 'UA-1830249-3']);
+_gaq.push(['_setDomainName', 'pixiv.net']);
+
+if (window.pixiv && pixiv.tracking && pixiv.tracking.URL) {
+_gaq.push(['_trackPageview', pixiv.tracking.URL]);
+} else {
+_gaq.push(['_trackPageview']);
+}
+
+
+
+if (window.pixiv) {
+if (pixiv.user && pixiv.user.loggedIn) {
+_gaq.push(['_setCustomVar', 1, "login", "yes", 3]);
+_gaq.push(['_setCustomVar', 3, "plan", pixiv.user.premium ? "premium" : "normal", 1]);
+_gaq.push(['_setCustomVar', 5, "gender", pixiv.user.gender, 1]);
+_gaq.push(['_setCustomVar', 6, "user_id", pixiv.user.id, 1]);
+} else {
+_gaq.push(['_setCustomVar', 1, "login", "no", 3]);
+}
+
+(function() {
+// クッキーあれば、一回でもログインした人とみなす
+if (pixiv.user && colon.storage) {
+var cookie_name = 'login_ever';
+
+if (colon.storage.cookie(cookie_name)) {// 一度でもログインしたことある
+_gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
+
+} else if (pixiv.user.loggedIn) { // ログインしてる
+colon.storage.cookie(cookie_name, 'yes', {
+expires: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
+domain: location.hostname
+});
+_gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
+
+} else { // ログインしたこと無いし、ログインしてもない
+_gaq.push(['_setCustomVar', 2, "login ever", "no", 1]);
+}
+}
+} ())
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script><script>pixiv.context.images[0] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p0_master1200.jpg";pixiv.context.thumbnailImages[0] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p0_square1200.jpg";pixiv.context.originalImages[0] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p0.jpg";</script><script>pixiv.context.images[1] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p1_master1200.jpg";pixiv.context.thumbnailImages[1] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p1_square1200.jpg";pixiv.context.originalImages[1] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p1.jpg";</script><script>pixiv.context.images[2] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p2_master1200.jpg";pixiv.context.thumbnailImages[2] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p2_square1200.jpg";pixiv.context.originalImages[2] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p2.jpg";</script><script>pixiv.context.images[3] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p3_master1200.jpg";pixiv.context.thumbnailImages[3] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p3_square1200.jpg";pixiv.context.originalImages[3] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p3.jpg";</script><script>pixiv.context.images[4] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p4_master1200.jpg";pixiv.context.thumbnailImages[4] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p4_square1200.jpg";pixiv.context.originalImages[4] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p4.jpg";</script><script>pixiv.context.images[5] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p5_master1200.jpg";pixiv.context.thumbnailImages[5] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p5_square1200.jpg";pixiv.context.originalImages[5] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p5.jpg";</script><script>pixiv.context.images[6] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p6_master1200.jpg";pixiv.context.thumbnailImages[6] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p6_square1200.jpg";pixiv.context.originalImages[6] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p6.jpg";</script><script>pixiv.context.images[7] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p7_master1200.jpg";pixiv.context.thumbnailImages[7] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p7_square1200.jpg";pixiv.context.originalImages[7] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p7.jpg";</script><script>pixiv.context.images[8] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p8_master1200.jpg";pixiv.context.thumbnailImages[8] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p8_square1200.jpg";pixiv.context.originalImages[8] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p8.jpg";</script><script>pixiv.context.images[9] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p9_master1200.jpg";pixiv.context.thumbnailImages[9] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p9_square1200.jpg";pixiv.context.originalImages[9] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p9.jpg";</script><script>pixiv.context.images[10] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_master1200.jpg";pixiv.context.thumbnailImages[10] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_square1200.jpg";pixiv.context.originalImages[10] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10.jpg";</script></head><body><div class="images"></div><ul class="panel-container visible"><li class="item toggle-size"><i class="_icon-20 _icon-expand-image"></i><i class="_icon-20 _icon-fit-image"></i></li><li><ul class="items"><li class="item left"><i class="_icon-20 _icon-left"></i></li><li class="item right _disabled"><i class="_icon-20 _icon-right"></i></li><li class="item position"><span class="count">0</span>/<span class="total">0</span></li></ul></li><li class="item bookmark _ui-tooltip" data-tooltip="Add to Bookmarks"><a href="/bookmark_add.php?type=illust&amp;illust_id=46322053" target="_blank"><i class="_icon-20 _icon-star"></i></a></li><!-- <li class="item"><i class="_icon-20 _icon-dot"></i></li>--></ul><!-- <div class="info-modal _hidden">はろー</div>--><div id="ui-tooltip-container"><p></p><div class="arrow"></div></div></div></body></html>

@@ -23,7 +23,7 @@ class PixivConfig:
     username = ''
     password = ''
 
-    useragent = 'Mozilla/5.0 (X11; U; Unix i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'
+    useragent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36'
     debugHttp = False
 
     numberOfPage = 0

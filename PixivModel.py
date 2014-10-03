@@ -368,7 +368,7 @@ class PixivImage:
         if mode == 'big':
             self.imageUrls.append(self.ParseBigImages(page))
         elif mode == 'manga':
-            self.imageUrls = self.ParseMangaImagesNew(page)
+            self.imageUrls = self.CheckMangaType(page)
         elif mode == 'ugoira_view':
             self.imageUrls.append(self.ParseUgoira(page))
         if len(self.imageUrls) == 0:
@@ -394,36 +394,32 @@ class PixivImage:
                         self.imageCount = 1
                         return js["src"]
 
-    def ParseMangaImages(self, page):
+    def CheckMangaType(self, page):
+        # _book-viewer
+        twopage_format = page.find("html", attrs={'class':'_book-viewer rtl'})
+        if twopage_format is not None and len(twopage_format) > 0:
+            # new format
+            print "2-page manga viewer mode"
+            return self.ParseMangaImagesScript(page)
+        else:
+            # old  format
+            return self.ParseMangaImagesNew(page)
+
+    def ParseMangaImagesScript(self, page):
         urls = []
         scripts = page.findAll('script')
-        string = ''
+        pattern = re.compile("pixiv.context.originalImages\[\d+\].*(http.*)\"")
         for script in scripts:
-            string += str(script)
-        # normal: http://img04.pixiv.net/img/xxxx/12345_p0.jpg
-        # mypick: http://img04.pixiv.net/img/xxxx/12344_5baa86aaad_p0.jpg
-        pattern = re.compile('http.*?(?<!mobile)\d+[_0-9a-z_]*_p\d+\..{3}')
-        pattern2 = re.compile('http.*?(?<!mobile)(\d+[_0-9a-z_]*_p\d+)\..{3}')
-        m = pattern.findall(string)
+            s = str(script)
+            if "pixiv.context.originalImages" in s:
+                # <script>pixiv.context.images[10] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_master1200.jpg";pixiv.context.thumbnailImages[10] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_square1200.jpg";pixiv.context.originalImages[10] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10.jpg";</script>
+                m = pattern.findall(s)
+                if len(m) > 0:
+                    # http:\\/\\/i2.pixiv.net\\/img-original\\/img\\/2014\\/10\\/03\\/14\\/13\\/59\\/46322053_p0.jpg
+                    img = m[0].replace('\\/', "/")
+                    urls.append(img)
 
-        # filter mobile thumb: http://i1.pixiv.net/img01/img/sokusekimaou/mobile/20592252_128x128_p8.jpg
-        m2 = []
-        for img in m:
-            # decode url http:\/\/i2.pixiv.net\/img30\/img\/yukinokeisuke\/46132631_big_p0.png
-            img = img.replace('\\/', "/")
-            if img.find('/mobile/') == -1:
-                m2.append(img)
-        m = m2
-
-        self.imageCount = len(m)
-        for img in m:
-            temp = str(img)
-            m2 = pattern2.findall(temp)         ## 1234_p0
-            temp = temp.replace(m2[0], m2[0].replace('_p', '_big_p'))
-            urls.append(temp)
-            temp = str(img)
-            urls.append(temp)
-
+        self.imageCount = len(urls)
         return urls
 
     def ParseMangaImagesNew(self, page):
@@ -432,13 +428,14 @@ class PixivImage:
         links = mangaSection.findAll('a')
         ## /member_illust.php?mode=manga_big&illust_id=46279245&page=0
         import PixivBrowserFactory
-        _br = PixivBrowserFactory.getBrowser()
+        _br = PixivBrowserFactory.getExistingBrowser()
 
         for link in links:
             try:
                 href = _br.fixUrl(link["href"])
                 print "Fetching big image page:", href
                 bigPage = _br.getPixivPage(url=href, referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(self.imageId))
+
                 bigImg = bigPage.find('img')
                 imgUrl = bigImg["src"]
                 print "Found: ", imgUrl

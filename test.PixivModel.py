@@ -270,6 +270,7 @@ class TestPixivImage(unittest.TestCase):
       page.decompose()
       del page
 
+
     def testPixivImageNoImageEng(self):
       #print '\nTesting image page - no image'
       p = open('./test/test-image-noimage-eng.htm', 'r')
@@ -293,6 +294,19 @@ class TestPixivImage(unittest.TestCase):
       self.assertNotEqual(image, None)
       self.assertEqual(image.imageId, 28820443)
       self.assertEqual(image.imageMode, 'manga')
+
+    def testPixivImageParseMangaTwoPage(self):
+      #print '\nTesting parse Manga Images'
+      p = open('./test/test-image-manga-2page.htm', 'r')
+      page = BeautifulSoup(p.read())
+      image = PixivImage()
+      urls = image.ParseImages(page, mode='manga')
+      #print urls
+      self.assertEqual(len(urls), 11)
+      self.assertEqual(len(urls), image.imageCount)
+      imageId = urls[0].split('/')[-1].split('.')[0]
+      #print 'imageId:',imageId
+      self.assertEqual(imageId, '46322053_p0')
 
     def testPixivImageParseBig(self):
       #print '\nTesting parse Big Image'
