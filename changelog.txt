@@ -1,3 +1,6 @@
+20141004:
+- Update parser.
+
 20140926
 - Fix Issue #47: Update manga parser.
 

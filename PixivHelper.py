@@ -382,3 +382,4 @@ def getIdsFromCsv(ids_str, sep=','):
     if len(ids) > 1:
         printAndLog('info', "Found {0} ids".format(len(ids)))
     return ids
+

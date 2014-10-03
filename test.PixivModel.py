@@ -312,10 +312,11 @@ class TestPixivImage(unittest.TestCase):
       image = PixivImage()
       urls = image.ParseImages(page, mode='manga')
       #print urls
-      self.assertEqual(len(urls), 39*2)
+      self.assertEqual(len(urls), 3)
+      self.assertEqual(len(urls), image.imageCount)
       imageId = urls[0].split('/')[-1].split('.')[0]
       #print 'imageId:',imageId
-      self.assertEqual(imageId, '20592252_big_p0')
+      self.assertEqual(imageId, '46279245_big_p0')
 
     def testPixivImageNoLogin(self):
       #print '\nTesting not logged in'
@@ -564,4 +565,5 @@ if __name__ == '__main__':
     print "================================================================"
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivGroup)
     unittest.TextTestRunner(verbosity=5).run(suite)
+    raw_input("anykey")
 

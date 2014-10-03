@@ -85,6 +85,7 @@ class PixivBrowser(mechanize.Browser):
 
             throw PixivException as server error
         '''
+        url = self.fixUrl(url)
         retry_count = 0
         while True:
             req = urllib2.Request(url)
@@ -106,6 +107,18 @@ class PixivBrowser(mechanize.Browser):
                     retry_count = retry_count + 1
                 else:
                     raise PixivException("Failed to get page: " + ex.message, errorCode = PixivException.SERVER_ERROR)
+
+
+    def fixUrl(self, url, useHttps=False):
+        ## url = str(url)
+        if not url.startswith("http"):
+            if not url.startswith("/"):
+                url = "/" + url
+            if useHttps:
+                return "https://www.pixiv.net" + url
+            else:
+                return "http://www.pixiv.net" + url
+        return url
 
 
 def getBrowser(config = None, cookieJar = None):

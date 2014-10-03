@@ -90,15 +90,17 @@ class PixivArtist:
 
     def ParseImages(self, page):
         del self.imageList[:]
-        temp = page.find(attrs={'class':'display_works linkStyleWorks '}).ul
+        temp = page.find('ul', attrs={'class':'_image-items'})
         temp = temp.findAll('a')
         if temp == None or len(temp) == 0:
             raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
         for item in temp:
             href = re.search('member_illust.php.*illust_id=(\d+)', str(item))
             if href != None:
-                href = href.group(1)
-                self.imageList.append(int(href))
+                href = int(href.group(1))
+                # fuck performance :D
+                if href not in self.imageList:
+                    self.imageList.append(href)
 
     def IsNotLoggedIn(self, page):
         check = page.findAll('a', attrs={'class':'signup_button'})
@@ -366,7 +368,7 @@ class PixivImage:
         if mode == 'big':
             self.imageUrls.append(self.ParseBigImages(page))
         elif mode == 'manga':
-            self.imageUrls = self.ParseMangaImages(page)
+            self.imageUrls = self.ParseMangaImagesNew(page)
         elif mode == 'ugoira_view':
             self.imageUrls.append(self.ParseUgoira(page))
         if len(self.imageUrls) == 0:
@@ -421,6 +423,30 @@ class PixivImage:
             urls.append(temp)
             temp = str(img)
             urls.append(temp)
+
+        return urls
+
+    def ParseMangaImagesNew(self, page):
+        urls = []
+        mangaSection = page.find("section", attrs={'class':'manga'})
+        links = mangaSection.findAll('a')
+        ## /member_illust.php?mode=manga_big&illust_id=46279245&page=0
+        import PixivBrowserFactory
+        _br = PixivBrowserFactory.getBrowser()
+
+        for link in links:
+            try:
+                href = _br.fixUrl(link["href"])
+                print "Fetching big image page:", href
+                bigPage = _br.getPixivPage(url=href, referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(self.imageId))
+                bigImg = bigPage.find('img')
+                urls.append(bigImg["src"])
+            except Exception as ex:
+                print ex
+
+        total = page.find("span", attrs={'class':'total'})
+        if total is not None:
+            self.imageCount = int(total.string)
 
         return urls
 
@@ -570,10 +596,13 @@ class PixivNewIllustBookmark:
             for r in result:
                 href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
                 if href != None:
-                    href = href.group(1)
-                    self.imageList.append(int(href))
+                    href = int(href.group(1))
+                    # fuck performance :D
+                    if href not in self.imageList:
+                        self.imageList.append(href)
         except:
             pass
+
         return self.imageList
 
     def __CheckLastPage(self, page):
@@ -615,7 +644,7 @@ class PixivBookmark:
     @staticmethod
     def parseImageBookmark(page):
         imageList = list()
-        temp = page.find(attrs={'class':'display_works linkStyleWorks display_editable_works'}).ul
+        temp = page.find('ul', attrs={'class':'_image-items'})
         temp = temp.findAll('a')
         if temp == None or len(temp) == 0:
             return imageList
