@@ -351,7 +351,7 @@ class TestPixivImage(unittest.TestCase):
       #print '\nTesting image page'
       p = open('./test/test-image-ugoira.htm', 'r')
       page = BeautifulSoup(p.read())
-      image = PixivImage(44301046, page)
+      image = PixivImage(46281014, page)
       urls = image.ParseImages(page)
       print image.imageUrls
       self.assertTrue(image.imageUrls[0].find(".zip") > -1)
@@ -373,7 +373,7 @@ class TestPixivBookmark(unittest.TestCase):
       page = BeautifulSoup(p.read())
       result = PixivBookmark.parseImageBookmark(page)
 
-      self.assertEqual(len(result), 19)
+      self.assertEqual(len(result), 20)
       self.assertTrue(35303260 in result)
       self.assertTrue(28629066 in result)
       self.assertTrue(27249307 in result)
@@ -432,7 +432,7 @@ class TestMyPickPage(unittest.TestCase):
 class TestPixivTags(unittest.TestCase):
     def testTagsSearchExact1(self):
         br = Browser()
-        path = 'file:///' + os.path.abspath(u'./test/Error+page+for+search+tags+クドリャフカ.html').replace(os.sep,'/')
+        path = 'file:///' + os.path.abspath(u'./test/test-tags-search-exact2.htm').replace(os.sep,'/')
         p = br.open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
@@ -523,7 +523,7 @@ class TestPixivTags(unittest.TestCase):
         image.parseMemberTags(page)
 
         ##self.assertEqual(len(image.itemList), 10)
-        self.assertEqual(image.itemList[-1].imageId, 1809179)
+        self.assertEqual(image.itemList[-1].imageId, 1804545)
         self.assertEqual(image.isLastPage, True)
 
     def testTagsSkipShowcase(self):
