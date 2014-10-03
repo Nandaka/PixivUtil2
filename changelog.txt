@@ -1,5 +1,6 @@
-20141004:
+20141004b:
 - Update parser.
+- Update download logic for manga page (20141004b)
 
 20140926
 - Fix Issue #47: Update manga parser.

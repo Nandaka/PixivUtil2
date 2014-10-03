@@ -693,11 +693,11 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     print "Page Count :", image.imageCount
 
             result = PixivConstant.PIXIVUTIL_OK
-            skip_one = False
+            #skip_one = False
             for img in image.imageUrls:
-                if skip_one:
-                    skip_one = False
-                    continue
+                #if skip_one:
+                #    skip_one = False
+                #    continue
                 print 'Image URL :', img
                 url = os.path.basename(img)
                 splitted_url = url.split('.')

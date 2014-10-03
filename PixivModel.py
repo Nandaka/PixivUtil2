@@ -440,13 +440,21 @@ class PixivImage:
                 print "Fetching big image page:", href
                 bigPage = _br.getPixivPage(url=href, referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(self.imageId))
                 bigImg = bigPage.find('img')
-                urls.append(bigImg["src"])
+                imgUrl = bigImg["src"]
+                print "Found: ", imgUrl
+                urls.append(imgUrl)
+                bigImg.decompose()
+                bigPage.decompose()
+                del bigImg
+                del bigPage
             except Exception as ex:
                 print ex
 
         total = page.find("span", attrs={'class':'total'})
         if total is not None:
             self.imageCount = int(total.string)
+            if self.imageCount != len(urls):
+                raise PixivException("Different images count: " + str(self.imageCount) + " != " + str(len(urls)))
 
         return urls
 
