@@ -396,7 +396,7 @@ class PixivImage:
 
     def CheckMangaType(self, page):
         # _book-viewer
-        twopage_format = page.find("html", attrs={'class':'_book-viewer rtl'})
+        twopage_format = page.find("html", attrs={'class': re.compile(r".*\b_book-viewer\b.*")})
         if twopage_format is not None and len(twopage_format) > 0:
             # new format
             print "2-page manga viewer mode"

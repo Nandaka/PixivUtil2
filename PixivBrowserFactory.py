@@ -54,7 +54,7 @@ class PixivBrowser(mechanize.Browser):
         #self.set_handle_gzip(True)
         self.set_handle_redirect(True)
         self.set_handle_referer(True)
-        self.set_handle_robots(config.useRobots)
+        self.set_handle_robots(False)
 
         self.set_debug_http(config.debugHttp)
         if config.debugHttp :

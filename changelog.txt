@@ -1,3 +1,7 @@
+20141006:
+- Ignore userobots setting, now is set to always False.
+- Update manga parser again.
+
 20141004c:
 - Update parser.
 - Update download logic for manga page (20141004b)

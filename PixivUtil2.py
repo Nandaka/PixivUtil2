@@ -586,7 +586,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
     global __errorList
     parse_big_image = None
     parse_medium_page = None
-    view_page = None
     image = None
     result = None
     referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
@@ -652,7 +651,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     break
 
         if download_image_flag:
-
             PixivHelper.safePrint("Title: " + image.imageTitle)
             PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
@@ -685,19 +683,23 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                             parse_big_image.decompose()
                             del parse_big_image
                         break
-                    except PixivException as ex:
-                        PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+                    except Exception as ex:
+                        __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
+                        PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(traceback.format_exc()))
+                        try:
+                            if parse_big_image is not None:
+                                dump_filename = 'Error Big Page for image ' + str(image_id) + '.html'
+                                PixivHelper.dumpHtml(dump_filename, parse_big_image.get_data())
+                                PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
+                        except:
+                            PixivHelper.printAndLog('error', 'Cannot dump big page for image_id: ' + str(image_id))
                         return
 
                 if image.imageMode == 'manga':
                     print "Page Count :", image.imageCount
 
             result = PixivConstant.PIXIVUTIL_OK
-            #skip_one = False
             for img in image.imageUrls:
-                #if skip_one:
-                #    skip_one = False
-                #    continue
                 print 'Image URL :', img
                 url = os.path.basename(img)
                 splitted_url = url.split('.')
@@ -730,17 +732,10 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             overwrite = True
-                        if view_page is not None:
-                            referer = view_page.geturl()
-                        result = download_image(img, filename, referer, overwrite, __config__.retry,
-                                                __config__.backupOldFile)
+                        result = download_image(img, filename, referer, overwrite, __config__.retry, __config__.backupOldFile)
 
-                        if result == PixivConstant.PIXIVUTIL_NOT_OK and image.imageMode == 'manga' and img.find('_big') > -1:
-                            print 'No big manga image available, try the small one'
-                        elif result == PixivConstant.PIXIVUTIL_OK and image.imageMode == 'manga' and img.find('_big') > -1:
-                            skip_one = True
-                        elif result == PixivConstant.PIXIVUTIL_NOT_OK:
-                            PixivHelper.printAndLog('error', 'Image url not found: ' + str(image.imageId))
+                        if result == PixivConstant.PIXIVUTIL_NOT_OK:
+                            PixivHelper.printAndLog('error', 'Image url not found/failed to download: ' + str(image.imageId))
                     except urllib2.URLError:
                         PixivHelper.printAndLog('error', 'Giving up url: ' + str(img))
                         __log__.exception('Error when download_image(): ' + str(img))
@@ -759,8 +754,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
 
-        if view_page is not None:
-            del view_page
         if image is not None:
             del image
         gc.collect()
@@ -774,20 +767,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         PixivHelper.printAndLog('error', 'Error at process_image(): ' + str(sys.exc_info()))
         __log__.exception('Error at process_image(): ' + str(image_id))
-        try:
-            if view_page is not None:
-                dump_filename = 'Error Big Page for image ' + str(image_id) + '.html'
-                PixivHelper.dumpHtml(dump_filename, view_page.get_data())
-                PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
-        except:
-            PixivHelper.printAndLog('error', 'Cannot dump big page for image_id: ' + str(image_id))
-        try:
-            if parse_medium_page is not None:
-                dump_filename = 'Error Medium Page for image ' + str(image_id) + '.html'
-                PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
-                PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
-        except:
-            PixivHelper.printAndLog('error', 'Cannot medium dump page for image_id: ' + str(image_id))
         raise
 
 
