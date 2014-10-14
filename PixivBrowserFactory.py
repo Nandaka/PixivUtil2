@@ -9,9 +9,11 @@ import urllib
 import urllib2
 import httplib
 import time
+import sys
 
 import PixivHelper
 from PixivException import PixivException
+import PixivConstant
 
 defaultCookieJar = None
 defaultConfig = None
@@ -19,10 +21,12 @@ _browser = None
 
 class PixivBrowser(mechanize.Browser):
     _config = None
+
     def __init__(self, config, cookieJar):
         mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
         self._configureBrowser(config)
         self._configureCookie(cookieJar)
+
 
     def _configureBrowser(self, config):
         if config == None:
@@ -65,6 +69,7 @@ class PixivBrowser(mechanize.Browser):
 
         socket.setdefaulttimeout(config.timeout)
 
+
     def _configureCookie(self, cookieJar):
         if cookieJar != None:
             self.set_cookiejar(cookieJar)
@@ -72,6 +77,7 @@ class PixivBrowser(mechanize.Browser):
             global defaultCookieJar
             if defaultCookieJar == None:
                 defaultCookieJar = cookieJar
+
 
     def addCookie(self, cookie):
         global defaultCookieJar
@@ -120,6 +126,114 @@ class PixivBrowser(mechanize.Browser):
                 return "http://www.pixiv.net" + url
         return url
 
+    def _loadCookie(self, cookie_value):
+        """ Load cookie to the Browser instance """
+        ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
+                             port_specified=False, domain='pixiv.net', domain_specified=False,
+                             domain_initial_dot=False, path='/', path_specified=True,
+                             secure=False, expires=None, discard=True, comment=None,
+                             comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        self.addCookie(ck)
+
+    def _makeRequest(self, url):
+        if self._config.useProxy:
+            proxy = urllib2.ProxyHandler(self._config.proxy)
+            opener = urllib2.build_opener(proxy)
+            urllib2.install_opener(opener)
+        req = urllib2.Request(url)
+        return req
+
+
+    def loginUsingCookie(self, loginCookie=None):
+        """  Log in to Pixiv using saved cookie, return True if success """
+
+        if loginCookie is None or len(loginCookie) == 0:
+            loginCookie = self._config.cookie
+
+        if len(loginCookie) > 0:
+            PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
+            self._loadCookie(loginCookie)
+            req = self._makeRequest('http://www.pixiv.net/mypage.php')
+            self.open(req)
+            res_url = self.response().geturl()
+            if res_url == 'http://www.pixiv.net/mypage.php':
+                PixivHelper.printAndLog('info', 'Login successfull.')
+                PixivHelper.GetLogger().info('Logged in using cookie')
+                return True
+            else:
+                PixivHelper.GetLogger().info('Failed to login using cookie, returned page: ' + res_url)
+                PixivHelper.printAndLog('info', 'Cookie already expired/invalid.')
+        return False
+
+
+    def loginHttp(self, username, password):
+        """ Log in to Pixiv, return 0 if success """
+
+        try:
+            PixivHelper.printAndLog('info', 'Log in using form.')
+            req = self._makeRequest(PixivConstant.PIXIV_URL + PixivConstant.PIXIV_LOGIN_URL)
+            self.open(req)
+
+            self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
+            self['pixiv_id'] = username
+            self['pass'] = password
+            if self._config.keepSignedIn:
+                self.find_control('skip').items[0].selected = True
+
+            response = self.submit()
+            return self.processLoginResult(response)
+        except:
+            PixivHelper.printAndLog('error', 'Error at pixiv_login():' + str(sys.exc_info()))
+            PixivHelper.GetLogger().exception('Error at pixiv_login(): ' + str(sys.exc_info()))
+            raise
+
+    def loginHttps(self, username, password):
+        try:
+            PixivHelper.printAndLog('info', 'Log in using secure form.')
+            req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
+            self.open(req)
+
+            self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
+            self['pixiv_id'] = username
+            self['pass'] = password
+            if self._config.keepSignedIn:
+                self.find_control('skip').items[0].selected = True
+
+            response = self.submit()
+            return self.processLoginResult(response, )
+        except:
+            PixivHelper.printAndLog('error', 'Error at pixiv_login_ssl(): ' + str(sys.exc_info()))
+            raise
+
+    def processLoginResult(self, response):
+        PixivHelper.GetLogger().info('Logging in, return url: ' + response.geturl())
+
+        ## failed login will return to either of these page:
+        ## http://www.pixiv.net/login.php
+        ## https://www.secure.pixiv.net/login.php
+        if response.geturl().find('pixiv.net/login.php') == -1:
+            PixivHelper.printAndLog('info','Logged in')
+            ## write back the new cookie value
+            for cookie in self._ua_handlers['_cookies'].cookiejar:
+                if cookie.name == 'PHPSESSID':
+                    PixivHelper.printAndLog('info', 'new cookie value: ' + str(cookie.value))
+                    self._config.cookie = cookie.value
+                    self._config.writeConfig(path=self._config.configFileLocation)
+                    break
+            return True
+        else:
+            errors = self.parseLoginError(response)
+            if len(errors) > 0:
+                for error in errors:
+                    PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
+            else:
+                PixivHelper.printAndLog('info', 'Wrong username or password.')
+            return False
+
+    def parseLoginError(self, res):
+        page = BeautifulSoup(res.read())
+        r = page.findAll('span', attrs={'class': 'error'})
+        return r
 
 def getBrowser(config = None, cookieJar = None):
     global defaultCookieJar

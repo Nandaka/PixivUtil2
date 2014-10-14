@@ -15,6 +15,8 @@ script_path = PixivHelper.module_path()
 class PixivConfig:
     '''Configuration class'''
     __logger = PixivHelper.GetLogger()
+    configFileLocation = "config.ini"
+
     ## default value
     proxyAddress = ''
     proxy = {'http': proxyAddress, 'https': proxyAddress, }
@@ -76,16 +78,16 @@ class PixivConfig:
 
     def loadConfig(self, path=None):
         if path != None:
-            configFile = path
+            self.configFileLocation = path
         else:
-            configFile = script_path + os.sep + 'config.ini'
+            self.configFileLocation = script_path + os.sep + 'config.ini'
 
-        print 'Reading', configFile, '...'
+        print 'Reading', self.configFileLocation, '...'
         oldSetting = False
         haveError = False
         config = ConfigParser.RawConfigParser()
         try:
-            config.readfp(PixivHelper.OpenTextFile(configFile))
+            config.readfp(PixivHelper.OpenTextFile(self.configFileLocation))
 
             self.username = config.get('Authentication','username')
 

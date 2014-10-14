@@ -29,10 +29,10 @@ from optparse import OptionParser
 
 script_path = PixivHelper.module_path()
 
-Yavos = True
 np_is_valid = False
 np = 0
 op = ''
+DEBUG_SKIP_PROCESS_IMAGE = False
 
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
@@ -52,12 +52,6 @@ __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
 
 ### Utilities function ###
-def clear_all():
-    all_vars = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clear_all"]
-    for var in all_vars:
-        del globals()[var]
-
-
 def custom_request(url):
     if __config__.useProxy:
         proxy = urllib2.ProxyHandler(__config__.proxy)
@@ -217,115 +211,6 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
             raise
     print ' done.'
     return 0
-
-
-def load_cookie(cookie_value):
-    """ Load cookie to the Browser instance """
-    ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                         port_specified=False, domain='pixiv.net', domain_specified=False,
-                         domain_initial_dot=False, path='/', path_specified=True,
-                         secure=False, expires=None, discard=True, comment=None,
-                         comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-    PixivBrowserFactory.getBrowser(config=__config__).addCookie(ck)
-
-
-### Pixiv login related function ###
-def pixiv_login_cookie():
-    """  Log in to Pixiv using saved cookie, return True if success """
-
-    PixivHelper.printAndLog('info', 'logging in with saved cookie')
-    cookie_value = __config__.cookie
-    if len(cookie_value) > 0:
-        PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
-        load_cookie(cookie_value)
-        req = custom_request('http://www.pixiv.net/mypage.php')
-        __br__.open(req)
-        res_url = __br__.response().geturl()
-        if res_url == 'http://www.pixiv.net/mypage.php':
-            print 'done.'
-            __log__.info('Logged in using cookie')
-            return True
-        else:
-            __log__.info('Failed to login using cookie, returned page: ' + res_url)
-            PixivHelper.printAndLog('info', 'Cookie already expired/invalid.')
-    return False
-
-
-def pixiv_login(username, password):
-    """ Log in to Pixiv, return 0 if success """
-
-    try:
-        PixivHelper.printAndLog('info', 'Log in using form.')
-        req = custom_request(PixivConstant.PIXIV_URL + PixivConstant.PIXIV_LOGIN_URL)
-        __br__.open(req)
-
-        __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
-        __br__['pixiv_id'] = username
-        __br__['pass'] = password
-        if __config__.keepSignedIn:
-            __br__.find_control('skip').items[0].selected = True
-
-        response = __br__.submit()
-        return pixiv_process_login(response)
-    except:
-        print 'Error at pixiv_login():', sys.exc_info()
-        print 'failed'
-        __log__.exception('Error at pixiv_login(): ' + str(sys.exc_info()))
-        raise
-
-
-#noinspection PyProtectedMember
-def pixiv_process_login(response):
-    global configfile
-    __log__.info('Logging in, return url: ' + response.geturl())
-    ## failed login will return to either of these page:
-    ## http://www.pixiv.net/login.php
-    ## https://www.secure.pixiv.net/login.php
-    if response.geturl().find('pixiv.net/login.php') == -1:
-        print 'done.'
-        __log__.info('Logged in')
-        ## write back the new cookie value
-        for cookie in __br__._ua_handlers['_cookies'].cookiejar:
-            if cookie.name == 'PHPSESSID':
-                print 'new cookie value:', cookie.value
-                __config__.cookie = cookie.value
-                __config__.writeConfig(path=configfile)
-                break
-        return True
-    else:
-        errors = parse_login_error(response)
-        if len(errors) > 0:
-            for error in errors:
-                PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
-        else:
-            PixivHelper.printAndLog('info', 'Wrong username or password.')
-        return False
-
-
-def pixiv_login_ssl(username, password):
-    try:
-        PixivHelper.printAndLog('info', 'Log in using secure form.')
-        req = custom_request(PixivConstant.PIXIV_URL_SSL)
-        __br__.open(req)
-
-        __br__.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
-        __br__['pixiv_id'] = username
-        __br__['pass'] = password
-        if __config__.keepSignedIn:
-            __br__.find_control('skip').items[0].selected = True
-
-        response = __br__.submit()
-        return pixiv_process_login(response)
-    except:
-        print 'Error at pixiv_login_ssl():', sys.exc_info()
-        __log__.exception('Error at pixiv_login_ssl(): ' + str(sys.exc_info()))
-        raise
-
-
-def parse_login_error(res):
-    page = BeautifulSoup(res.read())
-    r = page.findAll('span', attrs={'class': 'error'})
-    return r
 
 
 ## Start of main processing logic
@@ -873,7 +758,8 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                                                                                                               images,
                                                                                                               skipped_count,
                                                                                                               total_image)
-                            process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
+                            if not DEBUG_SKIP_PROCESS_IMAGE:
+                                process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -902,10 +788,10 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             del search_page
 
             if end_page != 0 and end_page < i:
-                print 'End Page reached.'
+                PixivHelper.printAndLog('info', "End Page reached: " + end_page)
                 flag = False
             if t.isLastPage:
-                print 'Last page'
+                PixivHelper.printAndLog('info', "Last page: " + (i - 1))
                 flag = False
         print 'done'
     except KeyboardInterrupt:
@@ -1775,13 +1661,13 @@ def main():
         ## Log in
         result = False
         if len(__config__.cookie) > 0:
-            result = pixiv_login_cookie()
+            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie();
 
         if not result:
             if __config__.useSSL:
-                result = pixiv_login_ssl(username, password)
+                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttps(username, password)
             else:
-                result = pixiv_login(username, password)
+                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttp(username, password)
 
         if result:
             if __config__.overwrite:

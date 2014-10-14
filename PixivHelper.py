@@ -368,6 +368,7 @@ def HaveStrings(page, strings):
                return True
     return False
 
+
 def getIdsFromCsv(ids_str, sep=','):
     ids = list()
     ids_str = str(ids_str).split(sep)
@@ -383,3 +384,8 @@ def getIdsFromCsv(ids_str, sep=','):
         printAndLog('info', "Found {0} ids".format(len(ids)))
     return ids
 
+
+def clear_all():
+    all_vars = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clear_all"]
+    for var in all_vars:
+        del globals()[var]
