@@ -78,6 +78,13 @@ A.Usage:
         not set, python does not know what to write (Thanks to nho!)
       - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate 
         it properly (Thanks to Mailia!)
+  Q5. How to delete member id from Database?
+      - Open the application and choose Manage Database (d) then select delete 
+	Member by Member Id.
+      - Open the database (db.sqlite) directly using sqlite browser and use sql
+	command to delete it.
+      - If you are downloading using Download from List.txt (3), you can create
+	ignore_list.txt to skip the member id.
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
