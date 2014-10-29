@@ -73,7 +73,7 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
             else:
                 req.add_header('Referer', 'http://www.pixiv.net')
 
-            print "Using Referer:", str(referer)
+            PixivHelper.printAndLog('info', "Using Referer: " + str(referer))
 
             print 'Start downloading...',
             start_time = datetime.datetime.now()
@@ -83,14 +83,17 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
                 file_size = int(res.info()['Content-Length'])
             except KeyError:
                 file_size = -1
-                print "\tNo file size information!"
+                PixivHelper.printAndLog('info', "\tNo file size information!")
             except:
                 raise
 
             if os.path.exists(filename) and os.path.isfile(filename):
                 old_size = os.path.getsize(filename)
                 if not overwrite and int(file_size) == old_size:
-                    print "\tFile exist! (Identical Size)"
+                    PixivHelper.printAndLog('info', "\tFile exist! (Identical Size)")
+                    return 0  # Yavos: added 0 -> updateImage() will be executed
+                elif int(file_size) < old_size:
+                    PixivHelper.printAndLog('info', "\tFile exist! (Local is larger)")
                     return 0  # Yavos: added 0 -> updateImage() will be executed
                 else:
                     if backup_old_file:
@@ -98,19 +101,17 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
                         new_name = filename + "." + str(int(time.time()))
                         if len(split_name) == 2:
                             new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-                        PixivHelper.safePrint("\t Found file with different file size, backing up to: " + new_name)
-                        __log__.info("Found file with different file size, backing up to: " + new_name)
+                        PixivHelper.printAndLog('info', "\t Found file with different file size, backing up to: " + new_name)
                         os.rename(filename, new_name)
                     else:
-                        print "\t Found file with different file size, removing..."
-                        __log__.info(
-                           "Found file with different file size, removing old file (old: {0} vs new: {1})".format(
+                        PixivHelper.printAndLog('info',
+                           "\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
                               old_size, file_size))
                         os.remove(filename)
 
             directory = os.path.dirname(filename)
             if not os.path.exists(directory):
-                __log__.info('Creating directory: ' + directory)
+                PixivHelper.printAndLog('info', 'Creating directory: ' + directory)
                 os.makedirs(directory)
 
             try:
