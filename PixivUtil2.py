@@ -691,6 +691,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         i = page
         images = 1
         skipped_count = 0
+        search_page = None
 
         date_param = ""
         if start_date is not None:
@@ -789,10 +790,10 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             del search_page
 
             if end_page != 0 and end_page < i:
-                PixivHelper.printAndLog('info', "End Page reached: " + end_page)
+                PixivHelper.printAndLog('info', "End Page reached: " + str(end_page))
                 flag = False
             if t.isLastPage:
-                PixivHelper.printAndLog('info', "Last page: " + (i - 1))
+                PixivHelper.printAndLog('info', "Last page: " + str(i - 1))
                 flag = False
         print 'done'
     except KeyboardInterrupt:

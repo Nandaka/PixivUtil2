@@ -1,3 +1,6 @@
+20141121:
+- Fix issue #57: Type error when downloading from tags.
+
 20141006:
 - Ignore userobots setting, now is set to always False.
 - Update manga parser again.
