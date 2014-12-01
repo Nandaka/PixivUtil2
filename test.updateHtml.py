@@ -78,6 +78,7 @@ def main():
         downloadPage('http://www.pixiv.net/member_illust.php?mode=manga&illust_id=46279245', './test/test-image-parsemanga.htm')
         downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=46281014', './test/test-image-ugoira.htm')
         downloadPage('http://www.pixiv.net/member_illust.php?mode=manga&illust_id=46322053', './test/test-image-manga-2page.htm')
+        downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=28688383', './test/test-image-deleted.htm')
 
         downloadPage('http://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
 

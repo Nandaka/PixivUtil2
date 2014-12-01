@@ -515,6 +515,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
             else:
                 PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+            return
 
         download_image_flag = True
 
@@ -579,7 +580,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
                         except:
                             PixivHelper.printAndLog('error', 'Cannot dump big page for image_id: ' + str(image_id))
-                        return
+                        return PixivConstant.PIXIVUTIL_NOT_OK
 
                 if image.imageMode == 'manga':
                     print "Page Count :", image.imageCount
@@ -653,7 +654,14 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         PixivHelper.printAndLog('error', 'Error at process_image(): ' + str(sys.exc_info()))
         __log__.exception('Error at process_image(): ' + str(image_id))
+
+        if parse_medium_page is not None:
+            dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
+            PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
+            PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
+
         raise
+
 
 
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,

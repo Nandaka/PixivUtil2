@@ -270,6 +270,15 @@ class TestPixivImage(unittest.TestCase):
       page.decompose()
       del page
 
+    def testPixivImageDeleted(self):
+      #print '\nTesting image page - deleted image'
+      p = open('./test/test-image-deleted.htm', 'r')
+      page = BeautifulSoup(p.read())
+      with self.assertRaises(PixivException):
+          PixivImage(123, page)
+      page.decompose()
+      del page
+
 
     def testPixivImageNoImageEng(self):
       #print '\nTesting image page - no image'

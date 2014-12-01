@@ -252,7 +252,8 @@ class PixivImage:
 
     def IsDeleted(self, page):
         errorMessages = ['該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。',
-                         'The following work is either deleted, or the ID does not exist.']
+                         'The following work is either deleted, or the ID does not exist.',
+                         'This work was deleted.']
         return PixivHelper.HaveStrings(page, errorMessages)
 
     def IsGuroDisabled(self, page):
