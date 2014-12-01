@@ -1,3 +1,7 @@
+20141201:
+- Fix Issue #58: Update handler for private image.
+- Update handler for deleted image.
+
 20141121:
 - Fix issue #57: Type error when downloading from tags.
 
