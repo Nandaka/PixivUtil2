@@ -21,13 +21,13 @@ def prepare():
 
     result = False
     if len(__config__.cookie) > 0:
-        result = PixivUtil2.pixiv_login_cookie()
+        result = __br__.loginUsingCookie(__config__.cookie)
 
     if not result:
         if __config__.useSSL:
-            result = PixivUtil2.pixiv_login_ssl(username,password)
+            result = __br__.loginHttps(username,password)
         else:
-            result = PixivUtil2.pixiv_login(username,password)
+            result = __br__.loginHttp(username,password)
 
     return result
 
@@ -86,7 +86,7 @@ def main():
         downloadPage('http://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&s_mode=s_tag_full&order=date_d&p=12', './test/test-tags-search-partial.htm')
         downloadPage('http://www.pixiv.net/search.php?s_mode=s_tag_full&word=XXXXXX','./test/test-tags-search-exact-parse_details.htm')
         downloadPage('http://www.pixiv.net/search.php?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!','./test/test-tags-search-partial.htm')
-        downloadPage('http://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&order=date_d&p=12','./test/test-tags-search-partial-last.htm')
+        downloadPage('http://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&order=date_d&p=11','./test/test-tags-search-partial-last.htm')
 
         downloadPage('http://www.pixiv.net/search.php?s_mode=s_tag&word=R-18%20K-On!','./test/test-tags-search-skip-showcase.htm')
 

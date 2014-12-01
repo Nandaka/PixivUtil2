@@ -42,19 +42,19 @@ class TestPixivHelper(unittest.TestCase):
     ##print imageInfo.PrintInfo()
     nameFormat = '%member_token% (%member_id%)\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
-    expected = unicode(u'ffei (554800)\\28865189_p0 001 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p0 001 7-23-2012 複数枚投稿 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
-    ##print result
+    print result
     self.assertEqual(result, expected)
 
-    expected = unicode(u'ffei (554800)\\28865189_p14 015 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p14 015 7-23-2012 複数枚投稿 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
-    ##print result
+    print result
     self.assertEqual(result, expected)
 
-    expected = unicode(u'ffei (554800)\\28865189_p921 922 7-23-2012 Manga 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+    expected = unicode(u'ffei (554800)\\28865189_p921 922 7-23-2012 複数枚投稿 2P Photoshop C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
     result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
-    ##print result
+    print result
     self.assertEqual(result, expected)
 
   def testCreateFilenameUnicode(self):

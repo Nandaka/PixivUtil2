@@ -199,7 +199,7 @@ class PixivImage:
             if self.IsGuroDisabled(page):
                 raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!', errorCode=PixivException.R_18_DISABLED)
 
-            # check if there is any other error
+            ## check if there is any other error
             if self.IsErrorPage(page):
                 raise PixivException('An error occurred!', errorCode=PixivException.OTHER_IMAGE_ERROR)
 
@@ -246,7 +246,8 @@ class PixivImage:
 
     def IsNeedPermission(self, page):
         errorMessages = ['この作品は.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています',
-                         'This work is viewable only for users who are in .+\'s My pixiv list']
+                         'This work is viewable only for users who are in .+\'s My pixiv list',
+                         'Only .+\'s My pixiv list can view this.']
         return PixivHelper.HaveStrings(page, errorMessages)
 
     def IsDeleted(self, page):
