@@ -710,8 +710,9 @@ class PixivTags:
         for item in items:
             if str(item).find('member_illust.php?') > -1:
                 image_id = __re_illust.findall(item.find('a')['href'])[0]
-                if image_id in ignore:
+                if not str(image_id).isdigit() or image_id in ignore:
                     continue
+
                 bookmarkCount = 0
                 imageResponse = 0
                 countList = item.find('ul', attrs={'class':'count-list'})

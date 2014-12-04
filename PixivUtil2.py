@@ -515,7 +515,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
             else:
                 PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
-            return
+            return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
 
@@ -661,7 +661,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
 
         raise
-
 
 
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
