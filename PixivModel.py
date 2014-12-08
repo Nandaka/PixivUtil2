@@ -247,7 +247,8 @@ class PixivImage:
     def IsNeedPermission(self, page):
         errorMessages = ['この作品は.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています',
                          'This work is viewable only for users who are in .+\'s My pixiv list',
-                         'Only .+\'s My pixiv list can view this.']
+                         'Only .+\'s My pixiv list can view this.',
+                         '<section class="restricted-content">']
         return PixivHelper.HaveStrings(page, errorMessages)
 
     def IsDeleted(self, page):
