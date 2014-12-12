@@ -340,12 +340,17 @@ def dumpHtml(filename, html):
                 if matchResult != None and len(matchResult) > 0:
                     isDumpEnabled = False
 
+    if len(html) == 0:
+        print 'Empty Html'
+        return
+
     if isDumpEnabled:
         try:
             dump = file(filename, 'wb')
-            dump.write(html)
+            dump.write(str(html))
             dump.close()
-        except:
+        except Exception as ex:
+            print ex
             pass
     else:
         print "No Dump"

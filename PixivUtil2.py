@@ -317,7 +317,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
                     else:
-                        PixivHelper.dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", unicode(list_page))
+                        PixivHelper.dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", list_page)
                         if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
                             __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
                             PixivHelper.printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
@@ -461,7 +461,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         try:
             if list_page is not None:
                 dump_filename = 'Error page for member ' + str(member_id) + '.html'
-                PixivHelper.dumpHtml(dump_filename, unicode(list_page))
+                PixivHelper.dumpHtml(dump_filename, list_page)
                 PixivHelper.printAndLog('error', "Dumping html to: " + dump_filename)
         except:
             PixivHelper.printAndLog('error', 'Cannot dump page for member_id:' + str(member_id))
@@ -492,14 +492,13 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         try:
             parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
             image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count)
-            if image.imageMode == "ugoira_view" or image.imageMode == "big":
+            if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
                 image.ParseImages(page=parse_medium_page)
             if title_prefix is not None:
                 set_console_title(title_prefix + " ImageId: {0}".format(image.imageId))
             else:
                 set_console_title('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
-            parse_medium_page.decompose()
-            del parse_medium_page
+
         except PixivException as ex:
             __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
             if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
@@ -511,10 +510,17 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
             if parse_medium_page is not None:
                 dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
-                PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
+                PixivHelper.dumpHtml(dump_filename, parse_medium_page)
                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
             else:
                 PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+            return PixivConstant.PIXIVUTIL_NOT_OK
+        except Exception as ex:
+            PixivHelper.printAndLog('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+            if parse_medium_page is not None:
+                dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
+                PixivHelper.dumpHtml(dump_filename, parse_medium_page)
+                PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
@@ -560,7 +566,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         image.imageTags.remove(item)
 
             ## get manga page
-            if image.imageMode == 'manga':
+            if image.imageMode == 'manga' or image.imageMode == 'big':
                 while True:
                     try:
                         big_url = 'http://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
@@ -576,7 +582,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         try:
                             if parse_big_image is not None:
                                 dump_filename = 'Error Big Page for image ' + str(image_id) + '.html'
-                                PixivHelper.dumpHtml(dump_filename, parse_big_image.get_data())
+                                PixivHelper.dumpHtml(dump_filename, parse_big_image)
                                 PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
                         except:
                             PixivHelper.printAndLog('error', 'Cannot dump big page for image_id: ' + str(image_id))
@@ -644,6 +650,9 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         if image is not None:
             del image
         gc.collect()
+        if parse_medium_page is not None:
+            parse_medium_page.decompose()
+            del parse_medium_page
         ##clearall()
         print '\n'
         return result
@@ -657,7 +666,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
         if parse_medium_page is not None:
             dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
-            PixivHelper.dumpHtml(dump_filename, unicode(parse_medium_page))
+            PixivHelper.dumpHtml(dump_filename, parse_medium_page)
             PixivHelper.printAndLog('error', 'Dumping html to: ' + dump_filename)
 
         raise

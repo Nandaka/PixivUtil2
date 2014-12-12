@@ -1,5 +1,6 @@
-20141212:
-- Fix Issue #60: Update image parser.
+20141212b:
+- Fix Issue #60: Update image parser to handle old and new layout.
+- Fix html dump logic.
 
 20141201:
 - Fix Issue #58: Update handler for private image.

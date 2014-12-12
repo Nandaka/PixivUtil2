@@ -290,7 +290,7 @@ class PixivImage:
 
         if temp is None:
             # changes on pixiv website to handle big image
-            self.imageMode = "big"
+            self.imageMode = "bigNew"
 
         else :
             temp_id = int(re.search('illust_id=(\d+)',temp).group(1))
@@ -385,8 +385,15 @@ class PixivImage:
         return self.imageUrls
 
     def ParseBigImages(self, page):
-        temp = page.find('img', attrs={'class': 'big'})['data-src']
         self.imageCount = 1
+
+        # new layout for big
+        temp = page.find('img', attrs={'class': 'big'})
+        if temp is not None:
+            return str(temp['data-src'])
+
+        # old layout
+        temp = page.find('img')['src']
         return str(temp)
 
     def ParseUgoira(self, page):
