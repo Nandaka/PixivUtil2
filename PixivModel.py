@@ -374,7 +374,7 @@ class PixivImage:
             mode = self.imageMode
 
         del self.imageUrls[:]
-        if mode == 'big':
+        if mode == 'big' or mode == 'bigNew':
             self.imageUrls.append(self.ParseBigImages(page))
         elif mode == 'manga':
             self.imageUrls = self.CheckMangaType(page, _br)
