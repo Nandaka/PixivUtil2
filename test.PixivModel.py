@@ -1,11 +1,24 @@
 ﻿#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
 from PixivModel import PixivArtist, PixivImage, PixivBookmark,PixivNewIllustBookmark, PixivTags, PixivGroup
+from PixivBrowserFactory import PixivBrowser
 from PixivException import PixivException
 from BeautifulSoup import BeautifulSoup
 from mechanize import Browser
 import os
 import unittest
+
+class MockPixivBrowser(PixivBrowser):
+    def __init__(self):
+        pass
+
+    def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
+        ''' fake the manga page '''
+        pageNo = url.split("=")[-1]
+        p = open('./test/test-image-parsemanga-big-'+pageNo+'.htm', 'r')
+        page = BeautifulSoup(p.read())
+        return page
+
 
 class TestPixivArtist(unittest.TestCase):
     def testPixivArtistProfileDataSrc(self):
@@ -319,27 +332,28 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseBig(self):
       #print '\nTesting parse Big Image'
-      p = open('./test/test-image-parsebig.htm', 'r')
+      p = open('./test/test-image-unicode.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage()
       urls = image.ParseImages(page, mode='big')
       self.assertEqual(len(urls), 1)
+      print urls[0]
       imageId = urls[0].split('/')[-1].split('.')[0]
       #print 'imageId:',imageId
-      self.assertEqual(int(imageId), 20644633)
+      self.assertEqual(int(imageId), 2493913)
 
     def testPixivImageParseManga(self):
       #print '\nTesting parse Manga Images'
       p = open('./test/test-image-parsemanga.htm', 'r')
       page = BeautifulSoup(p.read())
       image = PixivImage()
-      urls = image.ParseImages(page, mode='manga')
+      urls = image.ParseImages(page, mode='manga', _br = MockPixivBrowser())
       #print urls
       self.assertEqual(len(urls), 3)
       self.assertEqual(len(urls), image.imageCount)
       imageId = urls[0].split('/')[-1].split('.')[0]
       #print 'imageId:',imageId
-      self.assertEqual(imageId, '46279245_big_p0')
+      self.assertEqual(imageId, '46279245_p0')
 
     def testPixivImageNoLogin(self):
       #print '\nTesting not logged in'
@@ -397,7 +411,7 @@ class TestPixivBookmark(unittest.TestCase):
       page = BeautifulSoup(p.read())
       result = PixivBookmark.parseImageBookmark(page)
 
-      self.assertEqual(len(result), 20)
+      self.assertEqual(len(result), 19)
       self.assertTrue(35303260 in result)
       self.assertTrue(28629066 in result)
       self.assertTrue(27249307 in result)

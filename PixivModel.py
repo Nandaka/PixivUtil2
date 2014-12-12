@@ -281,15 +281,21 @@ class PixivImage:
         return None
 
     def ParseInfo(self, page):
+        temp = None
         links = page.find(attrs={'class':'works_display'}).findAll('a')
         for a in links:
             if re.search('illust_id=(\d+)',a['href']) is not None:
                 temp = str(a['href'])
                 break
 
-        temp_id = int(re.search('illust_id=(\d+)',temp).group(1))
-        assert temp_id == self.imageId, "Invalid Id detected ==> %i != %i" % (temp_id, self.imageId)
-        self.imageMode = re.search('mode=(big|manga|ugoira_view)',temp).group(1)
+        if temp is None:
+            # changes on pixiv website to handle big image
+            self.imageMode = "big"
+
+        else :
+            temp_id = int(re.search('illust_id=(\d+)',temp).group(1))
+            assert temp_id == self.imageId, "Invalid Id detected ==> %i != %i" % (temp_id, self.imageId)
+            self.imageMode = re.search('mode=(big|manga|ugoira_view)',temp).group(1)
 
         # remove premium-introduction-modal so we can get caption from work-info
         # somehow selecting section doesn't works
@@ -361,7 +367,7 @@ class PixivImage:
         PixivHelper.safePrint( 'Tools : ' + self.worksTools)
         return ""
 
-    def ParseImages(self, page, mode=None):
+    def ParseImages(self, page, mode=None, _br=None):
         if page == None:
             raise PixivException('No page given', errorCode = PixivException.NO_PAGE_GIVEN)
         if mode == None:
@@ -371,7 +377,7 @@ class PixivImage:
         if mode == 'big':
             self.imageUrls.append(self.ParseBigImages(page))
         elif mode == 'manga':
-            self.imageUrls = self.CheckMangaType(page)
+            self.imageUrls = self.CheckMangaType(page, _br)
         elif mode == 'ugoira_view':
             self.imageUrls.append(self.ParseUgoira(page))
         if len(self.imageUrls) == 0:
@@ -379,7 +385,7 @@ class PixivImage:
         return self.imageUrls
 
     def ParseBigImages(self, page):
-        temp = page.find('img')['src']
+        temp = page.find('img', attrs={'class': 'big'})['data-src']
         self.imageCount = 1
         return str(temp)
 
@@ -397,7 +403,7 @@ class PixivImage:
                         self.imageCount = 1
                         return js["src"]
 
-    def CheckMangaType(self, page):
+    def CheckMangaType(self, page, _br):
         # _book-viewer
         twopage_format = page.find("html", attrs={'class': re.compile(r".*\b_book-viewer\b.*")})
         if twopage_format is not None and len(twopage_format) > 0:
@@ -406,7 +412,7 @@ class PixivImage:
             return self.ParseMangaImagesScript(page)
         else:
             # old  format
-            return self.ParseMangaImagesNew(page)
+            return self.ParseMangaImagesNew(page, _br)
 
     def ParseMangaImagesScript(self, page):
         urls = []
@@ -425,13 +431,14 @@ class PixivImage:
         self.imageCount = len(urls)
         return urls
 
-    def ParseMangaImagesNew(self, page):
+    def ParseMangaImagesNew(self, page, _br):
         urls = []
         mangaSection = page.find("section", attrs={'class':'manga'})
         links = mangaSection.findAll('a')
         ## /member_illust.php?mode=manga_big&illust_id=46279245&page=0
-        import PixivBrowserFactory
-        _br = PixivBrowserFactory.getExistingBrowser()
+        if _br is None:
+            import PixivBrowserFactory
+            _br = PixivBrowserFactory.getExistingBrowser()
 
         for link in links:
             try:

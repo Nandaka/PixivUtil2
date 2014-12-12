@@ -26,7 +26,7 @@ class PixivException(Exception):
 
   errorCode = 0
 
-  def __init__(self, value, errorCode):
+  def __init__(self, value, errorCode=0):
     self.value = value
     self.message = value
     self.errorCode = errorCode

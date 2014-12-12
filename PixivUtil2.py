@@ -492,7 +492,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         try:
             parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
             image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count)
-            if image.imageMode == "ugoira_view":
+            if image.imageMode == "ugoira_view" or image.imageMode == "big":
                 image.ParseImages(page=parse_medium_page)
             if title_prefix is not None:
                 set_console_title(title_prefix + " ImageId: {0}".format(image.imageId))
@@ -559,14 +559,14 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     if item in image.imageTags:
                         image.imageTags.remove(item)
 
-            ## get big/manga page
-            if image.imageMode == 'manga' or image.imageMode == 'big':
+            ## get manga page
+            if image.imageMode == 'manga':
                 while True:
                     try:
                         big_url = 'http://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
                         parse_big_image = PixivBrowserFactory.getBrowser().getPixivPage(big_url, referer)
                         if parse_big_image is not None:
-                            image.ParseImages(page=parse_big_image)
+                            image.ParseImages(page=parse_big_image, _br=PixivBrowserFactory.getExistingBrowser())
                             parse_big_image.decompose()
                             del parse_big_image
                         break
