@@ -387,7 +387,12 @@ class PixivImage:
     def ParseBigImages(self, page):
         self.imageCount = 1
 
-        # new layout for big
+        # new layout for big 20141216
+        temp = page.find('img', attrs={'class': 'original-image'})
+        if temp is not None:
+            return str(temp['data-src'])
+
+        # new layout for big 20141212
         temp = page.find('img', attrs={'class': 'big'})
         if temp is not None:
             return str(temp['data-src'])

@@ -1,3 +1,6 @@
+20141216:
+- Fix Issue #63: Update image parser again :(.
+
 20141212b:
 - Fix Issue #60: Update image parser to handle old and new layout.
 - Fix html dump logic.

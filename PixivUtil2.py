@@ -675,6 +675,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None):
+    search_page = None
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
@@ -707,7 +708,6 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         i = page
         images = 1
         skipped_count = 0
-        search_page = None
 
         date_param = ""
         if start_date is not None:

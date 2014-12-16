@@ -129,7 +129,7 @@ class TestPixivImage(unittest.TestCase):
       self.assertTrue(u'なにこれかわいい' in image2.imageTags)
       self.assertTrue(u'やはり存在する斧' in image2.imageTags)
 
-      self.assertEqual(image2.imageMode, "big")
+      self.assertEqual(image2.imageMode, "bigNew")
       self.assertEqual(image2.worksDate,'12-11-2012 00:23')
       self.assertEqual(image2.worksResolution,'642x900')
       self.assertEqual(image2.worksTools, 'Photoshop SAI')
@@ -250,7 +250,7 @@ class TestPixivImage(unittest.TestCase):
       del page
       self.assertNotEqual(image, None)
       self.assertEqual(image.imageId, 2493913)
-      self.assertEqual(image.imageMode, 'big')
+      self.assertEqual(image.imageMode, 'bigNew')
       self.assertEqual(image.worksDate,'12-23-2008 21:01')
       self.assertEqual(image.worksResolution,'852x1200')
       #print image.worksTools
