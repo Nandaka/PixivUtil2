@@ -37,6 +37,9 @@ DEBUG_SKIP_PROCESS_IMAGE = False
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
+import mechanize
+mechanize._html.unescape_charref = PixivHelper.unescape_charref
+
 __config__ = PixivConfig.PixivConfig()
 configfile = "config.ini"
 __dbManager__ = PixivDBManager.PixivDBManager(config = __config__)

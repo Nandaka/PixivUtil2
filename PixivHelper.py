@@ -394,3 +394,25 @@ def clear_all():
     all_vars = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clear_all"]
     for var in all_vars:
         del globals()[var]
+
+''' Replace default mechanize method in _html.py'''
+def unescape_charref(data, encoding):
+    try:
+      name, base = data, 10
+      if name.lower().startswith("x"):
+          name, base= name[1:], 16
+      try:
+          result = int(name, base)
+      except:
+          base = 16
+      uc = unichr(int(name, base))
+      if encoding is None:
+          return uc
+      else:
+          try:
+              repl = uc.encode(encoding)
+          except UnicodeError:
+              repl = "&#%s;" % data
+          return repl
+    except:
+      return data
