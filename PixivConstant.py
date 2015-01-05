@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20141216'
+PIXIVUTIL_VERSION = '20150105'
 PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
 PIXIV_URL = 'http://www.pixiv.net'
-PIXIV_URL_SSL = 'https://ssl.pixiv.net/login.php'
+PIXIV_URL_SSL = 'https://www.secure.pixiv.net/login.php'
 PIXIV_CSS_LIST_ID = 'display_works'
 PIXIV_CSS_PROFILE_NAME_CLASS = 'f18b'
 PIXIV_CSS_IMAGE_TITLE_CLASS = 'works_data'
