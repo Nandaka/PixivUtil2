@@ -1,3 +1,6 @@
+20150121:
+- Implement #66: Add option to download from oldest image first for Download by Tags/Tags list.
+
 20150105:
 - Update the SSL login page url to https://www.secure.pixiv.net/login.php.
 - Update BeautifulSoup to version 3.2.1.

@@ -677,7 +677,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
-               bookmark_count=None):
+               bookmark_count=None, oldest_first=False):
     search_page = None
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
@@ -736,6 +736,11 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
 
             if __config__.r18mode:
                 url = url + '&r18=1'
+
+            if oldest_first:
+                url = url + '&order=date'
+            else:
+                url = url + '&order=date_d'
 
             # encode to ascii
             url = unicode(url).encode('iso_8859_1')
@@ -830,12 +835,13 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         raise
 
 
-def process_tags_list(mode, filename, page=1, end_page=0):
+def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False):
     try:
         print "Reading:", filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            process_tags(mode, tag, page=page, end_page=end_page, use_tags_as_dir=__config__.useTagsAsDir)
+            process_tags(mode, tag, page=page, end_page=end_page, wild_card=wild_card,
+                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first)
     except KeyboardInterrupt:
         raise
     except:
@@ -1243,6 +1249,8 @@ def menu_download_by_tags(mode, opisvalid, args):
     start_date = None
     end_date = None
     bookmark_count = None
+    oldest_first = False
+    wildcard = True
     if opisvalid and len(args) > 0:
         wildcard = args[0]
         if wildcard.lower() == 'y':
@@ -1259,12 +1267,18 @@ def menu_download_by_tags(mode, opisvalid, args):
             wildcard = True
         else:
             wildcard = False
+        oldest_first = raw_input('Oldest first[y/n]: ') or 'n'
+        if oldest_first.lower() == 'y':
+            oldest_first = True
+        else:
+            oldest_first = False
+
         (page, end_page) = get_start_and_end_number()
         (start_date, end_date) = get_start_and_end_date()
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
     process_tags(mode, tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
-                use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count)
+                use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first)
 
 
 def menu_download_by_title_caption(mode, opisvalid, args):
@@ -1372,14 +1386,27 @@ def menu_download_from_tags_list(mode, opisvalid, args):
     __log__.info('Taglist mode.')
     page = 1
     end_page = 0
+    oldest_first = False
+    wildcard = True
+
     if opisvalid and len(args) > 0:
         filename = args[0]
         (page, end_page) = get_start_and_end_number_from_args(args, offset=1)
     else:
         filename = raw_input("Tags list filename [tags.txt]: ") or './tags.txt'
+        wildcard = raw_input('Use Wildcard[y/n]: ') or 'n'
+        if wildcard.lower() == 'y':
+            wildcard = True
+        else:
+            wildcard = False
+        oldest_first = raw_input('Oldest first[y/n]: ') or 'n'
+        if oldest_first.lower() == 'y':
+            oldest_first = True
+        else:
+            oldest_first = False
         (page, end_page) = get_start_and_end_number()
 
-    process_tags_list(mode, filename, page, end_page)
+    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first)
 
 
 def menu_download_new_illust_from_bookmark(mode, opisvalid, args):
