@@ -149,6 +149,14 @@ class TestPixivHelper(unittest.TestCase):
     self.assertTrue(len(r)>0)
     self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
 
+  def testParseLoginForm(self):
+    p = open('./test/test-login-form.html', 'r')
+    page = BeautifulSoup(p.read())
+    r = page.findAll('form', attrs={'action':'/login.php'})
+    print r
+    self.assertTrue(len(r)>0)
+
+
 if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivHelper)
