@@ -1,4 +1,4 @@
-20150218"
+20150218:
 - Fix Issue #64: Update login form selector.
 
 20150121:
