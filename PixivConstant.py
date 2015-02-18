@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20150121'
+PIXIVUTIL_VERSION = '20150218-Happy Lunar New Year'
 PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
 PIXIV_URL = 'http://www.pixiv.net'
 PIXIV_URL_SSL = 'https://www.secure.pixiv.net/login.php'

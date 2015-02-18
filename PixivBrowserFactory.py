@@ -174,7 +174,7 @@ class PixivBrowser(mechanize.Browser):
             req = self._makeRequest(PixivConstant.PIXIV_URL + PixivConstant.PIXIV_LOGIN_URL)
             self.open(req)
 
-            self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER)
+            self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
             self['pixiv_id'] = username
             self['pass'] = password
             if self._config.keepSignedIn:
@@ -193,7 +193,8 @@ class PixivBrowser(mechanize.Browser):
             req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
             self.open(req)
 
-            self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
+            ##self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
+            self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
             self['pixiv_id'] = username
             self['pass'] = password
             if self._config.keepSignedIn:
