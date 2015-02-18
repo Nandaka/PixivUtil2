@@ -1,3 +1,6 @@
+20150218"
+- Fix Issue #64: Update login form selector.
+
 20150121:
 - Implement #66: Add option to download from oldest image first for Download by Tags/Tags list.
 
