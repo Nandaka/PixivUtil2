@@ -226,7 +226,8 @@ class PixivBrowser(mechanize.Browser):
             errors = self.parseLoginError(response)
             if len(errors) > 0:
                 for error in errors:
-                    PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
+                    if error.string is not None:
+                        PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
             else:
                 PixivHelper.printAndLog('info', 'Wrong username or password.')
             return False
