@@ -1,3 +1,6 @@
+20150314-beta1:
+- Implement #69: Create .ugoira format, open with http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
+
 20150218:
 - Fix Issue #64: Update login form selector.
 

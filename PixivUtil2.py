@@ -632,6 +632,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.printAndLog('error', 'Image url not found/failed to download: ' + str(image.imageId))
+
                     except urllib2.URLError:
                         PixivHelper.printAndLog('error', 'Giving up url: ' + str(img))
                         __log__.exception('Error when download_image(): ' + str(img))
@@ -639,8 +640,12 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
             if __config__.writeImageInfo:
                 image.WriteInfo(filename + ".txt")
-            if __config__.writeUgoiraInfo and image.imageMode == 'ugoira_view':
-                image.WriteUgoiraData(filename + ".js")
+            if image.imageMode == 'ugoira_view':
+                if __config__.writeUgoiraInfo:
+                    image.WriteUgoiraData(filename + ".js")
+                if __config__.createUgoira:
+                    PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename + ".ugoira")
+                    image.CreateUgoira(filename)
 
         ## Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK:

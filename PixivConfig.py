@@ -75,6 +75,7 @@ class PixivConfig:
     skipDumpFilter = ""
     dumpMediumPage = False
     writeUgoiraInfo = False
+    createUgoira = False
 
     def loadConfig(self, path=None):
         if path != None:
@@ -367,6 +368,13 @@ class PixivConfig:
                 print "writeUgoiraInfo = False"
                 haveError = True
 
+            try:
+                self.createUgoira = config.getboolean('Settings','createUgoira')
+            except ValueError:
+                self.createUgoira = False
+                print "createUgoira = False"
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -433,6 +441,7 @@ class PixivConfig:
         config.set('Settings', 'skipDumpFilter', self.skipDumpFilter)
         config.set('Settings', 'dumpMediumPage', self.dumpMediumPage)
         config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
+        config.set('Settings', 'createUgoira', self.createUgoira)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -514,6 +523,7 @@ class PixivConfig:
         print ' - skipDumpFilter   =', self.skipDumpFilter
         print ' - dumpMediumPage   =', self.dumpMediumPage
         print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
+        print ' - createUgoira     =', self.createUgoira
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

@@ -3,6 +3,8 @@ from BeautifulSoup import BeautifulSoup, Tag
 import os
 import re
 import sys
+import shutil
+import zipfile
 import codecs
 import collections
 import PixivHelper
@@ -531,6 +533,20 @@ class PixivImage:
             PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".js")
         info.write(str(self.ugoira_data))
         info.close()
+
+    def CreateUgoira(self, filename):
+        if len(self.ugoira_data) == 0:
+            PixivHelper.GetLogger().exception("Missing ugoira animation info for image: " + str(self.imageId))
+
+        zipTarget = filename[:-4] + ".ugoira"
+        if os.path.exists(zipTarget):
+            os.remove(zipTarget)
+
+        shutil.copyfile(filename, zipTarget)
+        zipSize = os.stat(filename).st_size
+        jsStr = self.ugoira_data[:-1] + r',"zipSize":' + str(zipSize) + r'}'
+        with zipfile.ZipFile(zipTarget, mode="a") as z:
+            z.writestr("animation.json", jsStr)
 
 class PixivListItem:
     '''Class for item in list.txt'''

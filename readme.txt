@@ -343,6 +343,9 @@ enableDump      ==> Enable HTML Dump. Set to False to disable.
 skipDumpFilter  ==> Skip HTML Dump based on error code (using regex format).
                     E.g.: 1.*|2.* => skip all HTML dump for error code 1xxx/2xxx.
 dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
+writeugoirainfo ==> If set to True, it will dump the .js to external file.
+createugoira    ==> If set to True, it will create .ugoira file, see:
+                    http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
 
 =================================================================================
 = list.txt Format                                                               =
