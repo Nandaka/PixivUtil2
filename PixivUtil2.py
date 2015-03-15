@@ -644,7 +644,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
                 if __config__.createUgoira:
-                    PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename + ".ugoira")
+                    PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename[:-4] + ".ugoira")
                     image.CreateUgoira(filename)
 
         ## Only save to db if all images is downloaded completely
