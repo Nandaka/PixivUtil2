@@ -1,5 +1,7 @@
-20150314-beta1:
+20150321-beta2:
 - Implement #69: Create .ugoira format, open with http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
+- Implement #69: Add local .ugoira file checking.
+- Implement #70: call exit() with error code != 0 if got exception.
 
 20150218:
 - Fix Issue #64: Update login form selector.

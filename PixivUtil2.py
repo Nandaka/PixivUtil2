@@ -33,6 +33,7 @@ np_is_valid = False
 np = 0
 op = ''
 DEBUG_SKIP_PROCESS_IMAGE = False
+ERROR_CODE = 0
 
 gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
@@ -81,6 +82,8 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
             print 'Start downloading...',
             start_time = datetime.datetime.now()
             res = __br__.open_novisit(req)
+
+            # get file size
             file_size = -1
             try:
                 file_size = int(res.info()['Content-Length'])
@@ -90,27 +93,22 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
             except:
                 raise
 
+            # check if existing file exists
             if os.path.exists(filename) and os.path.isfile(filename):
                 old_size = os.path.getsize(filename)
-                if not overwrite and int(file_size) == old_size:
-                    PixivHelper.printAndLog('info', "\tFile exist! (Identical Size)")
-                    return 0  # Yavos: added 0 -> updateImage() will be executed
-                elif int(file_size) < old_size:
-                    PixivHelper.printAndLog('info', "\tFile exist! (Local is larger)")
-                    return 0  # Yavos: added 0 -> updateImage() will be executed
-                else:
-                    if backup_old_file:
-                        split_name = filename.rsplit(".", 1)
-                        new_name = filename + "." + str(int(time.time()))
-                        if len(split_name) == 2:
-                            new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-                        PixivHelper.printAndLog('info', "\t Found file with different file size, backing up to: " + new_name)
-                        os.rename(filename, new_name)
-                    else:
-                        PixivHelper.printAndLog('info',
-                           "\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
-                              old_size, file_size))
-                        os.remove(filename)
+                checkResult = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
+                if checkResult != 1:
+                    return checkResult
+
+            # check for ugoira file
+            if filename.endswith(".zip"):
+                ugoName = filename[:-4] + ".ugoira"
+                if os.path.exists(ugoName) and os.path.isfile(ugoName):
+                    old_size = PixivHelper.getUgoiraSize(ugoName)
+                    checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
+                    if checkResult != 1:
+                        return checkResult
+
 
             directory = os.path.dirname(filename)
             if not os.path.exists(directory):
@@ -643,17 +641,19 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             if image.imageMode == 'ugoira_view':
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
-                if __config__.createUgoira:
+                if __config__.createUgoira and result == PixivConstant.PIXIVUTIL_OK:
                     PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename[:-4] + ".ugoira")
                     image.CreateUgoira(filename)
 
-        ## Only save to db if all images is downloaded completely
-        if result == PixivConstant.PIXIVUTIL_OK:
+        # Only save to db if all images is downloaded completely
+        if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
             try:
                 __dbManager__.insertImage(image.artist.artistId, image.imageId)
             except:
                 pass
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
+            # map back to PIXIVUTIL_OK (because of ugoira file check)
+            result = 0
 
         if image is not None:
             del image
@@ -1509,6 +1509,8 @@ def setup_option_parser():
 ### Main thread ###
 def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
     global __errorList
+    global ERROR_CODE
+
     while True:
         try:
             if len(__errorList) > 0:
@@ -1517,6 +1519,7 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
                     message = err["type"] + ": " + str(err["id"]) + " ==> " + err["message"]
                     PixivHelper.printAndLog('error', message)
                 __errorList = list()
+                ERROR_CODE = 1
 
             if op_is_valid:  # Yavos (next 3 lines): if commandline then use it
                 selection = op
@@ -1588,6 +1591,7 @@ def main():
     global op
     global __br__
     global configfile
+    global ERROR_CODE
 
     parser = setup_option_parser()
     (options, args) = parser.parse_args()
@@ -1736,14 +1740,16 @@ def main():
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         __log__.exception('Unknown Error: ' + str(exc_value))
+        ERROR_CODE = 2
     finally:
         __dbManager__.close()
         if not ewd:  # Yavos: prevent input on exitwhendone
             if selection is None or selection != 'x':
                 raw_input('press enter to exit.')
         __log__.setLevel("INFO")
-        __log__.info('EXIT')
+        __log__.info('EXIT: ' + str(ERROR_CODE))
         __log__.info('###############################################################')
+        exit(ERROR_CODE)
 
 
 if __name__ == '__main__':

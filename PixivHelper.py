@@ -8,8 +8,10 @@ import sys
 import PixivModel, PixivConstant
 import logging, logging.handlers
 import datetime
-
+import zipfile
+import time
 import unicodedata
+import json
 
 Logger = None
 _config = None
@@ -416,3 +418,36 @@ def unescape_charref(data, encoding):
           return repl
     except:
       return data
+
+def getUgoiraSize(ugoName):
+    size = 0
+    try:
+        with zipfile.ZipFile(ugoName) as z:
+            animJson = z.read("animation.json")
+            size = json.loads(animJson)['zipSize']
+            z.close()
+    except:
+        printAndLog('error', 'Failed to read ugoira: ' + ugoName)
+    return size
+
+def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
+    if not overwrite and int(file_size) == old_size:
+        printAndLog('info', "\tFile exist! (Identical Size)")
+        return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+    elif int(file_size) < old_size:
+        printAndLog('info', "\tFile exist! (Local is larger)")
+        return PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER
+    else:
+        if backup_old_file:
+            split_name = filename.rsplit(".", 1)
+            new_name = filename + "." + str(int(time.time()))
+            if len(split_name) == 2:
+                new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
+            printAndLog('info', "\t Found file with different file size, backing up to: " + new_name)
+            os.rename(filename, new_name)
+        else:
+            printAndLog('info',
+               "\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
+                  old_size, file_size))
+            os.remove(filename)
+        return 1

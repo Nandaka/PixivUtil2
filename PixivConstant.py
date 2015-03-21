@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20150315-beta1'
+PIXIVUTIL_VERSION = '20150321-beta2'
 PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
 PIXIV_URL = 'http://www.pixiv.net'
 PIXIV_URL_SSL = 'https://www.secure.pixiv.net/login.php'
@@ -29,5 +29,7 @@ PIXIVUTIL_OK = 0
 PIXIVUTIL_SKIP_OLDER = 1
 PIXIVUTIL_SKIP_BLACKLIST = 2
 PIXIVUTIL_KEYBOARD_INTERRUPT = 3
+PIXIVUTIL_SKIP_DUPLICATE = 4
+PIXIVUTIL_SKIP_LOCAL_LARGER = 5
 
 BUFFER_SIZE = 8192
