@@ -346,6 +346,8 @@ dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
 writeugoirainfo ==> If set to True, it will dump the .js to external file.
 createugoira    ==> If set to True, it will create .ugoira file, see:
                     http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
+deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
+		    Only active if createUgoira = True.
 
 =================================================================================
 = list.txt Format                                                               =

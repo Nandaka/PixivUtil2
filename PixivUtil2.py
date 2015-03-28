@@ -648,6 +648,10 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if __config__.createUgoira and result == PixivConstant.PIXIVUTIL_OK:
                     PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename[:-4] + ".ugoira")
                     image.CreateUgoira(filename)
+                    if __config__.deleteZipFile:
+                        PixivHelper.printAndLog('info', "Deleting zip file => " + filename)
+                        os.remove(filename)
+
 
         # Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:

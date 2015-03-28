@@ -4,6 +4,7 @@
 - Implement #70: call os._exit() with error code != 0 if got exception.
 - Fix Issue #71: Always overwrite files even if local file is larger, use backupoldfile=True to backup the old file!
 - Fix Issue #72: Update download by tags parser.
+- Fix Issue #69: Add option to delete zip file, set deleteZipFile = True.
 
 20150218:
 - Fix Issue #64: Update login form selector.
