@@ -314,6 +314,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     artist = PixivArtist(mid=member_id, page=list_page)
                     break
                 except PixivException as ex:
+                    global ERROR_CODE
+                    ERROR_CODE = ex.errorCode
                     PixivHelper.printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
@@ -501,6 +503,8 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 set_console_title('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
 
         except PixivException as ex:
+            global ERROR_CODE
+            ERROR_CODE = ex.errorCode
             __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
             if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
                 PixivHelper.safePrint(ex.message)
@@ -1736,11 +1740,11 @@ def main():
 
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
-    except Exception:
+    except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         __log__.exception('Unknown Error: ' + str(exc_value))
-        ERROR_CODE = 2
+        ERROR_CODE = getattr(ex, 'errorCode', -1)
     finally:
         __dbManager__.close()
         if not ewd:  # Yavos: prevent input on exitwhendone
