@@ -1749,7 +1749,7 @@ def main():
         __log__.setLevel("INFO")
         __log__.info('EXIT: ' + str(ERROR_CODE))
         __log__.info('###############################################################')
-        exit(ERROR_CODE)
+        os._exit(ERROR_CODE)
 
 
 if __name__ == '__main__':
