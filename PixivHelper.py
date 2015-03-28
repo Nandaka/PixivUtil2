@@ -434,9 +434,9 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
         printAndLog('info', "\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
-    elif int(file_size) < old_size:
-        printAndLog('info', "\tFile exist! (Local is larger)")
-        return PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER
+    #elif int(file_size) < old_size:
+    #    printAndLog('info', "\tFile exist! (Local is larger)")
+    #    return PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER
     else:
         if backup_old_file:
             split_name = filename.rsplit(".", 1)
