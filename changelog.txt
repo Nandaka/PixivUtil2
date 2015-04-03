@@ -1,3 +1,7 @@
+20150403-beta:
+- Add feature to download both private and public image bookmark.
+- Fix Issue #70: Update Error code updated and use sys.exit() instead of os._exit()
+
 20150328:
 - Implement #69: Create .ugoira format, open with http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
 - Implement #69: Add local .ugoira file checking.

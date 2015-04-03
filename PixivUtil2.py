@@ -218,6 +218,8 @@ def download_image(url, filename, referer, overwrite, retry, backup_old_file=Fal
 ## Start of main processing logic
 #noinspection PyUnusedLocal
 def process_list(mode, list_file_name=None):
+    global ERROR_CODE
+
     result = None
     try:
         ## Getting the list
@@ -265,6 +267,7 @@ def process_list(mode, list_file_name=None):
     except KeyboardInterrupt:
         raise
     except:
+        ERROR_CODE = getattr(ex, 'errorCode', -1)
         print 'Error at process_list():', sys.exc_info()
         print 'Failed'
         __log__.exception('Error at process_list(): ' + str(sys.exc_info()))
@@ -273,6 +276,7 @@ def process_list(mode, list_file_name=None):
 
 def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=False):
     global __errorList
+    global ERROR_CODE
 
     PixivHelper.printAndLog('info', 'Processing Member Id: ' + str(member_id))
     if page != 1:
@@ -314,7 +318,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     artist = PixivArtist(mid=member_id, page=list_page)
                     break
                 except PixivException as ex:
-                    global ERROR_CODE
                     ERROR_CODE = ex.errorCode
                     PixivHelper.printAndLog('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
                     if ex.errorCode == PixivException.NO_IMAGES:
@@ -473,6 +476,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 
 def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
+    global ERROR_CODE
+
     parse_big_image = None
     parse_medium_page = None
     image = None
@@ -503,7 +508,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 set_console_title('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
 
         except PixivException as ex:
-            global ERROR_CODE
             ERROR_CODE = ex.errorCode
             __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
             if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
@@ -675,6 +679,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
     except KeyboardInterrupt:
         raise
     except:
+        ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         PixivHelper.printAndLog('error', 'Error at process_image(): ' + str(sys.exc_info()))
@@ -849,6 +854,8 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
 
 
 def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False):
+    global ERROR_CODE
+
     try:
         print "Reading:", filename
         l = PixivTags.parseTagsList(filename)
@@ -858,6 +865,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest
     except KeyboardInterrupt:
         raise
     except:
+        ERROR_CODE = getattr(ex, 'errorCode', -1)
         print 'Error at process_tags_list():', sys.exc_info()
         __log__.exception('Error at process_tags_list(): ' + str(sys.exc_info()))
         raise
@@ -1739,7 +1747,7 @@ def main():
             print msg
             __log__.info(msg)
 
-        ## Log in
+        # Start login block
         result = False
         if len(__config__.cookie) > 0:
             result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie();
@@ -1760,6 +1768,11 @@ def main():
 
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
+        else:
+            # failed to log in
+            ERROR_CODE = PixivException.NOT_LOGGED_IN
+        # end login block
+
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -1773,7 +1786,7 @@ def main():
         __log__.setLevel("INFO")
         __log__.info('EXIT: ' + str(ERROR_CODE))
         __log__.info('###############################################################')
-        os._exit(ERROR_CODE)
+        sys.exit(ERROR_CODE)
 
 
 if __name__ == '__main__':
