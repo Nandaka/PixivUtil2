@@ -868,42 +868,22 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0):
     global np
     try:
         print "Importing image bookmarks..."
-        #totalList = list()
-        i = start_page
+        totalList = list()
         image_count = 1
-        while True:
-            if end_page != 0 and i > end_page:
-                print "Page Limit reached: " + str(end_page)
-                break
 
-            print "Importing user's bookmarked image from page", str(i),
-            url = 'http://www.pixiv.net/bookmark.php?p=' + str(i)
-            if hide == 'y':
-                url = url + "&rest=hide"
-            page = __br__.open(url)
-            parse_page = BeautifulSoup(page.read())
-            l = PixivBookmark.parseImageBookmark(parse_page)
-            if len(l) == 0:
-                print "No more images."
-                break
-            else:
-                print " found " + str(len(l)) + " images."
+        if hide == 'n':
+            totalList.extend(get_image_bookmark(False, start_page, end_page))
+        elif hide == 'y':
+            totalList.extend(get_image_bookmark(False, start_page, end_page))
+            totalList.extend(get_image_bookmark(True, start_page, end_page))
+        else :
+            totalList.extend(get_image_bookmark(True, start_page, end_page))
 
-            for item in l:
-                print "Image #" + str(image_count)
-                process_image(mode, artist=None, image_id=item)
-                image_count = image_count + 1
-
-            i = i + 1
-
-            parse_page.decompose()
-            del parse_page
-
-            if np_is_valid:  # Yavos: overwrite config-data
-                if i > np and np != 0:
-                    break
-            elif i > __config__.numberOfPage and __config__.numberOfPage != 0:
-                break
+        PixivHelper.printAndLog('info', "Found " + str(len(totalList)) + " image(s).")
+        for item in totalList:
+            print "Image #" + str(image_count)
+            process_image(mode, artist=None, image_id=item)
+            image_count = image_count + 1
 
         print "Done.\n"
     except KeyboardInterrupt:
@@ -912,6 +892,39 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0):
         print 'Error at process_image_bookmark():', sys.exc_info()
         __log__.exception('Error at process_image_bookmark(): ' + str(sys.exc_info()))
         raise
+
+def get_image_bookmark(hide, start_page=1, end_page=0):
+    """Get user's image bookmark"""
+    total_list = list()
+    i = start_page
+    while True:
+        if end_page != 0 and i > end_page:
+            print "Page Limit reached: " + str(end_page)
+            break
+
+        url = 'http://www.pixiv.net/bookmark.php?p=' + str(i)
+        if hide:
+            url = url + "&rest=hide"
+
+        PixivHelper.printAndLog('info', "Importing user's bookmarked image from page " + str(i))
+        PixivHelper.printAndLog('info', "Source URL: "+ url)
+
+        page = __br__.open(url)
+        parse_page = BeautifulSoup(page.read())
+        l = PixivBookmark.parseImageBookmark(parse_page)
+        total_list.extend(l)
+        if len(l) == 0:
+            print "No more images."
+            break
+        else:
+            print " found " + str(len(l)) + " images."
+
+        i = i + 1
+
+        parse_page.decompose()
+        del parse_page
+
+    return total_list
 
 
 def get_bookmarks(hide, start_page=1, end_page=0):
@@ -922,8 +935,10 @@ def get_bookmarks(hide, start_page=1, end_page=0):
         if end_page != 0 and i > end_page:
             print 'Limit reached'
             break
-        print 'Exporting page', str(i),
+        PixivHelper.printAndLog('info', 'Exporting page ' + str(i))
         url = 'http://www.pixiv.net/bookmark.php?type=user&p=' + str(i)
+        PixivHelper.printAndLog('info', "Source URL: " + url)
+
         if hide:
             url = url + "&rest=hide"
         page = __br__.open(url)
@@ -986,6 +1001,7 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
         while flag:
             print "Page #" + str(i)
             url = 'http://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
+            PixivHelper.printAndLog('info', "Source URL: " + url)
             page = __br__.open(url)
             parsed_page = BeautifulSoup(page.read())
             pb = PixivNewIllustBookmark(parsed_page)
@@ -1032,7 +1048,7 @@ def process_from_group(mode, group_id, limit=0, process_external=True):
         flag = True
         while flag:
             url = "http://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
-            print "Getting images from: {0}".format(url)
+            PixivHelper.printAndLog('info', "Getting images from: {0}".format(url))
             json_response = __br__.open(url)
             group_data = PixivGroup(json_response)
             max_id = group_data.maxId
@@ -1383,9 +1399,9 @@ def menu_download_from_online_image_bookmark(mode, opisvalid, args):
             return
         (start_page, end_page) = get_start_and_end_number_from_args(args, offset=1)
     else:
-        arg = raw_input("Only Private bookmarks [y/n]: ") or 'n'
+        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
-        if arg == 'y' or arg == 'n':
+        if arg == 'y' or arg == 'n' or arg == 'o':
             hide = arg
         else:
             print "Invalid args: ", arg
