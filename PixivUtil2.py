@@ -310,7 +310,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                         member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
                     else:
                         member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
-                    if __config__.r18mode:
+                    if __config__.r18mode and not bookmark:
                         member_url = member_url + '&tag=R-18'
                         PixivHelper.printAndLog('info', 'R-18 Mode only.')
                     PixivHelper.printAndLog('info', 'Member Url: ' + member_url)
