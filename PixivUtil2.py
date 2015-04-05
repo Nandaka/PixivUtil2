@@ -935,7 +935,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0):
     return total_list
 
 
-def get_bookmarks(hide, start_page=1, end_page=0):
+def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
     """Get user/artists bookmark"""
     total_list = list()
     i = start_page
@@ -945,10 +945,12 @@ def get_bookmarks(hide, start_page=1, end_page=0):
             break
         PixivHelper.printAndLog('info', 'Exporting page ' + str(i))
         url = 'http://www.pixiv.net/bookmark.php?type=user&p=' + str(i)
-        PixivHelper.printAndLog('info', "Source URL: " + url)
-
         if hide:
             url = url + "&rest=hide"
+        if member_id:
+            url = url + "&id=" + member_id
+        PixivHelper.printAndLog('info', "Source URL: " + url)
+
         page = __br__.open(url)
         parse_page = BeautifulSoup(page.read())
         l = PixivBookmark.parseBookmark(parse_page)
@@ -981,15 +983,15 @@ def process_bookmark(mode, hide='n', start_page=1, end_page=0):
         raise
 
 
-def export_bookmark(filename, hide='n', start_page=1, end_page=0):
+def export_bookmark(filename, hide='n', start_page=1, end_page=0, member_id=None):
     try:
         total_list = list()
         if hide != 'o':
             print "Importing Bookmarks..."
-            total_list.extend(get_bookmarks(False, start_page, end_page))
+            total_list.extend(get_bookmarks(False, start_page, end_page, member_id))
         if hide != 'n':
             print "Importing Private Bookmarks..."
-            total_list.extend(get_bookmarks(True, start_page, end_page))
+            total_list.extend(get_bookmarks(True, start_page, end_page, member_id))
         print "Result: ", str(len(total_list)), "items."
         PixivBookmark.exportList(total_list, filename)
     except KeyboardInterrupt:
@@ -1491,6 +1493,19 @@ def menu_export_online_bookmark(mode, opisvalid, args):
     export_bookmark(filename, hide)
 
 
+def menu_export_online_user_bookmark(mode, opisvalid, args):
+    __log__.info('Export Bookmark mode.')
+    member_id = ''
+    filename = raw_input("Filename: ")
+    arg = raw_input("Member Id: ") or ''
+    arg = arg.lower()
+    if arg.isdigit():
+        member_id = arg
+    else:
+        print "Invalid args: ", arg
+    export_bookmark(filename, 'n', 1, 0, member_id)
+
+
 def menu_reload_config():
     __log__.info('Manual Reload Config.')
     __config__.loadConfig(path=configfile)
@@ -1523,6 +1538,7 @@ def setup_option_parser():
                             '11 - Download images from Member Bookmark               ' +
                             '12 - Download images by Group Id                        ' +
                             'e - Export online bookmark                              ' +
+                            'm - Export online user bookmark                         ' +
                             'd - Manage database')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
                       help='Exit programm when done. (only useful when not using DB-Manager)',
@@ -1584,6 +1600,8 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
                 menu_download_by_group_id(mode, op_is_valid, args)
             elif selection == 'e':
                 menu_export_online_bookmark(mode, op_is_valid, args)
+            elif selection == 'm':
+                menu_export_online_user_bookmark(mode, op_is_valid, args)
             elif selection == 'd':
                 __dbManager__.main()
             elif selection == 'r':
