@@ -1218,6 +1218,7 @@ def menu():
     print '------------------------'
     print 'd. Manage database'
     print 'e. Export online bookmark'
+    print 'm. Export online user bookmark'
     print 'r. Reload config.ini'
     print 'p. Print config.ini'
     print 'x. Exit'
