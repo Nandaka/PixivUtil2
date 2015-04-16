@@ -3,6 +3,7 @@
 class PixivException(Exception):
   ## Error Codes
   NOT_LOGGED_IN      = 100
+  CANNOT_LOGIN       = 1005
   USER_ID_NOT_EXISTS = 1001
   USER_ID_SUSPENDED  = 1002
   OTHER_MEMBER_ERROR = 1003
@@ -22,6 +23,9 @@ class PixivException(Exception):
   R_18_DISABLED        = 2005
   UNKNOWN_IMAGE_ERROR  = 2006
 
+  DOWNLOAD_FAILED_OTHER = 9000
+  DOWNLOAD_FAILED_IO = 9001
+  DOWNLOAD_FAILED_NETWORK = 9002
   SERVER_ERROR  = 9005
 
   errorCode = 0

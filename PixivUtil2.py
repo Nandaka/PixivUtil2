@@ -109,18 +109,18 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 PixivHelper.printAndLog('error', '[download_image()] HTTP Error: {0} at {1}'.format(str(httpError), url))
                 if httpError.code == 404 or httpError.code == 502:
                     return PixivConstant.PIXIVUTIL_NOT_OK
-                tempErrorCode = 9002
+                tempErrorCode = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
             except urllib2.URLError as urlError:
                 PixivHelper.printAndLog('error', '[download_image()] URL Error: {0} at {1}'.format(str(urlError), url))
-                tempErrorCode = 9002
+                tempErrorCode = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
             except IOError as ioex:
                 if ioex.errno == 28:
                     PixivHelper.printAndLog('error', ioex.message)
                     raw_input("Press Enter to retry.")
                     return PixivConstant.PIXIVUTIL_NOT_OK
-                tempErrorCode = 9001
+                tempErrorCode = PixivException.DOWNLOAD_FAILED_IO
                 raise
             except KeyboardInterrupt:
                 PixivHelper.printAndLog('info', 'Aborted by user request => Ctrl-C')
@@ -133,7 +133,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
         except:
             if tempErrorCode is None:
-                tempErrorCode = 9000
+                tempErrorCode = PixivException.DOWNLOAD_FAILED_OTHER
             ERROR_CODE = tempErrorCode
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -1562,6 +1562,23 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
     return np_is_valid, op_is_valid, selection
 
 
+def doLogin(password, username):
+    result = False
+    try:
+        if len(__config__.cookie) > 0:
+            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie();
+
+        if not result:
+            if __config__.useSSL:
+                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttps(username, password)
+            else:
+                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttp(username, password)
+    except:
+        PixivHelper.printAndLog('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
+        raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
+    return result
+
+
 def main():
     set_console_title()
     header()
@@ -1697,16 +1714,7 @@ def main():
             print msg
             __log__.info(msg)
 
-        # Start login block
-        result = False
-        if len(__config__.cookie) > 0:
-            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie();
-
-        if not result:
-            if __config__.useSSL:
-                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttps(username, password)
-            else:
-                result = PixivBrowserFactory.getBrowser(config=__config__).loginHttp(username, password)
+        result = doLogin(password, username)
 
         if result:
             if __config__.overwrite:
@@ -1719,10 +1727,10 @@ def main():
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
         else:
-            # failed to log in
             ERROR_CODE = PixivException.NOT_LOGGED_IN
-        # end login block
-
+    except PixivException as pex:
+        PixivHelper.printAndLog('error', pex.message)
+        ERROR_CODE = pex.errorCode
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)

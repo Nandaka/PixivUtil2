@@ -209,6 +209,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 - 1002 = User Account is Suspended.
 - 1003 = Unknown Member Error.
 - 1004 = No image found.
+- 1005 = Cannot login.
 - 2001 = Unknown Error in Image Page.
 - 2002 = Not in MyPick List, Need Permission.
 - 2003 = Public works can not be viewed by the appropriate level.
@@ -218,6 +219,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 - 9000 = Download Failed.
 - 9001 = Download Failed: Harddisk related.
 - 9002 = Download Failed: Network related.
+- 9005 = Server Error.
 
 =================================================================================
 = config.ini                                                                    =
