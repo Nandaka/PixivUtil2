@@ -12,6 +12,7 @@ import zipfile
 import time
 import unicodedata
 import json
+import urllib2
 
 Logger = None
 _config = None
@@ -451,3 +452,81 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
                   old_size, file_size))
             os.remove(filename)
         return 1
+
+
+def printDelay(retryWait):
+    repeat = range(1, retryWait)
+    for t in repeat:
+        print t,
+        time.sleep(1)
+    print ''
+
+
+def createCustomRequest(url, config, referer = 'http://www.pixiv.net'):
+    if config.useProxy:
+        proxy = urllib2.ProxyHandler(config.proxy)
+        opener = urllib2.build_opener(proxy)
+        urllib2.install_opener(opener)
+    req = urllib2.Request(url)
+
+    req.add_header('Referer', referer)
+    printAndLog('info', "Using Referer: " + str(referer))
+
+    return req
+
+
+def downloadImage(url, filename, res, file_size, overwrite):
+    start_time = datetime.datetime.now()
+
+    # try to save to the given filename + .pixiv extension if possible
+    try:
+        directory = os.path.dirname(filename)
+        if not os.path.exists(directory):
+            printAndLog('info', 'Creating directory: ' + directory)
+            os.makedirs(directory)
+        save = file(filename + '.pixiv', 'wb+', 4096)
+    except IOError:
+        printAndLog('error', "Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
+
+        # get the actual server filename and use it as the filename for saving to current app dir
+        filename = os.path.split(url)[1]
+        filename = filename.split("?")[0]
+        filename = sanitizeFilename(filename)
+        save = file(filename + '.pixiv', 'wb+', 4096)
+        printAndLog('info', msg2 = 'File is saved to ' + filename)
+
+    # download the file
+    prev = 0
+    curr = 0
+    print '{0:22} Bytes'.format(curr),
+    try:
+        while True:
+            save.write(res.read(PixivConstant.BUFFER_SIZE))
+            curr = save.tell()
+            print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
+            print '{0:9} of {1:9} Bytes'.format(curr, file_size),
+
+            ## check if downloaded file is complete
+            if file_size > 0 and curr == file_size:
+                total_time = (datetime.datetime.now() - start_time).total_seconds()
+                print ' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
+                break
+            elif curr == prev:  # no file size info
+                total_time = (datetime.datetime.now() - start_time).total_seconds()
+                print ' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
+                break
+            prev = curr
+
+    except:
+        if file_size > 0 and curr < file_size:
+            printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
+            printAndLog('error', 'Filename = ' + unicode(filename))
+            printAndLog('error', 'URL      = {0}'.format(url))
+        raise
+
+    finally:
+        save.close()
+        if overwrite and os.path.exists(filename):
+            os.remove(filename)
+        os.rename(filename + '.pixiv', filename)
+        del save

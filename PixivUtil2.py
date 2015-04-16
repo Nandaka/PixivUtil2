@@ -55,168 +55,99 @@ __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
 
-### Utilities function ###
-def custom_request(url):
-    if __config__.useProxy:
-        proxy = urllib2.ProxyHandler(__config__.proxy)
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
-    req = urllib2.Request(url)
-    return req
-
-
 #-T04------For download file
-#noinspection PyUnusedLocal
-def download_image(url, filename, referer, overwrite, retry, backup_old_file=False):
-    try:
+def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False):
+    global ERROR_CODE
+    tempErrorCode = None
+    retry_count = 0
+    while(retry_count < max_retry):
+        res = None
+        req = None
         try:
-            req = custom_request(url)
-
-            if referer is not None:
-                req.add_header('Referer', referer)
-            else:
-                req.add_header('Referer', 'http://www.pixiv.net')
-
-            PixivHelper.printAndLog('info', "Using Referer: " + str(referer))
-
-            print 'Start downloading...',
-            start_time = datetime.datetime.now()
-            res = __br__.open_novisit(req)
-
-            # get file size
-            file_size = -1
             try:
-                file_size = int(res.info()['Content-Length'])
-            except KeyError:
+                print 'Start downloading...',
+                req = PixivHelper.createCustomRequest(url, __config__, referer)
+                res = __br__.open_novisit(req)
+
+                # get file size
                 file_size = -1
-                PixivHelper.printAndLog('info', "\tNo file size information!")
-            except:
-                raise
+                try:
+                    file_size = int(res.info()['Content-Length'])
+                except KeyError:
+                    file_size = -1
+                    PixivHelper.printAndLog('info', "\tNo file size information!")
 
-            # check if existing file exists
-            if os.path.exists(filename) and os.path.isfile(filename):
-                old_size = os.path.getsize(filename)
-                checkResult = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
-                if checkResult != 1:
-                    return checkResult
-
-            # check for ugoira file
-            if filename.endswith(".zip"):
-                ugoName = filename[:-4] + ".ugoira"
-                if os.path.exists(ugoName) and os.path.isfile(ugoName):
-                    old_size = PixivHelper.getUgoiraSize(ugoName)
-                    checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
+                # check if existing file exists
+                if os.path.exists(filename) and os.path.isfile(filename):
+                    old_size = os.path.getsize(filename)
+                    checkResult = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
                     if checkResult != 1:
                         return checkResult
 
+                # check for ugoira file
+                if filename.endswith(".zip"):
+                    ugoName = filename[:-4] + ".ugoira"
+                    if os.path.exists(ugoName) and os.path.isfile(ugoName):
+                        old_size = PixivHelper.getUgoiraSize(ugoName)
+                        checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
+                        if checkResult != 1:
+                            return checkResult
 
-            directory = os.path.dirname(filename)
-            if not os.path.exists(directory):
-                PixivHelper.printAndLog('info', 'Creating directory: ' + directory)
-                os.makedirs(directory)
+                # actual download
+                PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
+                print ' done.'
 
-            try:
-                save = file(filename + '.pixiv', 'wb+', 4096)
-            except IOError:
-                msg = "Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info())
-                PixivHelper.safePrint(msg)
-                __log__.error(unicode(msg))
-                filename = os.path.split(url)[1]
-                filename = filename.split("?")[0]
-                filename = PixivHelper.sanitizeFilename(filename)
-                save = file(filename + '.pixiv', 'wb+', 4096)
-                msg2 = 'File is saved to ' + filename
-                __log__.info(msg2)
-
-            prev = 0
-            curr = 0
-
-            print '{0:22} Bytes'.format(prev),
-            try:
-                while 1:
-                    save.write(res.read(PixivConstant.BUFFER_SIZE))
-                    curr = save.tell()
-                    print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
-                    print '{0:9} of {1:9} Bytes'.format(curr, file_size),
-
-                    ## check if downloaded file is complete
-                    if file_size > 0:
-                        if curr == file_size:
-                            total_time = (datetime.datetime.now() - start_time).total_seconds()
-                            print ' Completed in {0}s ({1})'.format(total_time,
-                                                                   PixivHelper.speedInStr(file_size, total_time))
-                            break
-                        elif curr == prev:  # no file size info
-                            total_time = (datetime.datetime.now() - start_time).total_seconds()
-                            print ' Completed in {0}s ({1})'.format(total_time,
-                                                                   PixivHelper.speedInStr(curr, total_time))
-                            break
-                    elif curr == prev:  # no file size info
-                        total_time = (datetime.datetime.now() - start_time).total_seconds()
-                        print ' Completed in {0}s ({1})'.format(total_time, PixivHelper.speedInStr(curr, total_time))
-                        break
-                    prev = curr
+                # write to downloaded lists
                 if start_iv or __config__.createDownloadLists:
                     dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
                     dfile.write(filename + "\n")
                     dfile.close()
-            except:
-                if file_size > 0 and curr < file_size:
-                    PixivHelper.printAndLog('error',
-                                            'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-                    PixivHelper.printAndLog('error', 'Filename = ' + unicode(filename))
-                    PixivHelper.printAndLog('error', 'URL      = {0}'.format(url))
+
+                return PixivConstant.PIXIVUTIL_OK
+
+            except urllib2.HTTPError as httpError:
+                PixivHelper.printAndLog('error', '[download_image()] HTTP Error: {0} at {1}'.format(str(httpError), url))
+                if httpError.code == 404 or httpError.code == 502:
+                    return PixivConstant.PIXIVUTIL_NOT_OK
+                tempErrorCode = 9002
                 raise
+            except urllib2.URLError as urlError:
+                PixivHelper.printAndLog('error', '[download_image()] URL Error: {0} at {1}'.format(str(urlError), url))
+                tempErrorCode = 9002
+                raise
+            except IOError as ioex:
+                if ioex.errno == 28:
+                    PixivHelper.printAndLog('error', ioex.message)
+                    raw_input("Press Enter to retry.")
+                    return PixivConstant.PIXIVUTIL_NOT_OK
+                tempErrorCode = 9001
+                raise
+            except KeyboardInterrupt:
+                PixivHelper.printAndLog('info', 'Aborted by user request => Ctrl-C')
+                return PixivConstant.PIXIVUTIL_NOT_OK
             finally:
-                save.close()
-                if overwrite and os.path.exists(filename):
-                    os.remove(filename)
-                os.rename(filename + '.pixiv', filename)
-                del save
-                del req
-                del res
-        except urllib2.HTTPError as httpError:
-            PixivHelper.printAndLog('error', '[download_image()] ' + str(httpError) + ' (' + url + ')')
-            if httpError.code == 404:
-                return -1
-            if httpError.code == 502:
-                return -1
-            raise
-        except urllib2.URLError as urlError:
-            PixivHelper.printAndLog('error', '[download_image()] ' + str(urlError) + ' (' + url + ')')
-            raise
-        except IOError as ioex:
-            if ioex.errno == 28:
-                PixivHelper.printAndLog('error', ioex.message)
-                raw_input("Press Enter to retry.")
-                return -1
-            raise
-        except KeyboardInterrupt:
-            PixivHelper.printAndLog('info', 'Aborted by user request => Ctrl-C')
-            raise
+                if res is not None:
+                    del res
+                if req is not None:
+                    del req
+
         except:
+            if tempErrorCode is None:
+                tempErrorCode = 9000
+            ERROR_CODE = tempErrorCode
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
-            __log__.exception('Error at download_image(): ' + str(sys.exc_info()) + '(' + url + ')')
-            raise
-    except KeyboardInterrupt:
-        raise
-    except:
-        if retry > 0:
-            repeat = range(1, __config__.retryWait)
-            for t in repeat:
-                print t,
-                time.sleep(1)
-            print ''
-            return download_image(url, filename, referer, overwrite, retry - 1)
-        else:
-            raise
-    print ' done.'
-    return 0
+            PixivHelper.printAndLog('error', 'Error at download_image(): {0} at {1} ({2})'.format(str(sys.exc_info()), url, ERROR_CODE))
+
+            if retry_count < max_retry:
+                retry_count = retry_count + 1
+                print "Retrying [{0}]...".format(retry_count)
+                PixivHelper.printDelay(__config__.retryWait)
+            else:
+                raise
 
 
 ## Start of main processing logic
-#noinspection PyUnusedLocal
 def process_list(mode, list_file_name=None):
     global ERROR_CODE
 
@@ -678,7 +609,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         return result
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception as ex:
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)

@@ -215,6 +215,9 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 - 2004 = Image not found/already deleted.
 - 2005 = Image is disabled for under 18, check your setting page (R-18/R-18G).
 - 2006 = Unknown Image Error.
+- 9000 = Download Failed.
+- 9001 = Download Failed: Harddisk related.
+- 9002 = Download Failed: Network related.
 
 =================================================================================
 = config.ini                                                                    =
