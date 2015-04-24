@@ -506,15 +506,17 @@ def downloadImage(url, filename, res, file_size, overwrite):
             print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
             print '{0:9} of {1:9} Bytes'.format(curr, file_size),
 
-            ## check if downloaded file is complete
+            # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.datetime.now() - start_time).total_seconds()
                 print ' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
-                break
+                return curr
+
             elif curr == prev:  # no file size info
                 total_time = (datetime.datetime.now() - start_time).total_seconds()
                 print ' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
-                break
+                return curr
+
             prev = curr
 
     except:
@@ -525,7 +527,9 @@ def downloadImage(url, filename, res, file_size, overwrite):
         raise
 
     finally:
-        save.close()
+        if save is not None:
+            save.close()
+
         if overwrite and os.path.exists(filename):
             os.remove(filename)
         os.rename(filename + '.pixiv', filename)

@@ -60,7 +60,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
     global ERROR_CODE
     tempErrorCode = None
     retry_count = 0
-    while(retry_count < max_retry):
+    while(retry_count <= max_retry):
         res = None
         req = None
         try:
@@ -94,8 +94,13 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             return checkResult
 
                 # actual download
-                PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
-                print ' done.'
+                downloadedSize = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
+
+                # check the downloaded file size again
+                if file_size > 0 and downloadedSize != file_size:
+                    raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
+                else:
+                    PixivHelper.printAndLog('info', ' done.')
 
                 # write to downloaded lists
                 if start_iv or __config__.createDownloadLists:
@@ -1555,7 +1560,7 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
                 break
             op_is_valid = False  # Yavos: needed to prevent endless loop
         except KeyboardInterrupt:
-            PixivHelper.printAndLog("info", "Keyboard Interrupt pressed, selection: " + selection)
+            PixivHelper.printAndLog("info", "Keyboard Interrupt pressed, selection: {0}".format(selection))
             PixivHelper.clearScreen()
             print "Restarting..."
             selection = menu()
