@@ -1,6 +1,9 @@
-20150403-beta:
+20150427:
 - Add feature to download both private and public image bookmark.
 - Fix Issue #70: Update Error code updated and use sys.exit() instead of os._exit()
+- Fix Issue #74: add check based on saved filename, old manga data might need to be redownloaded.
+- Add ability to export list of user bookmarks for user with given member_id.
+- Pull Request #73: Merge export user bookmarks from prototype27/topic/exportUserBookmarksForUser.
 
 20150328:
 - Implement #69: Create .ugoira format, open with http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
