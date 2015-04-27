@@ -56,7 +56,7 @@ __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
 
 #-T04------For download file
-def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False):
+def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page = None):
     global ERROR_CODE
     tempErrorCode = None
     retry_count = 0
@@ -92,6 +92,24 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
                         if checkResult != 1:
                             return checkResult
+
+                # check based on filename stored in DB using image id
+                if image_id is not None:
+                    db_filename = None
+                    if page is not None:
+                        row = __dbManager__.selectImageByImageIdAndPage(image_id, page)
+                        if row is not None:
+                            db_filename = row[2]
+                    else:
+                        row = __dbManager__.selectImageByImageId(image_id)
+                        if row is not None:
+                            db_filename = row[3]
+                    if db_filename is not None and os.path.exists(db_filename) and os.path.isfile(db_filename):
+                        old_size = os.path.getsize(db_filename)
+                        checkResult = PixivHelper.checkFileExists(overwrite, db_filename, file_size, old_size, backup_old_file)
+                        if checkResult != 1:
+                            return checkResult
+
 
                 # actual download
                 downloadedSize = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
@@ -332,7 +350,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                                                                              updated_limit_count,
                                                                                              total_image_page_count)
                         result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
-                        __dbManager__.insertImage(member_id, image_id)
+
                         break
                     except KeyboardInterrupt:
                         result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -537,6 +555,8 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     print "Page Count :", image.imageCount
 
             result = PixivConstant.PIXIVUTIL_OK
+            mangaFiles = dict()
+            page = 0
             for img in image.imageUrls:
                 print 'Image URL :', img
                 url = os.path.basename(img)
@@ -570,7 +590,10 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             overwrite = True
-                        result = download_image(img, filename, referer, overwrite, __config__.retry, __config__.backupOldFile)
+                        result = download_image(img, filename, referer, overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
+
+                        mangaFiles[page] = filename
+                        page = page + 1
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.printAndLog('error', 'Image url not found/failed to download: ' + str(image.imageId))
@@ -596,10 +619,15 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         # Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
             try:
-                __dbManager__.insertImage(image.artist.artistId, image.imageId)
+                __dbManager__.insertImage(image.artist.artistId, image.imageId, image.imageMode)
             except:
                 pass
-            __dbManager__.updateImage(image.imageId, image.imageTitle, filename)
+            __dbManager__.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
+
+            if image.imageMode == 'manga':
+                for page in mangaFiles:
+                    __dbManager__.insertMangaImage(image_id, page, mangaFiles[page])
+
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
 

@@ -67,6 +67,20 @@ class PixivDBManager:
                             created_date DATE,
                             last_update_date DATE
                             )''')
+            # add column isManga
+            try:
+                c.execute('''ALTER TABLE pixiv_master_image ADD COLUMN is_manga TEXT''')
+            except:
+                pass
+
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_manga_image (
+                            image_id INTEGER,
+                            page INTEGER,
+                            save_name TEXT,
+                            created_date DATE,
+                            last_update_date DATE,
+                            PRIMARY KEY (image_id, page)
+                            )''')
             self.conn.commit()
 
             print 'done.'
@@ -473,13 +487,13 @@ class PixivDBManager:
 ##########################################
 ## V. CRUD Image Table                  ##
 ##########################################
-    def insertImage(self, memberId,ImageId):
+    def insertImage(self, memberId, ImageId, isManga=""):
         try:
             c = self.conn.cursor()
             memberId = int(memberId)
             ImageId = int(ImageId)
-            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now') )''',
-                              (ImageId, memberId))
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ? )''',
+                              (ImageId, memberId, isManga))
             self.conn.commit()
         except:
             print 'Error at insertImage():',str(sys.exc_info())
@@ -487,6 +501,21 @@ class PixivDBManager:
             raise
         finally:
             c.close()
+
+
+    def insertMangaImage(self, imageId, page, filename):
+        try:
+            c = self.conn.cursor()
+            c.execute('''INSERT OR IGNORE INTO pixiv_manga_image VALUES(?, ?, ?, datetime('now'), datetime('now'))''',
+                              (imageId, page, filename))
+            self.conn.commit()
+        except:
+            print 'Error at insertMangaImage():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
+
 
     def blacklistImage(self, memberId,ImageId):
         try:
@@ -537,13 +566,25 @@ class PixivDBManager:
         finally:
             c.close()
 
-    def updateImage(self, imageId, title, filename):
+    def selectImageByImageIdAndPage(self,imageId, page):
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT * FROM pixiv_manga_image WHERE image_id = ? AND page = ? ''', (imageId, page ))
+            return c.fetchone()
+        except:
+            print 'Error at selectImageByImageIdAndPage():',str(sys.exc_info())
+            print 'failed'
+            raise
+        finally:
+            c.close()
+
+    def updateImage(self, imageId, title, filename, isManga=""):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_image
-                        SET title = ?, save_name = ?, last_update_date = datetime('now')
+                        SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = ?
                         WHERE image_id = ?''',
-                        (title, filename, imageId))
+                        (title, filename, isManga, imageId))
             self.conn.commit()
         except:
             print 'Error at updateImage():',str(sys.exc_info())
