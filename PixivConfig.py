@@ -9,6 +9,7 @@ import traceback
 import PixivHelper
 import shutil
 import time
+import os.path
 
 script_path = PixivHelper.module_path()
 
@@ -98,11 +99,14 @@ class PixivConfig:
             self.cookie = config.get('Authentication','cookie')
 
             self.tagsSeparator = PixivHelper.toUnicode(config.get('Settings','tagsseparator'), encoding=sys.stdin.encoding)
-            self.rootDirectory = PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding)
+            self.rootDirectory = os.path.expanduser(
+                    PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding))
 
             try:
-                self.IrfanViewPath = PixivHelper.toUnicode(config.get('Settings','IrfanViewPath'), encoding=sys.stdin.encoding)
-                self.downloadListDirectory = PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding)
+                self.IrfanViewPath = os.path.expanduser(
+                        PixivHelper.toUnicode(config.get('Settings','IrfanViewPath'), encoding=sys.stdin.encoding))
+                self.downloadListDirectory = os.path.expanduser(
+                        PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding))
             except:
                 pass
 
