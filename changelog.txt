@@ -1,3 +1,6 @@
+20150602-beta1:
+- Merge pull request #76 from woky/master: Expand ~ in path options.
+
 20150427:
 - Add feature to download both private and public image bookmark.
 - Fix Issue #70: Update Error code updated and use sys.exit() instead of os._exit()
