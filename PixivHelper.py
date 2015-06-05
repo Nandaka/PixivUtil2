@@ -320,7 +320,7 @@ def module_path():
 
 
 def speedInStr(totalSize, totalTime):
-    if totalTime> 0:
+    if totalTime > 0:
         speed = totalSize / totalTime
         if speed < 1024:
             return "{0:.0f} B/s".format(speed)
