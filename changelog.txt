@@ -1,5 +1,7 @@
-20150602-beta1:
+20150605-beta2:
 - Merge pull request #76 from woky/master: Expand ~ in path options.
+- Add option to filter images by bookmark count for download by taglist (console input only).
+- Fix Issue #81: Divided by Zero when download time is instant.
 
 20150427:
 - Add feature to download both private and public image bookmark.

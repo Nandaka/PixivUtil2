@@ -817,7 +817,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         raise
 
 
-def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False):
+def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False, bookmark_count = None):
     global ERROR_CODE
 
     try:
@@ -825,7 +825,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest
         l = PixivTags.parseTagsList(filename)
         for tag in l:
             process_tags(mode, tag, page=page, end_page=end_page, wild_card=wild_card,
-                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first)
+                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first, bookmark_count=bookmark_count)
     except KeyboardInterrupt:
         raise
     except:
@@ -1392,6 +1392,7 @@ def menu_download_from_tags_list(mode, opisvalid, args):
     end_page = 0
     oldest_first = False
     wildcard = True
+    bookmark_count = None
 
     if opisvalid and len(args) > 0:
         filename = args[0]
@@ -1408,9 +1409,11 @@ def menu_download_from_tags_list(mode, opisvalid, args):
             oldest_first = True
         else:
             oldest_first = False
+        bookmark_count = raw_input('Bookmark Count: ') or None
         (page, end_page) = get_start_and_end_number()
-
-    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first)
+    if bookmark_count is not None:
+        bookmark_count = int(bookmark_count)
+    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first, bookmark_count=bookmark_count)
 
 
 def menu_download_new_illust_from_bookmark(mode, opisvalid, args):

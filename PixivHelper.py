@@ -320,17 +320,20 @@ def module_path():
 
 
 def speedInStr(totalSize, totalTime):
-    speed = totalSize / totalTime
-    if speed < 1024:
-        return "{0:.0f} B/s".format(speed)
-    speed = speed / 1024
-    if speed < 1024:
-        return "{0:.2f} KiB/s".format(speed)
-    speed = speed / 1024
-    if speed < 1024:
-        return "{0:.2f} MiB/s".format(speed)
-    speed = speed / 1024
-    return "{0:.2f} GiB/s".format(speed)
+    if totalTime> 0:
+        speed = totalSize / totalTime
+        if speed < 1024:
+            return "{0:.0f} B/s".format(speed)
+        speed = speed / 1024
+        if speed < 1024:
+            return "{0:.2f} KiB/s".format(speed)
+        speed = speed / 1024
+        if speed < 1024:
+            return "{0:.2f} MiB/s".format(speed)
+        speed = speed / 1024
+        return "{0:.2f} GiB/s".format(speed)
+    else:
+        return " ∞ B/s"
 
 
 def dumpHtml(filename, html):
