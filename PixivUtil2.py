@@ -808,7 +808,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             if t.isLastPage:
                 PixivHelper.printAndLog('info', "Last page: " + str(i - 1))
                 flag = False
-            if __config__.enableInfiniteLoop and i == 1001 and !oldest_first:
+            if __config__.enableInfiniteLoop and i == 1001 and oldest_first == False:
                 # hit the last page
                 PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
                 i = 1
