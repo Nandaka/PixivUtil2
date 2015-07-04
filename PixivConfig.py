@@ -78,6 +78,7 @@ class PixivConfig:
     writeUgoiraInfo = False
     createUgoira = False
     deleteZipFile = False
+    enableInfiniteLoop = False
 
     def loadConfig(self, path=None):
         if path != None:
@@ -387,6 +388,13 @@ class PixivConfig:
                 print "deleteZipFile = False"
                 haveError = True
 
+            try:
+                self.enableInfiniteLoop = config.getboolean('Settings','enableInfiniteLoop')
+            except ValueError:
+                self.enableInfiniteLoop = False
+                print "enableInfiniteLoop = False"
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -455,6 +463,7 @@ class PixivConfig:
         config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
         config.set('Settings', 'createUgoira', self.createUgoira)
         config.set('Settings', 'deleteZipFile', self.deleteZipFile)
+        config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
 
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
@@ -538,6 +547,7 @@ class PixivConfig:
         print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
         print ' - createUgoira     =', self.createUgoira
         print ' - deleteZipFile    =', self.deleteZipFile
+        print ' - enableInfiniteLoop    =', self.enableInfiniteLoop
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

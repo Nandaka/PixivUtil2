@@ -1,3 +1,6 @@
+20150705-beta1:
+- Implement #85: Enable infinite loop for download by tags.
+
 20150605:
 - Merge pull request #76 from woky/master: Expand ~ in path options.
 - Add option to filter images by bookmark count for download by taglist (console input only).

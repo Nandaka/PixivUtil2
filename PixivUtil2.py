@@ -54,6 +54,9 @@ __errorList = list()
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
+# infinite loop for download by tags
+_last_date = None
+
 
 #-T04------For download file
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page = None):
@@ -431,6 +434,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
     global ERROR_CODE
+    global _last_date
 
     parse_big_image = None
     parse_medium_page = None
@@ -630,6 +634,9 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
+            # for infinite loop download by tags
+            if image is not None and image.worksDateDateTime.year > 1970:
+                _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
 
         if image is not None:
             del image
@@ -660,6 +667,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None, oldest_first=False):
+    global _last_date
     search_page = None
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
@@ -711,10 +719,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 else:
                     if wild_card:
                         url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(i) + '&word=' + tags + date_param
-                        print "Using Wildcard (search.php)"
+                        print "Using Partial Match (search.php)"
                     else:
-                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(
-                           i) + date_param
+                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(i) + date_param
 
             if __config__.r18mode:
                 url = url + '&r18=1'
@@ -801,6 +808,13 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             if t.isLastPage:
                 PixivHelper.printAndLog('info', "Last page: " + str(i - 1))
                 flag = False
+            if __config__.enableInfiniteLoop and i == 1001 and !oldest_first:
+                # hit the last page
+                PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
+                i = 1
+                date_param = "&ecd=" + _last_date
+                flag = True
+
         print 'done'
     except KeyboardInterrupt:
         raise
@@ -1266,7 +1280,7 @@ def menu_download_by_tags(mode, opisvalid, args):
     else:
         tags = PixivHelper.uni_input('Tags: ')
         bookmark_count = raw_input('Bookmark Count: ') or None
-        wildcard = raw_input('Use Wildcard[y/n]: ') or 'n'
+        wildcard = raw_input('Use Partial Match[y/n]: ') or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
