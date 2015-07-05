@@ -700,6 +700,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     __log__.exception('decodeTags()')
         i = page
         images = 1
+        last_image_id = -1
         skipped_count = 0
 
         date_param = ""
@@ -754,8 +755,16 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 flag = False
             else:
                 for item in t.itemList:
+                    if last_image_id == item.imageId:
+                        last_image_id = -1
+                        flag = False
+                        # found only 1 image with the same id again.
+                        PixivHelper.printAndLog('info', "No more image in the list.")
+                        break
+
                     print 'Image #' + str(images)
                     print 'Image Id:', str(item.imageId)
+                    last_image_id = item.imageId
                     print 'Bookmark Count:', str(item.bookmarkCount)
                     if bookmark_count is not None and bookmark_count > item.bookmarkCount:
                         PixivHelper.printAndLog('info', 'Skipping imageId=' + str(
@@ -809,6 +818,16 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 PixivHelper.printAndLog('info', "Last page: " + str(i - 1))
                 flag = False
             if __config__.enableInfiniteLoop and i == 1001 and oldest_first == False:
+                if _last_date is None:
+                    # get the last date
+                    if last_image_id > 0:
+                        referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
+                        parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
+                        image = PixivImage(iid=last_image_id, page=parse_medium_page)
+                        _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
+                    else:
+                        PixivHelper.printAndLog('info', "No more image in the list.")
+                        break
                 # hit the last page
                 PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
                 i = 1
