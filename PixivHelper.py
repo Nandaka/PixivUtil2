@@ -523,17 +523,31 @@ def downloadImage(url, filename, res, file_size, overwrite):
             prev = curr
 
     except:
-        if file_size > 0 and curr < file_size:
-            printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            printAndLog('error', 'Filename = ' + unicode(filename))
-            printAndLog('error', 'URL      = {0}'.format(url))
         raise
 
     finally:
         if save is not None:
             save.close()
 
-        if overwrite and os.path.exists(filename):
-            os.remove(filename)
-        os.rename(filename + '.pixiv', filename)
+        completed = True
+        if file_size > 0 and curr < file_size:
+            # File size is known and downloaded file is smaller
+            printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
+            printAndLog('error', 'Filename = ' + unicode(filename))
+            printAndLog('error', 'URL      = {0}'.format(url))
+            completed = False
+        elif curr == 0:
+            # No data received.
+            printAndLog('error', 'No data received!')
+            printAndLog('error', 'Filename = ' + unicode(filename))
+            printAndLog('error', 'URL      = {0}'.format(url))
+            completed = False
+
+        if completed:
+            if overwrite and os.path.exists(filename):
+                os.remove(filename)
+            os.rename(filename + '.pixiv', filename)
+        else:
+            os.remove(filename + '.pixiv')
+
         del save

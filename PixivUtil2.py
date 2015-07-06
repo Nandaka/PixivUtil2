@@ -755,11 +755,13 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 flag = False
             else:
                 for item in t.itemList:
-                    if last_image_id == item.imageId:
+                    # edge case to avoid infinite loop due to
+                    # found only 1 image with the same id again on the 1st page.
+                    # limitation on frequently update tags, might terminate prematurely.
+                    if last_image_id == item.imageId and i == 1:
                         last_image_id = -1
                         flag = False
-                        # found only 1 image with the same id again.
-                        PixivHelper.printAndLog('info', "No more image in the list.")
+                        PixivHelper.printAndLog('info', "Found indentical image id from previous page: " + last_image_id)
                         break
 
                     print 'Image #' + str(images)
