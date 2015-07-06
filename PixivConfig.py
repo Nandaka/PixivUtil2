@@ -107,7 +107,7 @@ class PixivConfig:
                 self.IrfanViewPath = os.path.expanduser(
                         PixivHelper.toUnicode(config.get('IrfanView','IrfanViewPath'), encoding=sys.stdin.encoding))
                 self.downloadListDirectory = os.path.expanduser(
-                        PixivHelper.toUnicode(config.get('IrfanView','downloadListDirectory'), encoding=sys.stdin.encoding))
+                        PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding))
             except:
                 pass
 
@@ -447,15 +447,15 @@ class PixivConfig:
         config.set('Debug', 'debugHttp', self.debugHttp)
 
         config.add_section('IrfanView')
-        config.set('Settings', 'IrfanViewPath', self.IrfanViewPath)
-        config.set('Settings', 'startIrfanView', self.startIrfanView)
-        config.set('Settings', 'startIrfanSlide', self.startIrfanSlide)
-        config.set('Settings', 'createDownloadLists', self.createDownloadLists)
-        config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
+        config.set('IrfanView', 'IrfanViewPath', self.IrfanViewPath)
+        config.set('IrfanView', 'startIrfanView', self.startIrfanView)
+        config.set('IrfanView', 'startIrfanSlide', self.startIrfanSlide)
+        config.set('IrfanView', 'createDownloadLists', self.createDownloadLists)
 
         config.add_section('Settings')
         config.set('Settings', 'filenameFormat', self.filenameFormat)
         config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
+        config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
         config.set('Settings', 'overwrite', self.overwrite)
@@ -544,11 +544,11 @@ class PixivConfig:
         print ' - startIrfanView   =', self.startIrfanView
         print ' - startIrfanSlide  =', self.startIrfanSlide
         print ' - createDownloadLists   =', self.createDownloadLists
-        print ' - downloadListDirectory =', self.downloadListDirectory
 
         print ' [Settings]'
         print ' - filename_format       =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
+        print ' - downloadListDirectory =', self.downloadListDirectory
         print ' - overwrite        =', self.overwrite
         print ' - useList          =', self.useList
         print ' - processFromDb    =', self.processFromDb

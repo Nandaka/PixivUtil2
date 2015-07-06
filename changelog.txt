@@ -1,5 +1,8 @@
-20150705-beta1:
+20150706-beta3:
 - Implement #85: Enable infinite loop for download by tags.
+- Fix Issue #79: Don't save if the download is not complete.
+- Add option to dump tags search page.
+- Reorganize config.ini.
 
 20150605:
 - Merge pull request #76 from woky/master: Expand ~ in path options.

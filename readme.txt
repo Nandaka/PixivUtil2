@@ -242,25 +242,53 @@ numberofpage ==> Number of page to be processed, put '0' to process all pages.
 r18mode      ==> Only list images tagged R18, for member, member's bookmark,
                  and search by tag.
                  Set to 'True' to apply.
-
-[Settings]
-userobots      ==> Download robots.txt for mechanize.
-rootdirectory  ==> Your root directory for saving the images.
+[Network]
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
-retrywait      ==> Waiting time for each retry, in seconds.
 proxyaddress   ==> Proxy server address, use this format:                    
 		   http://<username>:<password>@<proxy_server>:<port> or 
                    socks5://<username>:<password>@<proxy_server>:<port> or 
                    socks4://<username>:<password>@<proxy_server>:<port>
+useragent      ==> Browser user agent to spoof.
+userobots      ==> Download robots.txt for mechanize.
+timeout        ==> Time to wait before giving up the connection, in seconds.
+retry          ==> Number of retries.
+retrywait      ==> Waiting time for each retry, in seconds.
+
+[Debug]
+logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING, 
+                    INFO, DEBUG, and NOTSET
+enableDump      ==> Enable HTML Dump. Set to False to disable.
+skipDumpFilter  ==> Skip HTML Dump based on error code (using regex format).
+                    E.g.: 1.*|2.* => skip all HTML dump for error code 1xxx/2xxx.
+dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
+dumpTagSearchPage ==> Dump tags search page for debugging.
+debughttp      ==> Print http header, useful for debuggin. Set 'False' to
+                   disable.
+[IrfanView]
+IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
+                    IrfanView)
+startIrfanView  ==> set to <True> to start IrfanView with downloaded images when
+                    exiting pixivUtil
+	         -> this will create download-lists
+	         -> be sure to set IrfanView to load Unicode-Plugin on startup
+                    when there are unicode-named files!
+startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded 
+                    images when exiting pixivUtil.
+	         -> this will create download-lists
+	         -> be sure to set IrfanView to load Unicode-Plugin on startup
+                    when there are unicode-named files!
+	         -> Slideshow-options will be same as you have set in IrfanView 
+                    before!
+createDownloadLists   ==> set to <True> to automatically create download-lists.
+
+
+[Settings]
+rootdirectory  ==> Your root directory for saving the images.
 uselist        ==> set to 'True' to parse list.txt. 
                    This will update the DB content from the list.txt
                    (member_id and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-retry          ==> Number of retries.
-debughttp      ==> Print http header, useful for debuggin. Set 'False' to
-                   disable.
-timeout        ==> Time to wait before giving up the connection, in seconds.
 filenameformat ==> The format for the filename, reserved/illegal character will
                    be replaced with underscore '_', repeated space will be 
                    trimmed to single space.
@@ -298,7 +326,6 @@ filenameformat ==> The format for the filename, reserved/illegal character will
                                         download by tags.
                 -> %image_response_count%  ==> Image respose count, will have overhead 
 					       except on download by tags.
-useragent      ==> Browser user agent to spoof.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
@@ -309,7 +336,6 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be
 checkUpdatedLimit     ==> Number of already downloaded image to be check before
                           move to the next member. alwaysCheckFileSize must be 
                           set to False.
-createDownloadLists   ==> set to <True> to automatically create download-lists.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
                     This setting is depended on %urlFilename% format.
@@ -317,20 +343,6 @@ downloadListDirectory ==> set directory for download-lists needed for
                           createDownloadLists and IrfanView-Handling
 	               -> if leaved blank it will create download-lists in 
                           pixivUtil-directory.
-startIrfanView  ==> set to <True> to start IrfanView with downloaded images when
-                    exiting pixivUtil
-	         -> this will create download-lists
-	         -> be sure to set IrfanView to load Unicode-Plugin on startup
-                    when there are unicode-named files!
-startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded 
-                    images when exiting pixivUtil.
-	         -> this will create download-lists
-	         -> be sure to set IrfanView to load Unicode-Plugin on startup
-                    when there are unicode-named files!
-	         -> Slideshow-options will be same as you have set in IrfanView 
-                    before!
-IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
-                    IrfanView)
 downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
 usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory 
                     as save folder.
@@ -349,20 +361,14 @@ dateDiff        ==> Gets only pictures that were posted X days before the system
                     by Member, stop processing if in Download New Illust.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
-logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING, 
-                    INFO, DEBUG, and NOTSET
-enableDump      ==> Enable HTML Dump. Set to False to disable.
-skipDumpFilter  ==> Skip HTML Dump based on error code (using regex format).
-                    E.g.: 1.*|2.* => skip all HTML dump for error code 1xxx/2xxx.
-dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
 writeugoirainfo ==> If set to True, it will dump the .js to external file.
 createugoira    ==> If set to True, it will create .ugoira file, see:
                     http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
 deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
-					Only active if createUgoira = True.
+                    Only active if createUgoira = True.
 enableInfiniteLoop ==> Enable infinite loop for download by tags.
-					   Only applicable for download in descending order (newest 
-					   first).
+                       Only applicable for download in descending order (newest 
+                       first).
 
 =================================================================================
 = list.txt Format                                                               =
