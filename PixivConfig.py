@@ -18,69 +18,72 @@ class PixivConfig:
     __logger = PixivHelper.GetLogger()
     configFileLocation = "config.ini"
 
-    ## default value
+    # initialize default value
+
+    # Network related
     proxyAddress = ''
     proxy = {'http': proxyAddress, 'https': proxyAddress, }
     useProxy = False
+    useragent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36'
+    useRobots = True
+    timeout = 60
+    retry = 3
+    retryWait = 5
 
+    # Authentication related
     username = ''
     password = ''
+    cookie = ''
+    useSSL = False
+    keepSignedIn = 0
 
-    useragent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36'
-    debugHttp = False
-
+    # Pixiv related?
     numberOfPage = 0
-    useRobots = True
+    r18mode = False
+
+    # generic Settings
     filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     rootDirectory = unicode('.')
     overwrite = False
-    timeout = 60
-
     useList = False
     processFromDb = True
     dayLastUpdated = 7
-
     tagsSeparator = unicode(', ')
-
-    retry = 3
-    retryWait = 5
-
     alwaysCheckFileSize = False
     checkUpdatedLimit = 0
     downloadAvatar = True
-
-    cookie = ''
     createMangaDir = False
     useTagsAsDir = False
     useBlacklistTags = False
     useSuppressTags = False
     tagsLimit = -1
-    useSSL = False
     writeImageInfo = False
-    r18mode = False
     dateDiff = 0
-    keepSignedIn = 0
+    backupOldFile = False
+    writeUgoiraInfo = False
+    createUgoira = False
+    deleteZipFile = False
+    enableInfiniteLoop = False
 
-    #Yavos: added next three lines
+    # IrfanView
     createDownloadLists = False
     downloadListDirectory = unicode('.')
     startIrfanView = False
     startIrfanSlide = False
     IrfanViewPath = unicode('C:\Program Files\IrfanView')
 
-    backupOldFile = False
-
+    # Debug related
     logLevel = "DEBUG"
     enableDump = True
     skipDumpFilter = ""
     dumpMediumPage = False
-    writeUgoiraInfo = False
-    createUgoira = False
-    deleteZipFile = False
-    enableInfiniteLoop = False
+    dumpTagSearchPage = False
+    debugHttp = False
 
     def loadConfig(self, path=None):
+        ''' new settings must be added on the last'''
+
         if path != None:
             self.configFileLocation = path
         else:
@@ -94,20 +97,17 @@ class PixivConfig:
             config.readfp(PixivHelper.OpenTextFile(self.configFileLocation))
 
             self.username = config.get('Authentication','username')
-
             self.password = config.get('Authentication','password')
-
             self.cookie = config.get('Authentication','cookie')
 
             self.tagsSeparator = PixivHelper.toUnicode(config.get('Settings','tagsseparator'), encoding=sys.stdin.encoding)
-            self.rootDirectory = os.path.expanduser(
-                    PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding))
+            self.rootDirectory = os.path.expanduser(PixivHelper.toUnicode(config.get('Settings','rootdirectory'), encoding=sys.stdin.encoding))
 
             try:
                 self.IrfanViewPath = os.path.expanduser(
-                        PixivHelper.toUnicode(config.get('Settings','IrfanViewPath'), encoding=sys.stdin.encoding))
+                        PixivHelper.toUnicode(config.get('IrfanView','IrfanViewPath'), encoding=sys.stdin.encoding))
                 self.downloadListDirectory = os.path.expanduser(
-                        PixivHelper.toUnicode(config.get('Settings','downloadListDirectory'), encoding=sys.stdin.encoding))
+                        PixivHelper.toUnicode(config.get('IrfanView','downloadListDirectory'), encoding=sys.stdin.encoding))
             except:
                 pass
 
@@ -133,7 +133,7 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.proxyAddress = config.get('Settings','proxyaddress')
+                self.proxyAddress = config.get('Network','proxyaddress')
             except ValueError:
                 print "proxyAddress = ''"
                 self.proxyAddress = ''
@@ -141,7 +141,7 @@ class PixivConfig:
             self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
             try:
-                self.useProxy = config.getboolean('Settings','useproxy')
+                self.useProxy = config.getboolean('Network','useproxy')
             except ValueError:
                 print "useProxy = False"
                 self.useProxy = False
@@ -161,7 +161,7 @@ class PixivConfig:
                 self.r18mode = False
                 haveError = True
 
-            _useragent = config.get('Settings','useragent')
+            _useragent = config.get('Network','useragent')
             if _useragent != None:
                 self.useragent = _useragent
 
@@ -183,14 +183,14 @@ class PixivConfig:
                 self.filenameMangaFormat = _filenameMangaFormat
 
             try:
-                self.debugHttp = config.getboolean('Settings','debughttp')
+                self.debugHttp = config.getboolean('Debug','debughttp')
             except ValueError:
                 self.debugHttp = False
                 print "debugHttp = False"
                 haveError = True
 
             try:
-                self.useRobots = config.getboolean('Settings','userobots')
+                self.useRobots = config.getboolean('Network','userobots')
             except ValueError:
                 self.useRobots = False
                 print "useRobots = False"
@@ -211,21 +211,21 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.timeout = config.getint('Settings','timeout')
+                self.timeout = config.getint('Network','timeout')
             except ValueError:
                 print "timeout = 60"
                 self.timeout = 60
                 haveError = True
 
             try:
-                self.retry = config.getint('Settings','retry')
+                self.retry = config.getint('Network','retry')
             except ValueError:
                 print "retry = 3"
                 self.retry = 3
                 haveError = True
 
             try:
-                self.retryWait = config.getint('Settings','retrywait')
+                self.retryWait = config.getint('Network','retrywait')
             except ValueError:
                 print "retryWait = 5"
                 self.retryWait = 5
@@ -239,21 +239,21 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.createDownloadLists = config.getboolean('Settings','createDownloadLists')
+                self.createDownloadLists = config.getboolean('IrfanView','createDownloadLists')
             except ValueError:
                 self.createDownloadLists = False
                 print "createDownloadLists = False"
                 haveError = True
 
             try:
-                self.startIrfanView = config.getboolean('Settings','startIrfanView')
+                self.startIrfanView = config.getboolean('IrfanView','startIrfanView')
             except ValueError:
                 self.startIrfanView = False
                 print "startIrfanView = False"
                 haveError = True
 
             try:
-                self.startIrfanSlide = config.getboolean('Settings','startIrfanSlide')
+                self.startIrfanSlide = config.getboolean('IrfanView','startIrfanSlide')
             except ValueError:
                 self.startIrfanSlide = False
                 print "startIrfanSlide = False"
@@ -337,7 +337,7 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.logLevel = config.get('Settings','logLevel').upper()
+                self.logLevel = config.get('Debug','logLevel').upper()
                 if not self.logLevel in ['CRITICAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']:
                     raise ValueError("Value not in list: " + self.logLevel)
             except ValueError:
@@ -347,21 +347,21 @@ class PixivConfig:
 
 
             try:
-                self.enableDump = config.getboolean('Settings','enableDump')
+                self.enableDump = config.getboolean('Debug','enableDump')
             except ValueError:
                 print "enableDump = True"
                 self.enableDump = True
                 haveError = True
 
             try:
-                self.skipDumpFilter = config.get('Settings','skipDumpFilter')
+                self.skipDumpFilter = config.get('Debug','skipDumpFilter')
             except ValueError:
                 print "skipDumpFilter = ''"
                 self.skipDumpFilter = ''
                 haveError = True
 
             try:
-                self.dumpMediumPage = config.getboolean('Settings','dumpMediumPage')
+                self.dumpMediumPage = config.getboolean('Debug','dumpMediumPage')
             except ValueError:
                 print "dumpMediumPage = False"
                 self.dumpMediumPage = False
@@ -395,6 +395,14 @@ class PixivConfig:
                 print "enableInfiniteLoop = False"
                 haveError = True
 
+            try:
+                self.dumpTagSearchPage = config.getboolean('Debug','dumpTagSearchPage')
+            except ValueError:
+                self.dumpTagSearchPage = False
+                print "dumpTagSearchPage = False"
+                haveError = True
+
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -420,31 +428,40 @@ class PixivConfig:
         '''Backup old config if exist and write updated config.ini'''
         print 'Writing config file...',
         config = ConfigParser.RawConfigParser()
-        config.add_section('Settings')
-        config.add_section('Pixiv')
-        config.add_section('Authentication')
 
-        config.set('Settings', 'proxyAddress',self.proxyAddress)
-        config.set('Settings', 'useProxy', self.useProxy)
-        config.set('Settings', 'useragent', self.useragent)
-        config.set('Settings', 'debugHttp', self.debugHttp)
-        config.set('Settings', 'useRobots', self.useRobots)
+        config.add_section('Network')
+        config.set('Network', 'useProxy', self.useProxy)
+        config.set('Network', 'proxyAddress',self.proxyAddress)
+        config.set('Network', 'useragent', self.useragent)
+        config.set('Network', 'useRobots', self.useRobots)
+        config.set('Network', 'timeout', self.timeout)
+        config.set('Network', 'retry', self.retry)
+        config.set('Network', 'retrywait', self.retryWait)
+
+        config.add_section('Debug')
+        config.set('Debug', 'logLevel', self.logLevel)
+        config.set('Debug', 'enableDump', self.enableDump)
+        config.set('Debug', 'skipDumpFilter', self.skipDumpFilter)
+        config.set('Debug', 'dumpMediumPage', self.dumpMediumPage)
+        config.set('Debug', 'dumpTagSearchPage', self.dumpTagSearchPage)
+        config.set('Debug', 'debugHttp', self.debugHttp)
+
+        config.add_section('IrfanView')
+        config.set('Settings', 'IrfanViewPath', self.IrfanViewPath)
+        config.set('Settings', 'startIrfanView', self.startIrfanView)
+        config.set('Settings', 'startIrfanSlide', self.startIrfanSlide)
+        config.set('Settings', 'createDownloadLists', self.createDownloadLists)
+        config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
+
+        config.add_section('Settings')
         config.set('Settings', 'filenameFormat', self.filenameFormat)
         config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
-        config.set('Settings', 'timeout', self.timeout)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
         config.set('Settings', 'overwrite', self.overwrite)
         config.set('Settings', 'tagsseparator', self.tagsSeparator)
         config.set('Settings', 'daylastupdated',self.dayLastUpdated)
         config.set('Settings', 'rootdirectory', self.rootDirectory)
-        config.set('Settings', 'retry', self.retry)
-        config.set('Settings', 'retrywait', self.retryWait)
-        config.set('Settings', 'createDownloadLists', self.createDownloadLists)
-        config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
-        config.set('Settings', 'IrfanViewPath', self.IrfanViewPath)
-        config.set('Settings', 'startIrfanView', self.startIrfanView)
-        config.set('Settings', 'startIrfanSlide', self.startIrfanSlide)
         config.set('Settings', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
         config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
@@ -456,21 +473,19 @@ class PixivConfig:
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'dateDiff', self.dateDiff)
         config.set('Settings', 'backupOldFile', self.backupOldFile)
-        config.set('Settings', 'logLevel', self.logLevel)
-        config.set('Settings', 'enableDump', self.enableDump)
-        config.set('Settings', 'skipDumpFilter', self.skipDumpFilter)
-        config.set('Settings', 'dumpMediumPage', self.dumpMediumPage)
         config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
         config.set('Settings', 'createUgoira', self.createUgoira)
         config.set('Settings', 'deleteZipFile', self.deleteZipFile)
         config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
 
+        config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
         config.set('Authentication', 'useSSL', self.useSSL)
         config.set('Authentication', 'keepSignedIn', self.keepSignedIn)
 
+        config.add_section('Pixiv')
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
 
@@ -507,28 +522,39 @@ class PixivConfig:
         print ' - useSSL       = ', self.useSSL
         print ' - keepSignedIn = ', self.keepSignedIn
 
+        print ' [Network]'
+        print ' - useproxy         =', self.useProxy
+        print ' - proxyaddress     =', self.proxyAddress
+        print ' - useragent        =', self.useragent
+        print ' - use_robots       =', self.useRobots
+        print ' - timeout          =', self.timeout
+        print ' - retry            =', self.retry
+        print ' - retryWait        =', self.retryWait
+
+        print ' [Debug]'
+        print ' - logLevel         =', self.logLevel
+        print ' - enableDump       =', self.enableDump
+        print ' - skipDumpFilter   =', self.skipDumpFilter
+        print ' - dumpMediumPage   =', self.dumpMediumPage
+        print ' - dumpTagSearchPage=', self.dumpTagSearchPage
+        print ' - debug_http       =', self.debugHttp
+
+        print ' [IrfanView]'
+        print ' - IrfanViewPath    =', self.IrfanViewPath
+        print ' - startIrfanView   =', self.startIrfanView
+        print ' - startIrfanSlide  =', self.startIrfanSlide
+        print ' - createDownloadLists   =', self.createDownloadLists
+        print ' - downloadListDirectory =', self.downloadListDirectory
+
         print ' [Settings]'
         print ' - filename_format       =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
-        print ' - useproxy         =' , self.useProxy
-        print ' - proxyaddress     =', self.proxyAddress
-        print ' - debug_http       =', self.debugHttp
-        print ' - use_robots       =', self.useRobots
-        print ' - useragent        =', self.useragent
         print ' - overwrite        =', self.overwrite
-        print ' - timeout          =', self.timeout
         print ' - useList          =', self.useList
         print ' - processFromDb    =', self.processFromDb
         print ' - tagsSeparator    =', self.tagsSeparator
         print ' - dayLastUpdated   =', self.dayLastUpdated
         print ' - rootDirectory    =', self.rootDirectory
-        print ' - retry            =', self.retry
-        print ' - retryWait        =', self.retryWait
-        print ' - createDownloadLists   =', self.createDownloadLists
-        print ' - downloadListDirectory =', self.downloadListDirectory
-        print ' - IrfanViewPath    =', self.IrfanViewPath
-        print ' - startIrfanView   =', self.startIrfanView
-        print ' - startIrfanSlide  =', self.startIrfanSlide
         print ' - alwaysCheckFileSize   =', self.alwaysCheckFileSize
         print ' - checkUpdatedLimit     =', self.checkUpdatedLimit
         print ' - downloadAvatar   =', self.downloadAvatar
@@ -540,10 +566,6 @@ class PixivConfig:
         print ' - writeImageInfo   =', self.writeImageInfo
         print ' - dateDiff         =', self.dateDiff
         print ' - backupOldFile    =', self.backupOldFile
-        print ' - logLevel         =', self.logLevel
-        print ' - enableDump       =', self.enableDump
-        print ' - skipDumpFilter   =', self.skipDumpFilter
-        print ' - dumpMediumPage   =', self.dumpMediumPage
         print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
         print ' - createUgoira     =', self.createUgoira
         print ' - deleteZipFile    =', self.deleteZipFile
