@@ -101,12 +101,16 @@ def sanitizeFilename(s, rootDir=None):
         name = name[:newLen]
 
     ## Remove unicode control character
-    tempName = ""
-    for c in name:
-        if unicodedata.category(c) == 'Cc':
-            tempName = tempName + '_'
-        else:
-            tempName = tempName + c
+    if isinstance(name, unicode):
+        tempName = ""
+        for c in name:
+            if unicodedata.category(c) == 'Cc':
+                tempName = tempName + '_'
+            else:
+                tempName = tempName + c
+    else:
+        tempName = name
+
     Logger.debug("Sanitized Filename: " + tempName.strip())
 
     return tempName.strip()
@@ -338,6 +342,7 @@ def speedInStr(totalSize, totalTime):
 
 def dumpHtml(filename, html):
     isDumpEnabled = True
+    filename = sanitizeFilename(filename)
     if _config != None:
         isDumpEnabled = _config.enableDump
         if _config.enableDump:
@@ -355,11 +360,13 @@ def dumpHtml(filename, html):
             dump = file(filename, 'wb')
             dump.write(str(html))
             dump.close()
+            return filename
         except Exception as ex:
             print ex
             pass
     else:
         print "No Dump"
+    return ""
 
 
 def printAndLog(level, msg):

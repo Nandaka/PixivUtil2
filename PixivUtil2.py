@@ -739,6 +739,11 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             search_page = __br__.open(url)
 
             parse_search_page = BeautifulSoup(search_page.read())
+
+            if __config__.dumpTagSearchPage and __config__.enableDump:
+                dump_filename = PixivHelper.dumpHtml(url + ".html", parse_search_page)
+                PixivHelper.printAndLog('info', "Dump tag search page to: " + dump_filename)
+
             t = PixivTags()
             l = list()
             if not member_id is None:
