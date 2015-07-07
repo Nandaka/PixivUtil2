@@ -558,3 +558,39 @@ def downloadImage(url, filename, res, file_size, overwrite):
             os.remove(filename + '.pixiv')
 
         del save
+
+
+def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
+                         start_date = None, end_date = None, member_id = None,
+                         r18mode = False ):
+    url = ""
+    date_param = ""
+    if start_date is not None:
+        date_param = date_param + "&scd=" + start_date
+    if end_date is not None:
+        date_param = date_param + "&ecd=" + end_date
+
+    if not member_id is None:
+        url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
+    else:
+        if title_caption:
+            url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
+        else:
+            if wild_card:
+                url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
+                print "Using Partial Match (search.php)"
+            else:
+                url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
+
+    if r18mode:
+        url = url + '&r18=1'
+
+    if oldest_first:
+        url = url + '&order=date'
+    else:
+        url = url + '&order=date_d'
+
+    # encode to ascii
+    url = unicode(url).encode('iso_8859_1')
+
+    return url

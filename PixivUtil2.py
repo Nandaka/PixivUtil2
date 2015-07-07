@@ -54,9 +54,6 @@ __errorList = list()
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile('(\d+(_big)?_p\d+)')
 
-# infinite loop for download by tags
-_last_date = None
-
 
 #-T04------For download file
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page = None):
@@ -434,7 +431,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
     global ERROR_CODE
-    global _last_date
 
     parse_big_image = None
     parse_medium_page = None
@@ -634,9 +630,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
-            # for infinite loop download by tags
-            if image is not None and image.worksDateDateTime.year > 1970:
-                _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
 
         if image is not None:
             del image
@@ -667,7 +660,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None, oldest_first=False):
-    global _last_date
+
     search_page = None
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
@@ -703,37 +696,11 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         last_image_id = -1
         skipped_count = 0
 
-        date_param = ""
-        if start_date is not None:
-            date_param = date_param + "&scd=" + start_date
-        if end_date is not None:
-            date_param = date_param + "&ecd=" + end_date
-
-        PixivHelper.printAndLog('info', 'Searching for: (' + search_tags + ") " + tags + date_param)
+        PixivHelper.printAndLog('info', 'Searching for: (' + search_tags + ") " + tags)
         flag = True
         while flag:
-            if not member_id is None:
-                url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(i)
-            else:
-                if title_caption:
-                    url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(i) + '&word=' + tags + date_param
-                else:
-                    if wild_card:
-                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(i) + '&word=' + tags + date_param
-                        print "Using Partial Match (search.php)"
-                    else:
-                        url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(i) + date_param
-
-            if __config__.r18mode:
-                url = url + '&r18=1'
-
-            if oldest_first:
-                url = url + '&order=date'
-            else:
-                url = url + '&order=date_d'
-
-            # encode to ascii
-            url = unicode(url).encode('iso_8859_1')
+            url = PixivHelper.generateSearchTagUrl(tags, i, title_caption, wild_card, oldest_first,
+                                                   start_date, end_date, member_id, __config__.r18mode)
 
             PixivHelper.printAndLog('info', 'Looping... for ' + url)
             search_page = __br__.open(url)
@@ -760,18 +727,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 flag = False
             else:
                 for item in t.itemList:
-                    # edge case to avoid infinite loop due to
-                    # found only 1 image with the same id again on the 1st page.
-                    # limitation on frequently update tags, might terminate prematurely.
-                    if last_image_id == item.imageId and i == 1:
-                        last_image_id = -1
-                        flag = False
-                        PixivHelper.printAndLog('info', "Found indentical image id from previous page: " + last_image_id)
-                        break
-
+                    last_image_id = item.imageId
                     print 'Image #' + str(images)
                     print 'Image Id:', str(item.imageId)
-                    last_image_id = item.imageId
                     print 'Bookmark Count:', str(item.bookmarkCount)
                     if bookmark_count is not None and bookmark_count > item.bookmarkCount:
                         PixivHelper.printAndLog('info', 'Skipping imageId=' + str(
@@ -825,21 +783,20 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 PixivHelper.printAndLog('info', "Last page: " + str(i - 1))
                 flag = False
             if __config__.enableInfiniteLoop and i == 1001 and oldest_first == False:
-                if _last_date is None:
+                if last_image_id > 0:
                     # get the last date
-                    if last_image_id > 0:
-                        referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
-                        parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
-                        image = PixivImage(iid=last_image_id, page=parse_medium_page)
-                        _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
-                    else:
-                        PixivHelper.printAndLog('info', "No more image in the list.")
-                        break
-                # hit the last page
-                PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
-                i = 1
-                date_param = "&ecd=" + _last_date
-                flag = True
+                    referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
+                    parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
+                    image = PixivImage(iid=last_image_id, page=parse_medium_page)
+                    _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
+                    # hit the last page
+                    PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
+                    i = 1
+                    end_date = _last_date
+                    flag = True
+                else:
+                    PixivHelper.printAndLog('info', "No more image in the list.")
+                    flag = False
 
         print 'done'
     except KeyboardInterrupt:
