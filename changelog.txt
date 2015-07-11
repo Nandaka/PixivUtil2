@@ -1,4 +1,4 @@
-20150706-beta3:
+20150711:
 - Implement #85: Enable infinite loop for download by tags.
 - Fix Issue #79: Don't save if the download is not complete.
 - Add option to dump tags search page.

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-PIXIVUTIL_VERSION = '20150707-beta4'
+PIXIVUTIL_VERSION = '20150711'
 PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
 PIXIV_URL = 'http://www.pixiv.net'
 PIXIV_URL_SSL = 'https://www.secure.pixiv.net/login.php'
