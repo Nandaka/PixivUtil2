@@ -154,9 +154,11 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
             self._loadCookie(loginCookie)
             req = self._makeRequest('http://www.pixiv.net/mypage.php')
-            self.open(req)
-            res_url = self.response().geturl()
-            if res_url == 'http://www.pixiv.net/mypage.php':
+            res = self.open(req)
+            resData = res.read();
+            #res_url = self.response().geturl()
+            #if res_url == 'http://www.pixiv.net/mypage.php':
+            if "logout.php" in resData:
                 PixivHelper.printAndLog('info', 'Login successfull.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
                 return True
@@ -168,24 +170,7 @@ class PixivBrowser(mechanize.Browser):
 
     def loginHttp(self, username, password):
         """ Log in to Pixiv, return 0 if success """
-
-        try:
-            PixivHelper.printAndLog('info', 'Log in using form.')
-            req = self._makeRequest(PixivConstant.PIXIV_URL + PixivConstant.PIXIV_LOGIN_URL)
-            self.open(req)
-
-            self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
-            self['pixiv_id'] = username
-            self['pass'] = password
-            if self._config.keepSignedIn:
-                self.find_control('skip').items[0].selected = True
-
-            response = self.submit()
-            return self.processLoginResult(response)
-        except:
-            PixivHelper.printAndLog('error', 'Error at pixiv_login():' + str(sys.exc_info()))
-            PixivHelper.GetLogger().exception('Error at pixiv_login(): ' + str(sys.exc_info()))
-            raise
+        self.loginHttps(username, password)
 
     def loginHttps(self, username, password):
         try:
@@ -193,7 +178,6 @@ class PixivBrowser(mechanize.Browser):
             req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
             self.open(req)
 
-            ##self.select_form(nr=PixivConstant.PIXIV_FORM_NUMBER_SSL)
             self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
             self['pixiv_id'] = username
             self['pass'] = password

@@ -1,3 +1,6 @@
+20150715:
+- Fix Issue #87: Update login logic, now always use https.
+
 20150711:
 - Implement #85: Enable infinite loop for download by tags.
 - Fix Issue #79: Don't save if the download is not complete.
