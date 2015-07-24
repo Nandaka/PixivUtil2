@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-from BeautifulSoup import BeautifulSoup, Tag
+# pylint: disable=I0011, C, C0302
 import os
 import re
 import sys
@@ -9,7 +9,7 @@ import codecs
 import collections
 import PixivHelper
 from PixivException import PixivException
-import datetime
+from datetime import datetime
 import json
 
 class PixivArtist:
@@ -63,7 +63,7 @@ class PixivArtist:
     def ParseInfo(self, page, fromImage=False):
         avatarBox = page.find(attrs={'class':'_unit profile-unit'})
         temp = str(avatarBox.find('a')['href'])
-        self.artistId = int(re.search('id=(\d+)', temp).group(1))
+        self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
 
         self.artistAvatar = str(page.find('img', attrs={'class':'user-image'})['src'])
         self.artistToken = self.ParseToken(page, fromImage)
@@ -97,7 +97,7 @@ class PixivArtist:
         if temp == None or len(temp) == 0:
             raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
         for item in temp:
-            href = re.search('member_illust.php.*illust_id=(\d+)', str(item))
+            href = re.search(r'member_illust.php.*illust_id=(\d+)', str(item))
             if href != None:
                 href = int(href.group(1))
                 # fuck performance :D
@@ -176,7 +176,7 @@ class PixivImage:
     jd_rtt = 0
     imageCount = 0
     fromBookmark = False
-    worksDateDateTime = datetime.datetime.fromordinal(1)
+    worksDateDateTime = datetime.fromordinal(1)
     bookmark_count = -1
     image_response_count = -1
     ugoira_data = ""
@@ -286,7 +286,7 @@ class PixivImage:
         temp = None
         links = page.find(attrs={'class':'works_display'}).findAll('a')
         for a in links:
-            if re.search('illust_id=(\d+)',a['href']) is not None:
+            if re.search(r'illust_id=(\d+)',a['href']) is not None:
                 temp = str(a['href'])
                 break
 
@@ -295,7 +295,7 @@ class PixivImage:
             self.imageMode = "bigNew"
 
         else :
-            temp_id = int(re.search('illust_id=(\d+)',temp).group(1))
+            temp_id = int(re.search(r'illust_id=(\d+)',temp).group(1))
             assert temp_id == self.imageId, "Invalid Id detected ==> %i != %i" % (temp_id, self.imageId)
             self.imageMode = re.search('mode=(big|manga|ugoira_view)',temp).group(1)
 
@@ -327,13 +327,13 @@ class PixivImage:
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding).replace(u'/', u'-')
         if self.worksDate.find('-') > -1:
             try:
-                self.worksDateDateTime = datetime.datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+                self.worksDateDateTime = datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
             except ValueError as ve:
-                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId))
-                self.worksDateDateTime = datetime.datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
+                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId), ve)
+                self.worksDateDateTime = datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
             tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
-            self.worksDateDateTime = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
+            self.worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
 
         self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
         toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
@@ -411,7 +411,6 @@ class PixivImage:
                 for line in lines:
                     if line.startswith ("pixiv.context.ugokuIllustFullscreenData"):
                         line = line.split("=", 2)[1].strip()
-                        import json
                         js = json.loads(line)
                         self.ugoira_data = line
                         self.imageCount = 1
@@ -431,7 +430,7 @@ class PixivImage:
     def ParseMangaImagesScript(self, page):
         urls = []
         scripts = page.findAll('script')
-        pattern = re.compile("pixiv.context.originalImages\[\d+\].*(http.*)\"")
+        pattern = re.compile(r"pixiv.context.originalImages\[\d+\].*(http.*)\"")
         for script in scripts:
             s = str(script)
             if "pixiv.context.originalImages" in s:
@@ -556,7 +555,7 @@ class PixivListItem:
     def __init__(self, memberId, path):
         self.memberId = int(memberId)
         self.path = path.strip()
-        if self.path == "N\A":
+        if self.path == r"N\A":
             self.path = ""
 
     @staticmethod
@@ -637,7 +636,7 @@ class PixivNewIllustBookmark:
         try:
             result = page.find(attrs={'class':'_image-items autopagerize_page_element'}).findAll('a')
             for r in result:
-                href = re.search('member_illust.php?.*illust_id=(\d+)', r['href'])
+                href = re.search(r'member_illust.php?.*illust_id=(\d+)', r['href'])
                 if href != None:
                     href = int(href.group(1))
                     # fuck performance :D
@@ -692,7 +691,7 @@ class PixivBookmark:
         if temp == None or len(temp) == 0:
             return imageList
         for item in temp:
-            href = re.search('member_illust.php?.*illust_id=(\d+)', str(item))
+            href = re.search(r'member_illust.php?.*illust_id=(\d+)', str(item))
             if href != None:
                 href = href.group(1)
                 if not int(href) in imageList:
@@ -701,7 +700,6 @@ class PixivBookmark:
 
     @staticmethod
     def exportList(l, filename):
-        from datetime import datetime
         if not filename.endswith('.txt'):
             filename = filename + '.txt'
         writer = codecs.open(filename, 'wb', encoding='utf-8')
@@ -715,7 +713,6 @@ class PixivBookmark:
         writer.write('###END-OF-FILE###')
         writer.close()
 
-import collections
 PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCount', 'imageResponse'])
 
 class PixivTags:
@@ -808,7 +805,7 @@ class PixivTags:
         l = list()
 
         if not os.path.exists(filename) :
-            raise PixivException("File doesn't exists or no permission to read: " + filename, FILE_NOT_EXISTS_OR_NO_READ_PERMISSION)
+            raise PixivException("File doesn't exists or no permission to read: " + filename, PixivException.FILE_NOT_EXISTS_OR_NO_READ_PERMISSION)
 
         reader = PixivHelper.OpenTextFile(filename)
         for line in reader:
@@ -821,7 +818,7 @@ class PixivTags:
         return l
 
 class PixivGroup:
-    short_pattern = re.compile("https?://www.pixiv.net/member_illust.php\?mode=(.*)&illust_id=(\d+)")
+    short_pattern = re.compile(r"https?://www.pixiv.net/member_illust.php\?mode=(.*)&illust_id=(\d+)")
     imageList = None
     externalImageList = None
     maxId = 0
@@ -859,7 +856,7 @@ class PixivGroup:
                 image_data.jd_rtt = 0
                 image_data.imageCount = 0
                 image_data.fromBookmark = False
-                image_data.worksDateDateTime = datetime.datetime.strptime(image_data.worksDate, '%Y-%m-%d %H:%M:%S')
+                image_data.worksDateDateTime = datetime.strptime(image_data.worksDate, '%Y-%m-%d %H:%M:%S')
 
                 self.externalImageList.append(image_data)
 

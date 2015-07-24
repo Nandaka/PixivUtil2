@@ -1,4 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
+# pylint: disable=I0011, C, C0302
+
 import re
 import os
 import codecs
@@ -51,7 +53,7 @@ else:
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 
 __h__ = HTMLParser()
-__re_manga_index = re.compile('_p(\d+)')
+__re_manga_index = re.compile(r'_p(\d+)')
 
 
 def sanitizeFilename(s, rootDir=None):
@@ -363,7 +365,6 @@ def dumpHtml(filename, html):
             return filename
         except Exception as ex:
             print ex
-            pass
     else:
         print "No Dump"
     return ""
@@ -379,11 +380,11 @@ def printAndLog(level, msg):
 
 def HaveStrings(page, strings):
     for string in strings:
-       pattern = re.compile(string)
-       test_2 = pattern.findall(str(page))
-       if len(test_2) > 0 :
-           if len(test_2[-1]) > 0 :
-               return True
+        pattern = re.compile(string)
+        test_2 = pattern.findall(str(page))
+        if len(test_2) > 0 :
+            if len(test_2[-1]) > 0 :
+                return True
     return False
 
 
@@ -408,27 +409,28 @@ def clear_all():
     for var in all_vars:
         del globals()[var]
 
-''' Replace default mechanize method in _html.py'''
+
 def unescape_charref(data, encoding):
+    ''' Replace default mechanize method in _html.py'''
     try:
-      name, base = data, 10
-      if name.lower().startswith("x"):
-          name, base= name[1:], 16
-      try:
-          result = int(name, base)
-      except:
-          base = 16
-      uc = unichr(int(name, base))
-      if encoding is None:
-          return uc
-      else:
-          try:
-              repl = uc.encode(encoding)
-          except UnicodeError:
-              repl = "&#%s;" % data
-          return repl
+        name, base = data, 10
+        if name.lower().startswith("x"):
+            name, base= name[1:], 16
+        try:
+            result = int(name, base)
+        except:
+            base = 16
+        uc = unichr(int(name, base))
+        if encoding is None:
+            return uc
+        else:
+            try:
+                repl = uc.encode(encoding)
+            except UnicodeError:
+                repl = "&#%s;" % data
+            return repl
     except:
-      return data
+        return data
 
 def getUgoiraSize(ugoName):
     size = 0
@@ -503,7 +505,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
-        printAndLog('info', msg2 = 'File is saved to ' + filename)
+        printAndLog('info', 'File is saved to ' + filename)
 
     # download the file
     prev = 0
@@ -594,3 +596,4 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     url = unicode(url).encode('iso_8859_1')
 
     return url
+

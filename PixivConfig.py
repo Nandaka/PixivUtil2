@@ -1,11 +1,9 @@
-﻿#!/usr/bin/python
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
+# pylint: disable=I0011, C, C0302
 
 import ConfigParser
 import sys
 import os
-import codecs
-import traceback
 import PixivHelper
 import shutil
 import time
@@ -71,7 +69,7 @@ class PixivConfig:
     downloadListDirectory = unicode('.')
     startIrfanView = False
     startIrfanSlide = False
-    IrfanViewPath = unicode('C:\Program Files\IrfanView')
+    IrfanViewPath = unicode(r'C:\Program Files\IrfanView')
 
     # Debug related
     logLevel = "DEBUG"
@@ -90,7 +88,6 @@ class PixivConfig:
             self.configFileLocation = script_path + os.sep + 'config.ini'
 
         print 'Reading', self.configFileLocation, '...'
-        oldSetting = False
         haveError = False
         config = ConfigParser.RawConfigParser()
         try:

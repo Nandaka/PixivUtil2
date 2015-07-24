@@ -1,13 +1,10 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=I0011, C, C0302
 
 import sqlite3
-
 import sys
 import os
-import traceback
-import logging
-
 import codecs
 from datetime import datetime
 
@@ -130,7 +127,7 @@ class PixivDBManager:
 
             for item in listTxt:
                 c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
-                                  (item.memberId, str(item.memberId), 'N\A'))
+                                  (item.memberId, str(item.memberId), r'N\A'))
                 c.execute('''UPDATE pixiv_master_member
                              SET save_folder = ?
                              WHERE member_id = ? ''',
@@ -191,15 +188,10 @@ class PixivDBManager:
             writer.write('member_id,name,save_folder,created_date,last_update_date,last_image,is_deleted\r\n')
             for row in c:
                 for string in row:
-                    #try:
-                        ### TODO: Unicode write!!
-                        #print unicode(string)
-                        data = unicode(string)
-                        writer.write(data)
-                        writer.write(',')
-                    #except:
-                    #    print 'exception: write'
-                    #    writer.write(u',')
+                    # Unicode write!!
+                    data = unicode(string)
+                    writer.write(data)
+                    writer.write(',')
                 writer.write('\r\n')
             writer.write('###END-OF-FILE###')
             writer.close()
@@ -302,7 +294,7 @@ class PixivDBManager:
                     break
 
             c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
-                                  (member_id, str(member_id), 'N\A'))
+                                  (member_id, str(member_id), r'N\A'))
         except:
             print 'Error at insertNewMember():',str(sys.exc_info())
             print 'failed'
@@ -608,7 +600,6 @@ class PixivDBManager:
             c.close()
 
     def cleanUp(self):
-        import os
         try:
             print "Start clean-up operation."
             print "Selecting all images, this may take some times."
@@ -657,15 +648,15 @@ class PixivDBManager:
 ##########################################
 ## VI. Utilities                        ##
 ##########################################
-    def getInt(self, inputStr):
-        inputInt = None
-        while True:
-            try:
-                inputInt = int(inputStr)
-            except:
-                pass
-            if inputInt != None:
-                return inputInt
+##    def getInt(self, inputStr):
+##        inputInt = None
+##        while True:
+##            try:
+##                inputInt = int(inputStr)
+##            except:
+##                pass
+##            if inputInt != None:
+##                return inputInt
 
 
     def menu(self):

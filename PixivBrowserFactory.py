@@ -1,4 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
+# pylint: disable=I0011, C, C0302
+
 import mechanize
 from BeautifulSoup import BeautifulSoup
 import cookielib
@@ -39,20 +41,20 @@ class PixivBrowser(mechanize.Browser):
 
         self._config = config
         if config.useProxy:
-          if config.proxyAddress.startswith('socks'):
-            parseResult = urlparse.urlparse(config.proxyAddress)
-            assert parseResult.scheme and parseResult.hostname and parseResult.port
-            socksType = socks.PROXY_TYPE_SOCKS5 if parseResult.scheme == 'socks5' else socks.PROXY_TYPE_SOCKS4
+            if config.proxyAddress.startswith('socks'):
+                parseResult = urlparse.urlparse(config.proxyAddress)
+                assert parseResult.scheme and parseResult.hostname and parseResult.port
+                socksType = socks.PROXY_TYPE_SOCKS5 if parseResult.scheme == 'socks5' else socks.PROXY_TYPE_SOCKS4
 
-            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, parseResult.hostname, parseResult.port)
-            socks.wrapmodule(urllib)
-            socks.wrapmodule(urllib2)
-            socks.wrapmodule(httplib)
+                socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
+                socks.wrapmodule(urllib)
+                socks.wrapmodule(urllib2)
+                socks.wrapmodule(httplib)
 
-            PixivHelper.GetLogger().info("Using SOCKS Proxy: " + config.proxyAddress)
-          else:
-            self.set_proxies(config.proxy)
-            PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
+                PixivHelper.GetLogger().info("Using SOCKS Proxy: " + config.proxyAddress)
+            else:
+                self.set_proxies(config.proxy)
+                PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
 
         self.set_handle_equiv(True)
         #self.set_handle_gzip(True)
@@ -64,7 +66,7 @@ class PixivBrowser(mechanize.Browser):
         if config.debugHttp :
             PixivHelper.GetLogger().info('Debug HTTP enabled.')
 
-        self.visit_response
+        # self.visit_response
         self.addheaders = [('User-agent', config.useragent)]
 
         socket.setdefaulttimeout(config.timeout)
@@ -86,7 +88,7 @@ class PixivBrowser(mechanize.Browser):
         defaultCookieJar.set_cookie(cookie)
 
 
-    def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
+    def getPixivPage(self, url, referer="http://www.pixiv.net"):
         ''' get page from pixiv and return as parsed BeautifulSoup object
 
             throw PixivException as server error
@@ -155,22 +157,17 @@ class PixivBrowser(mechanize.Browser):
             self._loadCookie(loginCookie)
             req = self._makeRequest('http://www.pixiv.net/mypage.php')
             res = self.open(req)
-            resData = res.read();
-            #res_url = self.response().geturl()
-            #if res_url == 'http://www.pixiv.net/mypage.php':
+            resData = res.read()
+
             if "logout.php" in resData:
                 PixivHelper.printAndLog('info', 'Login successfull.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
                 return True
             else:
-                PixivHelper.GetLogger().info('Failed to login using cookie, returned page: ' + res_url)
+                PixivHelper.GetLogger().info('Failed to login using cookie')
                 PixivHelper.printAndLog('info', 'Cookie already expired/invalid.')
         return False
 
-
-    def loginHttp(self, username, password):
-        """ Log in to Pixiv, return 0 if success """
-        self.loginHttps(username, password)
 
     def loginHttps(self, username, password):
         try:
@@ -243,9 +240,4 @@ def getExistingBrowser():
     if _browser is None:
         raise PixivException("Browser is not initialized yet!", errorCode = PixivException.NOT_LOGGED_IN)
     return _browser
-
-
-
-
-
 

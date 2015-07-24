@@ -1,3 +1,6 @@
+20150725-beta1:
+- Fix Issue #88: undefined variable when handling cookie.
+
 20150715:
 - Fix Issue #87: Update login logic, now always use https.
 

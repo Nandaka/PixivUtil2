@@ -1,5 +1,7 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=I0011, C, C0302
+
 import sys
 import os
 import re
@@ -11,7 +13,6 @@ import urllib2
 import urllib
 import getpass
 import httplib
-import cookielib
 import codecs
 
 from BeautifulSoup import BeautifulSoup
@@ -39,6 +40,7 @@ gc.enable()
 ##gc.set_debug(gc.DEBUG_LEAK)
 
 import mechanize
+# replace unenscape_charref implementation with our implementation due to bug.
 mechanize._html.unescape_charref = PixivHelper.unescape_charref
 
 __config__ = PixivConfig.PixivConfig()
@@ -52,7 +54,7 @@ __errorList = list()
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-__re_manga_page = re.compile('(\d+(_big)?_p\d+)')
+__re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
 
 
 #-T04------For download file
@@ -60,7 +62,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
     global ERROR_CODE
     tempErrorCode = None
     retry_count = 0
-    while(retry_count <= max_retry):
+    while retry_count <= max_retry :
         res = None
         req = None
         try:
@@ -220,7 +222,7 @@ def process_list(mode, list_file_name=None):
             print 'done.'
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception as ex:
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         print 'Error at process_list():', sys.exc_info()
         print 'Failed'
@@ -322,6 +324,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 continue
 
             result = PixivConstant.PIXIVUTIL_NOT_OK
+            image_id = -1
             for image_id in artist.imageList:
                 print '#' + str(no_of_images)
                 if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
@@ -363,8 +366,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                         print "Stuff happened, trying again after 2 second (", retry_count, ")"
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         traceback.print_exception(exc_type, exc_value, exc_traceback)
-                        __log__.exception(
-                           'Error at process_member(): ' + str(sys.exc_info()) + ' Member Id: ' + str(member_id))
+                        __log__.exception('Error at process_member(): ' + str(sys.exc_info()) + ' Member Id: ' + str(member_id))
                         time.sleep(2)
 
                 no_of_images = no_of_images + 1
@@ -492,16 +494,14 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         if __config__.dateDiff > 0:
             if image.worksDateDateTime != datetime.datetime.fromordinal(1):
                 if image.worksDateDateTime < datetime.datetime.today() - datetime.timedelta(__config__.dateDiff):
-                    PixivHelper.printAndLog('info', 'Skipping image_id: ' + str(
-                          image_id) + ' because contains older than: ' + str(__config__.dateDiff) + ' day(s).')
+                    PixivHelper.printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains older than: ' + str(__config__.dateDiff) + ' day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
         if __config__.useBlacklistTags:
             for item in __blacklistTags:
                 if item in image.imageTags:
-                    PixivHelper.printAndLog('info', 'Skipping image_id: ' + str(
-                          image_id) + ' because contains blacklisted tags: ' + item)
+                    PixivHelper.printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains blacklisted tags: ' + item)
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
@@ -521,7 +521,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 parse_bookmark_page.decompose()
                 del parse_bookmark_page
                 print "Bookmark Count :", str(image.bookmark_count)
-                __br__.back();
+                __br__.back()
 
             if __config__.useSuppressTags:
                 for item in __suppressTags:
@@ -825,7 +825,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest
                          use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first, bookmark_count=bookmark_count)
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception as ex:
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         print 'Error at process_tags_list():', sys.exc_info()
         __log__.exception('Error at process_tags_list(): ' + str(sys.exc_info()))
@@ -1599,13 +1599,10 @@ def doLogin(password, username):
     result = False
     try:
         if len(__config__.cookie) > 0:
-            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie();
+            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie()
 
         if not result:
-            #if __config__.useSSL:
             result = PixivBrowserFactory.getBrowser(config=__config__).loginHttps(username, password)
-            #else:
-            #    result = PixivBrowserFactory.getBrowser(config=__config__).loginHttp(username, password)
     except:
         PixivHelper.printAndLog('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
