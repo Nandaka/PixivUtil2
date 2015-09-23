@@ -455,7 +455,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         ## get the medium page
         try:
             parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
-            image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count)
+            image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count, dateFormat=__config__.dateFormat)
             if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
                 image.ParseImages(page=parse_medium_page)
             if title_prefix is not None:
@@ -787,7 +787,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     # get the last date
                     referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
                     parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
-                    image = PixivImage(iid=last_image_id, page=parse_medium_page)
+                    image = PixivImage(iid=last_image_id, page=parse_medium_page, dateFormat=__config__.dateFormat)
                     _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
                     # hit the last page
                     PixivHelper.printAndLog('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))

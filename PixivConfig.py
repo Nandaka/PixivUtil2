@@ -38,6 +38,7 @@ class PixivConfig:
     # Pixiv related?
     numberOfPage = 0
     r18mode = False
+    dateFormat = None
 
     # generic Settings
     filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
@@ -399,6 +400,13 @@ class PixivConfig:
                 print "dumpTagSearchPage = False"
                 haveError = True
 
+            try:
+                self.dateFormat = config.get('Pixiv','dateFormat')
+            except ValueError:
+                print "dateFormat = ''"
+                self.dateFormat = None
+                haveError = True
+
 
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
@@ -485,6 +493,7 @@ class PixivConfig:
         config.add_section('Pixiv')
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
+        config.set('Pixiv', 'DateFormat', self.dateFormat)
 
         if path != None:
             configlocation = path
@@ -571,4 +580,5 @@ class PixivConfig:
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
         print ' - R18Mode      =', self.r18mode
+        print ' - DateFormat   =', self.dateFormat
         print ''

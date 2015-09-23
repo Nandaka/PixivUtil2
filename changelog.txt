@@ -1,5 +1,6 @@
-20150725-beta1:
+20150923:
 - Fix Issue #88: undefined variable when handling cookie.
+- Externalize date format to config.ini, refer to http://strftime.org/ for formatting syntax
 
 20150715:
 - Fix Issue #87: Update login logic, now always use https.

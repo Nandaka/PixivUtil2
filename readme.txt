@@ -240,8 +240,13 @@ keepsignedin ==> Set to 1 to tick the keep signed in check box on login form.
 [Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
 r18mode      ==> Only list images tagged R18, for member, member's bookmark,
-                 and search by tag.
-                 Set to 'True' to apply.
+                 and search by tag. Set to 'True' to apply.
+dateformat   ==> Pixiv DateTime format, leave blank to use default format for 
+                 English or Japanese. Refer to http://strftime.org/ for syntax.
+		 Quick Reference:
+		 %d = Day, %m = Month, %Y = Year (4 digit), %H = Hour (24h)
+		 %M = Minute, %S = Seconds
+
 [Network]
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
 proxyaddress   ==> Proxy server address, use this format:                    

@@ -180,13 +180,15 @@ class PixivImage:
     bookmark_count = -1
     image_response_count = -1
     ugoira_data = ""
+    dateFormat = None
 
-    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1):
+    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1, dateFormat = None):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
         self.imageId = iid
         self.imageUrls = []
+        self.dateFormat = dateFormat
 
         if page != None:
             ## check is error page
@@ -324,16 +326,25 @@ class PixivImage:
         #1/05/2011 07:09|723×1023|Photoshop SAI  [ R-18 ]
         #2013年3月16日 06:44 | 800×1130 | Photoshop ComicStudio | R-18
         #2013年12月14日 19:00 855×1133 PhotoshopSAI
-        self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding).replace(u'/', u'-')
-        if self.worksDate.find('-') > -1:
+
+        self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
+        if self.dateFormat is not None and len(self.dateFormat) > 0:
+            # use the user defined format
             try:
-                self.worksDateDateTime = datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+                self.worksDateDateTime = datetime.strptime(self.worksDate, self.dateFormat)
             except ValueError as ve:
-                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId), ve)
-                self.worksDateDateTime = datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
+                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1} using date format {2}'.format(self.worksDate, self.imageId, self.dateFormat), ve)
         else:
-            tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
-            self.worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
+            self.worksDate = self.worksDate.replace(u'/', u'-')
+            if self.worksDate.find('-') > -1:
+                try:
+                    self.worksDateDateTime = datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
+                except ValueError as ve:
+                    PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId), ve)
+                    self.worksDateDateTime = datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
+            else:
+                tempDate = self.worksDate.replace(u'年', '-').replace(u'月','-').replace(u'日', '')
+                self.worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
 
         self.worksResolution = unicode(temp[1].string).replace(u'×',u'x')
         toolsTemp = page.find(attrs={'class':'meta'}).find(attrs={'class':'tools'})
