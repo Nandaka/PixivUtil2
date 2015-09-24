@@ -38,7 +38,7 @@ class PixivConfig:
     # Pixiv related?
     numberOfPage = 0
     r18mode = False
-    dateFormat = None
+    dateFormat = ''
 
     # generic Settings
     filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
@@ -404,7 +404,7 @@ class PixivConfig:
                 self.dateFormat = config.get('Pixiv','dateFormat')
             except ValueError:
                 print "dateFormat = ''"
-                self.dateFormat = None
+                self.dateFormat = ''
                 haveError = True
 
 

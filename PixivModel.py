@@ -328,12 +328,13 @@ class PixivImage:
         #2013年12月14日 19:00 855×1133 PhotoshopSAI
 
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
-        if self.dateFormat is not None and len(self.dateFormat) > 0:
+        if self.dateFormat is not None and len(self.dateFormat) > 0 and '%' in self.dateFormat:
             # use the user defined format
             try:
                 self.worksDateDateTime = datetime.strptime(self.worksDate, self.dateFormat)
             except ValueError as ve:
-                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1} using date format {2}'.format(self.worksDate, self.imageId, self.dateFormat), ve)
+                PixivHelper.GetLogger().exception('Error when parsing datetime: {0} for imageId {1} using date format {2}'.format(self.worksDate, str(self.imageId), str(self.dateFormat)), ve)
+                raise
         else:
             self.worksDate = self.worksDate.replace(u'/', u'-')
             if self.worksDate.find('-') > -1:
