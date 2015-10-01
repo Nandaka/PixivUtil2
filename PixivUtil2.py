@@ -665,13 +665,14 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
+        # decode tags.
         try:
             if tags.startswith("%"):
                 search_tags = PixivHelper.toUnicode(urllib.unquote_plus(tags))
             else:
                 search_tags = PixivHelper.toUnicode(tags)
         except UnicodeDecodeError:
-            ## From command prompt
+            # From command prompt
             search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
             search_tags = PixivHelper.toUnicode(search_tags)
 
@@ -681,16 +682,17 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
 
         if not tags.startswith("%"):
             try:
-                ## Encode the tags
+                # Encode the tags
                 tags = tags.encode('utf-8')
                 tags = urllib.quote_plus(tags)
             except UnicodeDecodeError:
                 try:
-                    ## from command prompt
+                    # from command prompt
                     tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
                 except UnicodeDecodeError:
                     PixivHelper.printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
                     __log__.exception('decodeTags()')
+
         i = page
         images = 1
         last_image_id = -1
@@ -785,6 +787,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
             if __config__.enableInfiniteLoop and i == 1001 and oldest_first == False:
                 if last_image_id > 0:
                     # get the last date
+                    PixivHelper.printAndLog('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
                     referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
                     parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
                     image = PixivImage(iid=last_image_id, page=parse_medium_page, dateFormat=__config__.dateFormat)
@@ -794,6 +797,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     i = 1
                     end_date = _last_date
                     flag = True
+                    last_image_id = -1
                 else:
                     PixivHelper.printAndLog('info', "No more image in the list.")
                     flag = False
@@ -812,7 +816,6 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         except:
             PixivHelper.printAndLog('error', 'Cannot dump page for search tags:' + search_tags)
         raise
-
 
 def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False, bookmark_count = None):
     global ERROR_CODE

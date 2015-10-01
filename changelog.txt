@@ -1,3 +1,6 @@
+20151001:
+- Fix Issue #93: remove popular introduction from tags search result.
+
 20150924:
 - Fix Issue #88: undefined variable when handling cookie.
 - Externalize date format to config.ini, refer to http://strftime.org/ for formatting syntax.

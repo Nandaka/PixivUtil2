@@ -733,29 +733,35 @@ class PixivTags:
     itemList = None
     haveImage = None
     isLastPage = None
+    __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+    __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
+
+    def parseIgnoreSection(self, page, sectionName):
+        ignore = list()
+        showcases = page.findAll('section', attrs={'class': sectionName})
+        for showcase in showcases:
+            lis = showcase.findAll('li', attrs={'class':self.__re_imageItemClass})
+            for li in lis:
+                if str(li).find('member_illust.php?') > -1:
+                    image_id = self.__re_illust.findall(li.find('a')['href'])[0]
+                    ignore.append(image_id)
+        return ignore
 
     def parseTags(self, page):
         '''parse tags search page and return the image list with bookmarkCound and imageResponse'''
         self.itemList = list()
 
-        __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 
-        ## get showcase
         ignore = list()
-        showcases = page.findAll('section', attrs={'class': 'showcase'})
-        for showcase in showcases:
-            lis = showcase.findAll('li', attrs={'class':'image'})
-            for li in lis:
-                if str(li).find('member_illust.php?') > -1:
-                    image_id = __re_illust.findall(li.find('a')['href'])[0]
-                    ignore.append(image_id)
+        # ignore showcase and popular-introduction
+        ignore.extend(self.parseIgnoreSection(page, 'showcase'))
+        ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
 
-        ## new parse for bookmark items
-        imageItemClass = re.compile(r".*\bimage-item\b.*")
-        items = page.findAll('li', attrs={'class':imageItemClass})
+        # new parse for bookmark items
+        items = page.findAll('li', attrs={'class':self.__re_imageItemClass})
         for item in items:
             if str(item).find('member_illust.php?') > -1:
-                image_id = __re_illust.findall(item.find('a')['href'])[0]
+                image_id = self.__re_illust.findall(item.find('a')['href'])[0]
                 if not str(image_id).isdigit() or image_id in ignore:
                     continue
 
@@ -779,11 +785,10 @@ class PixivTags:
         '''parse member tags search page and return the image list'''
         self.itemList = list()
 
-        __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
         linkList = page.findAll('a')
         for link in linkList:
             if link.has_key('href') :
-                result = __re_illust.findall(link['href'])
+                result = self.__re_illust.findall(link['href'])
                 if len(result) > 0 :
                     image_id = int(result[0])
                     self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
@@ -805,7 +810,7 @@ class PixivTags:
             self.isLastPage = True
 
         if fromMember:
-                # check if the last page for member tags
+            # check if the last page for member tags
             if self.isLastPage:
                 check = page.findAll(name='a', attrs={'class':'button', 'rel':'next'})
                 if len(check) > 0:
