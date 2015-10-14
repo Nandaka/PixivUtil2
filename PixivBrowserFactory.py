@@ -56,7 +56,7 @@ class PixivBrowser(mechanize.Browser):
                 self.set_proxies(config.proxy)
                 PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
 
-        self.set_handle_equiv(True)
+        #self.set_handle_equiv(True)
         #self.set_handle_gzip(True)
         self.set_handle_redirect(True)
         self.set_handle_referer(True)
@@ -137,13 +137,13 @@ class PixivBrowser(mechanize.Browser):
                              comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
-    def _makeRequest(self, url):
-        if self._config.useProxy:
-            proxy = urllib2.ProxyHandler(self._config.proxy)
-            opener = urllib2.build_opener(proxy)
-            urllib2.install_opener(opener)
-        req = urllib2.Request(url)
-        return req
+##    def _makeRequest(self, url):
+##        if self._config.useProxy:
+##            proxy = urllib2.ProxyHandler(self._config.proxy)
+##            opener = urllib2.build_opener(proxy)
+##            urllib2.install_opener(opener)
+##        req = urllib2.Request(url)
+##        return req
 
 
     def loginUsingCookie(self, loginCookie=None):
@@ -155,8 +155,9 @@ class PixivBrowser(mechanize.Browser):
         if len(loginCookie) > 0:
             PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
             self._loadCookie(loginCookie)
-            req = self._makeRequest('http://www.pixiv.net/mypage.php')
-            res = self.open(req)
+            #req = self._makeRequest('http://www.pixiv.net/mypage.php')
+            #res = self.open(req)
+            res = self.open('http://www.pixiv.net/mypage.php')
             resData = res.read()
 
             if "logout.php" in resData:
@@ -172,8 +173,9 @@ class PixivBrowser(mechanize.Browser):
     def loginHttps(self, username, password):
         try:
             PixivHelper.printAndLog('info', 'Log in using secure form.')
-            req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
-            self.open(req)
+            #req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
+            #self.open(req)
+            self.open(PixivConstant.PIXIV_URL_SSL)
 
             self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
             self['pixiv_id'] = username
