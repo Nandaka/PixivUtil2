@@ -68,7 +68,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
         try:
             try:
                 print 'Start downloading...',
-                req = PixivHelper.createCustomRequest(url, __config__, referer)
+                req = PixivHelper.createCustomRequest(url, __config__, referer, head=True)
                 res = __br__.open_novisit(req)
 
                 # get file size
@@ -519,7 +519,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
             print "Mode :", image.imageMode
 
-            ## get bookmark count
+            ##get bookmark count
             if ("%bookmark_count%" in __config__.filenameFormat or "%image_response_count%" in __config__.filenameFormat) and image.bookmark_count == -1:
                 print "Parsing bookmark page",
                 bookmark_url ='http://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id)
@@ -535,7 +535,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     if item in image.imageTags:
                         image.imageTags.remove(item)
 
-            ## get manga page
+            # get manga page
             if image.imageMode == 'manga' or image.imageMode == 'big':
                 while True:
                     try:

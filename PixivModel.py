@@ -460,19 +460,25 @@ class PixivImage:
         urls = []
         mangaSection = page.find("section", attrs={'class':'manga'})
         links = mangaSection.findAll('a')
-        ## /member_illust.php?mode=manga_big&illust_id=46279245&page=0
+        # pattern /member_illust.php?mode=manga_big&illust_id=46279245&page=0
         if _br is None:
             import PixivBrowserFactory
             _br = PixivBrowserFactory.getExistingBrowser()
 
-        for link in links:
+        total = page.find("span", attrs={'class':'total'})
+        if total is not None:
+            self.imageCount = int(total.string)
+
+        for currPage in range(0, self.imageCount):
+            expected_url = '/member_illust.php?mode=manga_big&illust_id='+ str(self.imageId) + '&page=' + str(currPage)
             try:
-                href = _br.fixUrl(link["href"])
+                href = _br.fixUrl(expected_url)
                 print "Fetching big image page:", href
                 bigPage = _br.getPixivPage(url=href, referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(self.imageId))
 
                 bigImg = bigPage.find('img')
                 imgUrl = bigImg["src"]
+                # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
                 print "Found: ", imgUrl
                 urls.append(imgUrl)
                 bigImg.decompose()
@@ -481,12 +487,6 @@ class PixivImage:
                 del bigPage
             except Exception as ex:
                 print ex
-
-        total = page.find("span", attrs={'class':'total'})
-        if total is not None:
-            self.imageCount = int(total.string)
-            if self.imageCount != len(urls):
-                raise PixivException("Different images count: " + str(self.imageCount) + " != " + str(len(urls)))
 
         return urls
 

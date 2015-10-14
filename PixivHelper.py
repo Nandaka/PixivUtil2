@@ -474,7 +474,7 @@ def printDelay(retryWait):
     print ''
 
 
-def createCustomRequest(url, config, referer = 'http://www.pixiv.net'):
+def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = False):
     if config.useProxy:
         proxy = urllib2.ProxyHandler(config.proxy)
         opener = urllib2.build_opener(proxy)
@@ -483,6 +483,9 @@ def createCustomRequest(url, config, referer = 'http://www.pixiv.net'):
 
     req.add_header('Referer', referer)
     printAndLog('info', "Using Referer: " + str(referer))
+
+    if head:
+        req.get_method = lambda : 'HEAD'
 
     return req
 
