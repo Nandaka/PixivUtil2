@@ -114,6 +114,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
 
                 # actual download
+                req = PixivHelper.createCustomRequest(url, __config__, referer)
+                res = __br__.open_novisit(req)
                 downloadedSize = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
 
                 # check the downloaded file size again

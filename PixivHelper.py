@@ -486,6 +486,8 @@ def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = Fa
 
     if head:
         req.get_method = lambda : 'HEAD'
+    else:
+        req.get_method = lambda : 'GET'
 
     return req
 
