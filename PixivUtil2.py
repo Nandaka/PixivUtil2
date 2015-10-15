@@ -122,12 +122,20 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if file_size > 0 and downloadedSize != file_size:
                     raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
                 elif True and ( filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".gif")):
-                    from PIL import Image
-                    fp = open(filename, "rb")
-                    img = Image.open(fp)
-                    img.load()
-                    fp.close()
-                    PixivHelper.printAndLog('info', ' Image verified.')
+                    fp = None
+                    try:
+                        from PIL import Image
+                        fp = open(filename, "rb")
+                        img = Image.open(fp)
+                        img.load()
+                        fp.close()
+                        PixivHelper.printAndLog('info', ' Image verified.')
+                    except:
+                        if fp is not None:
+                            fp.close()
+                        PixivHelper.printAndLog('info', ' Image invalid, deleting...')
+                        os.remove(filename)
+                        raise
                 else:
                     PixivHelper.printAndLog('info', ' done.')
 
