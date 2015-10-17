@@ -992,6 +992,9 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
         while flag:
             print "Page #" + str(i)
             url = 'http://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
+            if __config__.r18mode:
+                url = 'http://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
+
             PixivHelper.printAndLog('info', "Source URL: " + url)
             page = __br__.open(url)
             parsed_page = BeautifulSoup(page.read())
