@@ -64,6 +64,7 @@ class PixivConfig:
     createUgoira = False
     deleteZipFile = False
     enableInfiniteLoop = False
+    verifyImage = False
 
     # IrfanView
     createDownloadLists = False
@@ -407,6 +408,12 @@ class PixivConfig:
                 self.dateFormat = ''
                 haveError = True
 
+            try:
+                self.verifyImage = config.getboolean('Settings','verifyImage')
+            except ValueError:
+                print "verifyImage = False"
+                self.verifyImage = False
+                haveError = True
 
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
@@ -482,6 +489,7 @@ class PixivConfig:
         config.set('Settings', 'createUgoira', self.createUgoira)
         config.set('Settings', 'deleteZipFile', self.deleteZipFile)
         config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
+        config.set('Settings', 'verifyImage', self.verifyImage)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -576,6 +584,7 @@ class PixivConfig:
         print ' - createUgoira     =', self.createUgoira
         print ' - deleteZipFile    =', self.deleteZipFile
         print ' - enableInfiniteLoop    =', self.enableInfiniteLoop
+        print ' - verifyImage      =', self.verifyImage
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
