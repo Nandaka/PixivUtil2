@@ -9,6 +9,7 @@
   - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
   - BeautifulSoup 3.2.0 (http://www.crummy.com/software/BeautifulSoup/)
   - socksipy-branch 1.02+ (https://socksipy-branch.googlecode.com/)
+  - Pillow (https://python-pillow.github.io/)
 
 ================================================================================
 = Capabilities:                                                                =
@@ -374,6 +375,8 @@ deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
 enableInfiniteLoop ==> Enable infinite loop for download by tags.
                        Only applicable for download in descending order (newest 
                        first).
+verifyimage     ==> Do image and zip checking after download. Set the value to 
+                    True to enable.
 
 =================================================================================
 = list.txt Format                                                               =
