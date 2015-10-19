@@ -1,3 +1,10 @@
+20151019:
+- Update proxy handler.
+- Add download file verifier (image and ugoira).
+- Optimize filesize check.
+- Update big manga parser.
+- Fix Issue #94: use correct url for R-18 new illust.
+
 20151001:
 - Fix Issue #93: remove popular introduction from tags search result.
 
