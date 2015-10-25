@@ -1031,7 +1031,7 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
             parsed_page.decompose()
             del parsed_page
 
-            if (end_page_num != 0 and i > end_page_num) or i >= 100 or pb.isLastPage:
+            if (end_page_num != 0 and i > end_page_num) or i > 100 or pb.isLastPage:
                 print "Limit or last page reached."
                 flag = False
 
