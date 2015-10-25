@@ -82,7 +82,7 @@ def main():
 
         downloadPage('http://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
 
-        downloadPage('http://www.pixiv.net/member_illust.php?id=313631&p=5', './test/test-tags-member-search-last.htm')
+        downloadPage('http://www.pixiv.net/member_illust.php?id=313631&p=6', './test/test-tags-member-search-last.htm')
         downloadPage('http://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full', './test/test-tags-search-exact.htm')
         downloadPage('http://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&s_mode=s_tag_full&order=date_d&p=12', './test/test-tags-search-partial.htm')
         downloadPage('http://www.pixiv.net/search.php?s_mode=s_tag_full&word=XXXXXX','./test/test-tags-search-exact-parse_details.htm')

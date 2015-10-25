@@ -338,7 +338,7 @@ class TestPixivImage(unittest.TestCase):
       urls = image.ParseImages(page, mode='big')
       self.assertEqual(len(urls), 1)
       print urls[0]
-      imageId = urls[0].split('/')[-1].split('.')[0]
+      imageId = urls[0].split('/')[-1].split('_')[0]
       #print 'imageId:',imageId
       self.assertEqual(int(imageId), 2493913)
 
@@ -411,7 +411,7 @@ class TestPixivBookmark(unittest.TestCase):
       page = BeautifulSoup(p.read())
       result = PixivBookmark.parseImageBookmark(page)
 
-      self.assertEqual(len(result), 19)
+      self.assertEqual(len(result), 20)
       self.assertTrue(35303260 in result)
       self.assertTrue(28629066 in result)
       self.assertTrue(27249307 in result)
@@ -476,7 +476,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 19)
         self.assertEqual(image.isLastPage, False)
 
     ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
@@ -585,22 +585,16 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(result.maxId, 626288)
 
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivArtist)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivImage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivBookmark)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMyPickPage)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivTags)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivGroup)
-    unittest.TextTestRunner(verbosity=5).run(suite)
-    raw_input("anykey")
+    test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
 
+    loader = unittest.TestLoader()
+
+    suites_list = []
+    for test_class in test_classes_to_run:
+        suite = loader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+
+    big_suite = unittest.TestSuite(suites_list)
+
+    runner = unittest.TextTestRunner(verbosity=5)
+    results = runner.run(big_suite)
