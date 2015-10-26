@@ -65,6 +65,7 @@ class PixivConfig:
     deleteZipFile = False
     enableInfiniteLoop = False
     verifyImage = False
+    writeUrlInDescription = False
 
     # IrfanView
     createDownloadLists = False
@@ -415,6 +416,13 @@ class PixivConfig:
                 self.verifyImage = False
                 haveError = True
 
+            try:
+                self.writeUrlInDescription = config.getboolean('Settings','writeUrlInDescription')
+            except ValueError:
+                print "writeUrlInDescription = False"
+                self.writeUrlInDescription = False
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -490,6 +498,7 @@ class PixivConfig:
         config.set('Settings', 'deleteZipFile', self.deleteZipFile)
         config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
         config.set('Settings', 'verifyImage', self.verifyImage)
+        config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -585,6 +594,7 @@ class PixivConfig:
         print ' - deleteZipFile    =', self.deleteZipFile
         print ' - enableInfiniteLoop    =', self.enableInfiniteLoop
         print ' - verifyImage      =', self.verifyImage
+        print ' - writeUrlInDescription =', self.writeUrlInDescription
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

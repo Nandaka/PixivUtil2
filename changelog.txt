@@ -1,3 +1,8 @@
+20151026-beta:
+- Fix Issue #96: page 100 is not downloaded for new illust page.
+- Update test page.
+- Implement Feature #95: dump url list to text file. Set writeUrlInDescription = True to enable.
+
 20151019:
 - Update proxy handler.
 - Add download file verifier (image and ugoira).

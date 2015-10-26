@@ -377,6 +377,10 @@ enableInfiniteLoop ==> Enable infinite loop for download by tags.
                        first).
 verifyimage     ==> Do image and zip checking after download. Set the value to 
                     True to enable.
+writeUrlInDescription ==> Write all url found in the image description to a text 
+			  file. Set to True to enable. The list will be saved to
+                          to the application folder as url_list_<timestamp>.txt
+
 
 =================================================================================
 = list.txt Format                                                               =

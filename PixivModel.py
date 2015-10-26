@@ -7,6 +7,7 @@ import shutil
 import zipfile
 import codecs
 import collections
+import urllib
 import PixivHelper
 from PixivException import PixivException
 from datetime import datetime
@@ -181,6 +182,7 @@ class PixivImage:
     image_response_count = -1
     ugoira_data = ""
     dateFormat = None
+    descriptionUrlList = []
 
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1, dateFormat = None):
         self.artist = parent
@@ -189,6 +191,7 @@ class PixivImage:
         self.imageId = iid
         self.imageUrls = []
         self.dateFormat = dateFormat
+        self.descriptionUrlList = []
 
         if page != None:
             ## check is error page
@@ -318,6 +321,20 @@ class PixivImage:
         self.jd_rtv = int(page.find(attrs={'class':'view-count'}).string)
         self.jd_rtc = int(page.find(attrs={'class':'rated-count'}).string)
         self.jd_rtt = int(page.find(attrs={'class':'score-count'}).string)
+
+        descriptionPara = page.findAll("p", attrs={'class':'caption'})
+        if descriptionPara is not None and len(descriptionPara) > 0:
+            for para in descriptionPara:
+                links = para.findAll("a")
+                if links is not None and len(links) > 0:
+                    for link in links:
+                        link_str = link["href"]
+                        # "/jump.php?http%3A%2F%2Farsenixc.deviantart.com%2Fart%2FWatchmaker-house-567480110"
+                        if link_str.startswith("/jump.php?"):
+                            link_str = link_str[10:]
+                            link_str = urllib.unquote(link_str)
+                        self.descriptionUrlList.append(link_str)
+
 
     def ParseWorksData(self, page):
         temp = page.find(attrs={'class':'meta'}).findAll('li')
@@ -533,6 +550,10 @@ class PixivImage:
         info.write("BookmarkCount= " + str(self.bookmark_count) + "\r\n")
         info.write("Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
         info.write("Ugoira Data= " + str(self.ugoira_data) + "\r\n")
+        if len(self.descriptionUrlList) > 0:
+            info.write("Urls       =\r\n")
+            for link in self.descriptionUrlList:
+                info.write(" - " + link + "\r\n")
         info.close()
 
     def WriteUgoiraData(self, filename):
