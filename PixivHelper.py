@@ -602,12 +602,27 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
 
     return url
 
-def writeUrlInDescription(image):
+def writeUrlInDescription(image, blacklistRegex, filenamePattern):
+    valid_url = list()
     if len(image.descriptionUrlList) > 0:
-        filename = "url_list_" + datetime.date.today().strftime("%Y%m%d") + ".txt"
+        # filter first
+        if len(blacklistRegex) > 0 :
+            for link in image.descriptionUrlList:
+                res = re.findall(blacklistRegex, link)
+                if len(res) == 0:
+                    valid_url.append(link)
+        else:
+            valid_url = image.descriptionUrlList
+
+    # then write
+    if len(valid_url) > 0:
+        if len(filenamePattern) == 0:
+            filenamePattern = "url_list_%Y%m%d"
+        filename = datetime.date.today().strftime(filenamePattern) + ".txt"
+
         info = codecs.open(filename, 'a', encoding='utf-8')
         info.write("#" + str(image.imageId)+"\r\n")
-        for link in image.descriptionUrlList:
+        for link in valid_url:
             info.write(link + "\r\n")
         info.close()
 

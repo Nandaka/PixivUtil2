@@ -647,7 +647,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         PixivHelper.printAndLog('info', "Deleting zip file => " + filename)
                         os.remove(filename)
             if __config__.writeUrlInDescription:
-                PixivHelper.writeUrlInDescription(image)
+                PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
 
 
         # Only save to db if all images is downloaded completely

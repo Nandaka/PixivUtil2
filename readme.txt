@@ -380,7 +380,10 @@ verifyimage     ==> Do image and zip checking after download. Set the value to
 writeUrlInDescription ==> Write all url found in the image description to a text 
 			  file. Set to True to enable. The list will be saved to
                           to the application folder as url_list_<timestamp>.txt
-
+urlBlacklistRegex     ==> Used to filter out the url in the description using
+                          regular expression.
+urlDumpFilename       ==> Define the dump filename, use python strftime() format.
+                          Default value is 'url_list_%Y%m%d'
 
 =================================================================================
 = list.txt Format                                                               =

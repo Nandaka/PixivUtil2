@@ -1,7 +1,10 @@
-20151026-beta:
+2015112:
 - Fix Issue #96: page 100 is not downloaded for new illust page.
 - Update test page.
-- Implement Feature #95: dump url list to text file. Set writeUrlInDescription = True to enable.
+- Implement Feature #95: dump url list to text file. 
+  Set writeUrlInDescription = True to enable.
+  Set urlBlacklistRegex to define url to ignore.
+  Set urlDumpFilename to define the dump filename, use python strftime() format.
 
 20151019:
 - Update proxy handler.

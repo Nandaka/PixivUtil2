@@ -66,6 +66,8 @@ class PixivConfig:
     enableInfiniteLoop = False
     verifyImage = False
     writeUrlInDescription = False
+    urlBlacklistRegex = ""
+    urlDumpFilename = "url_list_%Y%m%d"
 
     # IrfanView
     createDownloadLists = False
@@ -423,6 +425,20 @@ class PixivConfig:
                 self.writeUrlInDescription = False
                 haveError = True
 
+            try:
+                self.urlBlacklistRegex = config.get('Settings','urlBlacklistRegex')
+            except ValueError:
+                print "urlBlacklistRegex = "
+                self.urlBlacklistRegex = ""
+                haveError = True
+
+            try:
+                self.urlDumpFilename = config.get('Settings','urlDumpFilename')
+            except ValueError:
+                print "urlDumpFilename = url_list_%Y%m%d"
+                self.urlDumpFilename = "url_list_%Y%m%d"
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -499,6 +515,8 @@ class PixivConfig:
         config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
+        config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
+        config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -595,6 +613,8 @@ class PixivConfig:
         print ' - enableInfiniteLoop    =', self.enableInfiniteLoop
         print ' - verifyImage      =', self.verifyImage
         print ' - writeUrlInDescription =', self.writeUrlInDescription
+        print ' - urlBlacklistRegex =', self.urlBlacklistRegex
+        print ' - urlDumpFilename =', self.urlDumpFilename
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
