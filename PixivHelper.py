@@ -503,7 +503,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
             os.makedirs(directory)
         save = file(filename + '.pixiv', 'wb+', 4096)
     except IOError:
-        printAndLog('error', "Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
+        printAndLog('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
 
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
