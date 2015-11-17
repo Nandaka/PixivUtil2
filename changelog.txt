@@ -1,4 +1,7 @@
-2015112:
+20151117-beta1:
+- Try to fix Issue #98.
+
+20151112:
 - Fix Issue #96: page 100 is not downloaded for new illust page.
 - Update test page.
 - Implement Feature #95: dump url list to text file. 

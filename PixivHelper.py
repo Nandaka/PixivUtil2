@@ -235,7 +235,7 @@ def clearScreen():
 
 
 def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
-    print 'starting IrfanView...'
+    printAndLog('info', 'starting IrfanView...')
     if os.path.exists(dfilename):
         ivpath = irfanViewPath + os.sep + 'i_view32.exe' #get first part from config.ini
         ivpath = ivpath.replace('\\\\', '\\')
@@ -253,7 +253,7 @@ def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfa
             Logger.info(ivcommand)
             subprocess.Popen(ivcommand, startupinfo=info)
     else:
-        print 'could not load', dfilename
+        printAndLog('error', u'could not load' + dfilename)
 
 
 def OpenTextFile(filename, mode='r', encoding='utf-8'):
@@ -354,7 +354,7 @@ def dumpHtml(filename, html):
                     isDumpEnabled = False
 
     if len(html) == 0:
-        print 'Empty Html'
+        printAndLog('info', 'Empty Html')
         return
 
     if isDumpEnabled:
@@ -364,9 +364,9 @@ def dumpHtml(filename, html):
             dump.close()
             return filename
         except Exception as ex:
-            print ex
+            printAndLog('error', ex.message)
     else:
-        print "No Dump"
+        printAndLog('info', 'No Dump')
     return ""
 
 
@@ -398,9 +398,9 @@ def getIdsFromCsv(ids_str, sep=','):
                 _id = int(temp)
                 ids.append(_id)
             except:
-                printAndLog('error', "ID: {0} is not valid".format(id_str))
+                printAndLog('error', u"ID: {0} is not valid".format(id_str))
     if len(ids) > 1:
-        printAndLog('info', "Found {0} ids".format(len(ids)))
+        printAndLog('info', u"Found {0} ids".format(len(ids)))
     return ids
 
 
@@ -440,12 +440,12 @@ def getUgoiraSize(ugoName):
             size = json.loads(animJson)['zipSize']
             z.close()
     except:
-        printAndLog('error', 'Failed to read ugoira: ' + ugoName)
+        printAndLog('error', u'Failed to read ugoira: ' + ugoName)
     return size
 
 def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
-        printAndLog('info', "\tFile exist! (Identical Size)")
+        printAndLog('info', u"\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
     #elif int(file_size) < old_size:
     #    printAndLog('info', "\tFile exist! (Local is larger)")
@@ -456,11 +456,11 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:
                 new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-            printAndLog('info', "\t Found file with different file size, backing up to: " + new_name)
+            printAndLog('info', u"\t Found file with different file size, backing up to: " + new_name)
             os.rename(filename, new_name)
         else:
             printAndLog('info',
-               "\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
+               u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
                   old_size, file_size))
             os.remove(filename)
         return 1
@@ -482,7 +482,7 @@ def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = Fa
     req = urllib2.Request(url)
 
     req.add_header('Referer', referer)
-    printAndLog('info', "Using Referer: " + str(referer))
+    printAndLog('info', u"Using Referer: " + str(referer))
 
     if head:
         req.get_method = lambda : 'HEAD'
@@ -499,7 +499,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     try:
         directory = os.path.dirname(filename)
         if not os.path.exists(directory):
-            printAndLog('info', 'Creating directory: ' + directory)
+            printAndLog('info', u'Creating directory: ' + directory)
             os.makedirs(directory)
         save = file(filename + '.pixiv', 'wb+', 4096)
     except IOError:
@@ -510,7 +510,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
-        printAndLog('info', 'File is saved to ' + filename)
+        printAndLog('info', u'File is saved to ' + filename)
 
     # download the file
     prev = 0
@@ -526,12 +526,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.datetime.now() - start_time).total_seconds()
-                print ' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
+                print u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
                 return curr
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.datetime.now() - start_time).total_seconds()
-                print ' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
+                print u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
                 return curr
 
             prev = curr
@@ -546,15 +546,15 @@ def downloadImage(url, filename, res, file_size, overwrite):
         completed = True
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
-            printAndLog('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            printAndLog('error', 'Filename = ' + unicode(filename))
-            printAndLog('error', 'URL      = {0}'.format(url))
+            printAndLog('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
+            printAndLog('error', u'Filename = ' + unicode(filename))
+            printAndLog('error', u'URL      = {0}'.format(url))
             completed = False
         elif curr == 0:
             # No data received.
-            printAndLog('error', 'No data received!')
-            printAndLog('error', 'Filename = ' + unicode(filename))
-            printAndLog('error', 'URL      = {0}'.format(url))
+            printAndLog('error', u'No data received!')
+            printAndLog('error', u'Filename = ' + unicode(filename))
+            printAndLog('error', u'URL      = {0}'.format(url))
             completed = False
 
         if completed:
@@ -585,7 +585,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
         else:
             if wild_card:
                 url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print "Using Partial Match (search.php)"
+                print u"Using Partial Match (search.php)"
             else:
                 url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
 
