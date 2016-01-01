@@ -5,9 +5,9 @@
   - Windows XP and up.
 
 - Running from source code:
-  - Python 2.7.2++ (http://www.python.org/)
+  - Python 2.7.11++ (http://www.python.org/)
   - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
-  - BeautifulSoup 3.2.0 (http://www.crummy.com/software/BeautifulSoup/)
+  - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
   - socksipy-branch 1.02+ (https://socksipy-branch.googlecode.com/)
   - Pillow (https://python-pillow.github.io/)
 

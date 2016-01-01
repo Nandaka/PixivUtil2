@@ -81,6 +81,7 @@ def main():
         downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=28688383', './test/test-image-deleted.htm')
 
         downloadPage('http://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
+        downloadPage('http://www.pixiv.net/bookmark.php?id=283027', './test/test-image-bookmark-member.htm')
 
         downloadPage('http://www.pixiv.net/member_illust.php?id=313631&p=6', './test/test-tags-member-search-last.htm')
         downloadPage('http://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full', './test/test-tags-search-exact.htm')

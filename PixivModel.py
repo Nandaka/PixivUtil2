@@ -62,22 +62,26 @@ class PixivArtist:
 
 
     def ParseInfo(self, page, fromImage=False):
-        avatarBox = page.find(attrs={'class':'_unit profile-unit'})
-        temp = str(avatarBox.find('a')['href'])
-        self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
+        if self.artistId > 0:
+            avatarBox = page.find(attrs={'class':'_unit profile-unit'})
+            temp = str(avatarBox.find('a')['href'])
+            self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
 
-        self.artistAvatar = str(page.find('img', attrs={'class':'user-image'})['src'])
-        self.artistToken = self.ParseToken(page, fromImage)
-        try:
-            h1 = page.find('h1', attrs={'class':'user'})
-            if h1 is not None  :
-                self.artistName = unicode(h1.string.extract())
-            else :
-                avatar_m = page.findAll(attrs={"class":"avatar_m"})
+            self.artistAvatar = str(page.find('img', attrs={'class':'user-image'})['src'])
+            self.artistToken = self.ParseToken(page, fromImage)
+            try:
+                h1 = page.find('h1', attrs={'class':'user'})
+                if h1 is not None  :
+                    self.artistName = unicode(h1.string.extract())
+                else:
+                    avatar_m = page.findAll(attrs={"class":"avatar_m"})
                 if avatar_m is not None and len(avatar_m) > 0 :
                     self.artistName = unicode(avatar_m[0]["title"])
-        except:
-            self.artistName = self.artistToken ## use the token.
+            except:
+                self.artistName = self.artistToken ## use the token.
+        else:
+            self.artistAvatar = "no_profile"
+            self.artistToken = "self"
 
     def ParseToken(self, page, fromImage=False):
         try:
