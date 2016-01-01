@@ -801,11 +801,11 @@ class PixivTags:
 
         ignore = list()
         # ignore showcase and popular-introduction
-        ignore.extend(self.parseIgnoreSection(page, 'showcase'))
-        ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
-
+        #ignore.extend(self.parseIgnoreSection(page, 'showcase'))
+        #ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
+        search_result = page.find('section', attrs={'class': 'column-search-result'})
         # new parse for bookmark items
-        items = page.findAll('li', attrs={'class': self.__re_imageItemClass})
+        items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
         for item in items:
             if str(item).find('member_illust.php?') > -1:
                 image_id = self.__re_illust.findall(item.find('a')['href'])[0]
