@@ -82,6 +82,7 @@ class PixivArtist:
         else:
             self.artistAvatar = "no_profile"
             self.artistToken = "self"
+            self.artistName = "self"
 
     def ParseToken(self, page, fromImage=False):
         try:
@@ -99,11 +100,11 @@ class PixivArtist:
         del self.imageList[:]
         temp = page.find('ul', attrs={'class':'_image-items'})
         temp = temp.findAll('a')
-        if temp == None or len(temp) == 0:
+        if temp is None or len(temp) == 0:
             raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
         for item in temp:
             href = re.search(r'member_illust.php.*illust_id=(\d+)', str(item))
-            if href != None:
+            if href is not None:
                 href = int(href.group(1))
                 # fuck performance :D
                 if href not in self.imageList:
