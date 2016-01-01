@@ -488,7 +488,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 19)
+        self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.isLastPage, False)
 
     ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
