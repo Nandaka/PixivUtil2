@@ -62,8 +62,8 @@ class PixivArtist:
             self.CheckLastPage(page)
 
     def ParseInfo(self, page, fromImage=False):
-        if self.artistId > 0:
-            avatarBox = page.find(attrs={'class': '_unit profile-unit'})
+        avatarBox = page.find(attrs={'class': '_unit profile-unit'})
+        if avatarBox is not None:
             temp = str(avatarBox.find('a')['href'])
             self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
 

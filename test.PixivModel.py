@@ -499,7 +499,8 @@ class TestPixivTags(unittest.TestCase):
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
-
+        for img in image.itemList:
+            print img.imageId
         self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.isLastPage, False)
 
