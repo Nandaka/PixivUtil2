@@ -1,7 +1,8 @@
-20160101-beta1:
+20160127-beta1:
 - Try to fix Issue #98.
 - Add option to filter image bookmark by tags.
 - Update parser.
+- Try to fix Issue #103
 
 20151112:
 - Fix Issue #96: page 100 is not downloaded for new illust page.
