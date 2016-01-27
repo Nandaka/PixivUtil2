@@ -67,7 +67,13 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
         req = None
         try:
             try:
-                print 'Start downloading...',
+                if not overwrite and not __config__.alwaysCheckFileSize:
+                    print 'Checking local filename...',
+                    if os.path.exists(filename) and os.path.isfile(filename):
+                        return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+
+                print 'Getting remote filesize...'
+                # open with HEAD method
                 req = PixivHelper.createCustomRequest(url, __config__, referer, head=True)
                 res = __br__.open_novisit(req)
 
@@ -114,6 +120,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
 
                 # actual download
+                print 'Start downloading...',
                 req = PixivHelper.createCustomRequest(url, __config__, referer)
                 res = __br__.open_novisit(req)
                 downloadedSize = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
@@ -625,6 +632,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         overwrite = False
                         if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
                             overwrite = True
+
                         result = download_image(img, filename, referer, overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
 
                         mangaFiles[page] = filename

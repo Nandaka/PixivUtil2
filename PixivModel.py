@@ -75,8 +75,8 @@ class PixivArtist:
                     self.artistName = unicode(h1.string.extract())
                 else:
                     avatar_m = page.findAll(attrs={"class": "avatar_m"})
-                if avatar_m is not None and len(avatar_m) > 0:
-                    self.artistName = unicode(avatar_m[0]["title"])
+                    if avatar_m is not None and len(avatar_m) > 0:
+                        self.artistName = unicode(avatar_m[0]["title"])
             except:
                 self.artistName = self.artistToken  ## use the token.
         else:
