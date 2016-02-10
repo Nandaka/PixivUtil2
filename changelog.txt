@@ -1,4 +1,4 @@
-20160210-beta:
+20160210-beta1:
 - Try to fix Issue #98.
 - Add option to filter image bookmark by tags.
 - Update parser.
