@@ -891,7 +891,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest
         raise
 
 
-def process_image_bookmark(mode, hide='n', start_page=1, end_page=0):
+def process_image_bookmark(mode, hide='n', start_page=1, end_page=0, tag=''):
     global np_is_valid
     global np
     try:
@@ -900,12 +900,13 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0):
         image_count = 1
 
         if hide == 'n':
-            totalList.extend(get_image_bookmark(False, start_page, end_page))
+            totalList.extend(get_image_bookmark(False, start_page, end_page, tag))
         elif hide == 'y':
-            totalList.extend(get_image_bookmark(False, start_page, end_page))
-            totalList.extend(get_image_bookmark(True, start_page, end_page))
+            # public and private image bookmarks
+            totalList.extend(get_image_bookmark(False, start_page, end_page, tag))
+            totalList.extend(get_image_bookmark(True, start_page, end_page, tag))
         else :
-            totalList.extend(get_image_bookmark(True, start_page, end_page))
+            totalList.extend(get_image_bookmark(True, start_page, end_page, tag))
 
         PixivHelper.printAndLog('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
@@ -921,7 +922,7 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0):
         __log__.exception('Error at process_image_bookmark(): ' + str(sys.exc_info()))
         raise
 
-def get_image_bookmark(hide, start_page=1, end_page=0):
+def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
     """Get user's image bookmark"""
     total_list = list()
     i = start_page
@@ -933,6 +934,8 @@ def get_image_bookmark(hide, start_page=1, end_page=0):
         url = 'http://www.pixiv.net/bookmark.php?p=' + str(i)
         if hide:
             url = url + "&rest=hide"
+        if tag is not None and len(tag) > 0:
+            url = url + '&tag=' + encode_tags(tag)
 
         PixivHelper.printAndLog('info', "Importing user's bookmarked image from page " + str(i))
         PixivHelper.printAndLog('info', "Source URL: "+ url)
@@ -1424,10 +1427,11 @@ def menu_download_from_online_image_bookmark(mode, opisvalid, args):
     start_page = 1
     end_page = 0
     hide = False
+    tag = ''
 
     if opisvalid and len(args) > 0:
         arg = args[0].lower()
-        if arg == 'y' or arg == 'n':
+        if arg == 'y' or arg == 'n' or arg == 'o':
             hide = arg
         else:
             print "Invalid args: ", args
@@ -1441,9 +1445,10 @@ def menu_download_from_online_image_bookmark(mode, opisvalid, args):
         else:
             print "Invalid args: ", arg
             return
+        tag = raw_input("Tag (default=All Images): ") or ''
         (start_page, end_page) = get_start_and_end_number()
 
-    process_image_bookmark(mode, hide, start_page, end_page)
+    process_image_bookmark(mode, hide, start_page, end_page, tag)
 
 
 def menu_download_from_tags_list(mode, opisvalid, args):

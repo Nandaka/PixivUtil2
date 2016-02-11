@@ -1,9 +1,10 @@
-20160210-beta1:
-- Try to fix Issue #98.
+20160211:
+- Fix Issue #98: Fix error message when download fail.
 - Add option to filter image bookmark by tags.
 - Update parser.
-- Try to fix Issue #103
-- Fix Issue #104.
+- Fix Issue #103: Fix overwrite local file option.
+- Fix Issue #104: Fix %artist% parser.
+- Implement Feature #105: Download bookmarked image by tag.
 
 20151112:
 - Fix Issue #96: page 100 is not downloaded for new illust page.
