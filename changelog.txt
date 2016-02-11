@@ -1,6 +1,6 @@
 20160211:
 - Fix Issue #98: Fix error message when download fail.
-- Add option to filter image bookmark by tags.
+- Add option to filter artist image bookmark by tags.
 - Update parser.
 - Fix Issue #103: Fix overwrite local file option.
 - Fix Issue #104: Fix %artist% parser.
