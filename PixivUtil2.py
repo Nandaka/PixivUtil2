@@ -45,7 +45,7 @@ mechanize._html.unescape_charref = PixivHelper.unescape_charref
 
 __config__ = PixivConfig.PixivConfig()
 configfile = "config.ini"
-__dbManager__ = PixivDBManager.PixivDBManager(config = __config__)
+__dbManager__ = None
 __br__ = None
 __blacklistTags = list()
 __suppressTags = list()
@@ -1689,6 +1689,7 @@ def main():
     global __br__
     global configfile
     global ERROR_CODE
+    global __dbManager__
 
     parser = setup_option_parser()
     (options, args) = parser.parse_args()
@@ -1762,6 +1763,7 @@ def main():
         start_irfan_slide = False
 
     try:
+        __dbManager__ = PixivDBManager.PixivDBManager(target = __config__.dbPath, config = __config__)
         __dbManager__.createDatabase()
 
         if __config__.useList:

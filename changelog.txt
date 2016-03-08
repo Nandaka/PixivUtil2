@@ -1,3 +1,8 @@
+20160308-beta1
+- Fix unicode decode error when downloading image.
+- Implement #107: add option to specify different database.
+- Update readme.txt
+
 20160211:
 - Fix Issue #98: Fix error message when download fail.
 - Add option to filter artist image bookmark by tags.
@@ -9,7 +14,7 @@
 20151112:
 - Fix Issue #96: page 100 is not downloaded for new illust page.
 - Update test page.
-- Implement Feature #95: dump url list to text file. 
+- Implement Feature #95: dump url list to text file.
   Set writeUrlInDescription = True to enable.
   Set urlBlacklistRegex to define url to ignore.
   Set urlDumpFilename to define the dump filename, use python strftime() format.
@@ -150,7 +155,7 @@
 
 20130927
 - Change some command line syntax:
-  - Download by Tags (3): wilcard[y/n], start page, end page, tags  
+  - Download by Tags (3): wilcard[y/n], start page, end page, tags
   - Download by Title Caption (9): start page, end page, title/captions
   - Download by Tags and MemberId (10): MemberId, start page, end page, tags
   - Download by Group ID (12): GroupId, limit, process external[y/n]
@@ -195,7 +200,7 @@
   allow user to skip to next image or abort the whole process.
 
 20130327
-- Add option to keep signed in, set keepsignedin = 1 in config.ini on 
+- Add option to keep signed in, set keepsignedin = 1 in config.ini on
   [Authentication] section.
 - Add login error message parser.
 
@@ -208,7 +213,7 @@
   tag search.
 
 20130316
-- Add option to skip image if worksDate < dateDiff, this will skip to next 
+- Add option to skip image if worksDate < dateDiff, this will skip to next
   member, or stop processing for download from new bookmark.
 
 20130308
@@ -235,9 +240,9 @@
 
 20121208
 - Update no image detection for member
-- Fix issue #14: ignore showcase for download by tag 
+- Fix issue #14: ignore showcase for download by tag
 - Fix issue #15: Update query for search by tag
-- Add R-18 mode in search by tag 
+- Add R-18 mode in search by tag
 
 20121124
 - Update error detection for image page.
@@ -254,7 +259,7 @@
   - %original_artist%       ==> for bookmark mode, put original artist name.
 
 20121102
-- Add feature to export image information to text file. 
+- Add feature to export image information to text file.
   - Set writeimageinfo = True to use.
 
 20121028
@@ -365,7 +370,7 @@
 - Update tags list parser to handle text files with BOM.
 - Add blacklist and suppress tags list.
   - useblacklisttags = True/False
-      Skip image if containing blacklisted tags. 
+      Skip image if containing blacklisted tags.
       The list is taken from blacklist_tags.txt, each tags is separated by new line.
   - usesuppresstags = True/False
       Remove the suppressed tags from %tags% meta for filename.
@@ -437,8 +442,8 @@
 
 20111028
 - Fix artist name parsing.
-- Add download by tag list. 
-  - Separate each tags by space or paste the encoded query string. 
+- Add download by tag list.
+  - Separate each tags by space or paste the encoded query string.
   - Separate with new line for each query.
 - Add Export user bookmarks.
 - Add Database cleanup. Go to Manage Database -> Clean Up Database.
@@ -447,7 +452,7 @@
 
 20111017
 - Add download by user bookmark.
-- Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is 
+- Add createMangaDirectory option. The generated directory is based on the filenameFormat and the filename is
     from the page marker '_p##'+ file extension.
 
 20110922
@@ -463,8 +468,8 @@
 20110911
 - Update Login process.
 - Add filesize checking when downloading avatar image.
-- Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory(). 
-    For downloading still using the default factory because there is a problem (ValueError: invalid literal for int() 
+- Change the parser from mechanize.DefaultFactory() to mechanize.RobustFactory().
+    For downloading still using the default factory because there is a problem (ValueError: invalid literal for int()
     with base 10: 'some_chars') if using robust factory (20110911b).
 - Fix artist token parser when there is no profile image (20110911b).
 
@@ -544,7 +549,7 @@
   - added feature: when (directly or indirectly) set in config.ini pixivUtil will create lists of your downloaded images in <Downloaded_on_YYYY_MM_DD.txt> (using date when pixivUtil is launched).
   - added feature: start IrfanView when exiting pixivUtil (Slideshow will be started before normal IrfanView-Window).
   - added feature: typing <-all> in menu will temporarily activate/deactivate pagelimit set in config.ini (it will set commandline-option <-n 0>).
-  
+
 20100908::
 - Updated find by tags.
 - by Yavos:

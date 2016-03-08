@@ -68,6 +68,7 @@ class PixivConfig:
     writeUrlInDescription = False
     urlBlacklistRegex = ""
     urlDumpFilename = "url_list_%Y%m%d"
+    dbPath = ''
 
     # IrfanView
     createDownloadLists = False
@@ -439,6 +440,13 @@ class PixivConfig:
                 self.urlDumpFilename = "url_list_%Y%m%d"
                 haveError = True
 
+            try:
+                self.dbPath = config.get('Settings','dbPath')
+            except ValueError:
+                print "dbPath = ''"
+                self.dbPath = ''
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -517,6 +525,7 @@ class PixivConfig:
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
         config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
+        config.set('Settings', 'dbPath', self.dbPath)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -614,7 +623,8 @@ class PixivConfig:
         print ' - verifyImage      =', self.verifyImage
         print ' - writeUrlInDescription =', self.writeUrlInDescription
         print ' - urlBlacklistRegex =', self.urlBlacklistRegex
-        print ' - urlDumpFilename =', self.urlDumpFilename
+        print ' - urlDumpFilename  =', self.urlDumpFilename
+        print ' - dbPath           =', self.dbPath
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

@@ -206,6 +206,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         downloaded_on_%date%.txt
   -n NUMBEROFPAGES, --numberofpages=NUMBEROFPAGES
                         temporarily overwrites numberOfPage set in config.ini
+  -c [PATH], --config [PATH] provide different config.ini
 
 =================================================================================
 = error codes                                                                   =
@@ -384,6 +385,7 @@ urlBlacklistRegex     ==> Used to filter out the url in the description using
                           regular expression.
 urlDumpFilename       ==> Define the dump filename, use python strftime() format.
                           Default value is 'url_list_%Y%m%d'
+dbPath		==> use different database.
 
 =================================================================================
 = list.txt Format                                                               =

@@ -17,7 +17,13 @@ class PixivDBManager:
     """Pixiv Database Manager"""
     __config__ = None
 
-    def __init__(self, target = script_path + os.sep + "db.sqlite", config=None):
+    def __init__(self, target = '', config=None):
+        if target is None or len(target) == 0:
+            target = script_path + os.sep + "db.sqlite"
+            PixivHelper.printAndLog('info',"using default DB Path: " + target)
+        else:
+            PixivHelper.printAndLog('info',"using custom DB Path: " + target)
+
         self.conn = sqlite3.connect(target)
         if config is not None:
             self.__config__ = config
