@@ -339,7 +339,7 @@ def speedInStr(totalSize, totalTime):
         speed = speed / 1024
         return "{0:.2f} GiB/s".format(speed)
     else:
-        return " ∞ B/s"
+        return " infinity B/s"
 
 
 def dumpHtml(filename, html):
