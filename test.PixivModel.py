@@ -34,6 +34,7 @@ class TestPixivArtist(unittest.TestCase):
       self.assertNotEqual(artist, None)
       self.assertEqual(artist.artistId, 1107124)
       self.assertEqual(artist.artistToken, 'kirabara29')
+      self.assertEqual(artist.totalImages, 69)
 
     def testPixivArtistNoImage(self):
       #print '\nTesting member page - no image'
@@ -428,7 +429,7 @@ class TestPixivBookmark(unittest.TestCase):
       self.assertTrue(42934821 in result)
       self.assertTrue(30431160 in result)
       self.assertTrue(44328684 in result)
-	  
+
 class TestMyPickPage(unittest.TestCase):
     def testMyPickPage(self):
         try:
@@ -490,6 +491,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.isLastPage, False)
+        self.assertEqual(image.availableImages, 2288)
 
     ## tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -560,10 +562,11 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseMemberTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
-        self.assertEqual(image.itemList[0].imageId, 25757869)
-        self.assertEqual(image.itemList[19].imageId, 14818847)
+        self.assertEqual(len(image.itemList), 40)
+        self.assertEqual(image.itemList[0].imageId, 53977340)
+        self.assertEqual(image.itemList[19].imageId, 45511597)
         self.assertEqual(image.isLastPage, False)
+        self.assertEqual(image.availableImages, 59)
 
     def testTagsMemberSearchLast(self):
         br = Browser()

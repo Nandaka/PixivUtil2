@@ -23,6 +23,7 @@ class PixivArtist:
     imageList = []
     isLastPage = None
     haveImages = None
+    totalImages = 0
 
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
@@ -110,6 +111,7 @@ class PixivArtist:
                 # fuck performance :D
                 if href not in self.imageList:
                     self.imageList.append(href)
+        self.totalImages = SharedParser.parseCountBadge(page)
 
     def IsNotLoggedIn(self, page):
         check = page.findAll('a', attrs={'class': 'signup_button'})
@@ -800,10 +802,10 @@ PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCou
 
 class PixivTags:
     '''Class for parsing tags search page'''
-    # imageList = None
     itemList = None
     haveImage = None
     isLastPage = None
+    availableImages = 0
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
 
@@ -849,6 +851,7 @@ class PixivTags:
                                 imageResponse = temp.contents[1]
                 self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
         self.checkLastPage(page)
+        self.availableImages = SharedParser.parseCountBadge(page)
         return self.itemList
 
     def parseMemberTags(self, page):
@@ -863,6 +866,7 @@ class PixivTags:
                     image_id = int(result[0])
                     self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
         self.checkLastPage(page, fromMember=True)
+        self.availableImages = SharedParser.parseCountBadge(page)
         return self.itemList
 
     def checkLastPage(self, page, fromMember=False):
@@ -971,3 +975,15 @@ class PixivGroup:
         string = self.short_pattern.sub("", string).strip()
         string = string + " " + shortened
         return string
+
+class SharedParser:
+    @staticmethod
+    def parseCountBadge(page):
+    # parse image count from count-badge
+        totalImages = 0
+        count_badge_span = page.find('span', attrs={'class':'count-badge'})
+        if count_badge_span is not None:
+            tempCount = re.findall('\d+', count_badge_span.string)
+            if tempCount > 0:
+                totalImages = int(tempCount[0])
+        return totalImages

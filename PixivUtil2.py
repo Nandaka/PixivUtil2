@@ -388,7 +388,10 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 retry_count = 0
                 while True:
                     try:
-                        total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
+                        if artist.totalImages > 0:
+                            total_image_page_count = artist.totalImages
+                        else:
+                            total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
                         title_prefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id,
                                                                                              page,
                                                                                              no_of_images,
@@ -765,7 +768,10 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     result = 0
                     while True:
                         try:
-                            total_image = ((i - 1) * 20) + len(t.itemList)
+                            if t.availableImages > 0:
+                                total_image = t.availableImages
+                            else:
+                                total_image = ((i - 1) * 20) + len(t.itemList)
                             title_prefix = "Tags:{0} Page:{1} Image {2}+{3} of {4}".format(tags, i, images, skipped_count, total_image)
                             if not member_id is None:
                                 title_prefix = "MemberId: {0} Tags:{1} Page:{2} Image {3}+{4} of {5}".format(member_id,

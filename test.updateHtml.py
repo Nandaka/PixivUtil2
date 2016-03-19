@@ -93,6 +93,8 @@ def main():
         downloadPage('http://www.pixiv.net/search.php?s_mode=s_tag&word=R-18%20K-On!','./test/test-tags-search-skip-showcase.htm')
 
         downloadPage('http://www.pixiv.net/search.php?word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB&s_mode=s_tag_full','./test/test-tags-search-exact2.htm')
+
+        downloadPage('http://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
         ## Not updated:
         ## ./test/test-login-error.htm
         ## ./test/test-member-suspended.htm

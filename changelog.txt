@@ -2,7 +2,8 @@
 - Fix unicode decode error when downloading image.
 - Implement #107: add option to specify different database.
 - Update readme.txt
-- Fix Issue #109: update parser.
+- Fix Issue #109: update parser for title and caption.
+- Fix Issue #108: parse total image count.
 
 20160211:
 - Fix Issue #98: Fix error message when download fail.
