@@ -271,7 +271,8 @@ class PixivImage:
     def IsDeleted(self, page):
         errorMessages = ['該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。',
                          'The following work is either deleted, or the ID does not exist.',
-                         'This work was deleted.']
+                         'This work was deleted.',
+                         'Work has been deleted or the ID does not exist.']
         return PixivHelper.HaveStrings(page, errorMessages)
 
     def IsGuroDisabled(self, page):
@@ -317,16 +318,38 @@ class PixivImage:
         # remove premium-introduction-modal so we can get caption from work-info
         # somehow selecting section doesn't works
         premium_introduction_modal = page.findAll('div', attrs={'id': 'premium-introduction-modal'})
+        premium_introduction_modal.extend(page.findAll('div', attrs={'id': 'popular-search-trial-end-introduction-modal'}))
         for modal in premium_introduction_modal:
-            modal.extract()
+            if modal is not None:
+                modal.extract()
 
-        meta_data = page.findAll('meta')
-        for meta in meta_data:
-            if meta.has_key("property"):
-                if "og:title" == meta["property"]:
-                    self.imageTitle = meta["content"].split("|")[0].strip()
-                if "og:description" in meta["property"]:
-                    self.imageCaption = meta["content"]
+        #meta_data = page.findAll('meta')
+        #for meta in meta_data:
+        #    if meta.has_key("property"):
+        #        if "og:title" == meta["property"]:
+        #            self.imageTitle = meta["content"].split("|")[0].strip()
+        #        if "og:description" in meta["property"]:
+        #            self.imageCaption = meta["content"]
+
+        # new layout on 20160319
+        tempTitles = page.findAll('h1', attrs={'class':'title'})
+        for tempTitle in tempTitles:
+            if tempTitle is None or tempTitle.string is None:
+                continue
+            elif len(tempTitle.string) == 0:
+                continue
+            else:
+                self.imageTitle = tempTitle.string
+                break
+        tempCaptions = page.findAll('p', attrs={'class':'caption'})
+        for tempCaption in tempCaptions:
+            if tempCaption is None or tempCaption.string is None:
+                continue
+            elif len(tempCaption.string) == 0:
+                continue
+            else:
+                self.imageCaption = tempCaption.string
+                break
 
         self.jd_rtv = int(page.find(attrs={'class': 'view-count'}).string)
         self.jd_rtc = int(page.find(attrs={'class': 'rated-count'}).string)

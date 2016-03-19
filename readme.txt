@@ -169,7 +169,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         1 - Download by member_id 
                             (required: followed by member_ids separated by space)
                         2 - Download by image_id  
-                            (required: folled by image_ids separated by space)
+                            (required: followed by image_ids separated by space)
                         3 - Download by tags      
                             (required: [y/n] for wildcard, start page, end page, 
                              followed by tags)
