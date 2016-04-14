@@ -1,4 +1,5 @@
 20160414-beta1
+- Implement #108: enhance window titlebar to calculate the total images.
 - Fix Issue #112: change the max page limit for option 8 from 100 to 5000 for premium user.
 
 20160319

@@ -289,6 +289,10 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
     list_page = None
     member_url = ""
 
+    # calculate the offset for display properties
+    offset_start = (page - 1) * 20
+    offset_stop = end_page * 20
+
     try:
         no_of_images = 1
         is_avatar_downloaded = False
@@ -390,6 +394,9 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     try:
                         if artist.totalImages > 0:
                             total_image_page_count = artist.totalImages
+                            if(offset_stop < total_image_page_count):
+                                total_image_page_count = offset_stop
+                            total_image_page_count = total_image_page_count - offset_start
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
                         title_prefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id,
@@ -725,6 +732,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         last_image_id = -1
         skipped_count = 0
 
+        start_offset = (page - 1) * 20
+        stop_offset = end_date * 20
+
         PixivHelper.printAndLog('info', 'Searching for: (' + search_tags + ") " + tags)
         flag = True
         while flag:
@@ -770,6 +780,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                         try:
                             if t.availableImages > 0:
                                 total_image = t.availableImages
+                                if(stop_offset < total_image):
+                                    total_image = stop_offset
+                                total_image = total_image - start_offset
                             else:
                                 total_image = ((i - 1) * 20) + len(t.itemList)
                             title_prefix = "Tags:{0} Page:{1} Image {2}+{3} of {4}".format(tags, i, images, skipped_count, total_image)
