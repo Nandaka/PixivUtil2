@@ -1064,7 +1064,9 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
             parsed_page.decompose()
             del parsed_page
 
-            if (end_page_num != 0 and i > end_page_num) or i > 100 or pb.isLastPage:
+            # Non premium is only limited to 100 page
+            # Premium user might be limited to 5000, refer to issue #112
+            if (end_page_num != 0 and i > end_page_num) or i > 5000 or pb.isLastPage:
                 print "Limit or last page reached."
                 flag = False
 

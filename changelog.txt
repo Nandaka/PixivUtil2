@@ -1,3 +1,6 @@
+20160414-beta1
+- Fix Issue #112: change the max page limit for option 8 from 100 to 5000 for premium user.
+
 20160319
 - Fix unicode decode error when downloading image.
 - Implement #107: add option to specify different database.
