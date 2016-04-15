@@ -733,7 +733,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         skipped_count = 0
 
         start_offset = (page - 1) * 20
-        stop_offset = end_date * 20
+        stop_offset = end_page * 20
 
         PixivHelper.printAndLog('info', 'Searching for: (' + search_tags + ") " + tags)
         flag = True
