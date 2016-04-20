@@ -173,8 +173,6 @@ class PixivBrowser(mechanize.Browser):
     def loginHttps(self, username, password):
         try:
             PixivHelper.printAndLog('info', 'Log in using secure form.')
-            #req = self._makeRequest(PixivConstant.PIXIV_URL_SSL)
-            #self.open(req)
             self.open(PixivConstant.PIXIV_URL_SSL)
 
             self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
@@ -186,7 +184,7 @@ class PixivBrowser(mechanize.Browser):
             response = self.submit()
             return self.processLoginResult(response, )
         except:
-            PixivHelper.printAndLog('error', 'Error at pixiv_login_ssl(): ' + str(sys.exc_info()))
+            PixivHelper.printAndLog('error', 'Error at loginHttps(): ' + str(sys.exc_info()))
             raise
 
     def processLoginResult(self, response):

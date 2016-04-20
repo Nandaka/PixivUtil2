@@ -1,7 +1,8 @@
-20160414-beta2
+20160421
 - Implement #108: enhance window titlebar to calculate the total images.
 - Fix Issue #112: change the max page limit for option 8 from 100 to 5000 for premium user.
 - Fix Issue #113: update filename sanitizer for windows.
+- Fix Issue #114: change login url to https://www.pixiv.net/login.php.
 
 20160319
 - Fix unicode decode error when downloading image.
