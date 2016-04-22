@@ -393,10 +393,12 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 while True:
                     try:
                         if artist.totalImages > 0:
+                            PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
                             total_image_page_count = artist.totalImages
-                            if(offset_stop < total_image_page_count):
+                            if(offset_stop > 0 and offset_stop < total_image_page_count):
                                 total_image_page_count = offset_stop
                             total_image_page_count = total_image_page_count - offset_start
+                            PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
                         title_prefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id,
@@ -779,10 +781,12 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     while True:
                         try:
                             if t.availableImages > 0:
+                                PixivHelper.safePrint("Total Images: " + str(t.availableImages))
                                 total_image = t.availableImages
-                                if(stop_offset < total_image):
+                                if(stop_offset > 0 and stop_offset < total_image):
                                     total_image = stop_offset
                                 total_image = total_image - start_offset
+                                PixivHelper.safePrint("Total Images Offset: " + str(total_image))
                             else:
                                 total_image = ((i - 1) * 20) + len(t.itemList)
                             title_prefix = "Tags:{0} Page:{1} Image {2}+{3} of {4}".format(tags, i, images, skipped_count, total_image)
