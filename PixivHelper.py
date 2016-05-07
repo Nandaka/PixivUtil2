@@ -353,7 +353,7 @@ def dumpHtml(filename, html):
                 if matchResult != None and len(matchResult) > 0:
                     isDumpEnabled = False
 
-    if len(html) == 0:
+    if html is not None and len(html) == 0:
         printAndLog('info', 'Empty Html')
         return
 

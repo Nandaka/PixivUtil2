@@ -1,3 +1,6 @@
+20160508-beta1
+- Add null check before dumping html.
+
 20160421
 - Implement #108: enhance window titlebar to calculate the total images.
 - Fix Issue #112: change the max page limit for option 8 from 100 to 5000 for premium user.
