@@ -175,13 +175,25 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.printAndLog('info', 'Log in using secure form.')
             self.open(PixivConstant.PIXIV_URL_SSL)
 
-            self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
-            self['pixiv_id'] = username
-            self['pass'] = password
-            if self._config.keepSignedIn:
-                self.find_control('skip').items[0].selected = True
+            #self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
+            #self['pixiv_id'] = username
+            #self['pass'] = password
+            #if self._config.keepSignedIn:
+            #    self.find_control('skip').items[0].selected = True
 
-            response = self.submit()
+            #response = self.submit()
+
+            data = {}
+            data['mode'] = 'login'
+            data['return_to'] = '/'
+            data['pixiv_id'] = username
+            data['pass'] = password
+            if self._config.keepSignedIn:
+                data['skip'] = '1'
+            else:
+                data['skip'] = '0'
+            response = self.open("https://www.pixiv.net/login.php", urllib.urlencode(data))
+
             return self.processLoginResult(response, )
         except:
             PixivHelper.printAndLog('error', 'Error at loginHttps(): ' + str(sys.exc_info()))

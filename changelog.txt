@@ -1,5 +1,6 @@
-20160508-beta1
+20160513
 - Add null check before dumping html.
+- Fix Issue #115: update login method.
 
 20160421
 - Implement #108: enhance window titlebar to calculate the total images.
