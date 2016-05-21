@@ -1157,6 +1157,7 @@ def process_from_group(mode, group_id, limit=0, process_external=True):
 def header():
     print 'PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION
     print PixivConstant.PIXIVUTIL_LINK
+    print 'Donate at', PixivConstant.PIXIVUTIL_DONATE
 
 
 def get_start_and_end_number(start_only=False):

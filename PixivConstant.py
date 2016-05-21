@@ -3,7 +3,8 @@
 
 
 PIXIVUTIL_VERSION = '20160513'
-PIXIVUTIL_LINK = 'https://nandaka.wordpress.com/tag/pixiv-downloader/'
+PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'
+PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
 PIXIV_URL = 'http://www.pixiv.net'
 PIXIV_URL_SSL = 'https://www.pixiv.net/login.php'
 PIXIV_CSS_LIST_ID = 'display_works'
