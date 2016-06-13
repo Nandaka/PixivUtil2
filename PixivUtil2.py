@@ -1696,7 +1696,7 @@ def doLogin(password, username):
             result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie()
 
         if not result:
-            result = PixivBrowserFactory.getBrowser(config=__config__).loginHttps(username, password)
+            result = PixivBrowserFactory.getBrowser(config=__config__).login(username, password)
     except:
         PixivHelper.printAndLog('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
