@@ -12,6 +12,7 @@ import urllib2
 import httplib
 import time
 import sys
+import json
 
 import PixivHelper
 from PixivException import PixivException
@@ -170,44 +171,43 @@ class PixivBrowser(mechanize.Browser):
         return False
 
 
-    def loginHttps(self, username, password):
+    def login(self, username, password):
         try:
-            PixivHelper.printAndLog('info', 'Log in using secure form.')
-            self.open(PixivConstant.PIXIV_URL_SSL)
+            PixivHelper.printAndLog('info', 'Logging in...')
+            url = "https://accounts.pixiv.net/login"
+            page = self.open(url)
 
-            #self.select_form(predicate=lambda f: f.attrs.get('action', None) == '/login.php')
-            #self['pixiv_id'] = username
-            #self['pass'] = password
-            #if self._config.keepSignedIn:
-            #    self.find_control('skip').items[0].selected = True
-
-            #response = self.submit()
+            # get the post key
+            parsed = BeautifulSoup(page)
+            init_config = parsed.find('input', attrs={'id':'init-config'})
+            js_init_config = json.loads(init_config['value'])
 
             data = {}
-            data['mode'] = 'login'
-            data['return_to'] = '/'
             data['pixiv_id'] = username
-            data['pass'] = password
-            if self._config.keepSignedIn:
-                data['skip'] = '1'
-            else:
-                data['skip'] = '0'
-            response = self.open("https://www.pixiv.net/login.php", urllib.urlencode(data))
+            data['password'] = password
+            #data['captcha'] = ''
+            #data['g_recaptcha_response'] = ''
+            data['return_to'] = 'http://www.pixiv.net'
+            data['lang'] = 'en'
+            data['post_key'] = js_init_config["pixivAccount.postKey"]
+            data['source'] = "pc"
 
-            return self.processLoginResult(response, )
+            request = urllib2.Request("https://accounts.pixiv.net/api/login?lang=en", urllib.urlencode(data))
+            response = self.open(request)
+
+            return self.processLoginResult(response)
         except:
-            PixivHelper.printAndLog('error', 'Error at loginHttps(): ' + str(sys.exc_info()))
+            PixivHelper.printAndLog('error', 'Error at login(): ' + str(sys.exc_info()))
             raise
 
     def processLoginResult(self, response):
         PixivHelper.GetLogger().info('Logging in, return url: ' + response.geturl())
 
-        ## failed login will return to either of these page:
-        ## http://www.pixiv.net/login.php
-        ## https://www.secure.pixiv.net/login.php
-        if response.geturl().find('pixiv.net/login.php') == -1:
-            PixivHelper.printAndLog('info','Logged in')
-            ## write back the new cookie value
+        # check the returned json
+        js = response.read()
+        PixivHelper.GetLogger().info(str(js))
+        result = json.loads(js)
+        if result["body"] is not None and result["body"].has_key("successed"):
             for cookie in self._ua_handlers['_cookies'].cookiejar:
                 if cookie.name == 'PHPSESSID':
                     PixivHelper.printAndLog('info', 'new cookie value: ' + str(cookie.value))
@@ -215,14 +215,11 @@ class PixivBrowser(mechanize.Browser):
                     self._config.writeConfig(path=self._config.configFileLocation)
                     break
             return True
-        else:
-            errors = self.parseLoginError(response)
-            if len(errors) > 0:
-                for error in errors:
-                    if error.string is not None:
-                        PixivHelper.printAndLog('error', 'Server Reply: ' + error.string)
+        else :
+            if result["body"] is not None and result["body"].has_key("validation_errors"):
+                PixivHelper.printAndLog('info', "Server reply: " + str(result["body"]["validation_errors"]))
             else:
-                PixivHelper.printAndLog('info', 'Wrong username or password.')
+                PixivHelper.printAndLog('info', 'Unknown login issue, please use cookie login method.')
             return False
 
     def parseLoginError(self, res):
@@ -253,3 +250,9 @@ def getExistingBrowser():
         raise PixivException("Browser is not initialized yet!", errorCode = PixivException.NOT_LOGGED_IN)
     return _browser
 
+def test():
+    from PixivConfig import PixivConfig
+    cfg = PixivConfig()
+    cfg.loadConfig("./config.ini")
+    b = getBrowser(cfg, None)
+    return b.login("nandaka", "***REMOVED***")

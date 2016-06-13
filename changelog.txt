@@ -1,3 +1,6 @@
+20160613
+- Fix Issue #116: update login method.
+
 20160513
 - Add null check before dumping html.
 - Fix Issue #115: update login method.
