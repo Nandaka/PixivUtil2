@@ -94,17 +94,15 @@ A.Usage:
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
-      - just tell me via comment in my blog (http://nandaka.wordpress.com) and I
-        will reply you back.
+      - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
   Q2. Where I can support/donate to you?
       - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
-      - or use the donation button on my blog (http://nandaka.wordpress.com).
+      - or visit https://bit.ly/PixivUtilDonation.
   Q3. I want to use/modify the source code!
       - Feel free to use/modify the source code as long you give credit to me and
         make the modificated source code open.
-      - if you want to add feature/bug fix, you can do branch from public 
-        repository in https://git.bettercodes.org/pixiv-downloader (need to 
-        register first) and I will do the merge.
+      - if you want to add feature/bug fix, you can do fork the repository in 
+        https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
   Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
       - Please modify _html.py from mechanize library, search for 
         'def unescape_charref(data, encoding):' and replace with patch in 
@@ -469,7 +467,7 @@ member_id2 directory2
 =================================================================================
 = Credits                                                                       =
 =================================================================================
-- Nandaka (Main Developer)
+- Nandaka (Main Developer) - https://nandaka.devnull.zone
 - Yavos (Contributor)
 - Joe (Contributor)
 
