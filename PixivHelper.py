@@ -113,7 +113,7 @@ def sanitizeFilename(s, rootDir=None):
     else:
         tempName = name
 
-    Logger.debug("Sanitized Filename: " + tempName.strip())
+    GetLogger().debug("Sanitized Filename: " + tempName.strip())
 
     return tempName.strip()
 
