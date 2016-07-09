@@ -9,6 +9,7 @@ import codecs
 import collections
 import urllib
 import PixivHelper
+import urlparse
 from PixivException import PixivException
 from datetime import datetime
 import json
@@ -636,6 +637,9 @@ class PixivListItem:
         if self.path == r"N\A":
             self.path = ""
 
+    def __repr__(self):
+        return "(id:{0}, path:'{1}')".format(self.memberId, self.path)
+
     @staticmethod
     def parseList(filename, rootDir=None):
         '''read list.txt and return the list of PixivListItem'''
@@ -650,7 +654,7 @@ class PixivListItem:
         try:
             for line in reader:
                 originalLine = line
-                ##PixivHelper.safePrint("Processing: " + line)
+                #PixivHelper.safePrint("Processing: " + line)
                 if line.startswith('#') or len(line) < 1:
                     continue
                 if len(line.strip()) == 0:
@@ -659,7 +663,26 @@ class PixivListItem:
                 line = line.strip()
                 items = line.split(" ", 1)
 
-                member_id = int(items[0])
+                if items[0].startswith("http"):
+                    # handle urls:
+                    # http://www.pixiv.net/member_illust.php?id=<member_id>
+                    # http://www.pixiv.net/member.php?id=<member_id>
+                    parsed = urlparse.urlparse(items[0])
+                    if parsed.path == "/member.php" or parsed.path == "/member_illust.php" :
+                        query_str = urlparse.parse_qs(parsed.query)
+                        if query_str.has_key("id"):
+                            member_id = int(query_str["id"][0])
+                        else:
+                            PixivHelper.printAndLog('error', "Cannot detect member id from url: " + items[0])
+                            continue
+                    else:
+                        PixivHelper.printAndLog('error', "Unsupported url detected: " + items[0])
+                        continue
+
+                else:
+                    # handle member id directly
+                    member_id = int(items[0])
+
                 path = ""
                 if len(items) > 1:
                     path = items[1].strip()
