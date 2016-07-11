@@ -1,3 +1,6 @@
+20160711
+- Implement #55: update list.txt parser to support member id extraction from url.
+
 20160613
 - Fix Issue #116: update login method.
 
