@@ -69,6 +69,8 @@ class PixivConfig:
     urlBlacklistRegex = ""
     urlDumpFilename = "url_list_%Y%m%d"
     dbPath = ''
+    createGif = False
+    tempFolder = "./temp"
 
     # IrfanView
     createDownloadLists = False
@@ -447,6 +449,20 @@ class PixivConfig:
                 self.dbPath = ''
                 haveError = True
 
+            try:
+                self.createGif = config.getboolean('Settings','createGif')
+            except ValueError:
+                print "createGif = False"
+                self.createGif = False
+                haveError = True
+
+            try:
+                self.tempFolder = config.get('Settings','tempFolder')
+            except ValueError:
+                print "tempFolder = './temp'"
+                self.tempFolder = './temp'
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -526,6 +542,8 @@ class PixivConfig:
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
         config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
         config.set('Settings', 'dbPath', self.dbPath)
+        config.set('Settings', 'createGif', self.createGif)
+        config.set('Settings', 'tempFolder', self.tempFolder)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -625,6 +643,8 @@ class PixivConfig:
         print ' - urlBlacklistRegex =', self.urlBlacklistRegex
         print ' - urlDumpFilename  =', self.urlDumpFilename
         print ' - dbPath           =', self.dbPath
+        print ' - createGif        =', self.createGif
+        print ' - tempFolder       =', self.tempFolder
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

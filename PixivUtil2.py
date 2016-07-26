@@ -664,11 +664,19 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
                 if __config__.createUgoira and result == PixivConstant.PIXIVUTIL_OK:
-                    PixivHelper.printAndLog('info', "Creating ugoira archive => " + filename[:-4] + ".ugoira")
+                    ugo_name = filename[:-4] + ".ugoira"
+                    PixivHelper.printAndLog('info', "Creating ugoira archive => " + ugo_name)
                     image.CreateUgoira(filename)
                     if __config__.deleteZipFile:
                         PixivHelper.printAndLog('info', "Deleting zip file => " + filename)
                         os.remove(filename)
+
+                    if __config__.createGif:
+                        PixivHelper.printAndLog('info', 'processing ugoira...')
+                        gif_filename = ugo_name[:-7]+".gif"
+                        PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.tempFolder)
+                        PixivHelper.printAndLog('info', 'ugoira exported to: ' + gif_filename)
+
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
 

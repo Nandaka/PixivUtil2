@@ -15,6 +15,8 @@ import time
 import unicodedata
 import json
 import urllib2
+import imageio
+import shutil
 
 Logger = None
 _config = None
@@ -626,3 +628,27 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
             info.write(link + "\r\n")
         info.close()
 
+
+def ugoira2gif(ugoira_file, exportname, temp_folder):
+    if os.path.exists(temp_folder):
+        shutil.rmtree(temp_folder)
+    z = zipfile.ZipFile(ugoira_file)
+    z.extractall(temp_folder)
+
+    filenames = os.listdir(temp_folder)
+    filenames.remove('animation.json')
+    anim_info =  json.load(open(temp_folder + '/animation.json'))
+
+    durations = []
+    images = []
+    for info in anim_info["frames"]:
+        images.append(imageio.imread(temp_folder + "/" + info["file"]))
+        durations.append(float(info["delay"])/1000)
+
+    # imageio cannot handle utf-8 filename
+    temp_name = temp_folder + "temp.gif"
+    kargs = { 'duration': durations }
+    imageio.mimsave(temp_name, images, 'GIF', **kargs)
+    shutil.move(temp_name, exportname)
+
+    shutil.rmtree(temp_folder)
