@@ -387,6 +387,13 @@ urlBlacklistRegex     ==> Used to filter out the url in the description using
 urlDumpFilename       ==> Define the dump filename, use python strftime() format.
                           Default value is 'url_list_%Y%m%d'
 dbPath		==> use different database.
+creategif       ==> Set to True to convert ugoira file to gif.
+                    Required createUgoira = True.
+tempfolder      ==> Temporary folder used for converting ugoira to gif.
+                    Doesn't support unicode due to library limitation.
+useBlacklistMembers ==> Skip image by member id.
+                        Please create 'blacklist_members.txt' in the same folder 
+                        of the application.
 
 =================================================================================
 = list.txt Format                                                               =
@@ -441,6 +448,9 @@ member_id2 directory2
 123456 "%root%\special folder"
 # this will set the download location to "special folder" in your rootDirectory
 # given in config
+http://www.pixiv.net/member.php?id=123456
+http://www.pixiv.net/member_illust.php?id=123456 
+# also support url format.
 ### END EXAMPLE LIST####
 
 =================================================================================
@@ -466,6 +476,11 @@ member_id2 directory2
 - If matches, the image will be skipped.
 - Each line is one tag only.
 - Save the files with UTF-8 encoding
+
+=================================================================================
+= blacklist_members.txt Format                                                  =
+=================================================================================
+- similar like list.txt, but without custom folder. 
 
 =================================================================================
 = Credits                                                                       =
