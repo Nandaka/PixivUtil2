@@ -71,6 +71,7 @@ class PixivConfig:
     dbPath = ''
     createGif = False
     tempFolder = "./temp"
+    useBlacklistMembers = False
 
     # IrfanView
     createDownloadLists = False
@@ -463,6 +464,13 @@ class PixivConfig:
                 self.tempFolder = './temp'
                 haveError = True
 
+            try:
+                self.useBlacklistMembers = config.getboolean('Settings','useBlacklistMembers')
+            except ValueError:
+                print "useBlacklistMembers = False"
+                self.useBlacklistMembers = False
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -544,6 +552,7 @@ class PixivConfig:
         config.set('Settings', 'dbPath', self.dbPath)
         config.set('Settings', 'createGif', self.createGif)
         config.set('Settings', 'tempFolder', self.tempFolder)
+        config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -645,6 +654,7 @@ class PixivConfig:
         print ' - dbPath           =', self.dbPath
         print ' - createGif        =', self.createGif
         print ' - tempFolder       =', self.tempFolder
+        print ' - useBlacklistMembers  =', self.useBlacklistMembers
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

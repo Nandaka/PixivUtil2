@@ -51,6 +51,7 @@ __blacklistTags = list()
 __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
 __errorList = list()
+__blacklistMembers = list()
 
 ## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
@@ -559,6 +560,12 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
+
+        if __config__.useBlacklistMembers:
+            if str(image.originalArtist.artistId) in __blacklistMembers:
+                PixivHelper.printAndLog('info', 'Skipping image_id: ' + str(image_id) + ' because contains blacklisted member id: ' + str(image.originalArtist.artistId))
+                download_image_flag = False
+                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         if download_image_flag:
             PixivHelper.safePrint("Title: " + image.imageTitle)
@@ -1821,6 +1828,11 @@ def main():
             global __blacklistTags
             __blacklistTags = PixivTags.parseTagsList("blacklist_tags.txt")
             PixivHelper.printAndLog('info', 'Using Blacklist Tags: ' + str(len(__blacklistTags)) + " items.")
+
+        if __config__.useBlacklistMembers:
+            global __blacklistMembers
+            __blacklistMembers = PixivTags.parseTagsList("blacklist_members.txt")
+            PixivHelper.printAndLog('info', 'Using Blacklist Members: ' + str(len(__blacklistMembers)) + " members.")
 
         if __config__.useSuppressTags:
             global __suppressTags

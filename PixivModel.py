@@ -239,6 +239,8 @@ class PixivImage:
 
             if fromBookmark and self.originalArtist is None:
                 self.originalArtist = PixivArtist(page=page, fromImage=True)
+            else:
+                self.originalArtist = self.artist
 
             ## parse image information
             self.ParseInfo(page)
