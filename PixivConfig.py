@@ -70,7 +70,6 @@ class PixivConfig:
     urlDumpFilename = "url_list_%Y%m%d"
     dbPath = ''
     createGif = False
-    tempFolder = "./temp"
     useBlacklistMembers = False
 
     # IrfanView
@@ -458,13 +457,6 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.tempFolder = config.get('Settings','tempFolder')
-            except ValueError:
-                print "tempFolder = './temp'"
-                self.tempFolder = './temp'
-                haveError = True
-
-            try:
                 self.useBlacklistMembers = config.getboolean('Settings','useBlacklistMembers')
             except ValueError:
                 print "useBlacklistMembers = False"
@@ -551,7 +543,6 @@ class PixivConfig:
         config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
         config.set('Settings', 'dbPath', self.dbPath)
         config.set('Settings', 'createGif', self.createGif)
-        config.set('Settings', 'tempFolder', self.tempFolder)
         config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
 
         config.add_section('Authentication')
@@ -653,7 +644,6 @@ class PixivConfig:
         print ' - urlDumpFilename  =', self.urlDumpFilename
         print ' - dbPath           =', self.dbPath
         print ' - createGif        =', self.createGif
-        print ' - tempFolder       =', self.tempFolder
         print ' - useBlacklistMembers  =', self.useBlacklistMembers
 
         print ' [Pixiv]'

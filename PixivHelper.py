@@ -17,6 +17,7 @@ import json
 import urllib2
 import imageio
 import shutil
+import tempfile
 
 Logger = None
 _config = None
@@ -629,9 +630,9 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         info.close()
 
 
-def ugoira2gif(ugoira_file, exportname, temp_folder):
-    if os.path.exists(temp_folder):
-        shutil.rmtree(temp_folder)
+def ugoira2gif(ugoira_file, exportname):
+    temp_folder = tempfile.mkdtemp()
+
     z = zipfile.ZipFile(ugoira_file)
     z.extractall(temp_folder)
 
