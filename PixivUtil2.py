@@ -681,7 +681,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     if __config__.createGif:
                         PixivHelper.printAndLog('info', 'processing ugoira...')
                         gif_filename = ugo_name[:-7]+".gif"
-                        PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.tempFolder)
+                        PixivHelper.ugoira2gif(ugo_name, gif_filename)
                         PixivHelper.printAndLog('info', 'ugoira exported to: ' + gif_filename)
 
             if __config__.writeUrlInDescription:
