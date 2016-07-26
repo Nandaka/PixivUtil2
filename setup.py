@@ -12,7 +12,6 @@ setup(
         }
     ], requires=['BeautifulSoup'],
     options = {'py2exe': {'compressed':1,
-                            'bundle_files': 1,
                             'excludes': ['Tkconstants', 'Tkinter']
                             },
                  },
