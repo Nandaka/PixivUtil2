@@ -189,7 +189,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 raise
             except KeyboardInterrupt:
                 PixivHelper.printAndLog('info', 'Aborted by user request => Ctrl-C')
-                return PixivConstant.PIXIVUTIL_NOT_OK
+                raise
             finally:
                 if res is not None:
                     del res
@@ -359,8 +359,9 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 
                 avatar_filename = PixivHelper.CreateAvatarFilename(filename_format, __config__.tagsSeparator,
                                                                    __config__.tagsLimit, artist, target_dir)
-                download_image(artist.artistAvatar, avatar_filename, member_url, __config__.overwrite,
-                               __config__.retry, __config__.backupOldFile)
+                if not DEBUG_SKIP_PROCESS_IMAGE:
+                    download_image(artist.artistAvatar, avatar_filename, member_url, __config__.overwrite,
+                                   __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
@@ -394,12 +395,12 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 while True:
                     try:
                         if artist.totalImages > 0:
-                            PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
+                            #PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
                             total_image_page_count = artist.totalImages
                             if(offset_stop > 0 and offset_stop < total_image_page_count):
                                 total_image_page_count = offset_stop
                             total_image_page_count = total_image_page_count - offset_start
-                            PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
+                            #PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
                         title_prefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id,
@@ -407,7 +408,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                                                                              no_of_images,
                                                                                              updated_limit_count,
                                                                                              total_image_page_count)
-                        result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
+                        if not DEBUG_SKIP_PROCESS_IMAGE:
+                            result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
 
                         break
                     except KeyboardInterrupt:
@@ -796,12 +798,12 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                     while True:
                         try:
                             if t.availableImages > 0:
-                                PixivHelper.safePrint("Total Images: " + str(t.availableImages))
+                                #PixivHelper.safePrint("Total Images: " + str(t.availableImages))
                                 total_image = t.availableImages
                                 if(stop_offset > 0 and stop_offset < total_image):
                                     total_image = stop_offset
                                 total_image = total_image - start_offset
-                                PixivHelper.safePrint("Total Images Offset: " + str(total_image))
+                                #PixivHelper.safePrint("Total Images Offset: " + str(total_image))
                             else:
                                 total_image = ((i - 1) * 20) + len(t.itemList)
                             title_prefix = "Tags:{0} Page:{1} Image {2}+{3} of {4}".format(tags, i, images, skipped_count, total_image)
