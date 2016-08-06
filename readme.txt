@@ -21,12 +21,12 @@
 - Download by image_id
 - Download by tags
 - Download from list (list.txt)
-- Download from user bookmark (http://www.pixiv.net/bookmark.php?type=user), 
+- Download from user bookmark (http://www.pixiv.net/bookmark.php?type=user),
   including private/hidden bookmarks.
 - Download from image bookmark (http://www.pixiv.net/bookmark.php), including
   private/hidden bookmarks.
 - Download from tags list (tags.txt)
-- Download new illustrations from bookmarks 
+- Download new illustrations from bookmarks
   (http://www.pixiv.net/bookmark_new_illust.php)
 - Manage database:
   - Show all member
@@ -49,15 +49,15 @@
 ================================================================================
 Overusage can lead to Pixiv blocking your IP for a few hours.
 
-=================================================================================
-= FAQs:                                                                         =
-=================================================================================
+================================================================================
+= FAQs:                                                                        =
+================================================================================
 A.Usage:
   Q1. How to paste japanese tags to the console window?
-      - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if 
-        it show up as question mark -> Change the Language for non-Unicode 
+      - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
+        it show up as question mark -> Change the Language for non-Unicode
         program to Japanese (google it).
-      - or use online url encoder (http://meyerweb.com/eric/tools/dencoder/) 
+      - or use online url encoder (http://meyerweb.com/eric/tools/dencoder/)
         and paste the encoded tag back to the console.
       - or paste it to tags.txt and select download by tags list. Separate each
         tags with space, and separate with new line for new query.
@@ -72,23 +72,23 @@ A.Usage:
       - Disable Daylight Saving Time and try again.
       - Copy your session values from browser:
         1. Open Firefox.
-        2. Go to Pixiv website and login, remember to enable [Remember Me] 
+        2. Go to Pixiv website and login, remember to enable [Remember Me]
            check box.
         3. Right click the page and select View Page Info.
         4. Click the Security tab.
         5. Click the View Cookies button.
         6. Look for Cookie named = PHPSESSID.
         7. Copy the content value.
-        8. Open config.ini, go to [Authentication] section, paste the value 
+        8. Open config.ini, go to [Authentication] section, paste the value
            to cookie, set keepsignedin = 1.
-  Q4. PixivUtil working from local terminal on Linux box but not working when I 
+  Q4. PixivUtil working from local terminal on Linux box but not working when I
       used SSH with PuTTY!
-      - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are 
+      - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are
         not set, python does not know what to write (Thanks to nho!)
-      - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate 
+      - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate
         it properly (Thanks to Mailia!)
   Q5. How to delete member id from Database?
-      - Open the application and choose Manage Database (d) then select delete 
+      - Open the application and choose Manage Database (d) then select delete
 	Member by Member Id.
       - Open the database (db.sqlite) directly using sqlite browser and use sql
 	command to delete it.
@@ -102,35 +102,35 @@ B.Bugs/Source Code/Supports:
       - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
       - or visit https://bit.ly/PixivUtilDonation.
   Q3. I want to use/modify the source code!
-      - Feel free to use/modify the source code as long you give credit to me and
-        make the modificated source code open.
-      - if you want to add feature/bug fix, you can do fork the repository in 
+      - Feel free to use/modify the source code as long you give credit to me
+        and make the modificated source code open.
+      - if you want to add feature/bug fix, you can do fork the repository in
         https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
   Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
-      - Please modify _html.py from mechanize library, search for 
-        'def unescape_charref(data, encoding):' and replace with patch in 
+      - Please modify _html.py from mechanize library, search for
+        'def unescape_charref(data, encoding):' and replace with patch in
         http://pastebin.com/5bT5HFkb.
   Q5. I got '<library_name> module no found error'
-      - Download the library from the source (see links from the Requirements 
+      - Download the library from the source (see links from the Requirements
         section) and copy the file into your Lib\site-packages directory.
       - Or use pip install (google on how to use).
 
 C.Log Messages:
 Q1: HTTPError: HTTP Error 404: Not Found
-    - This is because the file doesn't exists in the pixiv server, usually 
+    - This is because the file doesn't exists in the pixiv server, usually
        because there is no big images version for the manga mode (currently the
        apps will try to download the big version first then try the normal size
        if failed, this is only for the manga mode and it is normal).
 
 Q2: Error at process_image(): (<type 'exceptions.WindowsError'>, WindowsError
-    (32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin 
+    (32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin
     kaytossa')
-    - The file is being used by another process (google translate). Either you 
-      ran multiple instace of pixiv downloader from the same folder, or there 
-      are other processes locking the file/db.sqllite (usually from antivirus 
+    - The file is being used by another process (google translate). Either you
+      ran multiple instace of pixiv downloader from the same folder, or there
+      are other processes locking the file/db.sqllite (usually from antivirus
       or some sync/backup application).
 
-Q3: Error at process_image(): (<type 'exceptions.AttributeError'>, 
+Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
     AttributeError ("'NoneType' object has no attribute 'find'",)
     - Usually this is because of login failed (cookie not valid). Try to change
       your password to simple one for testing, or copy the cookie from browser:
@@ -141,40 +141,40 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
       5. Click the View Cookies button.
       6. Look for Cookie named = PHPSESSID.
       7. Copy the content value.
-      8. Open config.ini, go to [Authentication] section, paste the value to 
+      8. Open config.ini, go to [Authentication] section, paste the value to
          cookie, set 'keepsignedin = 1'.
-    - Or because pixiv have changed the layout code, so the pixiv 
-      downloader cannot parse the page correctly. Please tell me by put a 
-      comment if this happen and include the details, such as the member/image id,
-      dump html, and log file (check on the application folder).
+    - Or because pixiv have changed the layout code, so the pixiv
+      downloader cannot parse the page correctly. Please tell me by put a
+      comment if this happen and include the details, such as the member/image
+      id, dump html, and log file (check on the application folder).
 
 Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
-    - This is because the pixiv downloader cannot resolve the address to 
-      download the images, please try to restart the network connection or do 
+    - This is because the pixiv downloader cannot resolve the address to
+      download the images, please try to restart the network connection or do
       ipconfig /flushdns to refresh the dns cache (windows).
 
 Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
-    - This is because the pixiv downloaded didn't receive any reply for 
-      specified time in config.ini from pixiv. Please retry the download again 
+    - This is because the pixiv downloaded didn't receive any reply for
+      specified time in config.ini from pixiv. Please retry the download again
       later.
 
 Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
     - Set userobots = False in config.ini
 
-=================================================================================
-= Command Line Option                                                           =
-=================================================================================
+================================================================================
+= Command Line Option                                                          =
+================================================================================
   -h, --help            show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
                         Action you want to load your program with:
-                        1 - Download by member_id 
+                        1 - Download by member_id
                             (required: followed by member_ids separated by space)
-                        2 - Download by image_id  
+                        2 - Download by image_id
                             (required: followed by image_ids separated by space)
-                        3 - Download by tags      
-                            (required: [y/n] for wildcard, start page, end page, 
+                        3 - Download by tags
+                            (required: [y/n] for wildcard, start page, end page,
                              followed by tags)
-                        4 - Download from list    
+                        4 - Download from list
                             (optional: followed by path to list)
                         5 - Download from user bookmark
                             (optional: followed by [y/n] for private bookmark)
@@ -182,16 +182,16 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 			    (required: followed by [y/n] for private bookmark
                              optional: starting page number and end page number)
                         7 - Download from tags list
-                            (required: followed by path to the tags list, 
+                            (required: followed by path to the tags list,
                              start page, and end page)
                         8 - Download new illust from bookmark
-                            (optional: followed by starting page number and end 
+                            (optional: followed by starting page number and end
                              page number)
                         9 - Download by Title/Caption
-                            (required: start page, end page, followed by 
+                            (required: start page, end page, followed by
                              title/caption)
 			10 - Download by Tag and Member Id
-			    (required: member_id, start page, end page, followed 
+			    (required: member_id, start page, end page, followed
                              by tags)
                         11 - Download Member's Bookmarked Images
                             (required: followed by member_ids separated by space)
@@ -201,7 +201,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         m - Export online user bookmark
                             (required: member_id)
                         d - Manage database
-  -x, --exitwhendone    Exit programm when done. 
+  -x, --exitwhendone    Exit programm when done.
                         (only useful when DB-Manager)
   -i, --irfanview       start IrfanView after downloading images using
                         downloaded_on_%date%.txt
@@ -244,7 +244,7 @@ keepsignedin ==> Set to 1 to tick the keep signed in check box on login form.
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
 r18mode      ==> Only list images tagged R18, for member, member's bookmark,
                  and search by tag. Set to 'True' to apply.
-dateformat   ==> Pixiv DateTime format, leave blank to use default format for 
+dateformat   ==> Pixiv DateTime format, leave blank to use default format for
                  English or Japanese. Refer to http://strftime.org/ for syntax.
 		 Quick Reference:
 		 %d = Day, %m = Month, %Y = Year (4 digit), %H = Hour (24h)
@@ -252,9 +252,9 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 
 [Network]
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
-proxyaddress   ==> Proxy server address, use this format:                    
-		   http://<username>:<password>@<proxy_server>:<port> or 
-                   socks5://<username>:<password>@<proxy_server>:<port> or 
+proxyaddress   ==> Proxy server address, use this format:
+		   http://<username>:<password>@<proxy_server>:<port> or
+                   socks5://<username>:<password>@<proxy_server>:<port> or
                    socks4://<username>:<password>@<proxy_server>:<port>
 useragent      ==> Browser user agent to spoof.
 userobots      ==> Download robots.txt for mechanize.
@@ -263,7 +263,7 @@ retry          ==> Number of retries.
 retrywait      ==> Waiting time for each retry, in seconds.
 
 [Debug]
-logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING, 
+logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING,
                     INFO, DEBUG, and NOTSET
 enableDump      ==> Enable HTML Dump. Set to False to disable.
 skipDumpFilter  ==> Skip HTML Dump based on error code (using regex format).
@@ -273,67 +273,67 @@ dumpTagSearchPage ==> Dump tags search page for debugging.
 debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
 [IrfanView]
-IrfanViewPath   ==> set directory where IrfanView is installed (needed to start 
+IrfanViewPath   ==> set directory where IrfanView is installed (needed to start
                     IrfanView)
 startIrfanView  ==> set to <True> to start IrfanView with downloaded images when
                     exiting pixivUtil
 	         -> this will create download-lists
 	         -> be sure to set IrfanView to load Unicode-Plugin on startup
                     when there are unicode-named files!
-startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded 
+startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
                     images when exiting pixivUtil.
 	         -> this will create download-lists
 	         -> be sure to set IrfanView to load Unicode-Plugin on startup
                     when there are unicode-named files!
-	         -> Slideshow-options will be same as you have set in IrfanView 
+	         -> Slideshow-options will be same as you have set in IrfanView
                     before!
 createDownloadLists   ==> set to <True> to automatically create download-lists.
 
 
 [Settings]
-rootdirectory  ==> Your root directory for saving the images.
-uselist        ==> set to 'True' to parse list.txt. 
-                   This will update the DB content from the list.txt
-                   (member_id and custom folder).
+rootdirectory ==> Your root directory for saving the images.
+uselist       ==> set to 'True' to parse list.txt.
+                  This will update the DB content from the list.txt (member_id
+                  and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-filenameformat ==> The format for the filename, reserved/illegal character will
-                   be replaced with underscore '_', repeated space will be 
-                   trimmed to single space.
-                -> The filename (+full path) will be trimmed to the first 250
-                   character (Windows limitation).
-	        -> %member_token% ==> member token, doesn't change.
-	        -> %member_id%    ==> member id, in number.
-	        -> %image_id%     ==> image id, in number.
-	        -> %title%        ==> image title, usually in japanese character.
-	        -> %tags%         ==> image tags, usually in japanese character.
-	        -> %artist%       ==> artist name, may change.
-	        -> %works_date%   ==> works date, complete with time.
-	        -> %works_date_only% ==> only the works date.
-	        -> %works_res%    ==> image resolution, will be containing the page 
-                                      count if manga.
-	        -> %works_tools%  ==> tools used for the image.
-	        -> %R-18%         ==> Append R-18/R-18 based on image tag, can be used
-                                      for creating directory by appending directory
-                                      separator, e.g.: %R-18%\%image_id%.
-	        -> %urlFilename%  ==> the actual filename stored in server without
-                                      the file extensions.
-	        -> %page_big%     ==> for manga mode, add big in the filename.
-	        -> %page_index%   ==> for manga mode, add page number with 0-index.
-	        -> %page_number%  ==> for manga mode, add page number with 1-index.
-	        -> %bookmark%     ==> for bookmark mode, add 'Bookmarks' string.
-	        -> %original_member_id%    ==> for bookmark mode, put original member
-                                               id.
-	        -> %original_member_token% ==> for bookmark mode, put original member 
-                                               token.
-	        -> %original_artist%       ==> for bookmark mode, put original artist
-                                               name.
-	        -> %searchTags%   ==> for download by tags, put searched tags.
-	        -> %date%         ==> current date in YYYYMMMDD format.
-	        -> %bookmark_count% ==> Bookmark count, will have overhead except on
-                                        download by tags.
-                -> %image_response_count%  ==> Image respose count, will have overhead 
-					       except on download by tags.
+filenameformat
+==> The format for the filename, reserved/illegal character will be replaced
+    with underscore '_', repeated space will be trimmed to single space.
+    The filename (+full path) will be trimmed to the first 250 character
+    (Windows limitation).
+    -> %member_token%    ==> member token, doesn't change.
+    -> %member_id%       ==> member id, in number.
+    -> %image_id%        ==> image id, in number.
+    -> %title%           ==> image title, usually in japanese character.
+    -> %tags%            ==> image tags, usually in japanese character.
+    -> %artist%          ==> artist name, may change.
+    -> %works_date%      ==> works date, complete with time.
+    -> %works_date_only% ==> only the works date.
+    -> %works_res%       ==> image resolution, will be containing the page
+                              count if manga.
+    -> %works_tools%  ==> tools used for the image.
+    -> %R-18%         ==> Append R-18/R-18 based on image tag, can be used
+                              for creating directory by appending directory
+                              separator, e.g.: %R-18%\%image_id%.
+    -> %urlFilename%  ==> the actual filename stored in server without
+                              the file extensions.
+    -> %page_big%     ==> for manga mode, add big in the filename.
+    -> %page_index%   ==> for manga mode, add page number with 0-index.
+    -> %page_number%  ==> for manga mode, add page number with 1-index.
+    -> %bookmark%     ==> for bookmark mode, add 'Bookmarks' string.
+    -> %original_member_id%    ==> for bookmark mode, put original member id.
+    -> %original_member_token% ==> for bookmark mode, put original member token.
+    -> %original_artist%       ==> for bookmark mode, put original artist name.
+    -> %searchTags%   ==> for download by tags, put searched tags.
+    -> %date%         ==> current date in YYYYMMMDD format.
+    -> %bookmark_count% ==> Bookmark count, will have overhead except on
+                            download by tags.
+    -> %image_response_count%  ==> Image respose count, will have overhead
+			                       except on download by tags.
+    -> %works_date_fmt{<format>}% ==> works date using custom format.
+                                      Use Python string format notation, refer: https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
+                                      e.g. %works_date_fmt{%Y-%m-%d}%
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
@@ -342,29 +342,29 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be
  		       -> Override the overwrite and image_id checking from db
                           (always fetch the image page for checking the size)
 checkUpdatedLimit     ==> Number of already downloaded image to be check before
-                          move to the next member. alwaysCheckFileSize must be 
+                          move to the next member. alwaysCheckFileSize must be
                           set to False.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
                     This setting is depended on %urlFilename% format.
-downloadListDirectory ==> set directory for download-lists needed for 
+downloadListDirectory ==> set directory for download-lists needed for
                           createDownloadLists and IrfanView-Handling
-	               -> if leaved blank it will create download-lists in 
+	               -> if leaved blank it will create download-lists in
                           pixivUtil-directory.
 downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
-usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory 
+usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory
                     as save folder.
 useblacklisttags==> Skip image if containing blacklisted tags.
-                    The list is taken from blacklist_tags.txt, each tags is 
+                    The list is taken from blacklist_tags.txt, each tags is
                     separated by new line.
 usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
-                    The list is taken from suppress_tags.txt, each tags is 
+                    The list is taken from suppress_tags.txt, each tags is
                     separated by new line.
 tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
-dateDiff        ==> Gets only pictures that were posted X days before the system 
+dateDiff        ==> Gets only pictures that were posted X days before the system
                     date. Set 0 to disable. Skip to next member id if in Download
                     by Member, stop processing if in Download New Illust.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
@@ -375,11 +375,11 @@ createugoira    ==> If set to True, it will create .ugoira file, see:
 deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
                     Only active if createUgoira = True.
 enableInfiniteLoop ==> Enable infinite loop for download by tags.
-                       Only applicable for download in descending order (newest 
+                       Only applicable for download in descending order (newest
                        first).
-verifyimage     ==> Do image and zip checking after download. Set the value to 
+verifyimage     ==> Do image and zip checking after download. Set the value to
                     True to enable.
-writeUrlInDescription ==> Write all url found in the image description to a text 
+writeUrlInDescription ==> Write all url found in the image description to a text
 			  file. Set to True to enable. The list will be saved to
                           to the application folder as url_list_<timestamp>.txt
 urlBlacklistRegex     ==> Used to filter out the url in the description using
@@ -392,15 +392,15 @@ creategif       ==> Set to True to convert ugoira file to gif.
 tempfolder      ==> Temporary folder used for converting ugoira to gif.
                     Doesn't support unicode due to library limitation.
 useBlacklistMembers ==> Skip image by member id.
-                        Please create 'blacklist_members.txt' in the same folder 
+                        Please create 'blacklist_members.txt' in the same folder
                         of the application.
 
 =================================================================================
 = list.txt Format                                                               =
 =================================================================================
-- This file should be build in the following way, white space will be trimmed, 
+- This file should be build in the following way, white space will be trimmed,
   see example:
-  
+
 member_id1 directory1
 member_id2 directory2
   ...
@@ -449,7 +449,7 @@ member_id2 directory2
 # this will set the download location to "special folder" in your rootDirectory
 # given in config
 http://www.pixiv.net/member.php?id=123456
-http://www.pixiv.net/member_illust.php?id=123456 
+http://www.pixiv.net/member_illust.php?id=123456
 # also support url format.
 ### END EXAMPLE LIST####
 
@@ -480,7 +480,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 =================================================================================
 = blacklist_members.txt Format                                                  =
 =================================================================================
-- similar like list.txt, but without custom folder. 
+- similar like list.txt, but without custom folder.
 
 =================================================================================
 = Credits                                                                       =
@@ -497,22 +497,22 @@ http://www.pixiv.net/member_illust.php?id=123456
 Copyright (c) 2011, Nandaka
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-  - Redistributions of source code must retain the above copyright notice, this 
+  - Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright notice, 
-    this list of conditions and the following disclaimer in the documentation 
+  - Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -140,6 +140,12 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
+    # formatted date/time, ex. %works_date_fmt{%Y-%m-%d}%
+    if nameFormat.find("%works_date_fmt") > -1:
+        to_replace = re.findall("(%works_date_fmt{.*}%)", nameFormat)
+        date_format = re.findall("{(.*)}", to_replace[0])
+        nameFormat = nameFormat.replace(to_replace[0], imageInfo.worksDateDateTime.strftime(date_format[0]))
+
     nameFormat = nameFormat.replace('%works_res%', imageInfo.worksResolution)
     nameFormat = nameFormat.replace('%works_tools%', imageInfo.worksTools)
     nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
