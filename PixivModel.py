@@ -346,21 +346,21 @@ class PixivImage:
             else:
                 self.imageTitle = tempTitle.string
                 break
-        tempCaptions = page.findAll('p', attrs={'class':'caption'})
-        for tempCaption in tempCaptions:
-            if tempCaption is None or tempCaption.string is None:
+
+        descriptionPara = page.findAll("p", attrs={'class': 'caption'})
+        for tempCaption in descriptionPara:
+            if tempCaption is None or tempCaption.text is None:
                 continue
-            elif len(tempCaption.string) == 0:
+            elif len(tempCaption.text.strip()) == 0:
                 continue
             else:
-                self.imageCaption = tempCaption.string
-                break
+                self.imageCaption = tempCaption.text
+                #break
 
         self.jd_rtv = int(page.find(attrs={'class': 'view-count'}).string)
         self.jd_rtc = int(page.find(attrs={'class': 'rated-count'}).string)
         self.jd_rtt = int(page.find(attrs={'class': 'score-count'}).string)
 
-        descriptionPara = page.findAll("p", attrs={'class': 'caption'})
         if descriptionPara is not None and len(descriptionPara) > 0:
             for para in descriptionPara:
                 links = para.findAll("a")
