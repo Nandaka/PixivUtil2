@@ -189,7 +189,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 raise
             except KeyboardInterrupt:
                 PixivHelper.printAndLog('info', 'Aborted by user request => Ctrl-C')
-                raise
+                return PixivConstant.PIXIVUTIL_ABORTED
             finally:
                 if res is not None:
                     del res
@@ -661,6 +661,8 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.printAndLog('error', 'Image url not found/failed to download: ' + str(image.imageId))
+                        elif result == PixivConstant.PIXIVUTIL_ABORTED:
+                            raise KeyboardInterrupt()
 
                     except urllib2.URLError:
                         PixivHelper.printAndLog('error', 'Giving up url: ' + str(img))
