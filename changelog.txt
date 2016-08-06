@@ -1,3 +1,8 @@
+20160806
+- Implement #141: allow custom datetime format for filename.
+- Fix image caption parsing.
+- Remove tempFolder configuration, use tempfile.mkdtemp() instead.
+
 20160726
 - Implement #135: convert ugoira to gif.
 - Implement #140: skip image based on blacklisted member id.
