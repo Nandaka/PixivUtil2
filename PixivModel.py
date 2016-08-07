@@ -856,6 +856,15 @@ class PixivTags:
         search_result = page.find('section', attrs={'class': 'column-search-result'})
         # new parse for bookmark items
         items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
+
+        # possible bug related to #143
+        if len(items) == 0:
+            # showcase must be removed first
+            showcase = page.find("section", attrs={'class':'showcase'})
+            showcase.extract()
+            search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
+            items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
+
         for item in items:
             if str(item).find('member_illust.php?') > -1:
                 image_id = self.__re_illust.findall(item.find('a')['href'])[0]
