@@ -846,7 +846,7 @@ class PixivTags:
         return ignore
 
     def parseTags(self, page):
-        '''parse tags search page and return the image list with bookmarkCound and imageResponse'''
+        '''parse tags search page and return the image list with bookmarkCount and imageResponse'''
         self.itemList = list()
 
         ignore = list()
@@ -863,6 +863,8 @@ class PixivTags:
             showcase = page.find("section", attrs={'class':'showcase'})
             showcase.extract()
             search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
+            if search_result is None or len(search_result) == 0:
+                return self.itemList
             items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
 
         for item in items:
