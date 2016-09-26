@@ -32,7 +32,6 @@ class PixivConfig:
     username = ''
     password = ''
     cookie = ''
-    useSSL = False
     keepSignedIn = 0
 
     # Pixiv related?
@@ -314,13 +313,6 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.useSSL = config.getboolean('Authentication','useSSL')
-            except ValueError:
-                self.useSSL = False
-                print "useSSL = False"
-                haveError = True
-
-            try:
                 self.writeImageInfo = config.getboolean('Settings','writeImageInfo')
             except ValueError:
                 self.writeImageInfo = False
@@ -549,7 +541,6 @@ class PixivConfig:
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
-        config.set('Authentication', 'useSSL', self.useSSL)
         config.set('Authentication', 'keepSignedIn', self.keepSignedIn)
 
         config.add_section('Pixiv')
@@ -587,7 +578,6 @@ class PixivConfig:
         print ' - username     =', self.username
         print ' - password     = ', self.password
         print ' - cookie       = ', self.cookie
-        print ' - useSSL       = ', self.useSSL
         print ' - keepSignedIn = ', self.keepSignedIn
 
         print ' [Network]'
