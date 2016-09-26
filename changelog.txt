@@ -1,4 +1,7 @@
-20160807-beta1
+20160927
+- Fix Issue #147: update parser to handle invalid member id.
+
+20160814
 - Fix Issue #143: update parser to handle specific tags.
 
 20160806
