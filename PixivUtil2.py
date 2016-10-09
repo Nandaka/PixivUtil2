@@ -299,6 +299,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         is_avatar_downloaded = False
         flag = True
         updated_limit_count = 0
+        image_id = -1
 
         while flag:
             print 'Page ', page
@@ -372,7 +373,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 continue
 
             result = PixivConstant.PIXIVUTIL_NOT_OK
-            image_id = -1
             for image_id in artist.imageList:
                 print '#' + str(no_of_images)
                 if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
@@ -467,9 +467,13 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             __br__.clear_history()
             gc.collect()
 
-        __dbManager__.updateLastDownloadedImage(member_id, image_id)
+        if image_id > 0:
+            __dbManager__.updateLastDownloadedImage(member_id, image_id)
+            log_message = 'last image_id: ' + str(image_id)
+        else:
+            log_message = 'no images were found'
         print 'Done.\n'
-        __log__.info('Member_id: ' + str(member_id) + ' complete, last image_id: ' + str(image_id))
+        __log__.info('Member_id: ' + str(member_id) + ' complete, ' + log_message)
     except KeyboardInterrupt:
         raise
     except:
