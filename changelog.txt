@@ -1,3 +1,7 @@
+20161012
+- Fix Issue #152: fix UnboundLocalError for image_id.
+- Implement #145: enable ideographic space (\u3000) in tag separator, use %ideo_space% in config.ini.
+
 20160927
 - Fix Issue #147: update parser to handle invalid member id.
 
