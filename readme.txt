@@ -134,15 +134,15 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
     AttributeError ("'NoneType' object has no attribute 'find'",)
     - Usually this is because of login failed (cookie not valid). Try to change
       your password to simple one for testing, or copy the cookie from browser:
-      1. Open Firefox.
-      2. Login to your pixiv, remember to enable [Remember Me] check box.
-      3. Right click the page and select View Page Info.
-      4. Click the Security tab.
+      1. Open Firefox/Chrome.
+      2. Login to your pixiv.
+      3. Right click the page and select View Page Info -> Security tab (Firefox), or
+         Right click on the leftmost address bar/the (i) icon (Chrome)
       5. Click the View Cookies button.
       6. Look for Cookie named = PHPSESSID.
       7. Copy the content value.
       8. Open config.ini, go to [Authentication] section, paste the value to
-         cookie, set 'keepsignedin = 1'.
+         cookie.
     - Or because pixiv have changed the layout code, so the pixiv
       downloader cannot parse the page correctly. Please tell me by put a
       comment if this happen and include the details, such as the member/image
