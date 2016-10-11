@@ -174,6 +174,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
 
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
+    if tagsSeparator == '%ideo_space%':
+        tagsSeparator = u'\u3000'
+
     if tagsLimit != -1:
         tagsLimit = tagsLimit if tagsLimit < len(imageInfo.imageTags) else len(imageInfo.imageTags)
         imageInfo.imageTags = imageInfo.imageTags[0:tagsLimit]
