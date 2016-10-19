@@ -94,6 +94,11 @@ A.Usage:
 	command to delete it.
       - If you are downloading using Download from List.txt (3), you can create
 	ignore_list.txt to skip the member id.
+  Q6. The app doesn't download all the images!
+      - Check your pixiv website settings (refer to https://goo.gl/gQi09v), 
+        then delete the cookie value in config.ini and retry.
+      - Check the value of r18mode in config.ini. Setting it to True will only 
+        download R-18 images.        
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
