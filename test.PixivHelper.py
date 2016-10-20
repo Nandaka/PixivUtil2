@@ -156,7 +156,6 @@ class TestPixivHelper(unittest.TestCase):
     print r
     self.assertTrue(len(r)>0)
 
-
 if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivHelper)
