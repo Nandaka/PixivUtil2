@@ -1,6 +1,6 @@
 mechanize>=0.2.5
 BeautifulSoup>=3.2.1
 socksipy-branch>=1.1
-Pillow
-imageio
-numpy
+Pillow>=3.4.2
+imageio>=1.6
+numpy>=1.11.2
