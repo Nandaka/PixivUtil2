@@ -384,29 +384,7 @@ class PixivImage:
         # 2013年12月14日 19:00 855×1133 PhotoshopSAI
 
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
-        if self.dateFormat is not None and len(self.dateFormat) > 0 and '%' in self.dateFormat:
-            # use the user defined format
-            try:
-                self.worksDateDateTime = datetime.strptime(self.worksDate, self.dateFormat)
-            except ValueError as ve:
-                PixivHelper.GetLogger().exception(
-                    'Error when parsing datetime: {0} for imageId {1} using date format {2}'.format(self.worksDate,
-                                                                                                    str(self.imageId),
-                                                                                                    str(self.dateFormat)),
-                    ve)
-                raise
-        else:
-            self.worksDate = self.worksDate.replace(u'/', u'-')
-            if self.worksDate.find('-') > -1:
-                try:
-                    self.worksDateDateTime = datetime.strptime(self.worksDate, u'%m-%d-%Y %H:%M')
-                except ValueError as ve:
-                    PixivHelper.GetLogger().exception(
-                        'Error when parsing datetime: {0} for imageId {1}'.format(self.worksDate, self.imageId), ve)
-                    self.worksDateDateTime = datetime.strptime(self.worksDate.split(" ")[0], u'%Y-%m-%d')
-            else:
-                tempDate = self.worksDate.replace(u'年', '-').replace(u'月', '-').replace(u'日', '')
-                self.worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
+        self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
 
         self.worksResolution = unicode(temp[1].string).replace(u'×', u'x')
         toolsTemp = page.find(attrs={'class': 'meta'}).find(attrs={'class': 'tools'})
@@ -415,6 +393,7 @@ class PixivImage:
             for tool in tools:
                 self.worksTools = self.worksTools + ' ' + unicode(tool.string)
             self.worksTools = self.worksTools.strip()
+
 
     def ParseTags(self, page):
         del self.imageTags[:]
@@ -432,7 +411,7 @@ class PixivImage:
         PixivHelper.safePrint('title : ' + self.imageTitle)
         PixivHelper.safePrint('caption : ' + self.imageCaption)
         PixivHelper.safePrint('mode  : ' + self.imageMode)
-        PixivHelper.safePrint('tags  :')
+        PixivHelper.safePrint('tags  :', newline=False)
         PixivHelper.safePrint(', '.join(self.imageTags))
         PixivHelper.safePrint('views : ' + str(self.jd_rtv))
         PixivHelper.safePrint('rating: ' + str(self.jd_rtc))

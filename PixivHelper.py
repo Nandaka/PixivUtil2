@@ -18,6 +18,7 @@ import urllib2
 import imageio
 import shutil
 import tempfile
+from datetime import datetime, date
 
 Logger = None
 _config = None
@@ -152,7 +153,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%searchTags%', searchTags)
 
     ## date
-    nameFormat = nameFormat.replace('%date%', datetime.date.today().strftime('%Y%m%d'))
+    nameFormat = nameFormat.replace('%date%', date.today().strftime('%Y%m%d'))
 
     ## get the page index & big mode if manga
     page_index = ''
@@ -505,7 +506,7 @@ def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = Fa
 
 
 def downloadImage(url, filename, res, file_size, overwrite):
-    start_time = datetime.datetime.now()
+    start_time = datetime.now()
 
     # try to save to the given filename + .pixiv extension if possible
     try:
@@ -537,12 +538,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
-                total_time = (datetime.datetime.now() - start_time).total_seconds()
+                total_time = (datetime.now() - start_time).total_seconds()
                 print u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
                 return curr
 
             elif curr == prev:  # no file size info
-                total_time = (datetime.datetime.now() - start_time).total_seconds()
+                total_time = (datetime.now() - start_time).total_seconds()
                 print u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
                 return curr
 
@@ -662,3 +663,30 @@ def ugoira2gif(ugoira_file, exportname):
     shutil.move(temp_name, exportname)
 
     shutil.rmtree(temp_folder)
+
+
+def ParseDateTime(worksDate, dateFormat):
+    if dateFormat is not None and len(dateFormat) > 0 and '%' in dateFormat:
+        # use the user defined format
+        worksDateDateTime = None
+        try:
+            worksDateDateTime = datetime.strptime(worksDate, dateFormat)
+        except ValueError as ve:
+            PixivHelper.GetLogger().exception(
+                'Error when parsing datetime: {0} using date format {2}'.format(worksDate, str(dateFormat)),
+                ve)
+            raise
+    else:
+        worksDate = worksDate.replace(u'/', u'-')
+        if worksDate.find('-') > -1:
+            try:
+                worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
+            except ValueError as ve:
+                PixivHelper.GetLogger().exception(
+                    'Error when parsing datetime: {0}'.format(worksDate), ve)
+                worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
+        else:
+            tempDate = worksDate.replace(u'年', '-').replace(u'月', '-').replace(u'日', '')
+            worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
+
+    return worksDateDateTime

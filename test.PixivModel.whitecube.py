@@ -4,7 +4,7 @@ import PixivHelper
 import os
 import unittest
 import json
-from PixivModel import PixivImage, PixivArtist
+from PixivModelWhiteCube import PixivImage, PixivArtist
 from BeautifulSoup import BeautifulSoup
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
@@ -19,6 +19,21 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
     js_init_config = json.loads(init_config['value'])
     self.assertIsNotNone(js_init_config)
     self.assertIsNotNone(js_init_config["pixiv.context.token"])
+
+  def testParseImage(self):
+    p = open('./test/work_details_modal_whitecube.json', 'r')
+    image = PixivImage(59521621, p.read())
+    self.assertIsNotNone(image)
+    image.PrintInfo()
+    self.assertEqual(image.imageMode, "big")
+
+
+  def testParseManga(self):
+    p = open('./test/work_details_modal_whitecube-manga.json', 'r')
+    image = PixivImage(59532028, p.read())
+    self.assertIsNotNone(image)
+    image.PrintInfo()
+    self.assertEqual(image.imageMode, "manga")
 
 
 if __name__ == '__main__':

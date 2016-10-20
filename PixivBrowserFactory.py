@@ -17,6 +17,7 @@ import json
 import PixivHelper
 from PixivException import PixivException
 import PixivConstant
+import PixivModelWhiteCube
 
 defaultCookieJar = None
 defaultConfig = None
@@ -142,8 +143,7 @@ class PixivBrowser(mechanize.Browser):
 
 
     def _getInitConfig(self, page):
-        parsed = BeautifulSoup(page)
-        init_config = parsed.find('input', attrs={'id':'init-config'})
+        init_config = page.find('input', attrs={'id':'init-config'})
         js_init_config = json.loads(init_config['value'])
         return js_init_config
 
@@ -166,10 +166,11 @@ class PixivBrowser(mechanize.Browser):
         if len(loginCookie) > 0:
             PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
             self._loadCookie(loginCookie)
-            #req = self._makeRequest('http://www.pixiv.net/mypage.php')
-            #res = self.open(req)
             res = self.open('http://www.pixiv.net/mypage.php')
             resData = res.read()
+
+            parsed = BeautifulSoup(resData)
+            self.detectWhiteCube(parsed, res.geturl())
 
             if "logout.php" in resData:
                 PixivHelper.printAndLog('info', 'Login successfull.')
@@ -188,7 +189,8 @@ class PixivBrowser(mechanize.Browser):
             page = self.open(url)
 
             # get the post key
-            js_init_config = self._getInitConfig(page)
+            parsed = BeautifulSoup(page)
+            js_init_config = self._getInitConfig(parsed)
 
             data = {}
             data['pixiv_id'] = username
@@ -225,15 +227,8 @@ class PixivBrowser(mechanize.Browser):
 
             # check whitecube
             page = self.open(result["body"]["successed"]["return_to"])
-            js_init = self._getInitConfig(page)
-            if page.geturl().find("pixiv.net/whitecube") > 0:
-                print "*******************************************"
-                print "* Pixiv whitecube UI mode.                *"
-                print "* Some feature might not working properly *"
-                print "*******************************************"
-                self._whitecubeToken = js_init["pixiv.context.token"]
-                print "whitecube token:", self._whitecubeToken
-                self._isWhitecube = True
+            parsed = BeautifulSoup(page)
+            self.detectWhiteCube(parsed, page.geturl())
 
             return True
         else :
@@ -243,10 +238,52 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.printAndLog('info', 'Unknown login issue, please use cookie login method.')
             return False
 
+    def detectWhiteCube(self, page, url):
+        if url.find("pixiv.net/whitecube") > 0:
+            print "*******************************************"
+            print "* Pixiv whitecube UI mode.                *"
+            print "* Some feature might not working properly *"
+            print "*******************************************"
+            js_init = self._getInitConfig(page)
+            self._whitecubeToken = js_init["pixiv.context.token"]
+            print "whitecube token:", self._whitecubeToken
+            self._isWhitecube = True
+
     def parseLoginError(self, res):
         page = BeautifulSoup(res.read())
         r = page.findAll('span', attrs={'class': 'error'})
         return r
+
+    def getImagePage(self, imageId, parent=None, fromBookmark=False,
+                     bookmark_count=-1, image_response_count=-1):
+        image = None
+        PixivHelper.GetLogger().debug("Getting image page: {0}".format(imageId))
+        if self._isWhitecube:
+            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(imageId, self._whitecubeToken)
+            response = self.open(url).read()
+            image = PixivModelWhiteCube.PixivImage(imageId,
+                                                   response,
+                                                   parent,
+                                                   fromBookmark,
+                                                   bookmark_count,
+                                                   image_response_count,
+                                                   dateFormat=self._config.dateFormat)
+        else:
+            url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
+            parsed = BeautifulSoup(response)
+            image = PixivModel.PixivImage(imageId,
+                                          parsed,
+                                          parent,
+                                          fromBookmark,
+                                          bookmark_count,
+                                          image_response_count,
+                                          dateFormat=self._config.dateFormat)
+            if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+                image.ParseImages(page=response)
+            parsed.decompose()
+
+        return (image, response)
+
 
 def getBrowser(config = None, cookieJar = None):
     global defaultCookieJar
@@ -278,6 +315,13 @@ def test():
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
     b = getBrowser(cfg, None)
-    return b.login(raw_input("username?"), raw_input("password?"))
+    success = b.login(cfg.username, cfg.password)
+    if success:
+        (result, parsed) = b.getImagePage(59513189)
+        print result.PrintInfo()
 
-test()
+        (result, parsed) = b.getImagePage(59532028)
+        print result.PrintInfo()
+
+if __name__ == '__main__':
+    test()
