@@ -505,7 +505,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         filename = 'N/A'
         print 'Processing Image Id:', image_id
 
-        ## check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
+        # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
         r = __dbManager__.selectImageByImageId(image_id)
         if r is not None and not __config__.alwaysCheckFileSize:
             if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
@@ -513,12 +513,12 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 gc.collect()
                 return
 
-        ## get the medium page
+        # get the medium page
         try:
-            parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
-            image = PixivImage(iid=image_id, page=parse_medium_page, parent=artist, fromBookmark=bookmark, bookmark_count=bookmark_count, dateFormat=__config__.dateFormat)
-            if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                image.ParseImages(page=parse_medium_page)
+            (image, parse_medium_page) = PixivBrowserFactory.getBrowser().getImagePage(imageId=image_id,
+                                                                                       parent=artist,
+                                                                                       fromBookmark=bookmark,
+                                                                                       bookmark_count=bookmark_count)
             if title_prefix is not None:
                 set_console_title(title_prefix + " ImageId: {0}".format(image.imageId))
             else:
@@ -713,9 +713,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         if image is not None:
             del image
         gc.collect()
-        if parse_medium_page is not None:
-            parse_medium_page.decompose()
-            del parse_medium_page
         ##clearall()
         print '\n'
         return result
