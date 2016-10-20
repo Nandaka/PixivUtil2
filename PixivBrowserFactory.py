@@ -24,6 +24,8 @@ _browser = None
 
 class PixivBrowser(mechanize.Browser):
     _config = None
+    _isWhitecube = False
+    _whitecubeToken = ""
 
     def __init__(self, config, cookieJar):
         mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
@@ -138,6 +140,14 @@ class PixivBrowser(mechanize.Browser):
                              comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
+
+    def _getInitConfig(self, page):
+        parsed = BeautifulSoup(page)
+        init_config = parsed.find('input', attrs={'id':'init-config'})
+        js_init_config = json.loads(init_config['value'])
+        return js_init_config
+
+
 ##    def _makeRequest(self, url):
 ##        if self._config.useProxy:
 ##            proxy = urllib2.ProxyHandler(self._config.proxy)
@@ -178,9 +188,7 @@ class PixivBrowser(mechanize.Browser):
             page = self.open(url)
 
             # get the post key
-            parsed = BeautifulSoup(page)
-            init_config = parsed.find('input', attrs={'id':'init-config'})
-            js_init_config = json.loads(init_config['value'])
+            js_init_config = self._getInitConfig(page)
 
             data = {}
             data['pixiv_id'] = username
@@ -214,6 +222,19 @@ class PixivBrowser(mechanize.Browser):
                     self._config.cookie = cookie.value
                     self._config.writeConfig(path=self._config.configFileLocation)
                     break
+
+            # check whitecube
+            page = self.open(result["body"]["successed"]["return_to"])
+            js_init = self._getInitConfig(page)
+            if page.geturl().find("pixiv.net/whitecube") > 0:
+                print "*******************************************"
+                print "* Pixiv whitecube UI mode.                *"
+                print "* Some feature might not working properly *"
+                print "*******************************************"
+                self._whitecubeToken = js_init["pixiv.context.token"]
+                print "whitecube token:", self._whitecubeToken
+                self._isWhitecube = True
+
             return True
         else :
             if result["body"] is not None and result["body"].has_key("validation_errors"):
@@ -244,15 +265,19 @@ def getBrowser(config = None, cookieJar = None):
 
     return _browser
 
+
 def getExistingBrowser():
     global _browser
     if _browser is None:
         raise PixivException("Browser is not initialized yet!", errorCode = PixivException.NOT_LOGGED_IN)
     return _browser
 
+
 def test():
     from PixivConfig import PixivConfig
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
     b = getBrowser(cfg, None)
-    return b.login("nandaka", "***REMOVED***")
+    return b.login(raw_input("username?"), raw_input("password?"))
+
+test()
