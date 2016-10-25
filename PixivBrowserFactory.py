@@ -257,6 +257,7 @@ class PixivBrowser(mechanize.Browser):
     def getImagePage(self, imageId, parent=None, fromBookmark=False,
                      bookmark_count=-1, image_response_count=-1):
         image = None
+        response = None
         PixivHelper.GetLogger().debug("Getting image page: {0}".format(imageId))
         if self._isWhitecube:
             url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(imageId, self._whitecubeToken)
@@ -283,6 +284,20 @@ class PixivBrowser(mechanize.Browser):
             parsed.decompose()
 
         return (image, response)
+
+
+    def getMemberPage(self, mode, member_id, current_page=1, bookmark=False, tags=None, user_dir=''):
+        artist = None
+        response = None
+        if self._isWhitecube:
+            limit = 20 # follow old ui page size
+            url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&limit={2}&tt={1}'.format(memberId, self._whitecubeToken, limit)
+            response = self.open(url).read()
+            artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
+        else:
+            pass
+
+        return (artist, response)
 
 
 def getBrowser(config = None, cookieJar = None):

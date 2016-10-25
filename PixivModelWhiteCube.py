@@ -31,6 +31,10 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistToken = "self"
         self.artistName = "self"
 
+    def ParseImages(self, page):
+        imageList = list()
+        pass
+
 
 class PixivImage(PixivModel.PixivImage):
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
