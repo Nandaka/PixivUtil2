@@ -321,7 +321,7 @@ class PixivBrowser(mechanize.Browser):
                     member_url = member_url + "&tag=" + tags
             else:
                 member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
-            if _config.r18mode and not bookmark:
+            if self._config.r18mode and not bookmark:
                 member_url = member_url + '&tag=R-18'
                 PixivHelper.printAndLog('info', 'R-18 Mode only.')
             PixivHelper.printAndLog('info', 'Member Url: ' + member_url)
