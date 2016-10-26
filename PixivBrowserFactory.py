@@ -18,6 +18,7 @@ import PixivHelper
 from PixivException import PixivException
 import PixivConstant
 import PixivModelWhiteCube
+import PixivModel
 
 defaultCookieJar = None
 defaultConfig = None
@@ -27,6 +28,7 @@ class PixivBrowser(mechanize.Browser):
     _config = None
     _isWhitecube = False
     _whitecubeToken = ""
+    _cache = dict()
 
     def __init__(self, config, cookieJar):
         mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
@@ -270,7 +272,8 @@ class PixivBrowser(mechanize.Browser):
                                                    image_response_count,
                                                    dateFormat=self._config.dateFormat)
         else:
-            url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
+            url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
+            response = self.open(url).read()
             parsed = BeautifulSoup(response)
             image = PixivModel.PixivImage(imageId,
                                           parsed,
@@ -280,22 +283,44 @@ class PixivBrowser(mechanize.Browser):
                                           image_response_count,
                                           dateFormat=self._config.dateFormat)
             if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                image.ParseImages(page=response)
+                image.ParseImages(parsed)
             parsed.decompose()
 
         return (image, response)
 
 
-    def getMemberPage(self, mode, member_id, current_page=1, bookmark=False, tags=None, user_dir=''):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, user_dir=''):
         artist = None
         response = None
         if self._isWhitecube:
-            limit = 20 # follow old ui page size
-            url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&limit={2}&tt={1}'.format(memberId, self._whitecubeToken, limit)
+            # get member information first...
+            url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
+            if self._cache.has_key(url):
+                info = self._cache[url]
+            else:
+                info = self.open(url).read()
+                self._cache[url] = json.loads(info)
+
+            offset = (page - 1) * 30
+            url = 'https://app-api.pixiv.net/v1/user/illusts?user_id={0}&type=illust&offset={1}'.format(memberId, offset)
             response = self.open(url).read()
             artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
+            artist.ParseInfo(info, False)
+
         else:
-            pass
+            if bookmark:
+                member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
+                if tags is not None:
+                    tags = encode_tags(tags)
+                    member_url = member_url + "&tag=" + tags
+            else:
+                member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
+            if _config.r18mode and not bookmark:
+                member_url = member_url + '&tag=R-18'
+                PixivHelper.printAndLog('info', 'R-18 Mode only.')
+            PixivHelper.printAndLog('info', 'Member Url: ' + member_url)
+            response = self.getPixivPage(member_url)
+            artist = PixivModel.PixivArtist(mid=member_id, page=response)
 
         return (artist, response)
 
@@ -330,13 +355,20 @@ def test():
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
     b = getBrowser(cfg, None)
-    success = b.login(cfg.username, cfg.password)
+    success = False
+    if cfg.cookie is not None and len(cfg.cookie) > 0:
+        success = b.loginUsingCookie(cfg.cookie)
+    elif not success:
+        success = b.login(cfg.username, cfg.password)
+
     if success:
         (result, parsed) = b.getImagePage(59513189)
         print result.PrintInfo()
 
         (result, parsed) = b.getImagePage(59532028)
         print result.PrintInfo()
+    else:
+        print "Invalid username or password"
 
 if __name__ == '__main__':
     test()

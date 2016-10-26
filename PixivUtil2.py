@@ -291,8 +291,11 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
     member_url = ""
 
     # calculate the offset for display properties
-    offset_start = (page - 1) * 20
-    offset_stop = end_page * 20
+    offset = 20
+    if __br__._isWhitecube:
+        offset = 30
+    offset_start = (page - 1) * offset
+    offset_stop = end_page * offset
 
     try:
         no_of_images = 1
@@ -307,19 +310,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             ## Try to get the member page
             while True:
                 try:
-                    if bookmark:
-                        member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
-                        if tags is not None:
-                            tags = encode_tags(tags)
-                            member_url = member_url + "&tag=" + tags
-                    else:
-                        member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
-                    if __config__.r18mode and not bookmark:
-                        member_url = member_url + '&tag=R-18'
-                        PixivHelper.printAndLog('info', 'R-18 Mode only.')
-                    PixivHelper.printAndLog('info', 'Member Url: ' + member_url)
-                    list_page = PixivBrowserFactory.getBrowser().getPixivPage(member_url)
-                    artist = PixivArtist(mid=member_id, page=list_page)
+                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, user_dir)
                     break
                 except PixivException as ex:
                     ERROR_CODE = ex.errorCode
