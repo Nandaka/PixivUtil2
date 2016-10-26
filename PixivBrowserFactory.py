@@ -368,13 +368,15 @@ def test():
         success = b.login(cfg.username, cfg.password)
 
     if success:
-        (result, parsed) = b.getImagePage(59513189)
+        (result, page) = b.getImagePage(59615212)
         print result.PrintInfo()
         print result.artist.PrintInfo()
 
-        (result, parsed) = b.getImagePage(59532028)
-        print result.PrintInfo()
-        print result.artist.PrintInfo()
+        print ""
+        (result2, page2) = b.getImagePage(59628358)
+        print result2.PrintInfo()
+        print result2.artist.PrintInfo()
+
     else:
         print "Invalid username or password"
 
