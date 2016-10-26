@@ -2,6 +2,7 @@
 # pylint: disable=I0011, C, C0302
 import re
 import json
+from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
 import PixivModel
@@ -106,6 +107,7 @@ class PixivImage(PixivModel.PixivImage):
             self.ParseInfo(parsed)
 
     def ParseInfo(self, page):
+        self.imageUrls = list()
         images = page.findAll("div", attrs={"class":"illust-zoom-in thumbnail-container"})
         for image in images:
             url = image["data-original-src"]
@@ -132,11 +134,16 @@ class PixivImage(PixivModel.PixivImage):
         self.jd_rtt = self.jd_rtc
 
         # tags
+        self.imageTags = list()
         # _tag-container tags illust-59521621
         tagContainer = page.find("div", attrs={"class":"_tag-container tags illust-{0}".format(self.imageId)})
+        # special node for R-18
+        r18Tag = page.findAll(attrs={'class': 'tag r-18'})
+        if r18Tag is not None:
+            self.imageTags.append("R-18")
         tagLinks = tagContainer.findAll("a", attrs={"class": re.compile(r"tag.*")})
         for link in tagLinks:
-            self.imageTags.append(link.text)
+            self.imageTags.append(link["data-activity-tag_name"])
 
         # date
         self.worksDate = page.find("li", attrs={"class":"datetime"}).text
