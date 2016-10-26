@@ -11,8 +11,8 @@ import PixivHelper
 class PixivArtist(PixivModel.PixivArtist):
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
+            self.artistId=mid
             payload = json.loads(page)
-
             # check error
             if payload["error"] == True:
                 raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
@@ -33,7 +33,18 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page is not None:
             if fromImage:
-                pass
+                # will be updated using AppAPI call from browser
+                parsed = BeautifulSoup(page["body"]["html"])
+                artist_container = parsed.find('div', attrs={'class':'header-author-container'})
+                artist_link = artist_container.find('a', attrs={'class':'user-view-popup'})
+                self.artistId = int(artist_link['data-user_id'])
+
+                artist_icon = artist_container.find(attrs={'class': re.compile(r"_user-icon.*")})
+                self.artistAvatar = re.findall("background-image:url\((.*)\)", artist_icon["style"])[0]
+
+                self.artistName = artist_container.find("div", attrs={'class':'user-name'}).text
+                self.artistToken = self.artistName
+
             else:
                 data = None
                 if page.has_key("user"):
@@ -50,7 +61,7 @@ class PixivArtist(PixivModel.PixivArtist):
                     if avatar_data is not None and avatar_data.has_key("medium"):
                         self.artistAvatar = avatar_data["medium"]
 
-                if page.has_key["profile"]:
+                if page.has_key("profile"):
                     self.totalImages = int(page["profile"]["total_illusts"])
 
 
@@ -84,8 +95,12 @@ class PixivImage(PixivModel.PixivImage):
             parsed = BeautifulSoup(payload["body"]["html"])
 
             # parse artist information
-            if self.artist is None:
-                self.artist = PixivArtist(page=page, fromImage=True)
+            if parent is None:
+                parsed = BeautifulSoup(payload["body"]["html"])
+                artist_container = parsed.find('div', attrs={'class':'header-author-container'})
+                artist_link = artist_container.find('a', attrs={'class':'user-view-popup'})
+                artistId = int(artist_link['data-user_id'])
+                self.artist = PixivArtist(artistId, page, fromImage=True)
 
             # parse image
             self.ParseInfo(parsed)

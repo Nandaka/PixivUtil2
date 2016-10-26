@@ -271,6 +271,8 @@ class PixivBrowser(mechanize.Browser):
                                                    bookmark_count,
                                                    image_response_count,
                                                    dateFormat=self._config.dateFormat)
+            # overwrite artist info
+            self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
             url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
             response = self.open(url).read()
@@ -289,23 +291,27 @@ class PixivBrowser(mechanize.Browser):
         return (image, response)
 
 
+    def getMemberInfoWhitecube(self, member_id, artist):
+        ''' get artist information using AppAPI '''
+        url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
+        if self._cache.has_key(url):
+            info = self._cache[url]
+        else:
+            PixivHelper.GetLogger().debug("Getting member information: {0}".format(member_id))
+            infoStr = self.open(url).read()
+            info = json.loads(infoStr)
+            self._cache[url] = info
+        artist.ParseInfo(info, False)
+
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, user_dir=''):
         artist = None
         response = None
         if self._isWhitecube:
-            # get member information first...
-            url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-            if self._cache.has_key(url):
-                info = self._cache[url]
-            else:
-                info = self.open(url).read()
-                self._cache[url] = json.loads(info)
-
             offset = (page - 1) * 30
             url = 'https://app-api.pixiv.net/v1/user/illusts?user_id={0}&type=illust&offset={1}'.format(memberId, offset)
             response = self.open(url).read()
             artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
-            artist.ParseInfo(info, False)
+            self.getMemberInfoWhitecube(member_id, artist)
 
         else:
             if bookmark:
@@ -364,9 +370,11 @@ def test():
     if success:
         (result, parsed) = b.getImagePage(59513189)
         print result.PrintInfo()
+        print result.artist.PrintInfo()
 
         (result, parsed) = b.getImagePage(59532028)
         print result.PrintInfo()
+        print result.artist.PrintInfo()
     else:
         print "Invalid username or password"
 
