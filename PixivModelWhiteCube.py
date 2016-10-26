@@ -15,14 +15,14 @@ class PixivArtist(PixivModel.PixivArtist):
 
             # check error
             if payload["error"] == True:
-                raise PixivException('Artist Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+                raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
 
             # detect if image count != 0
             if not fromImage:
-                self.ParseImages(page)
+                self.ParseImages(payload)
 
             # parse artist info
-            self.ParseInfo(page, fromImage)
+            self.ParseInfo(payload, fromImage)
 
 
     def ParseInfo(self, page, fromImage=False):
@@ -31,9 +31,36 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistToken = "self"
         self.artistName = "self"
 
+        if page is not None:
+            if fromImage:
+                pass
+            else:
+                data = None
+                if page.has_key("user"):
+                    data = page
+                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+                    data = page["illusts"][0]
+
+                if data is not None:
+                    self.artistId = data["user"]["id"]
+                    self.artistToken = data["user"]["account"]
+                    self.artistName = data["user"]["name"]
+
+                    avatar_data = data["user"]["profile_image_urls"]
+                    if avatar_data is not None and avatar_data.has_key("medium"):
+                        self.artistAvatar = avatar_data["medium"]
+
+                if page.has_key["profile"]:
+                    self.totalImages = int(page["profile"]["total_illusts"])
+
+
     def ParseImages(self, page):
-        imageList = list()
-        pass
+        self.imageList = list()
+        for image in page["illusts"]:
+            self.imageList.append(int(image["id"]))
+
+        if page["next_url"] == None:
+            self.isLastPage = True
 
 
 class PixivImage(PixivModel.PixivImage):

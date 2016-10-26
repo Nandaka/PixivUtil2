@@ -19,6 +19,7 @@ import imageio
 import shutil
 import tempfile
 from datetime import datetime, date
+import traceback
 
 Logger = None
 _config = None
@@ -389,6 +390,7 @@ def printAndLog(level, msg):
         GetLogger().info(msg)
     elif level == 'error':
         GetLogger().error(msg)
+        GetLogger().error(traceback.format_exc())
 
 
 def HaveStrings(page, strings):
