@@ -68,10 +68,15 @@ class PixivArtist(PixivModel.PixivArtist):
 
     def ParseImages(self, page):
         self.imageList = list()
-        for image in page["illusts"]:
-            self.imageList.append(int(image["id"]))
+        parsed = BeautifulSoup(page["body"]["html"])
+        item_containers = parsed.findAll("div", attrs={"class": re.compile("item-container _work-item-container portfolio.*")})
+        for item in item_containers:
+            # data-entry-id="illust:59640232"
+            image_id_illust = item["data-entry-id"]
+            image_id = int(image_id_illust.replace("illust:", ""))
+            self.imageList.append(image_id)
 
-        if page["next_url"] == None:
+        if page["body"]["next_url"] == None:
             self.isLastPage = True
 
 

@@ -166,10 +166,11 @@ class PixivArtist:
         PixivHelper.safePrint('name  : ' + self.artistName)
         PixivHelper.safePrint('avatar: ' + self.artistAvatar)
         PixivHelper.safePrint('token : ' + self.artistToken)
-        PixivHelper.safePrint('urls  : ')
+        PixivHelper.safePrint('urls  : {0}'.format(len(self.imageList)))
         for item in self.imageList:
             PixivHelper.safePrint('\t' + str(item))
-
+        PixivHelper.safePrint('total : {0}'.format(self.totalImages))
+        PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
 class PixivImage:
     '''Class for parsing image page, including manga page and big image.'''
