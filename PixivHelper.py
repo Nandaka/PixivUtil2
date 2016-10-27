@@ -230,7 +230,7 @@ def safePrint(msg, newline=True):
         except UnicodeError:
             print ('?' * len(msgToken)),
     if newline:
-        print ''
+        print ""
 
 
 def setConsoleTitle(title):

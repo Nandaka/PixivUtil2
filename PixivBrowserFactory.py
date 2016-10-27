@@ -264,6 +264,7 @@ class PixivBrowser(mechanize.Browser):
         if self._isWhitecube:
             url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(imageId, self._whitecubeToken)
             response = self.open(url).read()
+            PixivHelper.GetLogger().debug(response);
             image = PixivModelWhiteCube.PixivImage(imageId,
                                                    response,
                                                    parent,
@@ -307,9 +308,12 @@ class PixivBrowser(mechanize.Browser):
         artist = None
         response = None
         if self._isWhitecube:
-            offset = (page - 1) * 30
-            url = 'https://app-api.pixiv.net/v1/user/illusts?user_id={0}&type=illust&offset={1}'.format(memberId, offset)
+            limit = 50
+            offset = (page - 1) * limit
+            url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
+            PixivHelper.printAndLog('info', 'Member Url: ' + url)
             response = self.open(url).read()
+            PixivHelper.GetLogger().debug(response);
             artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
             self.getMemberInfoWhitecube(member_id, artist)
 
@@ -368,14 +372,21 @@ def test():
         success = b.login(cfg.username, cfg.password)
 
     if success:
-        (result, page) = b.getImagePage(59615212)
-        print result.PrintInfo()
-        print result.artist.PrintInfo()
+##        (result, page) = b.getImagePage(59615212)
+##        print result.PrintInfo()
+##        print result.artist.PrintInfo()
+##
+##        print ""
+##        (result2, page2) = b.getImagePage(59628358)
+##        print result2.PrintInfo()
+##        print result2.artist.PrintInfo()
 
         print ""
-        (result2, page2) = b.getImagePage(59628358)
-        print result2.PrintInfo()
-        print result2.artist.PrintInfo()
+        (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
+        print result3.PrintInfo()
+        print ""
+        (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
+        print result4.PrintInfo()
 
     else:
         print "Invalid username or password"

@@ -293,7 +293,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
     # calculate the offset for display properties
     offset = 20
     if __br__._isWhitecube:
-        offset = 30
+        offset = 50
     offset_start = (page - 1) * offset
     offset_stop = end_page * offset
 
