@@ -26,7 +26,7 @@ class PixivArtist(PixivModel.PixivArtist):
             self.ParseInfo(payload, fromImage)
 
 
-    def ParseInfo(self, page, fromImage=False):
+    def ParseInfo(self, page, fromImage=False, bookmark=False):
         self.artistId = 0
         self.artistAvatar = "no_profile"
         self.artistToken = "self"
@@ -63,13 +63,16 @@ class PixivArtist(PixivModel.PixivArtist):
                         self.artistAvatar = avatar_data["medium"]
 
                 if page.has_key("profile"):
-                    self.totalImages = int(page["profile"]["total_illusts"])
+                    if bookmark:
+                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
+                    else:
+                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
 
     def ParseImages(self, page):
         self.imageList = list()
         parsed = BeautifulSoup(page["body"]["html"])
-        item_containers = parsed.findAll("div", attrs={"class": re.compile("item-container _work-item-container portfolio.*")})
+        item_containers = parsed.findAll("div", attrs={"class": re.compile("item-container _work-item-container.*")})
         for item in item_containers:
             # data-entry-id="illust:59640232"
             image_id_illust = item["data-entry-id"]
@@ -78,6 +81,8 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page["body"]["next_url"] == None:
             self.isLastPage = True
+        else:
+            self.isLastPage = False
 
 
 class PixivImage(PixivModel.PixivImage):
