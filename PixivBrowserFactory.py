@@ -292,7 +292,7 @@ class PixivBrowser(mechanize.Browser):
         return (image, response)
 
 
-    def getMemberInfoWhitecube(self, member_id, artist):
+    def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using AppAPI '''
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
         if self._cache.has_key(url):
@@ -302,20 +302,53 @@ class PixivBrowser(mechanize.Browser):
             infoStr = self.open(url).read()
             info = json.loads(infoStr)
             self._cache[url] = info
-        artist.ParseInfo(info, False)
+        artist.ParseInfo(info, False, bookmark=bookmark)
+
 
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, user_dir=''):
         artist = None
         response = None
+
         if self._isWhitecube:
             limit = 50
-            offset = (page - 1) * limit
-            url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
-            PixivHelper.printAndLog('info', 'Member Url: ' + url)
-            response = self.open(url).read()
-            PixivHelper.GetLogger().debug(response);
-            artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
-            self.getMemberInfoWhitecube(member_id, artist)
+            if bookmark:
+                PixivHelper.printAndLog('info', 'Getting Bookmark Url for page {0}...'.format(page))
+                # iterate to get next page url
+                start = 1
+                last_member_bookmark_next_url = None
+                while start <= page:
+                    if start == 1:
+                        url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}'
+                        url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken)
+                    else:
+                        url = last_member_bookmark_next_url
+
+                    # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
+                    if self._cache.has_key(url):
+                        response = self._cache[url]
+                    else:
+                        response = self.open(url).read()
+                        self._cache[url] = response
+
+                    payload = json.loads(response)
+                    last_member_bookmark_next_url = payload["body"]["next_url"]
+                    if last_member_bookmark_next_url is None and start  < page:
+                        PixivHelper.printAndLog('info', 'No more images for {0} bookmarks'.format(member_id))
+                        url = None
+                        break
+
+                    start = start + 1
+                PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
+            else:
+                offset = (page - 1) * limit
+                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
+                PixivHelper.printAndLog('info', 'Member Url: ' + url)
+
+            if url is not None:
+                response = self.open(url).read()
+                PixivHelper.GetLogger().debug(response);
+                artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
+                self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
         else:
             if bookmark:
@@ -388,8 +421,23 @@ def test():
         (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
         print result4.PrintInfo()
 
+        print ""
+        (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
+        print result5.PrintInfo()
+        print ""
+        (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
+        print result6.PrintInfo()
+        print ""
+        (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
+        if result6 is not None:
+            print result6.PrintInfo()
+        (result6, page6) = b.getMemberPage(1227869, page=11, bookmark=True, tags=None, user_dir='')
+        if result6 is not None:
+            print result6.PrintInfo()
+
     else:
         print "Invalid username or password"
 
 if __name__ == '__main__':
     test()
+    print "done"
