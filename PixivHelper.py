@@ -9,7 +9,6 @@ import subprocess
 import sys
 import PixivModel, PixivConstant
 import logging, logging.handlers
-import datetime
 import zipfile
 import time
 import unicodedata
@@ -633,7 +632,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
     if len(valid_url) > 0:
         if len(filenamePattern) == 0:
             filenamePattern = "url_list_%Y%m%d"
-        filename = datetime.date.today().strftime(filenamePattern) + ".txt"
+        filename = date.today().strftime(filenamePattern) + ".txt"
 
         info = codecs.open(filename, 'a', encoding='utf-8')
         info.write("#" + str(image.imageId)+"\r\n")
