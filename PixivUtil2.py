@@ -322,8 +322,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                         if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
                             __dbManager__.setIsDeletedFlagForMemberId(int(member_id))
                             PixivHelper.printAndLog('info', 'Set IsDeleted for MemberId: ' + str(member_id) + ' not exist.')
-                            #__dbManager__.deleteMemberByMemberId(member_id)
-                            #PixivHelper.printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
+                            # __dbManager__.deleteMemberByMemberId(member_id)
+                            # PixivHelper.printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
                         if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
                             PixivHelper.safePrint(ex.message)
                             __errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
@@ -342,7 +342,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             print 'Member Token :', artist.artistToken
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
-                ## Download avatar as folder.jpg
+                # Download avatar as folder.jpg
                 filename_format = __config__.filenameFormat
                 if user_dir == '':
                     target_dir = __config__.rootDirectory
@@ -352,7 +352,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 avatar_filename = PixivHelper.CreateAvatarFilename(filename_format, __config__.tagsSeparator,
                                                                    __config__.tagsLimit, artist, target_dir)
                 if not DEBUG_SKIP_PROCESS_IMAGE:
-                    download_image(artist.artistAvatar, avatar_filename, member_url, __config__.overwrite,
+                    # hardcode the referer to pixiv main site
+                    download_image(artist.artistAvatar, avatar_filename, "http://www.pixiv.net/", __config__.overwrite,
                                    __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 

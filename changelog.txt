@@ -1,3 +1,6 @@
+20161113
+- Fix Issue #168: Fix referer for avatar image download.
+
 20161012
 - Fix Issue #152: fix UnboundLocalError for image_id.
 - Implement #145: enable ideographic space (\u3000) in tag separator, use %ideo_space% in config.ini.
