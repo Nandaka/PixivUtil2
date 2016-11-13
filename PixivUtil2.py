@@ -71,6 +71,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if not overwrite and not __config__.alwaysCheckFileSize:
                     print 'Checking local filename...',
                     if os.path.exists(filename) and os.path.isfile(filename):
+                        PixivHelper.printAndLog('info', "File exists: {0}".format(filename))
                         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
                 print 'Getting remote filesize...'
@@ -307,7 +308,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         while flag:
             print 'Page ', page
             set_console_title("MemberId: " + str(member_id) + " Page: " + str(page))
-            ## Try to get the member page
+            # Try to get the member page
             while True:
                 try:
                     (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, user_dir)
