@@ -17,6 +17,11 @@ import codecs
 
 from BeautifulSoup import BeautifulSoup
 
+if os.name == 'nt':
+    # enable unicode support on windows console.
+    import win_unicode_console
+    win_unicode_console.enable()
+
 import PixivConstant
 import PixivConfig
 import PixivDBManager
@@ -53,7 +58,7 @@ __log__ = PixivHelper.GetLogger()
 __errorList = list()
 __blacklistMembers = list()
 
-## http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
+# http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
 
@@ -71,7 +76,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if not overwrite and not __config__.alwaysCheckFileSize:
                     print 'Checking local filename...',
                     if os.path.exists(filename) and os.path.isfile(filename):
-                        PixivHelper.printAndLog('info', "File exists: {0}".format(filename))
+                        PixivHelper.printAndLog('info', "File exists: {0}".format(filename.encode('utf-8')))
                         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
                 print 'Getting remote filesize...'

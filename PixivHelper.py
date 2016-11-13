@@ -675,7 +675,7 @@ def ParseDateTime(worksDate, dateFormat):
         try:
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
         except ValueError as ve:
-            PixivHelper.GetLogger().exception(
+            GetLogger().exception(
                 'Error when parsing datetime: {0} using date format {2}'.format(worksDate, str(dateFormat)),
                 ve)
             raise
@@ -685,7 +685,7 @@ def ParseDateTime(worksDate, dateFormat):
             try:
                 worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
             except ValueError as ve:
-                PixivHelper.GetLogger().exception(
+                GetLogger().exception(
                     'Error when parsing datetime: {0}'.format(worksDate), ve)
                 worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
