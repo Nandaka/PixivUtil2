@@ -1,5 +1,6 @@
 20161113
 - Fix Issue #168: Fix referer for avatar image download.
+- Implement whitecube search tag mode.
 
 20161012
 - Fix Issue #152: fix UnboundLocalError for image_id.
