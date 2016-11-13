@@ -311,7 +311,7 @@ def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, t
     filename = ''
     if filenameFormat.find(os.sep) == -1:
         filenameFormat = os.sep + filenameFormat
-    filenameFormat = filenameFormat.split(os.sep)[0]
+    filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
     image = PixivModel.PixivImage(parent=artistPage)
     filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit,
                             fileUrl=artistPage.artistAvatar, appendExtension=False)
