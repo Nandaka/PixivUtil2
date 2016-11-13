@@ -490,55 +490,93 @@ def test():
         success = b.login(cfg.username, cfg.password)
 
     if success:
-        tags = "VOCALOID"
-        p = 1
-        wild_card=True
-        title_caption=False
-        start_date="2016-11-06"
-        end_date="2016-11-07"
-        member_id=None
-        oldest_first=True
-        start_page=1
-        (result, page) = b.getSearchTagPage(tags, p,
-                                            wild_card,
-                                            title_caption,
-                                            start_date,
-                                            end_date,
-                                            member_id,
-                                            oldest_first,
-                                            start_page)
-        result.PrintInfo()
+        def testSearchTags():
+            print "test search tags"
+            tags = "VOCALOID"
+            p = 1
+            wild_card=True
+            title_caption=False
+            start_date="2016-11-06"
+            end_date="2016-11-07"
+            member_id=None
+            oldest_first=True
+            start_page=1
+            (resultS, page) = b.getSearchTagPage(tags, p,
+                                                wild_card,
+                                                title_caption,
+                                                start_date,
+                                                end_date,
+                                                member_id,
+                                                oldest_first,
+                                                start_page)
+            resultS.PrintInfo()
+            assert(len(resultS.itemList) > 0)
 
-##        print ""
-##        (result, page) = b.getImagePage(59615212)
-##        print result.PrintInfo()
-##        print result.artist.PrintInfo()
-##
-##        print ""
-##        (result2, page2) = b.getImagePage(59628358)
-##        print result2.PrintInfo()
-##        print result2.artist.PrintInfo()
+        def testImage():
+            print "test image mode"
+            print ""
+            (result, page) = b.getImagePage(59615212)
+            print result.PrintInfo()
+            assert(len(result.imageTitle) > 0)
+            print result.artist.PrintInfo()
+            assert(len(result.artist.artistToken) > 0)
 
-##        print ""
-##        (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
-##        print result3.PrintInfo()
-##        print ""
-##        (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
-##        print result4.PrintInfo()
-##
-##        print ""
-##        (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
-##        print result5.PrintInfo()
-##        print ""
-##        (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
-##        print result6.PrintInfo()
-##        print ""
-##        (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
-##        if result6 is not None:
-##            print result6.PrintInfo()
-##        (result6, page6) = b.getMemberPage(1227869, page=11, bookmark=True, tags=None, user_dir='')
-##        if result6 is not None:
-##            print result6.PrintInfo()
+            print ""
+            (result2, page2) = b.getImagePage(59628358)
+            print result2.PrintInfo()
+            assert(len(result2.imageTitle) > 0)
+            print result2.artist.PrintInfo()
+            assert(len(result2.artist.artistToken) > 0)
+
+        def testMember():
+            print "Test member mode"
+            print ""
+            (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
+            print result3.PrintInfo()
+            assert(len(result3.artistToken) > 0)
+            assert(len(result3.imageList) > 0)
+            print ""
+            (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
+            print result4.PrintInfo()
+            assert(len(result4.artistToken) > 0)
+            assert(len(result4.imageList) > 0)
+            print ""
+            (result5, page5) = b.getMemberPage(4894, page=1, bookmark=False, tags=None, user_dir='')
+            print result5.PrintInfo()
+            assert(len(result5.artistToken) > 0)
+            assert(len(result5.imageList) > 0)
+            print ""
+            (result6, page6) = b.getMemberPage(4894, page=3, bookmark=False, tags=None, user_dir='')
+            print result6.PrintInfo()
+            assert(len(result6.artistToken) > 0)
+            assert(len(result6.imageList) > 0)
+
+        def testMemberBookmark():
+            print "Test member bookmarks mode"
+            print ""
+            (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
+            print result5.PrintInfo()
+            assert(len(result5.artistToken) > 0)
+            assert(len(result5.imageList) > 0)
+            print ""
+            (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
+            print result6.PrintInfo()
+            assert(len(result6.artistToken) > 0)
+            assert(len(result6.imageList) > 0)
+            print ""
+            (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
+            if result6 is not None:
+                print result6.PrintInfo()
+            (result6, page6) = b.getMemberPage(1227869, page=12, bookmark=True, tags=None, user_dir='')
+            if result6 is not None:
+                print result6.PrintInfo()
+                assert(len(result6.artistToken) > 0)
+                assert(len(result6.imageList) == 0)
+
+        ## testSearchTags()
+        ## testImage()
+        testMember()
+        ## testMemberBookmark()
 
     else:
         print "Invalid username or password"

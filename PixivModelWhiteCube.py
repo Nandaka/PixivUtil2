@@ -84,6 +84,11 @@ class PixivArtist(PixivModel.PixivArtist):
         else:
             self.isLastPage = False
 
+        if len(self.imageList) > 0:
+            self.haveImages = True
+        else:
+            self.haveImages = False
+
 
 class PixivImage(PixivModel.PixivImage):
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
