@@ -1,6 +1,9 @@
-20161113
+20161113b
 - Fix Issue #168: Fix referer for avatar image download.
 - Implement whitecube search tag mode.
+- Fix Issue #170: fix PixivHelper import.
+- Add call to use win_unicode_console, you need to set unicode-supported font in the windows console properties.
+- fix folder.jpg filename generator.
 
 20161012
 - Fix Issue #152: fix UnboundLocalError for image_id.
