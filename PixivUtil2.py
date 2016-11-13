@@ -746,36 +746,24 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         last_image_id = -1
         skipped_count = 0
 
-        start_offset = (page - 1) * 20
-        stop_offset = end_page * 20
+        offset = 20
+        if __br__._isWhitecube:
+            offset = 50
+        start_offset = (page - 1) * offset
+        stop_offset = end_page * offset
 
         PixivHelper.printAndLog('info', 'Searching for: (' + search_tags + ") " + tags)
         flag = True
         while flag:
-            url = PixivHelper.generateSearchTagUrl(tags, i, title_caption, wild_card, oldest_first,
-                                                   start_date, end_date, member_id, __config__.r18mode)
-
-            PixivHelper.printAndLog('info', 'Looping... for ' + url)
-            search_page = __br__.open(url)
-
-            parse_search_page = BeautifulSoup(search_page.read())
-
-            if __config__.dumpTagSearchPage and __config__.enableDump:
-                dump_filename = PixivHelper.dumpHtml(url + ".html", parse_search_page)
-                PixivHelper.printAndLog('info', "Dump tag search page to: " + dump_filename)
-
-            t = PixivTags()
-            l = list()
-            if not member_id is None:
-                l = t.parseMemberTags(parse_search_page)
-            else:
-                try:
-                    l = t.parseTags(parse_search_page)
-                except:
-                    PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", search_page.get_data())
-                    raise
-
-            if len(l) == 0:
+            (t, search_page) = __br__.getSearchTagPage(tags, i,
+                                                  wild_card,
+                                                  title_caption,
+                                                  start_date,
+                                                  end_date,
+                                                  member_id,
+                                                  oldest_first,
+                                                  page)
+            if len(t.itemList) == 0:
                 print 'No more images'
                 flag = False
             else:
@@ -833,8 +821,6 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
 
             i = i + 1
 
-            parse_search_page.decompose()
-            del parse_search_page
             del search_page
 
             if end_page != 0 and end_page < i:
@@ -1367,7 +1353,7 @@ def menu_download_by_tags(mode, opisvalid, args):
     else:
         tags = PixivHelper.uni_input('Tags: ')
         bookmark_count = raw_input('Bookmark Count: ') or None
-        wildcard = raw_input('Use Partial Match[y/n]: ') or 'n'
+        wildcard = raw_input('Use Partial Match (s_tag) [y/n]: ') or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
