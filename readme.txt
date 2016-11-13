@@ -13,6 +13,7 @@
   - imageio (https://github.com/3d0c/imagio)
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
+  - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
 
 ================================================================================
 = Capabilities:                                                                =
@@ -99,6 +100,11 @@ A.Usage:
         then delete the cookie value in config.ini and retry.
       - Check the value of r18mode in config.ini. Setting it to True will only 
         download R-18 images.        
+  Q7. The apps show square/question mark texts in the console output!
+      - This is because your windows is not to Japanese for the Regional Settings 
+        in control panel.
+      - Since 20161114+ version, you need to set the console font properties to
+        use font with unicode support (e.g. Arial Unicode, MS Gothic). 
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
