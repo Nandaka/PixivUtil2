@@ -172,3 +172,43 @@ class PixivImage(PixivModel.PixivImage):
     def ParseImages(self, page, mode=None, _br=None):
         pass
 
+class PixivTags(PixivModel.PixivTags):
+    __re_imageItemClass = re.compile(r"item-container _work-item-container.*")
+
+    def parseTags(self, page, query):
+        payload = json.loads(page)
+        self.query = query
+
+        # check error
+        if payload["error"] == True:
+            raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+
+        # parse image information
+        parsed = BeautifulSoup(payload["body"]["html"])
+        self.itemList = list()
+        images = parsed.findAll("div", attrs={"class": self.__re_imageItemClass})
+        for item in images:
+            thumbnail_container = item.find("div", attrs={"class":"thumbnail-container"})
+            image_details = thumbnail_container.find("a", attrs={"class":"_work-modal-target user-activity"})
+            image_id = image_details["data-work-id"]
+
+            # like count
+            status_container = thumbnail_container.find("div", attrs={"class":"status-container"})
+            bookmarkCount = status_container.text
+
+            imageResponse = 0
+            self.itemList.append(PixivModel.PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+
+        if len(self.itemList) > 0:
+            self.haveImage = True
+        else:
+            self.haveImage = False
+
+        # search page info
+        self.availableImages = int(payload["body"]["total"])
+        if len(payload["body"]["next_url"]) > 0:
+            self.isLastPage = False
+        else:
+            self.isLastPage = True
+
+        return self.itemList

@@ -596,12 +596,14 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     else:
         if title_caption:
             url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
+            print u"Using Title Match (s_tc)"
         else:
             if wild_card:
                 url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print u"Using Partial Match (search.php)"
+                print u"Using Partial Match (s_tag)"
             else:
                 url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
+                print u"Using Full Match (s_tag_full)"
 
     if r18mode:
         url = url + '&r18=1'

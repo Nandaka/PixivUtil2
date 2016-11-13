@@ -368,6 +368,91 @@ class PixivBrowser(mechanize.Browser):
         return (artist, response)
 
 
+    def getSearchTagPage(self, tags, i,
+                         wild_card=True,
+                         title_caption=False,
+                         start_date=None,
+                         end_date=None,
+                         member_id=None,
+                         oldest_first=False,
+                         start_page=1):
+        response = None
+        result = None
+
+        if self._isWhitecube:
+            if member_id is None:
+                # from search page:
+                # https://www.pixiv.net/rpc/whitecube/index.php?order=date&adult_mode=include&q=vocaloid&p=0&type=&mode=whitecube_search&s_mode=s_tag&scd=&size=&ratio=&like=&tools=&tt=4e2cdee233f1156231ee99da1e51a83c
+                url = "https://www.pixiv.net/rpc/whitecube/index.php?q={0}".format(tags)
+                url = url + "&adult_mode={0}".format("include")
+                url = url + "&mode={0}".format("whitecube_search")
+
+                # date ordering
+                order = "date_d"
+                if oldest_first:
+                    order = "date"
+                url = url + "&order={0}".format(order)
+
+                # search mode
+                s_mode = "s_tag_full"
+                if wild_card:
+                    s_mode = "s_tag"
+                elif title_caption:
+                    s_mode ="s_tc"
+                url = url + "&s_mode={0}".format(s_mode)
+
+                # start/end date
+                if start_date is not None:
+                    url = url + "&scd={0}".format(start_date)
+                if end_date is not None:
+                    url = url + "&ecd={0}".format(end_date)
+
+                url = url + "&p={0}".format(i)
+                url = url + "&start_page={0}".format(start_page)
+                url = url + "&tt={0}".format(self._whitecubeToken)
+
+                PixivHelper.printAndLog('info', 'Looping for {0} ...'.format(url))
+                response = self.open(url).read()
+                PixivHelper.GetLogger().debug(response);
+                result = PixivModelWhiteCube.PixivTags()
+                result.parseTags(response, tags)
+            else:
+                # from member id search by tags
+                print "Not supported yet"
+        else:
+            url = PixivHelper.generateSearchTagUrl(tags, i,
+                                                   title_caption,
+                                                   wild_card,
+                                                   oldest_first,
+                                                   start_date,
+                                                   end_date,
+                                                   member_id,
+                                                   self._config.r18mode)
+
+            PixivHelper.printAndLog('info', 'Looping... for ' + url)
+            response = self.open(url).read()
+            parse_search_page = BeautifulSoup(response)
+
+            if self._config.dumpTagSearchPage and self._config.enableDump:
+                dump_filename = PixivHelper.dumpHtml(url + ".html", parse_search_page)
+                PixivHelper.printAndLog('info', "Dump tag search page to: " + dump_filename)
+
+            result = PixivModel.PixivTags()
+            if not member_id is None:
+                result.parseMemberTags(parse_search_page, member_id, tags)
+            else:
+                try:
+                    result.parseTags(parse_search_page, tags)
+                except:
+                    PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", search_page.get_data())
+                    raise
+
+            parse_search_page.decompose()
+            del parse_search_page
+
+        return (result, response)
+
+
 def getBrowser(config = None, cookieJar = None):
     global defaultCookieJar
     global defaultConfig
@@ -405,6 +490,26 @@ def test():
         success = b.login(cfg.username, cfg.password)
 
     if success:
+        tags = "VOCALOID"
+        p = 1
+        wild_card=True
+        title_caption=False
+        start_date="2016-11-06"
+        end_date="2016-11-07"
+        member_id=None
+        oldest_first=True
+        start_page=1
+        (result, page) = b.getSearchTagPage(tags, p,
+                                            wild_card,
+                                            title_caption,
+                                            start_date,
+                                            end_date,
+                                            member_id,
+                                            oldest_first,
+                                            start_page)
+        result.PrintInfo()
+
+##        print ""
 ##        (result, page) = b.getImagePage(59615212)
 ##        print result.PrintInfo()
 ##        print result.artist.PrintInfo()
@@ -414,26 +519,26 @@ def test():
 ##        print result2.PrintInfo()
 ##        print result2.artist.PrintInfo()
 
-        print ""
-        (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
-        print result3.PrintInfo()
-        print ""
-        (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
-        print result4.PrintInfo()
-
-        print ""
-        (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
-        print result5.PrintInfo()
-        print ""
-        (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
-        print result6.PrintInfo()
-        print ""
-        (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
-        if result6 is not None:
-            print result6.PrintInfo()
-        (result6, page6) = b.getMemberPage(1227869, page=11, bookmark=True, tags=None, user_dir='')
-        if result6 is not None:
-            print result6.PrintInfo()
+##        print ""
+##        (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
+##        print result3.PrintInfo()
+##        print ""
+##        (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
+##        print result4.PrintInfo()
+##
+##        print ""
+##        (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
+##        print result5.PrintInfo()
+##        print ""
+##        (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
+##        print result6.PrintInfo()
+##        print ""
+##        (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
+##        if result6 is not None:
+##            print result6.PrintInfo()
+##        (result6, page6) = b.getMemberPage(1227869, page=11, bookmark=True, tags=None, user_dir='')
+##        if result6 is not None:
+##            print result6.PrintInfo()
 
     else:
         print "Invalid username or password"

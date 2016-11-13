@@ -815,6 +815,8 @@ class PixivTags:
     availableImages = 0
     __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
     __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
+    query = ""
+    memberId = 0
 
     def parseIgnoreSection(self, page, sectionName):
         ignore = list()
@@ -827,9 +829,10 @@ class PixivTags:
                     ignore.append(image_id)
         return ignore
 
-    def parseTags(self, page):
+    def parseTags(self, page, query=""):
         '''parse tags search page and return the image list with bookmarkCount and imageResponse'''
         self.itemList = list()
+        self.query = query
 
         ignore = list()
         # ignore showcase and popular-introduction
@@ -872,9 +875,11 @@ class PixivTags:
         self.availableImages = SharedParser.parseCountBadge(page)
         return self.itemList
 
-    def parseMemberTags(self, page):
+    def parseMemberTags(self, page, memberId, query=""):
         '''parse member tags search page and return the image list'''
         self.itemList = list()
+        self.memberId = memberId
+        self.query = query
 
         linkList = page.findAll('a')
         for link in linkList:
@@ -907,6 +912,18 @@ class PixivTags:
                 check = page.findAll(name='a', attrs={'class': 'button', 'rel': 'next'})
                 if len(check) > 0:
                     self.isLastPage = False
+
+    def PrintInfo(self):
+        PixivHelper.safePrint('Search Result')
+        if self.memberId > 0:
+            PixivHelper.safePrint('Member Id: {0}'.format(self.memberId))
+        PixivHelper.safePrint('Query: {0}'.format(self.query))
+        PixivHelper.safePrint('haveImage  : {0}'.format(self.haveImage))
+        PixivHelper.safePrint('urls  : {0}'.format(len(self.itemList)))
+        for item in self.itemList:
+            print "\tImage Id: {0}\tFav Count:{1}".format(item.imageId, item.bookmarkCount)
+        PixivHelper.safePrint('total : {0}'.format(self.availableImages))
+        PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
     @staticmethod
     def parseTagsList(filename):
