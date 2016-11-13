@@ -676,7 +676,7 @@ def ParseDateTime(worksDate, dateFormat):
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
         except ValueError as ve:
             GetLogger().exception(
-                'Error when parsing datetime: {0} using date format {2}'.format(worksDate, str(dateFormat)),
+                'Error when parsing datetime: {0} using date format {1}'.format(worksDate, str(dateFormat)),
                 ve)
             raise
     else:
