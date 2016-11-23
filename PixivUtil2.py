@@ -10,7 +10,6 @@ import gc
 import time
 import datetime
 import urllib2
-import urllib
 import getpass
 import httplib
 import codecs
@@ -294,7 +293,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
 
     __config__.loadConfig(path=configfile)
     list_page = None
-    member_url = ""
 
     # calculate the offset for display properties
     offset = 20
@@ -739,13 +737,13 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
-        search_tags = decode_tags(tags)
+        search_tags = PixivHelper.decode_tags(tags)
 
         if use_tags_as_dir:
             print "Save to each directory using query tags."
             __config__.rootDirectory += os.sep + PixivHelper.sanitizeFilename(search_tags)
 
-        tags = encode_tags(tags)
+        tags = PixivHelper.encode_tags(tags)
 
         i = page
         images = 1
@@ -862,42 +860,11 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         try:
             if search_page is not None:
                 dump_filename = 'Error page for search tags ' + tags + '.html'
-                PixivHelper.dumpHtml(dump_filename, search_page.get_data())
+                PixivHelper.dumpHtml(dump_filename, search_page)
                 PixivHelper.printAndLog('error', "Dumping html to: " + dump_filename)
         except:
             PixivHelper.printAndLog('error', 'Cannot dump page for search tags:' + search_tags)
         raise
-
-
-def encode_tags(tags):
-    if not tags.startswith("%"):
-        try:
-            # Encode the tags
-            tags = tags.encode('utf-8')
-            tags = urllib.quote_plus(tags)
-        except UnicodeDecodeError:
-            try:
-                # from command prompt
-                tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
-            except UnicodeDecodeError:
-                PixivHelper.printAndLog('error',
-                                        'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
-                __log__.exception('decodeTags()')
-    return tags
-
-
-def decode_tags(tags):
-    # decode tags.
-    try:
-        if tags.startswith("%"):
-            search_tags = PixivHelper.toUnicode(urllib.unquote_plus(tags))
-        else:
-            search_tags = PixivHelper.toUnicode(tags)
-    except UnicodeDecodeError:
-        # From command prompt
-        search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
-        search_tags = PixivHelper.toUnicode(search_tags)
-    return search_tags
 
 
 def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False, bookmark_count = None):
@@ -962,7 +929,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
         if hide:
             url = url + "&rest=hide"
         if tag is not None and len(tag) > 0:
-            url = url + '&tag=' + encode_tags(tag)
+            url = url + '&tag=' + PixivHelper.encode_tags(tag)
 
         PixivHelper.printAndLog('info', "Importing user's bookmarked image from page " + str(i))
         PixivHelper.printAndLog('info', "Source URL: "+ url)
@@ -1884,4 +1851,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -2,7 +2,6 @@
 # pylint: disable=I0011, C, C0302
 import re
 import json
-from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
 import PixivModel
@@ -41,7 +40,7 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.artistId = int(artist_link['data-user_id'])
 
                 artist_icon = artist_container.find(attrs={'class': re.compile(r"_user-icon.*")})
-                self.artistAvatar = re.findall("background-image:url\((.*)\)", artist_icon["style"])[0]
+                self.artistAvatar = re.findall(r"background-image:url\((.*)\)", artist_icon["style"])[0]
 
                 self.artistName = artist_container.find("div", attrs={'class':'user-name'}).text
                 self.artistToken = self.artistName
@@ -180,7 +179,7 @@ class PixivImage(PixivModel.PixivImage):
 class PixivTags(PixivModel.PixivTags):
     __re_imageItemClass = re.compile(r"item-container _work-item-container.*")
 
-    def parseTags(self, page, query):
+    def parseTags(self, page, query=""):
         payload = json.loads(page)
         self.query = query
 

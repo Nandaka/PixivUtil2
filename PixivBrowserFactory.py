@@ -16,7 +16,6 @@ import json
 
 import PixivHelper
 from PixivException import PixivException
-import PixivConstant
 import PixivModelWhiteCube
 import PixivModel
 
@@ -24,6 +23,8 @@ defaultCookieJar = None
 defaultConfig = None
 _browser = None
 
+
+# pylint: disable=E1101
 class PixivBrowser(mechanize.Browser):
     _config = None
     _isWhitecube = False
@@ -264,7 +265,7 @@ class PixivBrowser(mechanize.Browser):
         if self._isWhitecube:
             url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(imageId, self._whitecubeToken)
             response = self.open(url).read()
-            PixivHelper.GetLogger().debug(response);
+            PixivHelper.GetLogger().debug(response)
             image = PixivModelWhiteCube.PixivImage(imageId,
                                                    response,
                                                    parent,
@@ -346,7 +347,7 @@ class PixivBrowser(mechanize.Browser):
 
             if url is not None:
                 response = self.open(url).read()
-                PixivHelper.GetLogger().debug(response);
+                PixivHelper.GetLogger().debug(response)
                 artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
                 self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
@@ -354,7 +355,7 @@ class PixivBrowser(mechanize.Browser):
             if bookmark:
                 member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
                 if tags is not None:
-                    tags = encode_tags(tags)
+                    tags = PixivHelper.encode_tags(tags)
                     member_url = member_url + "&tag=" + tags
             else:
                 member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
@@ -413,7 +414,7 @@ class PixivBrowser(mechanize.Browser):
 
                 PixivHelper.printAndLog('info', 'Looping for {0} ...'.format(url))
                 response = self.open(url).read()
-                PixivHelper.GetLogger().debug(response);
+                PixivHelper.GetLogger().debug(response)
                 result = PixivModelWhiteCube.PixivTags()
                 result.parseTags(response, tags)
             else:
@@ -444,7 +445,7 @@ class PixivBrowser(mechanize.Browser):
                 try:
                     result.parseTags(parse_search_page, tags)
                 except:
-                    PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", search_page.get_data())
+                    PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", response)
                     raise
 
             parse_search_page.decompose()
@@ -478,6 +479,7 @@ def getExistingBrowser():
     return _browser
 
 
+# pylint: disable=W0612
 def test():
     from PixivConfig import PixivConfig
     cfg = PixivConfig()

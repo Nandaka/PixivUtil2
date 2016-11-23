@@ -39,4 +39,3 @@ class PixivException(Exception):
 
     def __str__(self):
         return str(self.errorCode) + " " + repr(self.value)
-
