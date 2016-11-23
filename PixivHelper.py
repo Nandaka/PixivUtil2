@@ -19,6 +19,7 @@ import shutil
 import tempfile
 from datetime import datetime, date
 import traceback
+import urllib
 
 Logger = None
 _config = None
@@ -423,7 +424,7 @@ def clear_all():
     for var in all_vars:
         del globals()[var]
 
-
+# pylint: disable=W0612
 def unescape_charref(data, encoding):
     ''' Replace default mechanize method in _html.py'''
     try:
@@ -693,3 +694,32 @@ def ParseDateTime(worksDate, dateFormat):
             worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
 
     return worksDateDateTime
+
+
+def encode_tags(tags):
+    if not tags.startswith("%"):
+        try:
+            # Encode the tags
+            tags = tags.encode('utf-8')
+            tags = urllib.quote_plus(tags)
+        except UnicodeDecodeError:
+            try:
+                # from command prompt
+                tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
+            except UnicodeDecodeError:
+                printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
+    return tags
+
+
+def decode_tags(tags):
+    # decode tags.
+    try:
+        if tags.startswith("%"):
+            search_tags = toUnicode(urllib.unquote_plus(tags))
+        else:
+            search_tags = toUnicode(tags)
+    except UnicodeDecodeError:
+        # From command prompt
+        search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
+        search_tags = toUnicode(search_tags)
+    return search_tags

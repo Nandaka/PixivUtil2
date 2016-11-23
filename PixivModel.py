@@ -63,7 +63,7 @@ class PixivArtist:
             ## check if the last page
             self.CheckLastPage(page)
 
-    def ParseInfo(self, page, fromImage=False):
+    def ParseInfo(self, page, fromImage=False, bookmark=False):
         avatarBox = page.find(attrs={'class': '_unit profile-unit'})
         if avatarBox is not None:
             temp = str(avatarBox.find('a')['href'])
@@ -499,8 +499,8 @@ class PixivImage:
 
     def ParseMangaImagesNew(self, page, _br):
         urls = []
-        mangaSection = page.find("section", attrs={'class': 'manga'})
-        links = mangaSection.findAll('a')
+        # mangaSection = page.find("section", attrs={'class': 'manga'})
+        # links = mangaSection.findAll('a')
         # pattern /member_illust.php?mode=manga_big&illust_id=46279245&page=0
         if _br is None:
             import PixivBrowserFactory
@@ -1018,7 +1018,7 @@ class SharedParser:
         totalImages = 0
         count_badge_span = page.find('span', attrs={'class':'count-badge'})
         if count_badge_span is not None:
-            tempCount = re.findall('\d+', count_badge_span.string)
+            tempCount = re.findall(r'\d+', count_badge_span.string)
             if tempCount > 0:
                 totalImages = int(tempCount[0])
         return totalImages
