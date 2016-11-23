@@ -516,38 +516,47 @@ def test():
 
         def testImage():
             print "test image mode"
-            print ""
+            print ">>"
             (result, page) = b.getImagePage(59615212)
             print result.PrintInfo()
             assert(len(result.imageTitle) > 0)
             print result.artist.PrintInfo()
             assert(len(result.artist.artistToken) > 0)
 
-            print ""
+            print ">>"
             (result2, page2) = b.getImagePage(59628358)
             print result2.PrintInfo()
             assert(len(result2.imageTitle) > 0)
             print result2.artist.PrintInfo()
             assert(len(result2.artist.artistToken) > 0)
 
+            print ">> ugoira"
+            (result3, page3) = b.getImagePage(60070169)
+            print result3.PrintInfo()
+            assert(len(result3.imageTitle) > 0)
+            print result3.artist.PrintInfo()
+            print result3.ugoira_data
+            assert(len(result3.artist.artistToken) > 0)
+            assert(result3.imageMode == 'ugoira_view')
+
         def testMember():
             print "Test member mode"
-            print ""
+            print ">>"
             (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
             print result3.PrintInfo()
             assert(len(result3.artistToken) > 0)
             assert(len(result3.imageList) > 0)
-            print ""
+            print ">>"
             (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
             print result4.PrintInfo()
             assert(len(result4.artistToken) > 0)
             assert(len(result4.imageList) > 0)
-            print ""
+            print ">>"
             (result5, page5) = b.getMemberPage(4894, page=1, bookmark=False, tags=None, user_dir='')
             print result5.PrintInfo()
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
-            print ""
+            print ">>"
             (result6, page6) = b.getMemberPage(4894, page=3, bookmark=False, tags=None, user_dir='')
             print result6.PrintInfo()
             assert(len(result6.artistToken) > 0)
@@ -555,17 +564,17 @@ def test():
 
         def testMemberBookmark():
             print "Test member bookmarks mode"
-            print ""
+            print ">>"
             (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
             print result5.PrintInfo()
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
-            print ""
+            print ">>"
             (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
             print result6.PrintInfo()
             assert(len(result6.artistToken) > 0)
             assert(len(result6.imageList) > 0)
-            print ""
+            print ">>"
             (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
             if result6 is not None:
                 print result6.PrintInfo()
@@ -576,8 +585,8 @@ def test():
                 assert(len(result6.imageList) == 0)
 
         ## testSearchTags()
-        ## testImage()
-        testMember()
+        testImage()
+        ## testMember()
         ## testMemberBookmark()
 
     else:

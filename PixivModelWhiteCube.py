@@ -2,6 +2,7 @@
 # pylint: disable=I0011, C, C0302
 import re
 import json
+from collections import OrderedDict
 from BeautifulSoup import BeautifulSoup
 
 import PixivModel
@@ -20,6 +21,9 @@ class PixivArtist(PixivModel.PixivArtist):
             # detect if image count != 0
             if not fromImage:
                 self.ParseImages(payload)
+            else:
+                self.isLastPage = True
+                self.haveImages = True
 
             # parse artist info
             self.ParseInfo(payload, fromImage)
@@ -78,15 +82,13 @@ class PixivArtist(PixivModel.PixivArtist):
             image_id = int(image_id_illust.replace("illust:", ""))
             self.imageList.append(image_id)
 
-        if page["body"]["next_url"] == None:
-            self.isLastPage = True
-        else:
+        self.isLastPage = True
+        if page["body"]["next_url"] is not None:
             self.isLastPage = False
 
+        self.haveImages = False
         if len(self.imageList) > 0:
             self.haveImages = True
-        else:
-            self.haveImages = False
 
 
 class PixivImage(PixivModel.PixivImage):
@@ -123,15 +125,23 @@ class PixivImage(PixivModel.PixivImage):
     def ParseInfo(self, page):
         self.imageUrls = list()
         images = page.findAll("div", attrs={"class":"illust-zoom-in thumbnail-container"})
-        for image in images:
-            url = image["data-original-src"]
-            self.imageUrls.append(url)
 
-        if len(self.imageUrls) == 1:
-            self.imageMode = "big"
-            # TODO: handle ugoira
-        elif len(self.imageUrls) > 1:
-            self.imageMode = "manga"
+        if len(images) > 0:
+            for image in images:
+                url = image["data-original-src"]
+                self.imageUrls.append(url)
+
+            self.imageCount = len(self.imageUrls)
+            if self.imageCount == 1:
+                self.imageMode = "big"
+            elif self.imageCount > 1:
+                self.imageMode = "manga"
+        else:
+            # ugoira
+            canvas = page.find("div", attrs={"class":"ugoira player-container"})
+            self.imageMode = "ugoira_view"
+            url = self.ParseUgoira(canvas["data-ugoira-meta"])
+            self.imageUrls.append(url)
 
         # title/caption
         self.imageTitle = page.findAll("div", attrs={"class":"title-container"})[0].text
@@ -143,7 +153,7 @@ class PixivImage(PixivModel.PixivImage):
         self.jd_rtv = int(page.find(attrs={'class': 'react-count'}).text)
         # like count
         # react-count _clickable illust-bookmark-count-59521621 count like-count
-        self.jd_rtc = int(page.find(attrs={'class': "react-count _clickable illust-bookmark-count-{0} count like-count".format(self.imageId)}).text)
+        self.jd_rtc = int(page.find(attrs={'class': re.compile(r"react-count _clickable illust-bookmark-count-{0} count like-count.*".format(self.imageId))}).text)
         # not available
         self.jd_rtt = self.jd_rtc
 
@@ -175,6 +185,28 @@ class PixivImage(PixivModel.PixivImage):
 
     def ParseImages(self, page, mode=None, _br=None):
         pass
+
+    def ParseUgoira(self, page):
+        # preserve the order
+        js = json.loads(page, object_pairs_hook=OrderedDict)
+        self.imageCount = 1
+
+        # modify the structure to old version
+        temp = js["frames"]
+        js["frames"] = list()
+        for key, value in temp.items():
+            js["frames"].append(value)
+
+        # convert to full screen url
+        # ugoira600x600.zip ==> ugoira1920x1080.zip
+        # js["src_low"] = js["src"]
+        js["src"] = js["src"].replace("ugoira600x600.zip", "ugoira1920x1080.zip")
+
+        # need to be minified
+        self.ugoira_data = json.dumps(js, separators=(',',':'))#).replace("/", r"\/")
+
+        return js["src"]
+
 
 class PixivTags(PixivModel.PixivTags):
     __re_imageItemClass = re.compile(r"item-container _work-item-container.*")
