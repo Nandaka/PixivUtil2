@@ -314,7 +314,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             # Try to get the member page
             while True:
                 try:
-                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, user_dir)
+                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags)
                     break
                 except PixivException as ex:
                     ERROR_CODE = ex.errorCode

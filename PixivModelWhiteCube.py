@@ -119,6 +119,11 @@ class PixivImage(PixivModel.PixivImage):
                 artistId = int(artist_link['data-user_id'])
                 self.artist = PixivArtist(artistId, page, fromImage=True)
 
+            if fromBookmark and self.originalArtist is None:
+                self.originalArtist = PixivArtist(page=page, fromImage=True)
+            else:
+                self.originalArtist = self.artist
+
             # parse image
             self.ParseInfo(parsed)
 
@@ -163,7 +168,7 @@ class PixivImage(PixivModel.PixivImage):
         tagContainer = page.find("div", attrs={"class":"_tag-container tags illust-{0}".format(self.imageId)})
         # special node for R-18
         r18Tag = page.findAll(attrs={'class': 'tag r-18'})
-        if r18Tag is not None:
+        if r18Tag is not None and len(r18Tag) > 0:
             self.imageTags.append("R-18")
         tagLinks = tagContainer.findAll("a", attrs={"class": re.compile(r"tag.*")})
         for link in tagLinks:
@@ -210,6 +215,17 @@ class PixivImage(PixivModel.PixivImage):
 
 class PixivTags(PixivModel.PixivTags):
     __re_imageItemClass = re.compile(r"item-container _work-item-container.*")
+
+    def parseMemberTags(self, artist, memberId, query=""):
+        '''process artist result and return the image list'''
+        self.itemList = list()
+        self.memberId = memberId
+        self.query = query
+        self.haveImage = artist.haveImages
+        self.isLastPage = artist.isLastPage
+        for image in artist.imageList:
+            self.itemList.append(PixivModel.PixivTagsItem(int(image), 0, 0))
+
 
     def parseTags(self, page, query=""):
         payload = json.loads(page)

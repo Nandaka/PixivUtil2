@@ -274,7 +274,10 @@ class PixivBrowser(mechanize.Browser):
                                                    image_response_count,
                                                    dateFormat=self._config.dateFormat)
             # overwrite artist info
-            self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+            if fromBookmark:
+                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+            else:
+                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
             url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
             response = self.open(url).read()
@@ -306,43 +309,55 @@ class PixivBrowser(mechanize.Browser):
         artist.ParseInfo(info, False, bookmark=bookmark)
 
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, user_dir=''):
+    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
+        response = None
+        PixivHelper.printAndLog('info', 'Getting Bookmark Url for page {0}...'.format(page))
+        # iterate to get next page url
+        start = 1
+        last_member_bookmark_next_url = None
+        while start <= page:
+            if start == 1:
+                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
+                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
+            else:
+                url = last_member_bookmark_next_url
+
+            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
+            if self._cache.has_key(url):
+                response = self._cache[url]
+            else:
+                response = self.open(url).read()
+                self._cache[url] = response
+
+            payload = json.loads(response)
+            last_member_bookmark_next_url = payload["body"]["next_url"]
+            if last_member_bookmark_next_url is None and start  < page:
+                PixivHelper.printAndLog('info', 'No more images for {0} bookmarks'.format(member_id))
+                url = None
+                break
+
+            start = start + 1
+        PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
+        return (url, response)
+
+
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
         response = None
+        if tags is not None:
+            tags = PixivHelper.encode_tags(tags)
 
         if self._isWhitecube:
             limit = 50
             if bookmark:
-                PixivHelper.printAndLog('info', 'Getting Bookmark Url for page {0}...'.format(page))
-                # iterate to get next page url
-                start = 1
-                last_member_bookmark_next_url = None
-                while start <= page:
-                    if start == 1:
-                        url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}'
-                        url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken)
-                    else:
-                        url = last_member_bookmark_next_url
-
-                    # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
-                    if self._cache.has_key(url):
-                        response = self._cache[url]
-                    else:
-                        response = self.open(url).read()
-                        self._cache[url] = response
-
-                    payload = json.loads(response)
-                    last_member_bookmark_next_url = payload["body"]["next_url"]
-                    if last_member_bookmark_next_url is None and start  < page:
-                        PixivHelper.printAndLog('info', 'No more images for {0} bookmarks'.format(member_id))
-                        url = None
-                        break
-
-                    start = start + 1
-                PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
+                (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
             else:
                 offset = (page - 1) * limit
                 url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
+                if tags is not None:
+                    url = url + '&tag={0}'.format(tags)
+                elif self._config.r18mode:
+                    url = url + '&tag=R-18'
                 PixivHelper.printAndLog('info', 'Member Url: ' + url)
 
             if url is not None:
@@ -355,7 +370,6 @@ class PixivBrowser(mechanize.Browser):
             if bookmark:
                 member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
                 if tags is not None:
-                    tags = PixivHelper.encode_tags(tags)
                     member_url = member_url + "&tag=" + tags
             else:
                 member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
@@ -419,7 +433,10 @@ class PixivBrowser(mechanize.Browser):
                 result.parseTags(response, tags)
             else:
                 # from member id search by tags
-                print "Not supported yet"
+                (artist, response) = self.getMemberPage(member_id, i, False, tags)
+                # convert to PixivTags
+                result = PixivModelWhiteCube.PixivTags()
+                result.parseMemberTags(artist, member_id, tags)
         else:
             url = PixivHelper.generateSearchTagUrl(tags, i,
                                                    title_caption,
@@ -517,11 +534,13 @@ def test():
         def testImage():
             print "test image mode"
             print ">>"
-            (result, page) = b.getImagePage(59615212)
+            (result, page) = b.getImagePage(60040975)
             print result.PrintInfo()
             assert(len(result.imageTitle) > 0)
             print result.artist.PrintInfo()
             assert(len(result.artist.artistToken) > 0)
+            assert(not("R-18" in result.imageTags))
+            assert(result.worksTools.find("CLIP STUDIO PAINT") > -1)
 
             print ">>"
             (result2, page2) = b.getImagePage(59628358)
@@ -529,6 +548,7 @@ def test():
             assert(len(result2.imageTitle) > 0)
             print result2.artist.PrintInfo()
             assert(len(result2.artist.artistToken) > 0)
+            assert("R-18" in result2.imageTags)
 
             print ">> ugoira"
             (result3, page3) = b.getImagePage(60070169)
@@ -539,25 +559,26 @@ def test():
             assert(len(result3.artist.artistToken) > 0)
             assert(result3.imageMode == 'ugoira_view')
 
+
         def testMember():
             print "Test member mode"
             print ">>"
-            (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None, user_dir='')
+            (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None)
             print result3.PrintInfo()
             assert(len(result3.artistToken) > 0)
             assert(len(result3.imageList) > 0)
             print ">>"
-            (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None, user_dir='')
+            (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None)
             print result4.PrintInfo()
             assert(len(result4.artistToken) > 0)
             assert(len(result4.imageList) > 0)
             print ">>"
-            (result5, page5) = b.getMemberPage(4894, page=1, bookmark=False, tags=None, user_dir='')
+            (result5, page5) = b.getMemberPage(4894, page=1, bookmark=False, tags=None)
             print result5.PrintInfo()
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
             print ">>"
-            (result6, page6) = b.getMemberPage(4894, page=3, bookmark=False, tags=None, user_dir='')
+            (result6, page6) = b.getMemberPage(4894, page=3, bookmark=False, tags=None)
             print result6.PrintInfo()
             assert(len(result6.artistToken) > 0)
             assert(len(result6.imageList) > 0)
@@ -565,20 +586,20 @@ def test():
         def testMemberBookmark():
             print "Test member bookmarks mode"
             print ">>"
-            (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None, user_dir='')
+            (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None)
             print result5.PrintInfo()
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
             print ">>"
-            (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None, user_dir='')
+            (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None)
             print result6.PrintInfo()
             assert(len(result6.artistToken) > 0)
             assert(len(result6.imageList) > 0)
             print ">>"
-            (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None, user_dir='')
+            (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None)
             if result6 is not None:
                 print result6.PrintInfo()
-            (result6, page6) = b.getMemberPage(1227869, page=12, bookmark=True, tags=None, user_dir='')
+            (result6, page6) = b.getMemberPage(1227869, page=12, bookmark=True, tags=None)
             if result6 is not None:
                 print result6.PrintInfo()
                 assert(len(result6.artistToken) > 0)
