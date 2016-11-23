@@ -1,3 +1,8 @@
+20161124
+- Fix Issue #173: Option 11 for oldui and whitecube.
+- Update ugoira support for whitecube.
+- Update option 10 support for whitecube.
+
 20161113b
 - Fix Issue #168: Fix referer for avatar image download.
 - Implement whitecube search tag mode.
