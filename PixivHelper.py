@@ -142,7 +142,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
-    # formatted date/time, ex. %works_date_fmt{%Y-%m-%d}%
+    # formatted works date/time, ex. %works_date_fmt{%Y-%m-%d}%
     if nameFormat.find("%works_date_fmt") > -1:
         to_replace = re.findall("(%works_date_fmt{.*}%)", nameFormat)
         date_format = re.findall("{(.*)}", to_replace[0])
@@ -153,8 +153,13 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
     nameFormat = nameFormat.replace('%searchTags%', searchTags)
 
-    ## date
+    # date
     nameFormat = nameFormat.replace('%date%', date.today().strftime('%Y%m%d'))
+    # formatted date/time, ex. %date_fmt{%Y-%m-%d}%
+    if nameFormat.find("%date_fmt") > -1:
+        to_replace2 = re.findall("(%date_fmt{.*}%)", nameFormat)
+        date_format2 = re.findall("{(.*)}", to_replace2[0])
+        nameFormat = nameFormat.replace(to_replace2[0], date.today().strftime(date_format2[0]))
 
     ## get the page index & big mode if manga
     page_index = ''
