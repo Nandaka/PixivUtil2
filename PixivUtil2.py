@@ -92,7 +92,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     PixivHelper.printAndLog('info', "\tNo file size information!")
 
                 # check if existing file exists
-                if os.path.exists(filename) and os.path.isfile(filename):
+                if os.path.exists(filename) and os.path.isfile(filename) and not filename.endswith(".zip"):
                     old_size = os.path.getsize(filename)
                     checkResult = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
                     if checkResult != 1:
@@ -101,10 +101,18 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 # check for ugoira file
                 if filename.endswith(".zip"):
                     ugoName = filename[:-4] + ".ugoira"
+                    gifName = filename[:-4] + ".gif"
+                    apngName = filename[:-4] + ".png"
                     if os.path.exists(ugoName) and os.path.isfile(ugoName):
                         old_size = PixivHelper.getUgoiraSize(ugoName)
                         checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
                         if checkResult != 1:
+                            # try to convert existing file.
+                            if __config__.createGif and not os.path.exists(gifName):
+                                PixivHelper.ugoira2gif(ugoName, gifName)
+                            if __config__.createApng and not os.path.exists(apngName):
+                                PixivHelper.ugoira2apng(ugoName, apngName)
+
                             return checkResult
 
                 # check based on filename stored in DB using image id
@@ -122,6 +130,23 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         old_size = os.path.getsize(db_filename)
                         checkResult = PixivHelper.checkFileExists(overwrite, db_filename, file_size, old_size, backup_old_file)
                         if checkResult != 1:
+                            ugoName = None
+                            if db_filename.endswith(".zip"):
+                                ugoName = db_filename[:-4] + ".ugoira"
+                                gifName = db_filename[:-4] + ".gif"
+                                apngName = db_filename[:-4] + ".png"
+                            if db_filename.endswith(".ugoira"):
+                                ugoName = db_filename
+                                gifName = db_filename[:-7] + ".gif"
+                                apngName = db_filename[:-7] + ".png"
+
+                            if ugoName is not None and  os.path.exists(ugoName) and os.path.isfile(ugoName):
+                                # try to convert existing file.
+                                if __config__.createGif and not os.path.exists(gifName):
+                                    PixivHelper.ugoira2gif(ugoName, gifName)
+                                if __config__.createApng and not os.path.exists(apngName):
+                                    PixivHelper.ugoira2apng(ugoName, apngName)
+
                             return checkResult
 
 
@@ -680,10 +705,11 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         os.remove(filename)
 
                     if __config__.createGif:
-                        PixivHelper.printAndLog('info', 'processing ugoira...')
                         gif_filename = ugo_name[:-7]+".gif"
                         PixivHelper.ugoira2gif(ugo_name, gif_filename)
-                        PixivHelper.printAndLog('info', 'ugoira exported to: ' + gif_filename)
+                    if __config__.createApng:
+                        gif_filename = ugo_name[:-7]+".png"
+                        PixivHelper.ugoira2apng(ugo_name, gif_filename)
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)

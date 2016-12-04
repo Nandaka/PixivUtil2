@@ -20,6 +20,7 @@ import tempfile
 from datetime import datetime, date
 import traceback
 import urllib
+from apng import APNG
 
 Logger = None
 _config = None
@@ -668,7 +669,10 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
 
 
 def ugoira2gif(ugoira_file, exportname):
+    printAndLog('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
+    # imageio cannot handle utf-8 filename
+    temp_name = temp_folder + os.sep + "temp.gif"
 
     z = zipfile.ZipFile(ugoira_file)
     z.extractall(temp_folder)
@@ -680,14 +684,40 @@ def ugoira2gif(ugoira_file, exportname):
     durations = []
     images = []
     for info in anim_info["frames"]:
-        images.append(imageio.imread(temp_folder + "/" + info["file"]))
+        images.append(imageio.imread(temp_folder + os.sep + info["file"]))
         durations.append(float(info["delay"])/1000)
 
-    # imageio cannot handle utf-8 filename
-    temp_name = temp_folder + "temp.gif"
     kargs = { 'duration': durations }
     imageio.mimsave(temp_name, images, 'GIF', **kargs)
     shutil.move(temp_name, exportname)
+    printAndLog('info', 'ugoira exported to: ' + exportname)
+
+    shutil.rmtree(temp_folder)
+
+def ugoira2apng(ugoira_file, exportname):
+    printAndLog('info', 'processing ugoira to apng...')
+    temp_folder = tempfile.mkdtemp()
+    temp_name = temp_folder + os.sep + "temp.png"
+
+    z = zipfile.ZipFile(ugoira_file)
+    z.extractall(temp_folder)
+
+    filenames = os.listdir(temp_folder)
+    filenames.remove('animation.json')
+    anim_info =  json.load(open(temp_folder + '/animation.json'))
+
+    files = []
+    for info in anim_info["frames"]:
+        fImage = temp_folder + os.sep + info["file"]
+        delay = info["delay"]
+        files.append((fImage, delay))
+
+    im = APNG()
+    for fImage, delay in files:
+        im.append(fImage, delay=delay)
+    im.save(temp_name)
+    shutil.move(temp_name, exportname)
+    printAndLog('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
 
