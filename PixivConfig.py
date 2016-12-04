@@ -70,6 +70,7 @@ class PixivConfig:
     dbPath = ''
     createGif = False
     useBlacklistMembers = False
+    avatarNameFormat = ""
 
     # IrfanView
     createDownloadLists = False
@@ -455,6 +456,14 @@ class PixivConfig:
                 self.useBlacklistMembers = False
                 haveError = True
 
+            try:
+                self.avatarNameFormat = config.get('Settings','avatarNameFormat')
+                self.avatarNameFormat = PixivHelper.toUnicode(self.avatarNameFormat, encoding=sys.stdin.encoding)
+            except ValueError:
+                print "avatarNameFormat = "
+                self.avatarNameFormat = ""
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -507,6 +516,7 @@ class PixivConfig:
         config.add_section('Settings')
         config.set('Settings', 'filenameFormat', self.filenameFormat)
         config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
+        config.set('Settings', 'avatarNameFormat', self.avatarNameFormat)
         config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
@@ -606,6 +616,7 @@ class PixivConfig:
         print ' [Settings]'
         print ' - filename_format       =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
+        print ' - avatarNameFormat =', self.avatarNameFormat
         print ' - downloadListDirectory =', self.downloadListDirectory
         print ' - overwrite        =', self.overwrite
         print ' - useList          =', self.useList

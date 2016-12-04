@@ -307,45 +307,15 @@ uselist       ==> set to 'True' to parse list.txt.
                   and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-filenameformat
-==> The format for the filename, reserved/illegal character will be replaced
-    with underscore '_', repeated space will be trimmed to single space.
-    The filename (+full path) will be trimmed to the first 250 character
-    (Windows limitation).
-    -> %member_token%    ==> member token, doesn't change.
-    -> %member_id%       ==> member id, in number.
-    -> %image_id%        ==> image id, in number.
-    -> %title%           ==> image title, usually in japanese character.
-    -> %tags%            ==> image tags, usually in japanese character.
-    -> %artist%          ==> artist name, may change.
-    -> %works_date%      ==> works date, complete with time.
-    -> %works_date_only% ==> only the works date.
-    -> %works_res%       ==> image resolution, will be containing the page
-                              count if manga.
-    -> %works_tools%  ==> tools used for the image.
-    -> %R-18%         ==> Append R-18/R-18 based on image tag, can be used
-                              for creating directory by appending directory
-                              separator, e.g.: %R-18%\%image_id%.
-    -> %urlFilename%  ==> the actual filename stored in server without
-                              the file extensions.
-    -> %page_big%     ==> for manga mode, add big in the filename.
-    -> %page_index%   ==> for manga mode, add page number with 0-index.
-    -> %page_number%  ==> for manga mode, add page number with 1-index.
-    -> %bookmark%     ==> for bookmark mode, add 'Bookmarks' string.
-    -> %original_member_id%    ==> for bookmark mode, put original member id.
-    -> %original_member_token% ==> for bookmark mode, put original member token.
-    -> %original_artist%       ==> for bookmark mode, put original artist name.
-    -> %searchTags%   ==> for download by tags, put searched tags.
-    -> %date%         ==> current date in YYYYMMMDD format.
-    -> %bookmark_count% ==> Bookmark count, will have overhead except on
-                            download by tags.
-    -> %image_response_count%  ==> Image respose count, will have overhead
-			                       except on download by tags.
-    -> %works_date_fmt{<format>}% ==> works date using custom format.
-                                      Use Python string format notation, refer: https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
-                                      e.g. %works_date_fmt{%Y-%m-%d}%
-    -> %date_fmt{format}% ==> current date using custom format.
-                              similar with %works_date_fmt{<format>}%.
+filenameformat ==> The format for the filename, reserved/illegal character 
+                   will be replaced with underscore '_', repeated space will 
+				   be trimmed to single space.
+                   The filename (+full path) will be trimmed to the first 250 
+				   character (Windows limitation).
+				   Refer to Filename Format Syntax for available format.
+filenamemangaformat ==> Similar like filename format, but for manga pages.
+avatarNameFormat ==> Similar like filename format, but for avatar image.
+                     Not all format available.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
@@ -407,9 +377,71 @@ useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
 
-=================================================================================
-= list.txt Format                                                               =
-=================================================================================
+===============================================================================
+= Filename Format Syntax                                                      =
+===============================================================================
+Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
+-> %member_token%
+   Member token, doesn't change.
+-> %member_id%
+   Member id, in number.
+-> %artist%
+   Artist name, may change.
+-> %urlFilename%
+   The actual filename stored in server without the file extensions.   
+-> %date%
+   Current date in YYYYMMMDD format.
+-> %date_fmt{format}% 
+   Current date using custom format.
+   Use Python string format notation, refer: https://goo.gl/3UiMAb
+   e.g. %date_fmt{%Y-%m-%d}%
+   
+Available for filenameFormat and filenameMangaFormat:
+-> %image_id%
+   Image id, in number.
+-> %title%
+   Image title, usually in japanese character.
+-> %tags%
+   Image tags, usually in japanese character.
+-> %works_date%
+   Works date, complete with time.
+-> %works_date_only%
+   Only the works date.
+-> %works_date_fmt{<format>}%
+   works date using custom format.
+   Use Python string format notation, refer: https://goo.gl/3UiMAb
+   e.g. %works_date_fmt{%Y-%m-%d}%
+-> %works_res%
+   Image resolution, will be containing the page count if manga.
+-> %works_tools% 
+   Tools used for the image.
+-> %R-18%
+   Append R-18/R-18 based on image tag, can be used for creating directory 
+   by appending directory separator, e.g.: %R-18%\%image_id%.
+-> %page_big%
+   for manga mode, add big in the filename.
+-> %page_index%
+   for manga mode, add page number with 0-index.
+-> %page_number%
+   for manga mode, add page number with 1-index.
+-> %bookmark%
+   for bookmark mode, add 'Bookmarks' string.
+-> %original_member_id%
+   for bookmark mode, put original member id.
+-> %original_member_token%
+   for bookmark mode, put original member token.
+-> %original_artist%
+   for bookmark mode, put original artist name.
+-> %searchTags%
+   for download by tags, put searched tags.
+-> %bookmark_count%
+   Bookmark count, will have overhead except on download by tags.
+-> %image_response_count%
+   Image respose count, will have overhead except on download by tags.
+
+===============================================================================
+= list.txt Format                                                             =
+===============================================================================
 - This file should be build in the following way, white space will be trimmed,
   see example:
 

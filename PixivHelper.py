@@ -129,17 +129,20 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     if artistInfo == None:
         artistInfo = imageInfo.artist
 
-    ## Get the image extension
+    # Get the image extension
     fileUrl = os.path.basename(fileUrl)
     splittedUrl = fileUrl.split('.')
     imageExtension = splittedUrl[1]
     imageExtension = imageExtension.split('?')[0]
 
+    # artist related
     nameFormat = nameFormat.replace('%artist%', artistInfo.artistName.replace(os.sep, '_'))
-    nameFormat = nameFormat.replace('%title%', imageInfo.imageTitle.replace(os.sep, '_'))
-    nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%member_id%', str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
+
+    # image related
+    nameFormat = nameFormat.replace('%title%', imageInfo.imageTitle.replace(os.sep, '_'))
+    nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
     # formatted works date/time, ex. %works_date_fmt{%Y-%m-%d}%
@@ -161,7 +164,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         date_format2 = re.findall("{(.*)}", to_replace2[0])
         nameFormat = nameFormat.replace(to_replace2[0], date.today().strftime(date_format2[0]))
 
-    ## get the page index & big mode if manga
+    # get the page index & big mode if manga
     page_index = ''
     page_number = ''
     page_big = ''
@@ -218,7 +221,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     else:
         nameFormat = nameFormat.replace('%image_response_count%', '')
 
-    ## clean up double space
+    # clean up double space
     while nameFormat.find('  ') > -1:
         nameFormat = nameFormat.replace('  ', ' ')
 
@@ -313,15 +316,30 @@ def uni_input(message=''):
     return toUnicode(result, encoding=sys.stdin.encoding)
 
 
-def CreateAvatarFilename(filenameFormat, tagsSeparator, tagsLimit, artistPage, targetDir):
+def createAvatarFilename(artistPage, targetDir):
     filename = ''
-    if filenameFormat.find(os.sep) == -1:
-        filenameFormat = os.sep + filenameFormat
-    filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
     image = PixivModel.PixivImage(parent=artistPage)
-    filename = makeFilename(filenameFormat, image, tagsSeparator=tagsSeparator, tagsLimit=tagsLimit,
-                            fileUrl=artistPage.artistAvatar, appendExtension=False)
-    filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+    # Download avatar using custom name, refer issue #174
+    if len(_config.avatarNameFormat) > 0:
+        filenameFormat = _config.avatarNameFormat
+        filename = makeFilename(filenameFormat, image,
+                                tagsSeparator=_config.tagsSeparator,
+                                tagsLimit=_config.tagsLimit,
+                                fileUrl=artistPage.artistAvatar,
+                                appendExtension=True)
+        filename = sanitizeFilename(filename, targetDir)
+    else:
+        # or as folder.jpg
+        filenameFormat = _config.filenameFormat
+        if filenameFormat.find(os.sep) == -1:
+            filenameFormat = os.sep + filenameFormat
+        filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
+        filename = makeFilename(filenameFormat, image,
+                                tagsSeparator=_config.tagsSeparator,
+                                tagsLimit=_config.tagsLimit,
+                                fileUrl=artistPage.artistAvatar,
+                                appendExtension=False)
+        filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
     return filename
 
 
