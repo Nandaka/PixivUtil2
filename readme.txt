@@ -344,6 +344,8 @@ filenameformat
     -> %works_date_fmt{<format>}% ==> works date using custom format.
                                       Use Python string format notation, refer: https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
                                       e.g. %works_date_fmt{%Y-%m-%d}%
+    -> %date_fmt{format}% ==> current date using custom format.
+                              similar with %works_date_fmt{<format>}%.
 tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
