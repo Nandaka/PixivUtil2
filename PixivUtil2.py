@@ -346,15 +346,12 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             print 'Member Token :', artist.artistToken
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
-                # Download avatar as folder.jpg
-                filename_format = __config__.filenameFormat
                 if user_dir == '':
                     target_dir = __config__.rootDirectory
                 else:
                     target_dir = user_dir
 
-                avatar_filename = PixivHelper.CreateAvatarFilename(filename_format, __config__.tagsSeparator,
-                                                                   __config__.tagsLimit, artist, target_dir)
+                avatar_filename = PixivHelper.createAvatarFilename(artist, target_dir)
                 if not DEBUG_SKIP_PROCESS_IMAGE:
                     # hardcode the referer to pixiv main site
                     download_image(artist.artistAvatar, avatar_filename, "http://www.pixiv.net/", __config__.overwrite,
