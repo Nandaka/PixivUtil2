@@ -1,3 +1,9 @@
+20161205
+- Implement #149: APNG generation. Set createApng = True in config.ini to enable.
+- Implement #172: Modify option 4 to allow download by member id list and tag.
+- Implement #174: Allow custom avatar name format, refer to readme.txt for available format. Set blank to use default behaviour.
+- implement #177: Allow custom current date format, refer to readme.txt for formating syntax.
+
 20161124
 - Fix Issue #173: Option 11 for oldui and whitecube.
 - Update ugoira support for whitecube.
