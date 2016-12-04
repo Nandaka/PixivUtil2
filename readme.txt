@@ -186,7 +186,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                             (required: [y/n] for wildcard, start page, end page,
                              followed by tags)
                         4 - Download from list
-                            (optional: followed by path to list)
+                            (optional: followed by path to list and optional tag)
                         5 - Download from user bookmark
                             (optional: followed by [y/n] for private bookmark)
                         6 - Download from image bookmark

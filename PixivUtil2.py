@@ -218,12 +218,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
 
 ## Start of main processing logic
-def process_list(mode, list_file_name=None):
+def process_list(mode, list_file_name=None, tags=None):
     global ERROR_CODE
 
     result = None
     try:
-        ## Getting the list
+        # Getting the list
         if __config__.processFromDb:
             PixivHelper.printAndLog('info', 'Processing from database.')
             if __config__.dayLastUpdated == 0:
@@ -251,7 +251,7 @@ def process_list(mode, list_file_name=None):
             retry_count = 0
             while True:
                 try:
-                    process_member(mode, item.memberId, item.path)
+                    process_member(mode, item.memberId, item.path, tags=tags)
                     break
                 except KeyboardInterrupt:
                     raise
@@ -950,7 +950,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
 
 
 def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
-    """Get user/artists bookmark"""
+    """Get User's bookmarked artists """
     total_list = list()
     i = start_page
     while True:
@@ -1382,16 +1382,28 @@ def menu_download_from_list(mode, opisvalid, args):
     global __config__
 
     list_file_name = __config__.downloadListDirectory + os.sep + 'list.txt'
+    tags = None
     if opisvalid and op == '4' and len(args) > 0:
         test_file_name = __config__.downloadListDirectory + os.sep + args[0]
         if os.path.exists(test_file_name):
             list_file_name = test_file_name
+        if len(args) > 1:
+            tags = args[1]
+    else:
+        test_tags = PixivHelper.uni_input('Tag : ')
+        if len(test_tags) > 0:
+            tags = test_tags
 
-    process_list(mode, list_file_name)
+    if tags is not None:
+        PixivHelper.safePrint("Processing member id from {0} for tags: {1}".format(list_file_name, tags))
+    else:
+        PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
+
+    process_list(mode, list_file_name, tags)
 
 
 def menu_download_from_online_user_bookmark(mode, opisvalid, args):
-    __log__.info('User Bookmark mode.')
+    __log__.info('User Bookmarked Artist mode.')
     start_page = 1
     end_page = 0
     hide = 'n'
