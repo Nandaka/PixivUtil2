@@ -371,8 +371,9 @@ urlDumpFilename       ==> Define the dump filename, use python strftime() format
 dbPath		==> use different database.
 creategif       ==> Set to True to convert ugoira file to gif.
                     Required createUgoira = True.
-tempfolder      ==> Temporary folder used for converting ugoira to gif.
-                    Doesn't support unicode due to library limitation.
+createapng      ==> Set to True to convert ugoira file to animated png.
+                    Required createUgoira = True.
+					The generated png is not optimized due to library limitation.
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
