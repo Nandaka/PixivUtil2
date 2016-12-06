@@ -1,3 +1,6 @@
+20161207
+- Fix download by list.txt and tags for oldui.
+
 20161205
 - Implement #149: APNG generation. Set createApng = True in config.ini to enable.
 - Implement #172: Modify option 4 to allow download by member id list and tag.
