@@ -369,11 +369,12 @@ class PixivBrowser(mechanize.Browser):
         else:
             if bookmark:
                 member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
-                if tags is not None:
-                    member_url = member_url + "&tag=" + tags
             else:
                 member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
-            if self._config.r18mode and not bookmark:
+
+            if tags is not None:
+                member_url = member_url + "&tag=" + tags
+            elif self._config.r18mode and not bookmark:
                 member_url = member_url + '&tag=R-18'
                 PixivHelper.printAndLog('info', 'R-18 Mode only.')
             PixivHelper.printAndLog('info', 'Member Url: ' + member_url)
