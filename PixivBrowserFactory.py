@@ -198,12 +198,13 @@ class PixivBrowser(mechanize.Browser):
             data = {}
             data['pixiv_id'] = username
             data['password'] = password
-            #data['captcha'] = ''
-            #data['g_recaptcha_response'] = ''
+            data['captcha'] = ''
+            data['g_recaptcha_response'] = ''
             data['return_to'] = 'http://www.pixiv.net'
             data['lang'] = 'en'
             data['post_key'] = js_init_config["pixivAccount.postKey"]
-            data['source'] = "pc"
+            data['source'] = "accounts"
+            data['ref'] = ''
 
             request = urllib2.Request("https://accounts.pixiv.net/api/login?lang=en", urllib.urlencode(data))
             response = self.open(request)
@@ -220,7 +221,8 @@ class PixivBrowser(mechanize.Browser):
         js = response.read()
         PixivHelper.GetLogger().info(str(js))
         result = json.loads(js)
-        if result["body"] is not None and result["body"].has_key("successed"):
+        # Fix Issue #181
+        if result["body"] is not None and result["body"].has_key("success"):
             for cookie in self._ua_handlers['_cookies'].cookiejar:
                 if cookie.name == 'PHPSESSID':
                     PixivHelper.printAndLog('info', 'new cookie value: ' + str(cookie.value))
@@ -229,7 +231,7 @@ class PixivBrowser(mechanize.Browser):
                     break
 
             # check whitecube
-            page = self.open(result["body"]["successed"]["return_to"])
+            page = self.open(result["body"]["success"]["return_to"])
             parsed = BeautifulSoup(page)
             self.detectWhiteCube(parsed, page.geturl())
 
