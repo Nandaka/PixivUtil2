@@ -1,3 +1,6 @@
+20161231
+- Fix Issue #181: Login using password.
+
 20161207
 - Fix download by list.txt and tags for oldui.
 
