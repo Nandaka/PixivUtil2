@@ -360,9 +360,17 @@ class PixivImage:
                 self.imageCaption = tempCaption.text
                 #break
 
-        self.jd_rtv = int(page.find(attrs={'class': 'view-count'}).string)
-        self.jd_rtc = int(page.find(attrs={'class': 'rated-count'}).string)
-        self.jd_rtt = int(page.find(attrs={'class': 'score-count'}).string)
+        # stats
+        view_count = page.find(attrs={'class': 'view-count'})
+        if view_count is not None:
+            self.jd_rtv = int(view_count.string)
+        # Issue#182 fix
+        rated_count = page.find(attrs={'class': 'rated-count'})
+        if rated_count is not None:
+            self.jd_rtc = int(rated_count.string)
+        score_count = page.find(attrs={'class': 'score-count'})
+        if score_count is not None:
+            self.jd_rtt = int(score_count.string)
 
         if descriptionPara is not None and len(descriptionPara) > 0:
             for para in descriptionPara:
