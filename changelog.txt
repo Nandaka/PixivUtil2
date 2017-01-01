@@ -1,3 +1,6 @@
+20170102-beta1:
+- Fix code to enable dumping medium page by configuration.
+
 20161231
 - Fix Issue #181: Login using password.
 
