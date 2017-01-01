@@ -295,6 +295,13 @@ class PixivBrowser(mechanize.Browser):
                 image.ParseImages(parsed)
             parsed.decompose()
 
+        if self._config.enableDump and self._config.dumpMediumPage:
+            dump_filename = "Medium Page for Image Id {0}.html".format(imageId)
+            PixivHelper.dumpHtml(dump_filename, response)
+            PixivHelper.printAndLog('info', 'Dumping html to: {0}'.format(dump_filename))
+        if self._config.debugHttp:
+            PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
+
         return (image, response)
 
 
@@ -396,6 +403,7 @@ class PixivBrowser(mechanize.Browser):
                          start_page=1):
         response = None
         result = None
+        url = ''
 
         if self._isWhitecube:
             if member_id is None:
@@ -454,10 +462,6 @@ class PixivBrowser(mechanize.Browser):
             response = self.open(url).read()
             parse_search_page = BeautifulSoup(response)
 
-            if self._config.dumpTagSearchPage and self._config.enableDump:
-                dump_filename = PixivHelper.dumpHtml(url + ".html", parse_search_page)
-                PixivHelper.printAndLog('info', "Dump tag search page to: " + dump_filename)
-
             result = PixivModel.PixivTags()
             if not member_id is None:
                 result.parseMemberTags(parse_search_page, member_id, tags)
@@ -470,6 +474,13 @@ class PixivBrowser(mechanize.Browser):
 
             parse_search_page.decompose()
             del parse_search_page
+
+        if self._config.enableDump and self._config.dumpTagSearchPage:
+            dump_filename = "TagSearch Page for {0}.html".format(url)
+            PixivHelper.dumpHtml(dump_filename, response)
+            PixivHelper.printAndLog('info', 'Dumping html to: {0}'.format(dump_filename))
+        if self._config.debugHttp:
+            PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
 
         return (result, response)
 
