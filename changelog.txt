@@ -1,7 +1,8 @@
-20170105-beta3:
+20170131:
 - Fix code to enable dumping medium page by configuration.
 - Try to Fix Issue #182: Handle missing stats on Japanese UI.
 - Implement #184: Always send charset header value as utf-8.
+- Fix Issue #191: handle custom directory in list.txt
 
 20161231
 - Fix Issue #181: Login using password.
