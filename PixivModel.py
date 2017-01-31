@@ -698,6 +698,7 @@ class PixivListItem:
                     path = path.replace('\\', os.sep)
 
                 listItem = PixivListItem(member_id, path)
+                # PixivHelper.safePrint(u"- {0} ==> {1} ".format(member_id, path))
                 l.append(listItem)
                 lineNo = lineNo + 1
                 originalLine = ""

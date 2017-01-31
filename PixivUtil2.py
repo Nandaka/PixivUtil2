@@ -1253,10 +1253,10 @@ def menu():
     print '2. Download by image_id'
     print '3. Download by tags'
     print '4. Download from list'
-    print '5. Download from online user bookmark'
-    print '6. Download from online image bookmark'
+    print '5. Download from bookmarked artists (bookmark.php?type=user)'
+    print '6. Download from bookmarked images (bookmark.php)'
     print '7. Download from tags list'
-    print '8. Download new illust from bookmark'
+    print '8. Download new illust from bookmarked members (bookmark_new_illust.php)'
     print '9. Download by Title/Caption'
     print '10. Download by Tag and Member Id'
     print '11. Download Member Bookmark'
@@ -1420,8 +1420,8 @@ def menu_download_from_list(mode, opisvalid, args):
         if len(test_tags) > 0:
             tags = test_tags
 
-    if tags is not None:
-        PixivHelper.safePrint("Processing member id from {0} for tags: {1}".format(list_file_name, tags))
+    if tags is not None and len(tags) > 0:
+        PixivHelper.safePrint(u"Processing member id from {0} for tags: {1}".format(list_file_name, tags))
     else:
         PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
 
@@ -1799,7 +1799,7 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList:
-            list_txt = PixivListItem.parseList(__config__.downloadListDirectory + os.sep + 'list.txt')
+            list_txt = PixivListItem.parseList(__config__.downloadListDirectory + os.sep + 'list.txt', __config__.rootDirectory)
             __dbManager__.importList(list_txt)
             print "Updated " + str(len(list_txt)) + " items."
 
