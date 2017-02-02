@@ -1883,5 +1883,5 @@ def main():
         sys.exit(ERROR_CODE)
 
 
-if __name__ == '__main__' asd:
+if __name__ == '__main__':
     main()
