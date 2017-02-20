@@ -90,6 +90,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 except KeyError:
                     file_size = -1
                     PixivHelper.printAndLog('info', "\tNo file size information!")
+                print "Remote filesize = {0} ({1} Bytes)".format(PixivHelper.sizeInStr(file_size), file_size)
 
                 # check if existing file exists
                 if os.path.exists(filename) and os.path.isfile(filename) and not filename.endswith(".zip"):
@@ -103,6 +104,11 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     ugoName = filename[:-4] + ".ugoira"
                     gifName = filename[:-4] + ".gif"
                     apngName = filename[:-4] + ".png"
+                    # non-converted zip (no animation.json)
+                    if os.path.exists(filename) and os.path.isfile(filename):
+                        # not sure what is the proper handling, currently it will throw error after download due to file already exists.
+                        pass
+                    # converted to ugoira (has animation.json)
                     if os.path.exists(ugoName) and os.path.isfile(ugoName):
                         old_size = PixivHelper.getUgoiraSize(ugoName)
                         checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
