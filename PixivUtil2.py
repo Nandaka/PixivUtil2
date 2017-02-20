@@ -62,7 +62,7 @@ __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
 __re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
 
 
-#-T04------For download file
+# -T04------For download file
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page=None):
     global ERROR_CODE
     tempErrorCode = None
@@ -270,7 +270,7 @@ def process_list(mode, list_file_name=None, tags=None):
 
         print "Found " + str(len(result)) + " items."
 
-        # iterating the list
+        # Iterating the list
         for item in result:
             retry_count = 0
             while True:
@@ -284,7 +284,7 @@ def process_list(mode, list_file_name=None, tags=None):
                         PixivHelper.printAndLog('error', 'Giving up member_id: ' + str(item.memberId))
                         break
                     retry_count = retry_count + 1
-                    print 'Something wrong, retrying after 2 second (', retry_count, ')'
+                    print 'Something wrong, retrying after 2 seconds (', retry_count, ')'
                     time.sleep(2)
 
             __br__.clear_history()
@@ -639,7 +639,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if image.imageMode == 'manga':
                     print "Page Count :", image.imageCount
 
-            # moved out from inside for loop
+            # moved out from inside the for loop
             if user_dir == '':  # Yavos: use config-options
                 target_dir = __config__.rootDirectory
             else:  # Yavos: use filename from list
