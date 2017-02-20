@@ -93,7 +93,7 @@ class PixivConfig:
     def loadConfig(self, path=None):
         ''' new settings must be added on the last'''
 
-        if path != None:
+        if path is not None:
             self.configFileLocation = path
         else:
             self.configFileLocation = script_path + os.sep + 'config.ini'
@@ -170,17 +170,17 @@ class PixivConfig:
                 haveError = True
 
             _useragent = config.get('Network','useragent')
-            if _useragent != None:
+            if _useragent is not None:
                 self.useragent = _useragent
 
             _filenameFormat = config.get('Settings','filenameformat')
             _filenameFormat = PixivHelper.toUnicode(_filenameFormat, encoding=sys.stdin.encoding)
-            if _filenameFormat != None:
+            if _filenameFormat is not None:
                 self.filenameFormat = _filenameFormat
 
             _filenameMangaFormat = config.get('Settings','filenamemangaformat')
             _filenameMangaFormat = PixivHelper.toUnicode(_filenameMangaFormat, encoding=sys.stdin.encoding)
-            if _filenameMangaFormat != None:
+            if _filenameMangaFormat is not None:
                 ## check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
                     if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_number%') == -1:
@@ -189,10 +189,10 @@ class PixivConfig:
                         print "_filenameMangaFormat =", _filenameMangaFormat
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
-
+                
             _filenameInfoFormat = config.get('Settings','filenameinfoformat')
             _filenameInfoFormat = PixivHelper.toUnicode(_filenameInfoFormat, encoding=sys.stdin.encoding)
-            if _filenameInfoFormat != None:
+            if _filenameInfoFormat is not None:
                 self.filenameInfoFormat = _filenameInfoFormat
 
             try:
@@ -583,7 +583,7 @@ class PixivConfig:
         config.set('Pixiv', 'R18Mode', self.r18mode)
         config.set('Pixiv', 'DateFormat', self.dateFormat)
 
-        if path != None:
+        if path is not None:
             configlocation = path
         else:
             configlocation = 'config.ini'

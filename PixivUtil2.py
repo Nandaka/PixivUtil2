@@ -90,6 +90,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 except KeyError:
                     file_size = -1
                     PixivHelper.printAndLog('info', "\tNo file size information!")
+                print "Remote filesize = {0} ({1} Bytes)".format(PixivHelper.sizeInStr(file_size), file_size)
 
                 # check if existing file exists
                 if os.path.exists(filename) and os.path.isfile(filename) and not filename.endswith(".zip"):
@@ -103,6 +104,11 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     ugoName = filename[:-4] + ".ugoira"
                     gifName = filename[:-4] + ".gif"
                     apngName = filename[:-4] + ".png"
+                    # non-converted zip (no animation.json)
+                    if os.path.exists(filename) and os.path.isfile(filename):
+                        # not sure what is the proper handling, currently it will throw error after download due to file already exists.
+                        pass
+                    # converted to ugoira (has animation.json)
                     if os.path.exists(ugoName) and os.path.isfile(ugoName):
                         old_size = PixivHelper.getUgoiraSize(ugoName)
                         checkResult = PixivHelper.checkFileExists(overwrite, ugoName, file_size, old_size, backup_old_file)
@@ -241,7 +247,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 raise
 
 
-# Start of main processing logic
+#  Start of main processing logic
 def process_list(mode, list_file_name=None, tags=None):
     global ERROR_CODE
 
@@ -270,7 +276,6 @@ def process_list(mode, list_file_name=None, tags=None):
 
         print "Found " + str(len(result)) + " items."
 
-        # Iterating the list
         for item in result:
             retry_count = 0
             while True:
@@ -284,7 +289,7 @@ def process_list(mode, list_file_name=None, tags=None):
                         PixivHelper.printAndLog('error', 'Giving up member_id: ' + str(item.memberId))
                         break
                     retry_count = retry_count + 1
-                    print 'Something wrong, retrying after 2 seconds (', retry_count, ')'
+                    print 'Something wrong, retrying after 2 second (', retry_count, ')'
                     time.sleep(2)
 
             __br__.clear_history()
@@ -639,7 +644,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if image.imageMode == 'manga':
                     print "Page Count :", image.imageCount
 
-            # moved out from inside the for loop
             if user_dir == '':  # Yavos: use config-options
                 target_dir = __config__.rootDirectory
             else:  # Yavos: use filename from list
@@ -658,9 +662,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     if image.imageMode == 'manga':
                         filename_format = __config__.filenameMangaFormat
 
-                    filename = PixivHelper.makeFilename(filename_format, image, tagsSeparator=__config__.tagsSeparator,
-                                                        tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark,
-                                                        searchTags=search_tags)
+                    filename = PixivHelper.makeFilename(filename_format, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark, searchTags=search_tags)
                     filename = PixivHelper.sanitizeFilename(filename, target_dir)
 
                     if image.imageMode == 'manga' and __config__.createMangaDir:
