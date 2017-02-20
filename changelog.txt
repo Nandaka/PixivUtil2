@@ -1,3 +1,11 @@
+20170220:
+- Update test cases.
+- Fix Issue #178: Unbound variable upon error handling.
+- Fix Issue #192: Syntax error :P.	
+- Fix Issue #195: Update imageio library url.
+- Fix Issue #196: Allow any whitespace after memberid in list.txt
+- Fix Issue #200: Update tag parsing.
+
 20170131:
 - Fix code to enable dumping medium page by configuration.
 - Try to Fix Issue #182: Handle missing stats on Japanese UI.
