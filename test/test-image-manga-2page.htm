@@ -1,74 +1,81 @@
 <!DOCTYPE html><html lang="en" class="_book-viewer rtl"><head><meta charset="utf-8"><title>【創作百合】雨と君の向こう#4</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=1280px"><link rel="canonical" href="http://www.pixiv.net/member_illust.php?mode=medium&amp;illust_id=46322053"><script>var pageLoadStartTime = +(new Date);</script><script>
 new function() {
+    
+        var user_id = "189816";
+                    var service = 'www.pixiv.net';
+            var api = 'http://www.pixiv.net/rpc/js_error.php';
+            
 
-var user_id = "189816";
-var service = 'www.pixiv.net';
-var api = 'http://www.pixiv.net/rpc/js_error.php';
+    window.onerror = function(message, url, line) {
+        window.onerror = null;
+        if (!url && line === 0)    return;
 
+        // Googleのスクリプトがエラー出しまくってるので一時的に対処
+        if (url.indexOf('https://apis.google.com/_/scs/apps-static/') === 0) {
+            if (Math.random() > 0.01) return;
+        }
 
-window.onerror = function(message, url, line) {
-window.onerror = null;
-if (!url && line === 0)return;
+        // IE9がエラー出しまくってるので一時的に対処
+        if (message === "null" && line === 1 && window.navigator.userAgent.indexOf("MSIE 9.0") >= 0) {
+            if (Math.random() > 0.01) return;
+        }
 
-// Googleのスクリプトがエラー出しまくってるので一時的に対処
-if (url.indexOf('https://apis.google.com/_/scs/apps-static/') === 0) {
-if (Math.random() > 0.01) return;
-}
+        // Safariがエラー出しまくってるので一時的に対処
+        if ((message === null || message === "null") && line === 0 && window.navigator.userAgent.indexOf("Safari") >= 0) {
+            if (Math.random() > 0.01) return;
+        }
 
-// IE9がエラー出しまくってるので一時的に対処
-if (message === "null" && line === 1 && window.navigator.userAgent.indexOf("MSIE 9.0") >= 0) {
-if (Math.random() > 0.01) return;
-}
+        
+                            window._send(message, url, line);
+                    
+    };
 
-// Safariがエラー出しまくってるので一時的に対処
-if ((message === null || message === "null") && line === 0 && window.navigator.userAgent.indexOf("Safari") >= 0) {
-if (Math.random() > 0.01) return;
-}
+    window._time = function(html_end_sec, dom_ready_sec, onload_sec) {
+        window._send('js_time', location.href, 0, html_end_sec, dom_ready_sec, onload_sec);
+    }
 
-
-window._send(message, url, line);
-
+    window._send = function(message, url, line, html_end_sec, dom_ready_sec, onload_sec) {
+        var result, q, e = window.encodeURIComponent;
+        try {
+            if ('' + message === '[object Event]') {
+                message = [
+                    'type: ' + message.type,
+                    '' + message.target === '[object HTMLScriptElement]' ?
+                        'target: {src: ' + message.target.src + '}' :
+                        'target: ' + message.target,
+                    'currentTarget: ' + message.currentTarget,
+                    'eventPhase: ' + message.eventPhase,
+                ].join(', ');
+            }
+            q = [
+                'service=' + e(service),
+                'message=' + e(message),
+                'url=' + e(url),
+                'line=' + e(line),
+                'location=' + e(location.href),
+                'user_id=' + e(user_id),
+                'premium=' + (window.pixiv && pixiv.user ? +!!pixiv.user.premium : '')
+            ];
+            html_end_sec === undefined || q.push(
+                'html_end_sec=' + e(html_end_sec),
+                'dom_ready_sec=' + e(dom_ready_sec || 0),
+                'onload_sec=' + e(onload_sec || 0)
+            );
+            new Image().src = api + '?' + q.join('&');
+        }
+        catch (error) {
+            new Image().src = api + '?service=' + e(service) + '&message=' + e('send error: ' + error.message) + '&line=' + e(error.line || '');
+        }
+    };
 };
-
-window._time = function(html_end_sec, dom_ready_sec, onload_sec) {
-window._send('js_time', location.href, 0, html_end_sec, dom_ready_sec, onload_sec);
-}
-
-window._send = function(message, url, line, html_end_sec, dom_ready_sec, onload_sec) {
-var result, q, e = window.encodeURIComponent;
-try {
-if ('' + message === '[object Event]') {
-message = [
-'type: ' + message.type,
-'' + message.target === '[object HTMLScriptElement]' ?
-'target: {src: ' + message.target.src + '}' :
-'target: ' + message.target,
-'currentTarget: ' + message.currentTarget,
-'eventPhase: ' + message.eventPhase,
-].join(', ');
-}
-q = [
-'service=' + e(service),
-'message=' + e(message),
-'url=' + e(url),
-'line=' + e(line),
-'location=' + e(location.href),
-'user_id=' + e(user_id),
-'premium=' + (window.pixiv && pixiv.user ? +!!pixiv.user.premium : '')
-];
-html_end_sec === undefined || q.push(
-'html_end_sec=' + e(html_end_sec),
-'dom_ready_sec=' + e(dom_ready_sec || 0),
-'onload_sec=' + e(onload_sec || 0)
-);
-new Image().src = api + '?' + q.join('&');
-}
-catch (error) {
-new Image().src = api + '?service=' + e(service) + '&message=' + e('send error: ' + error.message) + '&line=' + e(error.line || '');
-}
-};
-};
-</script><link rel="stylesheet" href="http://source.pixiv.net/www/css/global.css?220f7c23348974339a610610524f83b0"><link rel="stylesheet" href="http://source.pixiv.net/www/css/global_2.css?220f7c23348974339a610610524f83b0"><link rel="stylesheet" href="http://source.pixiv.net/www/css/app.css?e23d310aa0e869eeb6541ab4d9bb920c"><!--[if IE 8]><script src="http://source.pixiv.net/www/js/lib/html5shiv/html5shiv.js"></script><![endif]--><script src="http://source.pixiv.net/www/js/files/lib.min.js?bfef337c9942e71dabdc176ee9e14c13"></script><script src="http://source.pixiv.net/www/js/files/colon.min.js?e5a77a3042760e301d47bba3f46b82dc"></script><script src="http://source.pixiv.net/www/js/files/app.min.js?1897f8419b037d9b38861785be729cd9"></script><script src="http://source.pixiv.net/www/js/files/book-viewer.min.js?6638d64fdd5a301c5443221b94e7019e"></script><script>pixiv.development = false;pixiv.securePath = "https:\/\/www.pixiv.net\/";pixiv.user.loggedIn = true;pixiv.user.id = "189816";pixiv.user.premium = false;pixiv.context.rated = false;pixiv.context.hasQuestionnaire = false;pixiv.context.userId = '"36527"';pixiv.context.illustId = '"46322053"';pixiv.context.bound = true;pixiv.context.rtl = true;pixiv.context.pages = [];pixiv.context.images = [];pixiv.context.thumbnailImages = [];pixiv.context.originalImages = [];pixiv.context.originalSizes = [];pixiv.text.action = 'Ratings / Bookmarks';pixiv.text.fit = 'Resize image to window';pixiv.text.expanded = 'Enlarge image';
+</script><link rel="stylesheet" href="http://source.pixiv.net/www/css/global.css?e598af5d6210f4f6e50622278a310db1"><link rel="stylesheet" href="http://source.pixiv.net/www/css/global_2.css?e598af5d6210f4f6e50622278a310db1"><link rel="stylesheet" href="http://source.pixiv.net/www/css/app.css?66bd239a5a43c10ad56d755b84adfd27"><!--[if IE 8]><script src="http://source.pixiv.net/www/js/lib/html5shiv/html5shiv.js"></script><![endif]--><script>
+        Object.defineProperty(window, 'bundle_public_path', {
+            value: "https:\/\/source.pixiv.net\/www\/js\/bundle\/"
+        })
+    </script><script src="https://source.pixiv.net/www/js/bundle/bootstrap.d3f674c38715c9bacbc8.js" crossorigin="anonymous"></script>
+<script src="https://source.pixiv.net/www/js/bundle/lib.6af6c6b2f4cfc193dd82.js" crossorigin="anonymous"></script>
+<script src="https://source.pixiv.net/www/js/bundle/colon.2fc88f7094ad77a0347f.js" crossorigin="anonymous"></script>
+<script src="https://source.pixiv.net/www/js/bundle/app.d63bdc036e0d9f501db0.js" crossorigin="anonymous"></script><script>pixiv.development = false;pixiv.securePath = "https:\/\/www.pixiv.net\/";pixiv.user.loggedIn = true;pixiv.user.id = "189816";pixiv.user.premium = false;pixiv.context.rated = false;pixiv.context.hasQuestionnaire = false;pixiv.context.userId = '"36527"';pixiv.context.illustId = '"46322053"';pixiv.context.bound = true;pixiv.context.mangaOld = false;pixiv.context.rtl = true;pixiv.context.pages = [];pixiv.context.images = [];pixiv.context.thumbnailImages = [];pixiv.context.originalImages = [];pixiv.context.originalSizes = [];pixiv.text.action = 'Ratings / Bookmarks';pixiv.text.fit = 'Resize image to window';pixiv.text.expanded = 'Enlarge image';
 var _gaq = _gaq || [];
 
 (function() {
@@ -87,43 +94,43 @@ _gaq.push(['_setDomainName', 'pixiv.net']);
 
 
 if (window.pixiv) {
-if (pixiv.user && pixiv.user.loggedIn) {
-_gaq.push(['_setCustomVar', 1, "login", "yes", 3]);
-_gaq.push(['_setCustomVar', 3, "plan", pixiv.user.premium ? "premium" : "normal", 1]);
-_gaq.push(['_setCustomVar', 5, "gender", pixiv.user.gender, 1]);
-_gaq.push(['_setCustomVar', 6, "user_id", pixiv.user.id, 1]);
-} else {
-_gaq.push(['_setCustomVar', 1, "login", "no", 3]);
-}
+    if (pixiv.user && pixiv.user.loggedIn) {
+        _gaq.push(['_setCustomVar', 1, "login", "yes", 3]);
+        _gaq.push(['_setCustomVar', 3, "plan", pixiv.user.premium ? "premium" : "normal", 1]);
+        _gaq.push(['_setCustomVar', 5, "gender", pixiv.user.gender, 1]);
+        _gaq.push(['_setCustomVar', 6, "user_id", pixiv.user.id, 1]);
+    } else {
+        _gaq.push(['_setCustomVar', 1, "login", "no", 3]);
+    }
 
-(function() {
-// クッキーあれば、一回でもログインした人とみなす
-if (pixiv.user && colon.storage) {
-var cookie_name = 'login_ever';
+    (function() {
+        // クッキーあれば、一回でもログインした人とみなす
+        if (pixiv.user && colon.storage) {
+            var cookie_name = 'login_ever';
 
-if (colon.storage.cookie(cookie_name)) {// 一度でもログインしたことある
-_gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
+            if (colon.storage.cookie(cookie_name)) {// 一度でもログインしたことある
+                _gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
 
-} else if (pixiv.user.loggedIn) { // ログインしてる
-colon.storage.cookie(cookie_name, 'yes', {
-expires: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
-domain: location.hostname
-});
-_gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
+            } else if (pixiv.user.loggedIn) { // ログインしてる
+                colon.storage.cookie(cookie_name, 'yes', {
+                    expires: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
+                    domain: location.hostname
+                });
+                _gaq.push(['_setCustomVar', 2, "login ever", "yes", 1]);
 
-} else { // ログインしたこと無いし、ログインしてもない
-_gaq.push(['_setCustomVar', 2, "login ever", "no", 1]);
-}
-}
-} ())
+            } else { // ログインしたこと無いし、ログインしてもない
+                _gaq.push(['_setCustomVar', 2, "login ever", "no", 1]);
+            }
+        }
+    } ())
 }
 
 
 
 if (window.pixiv && pixiv.tracking && pixiv.tracking.URL) {
-_gaq.push(['_trackPageview', pixiv.tracking.URL]);
+    _gaq.push(['_trackPageview', pixiv.tracking.URL]);
 } else {
-_gaq.push(['_trackPageview']);
+    _gaq.push(['_trackPageview']);
 }
 
 
