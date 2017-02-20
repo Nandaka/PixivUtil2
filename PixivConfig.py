@@ -42,6 +42,7 @@ class PixivConfig:
     # generic Settings
     filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameInfoFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     rootDirectory = unicode('.')
     overwrite = False
     useList = False
@@ -57,6 +58,7 @@ class PixivConfig:
     useSuppressTags = False
     tagsLimit = -1
     writeImageInfo = False
+    writeImageJSON = False
     dateDiff = 0
     backupOldFile = False
     writeUgoiraInfo = False
@@ -187,6 +189,11 @@ class PixivConfig:
                         print "_filenameMangaFormat =", _filenameMangaFormat
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
+
+            _filenameInfoFormat = config.get('Settings','filenameinfoformat')
+            _filenameInfoFormat = PixivHelper.toUnicode(_filenameInfoFormat, encoding=sys.stdin.encoding)
+            if _filenameInfoFormat != None:
+                self.filenameInfoFormat = _filenameInfoFormat
 
             try:
                 self.debugHttp = config.getboolean('Debug','debughttp')
@@ -319,6 +326,13 @@ class PixivConfig:
             except ValueError:
                 self.writeImageInfo = False
                 print "writeImageInfo = False"
+                haveError = True
+
+            try:
+                self.writeImageJSON = config.getboolean('Settings','writeImageJSON')
+            except ValueError:
+                self.writeImageJSON = False
+                print "writeImageJSON = False"
                 haveError = True
 
             try:
@@ -524,6 +538,7 @@ class PixivConfig:
         config.add_section('Settings')
         config.set('Settings', 'filenameFormat', self.filenameFormat)
         config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
+        config.set('Settings', 'filenameInfoFormat', self.filenameInfoFormat)
         config.set('Settings', 'avatarNameFormat', self.avatarNameFormat)
         config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
         config.set('Settings', 'useList', self.useList)
@@ -541,6 +556,7 @@ class PixivConfig:
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
+        config.set('Settings', 'writeImageJSON', self.writeImageJSON)
         config.set('Settings', 'dateDiff', self.dateDiff)
         config.set('Settings', 'backupOldFile', self.backupOldFile)
         config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
@@ -625,6 +641,7 @@ class PixivConfig:
         print ' [Settings]'
         print ' - filename_format       =', self.filenameFormat
         print ' - filename_manga_format =', self.filenameMangaFormat
+        print ' - filename_info_format  =', self.filenameInfoFormat
         print ' - avatarNameFormat =', self.avatarNameFormat
         print ' - downloadListDirectory =', self.downloadListDirectory
         print ' - overwrite        =', self.overwrite
@@ -642,6 +659,7 @@ class PixivConfig:
         print ' - useSuppressTags  =', self.useSuppressTags
         print ' - tagsLimit        =', self.tagsLimit
         print ' - writeImageInfo   =', self.writeImageInfo
+        print ' - writeImageJSON   =', self.writeImageJSON
         print ' - dateDiff         =', self.dateDiff
         print ' - backupOldFile    =', self.backupOldFile
         print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
