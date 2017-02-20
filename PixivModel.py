@@ -403,10 +403,8 @@ class PixivImage:
 
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
         self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
-        # Resolution (a x b)
-        
+
         self.worksResolution = unicode(temp[1].string).replace(u'×', u'x')
-        # Tools
         toolsTemp = page.find(attrs={'class': 'meta'}).find(attrs={'class': 'tools'})
         if toolsTemp is not None and len(toolsTemp) > 0:
             tools = toolsTemp.findAll('li')
