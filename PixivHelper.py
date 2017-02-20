@@ -7,8 +7,10 @@ import codecs
 from HTMLParser import HTMLParser
 import subprocess
 import sys
-import PixivModel, PixivConstant
-import logging, logging.handlers
+import PixivModel
+import PixivConstant
+import logging
+import logging.handlers
 import zipfile
 import time
 import unicodedata
@@ -34,7 +36,7 @@ def setConfig(config):
 def GetLogger(level=logging.DEBUG):
     '''Set up logging'''
     global Logger
-    if Logger == None:
+    if Logger is None:
         script_path = module_path()
         Logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
         Logger.setLevel(level)
@@ -65,7 +67,7 @@ __re_manga_index = re.compile(r'_p(\d+)')
 def sanitizeFilename(s, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
-    if rootDir != None:
+    if rootDir is not None:
         rootDir = os.path.abspath(rootDir)
 
     # Unescape '&amp;', '&lt;', and '&gt;'
@@ -80,26 +82,26 @@ def sanitizeFilename(s, rootDir=None):
     name = name.replace("\r", '')
     name = name.replace("\n", ' ')
 
-    #Yavos: when foldername ends with "." PixivUtil won't find it
+    # Yavos: when foldername ends with "." PixivUtil won't find it
     while name.find('.\\') != -1:
         name = name.replace('.\\', '\\')
 
     name = name.replace('\\', os.sep)
 
-    #Replace tab character with space
+    # Replace tab character with space
     name = name.replace('\t', ' ')
 
-    #Strip leading/trailing space for each directory
+    # Strip leading/trailing space for each directory
     temp = name.split(os.sep)
     temp2 = list()
     for item in temp:
         temp2.append(item.strip())
     name = os.sep.join(temp2)
 
-    if rootDir != None:
+    if rootDir is not None:
         name = rootDir + os.sep + name
 
-    #replace double os.sep
+    # replace double os.sep
     while name.find(os.sep + os.sep) >= 0:
         name = name.replace(os.sep + os.sep, os.sep)
 
@@ -127,7 +129,7 @@ def sanitizeFilename(s, rootDir=None):
 def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
                  appendExtension=True, bookmark=False, searchTags=''):
     '''Build the filename from given info to the given format.'''
-    if artistInfo == None:
+    if artistInfo is None:
         artistInfo = imageInfo.artist
 
     # Get the image extension
@@ -172,7 +174,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     if imageInfo.imageMode == 'manga':
         idx = __re_manga_index.findall(fileUrl)
         if len(idx) > 0:
-            page_index = idx[0]#[0]
+            page_index = idx[0]
             page_number = str(int(page_index) + 1)
             padding = len(str(imageInfo.imageCount))
             page_number = str(page_number)
@@ -199,9 +201,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         r18Dir = "R-18"
     nameFormat = nameFormat.replace('%R-18%', r18Dir)
     nameFormat = nameFormat.replace('%tags%', tags.replace(os.sep, '_'))
-    nameFormat = nameFormat.replace('&#039;', '\'') #Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
+    nameFormat = nameFormat.replace('&#039;', '\'')  # Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
 
-    if bookmark: # from member bookmarks
+    if bookmark:  # from member bookmarks
         nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
         nameFormat = nameFormat.replace('%original_member_id%', str(imageInfo.originalArtist.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', imageInfo.originalArtist.artistToken)
@@ -260,14 +262,14 @@ def clearScreen():
 def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
     printAndLog('info', 'starting IrfanView...')
     if os.path.exists(dfilename):
-        ivpath = irfanViewPath + os.sep + 'i_view32.exe' #get first part from config.ini
+        ivpath = irfanViewPath + os.sep + 'i_view32.exe'  # get first part from config.ini
         ivpath = ivpath.replace('\\\\', '\\')
         ivpath = ivpath.replace('\\', os.sep)
         info = None
         if start_irfan_slide:
             info = subprocess.STARTUPINFO()
             info.dwFlags = 1
-            info.wShowWindow = 6 #start minimized in background (6)
+            info.wShowWindow = 6  # start minimized in background (6)
             ivcommand = ivpath + ' /slideshow=' + dfilename
             Logger.info(ivcommand)
             subprocess.Popen(ivcommand)
@@ -288,9 +290,9 @@ def OpenTextFile(filename, mode='r', encoding='utf-8'):
         f.close()
 
         # Don't change this to a map, because it is ordered
-        encodings = [( codecs.BOM_UTF32, 'utf-32' ),
-                     ( codecs.BOM_UTF16, 'utf-16' ),
-                     ( codecs.BOM_UTF8, 'utf-8' )]
+        encodings = [(codecs.BOM_UTF32, 'utf-32'),
+                     (codecs.BOM_UTF16, 'utf-16'),
+                     (codecs.BOM_UTF8, 'utf-8')]
 
         for h, e in encodings:
             if header.startswith(h):
@@ -380,15 +382,28 @@ def speedInStr(totalSize, totalTime):
         return " infinity B/s"
 
 
+def sizeInStr(totalSize):
+    if totalSize < 1024:
+        return "{0:.0f} B".format(totalSize)
+    totalSize = totalSize / 1024
+    if totalSize < 1024:
+        return "{0:.2f} KiB".format(totalSize)
+    totalSize = totalSize / 1024
+    if totalSize < 1024:
+        return "{0:.2f} MiB".format(totalSize)
+    totalSize = totalSize / 1024
+    return "{0:.2f} GiB".format(totalSize)
+
+
 def dumpHtml(filename, html):
     isDumpEnabled = True
     filename = sanitizeFilename(filename)
-    if _config != None:
+    if _config is not None:
         isDumpEnabled = _config.enableDump
         if _config.enableDump:
             if len(_config.skipDumpFilter) > 0:
                 matchResult = re.findall(_config.skipDumpFilter, filename)
-                if matchResult != None and len(matchResult) > 0:
+                if matchResult is not None and len(matchResult) > 0:
                     isDumpEnabled = False
 
     if html is not None and len(html) == 0:
@@ -421,8 +436,8 @@ def HaveStrings(page, strings):
     for string in strings:
         pattern = re.compile(string)
         test_2 = pattern.findall(str(page))
-        if len(test_2) > 0 :
-            if len(test_2[-1]) > 0 :
+        if len(test_2) > 0:
+            if len(test_2[-1]) > 0:
                 return True
     return False
 
@@ -448,13 +463,14 @@ def clear_all():
     for var in all_vars:
         del globals()[var]
 
+
 # pylint: disable=W0612
 def unescape_charref(data, encoding):
     ''' Replace default mechanize method in _html.py'''
     try:
         name, base = data, 10
         if name.lower().startswith("x"):
-            name, base= name[1:], 16
+            name, base = name[1:], 16
         try:
             result = int(name, base)
         except:
@@ -471,6 +487,7 @@ def unescape_charref(data, encoding):
     except:
         return data
 
+
 def getUgoiraSize(ugoName):
     size = 0
     try:
@@ -479,14 +496,16 @@ def getUgoiraSize(ugoName):
             size = json.loads(animJson)['zipSize']
             z.close()
     except:
-        printAndLog('error', u'Failed to read ugoira: ' + ugoName)
+        printAndLog('error', u'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
+        size = os.path.getsize(ugoName)
     return size
+
 
 def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
         printAndLog('info', u"\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
-    #elif int(file_size) < old_size:
+    # elif int(file_size) < old_size:
     #    printAndLog('info', "\tFile exist! (Local is larger)")
     #    return PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER
     else:
@@ -499,8 +518,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             os.rename(filename, new_name)
         else:
             printAndLog('info',
-               u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(
-                  old_size, file_size))
+               u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
             os.remove(filename)
         return 1
 
@@ -513,7 +531,7 @@ def printDelay(retryWait):
     print ''
 
 
-def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = False):
+def createCustomRequest(url, config, referer='http://www.pixiv.net', head=False):
     if config.useProxy:
         proxy = urllib2.ProxyHandler(config.proxy)
         opener = urllib2.build_opener(proxy)
@@ -524,9 +542,9 @@ def createCustomRequest(url, config, referer = 'http://www.pixiv.net', head = Fa
     printAndLog('info', u"Using Referer: " + str(referer))
 
     if head:
-        req.get_method = lambda : 'HEAD'
+        req.get_method = lambda: 'HEAD'
     else:
-        req.get_method = lambda : 'GET'
+        req.get_method = lambda: 'GET'
 
     return req
 
@@ -607,8 +625,8 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
-                         start_date = None, end_date = None, member_id = None,
-                         r18mode = False ):
+                         start_date=None, end_date=None, member_id=None,
+                         r18mode=False):
     url = ""
     date_param = ""
     if start_date is not None:
@@ -616,7 +634,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     if end_date is not None:
         date_param = date_param + "&ecd=" + end_date
 
-    if not member_id is None:
+    if member_id is not None:
         url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
     else:
         if title_caption:
@@ -643,11 +661,12 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
 
     return url
 
+
 def writeUrlInDescription(image, blacklistRegex, filenamePattern):
     valid_url = list()
     if len(image.descriptionUrlList) > 0:
         # filter first
-        if len(blacklistRegex) > 0 :
+        if len(blacklistRegex) > 0:
             for link in image.descriptionUrlList:
                 res = re.findall(blacklistRegex, link)
                 if len(res) == 0:
@@ -662,7 +681,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         filename = date.today().strftime(filenamePattern) + ".txt"
 
         info = codecs.open(filename, 'a', encoding='utf-8')
-        info.write("#" + str(image.imageId)+"\r\n")
+        info.write("#" + str(image.imageId) + "\r\n")
         for link in valid_url:
             info.write(link + "\r\n")
         info.close()
@@ -679,20 +698,21 @@ def ugoira2gif(ugoira_file, exportname):
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
-    anim_info =  json.load(open(temp_folder + '/animation.json'))
+    anim_info = json.load(open(temp_folder + '/animation.json'))
 
     durations = []
     images = []
     for info in anim_info["frames"]:
         images.append(imageio.imread(temp_folder + os.sep + info["file"]))
-        durations.append(float(info["delay"])/1000)
+        durations.append(float(info["delay"]) / 1000)
 
-    kargs = { 'duration': durations }
+    kargs = {'duration': durations}
     imageio.mimsave(temp_name, images, 'GIF', **kargs)
     shutil.move(temp_name, exportname)
     printAndLog('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
+
 
 def ugoira2apng(ugoira_file, exportname):
     printAndLog('info', 'processing ugoira to apng...')
@@ -704,7 +724,7 @@ def ugoira2apng(ugoira_file, exportname):
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
-    anim_info =  json.load(open(temp_folder + '/animation.json'))
+    anim_info = json.load(open(temp_folder + '/animation.json'))
 
     files = []
     for info in anim_info["frames"]:
