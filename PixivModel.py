@@ -663,7 +663,7 @@ class PixivListItem:
                     continue
                 line = PixivHelper.toUnicode(line)
                 line = line.strip()
-                items = line.split(" ", 1)
+                items = line.split(None, 1)
 
                 if items[0].startswith("http"):
                     # handle urls:
