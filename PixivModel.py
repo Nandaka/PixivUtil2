@@ -359,8 +359,12 @@ class PixivImage:
             elif len(tempCaption.text.strip()) == 0:
                 continue
             else:
-                self.imageCaption = tempCaption.text
-                # break
+                self.imageCaption = ''
+                for line in tempCaption.contents:
+                    if str(line)=='<br />':
+                        self.imageCaption += ('\n')
+                    else:
+                        self.imageCaption += (unicode(line))
 
         # stats
         view_count = page.find(attrs={'class': 'view-count'})
@@ -581,27 +585,54 @@ class PixivImage:
             PixivHelper.GetLogger().exception(
                 "Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
 
-        info.write("ArtistID   = " + str(self.artist.artistId) + "\r\n")
-        info.write("ArtistName = " + self.artist.artistName + "\r\n")
-        info.write("ImageID    = " + str(self.imageId) + "\r\n")
-        info.write("Title      = " + self.imageTitle + "\r\n")
-        info.write("Caption    = " + self.imageCaption + "\r\n")
-        info.write("Tags       = " + ", ".join(self.imageTags) + "\r\n")
-        info.write("Image Mode = " + self.imageMode + "\r\n")
-        info.write("Pages      = " + str(self.imageCount) + "\r\n")
-        info.write("Date       = " + self.worksDate + "\r\n")
-        info.write("Resolution = " + self.worksResolution + "\r\n")
-        info.write("Tools      = " + self.worksTools + "\r\n")
-        info.write("BookmarkCount= " + str(self.bookmark_count) + "\r\n")
+        info.write("ArtistID      = " + str(self.artist.artistId) + "\r\n")
+        info.write("ArtistName    = " + self.artist.artistName + "\r\n")
+        info.write("ImageID       = " + str(self.imageId) + "\r\n")
+        info.write("Title         = " + self.imageTitle + "\r\n")
+        info.write("Caption       = " + self.imageCaption + "\r\n")
+        info.write("Tags          = " + ", ".join(self.imageTags) + "\r\n")
+        info.write("Image Mode    = " + self.imageMode + "\r\n")
+        info.write("Pages         = " + str(self.imageCount) + "\r\n")
+        info.write("Date          = " + self.worksDate + "\r\n")
+        info.write("Resolution    = " + self.worksResolution + "\r\n")
+        info.write("Tools         = " + self.worksTools + "\r\n")
+        info.write("BookmarkCount = " + str(self.bookmark_count) + "\r\n")
         info.write(
-            "Link       = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
-        info.write("Ugoira Data= " + str(self.ugoira_data) + "\r\n")
+            "Link          = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
+        info.write("Ugoira Data   = " + str(self.ugoira_data) + "\r\n")
         if len(self.descriptionUrlList) > 0:
-            info.write("Urls       =\r\n")
+            info.write("Urls          =\r\n")
             for link in self.descriptionUrlList:
                 info.write(" - " + link + "\r\n")
         info.close()
-
+        
+    def WriteJSON(self, filename):
+        info = None
+        try:
+            info = codecs.open(filename, 'w', encoding='utf-8')
+        except IOError:
+            info = codecs.open(str(self.imageId) + ".txt", 'w', encoding='utf-8')
+            PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
+        info.write("{" + "\r\n")
+        info.write("\t" + json.dumps("Artist ID") + ": " + json.dumps(self.artist.artistId, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Artist Name") + ": " + json.dumps(self.artist.artistName, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Image ID") + ": " + json.dumps(self.imageId, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Title") + ": " + json.dumps(self.imageTitle, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Caption") + ": " + json.dumps(self.imageCaption, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Tags") + ": " + json.dumps(self.imageTags, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Image Mode") + ": " + json.dumps(self.imageMode, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Pages") + ": " + json.dumps(self.imageCount, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Date") + ": " + json.dumps(self.worksDate, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Resolution") + ": " + json.dumps(self.worksResolution, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Tools") + ": " + json.dumps(self.worksTools, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("BookmarkCount") + ": " + json.dumps(self.bookmark_count, ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Link") + ": " + json.dumps("http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId), ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Ugoira Data") + ": " + json.dumps(self.ugoira_data, ensure_ascii=False) + "\r\n")
+        if len(self.descriptionUrlList) > 0:
+            info.write("\t" + json.dumps("Urls") + ": " + json.dumps(self.descriptionUrlList, ensure_ascii=False) + "," + "\r\n")
+        info.write("}")
+        info.close()
+        
     def WriteUgoiraData(self, filename):
         info = None
         try:
