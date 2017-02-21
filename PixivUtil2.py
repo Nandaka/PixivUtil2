@@ -644,6 +644,11 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 if image.imageMode == 'manga':
                     print "Page Count :", image.imageCount
 
+            if user_dir == '':  # Yavos: use config-options
+                target_dir = __config__.rootDirectory
+            else:  # Yavos: use filename from list
+                target_dir = user_dir
+
             result = PixivConstant.PIXIVUTIL_OK
             mangaFiles = dict()
             page = 0
@@ -657,14 +662,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     if image.imageMode == 'manga':
                         filename_format = __config__.filenameMangaFormat
 
-                    if user_dir == '':  # Yavos: use config-options
-                        target_dir = __config__.rootDirectory
-                    else:  # Yavos: use filename from list
-                        target_dir = user_dir
-
-                    filename = PixivHelper.makeFilename(filename_format, image, tagsSeparator=__config__.tagsSeparator,
-                                                        tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark,
-                                                        searchTags=search_tags)
+                    filename = PixivHelper.makeFilename(filename_format, image, tagsSeparator=__config__.tagsSeparator, tagsLimit=__config__.tagsLimit, fileUrl=url, bookmark=bookmark, searchTags=search_tags)
                     filename = PixivHelper.sanitizeFilename(filename, target_dir)
 
                     if image.imageMode == 'manga' and __config__.createMangaDir:
@@ -696,8 +694,19 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                         __log__.exception('Error when download_image(): ' + str(img))
                     print ''
 
-            if __config__.writeImageInfo:
-                image.WriteInfo(filename + ".txt")
+            if __config__.writeImageInfo or __config__.writeImageJSON:
+                filename_info_format = __config__.filenameInfoFormat
+                info_filename = PixivHelper.makeFilename(filename_info_format, image, tagsSeparator=__config__.tagsSeparator,
+                                                    tagsLimit=__config__.tagsLimit, fileUrl=url, appendExtension=False, bookmark=bookmark,
+                                                    searchTags=search_tags)
+                info_filename = PixivHelper.sanitizeFilename(info_filename, target_dir)
+                # trim _pXXX
+                info_filename = re.sub('_p?\d+$', '', info_filename)
+                if __config__.writeImageInfo:
+                    image.WriteInfo(info_filename + ".txt")
+                if __config__.writeImageJSON:
+                    image.WriteJSON(info_filename + ".json")
+            
             if image.imageMode == 'ugoira_view':
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
