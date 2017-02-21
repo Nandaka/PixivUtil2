@@ -361,8 +361,8 @@ class PixivImage:
             else:
                 self.imageCaption = ''
                 for line in tempCaption.contents:
-                    if str(line)=='<br />':
-                        self.imageCaption += ('\n')
+                    if str(line) == '<br />':
+                        self.imageCaption += (os.linesep)
                     else:
                         self.imageCaption += (unicode(line))
 
@@ -605,7 +605,7 @@ class PixivImage:
             for link in self.descriptionUrlList:
                 info.write(" - " + link + "\r\n")
         info.close()
-        
+
     def WriteJSON(self, filename):
         info = None
         try:
@@ -632,7 +632,7 @@ class PixivImage:
             info.write("\t" + json.dumps("Urls") + ": " + json.dumps(self.descriptionUrlList, ensure_ascii=False) + "," + "\r\n")
         info.write("}")
         info.close()
-        
+
     def WriteUgoiraData(self, filename):
         info = None
         try:
