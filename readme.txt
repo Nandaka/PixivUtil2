@@ -346,9 +346,9 @@ tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
-dateDiff        ==> Gets only pictures that were posted X days before the system
-                    date. Set 0 to disable. Skip to next member id if in Download
-                    by Member, stop processing if in Download New Illust.
+dateDiff        ==> Process only new images within the given date difference. 
+                    Set 0 to disable. Skip to next member id if in 'Download
+                    by Member', stop processing if in 'Download New Illust' mode.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
 writeugoirainfo ==> If set to True, it will dump the .js to external file.
