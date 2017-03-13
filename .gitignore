@@ -18,3 +18,5 @@ Images/*
 testapp*/*
 .idea/*
 *.bak
+*.pyo
+pixivutil.log*
