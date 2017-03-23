@@ -323,9 +323,9 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be
                           downloaded again, set 'False' to disable.
  		       -> Override the overwrite and image_id checking from db
                           (always fetch the image page for checking the size)
-checkUpdatedLimit     ==> Number of already downloaded image to be check before
-                          move to the next member. alwaysCheckFileSize must be
-                          set to False.
+checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
+                          previously downloaded images.
+			  alwaysCheckFileSize must be set to False.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
                     This setting is depended on %urlFilename% format.
