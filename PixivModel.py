@@ -826,7 +826,7 @@ class PixivBookmark:
     @staticmethod
     def parseImageBookmark(page):
         imageList = list()
-        temp = page.find('ul', attrs={'class': '_image-items'})
+        temp = page.find('ul', attrs={'class': '_image-items js-legacy-mark-unmark-list'})
         temp = temp.findAll('a')
         if temp is None or len(temp) == 0:
             return imageList
