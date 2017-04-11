@@ -65,7 +65,7 @@ def main():
         downloadPage('http://www.pixiv.net/member_illust.php?id=1', './test/test-nouser.htm')
         downloadPage('http://www.pixiv.net/member_illust.php?id=26357', './test/test-member-noavatar.htm')
         downloadPage('http://www.pixiv.net/member_illust.php?id=1233', './test/test-noimage.htm')
-        downloadPage('http://www.pixiv.net/bookmark.php?id=3281699', './test/test-member-bookmark.htm')
+        downloadPage('http://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
 
         downloadPage('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=32039274', './test/test-image-info.html')
         downloadPage('http://www.pixiv.net/bookmark_new_illust.php', './test/test-bookmarks_new_ilust.htm')

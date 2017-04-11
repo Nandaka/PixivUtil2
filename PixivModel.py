@@ -25,6 +25,7 @@ class PixivArtist:
     isLastPage = None
     haveImages = None
     totalImages = 0
+    __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
@@ -101,7 +102,7 @@ class PixivArtist:
 
     def ParseImages(self, page):
         del self.imageList[:]
-        temp = page.find('ul', attrs={'class': '_image-items'})
+        temp = page.find('ul', attrs={'class': PixivArtist.__re_imageULItemsClass})
         if temp is not None and len(temp) > 0:
             temp = temp.findAll('a')
             for item in temp:
@@ -189,7 +190,7 @@ class PixivImage:
     worksTools = unicode("")
     jd_rtv = 0
     jd_rtc = 0
-    jd_rtt = 0
+    # jd_rtt = 0
     imageCount = 0
     fromBookmark = False
     worksDateDateTime = datetime.fromordinal(1)
@@ -374,9 +375,10 @@ class PixivImage:
         rated_count = page.find(attrs={'class': 'rated-count'})
         if rated_count is not None:
             self.jd_rtc = int(rated_count.string)
-        score_count = page.find(attrs={'class': 'score-count'})
-        if score_count is not None:
-            self.jd_rtt = int(score_count.string)
+        # deprecated since 11-April-2017
+        # score_count = page.find(attrs={'class': 'score-count'})
+        # if score_count is not None:
+        #    self.jd_rtt = int(score_count.string)
 
         if descriptionPara is not None and len(descriptionPara) > 0:
             for para in descriptionPara:
@@ -438,7 +440,7 @@ class PixivImage:
         PixivHelper.safePrint(', '.join(self.imageTags))
         PixivHelper.safePrint('views : ' + str(self.jd_rtv))
         PixivHelper.safePrint('rating: ' + str(self.jd_rtc))
-        PixivHelper.safePrint('total : ' + str(self.jd_rtt))
+        # PixivHelper.safePrint('total : ' + str(self.jd_rtt))
         PixivHelper.safePrint('Date : ' + self.worksDate)
         PixivHelper.safePrint('Resolution : ' + self.worksResolution)
         PixivHelper.safePrint('Tools : ' + self.worksTools)
@@ -797,6 +799,7 @@ class PixivNewIllustBookmark:
 
 class PixivBookmark:
     '''Class for parsing Bookmarks'''
+    __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
     @staticmethod
     def parseBookmark(page):
@@ -826,7 +829,7 @@ class PixivBookmark:
     @staticmethod
     def parseImageBookmark(page):
         imageList = list()
-        temp = page.find('ul', attrs={'class': '_image-items js-legacy-mark-unmark-list'})
+        temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
         temp = temp.findAll('a')
         if temp is None or len(temp) == 0:
             return imageList
@@ -1031,7 +1034,7 @@ class PixivGroup:
                 image_data.worksTools = unicode("")
                 image_data.jd_rtv = 0
                 image_data.jd_rtc = 0
-                image_data.jd_rtt = 0
+                # image_data.jd_rtt = 0
                 image_data.imageCount = 0
                 image_data.fromBookmark = False
                 image_data.worksDateDateTime = datetime.strptime(image_data.worksDate, '%Y-%m-%d %H:%M:%S')

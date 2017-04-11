@@ -95,15 +95,17 @@ class TestPixivArtist(unittest.TestCase):
         p = open('./test/test-member-bookmark.htm', 'r')
         page = BeautifulSoup(p.read())
         try:
-            artist = PixivArtist(3281699, page)
+            artist = PixivArtist(490219, page)
             # artist.PrintInfo()
-
-            self.assertNotEqual(artist, None)
-            self.assertEqual(artist.artistId, 3281699)
         except PixivException as ex:
             print ex
+            self.assertTrue(ex is None)
+
         page.decompose()
         del page
+
+        self.assertNotEqual(artist, None)
+        self.assertEqual(artist.artistId, 490219)
 
     def testPixivArtistServerError(self):
         # print '\nTesting member page'
@@ -276,7 +278,8 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image.imageMode, 'manga')
         self.assertTrue(image.jd_rtv > 0)
         self.assertTrue(image.jd_rtc > 0)
-        self.assertTrue(image.jd_rtt > 0)
+        # deprecated since 11-April-2017
+        # self.assertTrue(image.jd_rtt > 0)
         self.assertEqual(image.worksTools, "Photoshop")
 
     def testPixivImageNoImage(self):
