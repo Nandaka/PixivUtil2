@@ -32,18 +32,23 @@ class PixivBrowser(mechanize.Browser):
     _cache = dict()
 
     def __init__(self, config, cookieJar):
-        mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
+        # fix #218
+        try:
+            mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
+        except:
+            PixivHelper.GetLogger().info("Using default factory (mechanize 3.x ?)")
+            mechanize.Browser.__init__(self)
+
         self._configureBrowser(config)
         self._configureCookie(cookieJar)
 
-
     def _configureBrowser(self, config):
-        if config == None:
+        if config is None:
             PixivHelper.GetLogger().info("No config given")
             return
 
         global defaultConfig
-        if defaultConfig == None:
+        if defaultConfig is None:
             defaultConfig = config
 
         self._config = config
@@ -63,14 +68,14 @@ class PixivBrowser(mechanize.Browser):
                 self.set_proxies(config.proxy)
                 PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
 
-        #self.set_handle_equiv(True)
-        #self.set_handle_gzip(True)
+        # self.set_handle_equiv(True)
+        # self.set_handle_gzip(True)
         self.set_handle_redirect(True)
         self.set_handle_referer(True)
         self.set_handle_robots(False)
 
         self.set_debug_http(config.debugHttp)
-        if config.debugHttp :
+        if config.debugHttp:
             PixivHelper.GetLogger().info('Debug HTTP enabled.')
 
         # self.visit_response
@@ -81,22 +86,19 @@ class PixivBrowser(mechanize.Browser):
 
         socket.setdefaulttimeout(config.timeout)
 
-
     def _configureCookie(self, cookieJar):
-        if cookieJar != None:
+        if cookieJar is not None:
             self.set_cookiejar(cookieJar)
 
             global defaultCookieJar
-            if defaultCookieJar == None:
+            if defaultCookieJar is None:
                 defaultCookieJar = cookieJar
-
 
     def addCookie(self, cookie):
         global defaultCookieJar
-        if defaultCookieJar == None:
+        if defaultCookieJar is None:
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
-
 
     def getPixivPage(self, url, referer="http://www.pixiv.net"):
         ''' get page from pixiv and return as parsed BeautifulSoup object
@@ -124,8 +126,7 @@ class PixivBrowser(mechanize.Browser):
                     print ''
                     retry_count = retry_count + 1
                 else:
-                    raise PixivException("Failed to get page: " + ex.message, errorCode = PixivException.SERVER_ERROR)
-
+                    raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
 
     def fixUrl(self, url, useHttps=False):
         ## url = str(url)
@@ -147,12 +148,10 @@ class PixivBrowser(mechanize.Browser):
                              comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
-
     def _getInitConfig(self, page):
-        init_config = page.find('input', attrs={'id':'init-config'})
+        init_config = page.find('input', attrs={'id': 'init-config'})
         js_init_config = json.loads(init_config['value'])
         return js_init_config
-
 
 ##    def _makeRequest(self, url):
 ##        if self._config.useProxy:
@@ -161,7 +160,6 @@ class PixivBrowser(mechanize.Browser):
 ##            urllib2.install_opener(opener)
 ##        req = urllib2.Request(url)
 ##        return req
-
 
     def loginUsingCookie(self, loginCookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
@@ -186,7 +184,6 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.GetLogger().info('Failed to login using cookie')
                 PixivHelper.printAndLog('info', 'Cookie already expired/invalid.')
         return False
-
 
     def login(self, username, password):
         try:
@@ -239,7 +236,7 @@ class PixivBrowser(mechanize.Browser):
             self.detectWhiteCube(parsed, page.geturl())
 
             return True
-        else :
+        else:
             if result["body"] is not None and result["body"].has_key("validation_errors"):
                 PixivHelper.printAndLog('info', "Server reply: " + str(result["body"]["validation_errors"]))
             else:
@@ -325,7 +322,6 @@ class PixivBrowser(mechanize.Browser):
             self._cache[url] = info
         artist.ParseInfo(info, False, bookmark=bookmark)
 
-
     def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
         response = None
         PixivHelper.printAndLog('info', 'Getting Bookmark Url for page {0}...'.format(page))
@@ -348,7 +344,7 @@ class PixivBrowser(mechanize.Browser):
 
             payload = json.loads(response)
             last_member_bookmark_next_url = payload["body"]["next_url"]
-            if last_member_bookmark_next_url is None and start  < page:
+            if last_member_bookmark_next_url is None and start < page:
                 PixivHelper.printAndLog('info', 'No more images for {0} bookmarks'.format(member_id))
                 url = None
                 break
@@ -356,7 +352,6 @@ class PixivBrowser(mechanize.Browser):
             start = start + 1
         PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
         return (url, response)
-
 
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
@@ -400,7 +395,6 @@ class PixivBrowser(mechanize.Browser):
 
         return (artist, response)
 
-
     def getSearchTagPage(self, tags, i,
                          wild_card=True,
                          title_caption=False,
@@ -432,7 +426,7 @@ class PixivBrowser(mechanize.Browser):
                 if wild_card:
                     s_mode = "s_tag"
                 elif title_caption:
-                    s_mode ="s_tc"
+                    s_mode = "s_tc"
                 url = url + "&s_mode={0}".format(s_mode)
 
                 # start/end date
@@ -475,7 +469,7 @@ class PixivBrowser(mechanize.Browser):
             parse_search_page = BeautifulSoup(response)
 
             result = PixivModel.PixivTags()
-            if not member_id is None:
+            if member_id is not None:
                 result.parseMemberTags(parse_search_page, member_id, tags)
             else:
                 try:
@@ -499,17 +493,17 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
 
 
-def getBrowser(config = None, cookieJar = None):
+def getBrowser(config=None, cookieJar=None):
     global defaultCookieJar
     global defaultConfig
     global _browser
 
     if _browser is None:
-        if config != None:
+        if config is not None:
             defaultConfig = config
-        if cookieJar != None:
+        if cookieJar is not None:
             defaultCookieJar = cookieJar
-        if defaultCookieJar == None:
+        if defaultCookieJar is None:
             PixivHelper.GetLogger().info("No default cookie jar available, creating... ")
             defaultCookieJar = cookielib.LWPCookieJar()
         _browser = PixivBrowser(defaultConfig, defaultCookieJar)
@@ -520,7 +514,7 @@ def getBrowser(config = None, cookieJar = None):
 def getExistingBrowser():
     global _browser
     if _browser is None:
-        raise PixivException("Browser is not initialized yet!", errorCode = PixivException.NOT_LOGGED_IN)
+        raise PixivException("Browser is not initialized yet!", errorCode=PixivException.NOT_LOGGED_IN)
     return _browser
 
 
@@ -541,13 +535,13 @@ def test():
             print "test search tags"
             tags = "VOCALOID"
             p = 1
-            wild_card=True
-            title_caption=False
-            start_date="2016-11-06"
-            end_date="2016-11-07"
-            member_id=None
-            oldest_first=True
-            start_page=1
+            wild_card = True
+            title_caption = False
+            start_date = "2016-11-06"
+            end_date = "2016-11-07"
+            member_id = None
+            oldest_first = True
+            start_page = 1
             (resultS, page) = b.getSearchTagPage(tags, p,
                                                 wild_card,
                                                 title_caption,
@@ -586,7 +580,6 @@ def test():
             print result3.ugoira_data
             assert(len(result3.artist.artistToken) > 0)
             assert(result3.imageMode == 'ugoira_view')
-
 
         def testMember():
             print "Test member mode"
