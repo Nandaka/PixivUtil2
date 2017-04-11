@@ -6,20 +6,21 @@ from PixivModel import PixivListItem
 from PixivConfig import PixivConfig
 
 import unittest
-LIST_SIZE = 4
+LIST_SIZE = 9
 config = PixivConfig()
 config.loadConfig()
 
+
 class TestPixivDBManager(unittest.TestCase):
     def testImportListTxt(self):
-        DB = PixivDBManager(target = "test.db.sqlite")
+        DB = PixivDBManager(target="test.db.sqlite")
         DB.createDatabase()
         l = PixivListItem.parseList("test.list.txt", config.rootDirectory)
         result = DB.importList(l)
         self.assertEqual(result, 0)
 
     def testSelectMembersByLastDownloadDate(self):
-        DB = PixivDBManager(target = "test.db.sqlite")
+        DB = PixivDBManager(target="test.db.sqlite")
         DB.createDatabase()
         l = PixivListItem.parseList("test.list.txt", config.rootDirectory)
         result = DB.selectMembersByLastDownloadDate(7)
@@ -28,7 +29,7 @@ class TestPixivDBManager(unittest.TestCase):
             print item.memberId, item.path
 
     def testSelectAllMember(self):
-        DB = PixivDBManager(target = "test.db.sqlite")
+        DB = PixivDBManager(target="test.db.sqlite")
         DB.createDatabase()
         l = PixivListItem.parseList("test.list.txt", config.rootDirectory)
         result = DB.selectAllMember()
@@ -40,4 +41,3 @@ if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivDBManager)
     unittest.TextTestRunner(verbosity=5).run(suite)
     print "================================================================"
-
