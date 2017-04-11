@@ -1,3 +1,9 @@
+20170411:
+- Update test cases.
+- Fix Issue #218: handle mechanize lib update.
+- Fix Issue #219: update parser for option 11 (download member bookmarks).
+- Fix Issue #220: update parser for option 6 (download user bookmarked images).
+
 20170220:
 - Update test cases.
 - Fix Issue #178: Unbound variable upon error handling.
