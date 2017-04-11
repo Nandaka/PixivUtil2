@@ -51,4 +51,4 @@ console = [{"script": "PixivUtil2.py",              # Main Python script
 requires = ['BeautifulSoup']
 options = {'py2exe': {'compressed': 1, 'excludes': ['Tkconstants', 'Tkinter']}, }
 
-setup(console, requires, options, )
+setup(console=console, requires=requires, options=options, )
