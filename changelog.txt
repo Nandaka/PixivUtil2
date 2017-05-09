@@ -1,3 +1,9 @@
+20170508-beta1:
+- Update test cases.
+- Fix Issue #222: hide password in console.
+- Fix Issue #223: fix db result error.
+- Fix Issue #224 and #226: new big image mode for single page manga.
+
 20170411:
 - Update test cases.
 - Fix Issue #218: handle mechanize lib update.
