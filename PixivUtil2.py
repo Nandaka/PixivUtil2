@@ -706,7 +706,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     image.WriteInfo(info_filename + ".txt")
                 if __config__.writeImageJSON:
                     image.WriteJSON(info_filename + ".json")
-            
+
             if image.imageMode == 'ugoira_view':
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
@@ -1854,7 +1854,11 @@ def main():
 
         password = __config__.password
         if password == '':
+            if os.name == 'nt':
+                win_unicode_console.disable()
             password = getpass.getpass('Password ? ')
+            if os.name == 'nt':
+                win_unicode_console.enable()
 
         if np_is_valid and np != 0:  # Yavos: overwrite config-data
             msg = 'Limit up to: ' + str(np) + ' page(s). (set via commandline)'
