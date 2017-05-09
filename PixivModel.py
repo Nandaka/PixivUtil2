@@ -454,7 +454,7 @@ class PixivImage:
 
         del self.imageUrls[:]
         if mode == 'big' or mode == 'bigNew':
-            self.imageUrls.append(self.ParseBigImages(page))
+            self.imageUrls.append(self.ParseBigImages(page, _br))
         elif mode == 'manga':
             self.imageUrls = self.CheckMangaType(page, _br)
         elif mode == 'ugoira_view':
@@ -463,8 +463,34 @@ class PixivImage:
             raise PixivException('No images found for: ' + str(self.imageId), errorCode=PixivException.NO_IMAGES)
         return self.imageUrls
 
-    def ParseBigImages(self, page):
+    def ParseBigImages(self, page, _br):
         self.imageCount = 1
+
+        # Issue #224
+        # work manga
+        temp = page.find('a', attrs={'class': ' _work manga '})
+        if temp is not None:
+            if _br is None:
+                import PixivBrowserFactory
+                _br = PixivBrowserFactory.getExistingBrowser()
+
+            expected_url = '/member_illust.php?mode=big&illust_id=' + str(self.imageId)
+            try:
+                href = _br.fixUrl(expected_url)
+                print "Fetching big image page:", href
+                bigPage = _br.getPixivPage(url=href,
+                                           referer="https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId))
+                bigImg = bigPage.find('img')
+                imgUrl = bigImg["src"]
+                # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
+                print "Found: ", imgUrl
+                bigImg.decompose()
+                bigPage.decompose()
+                del bigImg
+                del bigPage
+                return imgUrl
+            except Exception as ex:
+                print ex
 
         # new layout for big 20141216
         temp = page.find('img', attrs={'class': 'original-image'})
@@ -501,7 +527,7 @@ class PixivImage:
             print "2-page manga viewer mode"
             return self.ParseMangaImagesScript(page)
         else:
-            # old  format
+            # standard format
             return self.ParseMangaImagesNew(page, _br)
 
     def ParseMangaImagesScript(self, page):

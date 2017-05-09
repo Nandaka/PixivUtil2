@@ -10,15 +10,23 @@ import unittest
 
 
 class MockPixivBrowser(PixivBrowser):
-    def __init__(self):
+    mode = None
+
+    def __init__(self, mode):
+        self.mode = mode
         pass
 
     def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
-        ''' fake the manga page '''
-        pageNo = url.split("=")[-1]
-        p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
-        page = BeautifulSoup(p.read())
-        return page
+        if self.mode == 1:
+            p = open('./test/test-image-big-single.html', 'r')
+            page = BeautifulSoup(p.read())
+            return page
+        else:
+            ''' fake the manga page '''
+            pageNo = url.split("=")[-1]
+            p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
+            page = BeautifulSoup(p.read())
+            return page
 
 
 class TestPixivArtist(unittest.TestCase):
@@ -354,13 +362,27 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-image-parsemanga.htm', 'r')
         page = BeautifulSoup(p.read())
         image = PixivImage()
-        urls = image.ParseImages(page, mode='manga', _br=MockPixivBrowser())
+        urls = image.ParseImages(page, mode='manga', _br=MockPixivBrowser(None))
         # print urls
         self.assertEqual(len(urls), 3)
         self.assertEqual(len(urls), image.imageCount)
         imageId = urls[0].split('/')[-1].split('.')[0]
         # print 'imageId:',imageId
         self.assertEqual(imageId, '46279245_p0')
+
+    def testPixivImageParseMangaBig(self):
+        # print '\nTesting parse Manga Images'
+        # Issue #224
+        p = open('./test/test-image-big-manga.html', 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivImage(iid=62670665)
+        image.ParseInfo(page)
+        urls = image.ParseImages(page, mode=image.imageMode, _br=MockPixivBrowser(1))
+        self.assertEqual(len(urls), 1)
+        print urls[0]
+        imageId = urls[0].split('/')[-1].split('_')[0]
+        # print 'imageId:',imageId
+        self.assertEqual(int(imageId), 62670665)
 
     def testPixivImageNoLogin(self):
         # print '\nTesting not logged in'

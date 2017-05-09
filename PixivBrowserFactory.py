@@ -128,7 +128,7 @@ class PixivBrowser(mechanize.Browser):
                 else:
                     raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
 
-    def fixUrl(self, url, useHttps=False):
+    def fixUrl(self, url, useHttps=True):
         ## url = str(url)
         if not url.startswith("http"):
             if not url.startswith("/"):
