@@ -100,7 +100,7 @@ class PixivBrowser(mechanize.Browser):
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
 
-    def getPixivPage(self, url, referer="http://www.pixiv.net"):
+    def getPixivPage(self, url, referer="https://www.pixiv.net"):
         ''' get page from pixiv and return as parsed BeautifulSoup object
 
             throw PixivException as server error
@@ -170,7 +170,7 @@ class PixivBrowser(mechanize.Browser):
         if len(loginCookie) > 0:
             PixivHelper.printAndLog('info', 'Trying to log with saved cookie')
             self._loadCookie(loginCookie)
-            res = self.open('http://www.pixiv.net/mypage.php')
+            res = self.open('https://www.pixiv.net/mypage.php')
             resData = res.read()
 
             parsed = BeautifulSoup(resData)
@@ -200,7 +200,7 @@ class PixivBrowser(mechanize.Browser):
             data['password'] = password
             data['captcha'] = ''
             data['g_recaptcha_response'] = ''
-            data['return_to'] = 'http://www.pixiv.net'
+            data['return_to'] = 'https://www.pixiv.net'
             data['lang'] = 'en'
             data['post_key'] = js_init_config["pixivAccount.postKey"]
             data['source'] = "accounts"
@@ -283,7 +283,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
-            url = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
+            url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
             response = self.open(url).read()
             self.handleDebugMediumPage(response, imageId)
 
@@ -380,9 +380,9 @@ class PixivBrowser(mechanize.Browser):
 
         else:
             if bookmark:
-                member_url = 'http://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
+                member_url = 'https://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
             else:
-                member_url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
+                member_url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
 
             if tags is not None:
                 member_url = member_url + "&tag=" + tags
