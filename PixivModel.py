@@ -566,7 +566,7 @@ class PixivImage:
                 href = _br.fixUrl(expected_url)
                 print "Fetching big image page:", href
                 bigPage = _br.getPixivPage(url=href,
-                                           referer="http://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(
+                                           referer="https://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(
                                                self.imageId))
 
                 bigImg = bigPage.find('img')
@@ -626,7 +626,7 @@ class PixivImage:
         info.write("Tools         = " + self.worksTools + "\r\n")
         info.write("BookmarkCount = " + str(self.bookmark_count) + "\r\n")
         info.write(
-            "Link          = http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
+            "Link          = https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId) + "\r\n")
         info.write("Ugoira Data   = " + str(self.ugoira_data) + "\r\n")
         if len(self.descriptionUrlList) > 0:
             info.write("Urls          =\r\n")
@@ -654,7 +654,7 @@ class PixivImage:
         info.write("\t" + json.dumps("Resolution") + ": " + json.dumps(self.worksResolution, ensure_ascii=False) + "," + "\r\n")
         info.write("\t" + json.dumps("Tools") + ": " + json.dumps(self.worksTools, ensure_ascii=False) + "," + "\r\n")
         info.write("\t" + json.dumps("BookmarkCount") + ": " + json.dumps(self.bookmark_count, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Link") + ": " + json.dumps("http://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId), ensure_ascii=False) + "," + "\r\n")
+        info.write("\t" + json.dumps("Link") + ": " + json.dumps("https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId), ensure_ascii=False) + "," + "\r\n")
         info.write("\t" + json.dumps("Ugoira Data") + ": " + json.dumps(self.ugoira_data, ensure_ascii=False) + "\r\n")
         if len(self.descriptionUrlList) > 0:
             info.write("\t" + json.dumps("Urls") + ": " + json.dumps(self.descriptionUrlList, ensure_ascii=False) + "," + "\r\n")
