@@ -3,6 +3,9 @@
 # pylint: disable=I0011, C, C0302
 
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 import os
 import re
 import traceback
