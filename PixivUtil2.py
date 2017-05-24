@@ -324,7 +324,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         PixivHelper.printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
 
     __config__.loadConfig(path=configfile)
-    list_page = None
 
     # calculate the offset for display properties
     offset = 20
@@ -344,6 +343,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             print 'Page ', page
             set_console_title("MemberId: " + str(member_id) + " Page: " + str(page))
             # Try to get the member page
+            list_page = None
             while True:
                 try:
                     (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags)
