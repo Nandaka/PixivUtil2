@@ -354,6 +354,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
                     else:
+                        if list_page is None:
+                            list_page = ex.htmlPage
                         if list_page is not None:
                             PixivHelper.dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", list_page)
                         if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
@@ -559,7 +561,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
             elif ex.errorCode > 2000:
                 PixivHelper.printAndLog('error', 'Image Error for ' + str(image_id) + ': ' + ex.message)
-
             if parse_medium_page is not None:
                 dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
                 PixivHelper.dumpHtml(dump_filename, parse_medium_page)

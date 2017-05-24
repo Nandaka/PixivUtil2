@@ -30,23 +30,23 @@ class PixivArtist:
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
             if self.IsNotLoggedIn(page):
-                raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN)
+                raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
 
             if self.IsUserNotExist(page):
-                raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS)
+                raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
 
             if self.IsUserSuspended(page):
-                raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED)
+                raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=page)
 
             ## detect if there is any other error
             errorMessage = self.IsErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR)
+                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
 
             ## detect if there is server error
             errorMessage = self.IsServerErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR)
+                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             ## detect if image count != 0
             if not fromImage:
@@ -98,7 +98,7 @@ class PixivArtist:
                         return self.artistToken
         except:
             raise PixivException('Cannot parse artist token, possibly different image structure.',
-                                 errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE)
+                                 errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE, htmlPage=page)
 
     def ParseImages(self, page):
         del self.imageList[:]
@@ -115,7 +115,7 @@ class PixivArtist:
         self.totalImages = SharedParser.parseCountBadge(page)
 
         if len(self.imageList) == 0:
-            raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES)
+            raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES, htmlPage=page)
 
     def IsNotLoggedIn(self, page):
         check = page.findAll('a', attrs={'class': 'signup_button'})
@@ -126,6 +126,7 @@ class PixivArtist:
     def IsUserNotExist(self, page):
         errorMessages = ['該当ユーザーは既に退会したか、存在しないユーザーIDです',
                          'The user has either left pixiv, or the user ID does not exist.',
+                         'User has left pixiv or the user ID does not exist.',
                          '該当作品は削除されたか、存在しない作品IDです。',
                          'The following work is either deleted, or the ID does not exist.',
                          'User has left pixiv or the user ID does not exist.']
@@ -213,31 +214,31 @@ class PixivImage:
         if page is not None:
             ## check is error page
             if self.IsNotLoggedIn(page):
-                raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN)
+                raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
             if self.IsNeedPermission(page):
-                raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK)
+                raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
             if self.IsNeedAppropriateLevel(page):
                 raise PixivException('Public works can not be viewed by the appropriate level!',
-                                     errorCode=PixivException.NO_APPROPRIATE_LEVEL)
+                                     errorCode=PixivException.NO_APPROPRIATE_LEVEL, htmlPage=page)
             if self.IsDeleted(page):
-                raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED)
+                raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED, htmlPage=page)
             if self.IsGuroDisabled(page):
                 raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!',
-                                     errorCode=PixivException.R_18_DISABLED)
+                                     errorCode=PixivException.R_18_DISABLED, htmlPage=page)
 
             ## check if there is any other error
             if self.IsErrorPage(page):
-                raise PixivException('An error occurred!', errorCode=PixivException.OTHER_IMAGE_ERROR)
+                raise PixivException('An error occurred!', errorCode=PixivException.OTHER_IMAGE_ERROR, htmlPage=page)
 
             ## detect if there is any other error
             errorMessage = self.IsErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR)
+                raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
 
             ## detect if there is server error
             errorMessage = self.IsServerErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR)
+                raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             ## parse artist information
             if self.artist is None:
@@ -460,7 +461,7 @@ class PixivImage:
         elif mode == 'ugoira_view':
             self.imageUrls.append(self.ParseUgoira(page))
         if len(self.imageUrls) == 0:
-            raise PixivException('No images found for: ' + str(self.imageId), errorCode=PixivException.NO_IMAGES)
+            raise PixivException('No images found for: ' + str(self.imageId), errorCode=PixivException.NO_IMAGES, htmlPage=page)
         return self.imageUrls
 
     def ParseBigImages(self, page, _br):
