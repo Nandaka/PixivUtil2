@@ -1,10 +1,12 @@
-20170515-beta2:
+20170524-beta3:
 - Update test cases.
 - Fix Issue #222: hide password in console.
 - Fix Issue #223: fix db result error.
 - Fix Issue #224 and #226: new big image mode for single page manga.
 - Fix Issue #228: Update urls to https.
 - Fix Issue #230: set defaultencoding to utf-8.
+- Fix Issue #232: UnboundLocalError local variable 'list_page' referenced before assignment.
+- Fix Issue #233: update dump hmtml page handler.
 
 20170411:
 - Update test cases.
