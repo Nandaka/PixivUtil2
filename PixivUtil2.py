@@ -393,7 +393,10 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                    __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 
-            __dbManager__.updateMemberName(member_id, artist.artistName)
+            if not __dbManager__.selectMemberByMemberId(member_id):
+                __dbManager__.insertNewMember(member_id, artist.artistName)
+            else:
+                __dbManager__.updateMemberName(member_id, artist.artistName)
 
             if not artist.haveImages:
                 PixivHelper.printAndLog('info', "No image found for: " + str(member_id))
