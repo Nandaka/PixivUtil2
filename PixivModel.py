@@ -572,6 +572,8 @@ class PixivImage:
 
                 bigImg = bigPage.find('img')
                 imgUrl = bigImg["src"]
+                imgUrl_fix = imgUrl[:20] + "c/1200x1200/img-master" + imgUrl[32:-4] + "_master1200.jpg"
+                imgUrl = imgUrl_fix
                 # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
                 print "Found: ", imgUrl
                 urls.append(imgUrl)
