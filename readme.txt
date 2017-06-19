@@ -8,7 +8,7 @@
   - Python 2.7.11++ (http://www.python.org/)
   - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
   - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
-  - socksipy-branch 1.02+ (https://socksipy-branch.googlecode.com/)
+  - socksipy-branch 1.02+ (http://socksipy.sourceforge.net/)
   - Pillow (https://python-pillow.github.io/)
   - imageio (https://imageio.github.io/)
   - numpy (https://github.com/numpy/numpy)
