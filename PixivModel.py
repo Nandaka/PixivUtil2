@@ -929,7 +929,8 @@ class PixivTags:
         if len(items) == 0:
             # showcase must be removed first
             showcase = page.find("section", attrs={'class': 'showcase'})
-            showcase.extract()
+            if showcase is not None:
+                showcase.extract()
             search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
             if search_result is None or len(search_result) == 0:
                 return self.itemList
