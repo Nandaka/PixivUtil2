@@ -88,7 +88,9 @@ class PixivArtist:
             self.artistName = "self"
             # Issue #236
             title = page.find("title").text
-            PixivHelper.dumpHtml("Dump for {0} UnknownProfile.html".format(title), page)
+            filename = u"Dump for {0} UnknownProfile.html".format(title)
+            PixivHelper.printAndLog("error", u"Cannot parse artist info, dumping to {0}".format(filename))
+            PixivHelper.dumpHtml(filename, page)
 
     def ParseToken(self, page, fromImage=False):
         try:
