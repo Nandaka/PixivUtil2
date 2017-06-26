@@ -1,4 +1,4 @@
-20170619-beta4:
+20170626-beta5:
 - Update test cases.
 - Fix Issue #222: hide password in console.
 - Fix Issue #223: fix db result error.
@@ -7,7 +7,7 @@
 - Fix Issue #230: set defaultencoding to utf-8.
 - Fix Issue #232: UnboundLocalError local variable 'list_page' referenced before assignment.
 - Fix Issue #233: update dump hmtml page handler.
-- Add Handler for Issue #236: dump html page if no profile info for artist.
+- Fix Issue #236: update parser for artist profile and dump html page if not found.
 
 20170411:
 - Update test cases.

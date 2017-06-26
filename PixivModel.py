@@ -66,12 +66,14 @@ class PixivArtist:
 
     def ParseInfo(self, page, fromImage=False, bookmark=False):
         avatarBox = page.find(attrs={'class': '_unit profile-unit'})
+        self.artistToken = self.ParseToken(page, fromImage)
+
         if avatarBox is not None:
             temp = str(avatarBox.find('a')['href'])
             self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
 
             self.artistAvatar = str(page.find('img', attrs={'class': 'user-image'})['src'])
-            self.artistToken = self.ParseToken(page, fromImage)
+
             try:
                 h1 = page.find('h1', attrs={'class': 'user'})
                 if h1 is not None:
@@ -82,15 +84,26 @@ class PixivArtist:
                         self.artistName = unicode(avatar_m[0]["title"])
             except:
                 self.artistName = self.artistToken  # use the token.
+            return
         else:
-            self.artistAvatar = "no_profile"
-            self.artistToken = "self"
-            self.artistName = "self"
             # Issue #236
-            title = page.find("title").text
-            filename = u"Dump for {0} UnknownProfile.html".format(title)
-            PixivHelper.printAndLog("error", u"Cannot parse artist info, dumping to {0}".format(filename))
-            PixivHelper.dumpHtml(filename, page)
+            avatarBox = page.find(attrs={'class': '_user-profile-card'})
+            if avatarBox is not None:
+                temp = avatarBox.find('a')
+                self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
+                self.artistName = unicode(temp['title'])
+                self.artistAvatar = avatarBox.find('a')['style'].replace("background-image: url('", "").replace("');", "")
+            return
+
+        # Issue #236
+        # cannot parse information
+        self.artistAvatar = "no_profile"
+        self.artistName = "self"
+        title = page.find("title").text
+        filename = u"Dump for {0} UnknownProfile for {1}.html".format(title, self.artistToken)
+        PixivHelper.printAndLog("error", u"Cannot parse artist info, dumping to {0}".format(filename))
+        PixivHelper.printAndLog("error", u"{0}".format(page))
+        PixivHelper.dumpHtml(filename, page)
 
     def ParseToken(self, page, fromImage=False):
         try:
@@ -287,6 +300,7 @@ class PixivImage:
 
     def IsDeleted(self, page):
         errorMessages = ['該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。',
+                         'この作品は削除されました。',
                          'The following work is either deleted, or the ID does not exist.',
                          'This work was deleted.',
                          'Work has been deleted or the ID does not exist.']
