@@ -609,7 +609,21 @@ class PixivDBManager:
             c.execute('''SELECT image_id, save_name from pixiv_master_image''')
             print "Checking images."
             for row in c:
-                if not os.path.exists(row[1]):
+                # Issue 238
+                fileExists = False
+                if row[1].endswith(".zip"):
+                    ugoFile = row[1].rsplit(".zip", 1)[0] + ".ugoira"
+                    ugoiraExists = os.path.exists(ugoFile)
+                    zipExists = os.path.exists(row[1])
+                    fileExists = ugoiraExists or zipExists
+                elif row[1].endswith(".ugoira"):
+                    zipFile = row[1].rsplit(".ugoira", 1)[0] + ".zip"
+                    zipExists = os.path.exists(zipFile)
+                    ugoiraExists = os.path.exists(row[1])
+                    fileExists = ugoiraExists or zipExists
+                else:
+                    fileExists = os.path.exists(row[1])
+                if not fileExists:
                     PixivHelper.safePrint("Missing: " + str(row[0]) + " at " + row[1] + "\n")
                     self.deleteImage(row[0])
             self.conn.commit()
