@@ -218,6 +218,7 @@ class PixivImage:
     ugoira_data = ""
     dateFormat = None
     descriptionUrlList = []
+    __re_caption = re.compile("caption")
 
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False, bookmark_count=-1, image_response_count=-1,
                  dateFormat=None):
@@ -373,7 +374,7 @@ class PixivImage:
                 self.imageTitle = tempTitle.string
                 break
 
-        descriptionPara = page.findAll("p", attrs={'class': 'caption'})
+        descriptionPara = page.findAll("p", attrs={'class': PixivImage.__re_caption})
         for tempCaption in descriptionPara:
             if tempCaption is None or tempCaption.text is None:
                 continue

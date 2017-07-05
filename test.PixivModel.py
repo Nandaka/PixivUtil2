@@ -136,6 +136,8 @@ class TestPixivImage(unittest.TestCase):
 
         self.assertEqual(image2.imageId, 32039274)
         self.assertEqual(image2.imageTitle, u"新しいお姫様")
+        self.assertTrue(len(image2.imageCaption) > 0)
+        print u"\r\nCaption = {0}".format(image2.imageCaption)
 
         self.assertTrue(u'MAYU' in image2.imageTags)
         self.assertTrue(u'VOCALOID' in image2.imageTags)
@@ -520,7 +522,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2252)
+        self.assertEqual(image.availableImages, 2267)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
