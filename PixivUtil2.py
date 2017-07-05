@@ -310,6 +310,7 @@ def process_list(mode, list_file_name=None, tags=None):
 def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
     global __errorList
     global ERROR_CODE
+    list_page = None
 
     PixivHelper.printAndLog('info', 'Processing Member Id: ' + str(member_id))
     if page != 1:
@@ -343,7 +344,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             print 'Page ', page
             set_console_title("MemberId: " + str(member_id) + " Page: " + str(page))
             # Try to get the member page
-            list_page = None
             while True:
                 try:
                     (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags)

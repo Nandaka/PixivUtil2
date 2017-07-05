@@ -100,8 +100,8 @@ class PixivBrowser(mechanize.Browser):
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
 
-    def getPixivPage(self, url, referer="https://www.pixiv.net"):
-        ''' get page from pixiv and return as parsed BeautifulSoup object
+    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
+        ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
             throw PixivException as server error
         '''
@@ -112,8 +112,11 @@ class PixivBrowser(mechanize.Browser):
             req.add_header('Referer', referer)
             try:
                 page = self.open(req)
-                parsedPage = BeautifulSoup(page.read())
-                return parsedPage
+                if returnParsed:
+                    parsedPage = BeautifulSoup(page.read())
+                    return parsedPage
+                else:
+                    return page
             except Exception as ex:
                 if isinstance(ex, urllib2.HTTPError):
                     if ex.code in [403, 404, 503]:
@@ -284,7 +287,8 @@ class PixivBrowser(mechanize.Browser):
                 self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
             url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(imageId)
-            response = self.open(url).read()
+            # response = self.open(url).read()
+            response = self.getPixivPage(url, returnParsed=False).read()
             self.handleDebugMediumPage(response, imageId)
 
             parsed = BeautifulSoup(response)
@@ -463,7 +467,8 @@ class PixivBrowser(mechanize.Browser):
                                                    self._config.r18mode)
 
             PixivHelper.printAndLog('info', 'Looping... for ' + url)
-            response = self.open(url).read()
+            # response = self.open(url).read()
+            response = self.getPixivPage(url, returnParsed=False).read()
             self.handleDebugTagSearchPage(response, url)
 
             parse_search_page = BeautifulSoup(response)
