@@ -1,4 +1,4 @@
-20170626-beta5:
+2017075:
 - Update test cases.
 - Fix Issue #222: hide password in console.
 - Fix Issue #223: fix db result error.
@@ -8,6 +8,9 @@
 - Fix Issue #232: UnboundLocalError local variable 'list_page' referenced before assignment.
 - Fix Issue #233: update dump hmtml page handler.
 - Fix Issue #236: update parser for artist profile and dump html page if not found.
+- Fix Issue #237: update UnboundLocalError for list_page.
+- Fix Issue #238: update DB clear method for ugoira/zip file.
+- Update readme.txt
 
 20170411:
 - Update test cases.

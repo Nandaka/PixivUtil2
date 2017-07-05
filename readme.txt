@@ -502,9 +502,9 @@ http://www.pixiv.net/member_illust.php?id=123456
 = tags.txt Format                                                               =
 =================================================================================
 - This file will be used as source for Download from tags list (7)
-- Separate tags with space.
+- Separate tags with space, ensure to set Use Wildcard to 'y'.
 - Each line will be treated as one search.
-- Save the files with UTF-8 encoding
+- Save the files with UTF-8 encoding.
 
 =================================================================================
 = suppress_tags.txt Format                                                      =
