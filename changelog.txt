@@ -1,4 +1,4 @@
-2017075:
+20170705:
 - Update test cases.
 - Fix Issue #222: hide password in console.
 - Fix Issue #223: fix db result error.
