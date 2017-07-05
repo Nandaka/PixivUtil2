@@ -383,11 +383,11 @@ useBlacklistMembers ==> Skip image by member id.
 ===============================================================================
 Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
 -> %member_token%
-   Member token, doesn't change.
+   Member token, might change.
 -> %member_id%
    Member id, in number.
 -> %artist%
-   Artist name, may change.
+   Artist name, might change too.
 -> %urlFilename%
    The actual filename stored in server without the file extensions.   
 -> %date%
