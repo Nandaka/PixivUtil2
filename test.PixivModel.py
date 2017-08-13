@@ -635,7 +635,7 @@ class TestPixivGroup(unittest.TestCase):
 if __name__ == '__main__':
     test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
-    #test_classes_to_run = [TestPixivTags]
+    # test_classes_to_run = [TestPixivTags]
 
     loader = unittest.TestLoader()
 

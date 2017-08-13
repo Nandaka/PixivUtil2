@@ -1,3 +1,7 @@
+20170813-beta1:
+- Update test cases.
+- Fix Issue #252: update parser for tags search.
+
 20170705:
 - Update test cases.
 - Fix Issue #222: hide password in console.
