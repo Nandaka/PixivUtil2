@@ -938,40 +938,54 @@ class PixivTags:
         # ignore showcase and popular-introduction
         # ignore.extend(self.parseIgnoreSection(page, 'showcase'))
         # ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
-        search_result = page.find('section', attrs={'class': 'column-search-result'})
-        # new parse for bookmark items
-        items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
 
-        # possible bug related to #143
-        if len(items) == 0:
-            # showcase must be removed first
-            showcase = page.find("section", attrs={'class': 'showcase'})
-            if showcase is not None:
-                showcase.extract()
-            search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
-            if search_result is None or len(search_result) == 0:
-                return self.itemList
+        # new format for tag list, fix issue #252
+        js_tags_item = page.find("div", attrs={"id": "js-mount-point-search-result-list"})
+        if js_tags_item is not None:
+            js = js_tags_item["data-items"]
+            items = json.loads(js)
+            for item in items:
+                image_id = item["illustId"]
+                bookmarkCount = item["bookmarkCount"]
+                imageResponse = item["responseCount"]
+                self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+
+        else:
+            search_result = page.find('section', attrs={'class': 'column-search-result'})
+            # new parse for bookmark items
             items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
 
-        for item in items:
-            if str(item).find('member_illust.php?') > -1:
-                image_id = self.__re_illust.findall(item.find('a')['href'])[0]
-                if not str(image_id).isdigit() or image_id in ignore:
-                    continue
+            # possible bug related to #143
+            if len(items) == 0:
+                # showcase must be removed first
+                showcase = page.find("section", attrs={'class': 'showcase'})
+                if showcase is not None:
+                    showcase.extract()
+                search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
+                if search_result is None or len(search_result) == 0:
+                    return self.itemList
+                items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
 
-                bookmarkCount = 0
-                imageResponse = 0
-                countList = item.find('ul', attrs={'class': 'count-list'})
-                if countList is not None:
-                    countList = countList.findAll('li')
-                    if len(countList) > 0:
-                        for count in countList:
-                            temp = count.find('a')
-                            if 'bookmark-count' in temp['class']:
-                                bookmarkCount = temp.contents[1]
-                            elif 'image-response-count' in temp['class']:
-                                imageResponse = temp.contents[1]
-                self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+            for item in items:
+                if str(item).find('member_illust.php?') > -1:
+                    image_id = self.__re_illust.findall(item.find('a')['href'])[0]
+                    if not str(image_id).isdigit() or image_id in ignore:
+                        continue
+
+                    bookmarkCount = 0
+                    imageResponse = 0
+                    countList = item.find('ul', attrs={'class': 'count-list'})
+                    if countList is not None:
+                        countList = countList.findAll('li')
+                        if len(countList) > 0:
+                            for count in countList:
+                                temp = count.find('a')
+                                if 'bookmark-count' in temp['class']:
+                                    bookmarkCount = temp.contents[1]
+                                elif 'image-response-count' in temp['class']:
+                                    imageResponse = temp.contents[1]
+                    self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+
         self.checkLastPage(page)
         self.availableImages = SharedParser.parseCountBadge(page)
         return self.itemList

@@ -520,9 +520,9 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2267)
+        self.assertEqual(image.availableImages, 2270)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -534,7 +534,7 @@ class TestPixivTags(unittest.TestCase):
         image.parseTags(page)
         for img in image.itemList:
             print img.imageId
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchExactLast(self):
@@ -558,7 +558,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchPartialLast(self):
@@ -597,7 +597,7 @@ class TestPixivTags(unittest.TestCase):
         # self.assertEqual(image.itemList[0].imageId, 53977340)
         # self.assertEqual(image.itemList[19].imageId, 45511597)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 66)
+        self.assertEqual(image.availableImages, 67)
 
     def testTagsMemberSearchLast(self):
         br = Browser()
@@ -619,7 +619,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
 
 
 class TestPixivGroup(unittest.TestCase):
@@ -635,6 +635,7 @@ class TestPixivGroup(unittest.TestCase):
 if __name__ == '__main__':
     test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
+    #test_classes_to_run = [TestPixivTags]
 
     loader = unittest.TestLoader()
 
