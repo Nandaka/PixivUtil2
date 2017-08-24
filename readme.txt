@@ -8,7 +8,7 @@
   - Python 2.7.11++ (http://www.python.org/)
   - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
   - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
-  - socksipy-branch 1.02+ (https://socksipy-branch.googlecode.com/)
+  - socksipy-branch 1.02+ (http://socksipy.sourceforge.net/)
   - Pillow (https://python-pillow.github.io/)
   - imageio (https://imageio.github.io/)
   - numpy (https://github.com/numpy/numpy)
@@ -323,9 +323,9 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be
                           downloaded again, set 'False' to disable.
  		       -> Override the overwrite and image_id checking from db
                           (always fetch the image page for checking the size)
-checkUpdatedLimit     ==> Number of already downloaded image to be check before
-                          move to the next member. alwaysCheckFileSize must be
-                          set to False.
+checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
+                          previously downloaded images.
+			  alwaysCheckFileSize must be set to False.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
                     This setting is depended on %urlFilename% format.
@@ -383,11 +383,11 @@ useBlacklistMembers ==> Skip image by member id.
 ===============================================================================
 Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
 -> %member_token%
-   Member token, doesn't change.
+   Member token, might change.
 -> %member_id%
    Member id, in number.
 -> %artist%
-   Artist name, may change.
+   Artist name, might change too.
 -> %urlFilename%
    The actual filename stored in server without the file extensions.   
 -> %date%
@@ -502,9 +502,9 @@ http://www.pixiv.net/member_illust.php?id=123456
 = tags.txt Format                                                               =
 =================================================================================
 - This file will be used as source for Download from tags list (7)
-- Separate tags with space.
+- Separate tags with space, ensure to set Use Wildcard to 'y'.
 - Each line will be treated as one search.
-- Save the files with UTF-8 encoding
+- Save the files with UTF-8 encoding.
 
 =================================================================================
 = suppress_tags.txt Format                                                      =

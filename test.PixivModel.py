@@ -10,15 +10,23 @@ import unittest
 
 
 class MockPixivBrowser(PixivBrowser):
-    def __init__(self):
+    mode = None
+
+    def __init__(self, mode):
+        self.mode = mode
         pass
 
     def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
-        ''' fake the manga page '''
-        pageNo = url.split("=")[-1]
-        p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
-        page = BeautifulSoup(p.read())
-        return page
+        if self.mode == 1:
+            p = open('./test/test-image-big-single.html', 'r')
+            page = BeautifulSoup(p.read())
+            return page
+        else:
+            ''' fake the manga page '''
+            pageNo = url.split("=")[-1]
+            p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
+            page = BeautifulSoup(p.read())
+            return page
 
 
 class TestPixivArtist(unittest.TestCase):
@@ -95,14 +103,17 @@ class TestPixivArtist(unittest.TestCase):
         p = open('./test/test-member-bookmark.htm', 'r')
         page = BeautifulSoup(p.read())
         try:
-            artist = PixivArtist(3281699, page)
+            artist = PixivArtist(490219, page)
             # artist.PrintInfo()
         except PixivException as ex:
             print ex
+            self.assertTrue(ex is None)
+
         page.decompose()
         del page
+
         self.assertNotEqual(artist, None)
-        self.assertEqual(artist.artistId, 3281699)
+        self.assertEqual(artist.artistId, 490219)
 
     def testPixivArtistServerError(self):
         # print '\nTesting member page'
@@ -125,6 +136,8 @@ class TestPixivImage(unittest.TestCase):
 
         self.assertEqual(image2.imageId, 32039274)
         self.assertEqual(image2.imageTitle, u"新しいお姫様")
+        self.assertTrue(len(image2.imageCaption) > 0)
+        print u"\r\nCaption = {0}".format(image2.imageCaption)
 
         self.assertTrue(u'MAYU' in image2.imageTags)
         self.assertTrue(u'VOCALOID' in image2.imageTags)
@@ -275,7 +288,8 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image.imageMode, 'manga')
         self.assertTrue(image.jd_rtv > 0)
         self.assertTrue(image.jd_rtc > 0)
-        self.assertTrue(image.jd_rtt > 0)
+        # deprecated since 11-April-2017
+        # self.assertTrue(image.jd_rtt > 0)
         self.assertEqual(image.worksTools, "Photoshop")
 
     def testPixivImageNoImage(self):
@@ -350,13 +364,27 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-image-parsemanga.htm', 'r')
         page = BeautifulSoup(p.read())
         image = PixivImage()
-        urls = image.ParseImages(page, mode='manga', _br=MockPixivBrowser())
+        urls = image.ParseImages(page, mode='manga', _br=MockPixivBrowser(None))
         # print urls
         self.assertEqual(len(urls), 3)
         self.assertEqual(len(urls), image.imageCount)
         imageId = urls[0].split('/')[-1].split('.')[0]
         # print 'imageId:',imageId
         self.assertEqual(imageId, '46279245_p0')
+
+    def testPixivImageParseMangaBig(self):
+        # print '\nTesting parse Manga Images'
+        # Issue #224
+        p = open('./test/test-image-big-manga.html', 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivImage(iid=62670665)
+        image.ParseInfo(page)
+        urls = image.ParseImages(page, mode=image.imageMode, _br=MockPixivBrowser(1))
+        self.assertEqual(len(urls), 1)
+        print urls[0]
+        imageId = urls[0].split('/')[-1].split('_')[0]
+        # print 'imageId:',imageId
+        self.assertEqual(int(imageId), 62670665)
 
     def testPixivImageNoLogin(self):
         # print '\nTesting not logged in'
@@ -494,7 +522,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 20)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2245)
+        self.assertEqual(image.availableImages, 2267)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):

@@ -1,6 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
+
 class PixivException(Exception):
     # Error Codes
     NOT_LOGGED_IN      = 100
@@ -30,12 +31,14 @@ class PixivException(Exception):
     SERVER_ERROR  = 9005
 
     errorCode = 0
+    htmlPage = None
 
-    def __init__(self, message, errorCode=0):
+    def __init__(self, message, errorCode=0, htmlPage=None):
         super(PixivException, self).__init__(message)
         self.value = message
         self.message = message
         self.errorCode = errorCode
+        self.htmlPage = htmlPage
 
     def __str__(self):
         return str(self.errorCode) + " " + repr(self.value)

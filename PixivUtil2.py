@@ -3,6 +3,9 @@
 # pylint: disable=I0011, C, C0302
 
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 import os
 import re
 import traceback
@@ -307,6 +310,7 @@ def process_list(mode, list_file_name=None, tags=None):
 def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
     global __errorList
     global ERROR_CODE
+    list_page = None
 
     PixivHelper.printAndLog('info', 'Processing Member Id: ' + str(member_id))
     if page != 1:
@@ -321,7 +325,6 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         PixivHelper.printAndLog('info', 'End Page from config: ' + str(__config__.numberOfPage))
 
     __config__.loadConfig(path=configfile)
-    list_page = None
 
     # calculate the offset for display properties
     offset = 20
@@ -351,6 +354,8 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
                     else:
+                        if list_page is None:
+                            list_page = ex.htmlPage
                         if list_page is not None:
                             PixivHelper.dumpHtml("Dump for " + str(member_id) + " Error Code " + str(ex.errorCode) + ".html", list_page)
                         if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
@@ -384,7 +389,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                 avatar_filename = PixivHelper.createAvatarFilename(artist, target_dir)
                 if not DEBUG_SKIP_PROCESS_IMAGE:
                     # hardcode the referer to pixiv main site
-                    download_image(artist.artistAvatar, avatar_filename, "http://www.pixiv.net/", __config__.overwrite,
+                    download_image(artist.artistAvatar, avatar_filename, "https://www.pixiv.net/", __config__.overwrite,
                                    __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 
@@ -522,7 +527,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
     parse_medium_page = None
     image = None
     result = None
-    referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
+    referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
 
     try:
         filename = 'N/A'
@@ -556,7 +561,6 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                 PixivHelper.printAndLog('error', 'Giving up image_id (medium): ' + str(image_id))
             elif ex.errorCode > 2000:
                 PixivHelper.printAndLog('error', 'Image Error for ' + str(image_id) + ': ' + ex.message)
-
             if parse_medium_page is not None:
                 dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
                 PixivHelper.dumpHtml(dump_filename, parse_medium_page)
@@ -605,7 +609,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             # get bookmark count
             if ("%bookmark_count%" in __config__.filenameFormat or "%image_response_count%" in __config__.filenameFormat) and image.bookmark_count == -1:
                 print "Parsing bookmark page",
-                bookmark_url = 'http://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id)
+                bookmark_url = 'https://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id)
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
                 image.ParseBookmarkDetails(parse_bookmark_page)
                 parse_bookmark_page.decompose()
@@ -622,7 +626,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
             if image.imageMode == 'manga' or image.imageMode == 'big':
                 while True:
                     try:
-                        big_url = 'http://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
+                        big_url = 'https://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
                         parse_big_image = PixivBrowserFactory.getBrowser().getPixivPage(big_url, referer)
                         if parse_big_image is not None:
                             image.ParseImages(page=parse_big_image, _br=PixivBrowserFactory.getExistingBrowser())
@@ -706,7 +710,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     image.WriteInfo(info_filename + ".txt")
                 if __config__.writeImageJSON:
                     image.WriteJSON(info_filename + ".json")
-            
+
             if image.imageMode == 'ugoira_view':
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
@@ -873,7 +877,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                 if last_image_id > 0:
                     # get the last date
                     PixivHelper.printAndLog('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
-                    referer = 'http://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
+                    referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
                     parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
                     image = PixivImage(iid=last_image_id, page=parse_medium_page, dateFormat=__config__.dateFormat)
                     _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
@@ -962,7 +966,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
             print "Page Limit reached: " + str(end_page)
             break
 
-        url = 'http://www.pixiv.net/bookmark.php?p=' + str(i)
+        url = 'https://www.pixiv.net/bookmark.php?p=' + str(i)
         if hide:
             url = url + "&rest=hide"
         if tag is not None and len(tag) > 0:
@@ -998,7 +1002,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
             print 'Limit reached'
             break
         PixivHelper.printAndLog('info', 'Exporting page ' + str(i))
-        url = 'http://www.pixiv.net/bookmark.php?type=user&p=' + str(i)
+        url = 'https://www.pixiv.net/bookmark.php?type=user&p=' + str(i)
         if hide:
             url = url + "&rest=hide"
         if member_id:
@@ -1064,9 +1068,9 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
         flag = True
         while flag:
             print "Page #" + str(i)
-            url = 'http://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
+            url = 'https://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
             if __config__.r18mode:
-                url = 'http://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
+                url = 'https://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
 
             PixivHelper.printAndLog('info', "Source URL: " + url)
             page = __br__.open(url)
@@ -1116,7 +1120,7 @@ def process_from_group(mode, group_id, limit=0, process_external=True):
         image_count = 0
         flag = True
         while flag:
-            url = "http://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
+            url = "https://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
             PixivHelper.printAndLog('info', "Getting images from: {0}".format(url))
             json_response = __br__.open(url)
             group_data = PixivGroup(json_response)
@@ -1854,7 +1858,11 @@ def main():
 
         password = __config__.password
         if password == '':
+            if os.name == 'nt':
+                win_unicode_console.disable()
             password = getpass.getpass('Password ? ')
+            if os.name == 'nt':
+                win_unicode_console.enable()
 
         if np_is_valid and np != 0:  # Yavos: overwrite config-data
             msg = 'Limit up to: ' + str(np) + ' page(s). (set via commandline)'

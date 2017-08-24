@@ -1,3 +1,23 @@
+20170705:
+- Update test cases.
+- Fix Issue #222: hide password in console.
+- Fix Issue #223: fix db result error.
+- Fix Issue #224 and #226: new big image mode for single page manga.
+- Fix Issue #228: Update urls to https.
+- Fix Issue #230: set defaultencoding to utf-8.
+- Fix Issue #232: UnboundLocalError local variable 'list_page' referenced before assignment.
+- Fix Issue #233: update dump hmtml page handler.
+- Fix Issue #236: update parser for artist profile and dump html page if not found.
+- Fix Issue #237: update UnboundLocalError for list_page.
+- Fix Issue #238: update DB clear method for ugoira/zip file.
+- Update readme.txt
+
+20170411:
+- Update test cases.
+- Fix Issue #218: handle mechanize lib update.
+- Fix Issue #219: update parser for option 11 (download member bookmarks).
+- Fix Issue #220: update parser for option 6 (download user bookmarked images).
+
 20170220:
 - Update test cases.
 - Fix Issue #178: Unbound variable upon error handling.

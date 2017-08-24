@@ -531,7 +531,7 @@ def printDelay(retryWait):
     print ''
 
 
-def createCustomRequest(url, config, referer='http://www.pixiv.net', head=False):
+def createCustomRequest(url, config, referer='https://www.pixiv.net', head=False):
     if config.useProxy:
         proxy = urllib2.ProxyHandler(config.proxy)
         opener = urllib2.build_opener(proxy)
@@ -635,17 +635,17 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
         date_param = date_param + "&ecd=" + end_date
 
     if member_id is not None:
-        url = 'http://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
+        url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
     else:
         if title_caption:
-            url = 'http://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
+            url = 'https://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
             print u"Using Title Match (s_tc)"
         else:
             if wild_card:
-                url = 'http://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
+                url = 'https://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
                 print u"Using Partial Match (s_tag)"
             else:
-                url = 'http://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
+                url = 'https://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
                 print u"Using Full Match (s_tag_full)"
 
     if r18mode:

@@ -2,10 +2,10 @@
 # pylint: disable=I0011, C, C0302
 
 
-PIXIVUTIL_VERSION = '20170220'
+PIXIVUTIL_VERSION = '20170705'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'
 PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
-PIXIV_URL = 'http://www.pixiv.net'
+PIXIV_URL = 'https://www.pixiv.net'
 PIXIV_URL_SSL = 'https://www.pixiv.net/login.php'
 PIXIV_CSS_LIST_ID = 'display_works'
 PIXIV_CSS_PROFILE_NAME_CLASS = 'f18b'
