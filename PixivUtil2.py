@@ -907,7 +907,9 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         raise
 
 
-def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest_first=False, bookmark_count=None):
+def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True,
+                      oldest_first=False, bookmark_count=None,
+                      start_date=None, end_date=None):
     global ERROR_CODE
 
     try:
@@ -915,7 +917,8 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True, oldest
         l = PixivTags.parseTagsList(filename)
         for tag in l:
             process_tags(mode, tag, page=page, end_page=end_page, wild_card=wild_card,
-                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first, bookmark_count=bookmark_count)
+                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first,
+                         bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
     except KeyboardInterrupt:
         raise
     except Exception as ex:
@@ -1508,6 +1511,8 @@ def menu_download_from_tags_list(mode, opisvalid, args):
     oldest_first = False
     wildcard = True
     bookmark_count = None
+    start_date = None
+    end_date = None
 
     if opisvalid and len(args) > 0:
         filename = args[0]
@@ -1526,9 +1531,12 @@ def menu_download_from_tags_list(mode, opisvalid, args):
             oldest_first = False
         bookmark_count = raw_input('Bookmark Count: ') or None
         (page, end_page) = get_start_and_end_number()
+        (start_date, end_date) = get_start_and_end_date()
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
-    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first, bookmark_count=bookmark_count)
+
+    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first,
+                      bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
 
 
 def menu_download_new_illust_from_bookmark(mode, opisvalid, args):
