@@ -649,7 +649,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
                 print u"Using Full Match (s_tag_full)"
 
     if r18mode:
-        url = url + '&r18=1'
+        url = url + '&mode=r18'
 
     if oldest_first:
         url = url + '&order=date'
