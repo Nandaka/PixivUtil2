@@ -687,7 +687,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         info.close()
 
 
-def ugoira2gif(ugoira_file, exportname):
+def ugoira2gif(ugoira_file, exportname, fmt='gif'):
     printAndLog('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
     # imageio cannot handle utf-8 filename
@@ -707,7 +707,7 @@ def ugoira2gif(ugoira_file, exportname):
         durations.append(float(info["delay"]) / 1000)
 
     kargs = {'duration': durations}
-    imageio.mimsave(temp_name, images, 'GIF', **kargs)
+    imageio.mimsave(temp_name, images, fmt, **kargs)
     shutil.move(temp_name, exportname)
     printAndLog('info', 'ugoira exported to: ' + exportname)
 
