@@ -93,6 +93,16 @@ class PixivArtist:
                 self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
                 self.artistName = unicode(temp['title'])
                 self.artistAvatar = avatarBox.find('a')['style'].replace("background-image: url('", "").replace("');", "")
+                return
+
+        # check if self manage page
+        submit_related = page.findAll("ul", attrs={'class': 'related'})
+        if len(submit_related) > 0 and str(submit_related[0]).find("upload.php") > 0:
+            PixivHelper.printAndLog("info", "Manage Page.")
+            self.artistAvatar = "your profile"
+            self.artistName = "yourself"
+            temp = page.find("h1", attrs={'class': 'column-title'}).find("a")
+            self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
             return
 
         # Issue #236
@@ -102,7 +112,7 @@ class PixivArtist:
         title = page.find("title").text
         filename = u"Dump for {0} UnknownProfile for {1}.html".format(title, self.artistToken)
         PixivHelper.printAndLog("error", u"Cannot parse artist info, dumping to {0}".format(filename))
-        PixivHelper.printAndLog("error", u"{0}".format(page))
+        # PixivHelper.printAndLog("error", u"{0}".format(page))
         PixivHelper.dumpHtml(filename, page)
 
     def ParseToken(self, page, fromImage=False):

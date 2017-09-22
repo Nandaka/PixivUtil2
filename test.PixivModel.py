@@ -125,6 +125,37 @@ class TestPixivArtist(unittest.TestCase):
         page.decompose()
         del page
 
+    def testPixivArtistManageSelf(self):
+        # print '\nTesting own page '
+        p = open('./test/test-member-self.htm', 'r')
+        page = BeautifulSoup(p.read())
+        artist = PixivArtist(189816, page)
+
+        page.decompose()
+        del page
+
+        # no artist information for manage self page.
+        self.assertNotEqual(artist, None)
+        self.assertEqual(artist.artistId, 189816)
+        # self.assertEqual(artist.artistToken, 'nandaka')
+        self.assertGreaterEqual(artist.totalImages, 1)
+        self.assertIn(65079382, artist.imageList)
+
+    def testPixivArtistManageSelf2(self):
+        # print '\nTesting own page '
+        p = open('./test/Error_page_for_member_539661.htm', 'r')
+        page = BeautifulSoup(p.read())
+        artist = PixivArtist(539661, page)
+
+        page.decompose()
+        del page
+
+        # no artist information for manage self page.
+        self.assertNotEqual(artist, None)
+        self.assertEqual(artist.artistId, 539661)
+        self.assertGreaterEqual(artist.totalImages, 228)
+        self.assertIn(65041158, artist.imageList)
+        self.assertFalse(artist.isLastPage)
 
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
@@ -427,6 +458,25 @@ class TestPixivImage(unittest.TestCase):
         page.decompose()
         del page
 
+    def testPixivSImageParseInfoSelf(self):
+        # assuming being accessed via manage page for your own artwork.
+        p = open('./test/test-image-selfimage.htm', 'r')
+        page = BeautifulSoup(p.read())
+        image2 = PixivImage(65079382, page)
+        page.decompose()
+        del page
+
+        self.assertEqual(image2.imageId, 65079382)
+        self.assertEqual(image2.imageTitle, u"Test")
+        self.assertTrue(len(image2.imageCaption) > 0)
+        print u"\r\nCaption = {0}".format(image2.imageCaption)
+
+        self.assertTrue(u'None' in image2.imageTags)
+
+        self.assertEqual(image2.imageMode, "bigNew")
+        self.assertEqual(image2.worksDate, '9/22/2017 11:29')
+        self.assertEqual(image2.worksResolution, '946x305')
+
 
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
@@ -633,9 +683,10 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(result.maxId, 626288)
 
 if __name__ == '__main__':
-    test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
+    # test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
+    test_classes_to_run = [TestPixivArtist]
 
     loader = unittest.TestLoader()
 
