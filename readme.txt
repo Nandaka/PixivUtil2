@@ -96,15 +96,15 @@ A.Usage:
       - If you are downloading using Download from List.txt (3), you can create
 	ignore_list.txt to skip the member id.
   Q6. The app doesn't download all the images!
-      - Check your pixiv website settings (refer to https://goo.gl/gQi09v), 
+      - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
         then delete the cookie value in config.ini and retry.
-      - Check the value of r18mode in config.ini. Setting it to True will only 
-        download R-18 images.        
+      - Check the value of r18mode in config.ini. Setting it to True will only
+        download R-18 images.
   Q7. The apps show square/question mark texts in the console output!
-      - This is because your windows is not to Japanese for the Regional Settings 
+      - This is because your windows is not to Japanese for the Regional Settings
         in control panel.
       - Since 20161114+ version, you need to set the console font properties to
-        use font with unicode support (e.g. Arial Unicode, MS Gothic). 
+        use font with unicode support (e.g. Arial Unicode, MS Gothic).
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
@@ -307,10 +307,10 @@ uselist       ==> set to 'True' to parse list.txt.
                   and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-filenameformat ==> The format for the filename, reserved/illegal character 
-                   will be replaced with underscore '_', repeated space will 
+filenameformat ==> The format for the filename, reserved/illegal character
+                   will be replaced with underscore '_', repeated space will
 				   be trimmed to single space.
-                   The filename (+full path) will be trimmed to the first 250 
+                   The filename (+full path) will be trimmed to the first 250
 				   character (Windows limitation).
 				   Refer to Filename Format Syntax for available format.
 filenamemangaformat ==> Similar like filename format, but for manga pages.
@@ -346,7 +346,7 @@ tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
-dateDiff        ==> Process only new images within the given date difference. 
+dateDiff        ==> Process only new images within the given date difference.
                     Set 0 to disable. Skip to next member id if in 'Download
                     by Member', stop processing if in 'Download New Illust' mode.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
@@ -389,14 +389,14 @@ Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
 -> %artist%
    Artist name, might change too.
 -> %urlFilename%
-   The actual filename stored in server without the file extensions.   
+   The actual filename stored in server without the file extensions.
 -> %date%
    Current date in YYYYMMMDD format.
--> %date_fmt{format}% 
+-> %date_fmt{format}%
    Current date using custom format.
    Use Python string format notation, refer: https://goo.gl/3UiMAb
    e.g. %date_fmt{%Y-%m-%d}%
-   
+
 Available for filenameFormat and filenameMangaFormat:
 -> %image_id%
    Image id, in number.
@@ -414,10 +414,10 @@ Available for filenameFormat and filenameMangaFormat:
    e.g. %works_date_fmt{%Y-%m-%d}%
 -> %works_res%
    Image resolution, will be containing the page count if manga.
--> %works_tools% 
+-> %works_tools%
    Tools used for the image.
 -> %R-18%
-   Append R-18/R-18 based on image tag, can be used for creating directory 
+   Append R-18/R-18 based on image tag, can be used for creating directory
    by appending directory separator, e.g.: %R-18%\%image_id%.
 -> %page_big%
    for manga mode, add big in the filename.
