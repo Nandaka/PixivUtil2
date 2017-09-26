@@ -2,7 +2,7 @@
 = Requirement:                                                                 =
 ================================================================================
 - Running from windows binary:
-  - Windows XP and up.
+  - Windows Vista and up.
 
 - Running from source code:
   - Python 2.7.11++ (http://www.python.org/)
