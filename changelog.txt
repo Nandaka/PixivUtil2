@@ -1,6 +1,11 @@
-20170813-beta1:
+20171004:
 - Update test cases.
 - Fix Issue #252: update parser for tags search.
+- Fix Issue #261: fix r18 url.
+- Fix Issue #262: support downloading your own works (artist info will not be downloaded).
+- Fix Issue #270: update parser for tags search again.
+- Implement #250: support to specify timeframe for download by taglist.
+- updated readme.txt
 
 20170705:
 - Update test cases.
