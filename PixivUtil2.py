@@ -172,6 +172,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     try:
                         from PIL import Image
                         fp = open(filename, "rb")
+                        # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
+                        PIL.ImageFile.LOAD_TRUNCATED_IMAGES = True
                         img = Image.open(fp)
                         img.load()
                         fp.close()
