@@ -157,6 +157,7 @@ class TestPixivArtist(unittest.TestCase):
         self.assertIn(65041158, artist.imageList)
         self.assertFalse(artist.isLastPage)
 
+
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
         p = open('./test/test-image-info.html', 'r')
@@ -572,7 +573,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2270)
+        self.assertEqual(image.availableImages, 2279)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -683,10 +684,10 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(result.maxId, 626288)
 
 if __name__ == '__main__':
-    # test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
+    test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
-    test_classes_to_run = [TestPixivArtist]
+    # test_classes_to_run = [TestPixivArtist]
 
     loader = unittest.TestLoader()
 
