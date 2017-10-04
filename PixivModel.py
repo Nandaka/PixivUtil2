@@ -950,7 +950,8 @@ class PixivTags:
         # ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
 
         # new format for tag list, fix issue #252
-        js_tags_item = page.find("div", attrs={"id": "js-mount-point-search-result-list"})
+        # fix issue #270, changed to search based on id only
+        js_tags_item = page.find(id="js-mount-point-search-result-list")
         if js_tags_item is not None:
             js = js_tags_item["data-items"]
             items = json.loads(js)
