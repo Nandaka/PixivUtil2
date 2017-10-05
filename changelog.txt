@@ -1,3 +1,6 @@
+20171006:
+- Fix Issue #272: fix PIL import
+
 20171004:
 - Update test cases.
 - Fix Issue #252: update parser for tags search.
