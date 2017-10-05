@@ -6,11 +6,11 @@
 
 - Running from source code:
   - Python 2.7.11++ (http://www.python.org/)
-  - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
   - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
-  - socksipy-branch 1.02+ (http://socksipy.sourceforge.net/)
+  - mechanize (http://wwwsearch.sourceforge.net/mechanize/)
+  - socksipy-branch 1.2 (http://socksipy.sourceforge.net/)
   - Pillow (https://python-pillow.github.io/)
-  - imageio (https://imageio.github.io/)
+  - imageio(https://imageio.github.io/)
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
