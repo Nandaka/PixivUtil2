@@ -170,10 +170,10 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 elif __config__.verifyImage and (filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".gif")):
                     fp = None
                     try:
-                        from PIL import Image
+                        from PIL import Image, ImageFile
                         fp = open(filename, "rb")
                         # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
-                        PIL.ImageFile.LOAD_TRUNCATED_IMAGES = True
+                        ImageFile.LOAD_TRUNCATED_IMAGES = True
                         img = Image.open(fp)
                         img.load()
                         fp.close()
@@ -1312,6 +1312,7 @@ def menu_download_by_member_id(mode, opisvalid, args):
         (page, end_page) = get_start_and_end_number()
 
         member_ids = PixivHelper.getIdsFromCsv(member_ids, sep=" ")
+        PixivHelper.printAndLog('info', "Member IDs: {0}".format(member_ids))
         for member_id in member_ids:
             process_member(mode, member_id, page=page, end_page=end_page)
 
