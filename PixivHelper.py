@@ -126,6 +126,11 @@ def sanitizeFilename(s, rootDir=None):
     return tempName.strip()
 
 
+# Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
+def replacePathSeparator(s, replacement='_'):
+    return s.replace(os.sep, replacement).replace('/', replacement).replace('\\', replacement)
+
+
 def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
                  appendExtension=True, bookmark=False, searchTags=''):
     '''Build the filename from given info to the given format.'''
@@ -138,17 +143,17 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     imageExtension = splittedUrl[1]
     imageExtension = imageExtension.split('?')[0]
 
-    # Issue #277: always replace '/' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
     # artist related
-    nameFormat = nameFormat.replace('%artist%', artistInfo.artistName.replace(os.sep, '_').replace('/', '_'))
+    nameFormat = nameFormat.replace('%artist%', replacePathSeparator(artistInfo.artistName))
     nameFormat = nameFormat.replace('%member_id%', str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
 
     # image related
-    nameFormat = nameFormat.replace('%title%', imageInfo.imageTitle.replace(os.sep, '_').replace('/', '_'))
+    nameFormat = nameFormat.replace('%title%', replacePathSeparator(imageInfo.imageTitle))
     nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
+
     # formatted works date/time, ex. %works_date_fmt{%Y-%m-%d}%
     if nameFormat.find("%works_date_fmt") > -1:
         to_replace = re.findall("(%works_date_fmt{.*}%)", nameFormat)
@@ -156,12 +161,13 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         nameFormat = nameFormat.replace(to_replace[0], imageInfo.worksDateDateTime.strftime(date_format[0]))
 
     nameFormat = nameFormat.replace('%works_res%', imageInfo.worksResolution)
-    nameFormat = nameFormat.replace('%works_tools%', imageInfo.worksTools.replace('/', '_'))
+    nameFormat = nameFormat.replace('%works_tools%', replacePathSeparator(imageInfo.worksTools))
     nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
-    nameFormat = nameFormat.replace('%searchTags%', searchTags.replace('/', '_'))
+    nameFormat = nameFormat.replace('%searchTags%', replacePathSeparator(searchTags))
 
     # date
     nameFormat = nameFormat.replace('%date%', date.today().strftime('%Y%m%d'))
+
     # formatted date/time, ex. %date_fmt{%Y-%m-%d}%
     if nameFormat.find("%date_fmt") > -1:
         to_replace2 = re.findall("(%date_fmt{.*}%)", nameFormat)
@@ -201,19 +207,19 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     elif "R-18" in imageInfo.imageTags:
         r18Dir = "R-18"
     nameFormat = nameFormat.replace('%R-18%', r18Dir)
-    nameFormat = nameFormat.replace('%tags%', tags.replace(os.sep, '_').replace('/', '_'))
+    nameFormat = nameFormat.replace('%tags%', replacePathSeparator(tags))
     nameFormat = nameFormat.replace('&#039;', '\'')  # Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
 
     if bookmark:  # from member bookmarks
         nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
         nameFormat = nameFormat.replace('%original_member_id%', str(imageInfo.originalArtist.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', imageInfo.originalArtist.artistToken)
-        nameFormat = nameFormat.replace('%original_artist%', imageInfo.originalArtist.artistName.replace(os.sep, '_').replace('/', '_'))
+        nameFormat = nameFormat.replace('%original_artist%', replacePathSeparator(imageInfo.originalArtist.artistName))
     else:
         nameFormat = nameFormat.replace('%bookmark%', '')
         nameFormat = nameFormat.replace('%original_member_id%', str(artistInfo.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', artistInfo.artistToken)
-        nameFormat = nameFormat.replace('%original_artist%', artistInfo.artistName.replace(os.sep, '_').replace('/', '_'))
+        nameFormat = nameFormat.replace('%original_artist%', replacePathSeparator(artistInfo.artistName))
 
     if imageInfo.bookmark_count > 0:
         nameFormat = nameFormat.replace('%bookmark_count%', str(imageInfo.bookmark_count))
