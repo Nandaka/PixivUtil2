@@ -488,7 +488,7 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.downloadDelay = config.getint('Network', 'enableDelay')
+                self.downloadDelay = config.getint('Network', 'downloadDelay')
             except ValueError:
                 self.downloadDelay = 2
                 print "downloadDelay = 2"
