@@ -1748,8 +1748,8 @@ def doLogin(password, username):
 
 def wait():
     # Issue#276: add random delay for each post.
-    if __config__.enableDelay:
-        delay = random.random()
+    if __config__.downloadDelay > 0:
+        delay = random.random() * __config__.downloadDelay
         print("Wait for {0:.3}s".format(delay))
         time.sleep(delay)
 

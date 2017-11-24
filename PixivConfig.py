@@ -28,7 +28,7 @@ class PixivConfig:
     timeout = 60
     retry = 3
     retryWait = 5
-    enableDelay = True
+    downloadDelay = 2
 
     # Authentication related
     username = ''
@@ -488,10 +488,10 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.enableDelay = config.getboolean('Network', 'enableDelay')
+                self.downloadDelay = config.getint('Network', 'enableDelay')
             except ValueError:
-                self.enableDelay = True
-                print "enableDelay = True"
+                self.downloadDelay = 2
+                print "downloadDelay = 2"
                 haveError = True
 
 ##        except ConfigParser.NoOptionError:
@@ -527,7 +527,7 @@ class PixivConfig:
         config.set('Network', 'timeout', self.timeout)
         config.set('Network', 'retry', self.retry)
         config.set('Network', 'retrywait', self.retryWait)
-        config.set('Network', 'enableDelay', self.enableDelay)
+        config.set('Network', 'downloadDelay', self.downloadDelay)
 
         config.add_section('Debug')
         config.set('Debug', 'logLevel', self.logLevel)
@@ -631,7 +631,7 @@ class PixivConfig:
         print ' - timeout          =', self.timeout
         print ' - retry            =', self.retry
         print ' - retryWait        =', self.retryWait
-        print ' - enableDelay      =', self.enableDelay
+        print ' - downloadDelay      =', self.downloadDelay
 
         print ' [Debug]'
         print ' - logLevel         =', self.logLevel
