@@ -28,6 +28,7 @@ class PixivConfig:
     timeout = 60
     retry = 3
     retryWait = 5
+    enableDelay = True
 
     # Authentication related
     username = ''
@@ -486,6 +487,13 @@ class PixivConfig:
                 print "writeImageJSON = False"
                 haveError = True
 
+            try:
+                self.enableDelay = config.getboolean('Network', 'enableDelay')
+            except ValueError:
+                self.enableDelay = True
+                print "enableDelay = True"
+                haveError = True
+
 ##        except ConfigParser.NoOptionError:
 ##            print 'Error at loadConfig():',sys.exc_info()
 ##            print 'Failed to read configuration.'
@@ -519,6 +527,7 @@ class PixivConfig:
         config.set('Network', 'timeout', self.timeout)
         config.set('Network', 'retry', self.retry)
         config.set('Network', 'retrywait', self.retryWait)
+        config.set('Network', 'enableDelay', self.enableDelay)
 
         config.add_section('Debug')
         config.set('Debug', 'logLevel', self.logLevel)
@@ -622,6 +631,7 @@ class PixivConfig:
         print ' - timeout          =', self.timeout
         print ' - retry            =', self.retry
         print ' - retryWait        =', self.retryWait
+        print ' - enableDelay      =', self.enableDelay
 
         print ' [Debug]'
         print ' - logLevel         =', self.logLevel

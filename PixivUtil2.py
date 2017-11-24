@@ -35,6 +35,8 @@ import PixivBrowserFactory
 
 from optparse import OptionParser
 
+import random
+
 script_path = PixivHelper.module_path()
 
 np_is_valid = False
@@ -440,6 +442,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                                                                              total_image_page_count)
                         if not DEBUG_SKIP_PROCESS_IMAGE:
                             result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
+                            wait()
 
                         break
                     except KeyboardInterrupt:
@@ -844,6 +847,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                                                                                                               total_image)
                             if not DEBUG_SKIP_PROCESS_IMAGE:
                                 process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
+                                wait()
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -952,6 +956,7 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0, tag=''):
             print "Image #" + str(image_count)
             process_image(mode, artist=None, image_id=item)
             image_count = image_count + 1
+            wait()
 
         print "Done.\n"
     except KeyboardInterrupt:
@@ -1093,6 +1098,8 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
                     flag = False
                     break
+
+                wait()
             i = i + 1
 
             parsed_page.decompose()
@@ -1139,6 +1146,7 @@ def process_from_group(mode, group_id, limit=0, process_external=True):
                     print "ImageId: {0}".format(image)
                     process_image(mode, image_id=image)
                     image_count = image_count + 1
+                    wait()
 
             if process_external and group_data.externalImageList is not None and len(group_data.externalImageList) > 0:
                 for image_data in group_data.externalImageList:
@@ -1736,6 +1744,14 @@ def doLogin(password, username):
         PixivHelper.printAndLog('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
     return result
+
+
+def wait():
+    # Issue#276: add random delay for each post.
+    if __config__.enableDelay:
+        delay = random.random()
+        print("Wait for {0:.3}s".format(delay))
+        time.sleep(delay)
 
 
 def main():
