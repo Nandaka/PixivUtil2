@@ -1501,6 +1501,8 @@ def menu_download_from_online_image_bookmark(mode, opisvalid, args):
             print "Invalid args: ", args
             return
         (start_page, end_page) = get_start_and_end_number_from_args(args, offset=1)
+        if len(args) > 3:
+            tag = args[3]
     else:
         arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
