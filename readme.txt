@@ -190,7 +190,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         5 - Download from user bookmark
                             (optional: followed by [y/n] for private bookmark)
                         6 - Download from image bookmark
-			    (required: followed by [y/n] for private bookmark
+                            (required: followed by [y/n] for private bookmark
                              optional: starting page number, end page number, and tag)
                         7 - Download from tags list
                             (required: followed by path to the tags list,
@@ -201,8 +201,8 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         9 - Download by Title/Caption
                             (required: start page, end page, followed by
                              title/caption)
-			10 - Download by Tag and Member Id
-			    (required: member_id, start page, end page, followed
+                        10 - Download by Tag and Member Id
+                            (required: member_id, start page, end page, followed
                              by tags)
                         11 - Download Member's Bookmarked Images
                             (required: followed by member_ids separated by space)
@@ -271,6 +271,8 @@ userobots      ==> Download robots.txt for mechanize.
 timeout        ==> Time to wait before giving up the connection, in seconds.
 retry          ==> Number of retries.
 retrywait      ==> Waiting time for each retry, in seconds.
+downloadDelay  ==> Set random delay up to n seconds for each image post.
+                   Set to 0 to disable.
 
 [Debug]
 logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING,
@@ -282,6 +284,7 @@ dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
 dumpTagSearchPage ==> Dump tags search page for debugging.
 debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
+                   
 [IrfanView]
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start
                     IrfanView)
@@ -298,7 +301,6 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
 	         -> Slideshow-options will be same as you have set in IrfanView
                     before!
 createDownloadLists   ==> set to <True> to automatically create download-lists.
-
 
 [Settings]
 rootdirectory ==> Your root directory for saving the images.
