@@ -96,6 +96,8 @@ A.Usage:
       - If you are downloading using Download from List.txt (3), you can create
 	ignore_list.txt to skip the member id.
   Q6. The app doesn't download all the images!
+      - Pixiv only allow to search up to 1000 pages if you don't have Pixiv 
+        Premium.
       - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
         then delete the cookie value in config.ini and retry.
       - Check the value of r18mode in config.ini. Setting it to True will only
