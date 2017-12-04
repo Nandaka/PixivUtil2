@@ -3,5 +3,5 @@ imageio>=2.1.2
 mechanize>=0.3.3
 numpy>=1.12.1
 Pillow>=4.3.0
-socksipy-branch>=1.2
+socksipy-branch>=1.01
 win_unicode_console>=0.5
