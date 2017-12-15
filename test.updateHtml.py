@@ -12,7 +12,7 @@ __br__ = PixivUtil2.__br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
 
 def prepare():
-    ## Log in
+    # Log in
     username = __config__.username
     if username == '':
         username = raw_input('Username ? ')
@@ -43,23 +43,23 @@ def downloadPage(url, filename):
         dump = file(filename, 'wb')
         dump.write(html)
         dump.close()
-    except:
+    except BaseException:
         pass
 
 
 def main():
     result = prepare()
     if result:
-        ## ./test/test-image-manga.htm
-        ## https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
+        # ./test/test-image-manga.htm
+        # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443', './test/test-image-manga.htm')
 
-        ## ./test/test-image-unicode.htm
-        ## https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913
+        # ./test/test-image-unicode.htm
+        # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913', './test/test-image-unicode.htm')
 
-        ## ./test/test-helper-avatar-name.htm
-        ## https://www.pixiv.net/member_illust.php?id=1107124
+        # ./test/test-helper-avatar-name.htm
+        # https://www.pixiv.net/member_illust.php?id=1107124
         downloadPage('https://www.pixiv.net/member_illust.php?id=1107124', './test/test-helper-avatar-name.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=1', './test/test-nouser.htm')
@@ -96,12 +96,13 @@ def main():
         downloadPage('https://www.pixiv.net/search.php?word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB&s_mode=s_tag_full', './test/test-tags-search-exact2.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
-        ## Not updated:
-        ## ./test/test-login-error.htm
-        ## ./test/test-member-suspended.htm
-        ## ./test/test-member-nologin.htm
+        # Not updated:
+        # ./test/test-login-error.htm
+        # ./test/test-member-suspended.htm
+        # ./test/test-member-nologin.htm
 
         print "Completed"
+
 
 if __name__ == '__main__':
     try:

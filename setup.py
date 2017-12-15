@@ -21,6 +21,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 if not isWindows:
     print (bcolors.FAIL)
     print ("____________________________")
