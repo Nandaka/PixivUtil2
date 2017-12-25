@@ -831,17 +831,29 @@ class PixivNewIllustBookmark:
 
     def __ParseNewIllustBookmark(self, page):
         self.imageList = list()
-        try:
-            result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
-            for r in result:
-                href = re.search(r'member_illust.php?.*illust_id=(\d+)', r['href'])
-                if href is not None:
-                    href = int(href.group(1))
-                    # fuck performance :D
-                    if href not in self.imageList:
-                        self.imageList.append(href)
-        except:
-            pass
+
+        # Fix Issue#290
+        jsBookmarkItem = page.find(id='js-mount-point-latest-following')
+        if jsBookmarkItem is not None:
+            js = jsBookmarkItem["data-items"]
+            items = json.loads(js)
+            for item in items:
+                image_id = item["illustId"]
+                # bookmarkCount = item["bookmarkCount"]
+                # imageResponse = item["responseCount"]
+                self.imageList.append(int(image_id))
+        else:
+            try:
+                result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
+                for r in result:
+                    href = re.search(r'member_illust.php?.*illust_id=(\d+)', r['href'])
+                    if href is not None:
+                        href = int(href.group(1))
+                        # fuck performance :D
+                        if href not in self.imageList:
+                            self.imageList.append(href)
+            except:
+                pass
 
         return self.imageList
 
@@ -886,6 +898,7 @@ class PixivBookmark:
     @staticmethod
     def parseImageBookmark(page):
         imageList = list()
+
         temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
         temp = temp.findAll('a')
         if temp is None or len(temp) == 0:
@@ -896,6 +909,7 @@ class PixivBookmark:
                 href = href.group(1)
                 if not int(href) in imageList:
                     imageList.append(int(href))
+
         return imageList
 
     @staticmethod

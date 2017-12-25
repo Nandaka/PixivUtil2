@@ -1,3 +1,6 @@
+20171226:
+- Fix Issue #290: Update parser for option 8. New image from followed members.
+
 20171127:
 - Implement #278: Allow to pass tag from command line operation for option 6.
 - Implement #276: Add random delay between each image post, set downloadDelay=0 to disable in config.ini.

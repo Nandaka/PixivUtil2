@@ -687,6 +687,7 @@ if __name__ == '__main__':
     # test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
     # test_classes_to_run = [TestPixivArtist]
+    # test_classes_to_run = [TestPixivBookmark]
 
     loader = unittest.TestLoader()
 
