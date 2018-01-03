@@ -79,10 +79,10 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.GetLogger().info('Debug HTTP enabled.')
 
         # self.visit_response
-        self.add_headers = [('User-agent', config.useragent)]
+        self.addheaders = [('User-agent', config.useragent)]
 
         # force utf-8, fix issue #184
-        self.add_headers = [('Accept-Charset', 'utf-8')]
+        self.addheaders = [('Accept-Charset', 'utf-8')]
 
         socket.setdefaulttimeout(config.timeout)
 
