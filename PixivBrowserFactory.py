@@ -132,7 +132,7 @@ class PixivBrowser(mechanize.Browser):
                     raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
 
     def fixUrl(self, url, useHttps=True):
-        ## url = str(url)
+        # url = str(url)
         if not url.startswith("http"):
             if not url.startswith("/"):
                 url = "/" + url
@@ -155,14 +155,6 @@ class PixivBrowser(mechanize.Browser):
         init_config = page.find('input', attrs={'id': 'init-config'})
         js_init_config = json.loads(init_config['value'])
         return js_init_config
-
-# def _makeRequest(self, url):
-# if self._config.useProxy:
-##            proxy = urllib2.ProxyHandler(self._config.proxy)
-##            opener = urllib2.build_opener(proxy)
-# urllib2.install_opener(opener)
-##        req = urllib2.Request(url)
-# return req
 
     def loginUsingCookie(self, login_cookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
