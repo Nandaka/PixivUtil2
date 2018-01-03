@@ -9,13 +9,14 @@ import PixivModel
 from PixivModel import PixivException
 import PixivHelper
 
+
 class PixivArtist(PixivModel.PixivArtist):
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
-            self.artistId=mid
+            self.artistId = mid
             payload = json.loads(page)
             # check error
-            if payload["error"] == True:
+            if payload["error"]:
                 raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
 
             # detect if image count != 0
@@ -28,7 +29,6 @@ class PixivArtist(PixivModel.PixivArtist):
             # parse artist info
             self.ParseInfo(payload, fromImage)
 
-
     def ParseInfo(self, page, fromImage=False, bookmark=False):
         self.artistId = 0
         self.artistAvatar = "no_profile"
@@ -39,14 +39,14 @@ class PixivArtist(PixivModel.PixivArtist):
             if fromImage:
                 # will be updated using AppAPI call from browser
                 parsed = BeautifulSoup(page["body"]["html"])
-                artist_container = parsed.find('div', attrs={'class':'header-author-container'})
-                artist_link = artist_container.find('a', attrs={'class':'user-view-popup'})
+                artist_container = parsed.find('div', attrs={'class': 'header-author-container'})
+                artist_link = artist_container.find('a', attrs={'class': 'user-view-popup'})
                 self.artistId = int(artist_link['data-user_id'])
 
                 artist_icon = artist_container.find(attrs={'class': re.compile(r"_user-icon.*")})
                 self.artistAvatar = re.findall(r"background-image:url\((.*)\)", artist_icon["style"])[0]
 
-                self.artistName = artist_container.find("div", attrs={'class':'user-name'}).text
+                self.artistName = artist_container.find("div", attrs={'class': 'user-name'}).text
                 self.artistToken = self.artistName
 
             else:
@@ -70,7 +70,6 @@ class PixivArtist(PixivModel.PixivArtist):
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
-
 
     def ParseImages(self, page):
         self.imageList = list()
@@ -106,7 +105,7 @@ class PixivImage(PixivModel.PixivImage):
             payload = json.loads(page)
 
             # check error
-            if payload["error"] == True:
+            if payload["error"]:
                 raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
             # parse image information
             parsed = BeautifulSoup(payload["body"]["html"])
@@ -114,8 +113,8 @@ class PixivImage(PixivModel.PixivImage):
             # parse artist information
             if parent is None:
                 parsed = BeautifulSoup(payload["body"]["html"])
-                artist_container = parsed.find('div', attrs={'class':'header-author-container'})
-                artist_link = artist_container.find('a', attrs={'class':'user-view-popup'})
+                artist_container = parsed.find('div', attrs={'class': 'header-author-container'})
+                artist_link = artist_container.find('a', attrs={'class': 'user-view-popup'})
                 artistId = int(artist_link['data-user_id'])
                 self.artist = PixivArtist(artistId, page, fromImage=True)
 
@@ -129,7 +128,7 @@ class PixivImage(PixivModel.PixivImage):
 
     def ParseInfo(self, page):
         self.imageUrls = list()
-        images = page.findAll("div", attrs={"class":"illust-zoom-in thumbnail-container"})
+        images = page.findAll("div", attrs={"class": "illust-zoom-in thumbnail-container"})
 
         if len(images) > 0:
             for image in images:
@@ -143,14 +142,14 @@ class PixivImage(PixivModel.PixivImage):
                 self.imageMode = "manga"
         else:
             # ugoira
-            canvas = page.find("div", attrs={"class":"ugoira player-container"})
+            canvas = page.find("div", attrs={"class": "ugoira player-container"})
             self.imageMode = "ugoira_view"
             url = self.ParseUgoira(canvas["data-ugoira-meta"])
             self.imageUrls.append(url)
 
         # title/caption
-        self.imageTitle = page.findAll("div", attrs={"class":"title-container"})[0].text
-        descriptions = page.findAll("div", attrs={"class":"description-text ui-expander-target"})
+        self.imageTitle = page.findAll("div", attrs={"class": "title-container"})[0].text
+        descriptions = page.findAll("div", attrs={"class": "description-text ui-expander-target"})
         if len(descriptions) > 0:
             self.imageCaption = descriptions[0].text
 
@@ -165,7 +164,7 @@ class PixivImage(PixivModel.PixivImage):
         # tags
         self.imageTags = list()
         # _tag-container tags illust-59521621
-        tagContainer = page.find("div", attrs={"class":"_tag-container tags illust-{0}".format(self.imageId)})
+        tagContainer = page.find("div", attrs={"class": "_tag-container tags illust-{0}".format(self.imageId)})
         # special node for R-18
         r18Tag = page.findAll(attrs={'class': 'tag r-18'})
         if r18Tag is not None and len(r18Tag) > 0:
@@ -175,13 +174,13 @@ class PixivImage(PixivModel.PixivImage):
             self.imageTags.append(link["data-activity-tag_name"])
 
         # date
-        self.worksDate = page.find("li", attrs={"class":"datetime"}).text
+        self.worksDate = page.find("li", attrs={"class": "datetime"}).text
         self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
 
         # resolution
 
         # tools
-        tools = page.findAll("li", attrs={"class" : "tool"})
+        tools = page.findAll("li", attrs={"class": "tool"})
         t = list()
         for tool in tools:
             t.append(tool.text)
@@ -208,7 +207,7 @@ class PixivImage(PixivModel.PixivImage):
         js["src"] = js["src"].replace("ugoira600x600.zip", "ugoira1920x1080.zip")
 
         # need to be minified
-        self.ugoira_data = json.dumps(js, separators=(',',':'))#).replace("/", r"\/")
+        self.ugoira_data = json.dumps(js, separators=(',', ':'))  # ).replace("/", r"\/")
 
         return js["src"]
 
@@ -226,13 +225,12 @@ class PixivTags(PixivModel.PixivTags):
         for image in artist.imageList:
             self.itemList.append(PixivModel.PixivTagsItem(int(image), 0, 0))
 
-
     def parseTags(self, page, query=""):
         payload = json.loads(page)
         self.query = query
 
         # check error
-        if payload["error"] == True:
+        if payload["error"]:
             raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
 
         # parse image information
@@ -240,12 +238,12 @@ class PixivTags(PixivModel.PixivTags):
         self.itemList = list()
         images = parsed.findAll("div", attrs={"class": self.__re_imageItemClass})
         for item in images:
-            thumbnail_container = item.find("div", attrs={"class":"thumbnail-container"})
-            image_details = thumbnail_container.find("a", attrs={"class":"_work-modal-target user-activity"})
+            thumbnail_container = item.find("div", attrs={"class": "thumbnail-container"})
+            image_details = thumbnail_container.find("a", attrs={"class": "_work-modal-target user-activity"})
             image_id = image_details["data-work-id"]
 
             # like count
-            status_container = thumbnail_container.find("div", attrs={"class":"status-container"})
+            status_container = thumbnail_container.find("div", attrs={"class": "status-container"})
             bookmarkCount = status_container.text
 
             imageResponse = 0

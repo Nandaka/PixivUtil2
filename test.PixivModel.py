@@ -682,6 +682,7 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(len(result.externalImageList), 2)
         self.assertEqual(result.maxId, 626288)
 
+
 if __name__ == '__main__':
     test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]

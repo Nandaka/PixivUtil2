@@ -267,7 +267,7 @@ def clearScreen():
 
 
 def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
-    printAndLog('info', 'starting IrfanView...')
+    print_and_log('info', 'starting IrfanView...')
     if os.path.exists(dfilename):
         ivpath = irfanViewPath + os.sep + 'i_view32.exe'  # get first part from config.ini
         ivpath = ivpath.replace('\\\\', '\\')
@@ -285,7 +285,7 @@ def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfa
             Logger.info(ivcommand)
             subprocess.Popen(ivcommand, startupinfo=info)
     else:
-        printAndLog('error', u'could not load' + dfilename)
+        print_and_log('error', u'could not load' + dfilename)
 
 
 def OpenTextFile(filename, mode='r', encoding='utf-8'):
@@ -414,7 +414,7 @@ def dumpHtml(filename, html):
                     isDumpEnabled = False
 
     if html is not None and len(html) == 0:
-        printAndLog('info', 'Empty Html')
+        print_and_log('info', 'Empty Html')
         return
 
     if isDumpEnabled:
@@ -424,13 +424,13 @@ def dumpHtml(filename, html):
             dump.close()
             return filename
         except Exception as ex:
-            printAndLog('error', ex.message)
+            print_and_log('error', ex.message)
     else:
-        printAndLog('info', 'No Dump')
+        print_and_log('info', 'No Dump')
     return ""
 
 
-def printAndLog(level, msg):
+def print_and_log(level, msg):
     safePrint(msg)
     if level == 'info':
         GetLogger().info(msg)
@@ -458,10 +458,10 @@ def getIdsFromCsv(ids_str, sep=','):
             try:
                 _id = int(temp)
                 ids.append(_id)
-            except:
-                printAndLog('error', u"ID: {0} is not valid".format(id_str))
+            except BaseException:
+                print_and_log('error', u"ID: {0} is not valid".format(id_str))
     if len(ids) > 1:
-        printAndLog('info', u"Found {0} ids".format(len(ids)))
+        print_and_log('info', u"Found {0} ids".format(len(ids)))
     return ids
 
 
@@ -480,7 +480,7 @@ def unescape_charref(data, encoding):
             name, base = name[1:], 16
         try:
             result = int(name, base)
-        except:
+        except BaseException:
             base = 16
         uc = unichr(int(name, base))
         if encoding is None:
@@ -491,7 +491,7 @@ def unescape_charref(data, encoding):
             except UnicodeError:
                 repl = "&#%s;" % data
             return repl
-    except:
+    except BaseException:
         return data
 
 
@@ -502,15 +502,15 @@ def getUgoiraSize(ugoName):
             animJson = z.read("animation.json")
             size = json.loads(animJson)['zipSize']
             z.close()
-    except:
-        printAndLog('error', u'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
+    except BaseException:
+        print_and_log('error', u'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
         size = os.path.getsize(ugoName)
     return size
 
 
 def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
-        printAndLog('info', u"\tFile exist! (Identical Size)")
+        print_and_log('info', u"\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
     # elif int(file_size) < old_size:
     #    printAndLog('info', "\tFile exist! (Local is larger)")
@@ -521,10 +521,10 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:
                 new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-            printAndLog('info', u"\t Found file with different file size, backing up to: " + new_name)
+            print_and_log('info', u"\t Found file with different file size, backing up to: " + new_name)
             os.rename(filename, new_name)
         else:
-            printAndLog('info',
+            print_and_log('info',
                u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
             os.remove(filename)
         return 1
@@ -538,7 +538,7 @@ def printDelay(retryWait):
     print ''
 
 
-def createCustomRequest(url, config, referer='https://www.pixiv.net', head=False):
+def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
     if config.useProxy:
         proxy = urllib2.ProxyHandler(config.proxy)
         opener = urllib2.build_opener(proxy)
@@ -546,7 +546,7 @@ def createCustomRequest(url, config, referer='https://www.pixiv.net', head=False
     req = urllib2.Request(url)
 
     req.add_header('Referer', referer)
-    printAndLog('info', u"Using Referer: " + str(referer))
+    print_and_log('info', u"Using Referer: " + str(referer))
 
     if head:
         req.get_method = lambda: 'HEAD'
@@ -563,18 +563,18 @@ def downloadImage(url, filename, res, file_size, overwrite):
     try:
         directory = os.path.dirname(filename)
         if not os.path.exists(directory):
-            printAndLog('info', u'Creating directory: ' + directory)
+            print_and_log('info', u'Creating directory: ' + directory)
             os.makedirs(directory)
         save = file(filename + '.pixiv', 'wb+', 4096)
     except IOError:
-        printAndLog('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
+        print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
 
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
-        printAndLog('info', u'File is saved to ' + filename)
+        print_and_log('info', u'File is saved to ' + filename)
 
     # download the file
     prev = 0
@@ -600,7 +600,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
             prev = curr
 
-    except:
+    except BaseException:
         raise
 
     finally:
@@ -610,15 +610,15 @@ def downloadImage(url, filename, res, file_size, overwrite):
         completed = True
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
-            printAndLog('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            printAndLog('error', u'Filename = ' + unicode(filename))
-            printAndLog('error', u'URL      = {0}'.format(url))
+            print_and_log('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
+            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
         elif curr == 0:
             # No data received.
-            printAndLog('error', u'No data received!')
-            printAndLog('error', u'Filename = ' + unicode(filename))
-            printAndLog('error', u'URL      = {0}'.format(url))
+            print_and_log('error', u'No data received!')
+            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
 
         if completed:
@@ -695,7 +695,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
 
 
 def ugoira2gif(ugoira_file, exportname, fmt='gif'):
-    printAndLog('info', 'processing ugoira to animated gif...')
+    print_and_log('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
     # imageio cannot handle utf-8 filename
     temp_name = temp_folder + os.sep + "temp.gif"
@@ -716,13 +716,13 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif'):
     kargs = {'duration': durations}
     imageio.mimsave(temp_name, images, fmt, **kargs)
     shutil.move(temp_name, exportname)
-    printAndLog('info', 'ugoira exported to: ' + exportname)
+    print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
 
 
 def ugoira2apng(ugoira_file, exportname):
-    printAndLog('info', 'processing ugoira to apng...')
+    print_and_log('info', 'processing ugoira to apng...')
     temp_folder = tempfile.mkdtemp()
     temp_name = temp_folder + os.sep + "temp.png"
 
@@ -744,7 +744,7 @@ def ugoira2apng(ugoira_file, exportname):
         im.append(fImage, delay=delay)
     im.save(temp_name)
     shutil.move(temp_name, exportname)
-    printAndLog('info', 'ugoira exported to: ' + exportname)
+    print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
 
@@ -787,7 +787,7 @@ def encode_tags(tags):
                 # from command prompt
                 tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError:
-                printAndLog('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
+                print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
     return tags
 
 

@@ -37,6 +37,7 @@ class TestPixivDBManager(unittest.TestCase):
         for item in result:
             print item.memberId, item.path
 
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivDBManager)
     unittest.TextTestRunner(verbosity=5).run(suite)

@@ -118,7 +118,7 @@ class PixivConfig:
                     PixivHelper.toUnicode(config.get('IrfanView', 'IrfanViewPath'), encoding=sys.stdin.encoding))
                 self.downloadListDirectory = os.path.expanduser(
                     PixivHelper.toUnicode(config.get('Settings', 'downloadListDirectory'), encoding=sys.stdin.encoding))
-            except:
+            except BaseException:
                 pass
 
             try:
@@ -183,7 +183,7 @@ class PixivConfig:
             _filenameMangaFormat = config.get('Settings', 'filenamemangaformat')
             _filenameMangaFormat = PixivHelper.toUnicode(_filenameMangaFormat, encoding=sys.stdin.encoding)
             if _filenameMangaFormat is not None and len(_filenameMangaFormat) > 0:
-                ## check if the filename format have page identifier if not using %urlFilename%
+                # check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
                     if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_number%') == -1:
                         print 'No page identifier, appending %page_index% to the filename manga format.'
@@ -494,15 +494,15 @@ class PixivConfig:
                 print "downloadDelay = 2"
                 haveError = True
 
-##        except ConfigParser.NoOptionError:
-##            print 'Error at loadConfig():',sys.exc_info()
-##            print 'Failed to read configuration.'
-##            self.writeConfig()
-##        except ConfigParser.NoSectionError:
-##            print 'Error at loadConfig():',sys.exc_info()
-##            print 'Failed to read configuration.'
-##            self.writeConfig()
-        except:
+# except ConfigParser.NoOptionError:
+# print 'Error at loadConfig():',sys.exc_info()
+# print 'Failed to read configuration.'
+# self.writeConfig()
+# except ConfigParser.NoSectionError:
+# print 'Error at loadConfig():',sys.exc_info()
+# print 'Failed to read configuration.'
+# self.writeConfig()
+        except BaseException:
             print 'Error at loadConfig():', sys.exc_info()
             self.__logger.exception('Error at loadConfig()')
             haveError = True
@@ -609,7 +609,7 @@ class PixivConfig:
                     print "Backing up old config to config.ini.bak"
                     shutil.move(configlocation, configlocation + '.bak')
             os.rename(configlocation + '.tmp', configlocation)
-        except:
+        except BaseException:
             self.__logger.exception('Error at writeConfig()')
             raise
 

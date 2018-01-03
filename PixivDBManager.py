@@ -21,9 +21,9 @@ class PixivDBManager:
     def __init__(self, target='', config=None):
         if target is None or len(target) == 0:
             target = script_path + os.sep + "db.sqlite"
-            PixivHelper.printAndLog('info', "using default DB Path: " + target)
+            PixivHelper.print_and_log('info', "using default DB Path: " + target)
         else:
-            PixivHelper.printAndLog('info', "using custom DB Path: " + target)
+            PixivHelper.print_and_log('info', "using custom DB Path: " + target)
 
         self.conn = sqlite3.connect(target)
         if config is not None:
@@ -60,7 +60,7 @@ class PixivDBManager:
             try:
                 c.execute('''ALTER TABLE pixiv_master_member ADD COLUMN is_deleted INTEGER DEFAULT 0''')
                 self.conn.commit()
-            except:
+            except BaseException:
                 pass
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_master_image (
@@ -74,7 +74,7 @@ class PixivDBManager:
             # add column isManga
             try:
                 c.execute('''ALTER TABLE pixiv_master_image ADD COLUMN is_manga TEXT''')
-            except:
+            except BaseException:
                 pass
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_manga_image (
@@ -88,7 +88,7 @@ class PixivDBManager:
             self.conn.commit()
 
             print 'done.'
-        except:
+        except BaseException:
             print 'Error at createDatabase():', str(sys.exc_info())
             print 'failed.'
             raise
@@ -103,7 +103,7 @@ class PixivDBManager:
 
             c.execute('''DROP IF EXISTS TABLE pixiv_master_image''')
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at dropDatabase():', str(sys.exc_info())
             print 'failed.'
             raise
@@ -117,7 +117,7 @@ class PixivDBManager:
             c = self.conn.cursor()
             c.execute('''VACUUM''')
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at compactDatabase():', str(sys.exc_info())
             raise
         finally:
@@ -141,7 +141,7 @@ class PixivDBManager:
                              WHERE member_id = ? ''',
                           (item.path, item.memberId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at importList():', str(sys.exc_info())
             print 'failed'
             raise
@@ -150,7 +150,7 @@ class PixivDBManager:
         print 'done.'
         return 0
 
-    def exportList(self, filename, includeArtistToken=True):
+    def exportList(self, filename, include_artist_token=True):
         print 'Exporting list...',
         try:
             c = self.conn.cursor()
@@ -164,7 +164,7 @@ class PixivDBManager:
             writer = codecs.open(filename, 'wb', encoding='utf-8')
             writer.write('###Export date: ' + str(datetime.today()) + '###\r\n')
             for row in c:
-                if includeArtistToken:
+                if include_artist_token:
                     data = unicode(row[2])
                     writer.write("# ")
                     writer.write(data)
@@ -174,7 +174,7 @@ class PixivDBManager:
                     writer.write(' ' + str(row[1]))
                 writer.write('\r\n')
             writer.write('###END-OF-FILE###')
-        except:
+        except BaseException:
             print 'Error at exportList():', str(sys.exc_info())
             print 'failed'
             raise
@@ -203,7 +203,7 @@ class PixivDBManager:
                 writer.write('\r\n')
             writer.write('###END-OF-FILE###')
             writer.close()
-        except:
+        except BaseException:
             print 'Error at exportDetailedList(): ' + str(sys.exc_info())
             print 'failed'
             raise
@@ -233,7 +233,7 @@ class PixivDBManager:
                     else:
                         print 'member_id\tname\tsave_folder\tcreated_date\tlast_update_date\tlast_image'
                         i = 0
-        except:
+        except BaseException:
             print 'Error at printList():', str(sys.exc_info())
             print 'failed'
             raise
@@ -273,7 +273,7 @@ class PixivDBManager:
                         PixivHelper.safePrint(unicode(string), False)   # would it make more sense to set output to file?
                     print ''
             # Yavos: end of change
-        except:
+        except BaseException:
             print 'Error at printImageList():', str(sys.exc_info())
             print 'failed'
             raise
@@ -292,14 +292,14 @@ class PixivDBManager:
                 temp = raw_input('Member ID: ')
                 try:
                     member_id = int(temp)
-                except:
+                except BaseException:
                     pass
                 if member_id > 0:
                     break
 
             c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                                   (member_id, str(member_id), r'N\A'))
-        except:
+        except BaseException:
             print 'Error at insertNewMember():', str(sys.exc_info())
             print 'failed'
             raise
@@ -317,7 +317,7 @@ class PixivDBManager:
                 item = PixivListItem(row[0], row[1])
                 l.append(item)
 
-        except:
+        except BaseException:
             print 'Error at selectAllMember():', str(sys.exc_info())
             print 'failed'
             raise
@@ -343,7 +343,7 @@ class PixivDBManager:
                 item = PixivListItem(row[0], row[1])
                 l.append(item)
 
-        except:
+        except BaseException:
             print 'Error at selectMembersByLastDownloadDate():', str(sys.exc_info())
             print 'failed'
             raise
@@ -357,7 +357,7 @@ class PixivDBManager:
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_master_member WHERE member_id = ? ''', (member_id, ))
             return c.fetchone()
-        except:
+        except BaseException:
             print 'Error at selectMemberByMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -373,7 +373,7 @@ class PixivDBManager:
                 return PixivListItem(row[0], row[1])
             else:
                 return PixivListItem(int(member_id), '')
-        except:
+        except BaseException:
             print 'Error at selectMemberByMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -397,7 +397,7 @@ class PixivDBManager:
                             WHERE member_id = ?
                             ''', (memberName, memberId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at updateMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -412,7 +412,7 @@ class PixivDBManager:
                             WHERE member_id = ?
                             ''', (saveFolder, memberId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at updateSaveFolder():', str(sys.exc_info())
             print 'failed'
             raise
@@ -427,7 +427,7 @@ class PixivDBManager:
                             WHERE member_id = ?''',
                             (imageId, memberId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at updateMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -441,7 +441,7 @@ class PixivDBManager:
                             WHERE member_id = ?''',
                             (memberId, ))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at deleteMemberByMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -458,7 +458,7 @@ class PixivDBManager:
                             WHERE member_id = ?''',
                             (memberId, ))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at deleteCascadeMemberByMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -473,7 +473,7 @@ class PixivDBManager:
                             WHERE member_id = ?''',
                             (memberId,))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at setIsDeletedMemberId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -483,15 +483,15 @@ class PixivDBManager:
 ##########################################
 ## V. CRUD Image Table                  ##
 ##########################################
-    def insertImage(self, memberId, ImageId, isManga=""):
+    def insertImage(self, member_id, image_id, isManga=""):
         try:
             c = self.conn.cursor()
-            memberId = int(memberId)
-            ImageId = int(ImageId)
+            member_id = int(member_id)
+            image_id = int(image_id)
             c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ? )''',
-                              (ImageId, memberId, isManga))
+                      (image_id, member_id, isManga))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at insertImage():', str(sys.exc_info())
             print 'failed'
             raise
@@ -504,7 +504,7 @@ class PixivDBManager:
             c.execute('''INSERT OR IGNORE INTO pixiv_manga_image VALUES(?, ?, ?, datetime('now'), datetime('now'))''',
                               (imageId, page, filename))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at insertMangaImage():', str(sys.exc_info())
             print 'failed'
             raise
@@ -517,43 +517,43 @@ class PixivDBManager:
             c.execute('''INSERT OR REPLACE INTO pixiv_master_image VALUES(?, ?, '**BLACKLISTED**' ,'**BLACKLISTED**' , datetime('now'), datetime('now') )''',
                               (ImageId, memberId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at insertImage():', str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
 
-    def selectImageByMemberId(self, memberId):
+    def selectImageByMemberId(self, member_id):
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT * FROM pixiv_master_image WHERE member_id = ? ''', (memberId, ))
+            c.execute('''SELECT * FROM pixiv_master_image WHERE member_id = ? ''', (member_id,))
             return c.fetchall()
-        except:
+        except BaseException:
             print 'Error at selectImageByImageId():', str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
 
-    def selectImageByMemberIdAndImageId(self, memberId, imageId):
+    def selectImageByMemberIdAndImageId(self, member_id, image_id):
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT image_id FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' AND member_id = ?''', (imageId, memberId))
+            c.execute('''SELECT image_id FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' AND member_id = ?''', (image_id, member_id))
             return c.fetchone()
-        except:
+        except BaseException:
             print 'Error at selectImageByImageId():', str(sys.exc_info())
             print 'failed'
             raise
         finally:
             c.close()
 
-    def selectImageByImageId(self, imageId):
+    def selectImageByImageId(self, image_id):
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT * FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' ''', (imageId, ))
+            c.execute('''SELECT * FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' ''', (image_id,))
             return c.fetchone()
-        except:
+        except BaseException:
             print 'Error at selectImageByImageId():', str(sys.exc_info())
             print 'failed'
             raise
@@ -565,7 +565,7 @@ class PixivDBManager:
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_manga_image WHERE image_id = ? AND page = ? ''', (imageId, page))
             return c.fetchone()
-        except:
+        except BaseException:
             print 'Error at selectImageByImageIdAndPage():', str(sys.exc_info())
             print 'failed'
             raise
@@ -580,7 +580,7 @@ class PixivDBManager:
                         WHERE image_id = ?''',
                         (title, filename, isManga, imageId))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at updateImage():', str(sys.exc_info())
             print 'failed'
             raise
@@ -594,7 +594,7 @@ class PixivDBManager:
                         WHERE image_id = ?''',
                         (imageId, ))
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at deleteImage():', str(sys.exc_info())
             print 'failed'
             raise
@@ -627,7 +627,7 @@ class PixivDBManager:
                     PixivHelper.safePrint("Missing: " + str(row[0]) + " at " + row[1] + "\n")
                     self.deleteImage(row[0])
             self.conn.commit()
-        except:
+        except BaseException:
             print 'Error at cleanUp():', str(sys.exc_info())
             print 'failed'
             raise
@@ -653,7 +653,7 @@ class PixivDBManager:
             print "Updated image:", c.rowcount
             print "Done"
 
-        except:
+        except BaseException:
             print 'Error at replaceRootPath():', str(sys.exc_info())
             print 'failed'
             raise
@@ -663,15 +663,15 @@ class PixivDBManager:
 ##########################################
 ## VI. Utilities                        ##
 ##########################################
-##    def getInt(self, inputStr):
+# def getInt(self, inputStr):
 ##        inputInt = None
-##        while True:
-##            try:
+# while True:
+# try:
 ##                inputInt = int(inputStr)
-##            except:
-##                pass
-##            if inputInt != None:
-##                return inputInt
+# except:
+# pass
+# if inputInt != None:
+# return inputInt
     def menu(self):
         print 'Pixiv DB Manager Console'
         print '1. Show all member'
@@ -778,9 +778,10 @@ class PixivDBManager:
                 elif selection == 'x':
                     break
             print 'end PixivDBManager.'
-        except:
+        except BaseException:
             print 'Error: ', sys.exc_info()
             self.main()
+
 
 if __name__ == '__main__':
     apps = PixivDBManager()
