@@ -1330,18 +1330,27 @@ def menu_download_by_member_bookmark(mode, opisvalid, args):
     page = 1
     end_page = 0
     if opisvalid and len(args) > 0:
+        valid_ids = list()
         for member_id in args:
             try:
                 test_id = int(member_id)
-                process_member(mode, test_id)
+                valid_ids.append(test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
                 continue
+        if __br__._myId in valid_ids:
+            PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
+        for mid in valid_ids:
+            process_member(mode, mid)
+
     else:
         member_id = raw_input('Member id: ')
         tags = raw_input('Filter Tags: ')
         (page, end_page) = get_start_and_end_number()
-        process_member(mode, member_id.strip(), page=page, end_page=end_page, bookmark=True, tags=tags)
+        if __br__._myId == int(member_id):
+            PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(member_id))
+        else:
+            process_member(mode, member_id.strip(), page=page, end_page=end_page, bookmark=True, tags=tags)
 
 
 def menu_download_by_image_id(mode, opisvalid, args):

@@ -13,6 +13,7 @@ import httplib
 import time
 import sys
 import json
+import re
 
 import PixivHelper
 from PixivException import PixivException
@@ -30,6 +31,7 @@ class PixivBrowser(mechanize.Browser):
     _isWhitecube = False
     _whitecubeToken = ""
     _cache = dict()
+    _myId = 0
 
     def __init__(self, config, cookie_jar):
         # fix #218
@@ -170,6 +172,7 @@ class PixivBrowser(mechanize.Browser):
 
             parsed = BeautifulSoup(resData)
             self.detectWhiteCube(parsed, res.geturl())
+            self.getMyId(parsed)
 
             if "logout.php" in resData:
                 PixivHelper.print_and_log('info', 'Login successfull.')
@@ -230,6 +233,8 @@ class PixivBrowser(mechanize.Browser):
             parsed = BeautifulSoup(page)
             self.detectWhiteCube(parsed, page.geturl())
 
+            self.getMyId(parsed)
+
             return True
         else:
             if result["body"] is not None and result["body"].has_key("validation_errors"):
@@ -237,6 +242,16 @@ class PixivBrowser(mechanize.Browser):
             else:
                 PixivHelper.print_and_log('info', 'Unknown login issue, please use cookie login method.')
             return False
+
+    def getMyId(self, parsed):
+        ''' Assume from main page '''
+        # pixiv.user.id = "189816";
+        temp = re.findall("pixiv.user.id = \"(\d+)\";", unicode(parsed))
+        if temp is not None:
+            self._myId = int(temp[0])
+            PixivHelper.print_and_log('info', 'My User Id: {0}.'.format(self._myId))
+        else:
+            PixivHelper.print_and_log('info', 'Unable to get User Id')
 
     def detectWhiteCube(self, page, url):
         if url.find("pixiv.net/whitecube") > 0:

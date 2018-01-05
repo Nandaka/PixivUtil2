@@ -98,11 +98,12 @@ class PixivArtist:
         # check if self manage page
         submit_related = page.findAll("ul", attrs={'class': 'related'})
         if len(submit_related) > 0 and str(submit_related[0]).find("upload.php") > 0:
-            PixivHelper.print_and_log("info", "Manage Page.")
-            self.artistAvatar = "your profile"
+            PixivHelper.print_and_log("info", "Manage Page")
+            self.artistAvatar = "no_profile"
             self.artistName = "yourself"
+            self.artistToken = "yourself"
             temp = page.find("h1", attrs={'class': 'column-title'}).find("a")
-            self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
+            self.artistId = int(re.findall(r'pixiv.user.id = "(\d+)";', unicode(page))[0])
             return
 
         # Issue #236
@@ -854,7 +855,6 @@ class PixivNewIllustBookmark:
                             self.imageList.append(href)
             except BaseException:
                 pass
-
 
         return self.imageList
 
