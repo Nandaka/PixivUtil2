@@ -1041,8 +1041,12 @@ def process_bookmark(mode, hide='n', start_page=1, end_page=0):
             print "Importing Private Bookmarks..."
             total_list.extend(get_bookmarks(True, start_page, end_page))
         print "Result: ", str(len(total_list)), "items."
+        i=0
         for item in total_list:
+            print( "%d/%d\t%f %%" %(i,len(total_list),100.0*i/float(len(total_list))))
+            i+=1
             process_member(mode, item.memberId, item.path)
+        print( "%d/%d\t%f %%" %(i,len(total_list),100.0*i/float(len(total_list))))
     except KeyboardInterrupt:
         raise
     except:
@@ -1329,8 +1333,11 @@ def menu_download_by_member_bookmark(mode, opisvalid, args):
     __log__.info('Member Bookmark mode.')
     page = 1
     end_page = 0
+    i=0
     if opisvalid and len(args) > 0:
         for member_id in args:
+            print( "%d/%d\t%f %%" %(i,len(args),100.0*i/float(len(args))))
+            i+=1
             try:
                 test_id = int(member_id)
                 process_member(mode, test_id)
