@@ -1,3 +1,23 @@
+20171226:
+- Fix Issue #290: Update parser for option 8. New image from followed members.
+
+20171127:
+- Implement #278: Allow to pass tag from command line operation for option 6.
+- Implement #276: Add random delay between each image post, set downloadDelay=0 to disable in config.ini.
+- Fix Issue #277: Update file sanitazion logic. Always replace '/' and '\' for %title%, %artist%, %searchTags%, %tags%, %works_tools%, and %original_artist% to '_'.
+
+20171006:
+- Fix Issue #272: fix PIL import
+
+20171004:
+- Update test cases.
+- Fix Issue #252: update parser for tags search.
+- Fix Issue #261: fix r18 url.
+- Fix Issue #262: support downloading your own works (artist info will not be downloaded).
+- Fix Issue #270: update parser for tags search again.
+- Implement #250: support to specify timeframe for download by taglist.
+- updated readme.txt
+
 20170705:
 - Update test cases.
 - Fix Issue #222: hide password in console.

@@ -2,15 +2,15 @@
 = Requirement:                                                                 =
 ================================================================================
 - Running from windows binary:
-  - Windows XP and up.
+  - Windows Vista and up.
 
 - Running from source code:
   - Python 2.7.11++ (http://www.python.org/)
-  - mechanize 0.2.5 (http://wwwsearch.sourceforge.net/mechanize/)
   - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
-  - socksipy-branch 1.02+ (http://socksipy.sourceforge.net/)
+  - mechanize (http://wwwsearch.sourceforge.net/mechanize/)
+  - socksipy-branch 1.2 (http://socksipy.sourceforge.net/)
   - Pillow (https://python-pillow.github.io/)
-  - imageio (https://imageio.github.io/)
+  - imageio(https://imageio.github.io/)
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
@@ -96,15 +96,17 @@ A.Usage:
       - If you are downloading using Download from List.txt (3), you can create
 	ignore_list.txt to skip the member id.
   Q6. The app doesn't download all the images!
-      - Check your pixiv website settings (refer to https://goo.gl/gQi09v), 
+      - Pixiv only allow to search up to 1000 pages if you don't have Pixiv 
+        Premium.
+      - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
         then delete the cookie value in config.ini and retry.
-      - Check the value of r18mode in config.ini. Setting it to True will only 
-        download R-18 images.        
+      - Check the value of r18mode in config.ini. Setting it to True will only
+        download R-18 images.
   Q7. The apps show square/question mark texts in the console output!
-      - This is because your windows is not to Japanese for the Regional Settings 
+      - This is because your windows is not to Japanese for the Regional Settings
         in control panel.
       - Since 20161114+ version, you need to set the console font properties to
-        use font with unicode support (e.g. Arial Unicode, MS Gothic). 
+        use font with unicode support (e.g. Arial Unicode, MS Gothic).
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report for bugs?
@@ -190,8 +192,8 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         5 - Download from user bookmark
                             (optional: followed by [y/n] for private bookmark)
                         6 - Download from image bookmark
-			    (required: followed by [y/n] for private bookmark
-                             optional: starting page number and end page number)
+                            (required: followed by [y/n] for private bookmark
+                             optional: starting page number, end page number, and tag)
                         7 - Download from tags list
                             (required: followed by path to the tags list,
                              start page, and end page)
@@ -201,8 +203,8 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         9 - Download by Title/Caption
                             (required: start page, end page, followed by
                              title/caption)
-			10 - Download by Tag and Member Id
-			    (required: member_id, start page, end page, followed
+                        10 - Download by Tag and Member Id
+                            (required: member_id, start page, end page, followed
                              by tags)
                         11 - Download Member's Bookmarked Images
                             (required: followed by member_ids separated by space)
@@ -271,6 +273,8 @@ userobots      ==> Download robots.txt for mechanize.
 timeout        ==> Time to wait before giving up the connection, in seconds.
 retry          ==> Number of retries.
 retrywait      ==> Waiting time for each retry, in seconds.
+downloadDelay  ==> Set random delay up to n seconds for each image post.
+                   Set to 0 to disable.
 
 [Debug]
 logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING,
@@ -282,6 +286,7 @@ dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
 dumpTagSearchPage ==> Dump tags search page for debugging.
 debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
+                   
 [IrfanView]
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start
                     IrfanView)
@@ -299,7 +304,6 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
                     before!
 createDownloadLists   ==> set to <True> to automatically create download-lists.
 
-
 [Settings]
 rootdirectory ==> Your root directory for saving the images.
 uselist       ==> set to 'True' to parse list.txt.
@@ -307,10 +311,10 @@ uselist       ==> set to 'True' to parse list.txt.
                   and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-filenameformat ==> The format for the filename, reserved/illegal character 
-                   will be replaced with underscore '_', repeated space will 
+filenameformat ==> The format for the filename, reserved/illegal character
+                   will be replaced with underscore '_', repeated space will
 				   be trimmed to single space.
-                   The filename (+full path) will be trimmed to the first 250 
+                   The filename (+full path) will be trimmed to the first 250
 				   character (Windows limitation).
 				   Refer to Filename Format Syntax for available format.
 filenamemangaformat ==> Similar like filename format, but for manga pages.
@@ -346,7 +350,7 @@ tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 		    Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
-dateDiff        ==> Process only new images within the given date difference. 
+dateDiff        ==> Process only new images within the given date difference.
                     Set 0 to disable. Skip to next member id if in 'Download
                     by Member', stop processing if in 'Download New Illust' mode.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
@@ -389,14 +393,14 @@ Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
 -> %artist%
    Artist name, might change too.
 -> %urlFilename%
-   The actual filename stored in server without the file extensions.   
+   The actual filename stored in server without the file extensions.
 -> %date%
    Current date in YYYYMMMDD format.
--> %date_fmt{format}% 
+-> %date_fmt{format}%
    Current date using custom format.
    Use Python string format notation, refer: https://goo.gl/3UiMAb
    e.g. %date_fmt{%Y-%m-%d}%
-   
+
 Available for filenameFormat and filenameMangaFormat:
 -> %image_id%
    Image id, in number.
@@ -414,10 +418,10 @@ Available for filenameFormat and filenameMangaFormat:
    e.g. %works_date_fmt{%Y-%m-%d}%
 -> %works_res%
    Image resolution, will be containing the page count if manga.
--> %works_tools% 
+-> %works_tools%
    Tools used for the image.
 -> %R-18%
-   Append R-18/R-18 based on image tag, can be used for creating directory 
+   Append R-18/R-18 based on image tag, can be used for creating directory
    by appending directory separator, e.g.: %R-18%\%image_id%.
 -> %page_big%
    for manga mode, add big in the filename.

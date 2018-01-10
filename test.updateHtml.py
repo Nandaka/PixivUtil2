@@ -12,7 +12,7 @@ __br__ = PixivUtil2.__br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
 
 def prepare():
-    ## Log in
+    # Log in
     username = __config__.username
     if username == '':
         username = raw_input('Username ? ')
@@ -43,23 +43,23 @@ def downloadPage(url, filename):
         dump = file(filename, 'wb')
         dump.write(html)
         dump.close()
-    except:
+    except BaseException:
         pass
 
 
 def main():
     result = prepare()
     if result:
-        ## ./test/test-image-manga.htm
-        ## https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
+        # ./test/test-image-manga.htm
+        # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443', './test/test-image-manga.htm')
 
-        ## ./test/test-image-unicode.htm
-        ## https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913
+        # ./test/test-image-unicode.htm
+        # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=2493913', './test/test-image-unicode.htm')
 
-        ## ./test/test-helper-avatar-name.htm
-        ## https://www.pixiv.net/member_illust.php?id=1107124
+        # ./test/test-helper-avatar-name.htm
+        # https://www.pixiv.net/member_illust.php?id=1107124
         downloadPage('https://www.pixiv.net/member_illust.php?id=1107124', './test/test-helper-avatar-name.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=1', './test/test-nouser.htm')
@@ -84,24 +84,25 @@ def main():
         downloadPage('https://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
         downloadPage('https://www.pixiv.net/bookmark.php?id=283027', './test/test-image-bookmark-member.htm')
 
-        downloadPage('https://www.pixiv.net/member_illust.php?id=313631&p=6', './test/test-tags-member-search-last.htm')
+        downloadPage('https://www.pixiv.net/member_illust.php?id=313631&p=7', './test/test-tags-member-search-last.htm')
         downloadPage('https://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full', './test/test-tags-search-exact.htm')
         downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&s_mode=s_tag_full&order=date_d&p=12', './test/test-tags-search-partial.htm')
         downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
         downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
-        downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&order=date_d&p=12', './test/test-tags-search-partial-last.htm')
+        downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&order=date_d&p=6', './test/test-tags-search-partial-last.htm')
 
         downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag&word=R-18%20K-On!', './test/test-tags-search-skip-showcase.htm')
 
         downloadPage('https://www.pixiv.net/search.php?word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB&s_mode=s_tag_full', './test/test-tags-search-exact2.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
-        ## Not updated:
-        ## ./test/test-login-error.htm
-        ## ./test/test-member-suspended.htm
-        ## ./test/test-member-nologin.htm
+        # Not updated:
+        # ./test/test-login-error.htm
+        # ./test/test-member-suspended.htm
+        # ./test/test-member-nologin.htm
 
         print "Completed"
+
 
 if __name__ == '__main__':
     try:

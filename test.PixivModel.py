@@ -125,6 +125,38 @@ class TestPixivArtist(unittest.TestCase):
         page.decompose()
         del page
 
+    def testPixivArtistManageSelf(self):
+        # print '\nTesting own page '
+        p = open('./test/test-member-self.htm', 'r')
+        page = BeautifulSoup(p.read())
+        artist = PixivArtist(189816, page)
+
+        page.decompose()
+        del page
+
+        # no artist information for manage self page.
+        self.assertNotEqual(artist, None)
+        self.assertEqual(artist.artistId, 189816)
+        # self.assertEqual(artist.artistToken, 'nandaka')
+        self.assertGreaterEqual(artist.totalImages, 1)
+        self.assertIn(65079382, artist.imageList)
+
+    def testPixivArtistManageSelf2(self):
+        # print '\nTesting own page '
+        p = open('./test/Error_page_for_member_539661.htm', 'r')
+        page = BeautifulSoup(p.read())
+        artist = PixivArtist(539661, page)
+
+        page.decompose()
+        del page
+
+        # no artist information for manage self page.
+        self.assertNotEqual(artist, None)
+        self.assertEqual(artist.artistId, 539661)
+        self.assertGreaterEqual(artist.totalImages, 228)
+        self.assertIn(65041158, artist.imageList)
+        self.assertFalse(artist.isLastPage)
+
 
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
@@ -142,7 +174,6 @@ class TestPixivImage(unittest.TestCase):
         self.assertTrue(u'MAYU' in image2.imageTags)
         self.assertTrue(u'VOCALOID' in image2.imageTags)
         self.assertTrue(u'VOCALOID3' in image2.imageTags)
-        self.assertTrue(u'うさぎになりたい' in image2.imageTags)
         self.assertTrue(u'なにこれかわいい' in image2.imageTags)
         self.assertTrue(u'やはり存在する斧' in image2.imageTags)
 
@@ -427,6 +458,25 @@ class TestPixivImage(unittest.TestCase):
         page.decompose()
         del page
 
+    def testPixivSImageParseInfoSelf(self):
+        # assuming being accessed via manage page for your own artwork.
+        p = open('./test/test-image-selfimage.htm', 'r')
+        page = BeautifulSoup(p.read())
+        image2 = PixivImage(65079382, page)
+        page.decompose()
+        del page
+
+        self.assertEqual(image2.imageId, 65079382)
+        self.assertEqual(image2.imageTitle, u"Test")
+        self.assertTrue(len(image2.imageCaption) > 0)
+        print u"\r\nCaption = {0}".format(image2.imageCaption)
+
+        self.assertTrue(u'None' in image2.imageTags)
+
+        self.assertEqual(image2.imageMode, "bigNew")
+        self.assertEqual(image2.worksDate, '9/22/2017 11:29')
+        self.assertEqual(image2.worksResolution, '946x305')
+
 
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
@@ -520,9 +570,9 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2267)
+        self.assertEqual(image.availableImages, 2285)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -534,7 +584,7 @@ class TestPixivTags(unittest.TestCase):
         image.parseTags(page)
         for img in image.itemList:
             print img.imageId
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchExactLast(self):
@@ -558,7 +608,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchPartialLast(self):
@@ -597,7 +647,7 @@ class TestPixivTags(unittest.TestCase):
         # self.assertEqual(image.itemList[0].imageId, 53977340)
         # self.assertEqual(image.itemList[19].imageId, 45511597)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 66)
+        self.assertEqual(image.availableImages, 69)
 
     def testTagsMemberSearchLast(self):
         br = Browser()
@@ -619,7 +669,7 @@ class TestPixivTags(unittest.TestCase):
         image = PixivTags()
         image.parseTags(page)
 
-        self.assertEqual(len(image.itemList), 20)
+        self.assertEqual(len(image.itemList), 40)
 
 
 class TestPixivGroup(unittest.TestCase):
@@ -632,9 +682,13 @@ class TestPixivGroup(unittest.TestCase):
         self.assertEqual(len(result.externalImageList), 2)
         self.assertEqual(result.maxId, 626288)
 
+
 if __name__ == '__main__':
     test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
+    # test_classes_to_run = [TestPixivTags]
+    # test_classes_to_run = [TestPixivArtist]
+    # test_classes_to_run = [TestPixivBookmark]
 
     loader = unittest.TestLoader()
 
