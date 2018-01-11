@@ -527,7 +527,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             print_and_log('info',
                u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
             os.remove(filename)
-        return 1
+        return PixivConstant.PIXIVUTIL_OK
 
 
 def printDelay(retryWait):
