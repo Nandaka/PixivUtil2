@@ -18,7 +18,7 @@ class PixivDBManager:
     """Pixiv Database Manager"""
     __config__ = None
 
-    def __init__(self, target='', config=None,timeout=5*3600):
+    def __init__(self, target='', config=None,timeout=5*60):
         if target is None or len(target) == 0:
             target = script_path + os.sep + "db.sqlite"
             PixivHelper.print_and_log('info', "using default DB Path: " + target)
