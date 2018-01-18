@@ -22,6 +22,38 @@ from BeautifulSoup import BeautifulSoup
 if os.name == 'nt':
     # enable unicode support on windows console.
     import win_unicode_console
+
+    # monkey patch for #305
+    from ctypes import byref, c_ulong
+    from win_unicode_console.streams import set_last_error, ERROR_SUCCESS, ReadConsoleW, get_last_error, ERROR_OPERATION_ABORTED, ERROR_SUCCESS, WinError
+    from win_unicode_console.buffer import get_buffer
+    EOF = b"\x1a\x00"
+
+    def readinto_patch(self, b):
+        bytes_to_be_read = len(b)
+        if not bytes_to_be_read:
+            return 0
+        elif bytes_to_be_read % 2:
+            raise ValueError("cannot read odd number of bytes from UTF-16-LE encoded console")
+
+        buffer = get_buffer(b, writable=True)
+        code_units_to_be_read = bytes_to_be_read // 2
+        code_units_read = c_ulong()
+
+        set_last_error(ERROR_SUCCESS)
+        ReadConsoleW(self.handle, buffer, code_units_to_be_read, byref(code_units_read), None)
+        last_error = get_last_error()
+        if last_error == ERROR_OPERATION_ABORTED:
+            time.sleep(0.1)  # wait for KeyboardInterrupt
+        if last_error != ERROR_SUCCESS:
+            raise WinError(last_error)
+
+        if buffer[:len(EOF)] == EOF:
+            return 0
+        else:
+            return 2 * code_units_read.value  # bytes read
+
+    win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
     win_unicode_console.enable()
 
 import PixivConstant
@@ -1056,12 +1088,12 @@ def process_bookmark(mode, hide='n', start_page=1, end_page=0):
             print "Importing Private Bookmarks..."
             total_list.extend(get_bookmarks(True, start_page, end_page))
         print "Result: ", str(len(total_list)), "items."
-        i=0
+        i = 0
         for item in total_list:
-            print( "%d/%d\t%f %%" %(i,len(total_list),100.0*i/float(len(total_list))))
-            i+=1
+            print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
+            i += 1
             process_member(mode, item.memberId, item.path)
-        print( "%d/%d\t%f %%" %(i,len(total_list),100.0*i/float(len(total_list))))
+        print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
     except KeyboardInterrupt:
         raise
     except BaseException:
@@ -1348,12 +1380,12 @@ def menu_download_by_member_bookmark(mode, opisvalid, args):
     __log__.info('Member Bookmark mode.')
     page = 1
     end_page = 0
-    i=0
+    i = 0
     if opisvalid and len(args) > 0:
         valid_ids = list()
         for member_id in args:
-            print( "%d/%d\t%f %%" %(i,len(args),100.0*i/float(len(args))))
-            i+=1
+            print("%d/%d\t%f %%" % (i, len(args), 100.0 * i / float(len(args))))
+            i += 1
             try:
                 test_id = int(member_id)
                 valid_ids.append(test_id)
