@@ -21,9 +21,9 @@ class PixivDBManager:
     def __init__(self, target='', config=None,timeout=5*60):
         if target is None or len(target) == 0:
             target = script_path + os.sep + "db.sqlite"
-            PixivHelper.print_and_log('info', "using default DB Path: " + target)
+            PixivHelper.print_and_log('info', "Using default DB Path: " + target)
         else:
-            PixivHelper.print_and_log('info', "using custom DB Path: " + target)
+            PixivHelper.print_and_log('info', "Using custom DB Path: " + target)
 
         self.conn = sqlite3.connect(target,timeout)
         if config is not None:

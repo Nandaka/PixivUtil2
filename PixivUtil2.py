@@ -1920,7 +1920,7 @@ def main():
 
         if __config__.dayLastUpdated != 0 and __config__.processFromDb:
             PixivHelper.print_and_log('info',
-                                    'Only process member where day last updated >= ' + str(__config__.dayLastUpdated))
+                                    'Only process members where the last update is >= ' + str(__config__.dayLastUpdated) + ' days ago')
 
         if __config__.dateDiff > 0:
             PixivHelper.print_and_log('info', 'Only process image where day last updated >= ' + str(__config__.dateDiff))
