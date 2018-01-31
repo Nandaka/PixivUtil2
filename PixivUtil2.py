@@ -302,7 +302,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
 
 #  Start of main processing logic
-def process_list(mode, list_file_name=None, tags=None):
+def process_list(list_file_name=None, tags=None):
     global ERROR_CODE
 
     result = None
@@ -334,7 +334,7 @@ def process_list(mode, list_file_name=None, tags=None):
             retry_count = 0
             while True:
                 try:
-                    process_member(mode, item.memberId, item.path, tags=tags)
+                    process_member(item.memberId, item.path, tags=tags)
                     break
                 except KeyboardInterrupt:
                     raise
@@ -358,7 +358,7 @@ def process_list(mode, list_file_name=None, tags=None):
         raise
 
 
-def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
+def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
     global __errorList
     global ERROR_CODE
     list_page = None
@@ -454,7 +454,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
                 print '#' + str(no_of_images)
-                if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
+                if not __config__.overwrite:
                     r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
                     if r is not None and not __config__.alwaysCheckFileSize:
                         print 'Already downloaded:', image_id
@@ -488,7 +488,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
                                                                                              updated_limit_count,
                                                                                              total_image_page_count)
                         if not DEBUG_SKIP_PROCESS_IMAGE:
-                            result = process_image(mode, artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
+                            result = process_image(artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
                             wait()
 
                         break
@@ -571,7 +571,7 @@ def process_member(mode, member_id, user_dir='', page=1, end_page=0, bookmark=Fa
         raise
 
 
-def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
+def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
     global __errorList
     global ERROR_CODE
 
@@ -588,7 +588,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
         r = __dbManager__.selectImageByImageId(image_id)
         if r is not None and not __config__.alwaysCheckFileSize:
-            if mode == PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY:
+            if not __config__.overwrite:
                 print 'Already downloaded:', image_id
                 gc.collect()
                 return
@@ -731,11 +731,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
                     PixivHelper.safePrint('Filename  : ' + filename)
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
-                        overwrite = False
-                        if mode == PixivConstant.PIXIVUTIL_MODE_OVERWRITE:
-                            overwrite = True
-
-                        result = download_image(img, filename, referer, overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
+                        result = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
 
                         manga_files[page] = filename
                         page = page + 1
@@ -822,7 +818,7 @@ def process_image(mode, artist=None, image_id=None, user_dir='', bookmark=False,
         raise
 
 
-def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=False,
+def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
                bookmark_count=None, oldest_first=False):
 
@@ -893,7 +889,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
                                                                                                               skipped_count,
                                                                                                               total_image)
                             if not DEBUG_SKIP_PROCESS_IMAGE:
-                                process_image(mode, None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
+                                process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
                                 wait()
                             break
                         except KeyboardInterrupt:
@@ -960,7 +956,7 @@ def process_tags(mode, tags, page=1, end_page=0, wild_card=True, title_caption=F
         raise
 
 
-def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True,
+def process_tags_list(filename, page=1, end_page=0, wild_card=True,
                       oldest_first=False, bookmark_count=None,
                       start_date=None, end_date=None):
     global ERROR_CODE
@@ -969,7 +965,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True,
         print "Reading:", filename
         l = PixivTags.parseTagsList(filename)
         for tag in l:
-            process_tags(mode, tag, page=page, end_page=end_page, wild_card=wild_card,
+            process_tags(tag, page=page, end_page=end_page, wild_card=wild_card,
                          use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first,
                          bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
     except KeyboardInterrupt:
@@ -981,7 +977,7 @@ def process_tags_list(mode, filename, page=1, end_page=0, wild_card=True,
         raise
 
 
-def process_image_bookmark(mode, hide='n', start_page=1, end_page=0, tag=''):
+def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=''):
     global np_is_valid
     global np
     try:
@@ -1001,7 +997,7 @@ def process_image_bookmark(mode, hide='n', start_page=1, end_page=0, tag=''):
         PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
             print "Image #" + str(image_count)
-            process_image(mode, artist=None, image_id=item)
+            process_image(artist=None, image_id=item)
             image_count = image_count + 1
             wait()
 
@@ -1078,7 +1074,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
     return total_list
 
 
-def process_bookmark(mode, hide='n', start_page=1, end_page=0):
+def process_bookmark(hide='n', start_page=1, end_page=0):
     try:
         total_list = list()
         if hide != 'o':
@@ -1092,7 +1088,7 @@ def process_bookmark(mode, hide='n', start_page=1, end_page=0):
         for item in total_list:
             print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
             i += 1
-            process_member(mode, item.memberId, item.path)
+            process_member(item.memberId, item.path)
         print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
     except KeyboardInterrupt:
         raise
@@ -1121,7 +1117,7 @@ def export_bookmark(filename, hide='n', start_page=1, end_page=0, member_id=None
         raise
 
 
-def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
+def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
     try:
         print "Processing New Illust from bookmark"
         i = page_num
@@ -1143,7 +1139,7 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
 
             for image_id in pb.imageList:
                 print "Image #" + str(image_count)
-                result = process_image(mode, artist=None, image_id=int(image_id))
+                result = process_image(artist=None, image_id=int(image_id))
                 image_count = image_count + 1
 
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
@@ -1171,7 +1167,7 @@ def process_new_illust_from_bookmark(mode, page_num=1, end_page_num=0):
         raise
 
 
-def process_from_group(mode, group_id, limit=0, process_external=True):
+def process_from_group(group_id, limit=0, process_external=True):
     try:
         print "Download by Group Id"
         if limit != 0:
@@ -1195,7 +1191,7 @@ def process_from_group(mode, group_id, limit=0, process_external=True):
                         break
                     print "Image #{0}".format(image_count)
                     print "ImageId: {0}".format(image)
-                    process_image(mode, image_id=image)
+                    process_image(image_id=image)
                     image_count = image_count + 1
                     wait()
 
@@ -1354,7 +1350,7 @@ def menu():
     return raw_input('Input: ').strip()
 
 
-def menu_download_by_member_id(mode, opisvalid, args):
+def menu_download_by_member_id(opisvalid, args):
     __log__.info('Member id mode.')
     page = 1
     end_page = 0
@@ -1362,7 +1358,7 @@ def menu_download_by_member_id(mode, opisvalid, args):
         for member_id in args:
             try:
                 test_id = int(member_id)
-                process_member(mode, test_id)
+                process_member(test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
                 continue
@@ -1373,10 +1369,10 @@ def menu_download_by_member_id(mode, opisvalid, args):
         member_ids = PixivHelper.getIdsFromCsv(member_ids, sep=" ")
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
         for member_id in member_ids:
-            process_member(mode, member_id, page=page, end_page=end_page)
+            process_member(member_id, page=page, end_page=end_page)
 
 
-def menu_download_by_member_bookmark(mode, opisvalid, args):
+def menu_download_by_member_bookmark(opisvalid, args):
     __log__.info('Member Bookmark mode.')
     page = 1
     end_page = 0
@@ -1395,7 +1391,7 @@ def menu_download_by_member_bookmark(mode, opisvalid, args):
         if __br__._myId in valid_ids:
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
         for mid in valid_ids:
-            process_member(mode, mid)
+            process_member(mid)
 
     else:
         member_id = raw_input('Member id: ')
@@ -1404,16 +1400,16 @@ def menu_download_by_member_bookmark(mode, opisvalid, args):
         if __br__._myId == int(member_id):
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(member_id))
         else:
-            process_member(mode, member_id.strip(), page=page, end_page=end_page, bookmark=True, tags=tags)
+            process_member(member_id.strip(), page=page, end_page=end_page, bookmark=True, tags=tags)
 
 
-def menu_download_by_image_id(mode, opisvalid, args):
+def menu_download_by_image_id(opisvalid, args):
     __log__.info('Image id mode.')
     if opisvalid and len(args) > 0:
         for image_id in args:
             try:
                 test_id = int(image_id)
-                process_image(mode, None, test_id)
+                process_image(None, test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
                 continue
@@ -1421,10 +1417,10 @@ def menu_download_by_image_id(mode, opisvalid, args):
         image_ids = raw_input('Image ids: ')
         image_ids = PixivHelper.getIdsFromCsv(image_ids, sep=" ")
         for image_id in image_ids:
-            process_image(mode, None, int(image_id))
+            process_image(None, int(image_id))
 
 
-def menu_download_by_tags(mode, opisvalid, args):
+def menu_download_by_tags(opisvalid, args):
     __log__.info('tags mode.')
     page = 1
     end_page = 0
@@ -1459,11 +1455,11 @@ def menu_download_by_tags(mode, opisvalid, args):
         (start_date, end_date) = get_start_and_end_date()
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
-    process_tags(mode, tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
+    process_tags(tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
                 use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first)
 
 
-def menu_download_by_title_caption(mode, opisvalid, args):
+def menu_download_by_title_caption(opisvalid, args):
     __log__.info('Title/Caption mode.')
     page = 1
     end_page = 0
@@ -1477,10 +1473,10 @@ def menu_download_by_title_caption(mode, opisvalid, args):
         (page, end_page) = get_start_and_end_number()
         (start_date, end_date) = get_start_and_end_date()
 
-    process_tags(mode, tags.strip(), page, end_page, wild_card=False, title_caption=True, start_date=start_date, end_date=end_date, use_tags_as_dir=__config__.useTagsAsDir)
+    process_tags(tags.strip(), page, end_page, wild_card=False, title_caption=True, start_date=start_date, end_date=end_date, use_tags_as_dir=__config__.useTagsAsDir)
 
 
-def menu_download_by_tag_and_member_id(mode, opisvalid, args):
+def menu_download_by_tag_and_member_id(opisvalid, args):
     __log__.info('Tag and MemberId mode.')
     member_id = 0
     tags = None
@@ -1494,10 +1490,10 @@ def menu_download_by_tag_and_member_id(mode, opisvalid, args):
         member_id = raw_input('Member Id: ')
         tags = PixivHelper.uni_input('Tag      : ')
 
-    process_tags(mode, tags.strip(), member_id=int(member_id), use_tags_as_dir=__config__.useTagsAsDir)
+    process_tags(tags.strip(), member_id=int(member_id), use_tags_as_dir=__config__.useTagsAsDir)
 
 
-def menu_download_from_list(mode, opisvalid, args):
+def menu_download_from_list(opisvalid, args):
     __log__.info('Batch mode.')
     global op
     global __config__
@@ -1520,10 +1516,10 @@ def menu_download_from_list(mode, opisvalid, args):
     else:
         PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
 
-    process_list(mode, list_file_name, tags)
+    process_list(list_file_name, tags)
 
 
-def menu_download_from_online_user_bookmark(mode, opisvalid, args):
+def menu_download_from_online_user_bookmark(opisvalid, args):
     __log__.info('User Bookmarked Artist mode.')
     start_page = 1
     end_page = 0
@@ -1546,10 +1542,10 @@ def menu_download_from_online_user_bookmark(mode, opisvalid, args):
             print "Invalid args: ", arg
             return
         (start_page, end_page) = get_start_and_end_number()
-    process_bookmark(mode, hide, start_page, end_page)
+    process_bookmark(hide, start_page, end_page)
 
 
-def menu_download_from_online_image_bookmark(mode, opisvalid, args):
+def menu_download_from_online_image_bookmark(opisvalid, args):
     __log__.info("User's Image Bookmark mode.")
     start_page = 1
     end_page = 0
@@ -1577,10 +1573,10 @@ def menu_download_from_online_image_bookmark(mode, opisvalid, args):
         tag = raw_input("Tag (default=All Images): ") or ''
         (start_page, end_page) = get_start_and_end_number()
 
-    process_image_bookmark(mode, hide, start_page, end_page, tag)
+    process_image_bookmark(hide, start_page, end_page, tag)
 
 
-def menu_download_from_tags_list(mode, opisvalid, args):
+def menu_download_from_tags_list(opisvalid, args):
     __log__.info('Taglist mode.')
     page = 1
     end_page = 0
@@ -1611,11 +1607,11 @@ def menu_download_from_tags_list(mode, opisvalid, args):
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
 
-    process_tags_list(mode, filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first,
+    process_tags_list(filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first,
                       bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
 
 
-def menu_download_new_illust_from_bookmark(mode, opisvalid, args):
+def menu_download_new_illust_from_bookmark(opisvalid, args):
     __log__.info('New Illust from Bookmark mode.')
 
     if opisvalid:
@@ -1623,10 +1619,10 @@ def menu_download_new_illust_from_bookmark(mode, opisvalid, args):
     else:
         (page_num, end_page_num) = get_start_and_end_number()
 
-    process_new_illust_from_bookmark(mode, page_num, end_page_num)
+    process_new_illust_from_bookmark(page_num, end_page_num)
 
 
-def menu_download_by_group_id(mode, opisvalid, args):
+def menu_download_by_group_id(opisvalid, args):
     __log__.info('Group mode.')
     process_external = False
     limit = 0
@@ -1644,10 +1640,10 @@ def menu_download_by_group_id(mode, opisvalid, args):
         if arg == 'y':
             process_external = True
 
-    process_from_group(mode, group_id, limit, process_external)
+    process_from_group(group_id, limit, process_external)
 
 
-def menu_export_online_bookmark(mode, opisvalid, args):
+def menu_export_online_bookmark(opisvalid, args):
     __log__.info('Export Bookmark mode.')
     hide = False
     filename = raw_input("Filename: ")
@@ -1660,7 +1656,7 @@ def menu_export_online_bookmark(mode, opisvalid, args):
     export_bookmark(filename, hide)
 
 
-def menu_export_online_user_bookmark(mode, opisvalid, args):
+def menu_export_online_user_bookmark(opisvalid, args):
     __log__.info('Export Bookmark mode.')
     member_id = ''
     filename = raw_input("Filename: ")
@@ -1722,7 +1718,7 @@ def setup_option_parser():
 
 
 # Main thread #
-def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
+def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
     global __errorList
     global ERROR_CODE
 
@@ -1742,33 +1738,33 @@ def main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args):
                 selection = menu()
 
             if selection == '1':
-                menu_download_by_member_id(mode, op_is_valid, args)
+                menu_download_by_member_id(op_is_valid, args)
             elif selection == '2':
-                menu_download_by_image_id(mode, op_is_valid, args)
+                menu_download_by_image_id(op_is_valid, args)
             elif selection == '3':
-                menu_download_by_tags(mode, op_is_valid, args)
+                menu_download_by_tags(op_is_valid, args)
             elif selection == '4':
-                menu_download_from_list(mode, op_is_valid, args)
+                menu_download_from_list(op_is_valid, args)
             elif selection == '5':
-                menu_download_from_online_user_bookmark(mode, op_is_valid, args)
+                menu_download_from_online_user_bookmark(op_is_valid, args)
             elif selection == '6':
-                menu_download_from_online_image_bookmark(mode, op_is_valid, args)
+                menu_download_from_online_image_bookmark(op_is_valid, args)
             elif selection == '7':
-                menu_download_from_tags_list(mode, op_is_valid, args)
+                menu_download_from_tags_list(op_is_valid, args)
             elif selection == '8':
-                menu_download_new_illust_from_bookmark(mode, op_is_valid, args)
+                menu_download_new_illust_from_bookmark(op_is_valid, args)
             elif selection == '9':
-                menu_download_by_title_caption(mode, op_is_valid, args)
+                menu_download_by_title_caption(op_is_valid, args)
             elif selection == '10':
-                menu_download_by_tag_and_member_id(mode, op_is_valid, args)
+                menu_download_by_tag_and_member_id(op_is_valid, args)
             elif selection == '11':
-                menu_download_by_member_bookmark(mode, op_is_valid, args)
+                menu_download_by_member_bookmark(op_is_valid, args)
             elif selection == '12':
-                menu_download_by_group_id(mode, op_is_valid, args)
+                menu_download_by_group_id(op_is_valid, args)
             elif selection == 'e':
-                menu_export_online_bookmark(mode, op_is_valid, args)
+                menu_export_online_bookmark(op_is_valid, args)
             elif selection == 'm':
-                menu_export_online_user_bookmark(mode, op_is_valid, args)
+                menu_export_online_user_bookmark(op_is_valid, args)
             elif selection == 'd':
                 __dbManager__.main()
             elif selection == 'r':
@@ -1968,12 +1964,7 @@ def main():
         result = doLogin(password, username)
 
         if result:
-            if __config__.overwrite:
-                mode = PixivConstant.PIXIVUTIL_MODE_OVERWRITE
-            else:
-                mode = PixivConstant.PIXIVUTIL_MODE_UPDATE_ONLY
-
-            np_is_valid, op_is_valid, selection = main_loop(ewd, mode, op_is_valid, selection, np_is_valid, args)
+            np_is_valid, op_is_valid, selection = main_loop(ewd, op_is_valid, selection, np_is_valid, args)
 
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.startIrfanView(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
