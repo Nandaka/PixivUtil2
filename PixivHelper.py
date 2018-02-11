@@ -390,6 +390,7 @@ def speedInStr(totalSize, totalTime):
 
 
 def sizeInStr(totalSize):
+    totalSize = float(totalSize)
     if totalSize < 1024:
         return "{0:.0f} B".format(totalSize)
     totalSize = totalSize / 1024
@@ -584,18 +585,17 @@ def downloadImage(url, filename, res, file_size, overwrite):
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
             curr = save.tell()
-            print '\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b',
-            print '{0:9} of {1:9} Bytes'.format(curr, file_size),
+            print_progress(curr, file_size)
 
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
+                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
                 return curr
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
+                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
                 return curr
 
             prev = curr
@@ -629,6 +629,21 @@ def downloadImage(url, filename, res, file_size, overwrite):
             os.remove(filename + '.pixiv')
 
         del save
+
+
+def print_progress(curr, total):
+    # [12345678901234567890]
+    # [||||||||------------]
+
+    if total > 0:
+        complete = (curr * 20) / total
+        print '\r',
+        msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
+        print '{0:79}'.format(msg),
+    else:
+        # indeterminite
+        print '\r',
+        print '{1:79}'.format(sizeInStr(curr)),
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,

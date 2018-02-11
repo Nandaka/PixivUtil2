@@ -165,7 +165,7 @@ class PixivBrowser(mechanize.Browser):
             login_cookie = self._config.cookie
 
         if len(login_cookie) > 0:
-            PixivHelper.print_and_log('info', 'Trying to log with saved cookie')
+            PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self._loadCookie(login_cookie)
             res = self.open('https://www.pixiv.net/mypage.php')
             resData = res.read()
@@ -175,11 +175,11 @@ class PixivBrowser(mechanize.Browser):
             self.getMyId(parsed)
 
             if "logout.php" in resData:
-                PixivHelper.print_and_log('info', 'Login successfull.')
+                PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
                 return True
             else:
-                PixivHelper.GetLogger().info('Failed to login using cookie')
+                PixivHelper.GetLogger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
         return False
 

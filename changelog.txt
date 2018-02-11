@@ -1,3 +1,11 @@
+20180118
+- Fix Issue #305: Temporarily fixed until new win_unicode_console is updated from 0.5.
+- Implement #303: Increase SQLITE timeout to 5minutes.
+- Implement #299: Enhance alwaysCheckFileSize logic to check local file exists first before getting remote filesize.
+- Fix #300: update parser for downloading own images
+- Implement #296: Code reformating to PEP8
+- Update progress report.
+
 20171226:
 - Fix Issue #290: Update parser for option 8. New image from followed members.
 
