@@ -709,7 +709,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         info.close()
 
 
-def ugoira2gif(ugoira_file, exportname, fmt='gif'):
+def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif'):
     print_and_log('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
     # imageio cannot handle utf-8 filename
@@ -734,9 +734,12 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif'):
     print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
+    if delete_ugoira:
+        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+        os.remove(ugoira_file)
 
 
-def ugoira2apng(ugoira_file, exportname):
+def ugoira2apng(ugoira_file, exportname, delete_ugoira):
     print_and_log('info', 'processing ugoira to apng...')
     temp_folder = tempfile.mkdtemp()
     temp_name = temp_folder + os.sep + "temp.png"
@@ -762,6 +765,9 @@ def ugoira2apng(ugoira_file, exportname):
     print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
+    if delete_ugoira:
+        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+        os.remove(ugoira_file)
 
 
 def ParseDateTime(worksDate, dateFormat):

@@ -381,6 +381,7 @@ createapng      ==> Set to True to convert ugoira file to animated png.
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
+deleteugoira ==> set to True to delete original ugoira after conversion to gif/apng.
 
 ===============================================================================
 = Filename Format Syntax                                                      =

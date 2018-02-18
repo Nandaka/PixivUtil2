@@ -151,9 +151,9 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         if check_result != PixivConstant.PIXIVUTIL_OK:
                             # try to convert existing file.
                             if __config__.createGif and not os.path.exists(gif_name):
-                                PixivHelper.ugoira2gif(ugo_name, gif_name)
+                                PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
                             if __config__.createApng and not os.path.exists(apng_name):
-                                PixivHelper.ugoira2apng(ugo_name, apng_name)
+                                PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
 
                             return check_result
                 elif os.path.exists(filename) and os.path.isfile(filename):
@@ -195,9 +195,9 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             if ugo_name is not None and os.path.exists(ugo_name) and os.path.isfile(ugo_name):
                                 # try to convert existing file.
                                 if __config__.createGif and not os.path.exists(gif_name):
-                                    PixivHelper.ugoira2gif(ugo_name, gif_name)
+                                    PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
                                 if __config__.createApng and not os.path.exists(apng_name):
-                                    PixivHelper.ugoira2apng(ugo_name, apng_name)
+                                    PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
 
                             return check_result
 
@@ -772,10 +772,10 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
                     if __config__.createGif:
                         gif_filename = ugo_name[:-7] + ".gif"
-                        PixivHelper.ugoira2gif(ugo_name, gif_filename)
+                        PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira)
                     if __config__.createApng:
                         gif_filename = ugo_name[:-7] + ".png"
-                        PixivHelper.ugoira2apng(ugo_name, gif_filename)
+                        PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)

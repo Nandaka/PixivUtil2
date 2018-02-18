@@ -1,3 +1,6 @@
+20180218
+- Implement #243: Add configuration to delete ugoira after converting to gif/apng. (Set deleteUgoira to True in config.ini).
+
 20180118
 - Fix Issue #305: Temporarily fixed until new win_unicode_console is updated from 0.5.
 - Implement #303: Increase SQLITE timeout to 5minutes.
