@@ -119,22 +119,26 @@ class PixivArtist:
     def ParseToken(self, page, fromImage=False):
         try:
             # get the token from stacc feed
-            tab_feeds = page.findAll('a', attrs={'class': 'tab-feed'})
+            # tab_feeds = page.findAll('a', attrs={'class': 'tab-feed'})
+            tab_feeds = page.findAll(href=re.compile('/stacc/[^/?]*$'))
             if tab_feeds is not None and len(tab_feeds) > 0:
                 for a in tab_feeds:
                     if str(a["href"]).find("stacc/") > 0:
                         self.artistToken = a["href"].split("/")[-1]
                         return self.artistToken
-            if fromImage:
-                uls = page.findAll('ul', attrs={'class': 'tabs'})
-                for ul in uls:
-                    links = ul.findAll('a')
-                    for a in links:
-                        if str(a["href"]).find("stacc/") > 0:
-                            self.artistToken = a["href"].split("/")[-1]
-                            return self.artistToken
+            # no token, possibly self page from manage works.
+            # https://www.pixiv.net/manage/illusts/
+            self.artistToken = "self"
+            return self.artistToken
+##            if fromImage:
+##                uls = page.findAll('ul', attrs={'class': 'tabs'})
+##                for ul in uls:
+##                    links = ul.findAll('a')
+##                    for a in links:
+##                        if str(a["href"]).find("stacc/") > 0:
+##                            self.artistToken = a["href"].split("/")[-1]
+##                            return self.artistToken
 
-            raise BaseException("no token")
         except BaseException:
             raise PixivException('Cannot parse artist token, possibly different image structure.',
                                  errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE, htmlPage=page)
