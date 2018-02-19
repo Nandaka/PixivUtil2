@@ -30,7 +30,7 @@ class PixivException(Exception):
     DOWNLOAD_FAILED_NETWORK = 9002
     SERVER_ERROR  = 9005
 
-    errorCode = 0
+    errorCode = -1
     htmlPage = None
 
     def __init__(self, message, errorCode=0, htmlPage=None):
