@@ -31,13 +31,15 @@ class MockPixivBrowser(PixivBrowser):
 
 class TestPixivArtist(unittest.TestCase):
     def testPixivArtistProfileDataSrc(self):
-        # print '\nTesting member page ProfileDataSrc'
+        # print '\nTesting member page ProfileDataSrc
+        artist = None
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
         try:
             artist = PixivArtist(1107124, page)
         except PixivException as ex:
             print ex
+
         page.decompose()
         del page
         self.assertNotEqual(artist, None)
@@ -67,6 +69,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistNoAvatar(self):
         # print '\nTesting member page without avatar image'
         p = open('./test/test-member-noavatar.htm', 'r')
+        artist = None
         page = BeautifulSoup(p.read())
         try:
             artist = PixivArtist(26357, page)
@@ -647,7 +650,7 @@ class TestPixivTags(unittest.TestCase):
         # self.assertEqual(image.itemList[0].imageId, 53977340)
         # self.assertEqual(image.itemList[19].imageId, 45511597)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 69)
+        self.assertEqual(image.availableImages, 70)
 
     def testTagsMemberSearchLast(self):
         br = Browser()
