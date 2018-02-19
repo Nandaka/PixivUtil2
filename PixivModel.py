@@ -606,7 +606,8 @@ class PixivImage:
             expected_url = '/member_illust.php?mode=manga_big&illust_id=' + str(self.imageId) + '&page=' + str(currPage)
             try:
                 href = _br.fixUrl(expected_url)
-                print "Fetching big image page:", href
+                msg = "\rFetching big image page: {0}".format(href)
+                print "{0:79}".format(msg),
                 bigPage = _br.getPixivPage(url=href,
                                            referer="https://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(
                                                self.imageId))
@@ -614,7 +615,8 @@ class PixivImage:
                 bigImg = bigPage.find('img')
                 imgUrl = bigImg["src"]
                 # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
-                print "Found: ", imgUrl
+                msg = "\rFound: {0}".format(imgUrl)
+                print "{0:79}".format(msg),
                 urls.append(imgUrl)
                 bigImg.decompose()
                 bigPage.decompose()
@@ -622,6 +624,7 @@ class PixivImage:
                 del bigPage
             except Exception as ex:
                 print ex
+        print "\r{0:120}".format("Manga pages parsed.")
 
         return urls
 

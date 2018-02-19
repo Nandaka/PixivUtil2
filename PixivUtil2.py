@@ -653,6 +653,10 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         if download_image_flag:
+            if artist is None:
+                PixivHelper.safePrint('Member Name  : ' + image.artist.artistName)
+                print 'Member Avatar:', image.artist.artistAvatar
+                print 'Member Token :', image.artist.artistToken
             PixivHelper.safePrint("Title: " + image.imageTitle)
             PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
@@ -732,6 +736,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
                         result = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
+                        # set last-modified and last-accessed timestamp
+                        ts = time.mktime(image.worksDateDateTime.timetuple())
+                        os.utime(filename, (ts, ts))
 
                         manga_files[page] = filename
                         page = page + 1
@@ -1361,6 +1368,8 @@ def menu_download_by_member_id(opisvalid, args):
                 process_member(test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+                global ERROR_CODE
+                ERROR_CODE = -1
                 continue
     else:
         member_ids = raw_input('Member ids: ')
@@ -1387,6 +1396,8 @@ def menu_download_by_member_bookmark(opisvalid, args):
                 valid_ids.append(test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+                global ERROR_CODE
+                ERROR_CODE = -1
                 continue
         if __br__._myId in valid_ids:
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
@@ -1412,6 +1423,8 @@ def menu_download_by_image_id(opisvalid, args):
                 process_image(None, test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
+                global ERROR_CODE
+                ERROR_CODE = -1
                 continue
     else:
         image_ids = raw_input('Image ids: ')
@@ -1482,7 +1495,14 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
     tags = None
 
     if opisvalid and len(args) >= 2:
-        member_id = int(args[0])
+        try:
+            member_id = int(args[0])
+        except BaseException:
+            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(image_id))
+            global ERROR_CODE
+            ERROR_CODE = -1
+            return
+
         (page, end_page) = get_start_and_end_number_from_args(args, 1)
         tags = " ".join(args[3:])
         PixivHelper.safePrint("Looking tags: " + tags + " from memberId: " + str(member_id))
