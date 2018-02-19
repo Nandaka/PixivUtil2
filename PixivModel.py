@@ -125,6 +125,16 @@ class PixivArtist:
                     if str(a["href"]).find("stacc/") > 0:
                         self.artistToken = a["href"].split("/")[-1]
                         return self.artistToken
+            if fromImage:
+                uls = page.findAll('ul', attrs={'class': 'tabs'})
+                for ul in uls:
+                    links = ul.findAll('a')
+                    for a in links:
+                        if str(a["href"]).find("stacc/") > 0:
+                            self.artistToken = a["href"].split("/")[-1]
+                            return self.artistToken
+
+            raise BaseException("no token")
         except BaseException:
             raise PixivException('Cannot parse artist token, possibly different image structure.',
                                  errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE, htmlPage=page)
