@@ -117,6 +117,7 @@ def get_remote_filesize(url, referer):
 
 # -T04------For download file
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page=None):
+    '''return download result and filename if ok'''
     global ERROR_CODE
     temp_error_code = None
     retry_count = 0
@@ -129,7 +130,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     print 'Checking local filename...',
                     if os.path.exists(filename) and os.path.isfile(filename):
                         PixivHelper.print_and_log('info', "File exists: {0}".format(filename.encode('utf-8')))
-                        return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, None)
 
                 file_size = -1
 
@@ -155,7 +156,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             if __config__.createApng and not os.path.exists(apng_name):
                                 PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
 
-                            return check_result
+                            return (check_result, None)
                 elif os.path.exists(filename) and os.path.isfile(filename):
                     # other image? files
                     old_size = os.path.getsize(filename)
@@ -163,7 +164,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         file_size = get_remote_filesize(url, referer)
                     check_result = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
                     if check_result != PixivConstant.PIXIVUTIL_OK:
-                        return check_result
+                        return (check_result, None)
 
                 # check based on filename stored in DB using image id
                 if image_id is not None:
@@ -199,7 +200,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                 if __config__.createApng and not os.path.exists(apng_name):
                                     PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
 
-                            return check_result
+                            return (check_result, None)
 
                 # actual download
                 print 'Start downloading...',
@@ -211,7 +212,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     except KeyError:
                         file_size = -1
                         PixivHelper.print_and_log('info', "\tNo file size information!")
-                downloadedSize = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
+                (downloadedSize, filename) = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
 
                 # check the downloaded file size again
                 if file_size > 0 and downloadedSize != file_size:
@@ -257,12 +258,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     dfile.write(filename + "\n")
                     dfile.close()
 
-                return PixivConstant.PIXIVUTIL_OK
+                return (PixivConstant.PIXIVUTIL_OK, filename)
 
             except urllib2.HTTPError as httpError:
                 PixivHelper.print_and_log('error', '[download_image()] HTTP Error: {0} at {1}'.format(str(httpError), url))
                 if httpError.code == 404 or httpError.code == 502:
-                    return PixivConstant.PIXIVUTIL_NOT_OK
+                    return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
             except urllib2.URLError as urlError:
@@ -273,12 +274,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if ioex.errno == 28:
                     PixivHelper.print_and_log('error', ioex.message)
                     raw_input("Press Enter to retry.")
-                    return PixivConstant.PIXIVUTIL_NOT_OK
+                    return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_IO
                 raise
             except KeyboardInterrupt:
                 PixivHelper.print_and_log('info', 'Aborted by user request => Ctrl-C')
-                return PixivConstant.PIXIVUTIL_ABORTED
+                return (PixivConstant.PIXIVUTIL_ABORTED, None)
             finally:
                 if res is not None:
                     del res
@@ -735,18 +736,19 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     PixivHelper.safePrint('Filename  : ' + filename)
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
-                        result = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
+                        (result, filename) = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
                         # set last-modified and last-accessed timestamp
-                        ts = time.mktime(image.worksDateDateTime.timetuple())
-                        os.utime(filename, (ts, ts))
-
-                        manga_files[page] = filename
-                        page = page + 1
+                        if filename is not None and os.path.isfile(filename):
+                            ts = time.mktime(image.worksDateDateTime.timetuple())
+                            os.utime(filename, (ts, ts))
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.print_and_log('error', 'Image url not found/failed to download: ' + str(image.imageId))
                         elif result == PixivConstant.PIXIVUTIL_ABORTED:
                             raise KeyboardInterrupt()
+
+                        manga_files[page] = filename
+                        page = page + 1
 
                     except urllib2.URLError:
                         PixivHelper.print_and_log('error', 'Giving up url: ' + str(img))
@@ -1218,8 +1220,11 @@ def process_from_group(group_id, limit=0, process_external=True):
                                                         tagsLimit=__config__.tagsLimit, fileUrl=image_data.imageUrls[0])
                     filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
-                    download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry,
-                                   __config__.backupOldFile)
+                    (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
+                    if filename is not None and os.path.isfile(filename):
+                        ts = time.mktime(image_data.worksDateDateTime.timetuple())
+                        os.utime(filename, (ts, ts))
+
                     image_count = image_count + 1
 
             if (group_data.imageList is None or len(group_data.imageList) == 0) and \

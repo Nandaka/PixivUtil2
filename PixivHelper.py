@@ -558,6 +558,7 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
 
 
 def downloadImage(url, filename, res, file_size, overwrite):
+    ''' Actual download, return the downloaded filesize and saved filename.'''
     start_time = datetime.now()
 
     # try to save to the given filename + .pixiv extension if possible
@@ -591,12 +592,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
                 print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
-                return curr
+                break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
                 print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
-                return curr
+                break
 
             prev = curr
 
@@ -629,6 +630,8 @@ def downloadImage(url, filename, res, file_size, overwrite):
             os.remove(filename + '.pixiv')
 
         del save
+
+        return (curr, filename)
 
 
 def print_progress(curr, total):
