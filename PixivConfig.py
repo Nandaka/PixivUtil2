@@ -78,6 +78,7 @@ class PixivConfig:
     createApng = False
     deleteUgoira = False
     createWebm = False
+    setLastModified = True
 
     # IrfanView
     createDownloadLists = False
@@ -85,6 +86,11 @@ class PixivConfig:
     startIrfanView = False
     startIrfanSlide = False
     IrfanViewPath = unicode(r'C:\Program Files\IrfanView')
+
+    # FFmpeg
+    ffmpeg = "ffmpeg"
+    ffmpegCodec = "libvpx-vp9"
+    ffmpegParam = "-lossless 1"
 
     # Debug related
     logLevel = "DEBUG"
@@ -510,14 +516,34 @@ class PixivConfig:
                 self.createWebm = False
                 haveError = True
 
-# except ConfigParser.NoOptionError:
-# print 'Error at loadConfig():',sys.exc_info()
-# print 'Failed to read configuration.'
-# self.writeConfig()
-# except ConfigParser.NoSectionError:
-# print 'Error at loadConfig():',sys.exc_info()
-# print 'Failed to read configuration.'
-# self.writeConfig()
+            try:
+                self.ffmpeg = config.get('FFmpeg', 'ffmpeg')
+            except ValueError:
+                print "ffmpeg = 'ffmpeg'"
+                self.ffmpeg = 'ffmpeg'
+                haveError = True
+
+            try:
+                self.ffmpegCodec = config.get('FFmpeg', 'ffmpegCodec')
+            except ValueError:
+                print "ffmpegCodec = 'libvpx-vp9'"
+                self.ffmpegCodec = 'libvpx-vp9'
+                haveError = True
+
+            try:
+                self.ffmpegParam = config.get('FFmpeg', 'ffmpegParam')
+            except ValueError:
+                print "ffmpegParam = '-lossless 1'"
+                self.ffmpegParam = '-lossless 1'
+                haveError = True
+
+            try:
+                self.setLastModified = config.getboolean('Settings', 'setLastModified')
+            except ValueError:
+                print "setLastModified = True"
+                self.setLastModified = True
+                haveError = True
+
         except BaseException:
             print 'Error at loadConfig():', sys.exc_info()
             self.__logger.exception('Error at loadConfig()')
@@ -597,6 +623,7 @@ class PixivConfig:
         config.set('Settings', 'createApng', self.createApng)
         config.set('Settings', 'deleteUgoira', self.deleteUgoira)
         config.set('Settings', 'createWebm', self.createWebm)
+        config.set('Settings', 'setLastModified', self.setLastModified)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -608,6 +635,11 @@ class PixivConfig:
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
         config.set('Pixiv', 'DateFormat', self.dateFormat)
+
+        config.add_section('FFmpeg')
+        config.set('FFmpeg', 'ffmpeg', self.ffmpeg)
+        config.set('FFmpeg', 'ffmpegCodec', self.ffmpegCodec)
+        config.set('FFmpeg', 'ffmpegParam', self.ffmpegParam)
 
         if path is not None:
             configlocation = path
@@ -702,10 +734,16 @@ class PixivConfig:
         print ' - useBlacklistMembers  =', self.useBlacklistMembers
         print ' - createApng       =', self.createApng
         print ' - deleteUgoira     =', self.deleteUgoira
-        print ' - createWebm     =', self.createWebm
+        print ' - createWebm       =', self.createWebm
+        print ' - setLastModified  =', self.setLastModified
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage
         print ' - R18Mode      =', self.r18mode
         print ' - DateFormat   =', self.dateFormat
+
+        print ' [FFmpeg]'
+        print ' - ffmpeg       =', self.ffmpeg
+        print ' - ffmpegCodec  =', self.ffmpegCodec
+        print ' - ffmpegParam  =', self.ffmpegParam
         print ''

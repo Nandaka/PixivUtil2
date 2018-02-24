@@ -157,7 +157,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             if __config__.createApng and not os.path.exists(apng_name):
                                 PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
                             if __config__.createWebm and not os.path.exists(webm_name):
-                                PixivHelper.ugoira2webm(ugo_name, webm_name, __config__.deleteUgoira)
+                                PixivHelper.ugoira2webm(ugo_name,
+                                                        webm_name,
+                                                        __config__.deleteUgoira,
+                                                        __config__.ffmpeg,
+                                                        __config__.ffmpegCodec,
+                                                        __config__.ffmpegParam)
 
                             return (check_result, None)
                 elif os.path.exists(filename) and os.path.isfile(filename):
@@ -205,7 +210,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                 if __config__.createApng and not os.path.exists(apng_name):
                                     PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
                                 if __config__.createWebm and not os.path.exists(webm_name):
-                                    PixivHelper.ugoira2webm(ugo_name, webm_name, __config__.deleteUgoira)
+                                    PixivHelper.ugoira2webm(ugo_name,
+                                                            webm_name,
+                                                            __config__.deleteUgoira,
+                                                            __config__.ffmpeg,
+                                                            __config__.ffmpegCodec,
+                                                            __config__.ffmpegParam)
 
                             return (check_result, None)
 
@@ -745,7 +755,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     try:
                         (result, filename) = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
                         # set last-modified and last-accessed timestamp
-                        if filename is not None and os.path.isfile(filename):
+                        if __config__.setLastModified and filename is not None and os.path.isfile(filename):
                             ts = time.mktime(image.worksDateDateTime.timetuple())
                             os.utime(filename, (ts, ts))
 
@@ -794,7 +804,12 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                         PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
                     if __config__.createWebm:
                         gif_filename = ugo_name[:-7] + ".webm"
-                        PixivHelper.ugoira2webm(ugo_name, gif_filename, __config__.deleteUgoira)
+                        PixivHelper.ugoira2webm(ugo_name,
+                                                gif_filename,
+                                                __config__.deleteUgoira,
+                                                __config__.ffmpeg,
+                                                __config__.ffmpegCodec,
+                                                __config__.ffmpegParam)
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
@@ -1231,7 +1246,7 @@ def process_from_group(group_id, limit=0, process_external=True):
                     filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
-                    if filename is not None and os.path.isfile(filename):
+                    if __config__.setLastModified and filename is not None and os.path.isfile(filename):
                         ts = time.mktime(image_data.worksDateDateTime.timetuple())
                         os.utime(filename, (ts, ts))
 
@@ -1974,17 +1989,18 @@ def main():
         if __config__.createWebm:
             try:
                 import subprocess
-                p = subprocess.Popen("ffmpeg -encoders", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                cmd = u"{0} -encoders".format(__config__.ffmpeg)
+                p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 buff = p.stdout.read()
-                if buff.find("libvpx-vp9") == 0:
+                if buff.find(__config__.ffmpegCodec) == 0:
                     __config__.createWebm = False
-                    PixivHelper.print_and_log('error', 'Missing libvpx-vp9 encoder, createWebm disabled.')
-                    PixivHelper.print_and_log('info', 'Please download ffmpeg with libvpx-vp9 encoder enabled.')
+                    PixivHelper.print_and_log('error', 'Missing {0} encoder, createWebm disabled.'.format(__config__.ffmpegCodec))
+                    PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
             except Exception as ex:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 __config__.createWebm = False
                 PixivHelper.print_and_log('error', 'Failed to load ffmpeg, createWebm disabled: {0}'.format(exc_value))
-                PixivHelper.print_and_log('info', 'Please download ffmpeg with libvpx-vp9 encoder enabled.')
+                PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
 
         username = __config__.username
         if username == '':

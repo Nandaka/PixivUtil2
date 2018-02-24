@@ -777,7 +777,8 @@ def ugoira2webm(ugoira_file,
                 exportname,
                 delete_ugoira,
                 ffmpeg=u"ffmpeg",
-                param="-c:v libvpx-vp9 -lossless 1"):
+                codec="libvpx-vp9",
+                param="-lossless 1"):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
     try:
@@ -803,8 +804,8 @@ def ugoira2webm(ugoira_file,
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
 
-        cmd = u"{0} -y -i {1}/i.ffconcat {2} \"{3}\""
-        cmd = cmd.format(ffmpeg, d, param, tempname)
+        cmd = u"{0} -y -i {1}/i.ffconcat -c:v {2} {3} \"{4}\""
+        cmd = cmd.format(ffmpeg, d, codec, param, tempname)
         p = subprocess.Popen(cmd, stderr=subprocess.PIPE)
 
         # progress report
