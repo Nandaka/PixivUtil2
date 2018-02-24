@@ -1,7 +1,17 @@
-20180219-beta1
-- Fix Issue #315: Update parser for member token.
+20180224-beta2
 - Implement #314: Set non-zero exit code for invalid input.
-- Set last-modified and last-accessed timestamp based on work's timestamp.
+- Fix Issue #315: Update parser for member token.
+- New Setting: setLastModified = True
+  Set last-modified and last-accessed timestamp based on work's timestamp. 
+- Implement #257: convert ugoira to webm.
+  Require ffmpeg and createUgoira = True
+- New Settings under [FFmpeg] section: 
+  - ffmpeg = "ffmpeg"
+    FFmpeg path
+  - ffmpegCodec = "libvpx-vp9"
+    Codec to use
+  - ffmpegParam = "-lossless 1"
+    Additional Parameters
 - Update test cases.
 
 20180218
