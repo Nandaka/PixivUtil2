@@ -779,7 +779,6 @@ def ugoira2webm(ugoira_file,
                 ffmpeg=u"ffmpeg",
                 param="-c:v libvpx-vp9 -lossless 1"):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
-
     d = tempfile.mkdtemp(prefix="ugoira2webm")
     try:
         frames = {}

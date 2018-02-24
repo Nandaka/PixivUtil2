@@ -1971,6 +1971,21 @@ def main():
             __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
             PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
+        if __config__.createWebm:
+            try:
+                import subprocess
+                p = subprocess.Popen("ffmpeg -encoders", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                buff = p.stdout.read()
+                if buff.find("libvpx-vp9") == 0:
+                    __config__.createWebm = False
+                    PixivHelper.print_and_log('error', 'Missing libvpx-vp9 encoder, createWebm disabled.')
+                    PixivHelper.print_and_log('info', 'Please download ffmpeg with libvpx-vp9 encoder enabled.')
+            except Exception as ex:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                __config__.createWebm = False
+                PixivHelper.print_and_log('error', 'Failed to load ffmpeg, createWebm disabled: {0}'.format(exc_value))
+                PixivHelper.print_and_log('info', 'Please download ffmpeg with libvpx-vp9 encoder enabled.')
+
         username = __config__.username
         if username == '':
             username = raw_input('Username ? ')
