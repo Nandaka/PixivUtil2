@@ -139,6 +139,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     ugo_name = filename[:-4] + ".ugoira"
                     gif_name = filename[:-4] + ".gif"
                     apng_name = filename[:-4] + ".png"
+                    webm_name = filename[:-4] + ".webm"
                     # non-converted zip (no animation.json)
                     if os.path.exists(filename) and os.path.isfile(filename):
                         # not sure what is the proper handling, currently it will throw error after download due to file already exists.
@@ -155,6 +156,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                 PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
                             if __config__.createApng and not os.path.exists(apng_name):
                                 PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
+                            if __config__.createWebm and not os.path.exists(webm_name):
+                                PixivHelper.ugoira2webm(ugo_name, webm_name, __config__.deleteUgoira)
 
                             return (check_result, None)
                 elif os.path.exists(filename) and os.path.isfile(filename):
@@ -188,10 +191,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                 ugo_name = db_filename[:-4] + ".ugoira"
                                 gif_name = db_filename[:-4] + ".gif"
                                 apng_name = db_filename[:-4] + ".png"
+                                webm_name = db_filename[:-4] + ".webm"
                             if db_filename.endswith(".ugoira"):
                                 ugo_name = db_filename
                                 gif_name = db_filename[:-7] + ".gif"
                                 apng_name = db_filename[:-7] + ".png"
+                                webm_name = db_filename[:-7] + ".webm"
 
                             if ugo_name is not None and os.path.exists(ugo_name) and os.path.isfile(ugo_name):
                                 # try to convert existing file.
@@ -199,6 +204,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                     PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
                                 if __config__.createApng and not os.path.exists(apng_name):
                                     PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
+                                if __config__.createWebm and not os.path.exists(webm_name):
+                                    PixivHelper.ugoira2webm(ugo_name, webm_name, __config__.deleteUgoira)
 
                             return (check_result, None)
 
@@ -785,6 +792,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     if __config__.createApng:
                         gif_filename = ugo_name[:-7] + ".png"
                         PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
+                    if __config__.createWebm:
+                        gif_filename = ugo_name[:-7] + ".webm"
+                        PixivHelper.ugoira2webm(ugo_name, gif_filename, __config__.deleteUgoira)
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)

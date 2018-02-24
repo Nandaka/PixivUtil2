@@ -77,6 +77,7 @@ class PixivConfig:
     avatarNameFormat = ""
     createApng = False
     deleteUgoira = False
+    createWebm = False
 
     # IrfanView
     createDownloadLists = False
@@ -502,6 +503,13 @@ class PixivConfig:
                 self.deleteUgoira = False
                 haveError = True
 
+            try:
+                self.createWebm = config.getboolean('Settings', 'createWebm')
+            except ValueError:
+                print "createWebm = False"
+                self.createWebm = False
+                haveError = True
+
 # except ConfigParser.NoOptionError:
 # print 'Error at loadConfig():',sys.exc_info()
 # print 'Failed to read configuration.'
@@ -588,6 +596,7 @@ class PixivConfig:
         config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
         config.set('Settings', 'createApng', self.createApng)
         config.set('Settings', 'deleteUgoira', self.deleteUgoira)
+        config.set('Settings', 'createWebm', self.createWebm)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -693,6 +702,7 @@ class PixivConfig:
         print ' - useBlacklistMembers  =', self.useBlacklistMembers
         print ' - createApng       =', self.createApng
         print ' - deleteUgoira     =', self.deleteUgoira
+        print ' - createWebm     =', self.createWebm
 
         print ' [Pixiv]'
         print ' - numberOfPage =', self.numberOfPage

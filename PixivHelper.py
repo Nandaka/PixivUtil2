@@ -773,6 +773,68 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira):
         os.remove(ugoira_file)
 
 
+def ugoira2webm(ugoira_file,
+                exportname,
+                delete_ugoira,
+                ffmpeg=u"ffmpeg",
+                param="-c:v libvpx-vp9 -lossless 1"):
+    ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
+
+    d = tempfile.mkdtemp(prefix="ugoira2webm")
+    try:
+        frames = {}
+        ffconcat = "ffconcat version 1.0\n"
+
+        if exportname is None or len(exportname) == 0:
+            name = '.'.join(ugoira_file.split('.')[:-1])
+            exportname = os.path.basename(name) + ".webm"
+
+        tempname = d + "/temp.webm"
+
+        with zipfile.ZipFile(ugoira_file) as f:
+            f.extractall(d)
+
+        with open(d + "/animation.json") as f:
+            frames = json.load(f)['frames']
+
+        for i in frames:
+            ffconcat += "file " + i['file'] + '\n'
+            ffconcat += "duration " + str(float(i['delay']) / 1000) + '\n'
+
+        with open(d + "/i.ffconcat", "w") as f:
+            f.write(ffconcat)
+
+        cmd = u"{0} -y -i {1}/i.ffconcat {2} \"{3}\""
+        cmd = cmd.format(ffmpeg, d, param, tempname)
+        p = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+
+        # progress report
+        chatter = ""
+        print_and_log('info', u"Start encoding {0}".format(exportname))
+        while p.stderr:
+            buff = p.stderr.read(1)
+            chatter += buff
+            if buff.endswith("\r"):
+                if chatter.find("frame=") > 0:
+                    print chatter.strip(), os.linesep,
+                chatter = ""
+            if len(buff) == 0:
+                break
+
+        ret = p.wait()
+        shutil.move(tempname, exportname)
+
+        if delete_ugoira:
+            print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+            os.remove(ugoira_file)
+
+        if ret is not None:
+            print "done with status= {0}".format(ret)
+
+    finally:
+        shutil.rmtree(d)
+
+
 def ParseDateTime(worksDate, dateFormat):
     if dateFormat is not None and len(dateFormat) > 0 and '%' in dateFormat:
         # use the user defined format
