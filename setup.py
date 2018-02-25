@@ -23,25 +23,25 @@ class bcolors:
 
 
 if not isWindows:
-    print (bcolors.FAIL)
-    print ("____________________________")
-    print ("          ERROR           ")
-    print ("----------------------------")
+    print(bcolors.FAIL)
+    print("____________________________")
+    print("          ERROR           ")
+    print("----------------------------")
 
-    print ("Setup.py is used to generate executable under Windows systems\n")
-    print ("For non windows systems please run:\n\n\tpip install -r requirements.txt")
-    print (bcolors.ENDC)
+    print("Setup.py is used to generate executable under Windows systems\n")
+    print("For non windows systems please run:\n\n\tpip install -r requirements.txt")
+    print(bcolors.ENDC)
     if ranWithPy3:
-        print (bcolors.WARNING)
-        print ("Attention: PixivUtil2 is not yet compatible with Python 3.  You have run this script with Python 3.")
-        print ("To install dependancies you will need to use a specific version of pip e.g.:\n")
-        print ("\tpip-2.7 install -r requirements.txt\n")
-        print ("To run you will need to specify python 2.x:\n")
-        print ("\tpython2 PixivUtil2.py\n")
-        print (bcolors.ENDC)
+        print(bcolors.WARNING)
+        print("Attention: PixivUtil2 is not yet compatible with Python 3.  You have run this script with Python 3.")
+        print("To install dependancies you will need to use a specific version of pip e.g.:\n")
+        print("\tpip-2.7 install -r requirements.txt\n")
+        print("To run you will need to specify python 2.x:\n")
+        print("\tpython2 PixivUtil2.py\n")
+        print(bcolors.ENDC)
     else:
-        print ("After installing requirements run with command:\n")
-        print ("\tpython PixivUtil2.py\n")
+        print("After installing requirements run with command:\n")
+        print("\tpython PixivUtil2.py\n")
     exit(-1)
 
 

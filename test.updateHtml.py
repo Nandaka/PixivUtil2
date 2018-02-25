@@ -31,7 +31,7 @@ def prepare():
 
 
 def downloadPage(url, filename):
-    print "Dumping " + url + " to " + filename
+    print("Dumping " + url + " to " + filename)
     try:
         html = __br__.open(url).read()
     except mechanize.HTTPError as e:
@@ -102,12 +102,12 @@ def main():
         # ./test/test-member-suspended.htm
         # ./test/test-member-nologin.htm
 
-        print "Completed"
+        print("Completed")
 
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as ex:
-        print ex
+        print(ex)
     raw_input("anykey")

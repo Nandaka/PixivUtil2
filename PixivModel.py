@@ -523,20 +523,20 @@ class PixivImage:
             expected_url = '/member_illust.php?mode=big&illust_id=' + str(self.imageId)
             try:
                 href = _br.fixUrl(expected_url)
-                print "Fetching big image page:", href
+                print("Fetching big image page:", href)
                 bigPage = _br.getPixivPage(url=href,
                                            referer="https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId))
                 bigImg = bigPage.find('img')
                 imgUrl = bigImg["src"]
                 # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
-                print "Found: ", imgUrl
+                print("Found: ", imgUrl)
                 bigImg.decompose()
                 bigPage.decompose()
                 del bigImg
                 del bigPage
                 return imgUrl
             except Exception as ex:
-                print ex
+                print(ex)
 
         # new layout for big 20141216
         temp = page.find('img', attrs={'class': 'original-image'})
@@ -570,7 +570,7 @@ class PixivImage:
         twopage_format = page.find("html", attrs={'class': re.compile(r".*\b_book-viewer\b.*")})
         if twopage_format is not None and len(twopage_format) > 0:
             # new format
-            print "2-page manga viewer mode"
+            print("2-page manga viewer mode")
             return self.ParseMangaImagesScript(page)
         else:
             # standard format
@@ -627,8 +627,8 @@ class PixivImage:
                 del bigImg
                 del bigPage
             except Exception as ex:
-                print ex
-        print "\r{0:120}".format("Manga pages parsed.")
+                print(ex)
+        print("\r{0:120}".format("Manga pages parsed."))
 
         return urls
 
@@ -1079,7 +1079,7 @@ class PixivTags:
         PixivHelper.safePrint('haveImage  : {0}'.format(self.haveImage))
         PixivHelper.safePrint('urls  : {0}'.format(len(self.itemList)))
         for item in self.itemList:
-            print "\tImage Id: {0}\tFav Count:{1}".format(item.imageId, item.bookmarkCount)
+            print("\tImage Id: {0}\tFav Count:{1}".format(item.imageId, item.bookmarkCount))
         PixivHelper.safePrint('total : {0}'.format(self.availableImages))
         PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
