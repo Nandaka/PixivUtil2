@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
+
 import PixivUtil2
 import PixivBrowserFactory
 import PixivConfig

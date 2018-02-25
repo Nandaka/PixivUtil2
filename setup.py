@@ -1,5 +1,6 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
 
 from distutils.core import setup
 

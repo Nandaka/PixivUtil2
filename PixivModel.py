@@ -1,5 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+from __future__ import print_function
+
 import os
 import re
 import sys

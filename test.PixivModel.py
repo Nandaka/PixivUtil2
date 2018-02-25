@@ -1,5 +1,7 @@
 ﻿#!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
+
 from PixivModel import PixivArtist, PixivImage, PixivBookmark, PixivNewIllustBookmark, PixivTags, PixivGroup
 from PixivBrowserFactory import PixivBrowser
 from PixivException import PixivException
