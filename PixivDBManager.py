@@ -40,7 +40,7 @@ class PixivDBManager:
 ## I. Create/Drop Database              ##
 ##########################################
     def createDatabase(self):
-        print 'Creating database...',
+        print('Creating database...', end=' ')
 
         try:
             c = self.conn.cursor()
@@ -129,8 +129,8 @@ class PixivDBManager:
 ## II. Export/Import DB                 ##
 ##########################################
     def importList(self, listTxt):
-        print 'Importing list...',
-        print 'Found', len(listTxt), 'items',
+        print('Importing list...', end=' ')
+        print('Found', len(listTxt), 'items', end=' ')
         try:
             c = self.conn.cursor()
 
@@ -152,7 +152,7 @@ class PixivDBManager:
         return 0
 
     def exportList(self, filename, include_artist_token=True):
-        print 'Exporting list...',
+        print('Exporting list...', end=' ')
         try:
             c = self.conn.cursor()
             c.execute('''SELECT member_id, save_folder, name
@@ -186,7 +186,7 @@ class PixivDBManager:
         print('done.')
 
     def exportDetailedList(self, filename):
-        print 'Exporting detailed list...',
+        print('Exporting detailed list...', end=' ')
         try:
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_master_member
@@ -260,7 +260,7 @@ class PixivDBManager:
                     print('')
                     for row in c:
                         for string in row:
-                            print '   ',
+                            print('   ', end=' ')
                             PixivHelper.safePrint(unicode(string), False)
                         print('')
                 else:
@@ -272,7 +272,7 @@ class PixivDBManager:
                 print('')
                 for row in c:
                     for string in row:
-                        print '   ',
+                        print('   ', end=' ')
                         PixivHelper.safePrint(unicode(string), False)   # would it make more sense to set output to file?
                     print('')
             # Yavos: end of change
@@ -388,7 +388,7 @@ class PixivDBManager:
 
         for row in rows:
             for string in row:
-                print '   ',
+                print('   ', end=' ')
                 PixivHelper.safePrint(unicode(string), False)
             print('\n')
 
@@ -731,7 +731,7 @@ class PixivDBManager:
                     row = self.selectImageByImageId(image_id)
                     if row is not None:
                         for string in row:
-                            print '	',
+                            print('	', end=' ')
                             PixivHelper.safePrint(unicode(string), False)
                         print('\n')
                     else:
@@ -741,7 +741,7 @@ class PixivDBManager:
                     row = self.selectMemberByMemberId(member_id)
                     if row is not None:
                         for string in row:
-                            print '	',
+                            print('	', end=' ')
                             PixivHelper.safePrint(unicode(string), False)
                         print('\n')
                     else:
@@ -752,7 +752,7 @@ class PixivDBManager:
                     if rows is not None:
                         for row in rows:
                             for string in row:
-                                print '	',
+                                print('	', end=' ')
                                 PixivHelper.safePrint(unicode(string), False)
                             print('\n')
                     else:

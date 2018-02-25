@@ -246,9 +246,9 @@ def safePrint(msg, newline=True):
     """Print empty string if UnicodeError raised."""
     for msgToken in msg.split(' '):
         try:
-            print msgToken,
+            print(msgToken, end=' ')
         except UnicodeError:
-            print ('?' * len(msgToken)),
+            print(('?' * len(msgToken)), end=' ')
     if newline:
         print("")
 
@@ -535,7 +535,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
 def printDelay(retryWait):
     repeat = range(1, retryWait)
     for t in repeat:
-        print t,
+        print(t, end=' ')
         time.sleep(1)
     print('')
 
@@ -582,7 +582,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     # download the file
     prev = 0
     curr = 0
-    print '{0:22} Bytes'.format(curr),
+    print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
@@ -641,13 +641,13 @@ def print_progress(curr, total):
 
     if total > 0:
         complete = (curr * 20) / total
-        print '\r',
+        print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
-        print '{0:79}'.format(msg),
+        print('{0:79}'.format(msg), end=' '
     else:
         # indeterminite
-        print '\r',
-        print '{1:79}'.format(sizeInStr(curr)),
+        print('\r', end=' ')
+        print('{1:79}'.format(sizeInStr(curr)), end=' ')
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,

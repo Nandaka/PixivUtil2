@@ -613,7 +613,7 @@ class PixivImage:
             try:
                 href = _br.fixUrl(expected_url)
                 msg = "\rFetching big image page: {0}".format(href)
-                print "{0:79}".format(msg),
+                print("{0:79}".format(msg), end=' ')
                 bigPage = _br.getPixivPage(url=href,
                                            referer="https://www.pixiv.net/member_illust.php?mode=manga&illust_id=" + str(
                                                self.imageId))
@@ -622,7 +622,7 @@ class PixivImage:
                 imgUrl = bigImg["src"]
                 # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
                 msg = "\rFound: {0}".format(imgUrl)
-                print "{0:79}".format(msg),
+                print("{0:79}".format(msg), end=' ')
                 urls.append(imgUrl)
                 bigImg.decompose()
                 bigPage.decompose()

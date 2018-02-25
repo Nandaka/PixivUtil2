@@ -128,7 +128,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
         try:
             try:
                 if not overwrite and not __config__.alwaysCheckFileSize:
-                    print 'Checking local filename...',
+                    print('Checking local filename...', end=' ')
                     if os.path.exists(filename) and os.path.isfile(filename):
                         PixivHelper.print_and_log('info', "File exists: {0}".format(filename.encode('utf-8')))
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, None)
@@ -221,7 +221,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             return (check_result, None)
 
                 # actual download
-                print 'Start downloading...',
+                print('Start downloading...', end=' ')
                 req = PixivHelper.create_custom_request(url, __config__, referer)
                 res = __br__.open_novisit(req)
                 if file_size < 0:
@@ -683,7 +683,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
             # get bookmark count
             if ("%bookmark_count%" in __config__.filenameFormat or "%image_response_count%" in __config__.filenameFormat) and image.bookmark_count == -1:
-                print "Parsing bookmark page",
+                print("Parsing bookmark page", end=' ')
                 bookmark_url = 'https://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id)
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
                 image.ParseBookmarkDetails(parse_bookmark_page)

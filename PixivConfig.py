@@ -559,7 +559,7 @@ class PixivConfig:
     # -UI01B------write config
     def writeConfig(self, error=False, path=None):
         '''Backup old config if exist and write updated config.ini'''
-        print 'Writing config file...',
+        print('Writing config file...', end=' ')
         config = ConfigParser.RawConfigParser()
 
         config.add_section('Network')
