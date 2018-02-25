@@ -643,7 +643,7 @@ def print_progress(curr, total):
         complete = (curr * 20) / total
         print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
-        print('{0:79}'.format(msg), end=' '
+        print('{0:79}'.format(msg), end=' ')
     else:
         # indeterminite
         print('\r', end=' ')
