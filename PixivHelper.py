@@ -817,7 +817,7 @@ def ugoira2webm(ugoira_file,
             chatter += buff
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
-                    print(chatter.strip(), os.linesep,)
+                    print(chatter.strip(), os.linesep, end=' ')
                 chatter = ""
             if len(buff) == 0:
                 break
