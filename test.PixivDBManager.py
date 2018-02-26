@@ -1,5 +1,6 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
 
 from PixivDBManager import PixivDBManager
 from PixivModel import PixivListItem
@@ -26,7 +27,7 @@ class TestPixivDBManager(unittest.TestCase):
         result = DB.selectMembersByLastDownloadDate(7)
         self.assertEqual(len(result), LIST_SIZE)
         for item in result:
-            print item.memberId, item.path
+            print(item.memberId, item.path)
 
     def testSelectAllMember(self):
         DB = PixivDBManager(target="test.db.sqlite")
@@ -35,10 +36,10 @@ class TestPixivDBManager(unittest.TestCase):
         result = DB.selectAllMember()
         self.assertEqual(len(result), LIST_SIZE)
         for item in result:
-            print item.memberId, item.path
+            print(item.memberId, item.path)
 
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivDBManager)
     unittest.TextTestRunner(verbosity=5).run(suite)
-    print "================================================================"
+    print("================================================================")

@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+from __future__ import print_function
 
 import ConfigParser
 import sys
@@ -108,7 +109,7 @@ class PixivConfig:
         else:
             self.configFileLocation = script_path + os.sep + 'config.ini'
 
-        print 'Reading', self.configFileLocation, '...'
+        print('Reading', self.configFileLocation, '...')
         haveError = False
         config = ConfigParser.RawConfigParser()
         try:
@@ -132,28 +133,28 @@ class PixivConfig:
             try:
                 self.processFromDb = config.getboolean('Settings', 'processfromdb')
             except ValueError:
-                print "processFromDb = True"
+                print("processFromDb = True")
                 self.processFromDb = True
                 haveError = True
 
             try:
                 self.dayLastUpdated = config.getint('Settings', 'daylastupdated')
             except ValueError:
-                print "dayLastUpdated = 7"
+                print("dayLastUpdated = 7")
                 self.dayLastUpdated = 7
                 haveError = True
 
             try:
                 self.dateDiff = config.getint('Settings', 'datediff')
             except ValueError:
-                print "dateDiff = 0"
+                print("dateDiff = 0")
                 self.dateDiff = 0
                 haveError = True
 
             try:
                 self.proxyAddress = config.get('Network', 'proxyaddress')
             except ValueError:
-                print "proxyAddress = ''"
+                print("proxyAddress = ''")
                 self.proxyAddress = ''
                 haveError = True
             self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
@@ -161,21 +162,21 @@ class PixivConfig:
             try:
                 self.useProxy = config.getboolean('Network', 'useproxy')
             except ValueError:
-                print "useProxy = False"
+                print("useProxy = False")
                 self.useProxy = False
                 haveError = True
 
             try:
                 self.useList = config.getboolean('Settings', 'uselist')
             except ValueError:
-                print "useList = False"
+                print("useList = False")
                 self.useList = False
                 haveError = True
 
             try:
                 self.r18mode = config.getboolean('Pixiv', 'r18mode')
             except ValueError:
-                print "r18mode = False"
+                print("r18mode = False")
                 self.r18mode = False
                 haveError = True
 
@@ -194,9 +195,9 @@ class PixivConfig:
                 # check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
                     if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_number%') == -1:
-                        print 'No page identifier, appending %page_index% to the filename manga format.'
+                        print('No page identifier, appending %page_index% to the filename manga format.')
                         _filenameMangaFormat = _filenameMangaFormat + unicode(' %page_index%')
-                        print "_filenameMangaFormat =", _filenameMangaFormat
+                        print("_filenameMangaFormat =", _filenameMangaFormat)
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
 
@@ -209,48 +210,48 @@ class PixivConfig:
                 self.debugHttp = config.getboolean('Debug', 'debughttp')
             except ValueError:
                 self.debugHttp = False
-                print "debugHttp = False"
+                print("debugHttp = False")
                 haveError = True
 
             try:
                 self.useRobots = config.getboolean('Network', 'userobots')
             except ValueError:
                 self.useRobots = False
-                print "useRobots = False"
+                print("useRobots = False")
                 haveError = True
 
             try:
                 self.overwrite = config.getboolean('Settings', 'overwrite')
             except ValueError:
-                print "overwrite = False"
+                print("overwrite = False")
                 self.overwrite = False
                 haveError = True
 
             try:
                 self.createMangaDir = config.getboolean('Settings', 'createMangaDir')
             except ValueError:
-                print "createMangaDir = False"
+                print("createMangaDir = False")
                 self.createMangaDir = False
                 haveError = True
 
             try:
                 self.timeout = config.getint('Network', 'timeout')
             except ValueError:
-                print "timeout = 60"
+                print("timeout = 60")
                 self.timeout = 60
                 haveError = True
 
             try:
                 self.retry = config.getint('Network', 'retry')
             except ValueError:
-                print "retry = 3"
+                print("retry = 3")
                 self.retry = 3
                 haveError = True
 
             try:
                 self.retryWait = config.getint('Network', 'retrywait')
             except ValueError:
-                print "retryWait = 5"
+                print("retryWait = 5")
                 self.retryWait = 5
                 haveError = True
 
@@ -258,90 +259,90 @@ class PixivConfig:
                 self.numberOfPage = config.getint('Pixiv', 'numberofpage')
             except ValueError:
                 self.numberOfPage = 0
-                print "numberOfPage = 0"
+                print("numberOfPage = 0")
                 haveError = True
 
             try:
                 self.createDownloadLists = config.getboolean('IrfanView', 'createDownloadLists')
             except ValueError:
                 self.createDownloadLists = False
-                print "createDownloadLists = False"
+                print("createDownloadLists = False")
                 haveError = True
 
             try:
                 self.startIrfanView = config.getboolean('IrfanView', 'startIrfanView')
             except ValueError:
                 self.startIrfanView = False
-                print "startIrfanView = False"
+                print("startIrfanView = False")
                 haveError = True
 
             try:
                 self.startIrfanSlide = config.getboolean('IrfanView', 'startIrfanSlide')
             except ValueError:
                 self.startIrfanSlide = False
-                print "startIrfanSlide = False"
+                print("startIrfanSlide = False")
                 haveError = True
 
             try:
                 self.alwaysCheckFileSize = config.getboolean('Settings', 'alwaysCheckFileSize')
             except ValueError:
                 self.alwaysCheckFileSize = False
-                print "alwaysCheckFileSize = False"
+                print("alwaysCheckFileSize = False")
                 haveError = True
 
             try:
                 self.downloadAvatar = config.getboolean('Settings', 'downloadAvatar')
             except ValueError:
                 self.downloadAvatar = False
-                print "downloadAvatar = False"
+                print("downloadAvatar = False")
                 haveError = True
 
             try:
                 self.checkUpdatedLimit = config.getint('Settings', 'checkUpdatedLimit')
             except ValueError:
                 self.checkUpdatedLimit = 0
-                print "checkUpdatedLimit = 0"
+                print("checkUpdatedLimit = 0")
                 haveError = True
 
             try:
                 self.useTagsAsDir = config.getboolean('Settings', 'useTagsAsDir')
             except ValueError:
                 self.useTagsAsDir = False
-                print "useTagsAsDir = False"
+                print("useTagsAsDir = False")
                 haveError = True
 
             try:
                 self.useBlacklistTags = config.getboolean('Settings', 'useBlacklistTags')
             except ValueError:
                 self.useBlacklistTags = False
-                print "useBlacklistTags = False"
+                print("useBlacklistTags = False")
                 haveError = True
 
             try:
                 self.useSuppressTags = config.getboolean('Settings', 'useSuppressTags')
             except ValueError:
                 self.useSuppressTags = False
-                print "useSuppressTags = False"
+                print("useSuppressTags = False")
                 haveError = True
 
             try:
                 self.tagsLimit = config.getint('Settings', 'tagsLimit')
             except ValueError:
                 self.tagsLimit = -1
-                print "tagsLimit = -1"
+                print("tagsLimit = -1")
                 haveError = True
 
             try:
                 self.writeImageInfo = config.getboolean('Settings', 'writeImageInfo')
             except ValueError:
                 self.writeImageInfo = False
-                print "writeImageInfo = False"
+                print("writeImageInfo = False")
                 haveError = True
 
             try:
                 self.keepSignedIn = config.getint('Authentication', 'keepSignedIn')
             except ValueError:
-                print "keepSignedIn = 0"
+                print("keepSignedIn = 0")
                 self.keepSignedIn = 0
                 haveError = True
 
@@ -349,7 +350,7 @@ class PixivConfig:
                 self.backupOldFile = config.getboolean('Settings', 'backupOldFile')
             except ValueError:
                 self.backupOldFile = False
-                print "backupOldFile = False"
+                print("backupOldFile = False")
                 haveError = True
 
             try:
@@ -357,28 +358,28 @@ class PixivConfig:
                 if self.logLevel not in ['CRITICAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']:
                     raise ValueError("Value not in list: " + self.logLevel)
             except ValueError:
-                print "logLevel = DEBUG"
+                print("logLevel = DEBUG")
                 self.logLevel = 'DEBUG'
                 haveError = True
 
             try:
                 self.enableDump = config.getboolean('Debug', 'enableDump')
             except ValueError:
-                print "enableDump = True"
+                print("enableDump = True")
                 self.enableDump = True
                 haveError = True
 
             try:
                 self.skipDumpFilter = config.get('Debug', 'skipDumpFilter')
             except ValueError:
-                print "skipDumpFilter = ''"
+                print("skipDumpFilter = ''")
                 self.skipDumpFilter = ''
                 haveError = True
 
             try:
                 self.dumpMediumPage = config.getboolean('Debug', 'dumpMediumPage')
             except ValueError:
-                print "dumpMediumPage = False"
+                print("dumpMediumPage = False")
                 self.dumpMediumPage = False
                 haveError = True
 
@@ -386,90 +387,90 @@ class PixivConfig:
                 self.writeUgoiraInfo = config.getboolean('Settings', 'writeUgoiraInfo')
             except ValueError:
                 self.writeUgoiraInfo = False
-                print "writeUgoiraInfo = False"
+                print("writeUgoiraInfo = False")
                 haveError = True
 
             try:
                 self.createUgoira = config.getboolean('Settings', 'createUgoira')
             except ValueError:
                 self.createUgoira = False
-                print "createUgoira = False"
+                print("createUgoira = False")
                 haveError = True
 
             try:
                 self.deleteZipFile = config.getboolean('Settings', 'deleteZipFile')
             except ValueError:
                 self.deleteZipFile = False
-                print "deleteZipFile = False"
+                print("deleteZipFile = False")
                 haveError = True
 
             try:
                 self.enableInfiniteLoop = config.getboolean('Settings', 'enableInfiniteLoop')
             except ValueError:
                 self.enableInfiniteLoop = False
-                print "enableInfiniteLoop = False"
+                print("enableInfiniteLoop = False")
                 haveError = True
 
             try:
                 self.dumpTagSearchPage = config.getboolean('Debug', 'dumpTagSearchPage')
             except ValueError:
                 self.dumpTagSearchPage = False
-                print "dumpTagSearchPage = False"
+                print("dumpTagSearchPage = False")
                 haveError = True
 
             try:
                 self.dateFormat = config.get('Pixiv', 'dateFormat')
             except ValueError:
-                print "dateFormat = ''"
+                print("dateFormat = ''")
                 self.dateFormat = ''
                 haveError = True
 
             try:
                 self.verifyImage = config.getboolean('Settings', 'verifyImage')
             except ValueError:
-                print "verifyImage = False"
+                print("verifyImage = False")
                 self.verifyImage = False
                 haveError = True
 
             try:
                 self.writeUrlInDescription = config.getboolean('Settings', 'writeUrlInDescription')
             except ValueError:
-                print "writeUrlInDescription = False"
+                print("writeUrlInDescription = False")
                 self.writeUrlInDescription = False
                 haveError = True
 
             try:
                 self.urlBlacklistRegex = config.get('Settings', 'urlBlacklistRegex')
             except ValueError:
-                print "urlBlacklistRegex = "
+                print("urlBlacklistRegex = ")
                 self.urlBlacklistRegex = ""
                 haveError = True
 
             try:
                 self.urlDumpFilename = config.get('Settings', 'urlDumpFilename')
             except ValueError:
-                print "urlDumpFilename = url_list_%Y%m%d"
+                print("urlDumpFilename = url_list_%Y%m%d")
                 self.urlDumpFilename = "url_list_%Y%m%d"
                 haveError = True
 
             try:
                 self.dbPath = config.get('Settings', 'dbPath')
             except ValueError:
-                print "dbPath = ''"
+                print("dbPath = ''")
                 self.dbPath = ''
                 haveError = True
 
             try:
                 self.createGif = config.getboolean('Settings', 'createGif')
             except ValueError:
-                print "createGif = False"
+                print("createGif = False")
                 self.createGif = False
                 haveError = True
 
             try:
                 self.useBlacklistMembers = config.getboolean('Settings', 'useBlacklistMembers')
             except ValueError:
-                print "useBlacklistMembers = False"
+                print("useBlacklistMembers = False")
                 self.useBlacklistMembers = False
                 haveError = True
 
@@ -477,14 +478,14 @@ class PixivConfig:
                 self.avatarNameFormat = config.get('Settings', 'avatarNameFormat')
                 self.avatarNameFormat = PixivHelper.toUnicode(self.avatarNameFormat, encoding=sys.stdin.encoding)
             except ValueError:
-                print "avatarNameFormat = "
+                print("avatarNameFormat = ")
                 self.avatarNameFormat = ""
                 haveError = True
 
             try:
                 self.createApng = config.getboolean('Settings', 'createApng')
             except ValueError:
-                print "createApng = False"
+                print("createApng = False")
                 self.createApng = False
                 haveError = True
 
@@ -492,73 +493,73 @@ class PixivConfig:
                 self.writeImageJSON = config.getboolean('Settings', 'writeImageJSON')
             except ValueError:
                 self.writeImageJSON = False
-                print "writeImageJSON = False"
+                print("writeImageJSON = False")
                 haveError = True
 
             try:
                 self.downloadDelay = config.getint('Network', 'downloadDelay')
             except ValueError:
                 self.downloadDelay = 2
-                print "downloadDelay = 2"
+                print("downloadDelay = 2")
                 haveError = True
 
             try:
                 self.deleteUgoira = config.getboolean('Settings', 'deleteUgoira')
             except ValueError:
-                print "deleteUgoira = False"
+                print("deleteUgoira = False")
                 self.deleteUgoira = False
                 haveError = True
 
             try:
                 self.createWebm = config.getboolean('Settings', 'createWebm')
             except ValueError:
-                print "createWebm = False"
+                print("createWebm = False")
                 self.createWebm = False
                 haveError = True
 
             try:
                 self.ffmpeg = config.get('FFmpeg', 'ffmpeg')
             except ValueError:
-                print "ffmpeg = 'ffmpeg'"
+                print("ffmpeg = 'ffmpeg'")
                 self.ffmpeg = 'ffmpeg'
                 haveError = True
 
             try:
                 self.ffmpegCodec = config.get('FFmpeg', 'ffmpegCodec')
             except ValueError:
-                print "ffmpegCodec = 'libvpx-vp9'"
+                print("ffmpegCodec = 'libvpx-vp9'")
                 self.ffmpegCodec = 'libvpx-vp9'
                 haveError = True
 
             try:
                 self.ffmpegParam = config.get('FFmpeg', 'ffmpegParam')
             except ValueError:
-                print "ffmpegParam = '-lossless 1'"
+                print("ffmpegParam = '-lossless 1'")
                 self.ffmpegParam = '-lossless 1'
                 haveError = True
 
             try:
                 self.setLastModified = config.getboolean('Settings', 'setLastModified')
             except ValueError:
-                print "setLastModified = True"
+                print("setLastModified = True")
                 self.setLastModified = True
                 haveError = True
 
         except BaseException:
-            print 'Error at loadConfig():', sys.exc_info()
+            print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
             haveError = True
 
         if haveError:
-            print 'Some configuration have invalid value, replacing with the default value.'
+            print('Some configuration have invalid value, replacing with the default value.')
             self.writeConfig(error=True)
 
-        print 'done.'
+        print('done.')
 
     # -UI01B------write config
     def writeConfig(self, error=False, path=None):
         '''Backup old config if exist and write updated config.ini'''
-        print 'Writing config file...',
+        print('Writing config file...', end=' ')
         config = ConfigParser.RawConfigParser()
 
         config.add_section('Network')
@@ -653,97 +654,98 @@ class PixivConfig:
             if os.path.exists(configlocation):
                 if error:
                     backupName = configlocation + '.error-' + str(int(time.time()))
-                    print "Backing up old config (error exist!) to " + backupName
+                    print("Backing up old config (error exist!) to " +
+                            backupName)
                     shutil.move(configlocation, backupName)
                 else:
-                    print "Backing up old config to config.ini.bak"
+                    print("Backing up old config to config.ini.bak")
                     shutil.move(configlocation, configlocation + '.bak')
             os.rename(configlocation + '.tmp', configlocation)
         except BaseException:
             self.__logger.exception('Error at writeConfig()')
             raise
 
-        print 'done.'
+        print('done.')
 
     def printConfig(self):
-        print 'Configuration: '
-        print ' [Authentication]'
-        print ' - username     =', self.username
-        print ' - password     = ', self.password
-        print ' - cookie       = ', self.cookie
-        print ' - keepSignedIn = ', self.keepSignedIn
+        print('Configuration: ')
+        print(' [Authentication]')
+        print(' - username     =', self.username)
+        print(' - password     = ', self.password)
+        print(' - cookie       = ', self.cookie)
+        print(' - keepSignedIn = ', self.keepSignedIn)
 
-        print ' [Network]'
-        print ' - useproxy         =', self.useProxy
-        print ' - proxyaddress     =', self.proxyAddress
-        print ' - useragent        =', self.useragent
-        print ' - use_robots       =', self.useRobots
-        print ' - timeout          =', self.timeout
-        print ' - retry            =', self.retry
-        print ' - retryWait        =', self.retryWait
-        print ' - downloadDelay      =', self.downloadDelay
+        print(' [Network]')
+        print(' - useproxy         =', self.useProxy)
+        print(' - proxyaddress     =', self.proxyAddress)
+        print(' - useragent        =', self.useragent)
+        print(' - use_robots       =', self.useRobots)
+        print(' - timeout          =', self.timeout)
+        print(' - retry            =', self.retry)
+        print(' - retryWait        =', self.retryWait)
+        print(' - downloadDelay      =', self.downloadDelay)
 
-        print ' [Debug]'
-        print ' - logLevel         =', self.logLevel
-        print ' - enableDump       =', self.enableDump
-        print ' - skipDumpFilter   =', self.skipDumpFilter
-        print ' - dumpMediumPage   =', self.dumpMediumPage
-        print ' - dumpTagSearchPage=', self.dumpTagSearchPage
-        print ' - debug_http       =', self.debugHttp
+        print(' [Debug]')
+        print(' - logLevel         =', self.logLevel)
+        print(' - enableDump       =', self.enableDump)
+        print(' - skipDumpFilter   =', self.skipDumpFilter)
+        print(' - dumpMediumPage   =', self.dumpMediumPage)
+        print(' - dumpTagSearchPage=', self.dumpTagSearchPage)
+        print(' - debug_http       =', self.debugHttp)
 
-        print ' [IrfanView]'
-        print ' - IrfanViewPath    =', self.IrfanViewPath
-        print ' - startIrfanView   =', self.startIrfanView
-        print ' - startIrfanSlide  =', self.startIrfanSlide
-        print ' - createDownloadLists   =', self.createDownloadLists
+        print(' [IrfanView]')
+        print(' - IrfanViewPath    =', self.IrfanViewPath)
+        print(' - startIrfanView   =', self.startIrfanView)
+        print(' - startIrfanSlide  =', self.startIrfanSlide)
+        print(' - createDownloadLists   =', self.createDownloadLists)
 
-        print ' [Settings]'
-        print ' - filename_format       =', self.filenameFormat
-        print ' - filename_manga_format =', self.filenameMangaFormat
-        print ' - filename_info_format  =', self.filenameInfoFormat
-        print ' - avatarNameFormat =', self.avatarNameFormat
-        print ' - downloadListDirectory =', self.downloadListDirectory
-        print ' - overwrite        =', self.overwrite
-        print ' - useList          =', self.useList
-        print ' - processFromDb    =', self.processFromDb
-        print ' - tagsSeparator    =', self.tagsSeparator
-        print ' - dayLastUpdated   =', self.dayLastUpdated
-        print ' - rootDirectory    =', self.rootDirectory
-        print ' - alwaysCheckFileSize   =', self.alwaysCheckFileSize
-        print ' - checkUpdatedLimit     =', self.checkUpdatedLimit
-        print ' - downloadAvatar   =', self.downloadAvatar
-        print ' - createMangaDir   =', self.createMangaDir
-        print ' - useTagsAsDir     =', self.useTagsAsDir
-        print ' - useBlacklistTags =', self.useBlacklistTags
-        print ' - useSuppressTags  =', self.useSuppressTags
-        print ' - tagsLimit        =', self.tagsLimit
-        print ' - writeImageInfo   =', self.writeImageInfo
-        print ' - writeImageJSON   =', self.writeImageJSON
-        print ' - dateDiff         =', self.dateDiff
-        print ' - backupOldFile    =', self.backupOldFile
-        print ' - writeUgoiraInfo  =', self.writeUgoiraInfo
-        print ' - createUgoira     =', self.createUgoira
-        print ' - deleteZipFile    =', self.deleteZipFile
-        print ' - enableInfiniteLoop    =', self.enableInfiniteLoop
-        print ' - verifyImage      =', self.verifyImage
-        print ' - writeUrlInDescription =', self.writeUrlInDescription
-        print ' - urlBlacklistRegex =', self.urlBlacklistRegex
-        print ' - urlDumpFilename  =', self.urlDumpFilename
-        print ' - dbPath           =', self.dbPath
-        print ' - createGif        =', self.createGif
-        print ' - useBlacklistMembers  =', self.useBlacklistMembers
-        print ' - createApng       =', self.createApng
-        print ' - deleteUgoira     =', self.deleteUgoira
-        print ' - createWebm       =', self.createWebm
-        print ' - setLastModified  =', self.setLastModified
+        print(' [Settings]')
+        print(' - filename_format       =', self.filenameFormat)
+        print(' - filename_manga_format =', self.filenameMangaFormat)
+        print(' - filename_info_format  =', self.filenameInfoFormat)
+        print(' - avatarNameFormat =', self.avatarNameFormat)
+        print(' - downloadListDirectory =', self.downloadListDirectory)
+        print(' - overwrite        =', self.overwrite)
+        print(' - useList          =', self.useList)
+        print(' - processFromDb    =', self.processFromDb)
+        print(' - tagsSeparator    =', self.tagsSeparator)
+        print(' - dayLastUpdated   =', self.dayLastUpdated)
+        print(' - rootDirectory    =', self.rootDirectory)
+        print(' - alwaysCheckFileSize   =', self.alwaysCheckFileSize)
+        print(' - checkUpdatedLimit     =', self.checkUpdatedLimit)
+        print(' - downloadAvatar   =', self.downloadAvatar)
+        print(' - createMangaDir   =', self.createMangaDir)
+        print(' - useTagsAsDir     =', self.useTagsAsDir)
+        print(' - useBlacklistTags =', self.useBlacklistTags)
+        print(' - useSuppressTags  =', self.useSuppressTags)
+        print(' - tagsLimit        =', self.tagsLimit)
+        print(' - writeImageInfo   =', self.writeImageInfo)
+        print(' - writeImageJSON   =', self.writeImageJSON)
+        print(' - dateDiff         =', self.dateDiff)
+        print(' - backupOldFile    =', self.backupOldFile)
+        print(' - writeUgoiraInfo  =', self.writeUgoiraInfo)
+        print(' - createUgoira     =', self.createUgoira)
+        print(' - deleteZipFile    =', self.deleteZipFile)
+        print(' - enableInfiniteLoop    =', self.enableInfiniteLoop)
+        print(' - verifyImage      =', self.verifyImage)
+        print(' - writeUrlInDescription =', self.writeUrlInDescription)
+        print(' - urlBlacklistRegex =', self.urlBlacklistRegex)
+        print(' - urlDumpFilename  =', self.urlDumpFilename)
+        print(' - dbPath           =', self.dbPath)
+        print(' - createGif        =', self.createGif)
+        print(' - useBlacklistMembers  =', self.useBlacklistMembers)
+        print(' - createApng       =', self.createApng)
+        print(' - deleteUgoira     =', self.deleteUgoira)
+        print(' - createWebm       =', self.createWebm)
+        print(' - setLastModified  =', self.setLastModified)
 
-        print ' [Pixiv]'
-        print ' - numberOfPage =', self.numberOfPage
-        print ' - R18Mode      =', self.r18mode
-        print ' - DateFormat   =', self.dateFormat
+        print(' [Pixiv]')
+        print(' - numberOfPage =', self.numberOfPage)
+        print(' - R18Mode      =', self.r18mode)
+        print(' - DateFormat   =', self.dateFormat)
 
-        print ' [FFmpeg]'
-        print ' - ffmpeg       =', self.ffmpeg
-        print ' - ffmpegCodec  =', self.ffmpegCodec
-        print ' - ffmpegParam  =', self.ffmpegParam
-        print ''
+        print(' [FFmpeg]')
+        print(' - ffmpeg       =', self.ffmpeg)
+        print(' - ffmpegCodec  =', self.ffmpegCodec)
+        print(' - ffmpegParam  =', self.ffmpegParam)
+        print('')

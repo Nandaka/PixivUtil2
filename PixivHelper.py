@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+from __future__ import print_function
 
 import re
 import os
@@ -245,11 +246,11 @@ def safePrint(msg, newline=True):
     """Print empty string if UnicodeError raised."""
     for msgToken in msg.split(' '):
         try:
-            print msgToken,
+            print(msgToken, end=' ')
         except UnicodeError:
-            print ('?' * len(msgToken)),
+            print(('?' * len(msgToken)), end=' ')
     if newline:
-        print ""
+        print("")
 
 
 def setConsoleTitle(title):
@@ -534,9 +535,9 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
 def printDelay(retryWait):
     repeat = range(1, retryWait)
     for t in repeat:
-        print t,
+        print(t, end=' ')
         time.sleep(1)
-    print ''
+    print('')
 
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
@@ -581,7 +582,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     # download the file
     prev = 0
     curr = 0
-    print '{0:22} Bytes'.format(curr),
+    print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
@@ -591,12 +592,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
+                print(u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
+                print(u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
                 break
 
             prev = curr
@@ -640,13 +641,13 @@ def print_progress(curr, total):
 
     if total > 0:
         complete = (curr * 20) / total
-        print '\r',
+        print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
-        print '{0:79}'.format(msg),
+        print('{0:79}'.format(msg), end=' ')
     else:
         # indeterminite
-        print '\r',
-        print '{1:79}'.format(sizeInStr(curr)),
+        print('\r', end=' ')
+        print('{1:79}'.format(sizeInStr(curr)), end=' ')
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
@@ -664,14 +665,14 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     else:
         if title_caption:
             url = 'https://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
-            print u"Using Title Match (s_tc)"
+            print(u"Using Title Match (s_tc)")
         else:
             if wild_card:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print u"Using Partial Match (s_tag)"
+                print(u"Using Partial Match (s_tag)")
             else:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
-                print u"Using Full Match (s_tag_full)"
+                print(u"Using Full Match (s_tag_full)")
 
     if r18mode:
         url = url + '&mode=r18'
@@ -816,7 +817,7 @@ def ugoira2webm(ugoira_file,
             chatter += buff
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
-                    print chatter.strip(), os.linesep,
+                    print(chatter.strip(), os.linesep, end=' ')
                 chatter = ""
             if len(buff) == 0:
                 break
@@ -829,7 +830,7 @@ def ugoira2webm(ugoira_file,
             os.remove(ugoira_file)
 
         if ret is not None:
-            print "done with status= {0}".format(ret)
+            print("done with status= {0}".format(ret))
 
     finally:
         shutil.rmtree(d)
