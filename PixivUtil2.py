@@ -1988,20 +1988,26 @@ def main():
             PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
         if __config__.createWebm:
+            cmd = u"{0} -encoders".format(__config__.ffmpeg)
             try:
                 import subprocess
-                cmd = u"{0} -encoders".format(__config__.ffmpeg)
                 p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 buff = p.stdout.read()
                 if buff.find(__config__.ffmpegCodec) == 0:
                     __config__.createWebm = False
+                    PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
                     PixivHelper.print_and_log('error', 'Missing {0} encoder, createWebm disabled.'.format(__config__.ffmpegCodec))
+                    PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
                     PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
+                    PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
             except Exception as ex:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 __config__.createWebm = False
+                PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
                 PixivHelper.print_and_log('error', 'Failed to load ffmpeg, createWebm disabled: {0}'.format(exc_value))
+                PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
                 PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
+                PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
 
         username = __config__.username
         if username == '':
