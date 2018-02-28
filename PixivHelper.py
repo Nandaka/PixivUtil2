@@ -719,8 +719,8 @@ def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif'):
     # imageio cannot handle utf-8 filename
     temp_name = temp_folder + os.sep + "temp.gif"
 
-    z = zipfile.ZipFile(ugoira_file)
-    z.extractall(temp_folder)
+    with zipfile.ZipFile(ugoira_file) as f:
+        f.extractall(temp_folder)
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
@@ -748,8 +748,8 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira):
     temp_folder = tempfile.mkdtemp()
     temp_name = temp_folder + os.sep + "temp.png"
 
-    z = zipfile.ZipFile(ugoira_file)
-    z.extractall(temp_folder)
+    with zipfile.ZipFile(ugoira_file) as f:
+        f.extractall(temp_folder)
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
