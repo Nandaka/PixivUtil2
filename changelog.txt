@@ -1,4 +1,7 @@
-20180224-beta2
+20180227-beta3
+- Implement #40: Enhance error message to include current page number for tags and member.
+- Fix Issue #194: Add retry when exporting bookmark.
+- Fix Issue #294: Update root path for both image and manga pages.
 - Implement #314: Set non-zero exit code for invalid input.
 - Fix Issue #315: Update parser for member token.
 - New Setting: setLastModified = True
@@ -12,6 +15,8 @@
     Codec to use
   - ffmpegParam = "-lossless 1"
     Additional Parameters
+- Fix Issue #332
+- Merge #328: Feature/python3 print format
 - Update test cases.
 
 20180218
