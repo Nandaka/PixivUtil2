@@ -19,14 +19,14 @@ class PixivDBManager:
     """Pixiv Database Manager"""
     __config__ = None
 
-    def __init__(self, target='', config=None,timeout=5*60):
+    def __init__(self, target='', config=None, timeout=5 * 60):
         if target is None or len(target) == 0:
             target = script_path + os.sep + "db.sqlite"
             PixivHelper.print_and_log('info', "Using default DB Path: " + target)
         else:
             PixivHelper.print_and_log('info', "Using custom DB Path: " + target)
 
-        self.conn = sqlite3.connect(target,timeout)
+        self.conn = sqlite3.connect(target, timeout)
         if config is not None:
             self.__config__ = config
         else:
@@ -654,6 +654,15 @@ class PixivDBManager:
                          SET save_name = replace(save_name, ?, ?)
                          WHERE save_name like ?''', (oldPath, self.__config__.rootDirectory, oldPath + "%", ))
             print("Updated image:", c.rowcount)
+
+            print("Updating manga images, this may take some times.")
+
+            c = self.conn.cursor()
+            c.execute('''UPDATE pixiv_manga_image
+                         SET save_name = replace(save_name, ?, ?)
+                         WHERE save_name like ?''', (oldPath, self.__config__.rootDirectory, oldPath + "%", ))
+            print("Updated manga image:", c.rowcount)
+
             print("Done")
 
         except BaseException:
