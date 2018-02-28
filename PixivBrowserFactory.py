@@ -103,6 +103,27 @@ class PixivBrowser(mechanize.Browser):
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
 
+    def open_with_retry(self, url, data=None,
+                        timeout=mechanize._sockettimeout._GLOBAL_DEFAULT_TIMEOUT,
+                        retry=None):
+        if retry is None:
+            retry = self._config.retry
+        while True:
+            try:
+                return self.open(url, data, timeout)
+            except Exception as ex:
+                if isinstance(ex, urllib2.HTTPError):
+                    raise
+
+                if retry_count < retry:
+                    for t in range(1, self._config.retryWait):
+                        print(t, end=' ')
+                        time.sleep(1)
+                    print('')
+                    retry_count = retry_count + 1
+                else:
+                    raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
+
     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
@@ -127,7 +148,7 @@ class PixivBrowser(mechanize.Browser):
 
                 if retry_count < self._config.retry:
                     for t in range(1, self._config.retryWait):
-                        print(t, end = ' ')
+                        print(t, end=' ')
                         time.sleep(1)
                     print('')
                     retry_count = retry_count + 1

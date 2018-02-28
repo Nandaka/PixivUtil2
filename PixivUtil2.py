@@ -1097,7 +1097,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
             url = url + "&id=" + member_id
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
-        page = __br__.open(url)
+        page = __br__.open_with_retry(url)
         parse_page = BeautifulSoup(page.read())
         l = PixivBookmark.parseBookmark(parse_page)
         if len(l) == 0:
