@@ -582,7 +582,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
         __log__.exception('Error at process_member(): ' + str(member_id))
         try:
             if list_page is not None:
-                dump_filename = 'Error page for member ' + str(member_id) + '.html'
+                dump_filename = 'Error page for member {0} at page {1}.html'.format(member_id, page)
                 PixivHelper.dumpHtml(dump_filename, list_page)
                 PixivHelper.print_and_log('error', "Dumping html to: " + dump_filename)
         except BaseException:
@@ -858,6 +858,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                bookmark_count=None, oldest_first=False):
 
     search_page = None
+    i = page
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
@@ -869,7 +870,6 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
 
         tags = PixivHelper.encode_tags(tags)
 
-        i = page
         images = 1
         last_image_id = -1
         skipped_count = 0
@@ -979,11 +979,11 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
     except KeyboardInterrupt:
         raise
     except BaseException:
-        print('Error at process_tags():', sys.exc_info())
-        __log__.exception('Error at process_tags(): ' + str(sys.exc_info()))
+        msg = 'Error at process_tags() at page {0}: {1}'.format(i, sys.exc_info())
+        PixivHelper.print_and_log('error', msg)
         try:
             if search_page is not None:
-                dump_filename = 'Error page for search tags ' + tags + '.html'
+                dump_filename = 'Error page for search tags {0} at page {1}.html'.format(tags, i)
                 PixivHelper.dumpHtml(dump_filename, search_page)
                 PixivHelper.print_and_log('error', "Dumping html to: " + dump_filename)
         except BaseException:
