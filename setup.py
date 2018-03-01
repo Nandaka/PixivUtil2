@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
-from distutils.core import setup
 from os import path
 import os
 import sys
