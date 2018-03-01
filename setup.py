@@ -3,9 +3,14 @@
 from __future__ import print_function
 
 from distutils.core import setup
-
+from os import path
 import os
 import sys
+try:
+    from setuptools import setup, convert_path, find_packages
+except ImportError:
+    from distutils.core import setup, find_packages
+    from distutils.util import convert_path
 
 isWindows = os.name is 'nt'
 ranWithPy3 = sys.version_info >= (3, 0)
@@ -24,14 +29,6 @@ class bcolors:
 
 
 if not isWindows:
-    print(bcolors.FAIL)
-    print("____________________________")
-    print("          ERROR           ")
-    print("----------------------------")
-
-    print("Setup.py is used to generate executable under Windows systems\n")
-    print("For non windows systems please run:\n\n\tpip install -r requirements.txt")
-    print(bcolors.ENDC)
     if ranWithPy3:
         print(bcolors.WARNING)
         print("Attention: PixivUtil2 is not yet compatible with Python 3.  You have run this script with Python 3.")
@@ -40,17 +37,72 @@ if not isWindows:
         print("To run you will need to specify python 2.x:\n")
         print("\tpython2 PixivUtil2.py\n")
         print(bcolors.ENDC)
+        exit(-1)
     else:
-        print("After installing requirements run with command:\n")
-        print("\tpython PixivUtil2.py\n")
-    exit(-1)
+        print("After installing, run with command:\n")
+        print("\tPixivUtil2\n")
 
 
-import py2exe
+if isWindows:
+    import py2exe
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
 requires = ['BeautifulSoup']
 options = {'py2exe': {'compressed': 1, 'excludes': ['Tkconstants', 'Tkinter']}, }
 
-setup(console=console, requires=requires, options=options, )
+setup_kwargs = dict(console=console, requires=requires, options=options)
+
+if not isWindows:
+    setup_kwargs = dict(
+        entry_points={'console_scripts': ['PixivUtil2 = PixivUtil2:main', ]})
+
+# get install_requires
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'requirements.txt')) as f:
+    install_requires = f.read().split('\n')
+install_requires = [x.strip() for x in install_requires]
+# get program version
+main_ns = {}
+ver_path = convert_path('PixivConstant.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), main_ns)
+version = main_ns['PIXIVUTIL_VERSION']
+if '-' in version:
+    v_parts = version.split('-', 1)
+    version = '{}.0.0.{}'.format(v_parts[0], v_parts[1])
+else:
+    version = '{}.0.0'.format(version)
+# get long_description
+readme_path = convert_path('readme.txt')
+with open(readme_path) as readme_file:
+    long_description = readme_file.read()
+
+setup(
+    name='PixivUtil2',  # Required
+    version=version,
+    description='Download images from Pixiv and more',
+    long_description=long_description,
+    url='https://github.com/Nandaka/PixivUtil2',
+    author='Nandaka',
+    # author_email='<>@<>.com',
+    classifiers=[  # Optional
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+    ],
+    keywords='pixiv downloader',
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    install_requires=install_requires,
+    project_urls={  # Optional
+        'Bug Reports': 'https://github.com/Nandaka/PixivUtil2/issues',
+        'Funding': 'https://bit.ly/PixivUtilDonation',
+        'Source': 'https://github.com/Nandaka/PixivUtil2',
+    },
+    **setup_kwargs
+)
