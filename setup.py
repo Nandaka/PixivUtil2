@@ -67,11 +67,10 @@ ver_path = convert_path('PixivConstant.py')
 with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 version = main_ns['PIXIVUTIL_VERSION']
+v_parts = version.split('-', 1)
+main_version = '{0}.{1}.{2}'.format(v_parts[0][0:4], int(v_parts[0][4:6]), int(v_parts[0][6:7]))
 if '-' in version:
-    v_parts = version.split('-', 1)
-    version = '{}.0.0.{}'.format(v_parts[0], v_parts[1])
-else:
-    version = '{}.0.0'.format(version)
+    version = main_version + '.{}'.format(v_parts[1])
 # get long_description
 readme_path = convert_path('readme.txt')
 with open(readme_path) as readme_file:
