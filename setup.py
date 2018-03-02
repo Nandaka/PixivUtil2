@@ -7,9 +7,11 @@ import os
 import sys
 try:
     from setuptools import setup, convert_path, find_packages
+    SETUPTOOLS_USED = True
 except ImportError:
     from distutils.core import setup, find_packages
     from distutils.util import convert_path
+    SETUPTOOLS_USED = False
 
 isWindows = os.name is 'nt'
 ranWithPy3 = sys.version_info >= (3, 0)
@@ -56,6 +58,13 @@ if not isWindows:
     setup_kwargs = dict(
         entry_points={'console_scripts': ['PixivUtil2 = PixivUtil2:main', ]})
 
+if SETUPTOOLS_USED:
+    setup_kwargs['project_urls'] = {
+        'Bug Reports': 'https://github.com/Nandaka/PixivUtil2/issues',
+        'Funding': 'https://bit.ly/PixivUtilDonation',
+        'Source': 'https://github.com/Nandaka/PixivUtil2',
+    }
+
 # get install_requires
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'requirements.txt')) as f:
@@ -97,10 +106,5 @@ setup(
     keywords='pixiv downloader',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=install_requires,
-    project_urls={  # Optional
-        'Bug Reports': 'https://github.com/Nandaka/PixivUtil2/issues',
-        'Funding': 'https://bit.ly/PixivUtilDonation',
-        'Source': 'https://github.com/Nandaka/PixivUtil2',
-    },
     **setup_kwargs
 )
