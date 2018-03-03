@@ -80,6 +80,8 @@ v_parts = version.split('-', 1)
 main_version = '{0}.{1}.{2}'.format(v_parts[0][0:4], int(v_parts[0][4:6]), int(v_parts[0][6:7]))
 if '-' in version:
     version = main_version + '.{}'.format(v_parts[1])
+else:
+    version = main_version
 # get long_description
 readme_path = convert_path('readme.txt')
 with open(readme_path) as readme_file:
