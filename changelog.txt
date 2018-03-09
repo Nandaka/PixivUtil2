@@ -1,4 +1,4 @@
-20180227-beta3
+20180309-beta4
 - Implement #40: Enhance error message to include current page number for tags and member.
 - Fix Issue #194: Add retry when exporting bookmark.
 - Fix Issue #294: Update root path for both image and manga pages.
@@ -17,6 +17,8 @@
     Additional Parameters
 - Fix Issue #332
 - Merge #328: Feature/python3 print format
+- Fix #339: Local file checking logic.
+- Fix #340: Database file cleanup check.
 - Update test cases.
 
 20180218
