@@ -604,7 +604,15 @@ class PixivDBManager:
         finally:
             c.close()
 
+    def checkFilenames(self, base_filename, exts):
+        for ext2 in exts:
+            check_name = base_filename + ext2
+            if os.path.exists(check_name):
+                return True
+        return False
+
     def cleanUp(self):
+        anim_ext = ['.zip', '.gif', '.apng', '.ugoira', '.webm']
         try:
             print("Start clean-up operation.")
             print("Selecting all images, this may take some times.")
@@ -612,22 +620,24 @@ class PixivDBManager:
             c.execute('''SELECT image_id, save_name from pixiv_master_image''')
             print("Checking images.")
             for row in c:
-                # Issue 238
+                # Issue 340
+                filename = row[1]
                 fileExists = False
-                if row[1].endswith(".zip"):
-                    ugoFile = row[1].rsplit(".zip", 1)[0] + ".ugoira"
-                    ugoiraExists = os.path.exists(ugoFile)
-                    zipExists = os.path.exists(row[1])
-                    fileExists = ugoiraExists or zipExists
-                elif row[1].endswith(".ugoira"):
-                    zipFile = row[1].rsplit(".ugoira", 1)[0] + ".zip"
-                    zipExists = os.path.exists(zipFile)
-                    ugoiraExists = os.path.exists(row[1])
-                    fileExists = ugoiraExists or zipExists
-                else:
-                    fileExists = os.path.exists(row[1])
+
+                if filename is not None or len(filename) > 0:
+                    if os.path.exists(filename):
+                        continue
+
+                    for ext in anim_ext:
+                        # check filename in db against all combination possible filename in disk
+                        if filename.endswith(ext):
+                            base_filename = filename.rsplit(ext, 1)[0]
+                            if checkFilenames(base_filename, anim_ext):
+                                fileExists = True
+                                break
+
                 if not fileExists:
-                    PixivHelper.safePrint("Missing: " + str(row[0]) + " at " + row[1] + "\n")
+                    PixivHelper.safePrint("Missing: {0} at {1}".format(row[0], row[1]))
                     self.deleteImage(row[0])
             self.conn.commit()
         except BaseException:
