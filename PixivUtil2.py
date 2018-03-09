@@ -130,8 +130,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if not overwrite and not __config__.alwaysCheckFileSize:
                     print('Checking local filename...', end=' ')
                     if os.path.exists(filename) and os.path.isfile(filename):
-                        PixivHelper.print_and_log('info', "File exists: {0}".format(filename.encode('utf-8')))
-                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, None)
+                        PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename.encode('utf-8')))
+                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename)
 
                 file_size = -1
 
@@ -173,7 +173,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         file_size = get_remote_filesize(url, referer)
                     check_result = PixivHelper.checkFileExists(overwrite, filename, file_size, old_size, backup_old_file)
                     if check_result != PixivConstant.PIXIVUTIL_OK:
-                        return (check_result, None)
+                        return (check_result, filename)
 
                 # check based on filename stored in DB using image id
                 if image_id is not None:
@@ -218,7 +218,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                             __config__.ffmpegCodec,
                                                             __config__.ffmpegParam)
 
-                            return (check_result, None)
+                            return (check_result, filename)
 
                 # actual download
                 print('Start downloading...', end=' ')
@@ -820,10 +820,11 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             try:
                 __dbManager__.insertImage(image.artist.artistId, image.imageId, image.imageMode)
             except BaseException:
-                pass
+                PixivHelper.print_and_log('error', 'Failed to insert image id:{0} to DB'.format(image.imageId))
+
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
-            if image.imageMode == 'manga':
+            if len(manga_files) > 0:
                 for page in manga_files:
                     __dbManager__.insertMangaImage(image_id, page, manga_files[page])
 
