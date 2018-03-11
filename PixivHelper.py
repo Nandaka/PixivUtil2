@@ -24,6 +24,7 @@ from datetime import datetime, date
 import traceback
 import urllib
 from apng import APNG
+import shlex
 
 Logger = None
 _config = None
@@ -807,7 +808,8 @@ def ugoira2webm(ugoira_file,
 
         cmd = u"{0} -y -i {1}/i.ffconcat -c:v {2} {3} \"{4}\""
         cmd = cmd.format(ffmpeg, d, codec, param, tempname)
-        p = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+        ffmpeg_args = shlex.split(cmd)
+        p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
         chatter = ""

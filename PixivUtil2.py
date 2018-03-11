@@ -17,6 +17,7 @@ import urllib2
 import getpass
 import httplib
 import codecs
+import subprocess
 
 from BeautifulSoup import BeautifulSoup
 
@@ -1989,10 +1990,11 @@ def main():
             PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
         if __config__.createWebm:
+            import shlex
             cmd = u"{0} -encoders".format(__config__.ffmpeg)
+            ffmpeg_args = shlex.split(cmd)
             try:
-                import subprocess
-                p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 buff = p.stdout.read()
                 if buff.find(__config__.ffmpegCodec) == 0:
                     __config__.createWebm = False
