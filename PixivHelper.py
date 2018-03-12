@@ -783,6 +783,8 @@ def ugoira2webm(ugoira_file,
                 param="-lossless 1"):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
+    d = d.replace(os.sep, '/')
+
     try:
         frames = {}
         ffconcat = "ffconcat version 1.0\n"
@@ -806,7 +808,7 @@ def ugoira2webm(ugoira_file,
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
 
-        cmd = u"{0} -y -i {1}/i.ffconcat -c:v {2} {3} \"{4}\""
+        cmd = u"{0} -y -i \"{1}/i.ffconcat\" -c:v {2} {3} \"{4}\""
         cmd = cmd.format(ffmpeg, d, codec, param, tempname)
         ffmpeg_args = shlex.split(cmd)
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
