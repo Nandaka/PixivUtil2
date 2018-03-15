@@ -469,7 +469,9 @@ class PixivImage:
                     if tag.has_key('class'):
                         if tag['class'] == 'text' and tag.string is not None:
                             self.imageTags.append(unicode(tag.string))
-                        elif tag['class'].startswith('text js-click-trackable'):
+                        elif tag['class'].startswith('text js-click-trackable-later') and tag.string is not None:
+                            self.imageTags.append(unicode(tag.string))
+                        elif tag['class'] == 'text js-click-trackable':
                             # issue #200 fix
                             # need to split the tag 'incrediblycute <> なにこれかわいい'
                             # and take the 2nd tags
