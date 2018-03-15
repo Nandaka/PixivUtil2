@@ -593,12 +593,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
+                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
+                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
                 break
 
             prev = curr
@@ -644,11 +644,13 @@ def print_progress(curr, total):
         complete = (curr * 20) / total
         print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
-        print('{0:79}'.format(msg), end=' ')
+        print('{0}'.format(msg), end=' ')
     else:
         # indeterminite
+        pos = curr % 20
+        anim = "{0}{1}".format('.' * pos, '|||' + '.' * (20 - pos))
         print('\r', end=' ')
-        print('{1:79}'.format(sizeInStr(curr)), end=' ')
+        print('[{0:20}] {1}'.format(anim, sizeInStr(curr)), end=' ')
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,

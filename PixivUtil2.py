@@ -129,7 +129,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
         try:
             try:
                 if not overwrite and not __config__.alwaysCheckFileSize:
-                    print('Checking local filename...', end=' ')
+                    print('\rChecking local filename...', end=' ')
                     if os.path.exists(filename) and os.path.isfile(filename):
                         PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename.encode('utf-8')))
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename)
@@ -222,7 +222,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             return (check_result, filename)
 
                 # actual download
-                print('Start downloading...', end=' ')
+                print('\rStart downloading...', end=' ')
                 req = PixivHelper.create_custom_request(url, __config__, referer)
                 res = __br__.open_novisit(req)
                 if file_size < 0:
@@ -315,7 +315,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
             if retry_count < max_retry:
                 retry_count = retry_count + 1
-                print("Retrying [{0}]...".format(retry_count))
+                print("\rRetrying [{0}]...".format(retry_count), end=' ')
                 PixivHelper.printDelay(__config__.retryWait)
             else:
                 raise
