@@ -215,6 +215,32 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image2.worksTools, 'Photoshop SAI')
         self.assertEqual(image2.artist.artistToken, 'k2321656')
 
+    def testPixivImageParseInfoMixed(self):
+        p = open('./test/test-image-info2.html', 'r')
+        page = BeautifulSoup(p.read())
+        image2 = PixivImage(67729319, page)
+        page.decompose()
+        del page
+
+        self.assertEqual(image2.imageId, 67729319)
+        self.assertEqual(image2.imageTitle, u"独り言")
+        self.assertTrue(len(image2.imageCaption) > 0)
+        print(u"\r\nCaption = {0}".format(image2.imageCaption))
+
+        self.assertTrue(u'FGO' in image2.imageTags)
+        self.assertTrue(u'ネロ・クラウディウス' in image2.imageTags)
+        self.assertTrue(u'セイバー・ブライド' in image2.imageTags)
+        self.assertTrue(u'Fate/GO10000users入り' in image2.imageTags)
+
+        self.assertEqual(image2.imageMode, "bigNew")
+        self.assertEqual(image2.worksDate, '3/14/2018 18:00')
+        self.assertEqual(image2.worksResolution, '721x1200')
+        # self.assertEqual(image2.worksTools, 'Photoshop SAI')
+        # self.assertEqual(image2.jd_rtv, 88190)
+        # self.assertEqual(image2.jd_rtc, 6711)
+        # self.assertEqual(image2.jd_rtt, 66470)
+        self.assertEqual(image2.artist.artistToken, 'kawanocyan')
+
     def testPixivImageParseInfoPixivPremiumOffer(self):
         p = open('./test/test-image-parse-image-38826533-pixiv-premium.html', 'r')
         page = BeautifulSoup(p.read())

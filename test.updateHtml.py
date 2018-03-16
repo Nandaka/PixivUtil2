@@ -70,6 +70,7 @@ def main():
         downloadPage('https://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32039274', './test/test-image-info.html')
+        downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67729319', './test/test-image-info2.html')
         downloadPage('https://www.pixiv.net/bookmark_new_illust.php', './test/test-bookmarks_new_ilust.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=12467674', './test/test-image-my_pick.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=20496355', './test/test-image-noavatar.htm')
