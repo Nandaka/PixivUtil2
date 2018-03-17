@@ -55,7 +55,7 @@ class TestPixivArtist(unittest.TestCase):
         page = BeautifulSoup(p.read())
         with self.assertRaises(PixivException):
             member = PixivArtist(1233, page)
-            print(member.imageList)
+            # print(member.imageList)
         page.decompose()
         del page
 
@@ -73,16 +73,14 @@ class TestPixivArtist(unittest.TestCase):
         p = open('./test/test-member-noavatar.htm', 'r')
         artist = None
         page = BeautifulSoup(p.read())
-        try:
-            artist = PixivArtist(26357, page)
-            # artist.PrintInfo()
-        except PixivException as ex:
-            print(ex)
+        artist = PixivArtist(26357, page)
+
         page.decompose()
         del page
         self.assertNotEqual(artist, None)
         self.assertEqual(artist.artistId, 26357)
         self.assertEqual(artist.artistToken, 'yukimaruko')
+        self.assertEqual(artist.artistAvatar, "https://source.pixiv.net/common/images/no_profile.png")
 
     def testPixivArtistSuspended(self):
         # print('\nTesting member page - suspended member')
@@ -283,12 +281,10 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageParseTags(self):
         p = open('./test/test-image-parse-tags.htm', 'r')
         page = BeautifulSoup(p.read())
-        try:
-            image = PixivImage(11164869, page)
-        except PixivException as ex:
-            print(ex)
+        image = PixivImage(11164869, page)
         page.decompose()
         del page
+
         self.assertNotEqual(image, None)
         self.assertEqual(image.imageId, 11164869)
         self.assertEqual(image.worksDate, '6/9/2010 02:33')
@@ -301,12 +297,10 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageParseNoTags(self):
         p = open('./test/test-image-no_tags.htm', 'r')
         page = BeautifulSoup(p.read())
-        try:
-            image = PixivImage(9175987, page)
-        except PixivException as ex:
-            print(ex)
+        image = PixivImage(9175987, page)
         page.decompose()
         del page
+
         self.assertNotEqual(image, None)
         self.assertEqual(image.imageId, 9175987)
         self.assertEqual(image.worksDate, '3/6/2010 03:04')
@@ -318,13 +312,10 @@ class TestPixivImage(unittest.TestCase):
         # print('\nTesting image page - big')
         p = open('./test/test-image-unicode.htm', 'r')
         page = BeautifulSoup(p.read())
-        try:
-            image = PixivImage(2493913, page)
-            # image.PrintInfo()
-        except PixivException as ex:
-            print(ex)
+        image = PixivImage(2493913, page)
         page.decompose()
         del page
+
         self.assertNotEqual(image, None)
         self.assertEqual(image.imageId, 2493913)
         self.assertEqual(image.imageMode, 'bigNew')
@@ -336,13 +327,10 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageRateCount(self):
         p = open('./test/test-image-rate_count.htm', 'r')
         page = BeautifulSoup(p.read())
-        try:
-            image = PixivImage(28865189, page)
-            # image.PrintInfo()
-        except PixivException as ex:
-            print(ex)
+        image = PixivImage(28865189, page)
         page.decompose()
         del page
+
         self.assertNotEqual(image, None)
         self.assertEqual(image.imageId, 28865189)
         self.assertEqual(image.imageMode, 'manga')
@@ -383,13 +371,10 @@ class TestPixivImage(unittest.TestCase):
         # print('\nTesting image page - manga')
         p = open('./test/test-image-manga.htm', 'r')
         page = BeautifulSoup(p.read())
-        try:
-            image = PixivImage(28820443, page)
-            # image.PrintInfo()
-        except PixivException as ex:
-            print(ex)
+        image = PixivImage(28820443, page)
         page.decompose()
         del page
+
         self.assertNotEqual(image, None)
         self.assertEqual(image.imageId, 28820443)
         self.assertEqual(image.imageMode, 'manga')
@@ -464,7 +449,8 @@ class TestPixivImage(unittest.TestCase):
         image.ParseInfo(page)
         urls = image.ParseImages(page, mode=image.imageMode, _br=MockPixivBrowser(1))
         self.assertEqual(len(urls), 1)
-        print(urls[0])
+        # print(urls[0])
+        self.assertGreater(len(urls[0]), 0)
         imageId = urls[0].split('/')[-1].split('_')[0]
         # print('imageId:',imageId)
         self.assertEqual(int(imageId), 62670665)
@@ -521,7 +507,7 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image2.imageId, 65079382)
         self.assertEqual(image2.imageTitle, u"Test")
         self.assertTrue(len(image2.imageCaption) > 0)
-        print(u"\r\nCaption = {0}".format(image2.imageCaption))
+        # print(u"\r\nCaption = {0}".format(image2.imageCaption))
 
         self.assertTrue(u'None' in image2.imageTags)
 
@@ -624,7 +610,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2283)
+        self.assertEqual(image.availableImages, 2282)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -634,8 +620,8 @@ class TestPixivTags(unittest.TestCase):
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
-        for img in image.itemList:
-            print(img.imageId)
+##        for img in image.itemList:
+##            print(img.imageId)
         self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
 
@@ -736,8 +722,8 @@ class TestPixivGroup(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
-    test_classes_to_run = [TestPixivImage]
+    test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
+    # test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
     # test_classes_to_run = [TestPixivArtist]
     # test_classes_to_run = [TestPixivBookmark]
