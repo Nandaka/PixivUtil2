@@ -467,7 +467,9 @@ class PixivImage:
             if temp2 is not None and len(temp2) > 0:
                 for tag in temp2:
                     if tag.has_key('class'):
-                        if tag['class'] == 'text' and tag.string is not None:
+                        if tag['class'] == 'portal':
+                            pass
+                        elif tag['class'] == 'text' and tag.string is not None:
                             self.imageTags.append(unicode(tag.string))
                         elif tag['class'].startswith('text js-click-trackable-later'):
                             # Issue#343
@@ -475,16 +477,16 @@ class PixivImage:
                             if tag.string is not None:
                                 self.imageTags.append(unicode(tag.string))
                             else:
-                                print(tag.text)
-                                raw_input()
+                                # with translation
+                                # print(tag.contents)
+                                # print(unicode(tag.contents[0]))
+                                self.imageTags.append(unicode(tag.contents[0]))
                         elif tag['class'] == 'text js-click-trackable':
                             # issue #200 fix
                             # need to split the tag 'incrediblycute <> なにこれかわいい'
                             # and take the 2nd tags
                             temp_tag = tag['data-click-action'].split('<>', 1)[1].strip()
                             self.imageTags.append(unicode(temp_tag))
-                        elif tag['class'] == 'portal':
-                            pass
 
     def PrintInfo(self):
         PixivHelper.safePrint('Image Info')
@@ -580,7 +582,7 @@ class PixivImage:
         twopage_format = page.find("html", attrs={'class': re.compile(r".*\b_book-viewer\b.*")})
         if twopage_format is not None and len(twopage_format) > 0:
             # new format
-            print("2-page manga viewer mode")
+            # print("2-page manga viewer mode")
             return self.ParseMangaImagesScript(page)
         else:
             # standard format
