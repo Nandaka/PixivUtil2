@@ -174,7 +174,7 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image2.imageId, 32039274)
         self.assertEqual(image2.imageTitle, u"新しいお姫様")
         self.assertTrue(len(image2.imageCaption) > 0)
-        print(u"\r\nCaption = {0}".format(image2.imageCaption))
+        # print(u"\r\nCaption = {0}".format(image2.imageCaption))
 
         self.assertTrue(u'MAYU' in image2.imageTags)
         self.assertTrue(u'VOCALOID' in image2.imageTags)
@@ -222,10 +222,12 @@ class TestPixivImage(unittest.TestCase):
         page.decompose()
         del page
 
+        # image2.PrintInfo()
+
         self.assertEqual(image2.imageId, 67729319)
         self.assertEqual(image2.imageTitle, u"独り言")
         self.assertTrue(len(image2.imageCaption) > 0)
-        print(u"\r\nCaption = {0}".format(image2.imageCaption))
+        # print(u"\r\nCaption = {0}".format(image2.imageCaption))
 
         self.assertTrue(u'FGO' in image2.imageTags)
         self.assertTrue(u'ネロ・クラウディウス' in image2.imageTags)
@@ -235,10 +237,6 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image2.imageMode, "bigNew")
         self.assertEqual(image2.worksDate, '3/14/2018 18:00')
         self.assertEqual(image2.worksResolution, '721x1200')
-        # self.assertEqual(image2.worksTools, 'Photoshop SAI')
-        # self.assertEqual(image2.jd_rtv, 88190)
-        # self.assertEqual(image2.jd_rtc, 6711)
-        # self.assertEqual(image2.jd_rtt, 66470)
         self.assertEqual(image2.artist.artistToken, 'kawanocyan')
 
     def testPixivImageParseInfoPixivPremiumOffer(self):
@@ -396,6 +394,29 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image.imageId, 28820443)
         self.assertEqual(image.imageMode, 'manga')
 
+    def testPixivImageParseMangaInfoMixed(self):
+        # print('\nTesting parse Manga Images')
+        # Issue #224
+        p = open('./test/test-image-big-manga-mixed.html', 'r')
+        page = BeautifulSoup(p.read())
+        image = PixivImage(iid=67487303, page=page)
+        # image.PrintInfo()
+
+        self.assertTrue(u'R-18' in image.imageTags)
+        self.assertTrue(u'Fate/EXTRA' in image.imageTags)
+        self.assertTrue(u'ネロ・クラウディウス' in image.imageTags)
+        self.assertTrue(u'腋' in image.imageTags)
+        self.assertTrue(u'クリチラ' in image.imageTags)
+        self.assertTrue(u'おっぱい' in image.imageTags)
+        self.assertTrue(u'Fate/EXTRA1000users入り' in image.imageTags)
+        self.assertTrue(u'Fate/EXTRA_Last_Encore' in image.imageTags)
+
+        self.assertEqual(image.imageMode, "manga")
+        self.assertEqual(image.worksDate, '2/27/2018 12:31')
+        self.assertEqual(image.worksResolution, 'Multiple images: 2P')
+        self.assertEqual(image.worksTools, 'SAI')
+        self.assertEqual(image.artist.artistToken, 's33127')
+
     def testPixivImageParseMangaTwoPage(self):
         # print('\nTesting parse Manga Images')
         p = open('./test/test-image-manga-2page.htm', 'r')
@@ -416,7 +437,7 @@ class TestPixivImage(unittest.TestCase):
         image = PixivImage()
         urls = image.ParseImages(page, mode='big')
         self.assertEqual(len(urls), 1)
-        print(urls[0])
+        # print(urls[0])
         imageId = urls[0].split('/')[-1].split('_')[0]
         # print('imageId:',imageId)
         self.assertEqual(int(imageId), 2493913)
@@ -484,12 +505,12 @@ class TestPixivImage(unittest.TestCase):
         page = BeautifulSoup(p.read())
         image = PixivImage(46281014, page)
         urls = image.ParseImages(page)
-        print(image.imageUrls)
+        # print(image.imageUrls)
         self.assertTrue(image.imageUrls[0].find(".zip") > -1)
         page.decompose()
         del page
 
-    def testPixivSImageParseInfoSelf(self):
+    def testPixivImageParseInfoSelf(self):
         # assuming being accessed via manage page for your own artwork.
         p = open('./test/test-image-selfimage.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -715,8 +736,8 @@ class TestPixivGroup(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
-    # test_classes_to_run = [TestPixivImage]
+    # test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
+    test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
     # test_classes_to_run = [TestPixivArtist]
     # test_classes_to_run = [TestPixivBookmark]

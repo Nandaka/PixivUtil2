@@ -83,6 +83,7 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?mode=manga&illust_id=46322053', './test/test-image-manga-2page.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28688383', './test/test-image-deleted.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62670665', './test/test-image-big-manga.html')
+        downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67487303', './test/test-image-big-manga-mixed.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65079382', './test/test-image-selfimage.htm')
 
         downloadPage('https://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
