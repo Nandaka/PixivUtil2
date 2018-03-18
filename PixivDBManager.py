@@ -632,7 +632,7 @@ class PixivDBManager:
                         # check filename in db against all combination possible filename in disk
                         if filename.endswith(ext):
                             base_filename = filename.rsplit(ext, 1)[0]
-                            if checkFilenames(base_filename, anim_ext):
+                            if self.checkFilenames(base_filename, anim_ext):
                                 fileExists = True
                                 break
 
