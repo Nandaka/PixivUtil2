@@ -1,3 +1,6 @@
+20180316
+- Fix Issue #343: Update image parser.
+
 20180314 WhiteDay
 - Implement #40: Enhance error message to include current page number for tags and member.
 - Fix Issue #194: Add retry when exporting bookmark.
