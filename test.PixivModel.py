@@ -552,9 +552,8 @@ class TestPixivBookmark(unittest.TestCase):
 class TestMyPickPage(unittest.TestCase):
     def testMyPickPage(self):
         try:
-            br = Browser()
-            path = 'file:///' + os.path.abspath('./test/test-image-my_pick.html').replace(os.sep, '/')
-            p = br.open(path, 'r')
+            path = './test/test-image-my_pick.html'
+            p = open(path, 'r')
             page = BeautifulSoup(p.read())
             image = PixivImage(12467674, page)
 
@@ -564,9 +563,8 @@ class TestMyPickPage(unittest.TestCase):
 
     def testMyPickPageEng(self):
         try:
-            br = Browser()
-            path = 'file:///' + os.path.abspath('./test/test-image-my_pick-e.html').replace(os.sep, '/')
-            p = br.open(path, 'r')
+            path = './test/test-image-my_pick-e.html'
+            p = open(path, 'r')
             page = BeautifulSoup(p.read())
             image = PixivImage(28688383, page)
 
@@ -576,9 +574,8 @@ class TestMyPickPage(unittest.TestCase):
 
     def testGuroPageEng(self):
         try:
-            br = Browser()
-            path = 'file:///' + os.path.abspath('./test/test-image-guro-e.html').replace(os.sep, '/')
-            p = br.open(path, 'r')
+            path = './test/test-image-guro-e.html'
+            p = open(path, 'r')
             page = BeautifulSoup(p.read())
             image = PixivImage(31111130, page)
 
@@ -588,9 +585,8 @@ class TestMyPickPage(unittest.TestCase):
 
     def testEroPageEng(self):
         try:
-            br = Browser()
-            path = 'file:///' + os.path.abspath('./test/test-image-ero-e.html').replace(os.sep, '/')
-            p = br.open(path, 'r')
+            path = './test/test-image-ero-e.html'
+            p = open(path, 'r')
             page = BeautifulSoup(p.read())
             image = PixivImage(31115956, page)
 
@@ -601,9 +597,8 @@ class TestMyPickPage(unittest.TestCase):
 
 class TestPixivTags(unittest.TestCase):
     def testTagsSearchExact1(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath(u'./test/test-tags-search-exact2.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-exact2.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -614,9 +609,8 @@ class TestPixivTags(unittest.TestCase):
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-exact.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -626,9 +620,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchExactLast(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact-last.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-exact-last.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -639,9 +632,8 @@ class TestPixivTags(unittest.TestCase):
 
     # search.php?s_mode=s_tag&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9
     def testTagsSearchPartial(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-partial.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-partial.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -650,9 +642,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, False)
 
     def testTagsSearchPartialLast(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-partial-last.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-partial-last.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -661,9 +652,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, True)
 
     def testTagsSearchParseDetails(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-exact-parse_details.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-exact-parse_details.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -674,9 +664,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.itemList[-1].imageResponse, 0)
 
     def testTagsMemberSearch(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-member-search.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-member-search.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseMemberTags(page, 313631)
@@ -688,9 +677,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.availableImages, 70)
 
     def testTagsMemberSearchLast(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-member-search-last.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-member-search-last.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseMemberTags(page, 313631)
@@ -700,9 +688,8 @@ class TestPixivTags(unittest.TestCase):
         self.assertEqual(image.isLastPage, True)
 
     def testTagsSkipShowcase(self):
-        br = Browser()
-        path = 'file:///' + os.path.abspath('./test/test-tags-search-skip-showcase.htm').replace(os.sep, '/')
-        p = br.open(path, 'r')
+        path = './test/test-tags-search-skip-showcase.htm'
+        p = open(path, 'r')
         page = BeautifulSoup(p.read())
         image = PixivTags()
         image.parseTags(page)
@@ -712,7 +699,7 @@ class TestPixivTags(unittest.TestCase):
 
 class TestPixivGroup(unittest.TestCase):
     def testParseJson(self):
-        path = os.path.abspath('./test/group.json').replace(os.sep, '/')
+        path = './test/group.json'
         p = open(path)
         result = PixivGroup(p)
 
