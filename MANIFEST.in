@@ -1,0 +1,3 @@
+include requirements.txt
+include PixivConstant.py
+include readme.txt
