@@ -194,11 +194,11 @@ class PixivBrowser(mechanize.Browser):
 
             parsed = BeautifulSoup(resData)
             self.detectWhiteCube(parsed, res.geturl())
-            self.getMyId(parsed)
 
             if "logout.php" in resData:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
+                self.getMyId(parsed)
                 return True
             else:
                 PixivHelper.GetLogger().info('Failed to log in using cookie')
