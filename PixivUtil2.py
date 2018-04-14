@@ -1698,14 +1698,23 @@ def menu_download_by_group_id(opisvalid, args):
 
 def menu_export_online_bookmark(opisvalid, args):
     __log__.info('Export Bookmark mode.')
-    hide = False
-    filename = raw_input("Filename: ")
-    arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
-    arg = arg.lower()
+    hide = "y"  # y|n|o
+    filename = "export.txt"
+
+    if opisvalid and len(args) > 0:
+        arg = args[0]
+        if len(args) > 1:
+            filename = args[1]
+    else:
+        filename = raw_input("Filename: ")
+        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
+        arg = arg.lower()
+
     if arg == 'y' or arg == 'n' or arg == 'o':
         hide = arg
     else:
         print("Invalid args: ", arg)
+
     export_bookmark(filename, hide)
 
 
