@@ -211,6 +211,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
                         e - Export online bookmark
+			    (optional: Include Private Bookmark [y|n|o], filename)
                         m - Export online user bookmark
                             (required: member_id)
                         d - Manage database

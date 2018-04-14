@@ -1721,13 +1721,24 @@ def menu_export_online_bookmark(opisvalid, args):
 def menu_export_online_user_bookmark(opisvalid, args):
     __log__.info('Export Bookmark mode.')
     member_id = ''
-    filename = raw_input("Filename: ")
-    arg = raw_input("Member Id: ") or ''
-    arg = arg.lower()
+    filename = "export-user.txt"
+
+    if opisvalid and len(args) > 0:
+        arg = args[0]
+        if len(args) > 1:
+            filename = args[1]
+        else:
+            filename = "export-user-{0}.txt".format(arg)
+    else:
+        filename = raw_input("Filename: ") or filename
+        arg = raw_input("Member Id: ") or ''
+        arg = arg.lower()
+
     if arg.isdigit():
         member_id = arg
     else:
         print("Invalid args: ", arg)
+
     export_bookmark(filename, 'n', 1, 0, member_id)
 
 
@@ -1895,7 +1906,7 @@ def main():
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e'):
+    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e', 'm'):
         op_is_valid = True
     elif op is None:
         op_is_valid = False
