@@ -213,7 +213,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         e - Export online bookmark
 			    (optional: Include Private Bookmark [y|n|o], filename)
                         m - Export online user bookmark
-                            (required: member_id)
+                            (required: member_id, optional: followed by filename)
                         d - Manage database
   -x, --exitwhendone    Exit programm when done.
                         (only useful when DB-Manager)

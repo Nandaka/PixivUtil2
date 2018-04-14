@@ -1,3 +1,7 @@
+20180414
+- Fix Issue #337: failed to update cookie value.
+- Implement Feature #349: enhance command line option for -s e and -s m.
+
 20180316
 - Fix Issue #343: Update image parser.
 
