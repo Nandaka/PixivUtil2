@@ -1,7 +1,7 @@
 ### Prerequisites
 
 * [ ] Did you read FAQ section?
-* [ ] Did you test with the latest commit?
+* [ ] Did you test with the latest [releases](https://github.com/Nandaka/PixivUtil2/releases "latest releases") or [commit](https://github.com/Nandaka/PixivUtil2/commits/master "latest commit") ?
 
 ### Description
 
