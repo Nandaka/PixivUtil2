@@ -37,7 +37,7 @@ def downloadPage(url, filename):
     try:
         html = __br__.open(url).read()
     except mechanize.HTTPError as e:
-        if e.code in [403, 404]:
+        if e.code in [400, 403, 404]:
             html = e.read()
         else:
             raise
@@ -50,6 +50,9 @@ def downloadPage(url, filename):
 
 
 def main():
+    downloadPage('https://www.pixiv.net/member_illust.php?id=143229', './test/test-member-nologin.htm')
+    downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67089412', './test/test-image-nologin.htm')
+
     result = prepare()
     if result:
         # ./test/test-image-manga.htm
@@ -68,6 +71,7 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?id=26357', './test/test-member-noavatar.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=1233', './test/test-noimage.htm')
         downloadPage('https://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
+        downloadPage('https://www.pixiv.net/manage/illusts/', './test/test-member-self.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32039274', './test/test-image-info.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67729319', './test/test-image-info2.html')
@@ -85,12 +89,16 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62670665', './test/test-image-big-manga.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67487303', './test/test-image-big-manga-mixed.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65079382', './test/test-image-selfimage.htm')
+        downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=12467674', './test/test-image-my_pick.html')
+        downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=37882549x', './test/test-image-generic-error.html')
+        downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=123', './test/test-image-deleted.htm')
 
         downloadPage('https://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
         downloadPage('https://www.pixiv.net/bookmark.php?id=283027', './test/test-image-bookmark-member.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&p=7', './test/test-tags-member-search-last.htm')
-        downloadPage('https://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full', './test/test-tags-search-exact.htm')
+        downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag_full&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact.htm')
+        downloadPage('https://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full&order=date_d&p=67', './test/test-tags-search-exact-last.htm')
         downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&s_mode=s_tag_full&order=date_d&p=12', './test/test-tags-search-partial.htm')
         downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
         downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
@@ -101,6 +109,10 @@ def main():
         downloadPage('https://www.pixiv.net/search.php?word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB&s_mode=s_tag_full', './test/test-tags-search-exact2.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
+        downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
+
+        downloadPage('https://www.pixiv.net/group/images.php?format=json&max_id=946801&id=881', './test/group.json')
+
         # Not updated:
         # ./test/test-login-error.htm
         # ./test/test-member-suspended.htm

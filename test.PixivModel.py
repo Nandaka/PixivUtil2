@@ -144,22 +144,6 @@ class TestPixivArtist(unittest.TestCase):
         self.assertGreaterEqual(artist.totalImages, 1)
         self.assertIn(65079382, artist.imageList)
 
-    def testPixivArtistManageSelf2(self):
-        # print('\nTesting own page ')
-        p = open('./test/Error_page_for_member_539661.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(539661, page)
-
-        page.decompose()
-        del page
-
-        # no artist information for manage self page.
-        self.assertNotEqual(artist, None)
-        self.assertEqual(artist.artistId, 539661)
-        self.assertGreaterEqual(artist.totalImages, 228)
-        self.assertIn(65041158, artist.imageList)
-        self.assertFalse(artist.isLastPage)
-
 
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
@@ -230,7 +214,6 @@ class TestPixivImage(unittest.TestCase):
         self.assertTrue(u'FGO' in image2.imageTags)
         self.assertTrue(u'ネロ・クラウディウス' in image2.imageTags)
         self.assertTrue(u'セイバー・ブライド' in image2.imageTags)
-        self.assertTrue(u'Fate/GO10000users入り' in image2.imageTags)
 
         self.assertEqual(image2.imageMode, "bigNew")
         self.assertEqual(image2.worksDate, '3/14/2018 18:00')
@@ -481,7 +464,7 @@ class TestPixivImage(unittest.TestCase):
         page = BeautifulSoup(p.read())
         with self.assertRaises(PixivException) as ex:
             image = PixivImage(37882549, page)
-        self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
+        self.assertEqual(ex.exception.errorCode, PixivException.UNKNOWN_IMAGE_ERROR)
         page.decompose()
         del page
 
@@ -605,7 +588,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2282)
+        self.assertEqual(image.availableImages, 2278)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -627,7 +610,7 @@ class TestPixivTags(unittest.TestCase):
         image.parseTags(page)
 
         # self.assertEqual(len(image.itemList), 3)
-        self.assertEqual(image.itemList[-1].imageId, 15060554)
+        self.assertEqual(image.itemList[-1].imageId, 544700)
         self.assertEqual(image.isLastPage, True)
 
     # search.php?s_mode=s_tag&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9
@@ -703,12 +686,12 @@ class TestPixivGroup(unittest.TestCase):
         p = open(path)
         result = PixivGroup(p)
 
-        self.assertEqual(len(result.imageList), 34)
-        self.assertEqual(len(result.externalImageList), 2)
-        self.assertEqual(result.maxId, 626288)
+        self.assertEqual(len(result.imageList), 35)
+        self.assertEqual(len(result.externalImageList), 1)
+        self.assertEqual(result.maxId, 920234)
 
 
-if __name__ == '__main__':
+def main():
     test_classes_to_run = [TestPixivArtist, TestPixivImage, TestPixivBookmark, TestMyPickPage, TestPixivTags, TestPixivGroup]
     # test_classes_to_run = [TestPixivImage]
     # test_classes_to_run = [TestPixivTags]
@@ -726,3 +709,7 @@ if __name__ == '__main__':
 
     runner = unittest.TextTestRunner(verbosity=5)
     results = runner.run(big_suite)
+
+
+if __name__ == '__main__':
+    main()
