@@ -11,6 +11,8 @@ import PixivModel
 from PixivModel import PixivException
 import PixivHelper
 
+re_payload = re.compile(r"(\{token.*\})")
+
 
 class PixivArtist(PixivModel.PixivArtist):
     def __init__(self, mid=0, page=None, fromImage=False):
@@ -18,8 +20,8 @@ class PixivArtist(PixivModel.PixivArtist):
             self.artistId = mid
             payload = json.loads(page)
             # check error
-            if payload["error"]:
-                raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
+            # if payload["error"]:
+            #    raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
 
             # detect if image count != 0
             if not fromImage:
@@ -104,11 +106,11 @@ class PixivImage(PixivModel.PixivImage):
         self.descriptionUrlList = []
 
         if page is not None:
-            payload = json.loads(page)
+            payload = parseJs(page)
 
             # check error
-            if payload["error"]:
-                raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+##            if payload["error"]:
+##                raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
             # parse image information
             parsed = BeautifulSoup(payload["body"]["html"])
 
@@ -126,9 +128,12 @@ class PixivImage(PixivModel.PixivImage):
                 self.originalArtist = self.artist
 
             # parse image
-            self.ParseInfo(parsed)
+            self.ParseInfo(payload)
 
     def ParseInfo(self, page):
+        key = page["preload"]["illust"].keys()[0]
+        root = page["preload"]["illust"][key]
+
         self.imageUrls = list()
         images = page.findAll("div", attrs={"class": "illust-zoom-in thumbnail-container"})
 
@@ -264,3 +269,31 @@ class PixivTags(PixivModel.PixivTags):
             self.isLastPage = True
 
         return self.itemList
+
+
+def parseJs(page):
+    js = re_payload.findall(str(page))[0]
+
+    js1_split = js.split('{')
+    upd_js1_split = list()
+    for js1_token in js1_split:
+        js2_split = js1_token.split(',')
+        upd_js2_split = list()
+
+        for token in js2_split:
+            token_split = token.split(':', 1)
+            if len(token_split[0]) > 0 and not token_split[0].startswith("\"") and not token_split[0].startswith("{") and not token_split[0].startswith("}"):
+                token_split[0] = "\"" + token_split[0].strip() + "\""
+            else:
+                token_split[0] = token_split[0].strip()
+            if len(token_split) > 1:
+                token_split[1] = token_split[1].strip()
+            token_join = ":".join(token_split)
+            upd_js2_split.append(token_join)
+        js1_join = ",".join(upd_js2_split)
+        upd_js1_split.append(js1_join)
+
+    result = "{".join(upd_js1_split)
+    result = result.replace(",}", "}")
+
+    return json.loads(result)
