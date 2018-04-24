@@ -63,8 +63,7 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.artistId = root["userId"]
                 self.artistAvatar = root["image"].replace("_50", "")
                 self.artistName = root["name"]
-                # no token data
-                self.artistToken = self.artistName
+                self.artistToken = root["background"]["extra"]["user_account"]
 
             else:
                 raise NotImplementedError
