@@ -434,12 +434,15 @@ def dumpHtml(filename, html):
 
 
 def print_and_log(level, msg):
-    safePrint(msg)
-    if level == 'info':
-        GetLogger().info(msg)
-    elif level == 'error':
-        GetLogger().error(msg)
-        GetLogger().error(traceback.format_exc())
+    if level == 'debug':
+        GetLogger().debug(msg)
+    else:
+        safePrint(msg)
+        if level == 'info':
+            GetLogger().info(msg)
+        elif level == 'error':
+            GetLogger().error(msg)
+            GetLogger().error(traceback.format_exc())
 
 
 def HaveStrings(page, strings):

@@ -638,14 +638,16 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 PixivHelper.dumpHtml(dump_filename, parse_medium_page)
                 PixivHelper.print_and_log('error', 'Dumping html to: ' + dump_filename)
             else:
-                PixivHelper.print_and_log('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+                PixivHelper.print_and_log('error', 'Image ID (' + str(image_id) + '): ' + str(ex))
+            PixivHelper.print_and_log('error', 'Stack Trace: {0}'.format(str(sys.exc_info())))
             return PixivConstant.PIXIVUTIL_NOT_OK
         except Exception as ex:
-            PixivHelper.print_and_log('info', 'Image ID (' + str(image_id) + '): ' + str(ex))
+            PixivHelper.print_and_log('error', 'Image ID (' + str(image_id) + '): ' + str(ex))
             if parse_medium_page is not None:
                 dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
                 PixivHelper.dumpHtml(dump_filename, parse_medium_page)
                 PixivHelper.print_and_log('error', 'Dumping html to: ' + dump_filename)
+            PixivHelper.print_and_log('error', 'Stack Trace: {0}'.format(str(sys.exc_info())))
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True

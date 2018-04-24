@@ -320,17 +320,30 @@ class PixivBrowser(mechanize.Browser):
             response = self.getPixivPage(url, returnParsed=False).read()
             self.handleDebugMediumPage(response, image_id)
 
-            parsed = BeautifulSoup(response)
-            image = PixivModel.PixivImage(image_id,
-                                          parsed,
-                                          parent,
-                                          from_bookmark,
-                                          bookmark_count,
-                                          image_response_count,
-                                          dateFormat=self._config.dateFormat)
-            if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                image.ParseImages(parsed)
-            parsed.decompose()
+            # Issue #355 new ui handler
+            image = None
+            if response.find("globalInitData") > 0:
+                PixivHelper.print_and_log('debug', 'New UI Mode')
+                image = PixivModelWhiteCube.PixivImage(image_id,
+                                                       response,
+                                                       parent,
+                                                       from_bookmark,
+                                                       bookmark_count,
+                                                       image_response_count,
+                                                       dateFormat=self._config.dateFormat)
+
+            else:
+                parsed = BeautifulSoup(response)
+                image = PixivModel.PixivImage(image_id,
+                                              parsed,
+                                              parent,
+                                              from_bookmark,
+                                              bookmark_count,
+                                              image_response_count,
+                                              dateFormat=self._config.dateFormat)
+                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+                    image.ParseImages(parsed)
+                parsed.decompose()
 
         return (image, response)
 

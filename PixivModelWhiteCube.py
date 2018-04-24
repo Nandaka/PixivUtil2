@@ -10,22 +10,38 @@ from BeautifulSoup import BeautifulSoup
 import PixivModel
 from PixivModel import PixivException
 import PixivHelper
+import datetime_z
 
-re_payload = re.compile(r"(\{token.*\})")
+re_payload = re.compile(r"(\{token.*\})\);")
 
 
 class PixivArtist(PixivModel.PixivArtist):
     def __init__(self, mid=0, page=None, fromImage=False):
         if page is not None:
             self.artistId = mid
-            payload = json.loads(page)
+            payload = parseJs(page)
+
             # check error
-            # if payload["error"]:
-            #    raise PixivException('Artist Error: ' + str(payload["error"]), errorCode=PixivException.SERVER_ERROR)
+            if payload is None:
+                if self.is_not_logged_in(page):
+                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+                if self.IsUserNotExist(page):
+                    raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
+                if self.IsUserSuspended(page):
+                    raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=page)
+                # detect if there is any other error
+                errorMessage = self.IsErrorExist(page)
+                if errorMessage is not None:
+                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                # detect if there is server error
+                errorMessage = self.IsServerErrorExist(page)
+                if errorMessage is not None:
+                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             # detect if image count != 0
             if not fromImage:
-                self.ParseImages(payload)
+                # self.ParseImages(payload)
+                raise NotImplementedError
             else:
                 self.isLastPage = True
                 self.haveImages = True
@@ -41,39 +57,37 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page is not None:
             if fromImage:
-                # will be updated using AppAPI call from browser
-                parsed = BeautifulSoup(page["body"]["html"])
-                artist_container = parsed.find('div', attrs={'class': 'header-author-container'})
-                artist_link = artist_container.find('a', attrs={'class': 'user-view-popup'})
-                self.artistId = int(artist_link['data-user_id'])
+                key = str(page["preload"]["user"].keys()[0])
+                root = page["preload"]["user"][key]
 
-                artist_icon = artist_container.find(attrs={'class': re.compile(r"_user-icon.*")})
-                self.artistAvatar = re.findall(r"background-image:url\((.*)\)", artist_icon["style"])[0]
-
-                self.artistName = artist_container.find("div", attrs={'class': 'user-name'}).text
+                self.artistId = root["userId"]
+                self.artistAvatar = root["image"].replace("_50", "")
+                self.artistName = root["name"]
+                # no token data
                 self.artistToken = self.artistName
 
             else:
-                data = None
-                if page.has_key("user"):
-                    data = page
-                elif page.has_key("illusts") and len(page["illusts"]) > 0:
-                    data = page["illusts"][0]
-
-                if data is not None:
-                    self.artistId = data["user"]["id"]
-                    self.artistToken = data["user"]["account"]
-                    self.artistName = data["user"]["name"]
-
-                    avatar_data = data["user"]["profile_image_urls"]
-                    if avatar_data is not None and avatar_data.has_key("medium"):
-                        self.artistAvatar = avatar_data["medium"]
-
-                if page.has_key("profile"):
-                    if bookmark:
-                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
-                    else:
-                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+                raise NotImplementedError
+##                data = None
+##                if page.has_key("user"):
+##                    data = page
+##                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+##                    data = page["illusts"][0]
+##
+##                if data is not None:
+##                    self.artistId = data["user"]["id"]
+##                    self.artistToken = data["user"]["account"]
+##                    self.artistName = data["user"]["name"]
+##
+##                    avatar_data = data["user"]["profile_image_urls"]
+##                    if avatar_data is not None and avatar_data.has_key("medium"):
+##                        self.artistAvatar = avatar_data["medium"]
+##
+##                if page.has_key("profile"):
+##                    if bookmark:
+##                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
+##                    else:
+##                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
     def ParseImages(self, page):
         self.imageList = list()
@@ -109,21 +123,36 @@ class PixivImage(PixivModel.PixivImage):
             payload = parseJs(page)
 
             # check error
-##            if payload["error"]:
-##                raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
-            # parse image information
-            parsed = BeautifulSoup(payload["body"]["html"])
+            if payload is None:
+                if self.IsNotLoggedIn(page):
+                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+                if self.IsNeedPermission(page):
+                    raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
+                if self.IsNeedAppropriateLevel(page):
+                    raise PixivException('Public works can not be viewed by the appropriate level!',
+                                         errorCode=PixivException.NO_APPROPRIATE_LEVEL, htmlPage=page)
+                if self.IsDeleted(page):
+                    raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED, htmlPage=page)
+                if self.IsGuroDisabled(page):
+                    raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!',
+                                         errorCode=PixivException.R_18_DISABLED, htmlPage=page)
+                # detect if there is any other error
+                errorMessage = self.IsErrorExist(page)
+                if errorMessage is not None:
+                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
+                # detect if there is server error
+                errorMessage = self.IsServerErrorExist(page)
+                if errorMessage is not None:
+                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             # parse artist information
             if parent is None:
-                parsed = BeautifulSoup(payload["body"]["html"])
-                artist_container = parsed.find('div', attrs={'class': 'header-author-container'})
-                artist_link = artist_container.find('a', attrs={'class': 'user-view-popup'})
-                artistId = int(artist_link['data-user_id'])
-                self.artist = PixivArtist(artistId, page, fromImage=True)
+                temp_artist_id = payload["preload"]["user"].keys()[0]
+                self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
-                self.originalArtist = PixivArtist(page=page, fromImage=True)
+                raise NotImplementedError
+                # self.originalArtist = PixivArtist(page=page, fromImage=True)
             else:
                 self.originalArtist = self.artist
 
@@ -132,67 +161,59 @@ class PixivImage(PixivModel.PixivImage):
 
     def ParseInfo(self, page):
         key = page["preload"]["illust"].keys()[0]
+        assert(key == str(self.imageId))
         root = page["preload"]["illust"][key]
 
         self.imageUrls = list()
-        images = page.findAll("div", attrs={"class": "illust-zoom-in thumbnail-container"})
 
-        if len(images) > 0:
-            for image in images:
-                url = image["data-original-src"]
+        self.imageCount = int(root["pageCount"])
+        temp_url = root["urls"]["original"]
+        if self.imageCount == 1:
+            if temp_url.find("ugoira") > 0:
+                self.imageMode = "ugoira_view"
+                raise NotImplementedError
+                # self.ParseUgoira(page)
+            else:
+                self.imageMode = "big"
+                self.imageUrls.append(temp_url)
+        elif self.imageCount > 1:
+            self.imageMode = "manga"
+            for i in range(0, self.imageCount):
+                url = temp_url.replace("_p0", "_p{0}".format(i))
                 self.imageUrls.append(url)
 
-            self.imageCount = len(self.imageUrls)
-            if self.imageCount == 1:
-                self.imageMode = "big"
-            elif self.imageCount > 1:
-                self.imageMode = "manga"
-        else:
-            # ugoira
-            canvas = page.find("div", attrs={"class": "ugoira player-container"})
-            self.imageMode = "ugoira_view"
-            url = self.ParseUgoira(canvas["data-ugoira-meta"])
-            self.imageUrls.append(url)
-
         # title/caption
-        self.imageTitle = page.findAll("div", attrs={"class": "title-container"})[0].text
-        descriptions = page.findAll("div", attrs={"class": "description-text ui-expander-target"})
-        if len(descriptions) > 0:
-            self.imageCaption = descriptions[0].text
+        self.imageTitle = root["illustTitle"]
+        self.imageCaption = root["illustComment"]
 
         # view count
-        self.jd_rtv = int(page.find(attrs={'class': 'react-count'}).text)
+        self.jd_rtv = root["viewCount"]
         # like count
-        # react-count _clickable illust-bookmark-count-59521621 count like-count
-        self.jd_rtc = int(page.find(attrs={'class': re.compile(r"react-count _clickable illust-bookmark-count-{0} count like-count.*".format(self.imageId))}).text)
-        # not available
+        self.jd_rtc = root["likeCount"]
+        # not available anymore
         self.jd_rtt = self.jd_rtc
 
         # tags
         self.imageTags = list()
-        # _tag-container tags illust-59521621
-        tagContainer = page.find("div", attrs={"class": "_tag-container tags illust-{0}".format(self.imageId)})
-        # special node for R-18
-        r18Tag = page.findAll(attrs={'class': 'tag r-18'})
-        if r18Tag is not None and len(r18Tag) > 0:
-            self.imageTags.append("R-18")
-        tagLinks = tagContainer.findAll("a", attrs={"class": re.compile(r"tag.*")})
-        for link in tagLinks:
-            self.imageTags.append(link["data-activity-tag_name"])
+        tags = root["tags"]
+        if tags is not None:
+            tags = root["tags"]["tags"]
+            for tag in tags:
+                self.imageTags.append(tag["tag"])
 
-        # date
-        self.worksDate = page.find("li", attrs={"class": "datetime"}).text
-        self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
+        # datetime
+        self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
+        tempDateFormat = self.dateFormat or "%y%m%d"
+        self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
         # resolution
+        self.worksResolution = "{0}x{1}".format(root["width"], root["height"])
 
-        # tools
-        tools = page.findAll("li", attrs={"class": "tool"})
-        t = list()
-        for tool in tools:
-            t.append(tool.text)
-        if len(t) > 0:
-            self.worksTools = ", ".join(t)
+        # tools = No more tool information
+        self.worksTools = ""
+
+        self.bookmark_count = root["bookmarkCount"]
+        self.image_response_count = root["responseCount"]
 
     def ParseImages(self, page, mode=None, _br=None):
         pass
@@ -272,8 +293,12 @@ class PixivTags(PixivModel.PixivTags):
 
 
 def parseJs(page):
-    js = re_payload.findall(str(page))[0]
+    jss = re_payload.findall(str(page))
 
+    if len(jss) == 0:
+        return None  # Possibly error page
+
+    js = jss[0]
     js1_split = js.split('{')
     upd_js1_split = list()
     for js1_token in js1_split:
@@ -295,5 +320,8 @@ def parseJs(page):
 
     result = "{".join(upd_js1_split)
     result = result.replace(",}", "}")
+
+    PixivHelper.GetLogger().debug("ConvertedJson")
+    PixivHelper.GetLogger().debug(result)
 
     return json.loads(result)
