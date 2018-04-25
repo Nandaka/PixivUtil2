@@ -9,19 +9,19 @@
     window._time = function () { h.time.apply(h, arguments) };
     window._send = function () { h.send.apply(h, arguments) };
 })()
-</script><link rel="stylesheet" href="https://source.pixiv.net/www/css/global.css?019e472792f71843d1730c3831a16cc9"><link rel="stylesheet" href="https://source.pixiv.net/www/css/global_2.css?019e472792f71843d1730c3831a16cc9"><link rel="stylesheet" href="https://source.pixiv.net/www/css/app.css?f8f4053e32491db5145677fb54ee2f50"><!--[if IE 8]><script src="https://source.pixiv.net/www/js/lib/html5shiv/html5shiv.js"></script><![endif]--><script>
+</script><link rel="stylesheet" href="https://s.pximg.net/www/css/global.css?019e472792f71843d1730c3831a16cc9"><link rel="stylesheet" href="https://s.pximg.net/www/css/global_2.css?019e472792f71843d1730c3831a16cc9"><link rel="stylesheet" href="https://s.pximg.net/www/css/app.css?3839f41611bbc8990a575522a3fb3f8b"><!--[if IE 8]><script src="https://s.pximg.net/www/js/lib/html5shiv/html5shiv.js"></script><![endif]--><script>
     Object.defineProperty(window, 'bundle_public_path', {
-        value: "https:\/\/source.pixiv.net\/www\/js\/bundle\/"
+        value: "https:\/\/s.pximg.net\/www\/js\/bundle\/"
     })
 </script>
-<meta id="meta-pixiv-tests" name="pixiv-tests" content="{&quot;www_premium_lead_popular_d_popup_d&quot;:true}">
+<meta id="meta-pixiv-tests" name="pixiv-tests" content="{&quot;new_member_illust&quot;:true}">
 
-<link rel="stylesheet" href="https://source.pixiv.net/www/js/bundle/lib.c703b2733a0187916ab8.css">
-<link rel="stylesheet" href="https://source.pixiv.net/www/js/bundle/common.d2d63a6572c614f50a6c.css">
-<script src="https://source.pixiv.net/www/js/bundle/runtime.48b865dac58e401b8b84.js" crossorigin="anonymous" ></script>
-<script src="https://source.pixiv.net/www/js/bundle/common.dc5dad6dd2aeedc7a23a.js" crossorigin="anonymous" ></script>
-<script src="https://source.pixiv.net/www/js/bundle/lib.778b4058800d45f4dd89.js" crossorigin="anonymous" ></script>
-<script src="https://source.pixiv.net/www/js/bundle/pixiv.1d9dfbe92d5b3cbd5185.js" crossorigin="anonymous" ></script><script>pixiv.development = false;pixiv.securePath = "https:\/\/www.pixiv.net\/";pixiv.user.loggedIn = true;pixiv.user.id = "189816";pixiv.user.premium = false;pixiv.context.hasQuestionnaire = false;pixiv.context.userId = '"36527"';pixiv.context.illustId = '"46322053"';pixiv.context.bound = true;pixiv.context.mangaOld = false;pixiv.context.rtl = true;pixiv.context.pages = [];pixiv.context.images = [];pixiv.context.thumbnailImages = [];pixiv.context.originalImages = [];pixiv.context.originalSizes = [];pixiv.text.action = 'Like / Bookmarks';pixiv.text.fit = 'Resize image to window';pixiv.text.expanded = 'Enlarge image';
+<link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/lib.d34847794e67a607a543.css">
+<link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/common.dcd0153ab5cd0fc3cbd6.css">
+<script src="https://s.pximg.net/www/js/bundle/runtime.bbe3f2935a05f2c97c3c.js" crossorigin="anonymous" ></script>
+<script src="https://s.pximg.net/www/js/bundle/common.220a15b00bac20b07adb.js" crossorigin="anonymous" ></script>
+<script src="https://s.pximg.net/www/js/bundle/lib.24cb951ed462c1ac5549.js" crossorigin="anonymous" ></script>
+<script src="https://s.pximg.net/www/js/bundle/pixiv.1562cb7580b3838a9eb0.js" crossorigin="anonymous" ></script><script>pixiv.development = false;pixiv.securePath = "https:\/\/www.pixiv.net\/";pixiv.user.loggedIn = true;pixiv.user.id = "189816";pixiv.user.premium = false;pixiv.context.hasQuestionnaire = false;pixiv.context.userId = '"36527"';pixiv.context.illustId = '"46322053"';pixiv.context.bound = true;pixiv.context.mangaOld = false;pixiv.context.rtl = true;pixiv.context.pages = [];pixiv.context.images = [];pixiv.context.thumbnailImages = [];pixiv.context.originalImages = [];pixiv.context.originalSizes = [];pixiv.text.action = 'Like / Bookmarks';pixiv.text.fit = 'Resize image to window';pixiv.text.expanded = 'Enlarge image';
 var _gaq = _gaq || [];
 
 (function() {
@@ -46,6 +46,7 @@ if (window.pixiv) {
         _gaq.push(['_setCustomVar', 5, 'gender', pixiv.user.gender, 1]);
         _gaq.push(['_setCustomVar', 6, 'user_id', pixiv.user.id, 1]);
         _gaq.push(['_setCustomVar', 12, 'illustup_flg', pixiv.user.illustup_flg ? 'uploaded' : 'not_uploaded', 3]);
+        _gaq.push(['_setCustomVar', 13, 'user_id_per_pv', pixiv.user.id, 3]);
     } else {
         _gaq.push(['_setCustomVar', 1, 'login', 'no', 3]);
     }
