@@ -63,7 +63,11 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.artistId = root["userId"]
                 self.artistAvatar = root["image"].replace("_50", "")
                 self.artistName = root["name"]
-                self.artistToken = root["background"]["extra"]["user_account"]
+                # user token is stored in background
+                if root["background"] is not None:
+                    self.artistToken = root["background"]["extra"]["user_account"]
+                else:
+                    self.artistToken = self.artistName
 
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
@@ -203,13 +207,15 @@ class PixivImage(PixivModel.PixivImage):
             for tag in tags:
                 self.imageTags.append(tag["tag"])
 
-        # datetime
+        # datetime, in utc
         self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
-        tempDateFormat = self.dateFormat or "%y%m%d"
+        tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
         # resolution
         self.worksResolution = "{0}x{1}".format(root["width"], root["height"])
+        if self.imageCount > 1:
+            self.worksResolution = "Multiple images: {0}P".format(self.imageCount)
 
         # tools = No more tool information
         self.worksTools = ""
