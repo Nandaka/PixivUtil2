@@ -300,6 +300,9 @@ class PixivImage:
         check = page.findAll('a', attrs={'class': 'signup_button'})
         if check is not None and len(check) > 0:
             return True
+        check = page.findAll('a', attrs={'class': 'ui-button _signup'})
+        if check is not None and len(check) > 0:
+            return True
         return False
 
     def IsNeedAppropriateLevel(self, page):
