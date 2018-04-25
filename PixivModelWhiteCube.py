@@ -66,27 +66,28 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.artistToken = root["background"]["extra"]["user_account"]
 
             else:
-                raise NotImplementedError
-##                data = None
-##                if page.has_key("user"):
-##                    data = page
-##                elif page.has_key("illusts") and len(page["illusts"]) > 0:
-##                    data = page["illusts"][0]
-##
-##                if data is not None:
-##                    self.artistId = data["user"]["id"]
-##                    self.artistToken = data["user"]["account"]
-##                    self.artistName = data["user"]["name"]
-##
-##                    avatar_data = data["user"]["profile_image_urls"]
-##                    if avatar_data is not None and avatar_data.has_key("medium"):
-##                        self.artistAvatar = avatar_data["medium"]
-##
-##                if page.has_key("profile"):
-##                    if bookmark:
-##                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
-##                    else:
-##                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+                # used in PixivBrowserFactory.getMemberInfoWhitecube()
+                # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
+                data = None
+                if page.has_key("user"):
+                    data = page
+                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+                    data = page["illusts"][0]
+
+                if data is not None:
+                    self.artistId = data["user"]["id"]
+                    self.artistToken = data["user"]["account"]
+                    self.artistName = data["user"]["name"]
+
+                    avatar_data = data["user"]["profile_image_urls"]
+                    if avatar_data is not None and avatar_data.has_key("medium"):
+                        self.artistAvatar = avatar_data["medium"]
+
+                if page.has_key("profile"):
+                    if bookmark:
+                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
+                    else:
+                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
     def ParseImages(self, page):
         self.imageList = list()
@@ -170,7 +171,9 @@ class PixivImage(PixivModel.PixivImage):
         if self.imageCount == 1:
             if temp_url.find("ugoira") > 0:
                 self.imageMode = "ugoira_view"
-                raise NotImplementedError
+                # https://i.pximg.net/img-zip-ugoira/img/2018/04/22/00/01/06/68339821_ugoira600x600.zip 1920x1080
+                # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
+                self.imageUrls.append(temp_url.replace("/img-original/", "/img-zip-ugoira/").replace("_ugoira0.jpg", "_ugoira1920x1080.zip"))
                 # self.ParseUgoira(page)
             else:
                 self.imageMode = "big"
@@ -221,12 +224,13 @@ class PixivImage(PixivModel.PixivImage):
         # preserve the order
         js = json.loads(page, object_pairs_hook=OrderedDict)
         self.imageCount = 1
+        js = js["body"]
 
-        # modify the structure to old version
-        temp = js["frames"]
-        js["frames"] = list()
-        for key, value in temp.items():
-            js["frames"].append(value)
+##        # modify the structure to old version
+##        temp = js["frames"]
+##        js["frames"] = list()
+##        for key, value in temp.items():
+##            js["frames"].append(value)
 
         # convert to full screen url
         # ugoira600x600.zip ==> ugoira1920x1080.zip
@@ -236,6 +240,7 @@ class PixivImage(PixivModel.PixivImage):
         # need to be minified
         self.ugoira_data = json.dumps(js, separators=(',', ':'))  # ).replace("/", r"\/")
 
+        assert(len(self.ugoira_data) > 0)
         return js["src"]
 
 
@@ -320,7 +325,7 @@ def parseJs(page):
     result = "{".join(upd_js1_split)
     result = result.replace(",}", "}")
 
-    PixivHelper.GetLogger().debug("ConvertedJson")
-    PixivHelper.GetLogger().debug(result)
+    # PixivHelper.GetLogger().debug("ConvertedJson")
+    # PixivHelper.GetLogger().debug(result)
 
     return json.loads(result)

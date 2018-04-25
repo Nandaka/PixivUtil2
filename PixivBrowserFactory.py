@@ -297,23 +297,25 @@ class PixivBrowser(mechanize.Browser):
         response = None
         PixivHelper.GetLogger().debug("Getting image page: {0}".format(image_id))
         if self._isWhitecube:
-            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
-            response = self.open(url).read()
-            self.handleDebugMediumPage(response, image_id)
-            # PixivHelper.GetLogger().debug(response)
+            pass
+##            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
+##            response = self.open(url).read()
+##            self.handleDebugMediumPage(response, image_id)
+##            # PixivHelper.GetLogger().debug(response)
+##
+##            image = PixivModelWhiteCube.PixivImage(image_id,
+##                                                   response,
+##                                                   parent,
+##                                                   from_bookmark,
+##                                                   bookmark_count,
+##                                                   image_response_count,
+##                                                   dateFormat=self._config.dateFormat)
+##            # overwrite artist info
+##            if from_bookmark:
+##                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+##            else:
+##                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
 
-            image = PixivModelWhiteCube.PixivImage(image_id,
-                                                   response,
-                                                   parent,
-                                                   from_bookmark,
-                                                   bookmark_count,
-                                                   image_response_count,
-                                                   dateFormat=self._config.dateFormat)
-            # overwrite artist info
-            if from_bookmark:
-                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-            else:
-                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
             url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
             # response = self.open(url).read()
@@ -331,6 +333,13 @@ class PixivBrowser(mechanize.Browser):
                                                        bookmark_count,
                                                        image_response_count,
                                                        dateFormat=self._config.dateFormat)
+
+                if image.imageMode == "ugoira_view":
+                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                    meta_response = self.open(ugoira_meta_url).read()
+                    image.ParseUgoira(meta_response)
+##                    PixivHelper.GetLogger().debug("animation.js")
+##                    PixivHelper.GetLogger().debug(image.ugoira_data)
 
             else:
                 parsed = BeautifulSoup(response)
