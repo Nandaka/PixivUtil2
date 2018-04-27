@@ -1,3 +1,6 @@
+20180426-beta1
+- Initial support for new ui.
+
 20180414
 - Fix Issue #337: failed to update cookie value.
 - Implement Feature #349: enhance command line option for -s e and -s m.
