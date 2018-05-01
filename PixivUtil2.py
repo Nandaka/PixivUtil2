@@ -600,9 +600,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
     image = None
     result = None
     referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
+    filename = 'no-filename-{0}.tmp'.format(image_id)
 
     try:
-        filename = 'N/A'
         print('Processing Image Id:', image_id)
 
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
@@ -754,7 +754,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                             splitted_manga_page = manga_page[0][0].split("_p", 1)
                             filename = splitted_filename[0] + splitted_manga_page[0] + os.sep + "_p" + splitted_manga_page[1] + splitted_filename[1]
 
-                    PixivHelper.safePrint('Filename  : ' + filename)
+                    PixivHelper.print_and_log('info', 'Filename  : {0}'.format(filename))
+
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
                         (result, filename) = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
