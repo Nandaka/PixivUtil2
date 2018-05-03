@@ -172,7 +172,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                         __config__.ffmpegCodec,
                                                         __config__.ffmpegParam)
 
-                            return (check_result, None)
+                            return (check_result, filename)
                 elif os.path.exists(filename) and os.path.isfile(filename):
                     # other image? files
                     old_size = os.path.getsize(filename)
@@ -603,7 +603,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
     image = None
     result = None
     referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
-    filename = 'no-filename-{0}.tmp'.format(image_id)
+    filename = u'no-filename-{0}.tmp'.format(image_id)
 
     try:
         print('Processing Image Id:', image_id)
@@ -757,7 +757,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                             splitted_manga_page = manga_page[0][0].split("_p", 1)
                             filename = splitted_filename[0] + splitted_manga_page[0] + os.sep + "_p" + splitted_manga_page[1] + splitted_filename[1]
 
-                    PixivHelper.print_and_log('info', 'Filename  : {0}'.format(filename))
+                    PixivHelper.print_and_log('info', u'Filename  : {0}'.format(filename))
 
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
