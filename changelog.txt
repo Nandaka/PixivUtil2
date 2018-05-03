@@ -1,5 +1,7 @@
-20180426-beta1
-- Initial support for new ui.
+20180503-beta2
+- Fix Issue #355: Initial support for new ui.
+- Fix Issue #257: update filename scope in process_image.
+- Code update based on PyLint suggestion.
 
 20180414
 - Fix Issue #337: failed to update cookie value.
