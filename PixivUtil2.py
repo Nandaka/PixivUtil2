@@ -1,11 +1,14 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
+# pylint: disable=I0011, C, C0302, W0602, W0603, W0703, R0102, R1702, R0912, R0915
 from __future__ import print_function
 
 import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+try:
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
+except Exception as e:
+    pass  # swallow the exception
 
 import os
 import re
@@ -27,7 +30,7 @@ if os.name == 'nt':
 
     # monkey patch for #305
     from ctypes import byref, c_ulong
-    from win_unicode_console.streams import set_last_error, ERROR_SUCCESS, ReadConsoleW, get_last_error, ERROR_OPERATION_ABORTED, ERROR_SUCCESS, WinError
+    from win_unicode_console.streams import set_last_error, ERROR_SUCCESS, ReadConsoleW, get_last_error, ERROR_OPERATION_ABORTED, WinError
     from win_unicode_console.buffer import get_buffer
     EOF = b"\x1a\x00"
 
@@ -38,19 +41,19 @@ if os.name == 'nt':
         elif bytes_to_be_read % 2:
             raise ValueError("cannot read odd number of bytes from UTF-16-LE encoded console")
 
-        buffer = get_buffer(b, writable=True)
+        buffers = get_buffer(b, writable=True)
         code_units_to_be_read = bytes_to_be_read // 2
         code_units_read = c_ulong()
 
         set_last_error(ERROR_SUCCESS)
-        ReadConsoleW(self.handle, buffer, code_units_to_be_read, byref(code_units_read), None)
+        ReadConsoleW(self.handle, buffers, code_units_to_be_read, byref(code_units_read), None)
         last_error = get_last_error()
         if last_error == ERROR_OPERATION_ABORTED:
             time.sleep(0.1)  # wait for KeyboardInterrupt
         if last_error != ERROR_SUCCESS:
             raise WinError(last_error)
 
-        if buffer[:len(EOF)] == EOF:
+        if buffers[:len(EOF)] == EOF:
             return 0
         else:
             return 2 * code_units_read.value  # bytes read
@@ -62,7 +65,7 @@ import PixivConstant
 import PixivConfig
 import PixivDBManager
 import PixivHelper
-from PixivModel import PixivArtist, PixivImage, PixivListItem, PixivBookmark, PixivTags
+from PixivModel import PixivImage, PixivListItem, PixivBookmark, PixivTags
 from PixivModel import PixivNewIllustBookmark, PixivGroup
 from PixivException import PixivException
 import PixivBrowserFactory
@@ -95,6 +98,9 @@ __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
 __errorList = list()
 __blacklistMembers = list()
+
+start_iv = False
+dfilename = ""
 
 # http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
 __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
@@ -372,9 +378,8 @@ def process_list(list_file_name=None, tags=None):
         raise
     except Exception as ex:
         ERROR_CODE = getattr(ex, 'errorCode', -1)
-        print('Error at process_list():', sys.exc_info())
+        PixivHelper.print_and_log('error', 'Error at process_list(): {0}'.format(sys.exc_info()))
         print('Failed')
-        __log__.exception('Error at process_list(): ' + str(sys.exc_info()))
         raise
 
 
@@ -444,8 +449,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                 except Exception:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     traceback.print_exception(exc_type, exc_value, exc_traceback)
-                    PixivHelper.print_and_log('error', 'Error at processing Artist Info: ' + str(sys.exc_info()))
-                    __log__.exception('Error at processing Artist Info: ' + str(member_id))
+                    PixivHelper.print_and_log('error', 'Error at processing Artist Info: {0}'.format(sys.exc_info()))
 
             PixivHelper.safePrint('Member Name  : ' + artist.artistName)
             print('Member Avatar:', artist.artistAvatar)
@@ -455,7 +459,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                 if user_dir == '':
                     target_dir = __config__.rootDirectory
                 else:
-                    target_dir = user_dir
+                    target_dir = unicode(user_dir)
 
                 avatar_filename = PixivHelper.createAvatarFilename(artist, target_dir)
                 if not DEBUG_SKIP_PROCESS_IMAGE:
@@ -579,15 +583,14 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
     except BaseException:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        PixivHelper.print_and_log('error', 'Error at process_member(): ' + str(sys.exc_info()))
-        __log__.exception('Error at process_member(): ' + str(member_id))
+        PixivHelper.print_and_log('error', 'Error at process_member(): {0}'.format(sys.exc_info()))
         try:
             if list_page is not None:
                 dump_filename = 'Error page for member {0} at page {1}.html'.format(member_id, page)
                 PixivHelper.dumpHtml(dump_filename, list_page)
-                PixivHelper.print_and_log('error', "Dumping html to: " + dump_filename)
+                PixivHelper.print_and_log('error', "Dumping html to: {0}".format(dump_filename))
         except BaseException:
-            PixivHelper.print_and_log('error', 'Cannot dump page for member_id:' + str(member_id))
+            PixivHelper.print_and_log('error', 'Cannot dump page for member_id: {0}'.format(member_id))
         raise
 
 
@@ -611,7 +614,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             if not __config__.overwrite:
                 print('Already downloaded:', image_id)
                 gc.collect()
-                return
+                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
         # get the medium page
         try:
@@ -729,7 +732,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             if user_dir == '':  # Yavos: use config-options
                 target_dir = __config__.rootDirectory
             else:  # Yavos: use filename from list
-                target_dir = user_dir
+                target_dir = unicode(user_dir)
 
             result = PixivConstant.PIXIVUTIL_OK
             manga_files = dict()
@@ -773,8 +776,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                         page = page + 1
 
                     except urllib2.URLError:
-                        PixivHelper.print_and_log('error', 'Giving up url: ' + str(img))
-                        __log__.exception('Error when download_image(): ' + str(img))
+                        PixivHelper.print_and_log('error', 'Error when download_image(), giving up url: {0}'.format(img))
                     print('')
 
             if __config__.writeImageInfo or __config__.writeImageJSON:
@@ -784,7 +786,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                                                     searchTags=search_tags)
                 info_filename = PixivHelper.sanitizeFilename(info_filename, target_dir)
                 # trim _pXXX
-                info_filename = re.sub('_p?\d+$', '', info_filename)
+                info_filename = re.sub(r'_p?\d+$', '', info_filename)
                 if __config__.writeImageInfo:
                     image.WriteInfo(info_filename + ".txt")
                 if __config__.writeImageJSON:
@@ -847,13 +849,13 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        PixivHelper.print_and_log('error', 'Error at process_image(): ' + str(sys.exc_info()))
-        __log__.exception('Error at process_image(): ' + str(image_id))
+        PixivHelper.print_and_log('error', 'Error at process_image(): {0}'.format(image_id))
+        PixivHelper.print_and_log('error', 'Exception: {0}'.format(sys.exc_info()))
 
         if parse_medium_page is not None:
             dump_filename = 'Error medium page for image ' + str(image_id) + '.html'
             PixivHelper.dumpHtml(dump_filename, parse_medium_page)
-            PixivHelper.print_and_log('error', 'Dumping html to: ' + dump_filename)
+            PixivHelper.print_and_log('error', 'Dumping html to: {0}'.format(dump_filename))
 
         raise
 
@@ -1012,8 +1014,7 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
         raise
     except Exception as ex:
         ERROR_CODE = getattr(ex, 'errorCode', -1)
-        print('Error at process_tags_list():', sys.exc_info())
-        __log__.exception('Error at process_tags_list(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_tags_list(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1045,8 +1046,7 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=''):
     except KeyboardInterrupt:
         raise
     except BaseException:
-        print('Error at process_image_bookmark():', sys.exc_info())
-        __log__.exception('Error at process_image_bookmark(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_image_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1133,8 +1133,7 @@ def process_bookmark(hide='n', start_page=1, end_page=0):
     except KeyboardInterrupt:
         raise
     except BaseException:
-        print('Error at process_bookmark():', sys.exc_info())
-        __log__.exception('Error at process_bookmark(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1152,8 +1151,7 @@ def export_bookmark(filename, hide='n', start_page=1, end_page=0, member_id=None
     except KeyboardInterrupt:
         raise
     except BaseException:
-        print('Error at export_bookmark():', sys.exc_info())
-        __log__.exception('Error at export_bookmark(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at export_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1202,8 +1200,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
     except KeyboardInterrupt:
         raise
     except BaseException:
-        print('Error at process_new_illust_from_bookmark():', sys.exc_info())
-        __log__.exception('Error at process_new_illust_from_bookmark(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_new_illust_from_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1264,8 +1261,7 @@ def process_from_group(group_id, limit=0, process_external=True):
             print("")
 
     except BaseException:
-        print('Error at process_from_group():', sys.exc_info())
-        __log__.exception('Error at process_from_group(): ' + str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_from_group(): {0}'.format(sys.exc_info()))
         raise
 
 
@@ -1529,12 +1525,14 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
     __log__.info('Tag and MemberId mode.')
     member_id = 0
     tags = None
+    page = 1
+    end_page = 0
 
     if opisvalid and len(args) >= 2:
         try:
             member_id = int(args[0])
         except BaseException:
-            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(image_id))
+            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
             global ERROR_CODE
             ERROR_CODE = -1
             return
@@ -1545,8 +1543,9 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
     else:
         member_id = raw_input('Member Id: ')
         tags = PixivHelper.uni_input('Tag      : ')
+        (page, end_page) = get_start_and_end_number()
 
-    process_tags(tags.strip(), member_id=int(member_id), use_tags_as_dir=__config__.useTagsAsDir)
+    process_tags(tags.strip(), page, end_page, member_id=int(member_id), use_tags_as_dir=__config__.useTagsAsDir)
 
 
 def menu_download_from_list(opisvalid, args):
@@ -1797,6 +1796,7 @@ def setup_option_parser():
 def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
     global __errorList
     global ERROR_CODE
+    global np
 
     while True:
         try:
@@ -1899,6 +1899,7 @@ def main():
     global np_is_valid  # used in process image bookmark
     global np  # used in various places for number of page overwriting
     global start_iv  # used in download_image
+    global dfilename
     global op
     global __br__
     global configfile
@@ -1947,7 +1948,6 @@ def main():
         __br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
     selection = None
-    global dfilename
 
     # Yavos: adding File for downloadlist
     now = datetime.date.today()
@@ -1962,7 +1962,7 @@ def main():
     directory = os.path.dirname(dfilename)
     if not os.path.exists(directory):
         os.makedirs(directory)
-        __log__.info('Creating directory: ' + directory)
+        __log__.info('Creating directory: %s', directory)
 
     # Yavos: adding IrfanView-Handling
     start_irfan_slide = False
@@ -1987,8 +1987,7 @@ def main():
 
         if __config__.overwrite:
             msg = 'Overwrite enabled.'
-            print(msg)
-            __log__.info(msg)
+            PixivHelper.print_and_log('info', msg)
 
         if __config__.dayLastUpdated != 0 and __config__.processFromDb:
             PixivHelper.print_and_log('info',
@@ -2075,7 +2074,7 @@ def main():
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        __log__.exception('Unknown Error: ' + str(exc_value))
+        __log__.exception('Unknown Error: %s', str(exc_value))
         ERROR_CODE = getattr(ex, 'errorCode', -1)
     finally:
         __dbManager__.close()
@@ -2083,7 +2082,7 @@ def main():
             if selection is None or selection != 'x':
                 raw_input('press enter to exit.')
         __log__.setLevel("INFO")
-        __log__.info('EXIT: ' + str(ERROR_CODE))
+        __log__.info('EXIT: %s', ERROR_CODE)
         __log__.info('###############################################################')
         sys.exit(ERROR_CODE)
 

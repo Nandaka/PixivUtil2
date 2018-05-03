@@ -58,10 +58,7 @@ class PixivArtist:
             self.ParseInfo(page, fromImage)
 
             # check if no images
-            if len(self.imageList) > 0:
-                self.haveImages = True
-            else:
-                self.haveImages = False
+            self.haveImages = bool(len(self.imageList) > 0)
 
             # check if the last page
             self.CheckLastPage(page)
@@ -102,7 +99,7 @@ class PixivArtist:
         if len(submit_related) > 0 and str(submit_related[0]).find("upload.php") > 0:
             PixivHelper.print_and_log("info", "Manage Page")
             self.artistAvatar = "no_profile"
-            self.artistName = "yourself"
+            self.artistName = u"yourself"
             self.artistToken = "yourself"
             temp = page.find("h1", attrs={'class': 'column-title'}).find("a")
             self.artistId = int(re.findall(r'pixiv.user.id = "(\d+)";', unicode(page))[0])
@@ -848,10 +845,7 @@ class PixivNewIllustBookmark:
     def __init__(self, page):
         self.__ParseNewIllustBookmark(page)
         self.__CheckLastPage(page)
-        if len(self.imageList) > 0:
-            self.haveImages = True
-        else:
-            self.haveImages = False
+        self.haveImages = bool(len(self.imageList) > 0)
 
     def __ParseNewIllustBookmark(self, page):
         self.imageList = list()
@@ -1065,10 +1059,7 @@ class PixivTags:
 
         # check if the last page
         check = page.findAll('i', attrs={'class': '_icon sprites-next-linked'})
-        if len(check) > 0:
-            self.isLastPage = False
-        else:
-            self.isLastPage = True
+        self.isLastPage = not bool(len(check) > 0)
 
         if fromMember:
             # check if the last page for member tags

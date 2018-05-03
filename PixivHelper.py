@@ -52,7 +52,7 @@ def GetLogger(level=logging.DEBUG):
 
 
 def setLogLevel(level):
-    Logger.info("Setting log level to: " + level)
+    Logger.info("Setting log level to: %s", level)
     GetLogger(level).setLevel(level)
 
 
@@ -123,7 +123,7 @@ def sanitizeFilename(s, rootDir=None):
     else:
         tempName = name
 
-    GetLogger().debug("Sanitized Filename: " + tempName.strip())
+    GetLogger().debug("Sanitized Filename: %s", tempName.strip())
 
     return tempName.strip()
 
@@ -418,7 +418,7 @@ def dumpHtml(filename, html):
 
     if html is not None and len(html) == 0:
         print_and_log('info', 'Empty Html')
-        return
+        return ""
 
     if isDumpEnabled:
         try:

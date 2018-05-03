@@ -66,10 +66,10 @@ class PixivBrowser(mechanize.Browser):
                 socks.wrapmodule(urllib2)
                 socks.wrapmodule(httplib)
 
-                PixivHelper.GetLogger().info("Using SOCKS Proxy: " + config.proxyAddress)
+                PixivHelper.GetLogger().info("Using SOCKS Proxy: %s", config.proxyAddress)
             else:
                 self.set_proxies(config.proxy)
-                PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
+                PixivHelper.GetLogger().info("Using Proxy: %s", config.proxyAddress)
 
         # self.set_handle_equiv(True)
         # self.set_handle_gzip(True)
@@ -106,8 +106,10 @@ class PixivBrowser(mechanize.Browser):
     def open_with_retry(self, url, data=None,
                         timeout=mechanize._sockettimeout._GLOBAL_DEFAULT_TIMEOUT,
                         retry=None):
+        retry_count = 0
         if retry is None:
             retry = self._config.retry
+
         while True:
             try:
                 return self.open(url, data, timeout)
@@ -231,11 +233,11 @@ class PixivBrowser(mechanize.Browser):
 
             return self.processLoginResult(response)
         except BaseException:
-            PixivHelper.print_and_log('error', 'Error at login(): ' + str(sys.exc_info()))
+            PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
             raise
 
     def processLoginResult(self, response):
-        PixivHelper.GetLogger().info('Logging in, return url: ' + response.geturl())
+        PixivHelper.GetLogger().info('Logging in, return url: %s', response.geturl())
 
         # check the returned json
         js = response.read()
@@ -268,7 +270,7 @@ class PixivBrowser(mechanize.Browser):
     def getMyId(self, parsed):
         ''' Assume from main page '''
         # pixiv.user.id = "189816";
-        temp = re.findall("pixiv.user.id = \"(\d+)\";", unicode(parsed))
+        temp = re.findall(r"pixiv.user.id = \"(\d+)\";", unicode(parsed))
         if temp is not None:
             self._myId = int(temp[0])
             PixivHelper.print_and_log('info', 'My User Id: {0}.'.format(self._myId))
@@ -295,7 +297,7 @@ class PixivBrowser(mechanize.Browser):
                      bookmark_count=-1, image_response_count=-1):
         image = None
         response = None
-        PixivHelper.GetLogger().debug("Getting image page: {0}".format(image_id))
+        PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
         if self._isWhitecube:
             pass
 ##            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
@@ -371,7 +373,7 @@ class PixivBrowser(mechanize.Browser):
         if self._cache.has_key(url):
             info = self._cache[url]
         else:
-            PixivHelper.GetLogger().debug("Getting member information: {0}".format(member_id))
+            PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
             infoStr = self.open(url).read()
             info = json.loads(infoStr)
             self._cache[url] = info
