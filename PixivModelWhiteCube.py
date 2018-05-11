@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 import json
+import demjson
 from collections import OrderedDict
 from BeautifulSoup import BeautifulSoup
 
@@ -57,7 +58,7 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page is not None:
             if fromImage:
-                key = str(page["preload"]["user"].keys()[0])
+                key = page["preload"]["user"].keys()[0]
                 root = page["preload"]["user"][key]
 
                 self.artistId = root["userId"]
@@ -165,7 +166,7 @@ class PixivImage(PixivModel.PixivImage):
 
     def ParseInfo(self, page):
         key = page["preload"]["illust"].keys()[0]
-        assert(key == str(self.imageId))
+        assert(str(key) == str(self.imageId))
         root = page["preload"]["illust"][key]
 
         self.imageUrls = list()
@@ -308,30 +309,38 @@ def parseJs(page):
     if len(jss) == 0:
         return None  # Possibly error page
 
-    js = jss[0]
-    js1_split = js.split('{')
-    upd_js1_split = list()
-    for js1_token in js1_split:
-        js2_split = js1_token.split(',')
-        upd_js2_split = list()
-
-        for token in js2_split:
-            token_split = token.split(':', 1)
-            if len(token_split[0]) > 0 and not token_split[0].startswith("\"") and not token_split[0].startswith("{") and not token_split[0].startswith("}"):
-                token_split[0] = "\"" + token_split[0].strip() + "\""
-            else:
-                token_split[0] = token_split[0].strip()
-            if len(token_split) > 1:
-                token_split[1] = token_split[1].strip()
-            token_join = ":".join(token_split)
-            upd_js2_split.append(token_join)
-        js1_join = ",".join(upd_js2_split)
-        upd_js1_split.append(js1_join)
-
-    result = "{".join(upd_js1_split)
-    result = result.replace(",}", "}")
-
-    # PixivHelper.GetLogger().debug("ConvertedJson")
-    # PixivHelper.GetLogger().debug(result)
-
-    return json.loads(result)
+    # Fix issue #364, switch to demjson
+    return demjson.decode(jss[0])
+##
+##
+##    js = jss[0]
+##    js1_split = js.split('{')
+##    upd_js1_split = list()
+##    for js1_token in js1_split:
+##        js2_split = js1_token.split(',')
+##        upd_js2_split = list()
+##
+##        for token in js2_split:
+##            token_split = token.split(':', 1)
+##            if len(token_split[0]) > 0 and not token_split[0].startswith("\"") and not token_split[0].startswith("{") and not token_split[0].startswith("}"):
+##                token_split[0] = "\"" + token_split[0].strip() + "\""
+##            else:
+##                token_split[0] = token_split[0].strip()
+##            if len(token_split) > 1:
+##                token_split[1] = token_split[1].strip()
+##            token_join = ":".join(token_split)
+##            upd_js2_split.append(token_join)
+##        js1_join = ",".join(upd_js2_split)
+##        upd_js1_split.append(js1_join)
+##
+##    result = "{".join(upd_js1_split)
+##    result = result.replace(",}", "}")
+##
+##    # PixivHelper.GetLogger().debug("ConvertedJson")
+##    # PixivHelper.GetLogger().debug(result)
+##    try:
+##        return json.loads(result)
+##    except:
+##        PixivHelper.print_and_log("error", "failed to parse json:")
+##        PixivHelper.print_and_log("error", result)
+##        raise

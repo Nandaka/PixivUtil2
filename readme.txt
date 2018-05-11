@@ -14,6 +14,7 @@
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
+  - demjson-2.2.4 (https://github.com/dmeranda/demjson)
 
 ================================================================================
 = Capabilities:                                                                =
