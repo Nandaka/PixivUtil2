@@ -1,6 +1,8 @@
-20180503-beta2
+20180511-beta3
 - Fix Issue #355: Initial support for new ui.
 - Fix Issue #257: update filename scope in process_image.
+- Fix Issue #360: enable option 11 on new ui.
+- Fix Issue #364:  switch to demjson to parse js object for new ui.
 - Code update based on PyLint suggestion.
 
 20180414
