@@ -156,8 +156,10 @@ class PixivImage(PixivModel.PixivImage):
                 self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
-                raise NotImplementedError
-                # self.originalArtist = PixivArtist(page=page, fromImage=True)
+                assert(self.artist is not None)
+                self.originalArtist = PixivArtist(page=page, fromImage=True)
+                print("From Artist Bookmark: {0}".format(self.artist.artistId))
+                print("Original Artist: {0}".format(self.originalArtist.artistId))
             else:
                 self.originalArtist = self.artist
 
