@@ -14,6 +14,7 @@
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
+  - demjson-2.2.4 (https://github.com/dmeranda/demjson)
 
 ================================================================================
 = Capabilities:                                                                =
@@ -190,7 +191,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         4 - Download from list
                             (optional: followed by path to list and optional tag)
                         5 - Download from user bookmark
-                            (optional: followed by [y/n] for private bookmark)
+                            (optional: followed by [y/n/o] for private bookmark, start page, end page)
                         6 - Download from image bookmark
                             (required: followed by [y/n] for private bookmark
                              optional: starting page number, end page number, and tag)
@@ -211,8 +212,9 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
                         e - Export online bookmark
+			    (optional: Include Private Bookmark [y|n|o], filename)
                         m - Export online user bookmark
-                            (required: member_id)
+                            (required: member_id, optional: followed by filename)
                         d - Manage database
   -x, --exitwhendone    Exit programm when done.
                         (only useful when DB-Manager)
@@ -381,6 +383,7 @@ createapng      ==> Set to True to convert ugoira file to animated png.
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
+deleteugoira ==> set to True to delete original ugoira after conversion to gif/apng.
 
 ===============================================================================
 = Filename Format Syntax                                                      =
@@ -543,25 +546,4 @@ http://www.pixiv.net/member_illust.php?id=123456
 =================================================================================
 = License Agreement                                                             =
 =================================================================================
-Copyright (c) 2011, Nandaka
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-  - Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+See LICENSE.

@@ -1,0 +1,4 @@
+test/*.htm linguist-vendored=False
+test/*.html linguist-vendored=False
+test.new/*.htm linguist-vendored=False
+test.new/*.html linguist-vendored=False

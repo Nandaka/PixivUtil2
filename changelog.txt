@@ -1,3 +1,44 @@
+20180511-beta3
+- Fix Issue #355: Initial support for new ui.
+- Fix Issue #257: update filename scope in process_image.
+- Fix Issue #360: enable option 11 on new ui.
+- Fix Issue #364:  switch to demjson to parse js object for new ui.
+- Code update based on PyLint suggestion.
+
+20180414
+- Fix Issue #337: failed to update cookie value.
+- Implement Feature #349: enhance command line option for -s e and -s m.
+
+20180316
+- Fix Issue #343: Update image parser.
+
+20180314 WhiteDay
+- Implement #40: Enhance error message to include current page number for tags and member.
+- Fix Issue #194: Add retry when exporting bookmark.
+- Fix Issue #294: Update root path for both image and manga pages.
+- Implement #314: Set non-zero exit code for invalid input.
+- Fix Issue #315: Update parser for member token.
+- New Setting: setLastModified = True
+  Set last-modified and last-accessed timestamp based on work's timestamp. 
+- Implement #257: convert ugoira to webm.
+  Require ffmpeg and createUgoira = True
+- New Settings under [FFmpeg] section: 
+  - ffmpeg = "ffmpeg"
+    FFmpeg path
+  - ffmpegCodec = "libvpx-vp9"
+    Codec to use
+  - ffmpegParam = "-lossless 1"
+    Additional Parameters
+- Fix Issue #332
+- Merge #328: Feature/python3 print format
+- Fix #339: Local file checking logic.
+- Fix #340: Database file cleanup check.
+- Fix #341: Update image parser.
+- Update test cases.
+
+20180218
+- Implement #243: Add configuration to delete ugoira after converting to gif/apng. (Set deleteUgoira to True in config.ini).
+
 20180118
 - Fix Issue #305: Temporarily fixed until new win_unicode_console is updated from 0.5.
 - Implement #303: Increase SQLITE timeout to 5minutes.

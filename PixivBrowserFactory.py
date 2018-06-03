@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+from __future__ import print_function
 
 import mechanize
 from BeautifulSoup import BeautifulSoup
@@ -65,10 +66,10 @@ class PixivBrowser(mechanize.Browser):
                 socks.wrapmodule(urllib2)
                 socks.wrapmodule(httplib)
 
-                PixivHelper.GetLogger().info("Using SOCKS Proxy: " + config.proxyAddress)
+                PixivHelper.GetLogger().info("Using SOCKS Proxy: %s", config.proxyAddress)
             else:
                 self.set_proxies(config.proxy)
-                PixivHelper.GetLogger().info("Using Proxy: " + config.proxyAddress)
+                PixivHelper.GetLogger().info("Using Proxy: %s", config.proxyAddress)
 
         # self.set_handle_equiv(True)
         # self.set_handle_gzip(True)
@@ -102,6 +103,29 @@ class PixivBrowser(mechanize.Browser):
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
 
+    def open_with_retry(self, url, data=None,
+                        timeout=mechanize._sockettimeout._GLOBAL_DEFAULT_TIMEOUT,
+                        retry=None):
+        retry_count = 0
+        if retry is None:
+            retry = self._config.retry
+
+        while True:
+            try:
+                return self.open(url, data, timeout)
+            except Exception as ex:
+                if isinstance(ex, urllib2.HTTPError):
+                    raise
+
+                if retry_count < retry:
+                    for t in range(1, self._config.retryWait):
+                        print(t, end=' ')
+                        time.sleep(1)
+                    print('')
+                    retry_count = retry_count + 1
+                else:
+                    raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
+
     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
@@ -126,9 +150,9 @@ class PixivBrowser(mechanize.Browser):
 
                 if retry_count < self._config.retry:
                     for t in range(1, self._config.retryWait):
-                        print t,
+                        print(t, end=' ')
                         time.sleep(1)
-                    print ''
+                    print('')
                     retry_count = retry_count + 1
                 else:
                     raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
@@ -172,11 +196,11 @@ class PixivBrowser(mechanize.Browser):
 
             parsed = BeautifulSoup(resData)
             self.detectWhiteCube(parsed, res.geturl())
-            self.getMyId(parsed)
 
             if "logout.php" in resData:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
+                self.getMyId(parsed)
                 return True
             else:
                 PixivHelper.GetLogger().info('Failed to log in using cookie')
@@ -209,11 +233,11 @@ class PixivBrowser(mechanize.Browser):
 
             return self.processLoginResult(response)
         except BaseException:
-            PixivHelper.print_and_log('error', 'Error at login(): ' + str(sys.exc_info()))
+            PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
             raise
 
     def processLoginResult(self, response):
-        PixivHelper.GetLogger().info('Logging in, return url: ' + response.geturl())
+        PixivHelper.GetLogger().info('Logging in, return url: %s', response.geturl())
 
         # check the returned json
         js = response.read()
@@ -246,7 +270,7 @@ class PixivBrowser(mechanize.Browser):
     def getMyId(self, parsed):
         ''' Assume from main page '''
         # pixiv.user.id = "189816";
-        temp = re.findall("pixiv.user.id = \"(\d+)\";", unicode(parsed))
+        temp = re.findall(r"pixiv.user.id = \"(\d+)\";", unicode(parsed))
         if temp is not None:
             self._myId = int(temp[0])
             PixivHelper.print_and_log('info', 'My User Id: {0}.'.format(self._myId))
@@ -255,13 +279,13 @@ class PixivBrowser(mechanize.Browser):
 
     def detectWhiteCube(self, page, url):
         if url.find("pixiv.net/whitecube") > 0:
-            print "*******************************************"
-            print "* Pixiv whitecube UI mode.                *"
-            print "* Some feature might not working properly *"
-            print "*******************************************"
+            print("*******************************************")
+            print("* Pixiv whitecube UI mode.                *")
+            print("* Some feature might not working properly *")
+            print("*******************************************")
             js_init = self._getInitConfig(page)
             self._whitecubeToken = js_init["pixiv.context.token"]
-            print "whitecube token:", self._whitecubeToken
+            print("whitecube token:", self._whitecubeToken)
             self._isWhitecube = True
 
     def parseLoginError(self, res):
@@ -273,42 +297,64 @@ class PixivBrowser(mechanize.Browser):
                      bookmark_count=-1, image_response_count=-1):
         image = None
         response = None
-        PixivHelper.GetLogger().debug("Getting image page: {0}".format(image_id))
+        PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
         if self._isWhitecube:
-            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
-            response = self.open(url).read()
-            self.handleDebugMediumPage(response, image_id)
-            # PixivHelper.GetLogger().debug(response)
+            pass
+##            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
+##            response = self.open(url).read()
+##            self.handleDebugMediumPage(response, image_id)
+##            # PixivHelper.GetLogger().debug(response)
+##
+##            image = PixivModelWhiteCube.PixivImage(image_id,
+##                                                   response,
+##                                                   parent,
+##                                                   from_bookmark,
+##                                                   bookmark_count,
+##                                                   image_response_count,
+##                                                   dateFormat=self._config.dateFormat)
+##            # overwrite artist info
+##            if from_bookmark:
+##                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+##            else:
+##                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
 
-            image = PixivModelWhiteCube.PixivImage(image_id,
-                                                   response,
-                                                   parent,
-                                                   from_bookmark,
-                                                   bookmark_count,
-                                                   image_response_count,
-                                                   dateFormat=self._config.dateFormat)
-            # overwrite artist info
-            if from_bookmark:
-                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-            else:
-                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         else:
             url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
             # response = self.open(url).read()
             response = self.getPixivPage(url, returnParsed=False).read()
             self.handleDebugMediumPage(response, image_id)
 
-            parsed = BeautifulSoup(response)
-            image = PixivModel.PixivImage(image_id,
-                                          parsed,
-                                          parent,
-                                          from_bookmark,
-                                          bookmark_count,
-                                          image_response_count,
-                                          dateFormat=self._config.dateFormat)
-            if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                image.ParseImages(parsed)
-            parsed.decompose()
+            # Issue #355 new ui handler
+            image = None
+            if response.find("globalInitData") > 0:
+                PixivHelper.print_and_log('debug', 'New UI Mode')
+                image = PixivModelWhiteCube.PixivImage(image_id,
+                                                       response,
+                                                       parent,
+                                                       from_bookmark,
+                                                       bookmark_count,
+                                                       image_response_count,
+                                                       dateFormat=self._config.dateFormat)
+
+                if image.imageMode == "ugoira_view":
+                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                    meta_response = self.open(ugoira_meta_url).read()
+                    image.ParseUgoira(meta_response)
+##                    PixivHelper.GetLogger().debug("animation.js")
+##                    PixivHelper.GetLogger().debug(image.ugoira_data)
+
+            else:
+                parsed = BeautifulSoup(response)
+                image = PixivModel.PixivImage(image_id,
+                                              parsed,
+                                              parent,
+                                              from_bookmark,
+                                              bookmark_count,
+                                              image_response_count,
+                                              dateFormat=self._config.dateFormat)
+                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+                    image.ParseImages(parsed)
+                parsed.decompose()
 
         return (image, response)
 
@@ -327,7 +373,7 @@ class PixivBrowser(mechanize.Browser):
         if self._cache.has_key(url):
             info = self._cache[url]
         else:
-            PixivHelper.GetLogger().debug("Getting member information: {0}".format(member_id))
+            PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
             infoStr = self.open(url).read()
             info = json.loads(infoStr)
             self._cache[url] = info
@@ -544,7 +590,7 @@ def test():
 
     if success:
         def testSearchTags():
-            print "test search tags"
+            print("test search tags")
             tags = "VOCALOID"
             p = 1
             wild_card = True
@@ -566,75 +612,75 @@ def test():
             assert(len(resultS.itemList) > 0)
 
         def testImage():
-            print "test image mode"
-            print ">>"
+            print("test image mode")
+            print(">>")
             (result, page) = b.getImagePage(60040975)
-            print result.PrintInfo()
+            print(result.PrintInfo())
             assert(len(result.imageTitle) > 0)
-            print result.artist.PrintInfo()
+            print(result.artist.PrintInfo())
             assert(len(result.artist.artistToken) > 0)
             assert(not("R-18" in result.imageTags))
             assert(result.worksTools.find("CLIP STUDIO PAINT") > -1)
 
-            print ">>"
+            print(">>")
             (result2, page2) = b.getImagePage(59628358)
-            print result2.PrintInfo()
+            print(result2.PrintInfo())
             assert(len(result2.imageTitle) > 0)
-            print result2.artist.PrintInfo()
+            print(result2.artist.PrintInfo())
             assert(len(result2.artist.artistToken) > 0)
             assert("R-18" in result2.imageTags)
 
-            print ">> ugoira"
+            print(">> ugoira")
             (result3, page3) = b.getImagePage(60070169)
-            print result3.PrintInfo()
+            print(result3.PrintInfo())
             assert(len(result3.imageTitle) > 0)
-            print result3.artist.PrintInfo()
-            print result3.ugoira_data
+            print(result3.artist.PrintInfo())
+            print(result3.ugoira_data)
             assert(len(result3.artist.artistToken) > 0)
             assert(result3.imageMode == 'ugoira_view')
 
         def testMember():
-            print "Test member mode"
-            print ">>"
+            print("Test member mode")
+            print(">>")
             (result3, page3) = b.getMemberPage(1227869, page=1, bookmark=False, tags=None)
-            print result3.PrintInfo()
+            print(result3.PrintInfo())
             assert(len(result3.artistToken) > 0)
             assert(len(result3.imageList) > 0)
-            print ">>"
+            print(">>")
             (result4, page4) = b.getMemberPage(1227869, page=2, bookmark=False, tags=None)
-            print result4.PrintInfo()
+            print(result4.PrintInfo())
             assert(len(result4.artistToken) > 0)
             assert(len(result4.imageList) > 0)
-            print ">>"
+            print(">>")
             (result5, page5) = b.getMemberPage(4894, page=1, bookmark=False, tags=None)
-            print result5.PrintInfo()
+            print(result5.PrintInfo())
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
-            print ">>"
+            print(">>")
             (result6, page6) = b.getMemberPage(4894, page=3, bookmark=False, tags=None)
-            print result6.PrintInfo()
+            print(result6.PrintInfo())
             assert(len(result6.artistToken) > 0)
             assert(len(result6.imageList) > 0)
 
         def testMemberBookmark():
-            print "Test member bookmarks mode"
-            print ">>"
+            print("Test member bookmarks mode")
+            print(">>")
             (result5, page5) = b.getMemberPage(1227869, page=1, bookmark=True, tags=None)
-            print result5.PrintInfo()
+            print(result5.PrintInfo())
             assert(len(result5.artistToken) > 0)
             assert(len(result5.imageList) > 0)
-            print ">>"
+            print(">>")
             (result6, page6) = b.getMemberPage(1227869, page=2, bookmark=True, tags=None)
-            print result6.PrintInfo()
+            print(result6.PrintInfo())
             assert(len(result6.artistToken) > 0)
             assert(len(result6.imageList) > 0)
-            print ">>"
+            print(">>")
             (result6, page6) = b.getMemberPage(1227869, page=10, bookmark=True, tags=None)
             if result6 is not None:
-                print result6.PrintInfo()
+                print(result6.PrintInfo())
             (result6, page6) = b.getMemberPage(1227869, page=12, bookmark=True, tags=None)
             if result6 is not None:
-                print result6.PrintInfo()
+                print(result6.PrintInfo())
                 assert(len(result6.artistToken) > 0)
                 assert(len(result6.imageList) == 0)
 
@@ -644,9 +690,9 @@ def test():
         # testMemberBookmark()
 
     else:
-        print "Invalid username or password"
+        print("Invalid username or password")
 
 
 if __name__ == '__main__':
     test()
-    print "done"
+    print("done")

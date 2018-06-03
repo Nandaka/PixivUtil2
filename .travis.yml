@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install:
+  - pip install -e .
+  - pip install pytest
+# command to run tests
+script:
+  - ln -s test.PixivModel.py test_PixivModel.py
+  - pytest ./test_PixivModel.py

@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+from __future__ import print_function
 
 import re
 import os
@@ -23,6 +24,7 @@ from datetime import datetime, date
 import traceback
 import urllib
 from apng import APNG
+import shlex
 
 Logger = None
 _config = None
@@ -50,7 +52,7 @@ def GetLogger(level=logging.DEBUG):
 
 
 def setLogLevel(level):
-    Logger.info("Setting log level to: " + level)
+    Logger.info("Setting log level to: %s", level)
     GetLogger(level).setLevel(level)
 
 
@@ -121,7 +123,7 @@ def sanitizeFilename(s, rootDir=None):
     else:
         tempName = name
 
-    GetLogger().debug("Sanitized Filename: " + tempName.strip())
+    GetLogger().debug("Sanitized Filename: %s", tempName.strip())
 
     return tempName.strip()
 
@@ -245,11 +247,11 @@ def safePrint(msg, newline=True):
     """Print empty string if UnicodeError raised."""
     for msgToken in msg.split(' '):
         try:
-            print msgToken,
+            print(msgToken, end=' ')
         except UnicodeError:
-            print ('?' * len(msgToken)),
+            print(('?' * len(msgToken)), end=' ')
     if newline:
-        print ""
+        print("")
 
 
 def setConsoleTitle(title):
@@ -416,7 +418,7 @@ def dumpHtml(filename, html):
 
     if html is not None and len(html) == 0:
         print_and_log('info', 'Empty Html')
-        return
+        return ""
 
     if isDumpEnabled:
         try:
@@ -432,12 +434,15 @@ def dumpHtml(filename, html):
 
 
 def print_and_log(level, msg):
-    safePrint(msg)
-    if level == 'info':
-        GetLogger().info(msg)
-    elif level == 'error':
-        GetLogger().error(msg)
-        GetLogger().error(traceback.format_exc())
+    if level == 'debug':
+        GetLogger().debug(msg)
+    else:
+        safePrint(msg)
+        if level == 'info':
+            GetLogger().info(msg)
+        elif level == 'error':
+            GetLogger().error(msg)
+            GetLogger().error(traceback.format_exc())
 
 
 def HaveStrings(page, strings):
@@ -534,9 +539,9 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
 def printDelay(retryWait):
     repeat = range(1, retryWait)
     for t in repeat:
-        print t,
+        print(t, end=' ')
         time.sleep(1)
-    print ''
+    print('')
 
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
@@ -558,6 +563,7 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
 
 
 def downloadImage(url, filename, res, file_size, overwrite):
+    ''' Actual download, return the downloaded filesize and saved filename.'''
     start_time = datetime.now()
 
     # try to save to the given filename + .pixiv extension if possible
@@ -580,7 +586,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     # download the file
     prev = 0
     curr = 0
-    print '{0:22} Bytes'.format(curr),
+    print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
@@ -590,13 +596,13 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time))
-                return curr
+                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
+                break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print u'\n Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time))
-                return curr
+                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
+                break
 
             prev = curr
 
@@ -630,6 +636,8 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
         del save
 
+        return (curr, filename)
+
 
 def print_progress(curr, total):
     # [12345678901234567890]
@@ -637,13 +645,15 @@ def print_progress(curr, total):
 
     if total > 0:
         complete = (curr * 20) / total
-        print '\r',
+        print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
-        print '{0:79}'.format(msg),
+        print('{0}'.format(msg), end=' ')
     else:
         # indeterminite
-        print '\r',
-        print '{1:79}'.format(sizeInStr(curr)),
+        pos = curr % 20
+        anim = "{0}{1}".format('.' * pos, '|||' + '.' * (20 - pos))
+        print('\r', end=' ')
+        print('[{0:20}] {1}'.format(anim, sizeInStr(curr)), end=' ')
 
 
 def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
@@ -661,14 +671,14 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     else:
         if title_caption:
             url = 'https://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
-            print u"Using Title Match (s_tc)"
+            print(u"Using Title Match (s_tc)")
         else:
             if wild_card:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print u"Using Partial Match (s_tag)"
+                print(u"Using Partial Match (s_tag)")
             else:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
-                print u"Using Full Match (s_tag_full)"
+                print(u"Using Full Match (s_tag_full)")
 
     if r18mode:
         url = url + '&mode=r18'
@@ -709,14 +719,14 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         info.close()
 
 
-def ugoira2gif(ugoira_file, exportname, fmt='gif'):
+def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif'):
     print_and_log('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
     # imageio cannot handle utf-8 filename
     temp_name = temp_folder + os.sep + "temp.gif"
 
-    z = zipfile.ZipFile(ugoira_file)
-    z.extractall(temp_folder)
+    with zipfile.ZipFile(ugoira_file) as f:
+        f.extractall(temp_folder)
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
@@ -734,15 +744,18 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif'):
     print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
+    if delete_ugoira:
+        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+        os.remove(ugoira_file)
 
 
-def ugoira2apng(ugoira_file, exportname):
+def ugoira2apng(ugoira_file, exportname, delete_ugoira):
     print_and_log('info', 'processing ugoira to apng...')
     temp_folder = tempfile.mkdtemp()
     temp_name = temp_folder + os.sep + "temp.png"
 
-    z = zipfile.ZipFile(ugoira_file)
-    z.extractall(temp_folder)
+    with zipfile.ZipFile(ugoira_file) as f:
+        f.extractall(temp_folder)
 
     filenames = os.listdir(temp_folder)
     filenames.remove('animation.json')
@@ -762,6 +775,74 @@ def ugoira2apng(ugoira_file, exportname):
     print_and_log('info', 'ugoira exported to: ' + exportname)
 
     shutil.rmtree(temp_folder)
+    if delete_ugoira:
+        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+        os.remove(ugoira_file)
+
+
+def ugoira2webm(ugoira_file,
+                exportname,
+                delete_ugoira,
+                ffmpeg=u"ffmpeg",
+                codec="libvpx-vp9",
+                param="-lossless 1"):
+    ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
+    d = tempfile.mkdtemp(prefix="ugoira2webm")
+    d = d.replace(os.sep, '/')
+
+    try:
+        frames = {}
+        ffconcat = "ffconcat version 1.0\n"
+
+        if exportname is None or len(exportname) == 0:
+            name = '.'.join(ugoira_file.split('.')[:-1])
+            exportname = os.path.basename(name) + ".webm"
+
+        tempname = d + "/temp.webm"
+
+        with zipfile.ZipFile(ugoira_file) as f:
+            f.extractall(d)
+
+        with open(d + "/animation.json") as f:
+            frames = json.load(f)['frames']
+
+        for i in frames:
+            ffconcat += "file " + i['file'] + '\n'
+            ffconcat += "duration " + str(float(i['delay']) / 1000) + '\n'
+
+        with open(d + "/i.ffconcat", "w") as f:
+            f.write(ffconcat)
+
+        cmd = u"{0} -y -i \"{1}/i.ffconcat\" -c:v {2} {3} \"{4}\""
+        cmd = cmd.format(ffmpeg, d, codec, param, tempname)
+        ffmpeg_args = shlex.split(cmd)
+        p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
+
+        # progress report
+        chatter = ""
+        print_and_log('info', u"Start encoding {0}".format(exportname))
+        while p.stderr:
+            buff = p.stderr.read(1)
+            chatter += buff
+            if buff.endswith("\r"):
+                if chatter.find("frame=") > 0:
+                    print(chatter.strip(), os.linesep, end=' ')
+                chatter = ""
+            if len(buff) == 0:
+                break
+
+        ret = p.wait()
+        shutil.move(tempname, exportname)
+
+        if delete_ugoira:
+            print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+            os.remove(ugoira_file)
+
+        if ret is not None:
+            print("done with status= {0}".format(ret))
+
+    finally:
+        shutil.rmtree(d)
 
 
 def ParseDateTime(worksDate, dateFormat):
