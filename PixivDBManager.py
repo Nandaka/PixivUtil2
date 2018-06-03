@@ -647,6 +647,131 @@ class PixivDBManager:
         finally:
             c.close()
 
+    def interactiveCleanUp(self):
+        anim_ext = ['.zip', '.gif', '.apng', '.ugoira', '.webm']
+        try:
+            print("Start clean-up operation.")
+            print("Selecting all images, this may take some times.")
+            c = self.conn.cursor()
+
+            done = False
+            prevN=sys.maxint
+            while not done:
+
+                print("Counting missing images.")
+                done=True
+                c.execute('''SELECT image_id, save_name from pixiv_master_image''')
+                n=0
+                for row in c:
+                    # Issue 340
+                    filename = row[1]
+                    fileExists = False
+
+                    if filename is not None or len(filename) > 0:
+                        if os.path.exists(filename):
+                            continue
+
+                        for ext in anim_ext:
+                            # check filename in db against all combination possible filename in disk
+                            if filename.endswith(ext):
+                                base_filename = filename.rsplit(ext, 1)[0]
+                                if self.checkFilenames(base_filename, anim_ext):
+                                    fileExists = True
+                                    break
+                    if not fileExists:
+                        n+=1
+
+                    if prevN <=n:
+                        PixivHelper.safePrint("Error: more missing than before \n Previously missing {0} now missing {1}".format(prevN,n))
+                        
+                        show_menu=True
+                        
+                        while show_menu:
+                            PixivHelper.safePrint("1. Revert change.")
+                            PixivHelper.safePrint("2. Commit change anyway.");
+                            choice=raw_input()
+                            if choice=="1":
+                                self.conn.rollback()
+                                show_menu=False
+                            if choice=="2":
+                                self.conn.commit()
+                                show_menu=False
+                    elif prevN != sys.maxint:
+                        PixivHelper.safePrint("Previously missing {0} now missing {1}".format(prevN,n))
+                        self.conn.commit()
+                    
+                    #Check phase
+                    c.execute('''SELECT image_id, save_name from pixiv_master_image''')
+                    print("Checking images.")
+                    for row in c:
+                        # Issue 340
+                        filename = row[1]
+                        fileExists = False
+
+                        if filename is not None or len(filename) > 0:
+                            if os.path.exists(filename):
+                                continue
+
+                            for ext in anim_ext:
+                                # check filename in db against all combination possible filename in disk
+                                if filename.endswith(ext):
+                                    base_filename = filename.rsplit(ext, 1)[0]
+                                    if self.checkFilenames(base_filename, anim_ext):
+                                        fileExists = True
+                                        break
+
+                        if not fileExists:
+                            done=False
+                            PixivHelper.safePrint("Missing: {0} at \n{1}".format(row[0], row[1]))
+                            regex= raw_input("Please provide a search regex:")
+                            repl= raw_input("Replace regex with what?")
+                            self.regex_replace(regex,repl)
+                    prevN=n
+            
+            c.close()
+            self.conn.commit()
+        except BaseException:
+            print('Error at interactiveCleanUp():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+        #TODO check mangaimage
+        #TODO check for files which exist but don't have a DB entry
+    
+    def regex_replace(self,regex,repl):
+        import re
+        anim_ext = ['.zip', '.gif', '.apng', '.ugoira', '.webm']
+        c = self.conn.cursor()
+        regex = re.compile(regex)
+        c.execute('''SELECT image_id, save_name from pixiv_master_image''')
+        print("Updating images.")
+        for row in c:
+            # Issue 340
+            filename = row[1]
+            fileExists = False
+
+            if filename is not None or len(filename) > 0:
+                if os.path.exists(filename):
+                    continue
+
+                for ext in anim_ext:
+                    # check filename in db against all combination possible filename in disk
+                    if filename.endswith(ext):
+                        base_filename = filename.rsplit(ext, 1)[0]
+                        if self.checkFilenames(base_filename, anim_ext):
+                            fileExists = True
+                            break
+
+            if not fileExists:
+                c2 = self.conn.cursor()
+                new_name=regex.sub(repl,row[1])
+                c2.execute('UPDATE pixiv_master_image SET save_name=? where image_id=?',new_name,row[0])
+                c2.close()
+        c.close()
+
+
     def replaceRootPath(self):
         oldPath = raw_input("Old Path to Replace = ")
         PixivHelper.safePrint("Replacing " + oldPath + " to " + self.__config__.rootDirectory)
@@ -711,6 +836,7 @@ class PixivDBManager:
         print('13. Show all deleted member')
         print('===============================================')
         print('c. Clean Up Database')
+        print('i. Interactive Clean Up Database')
         print('p. Compact Database')
         print('r. Replace Root Path')
         print('x. Exit')
@@ -793,6 +919,8 @@ class PixivDBManager:
                     self.printMemberList(isDeleted=True)
                 elif selection == 'c':
                     self.cleanUp()
+                elif selection == 'i':
+                    self.interactiveCleanUp()
                 elif selection == 'p':
                     self.compactDatabase()
                 elif selection == 'r':
