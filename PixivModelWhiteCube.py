@@ -180,7 +180,12 @@ class PixivImage(PixivModel.PixivImage):
                 self.imageMode = "ugoira_view"
                 # https://i.pximg.net/img-zip-ugoira/img/2018/04/22/00/01/06/68339821_ugoira600x600.zip 1920x1080
                 # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
-                self.imageUrls.append(temp_url.replace("/img-original/", "/img-zip-ugoira/").replace("_ugoira0.jpg", "_ugoira1920x1080.zip"))
+                # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.png
+                # Fix Issue #372
+                temp_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
+                temp_url = temp_url.split("_ugoira0")[0]
+                temp_url = temp_url + "_ugoira1920x1080.zip"
+                self.imageUrls.append(temp_url)
                 # self.ParseUgoira(page)
             else:
                 self.imageMode = "big"
