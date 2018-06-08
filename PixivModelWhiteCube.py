@@ -68,7 +68,7 @@ class PixivArtist(PixivModel.PixivArtist):
                 if root["background"] is not None:
                     self.artistToken = root["background"]["extra"]["user_account"]
                 else:
-                    self.artistToken = self.artistName
+                    self.artistToken = self.artistName  # will be overwritten later
 
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()

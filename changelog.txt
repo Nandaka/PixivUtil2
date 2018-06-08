@@ -1,3 +1,6 @@
+20180608-beta1
+- Fix Issue #369: Update parser for member token if using option 2.
+
 20180607
 - Fix Issue #355: Initial support for new ui.
 - Fix Issue #257: update filename scope in process_image.

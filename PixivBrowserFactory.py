@@ -343,6 +343,12 @@ class PixivBrowser(mechanize.Browser):
 ##                    PixivHelper.GetLogger().debug("animation.js")
 ##                    PixivHelper.GetLogger().debug(image.ugoira_data)
 
+                if parent is None:
+                    if from_bookmark:
+                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                    else:
+                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+
             else:
                 parsed = BeautifulSoup(response)
                 image = PixivModel.PixivImage(image_id,
@@ -378,6 +384,7 @@ class PixivBrowser(mechanize.Browser):
             info = json.loads(infoStr)
             self._cache[url] = info
         artist.ParseInfo(info, False, bookmark=bookmark)
+        return artist
 
     def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
         response = None
