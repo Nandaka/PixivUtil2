@@ -18,6 +18,7 @@ import traceback
 import gc
 import time
 import datetime
+import datetime_z
 import urllib2
 import getpass
 import httplib
@@ -659,8 +660,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
         # date validation and blacklist tag validation
         if __config__.dateDiff > 0:
-            if image.worksDateDateTime != datetime.datetime.fromordinal(1):
-                if image.worksDateDateTime < datetime.datetime.today() - datetime.timedelta(__config__.dateDiff):
+            if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
+                if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(__config__.dateDiff)).replace(tzinfo=datetime_z.utc):
                     PixivHelper.print_and_log('info', 'Skipping image_id: ' + str(image_id) + ' because contains older than: ' + str(__config__.dateDiff) + ' day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER

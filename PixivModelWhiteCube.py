@@ -216,6 +216,7 @@ class PixivImage(PixivModel.PixivImage):
                 self.imageTags.append(tag["tag"])
 
         # datetime, in utc
+        # "createDate" : "2018-06-08T15:00:04+00:00",
         self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
         tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
