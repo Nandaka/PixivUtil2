@@ -1,5 +1,7 @@
-20180608-beta1
+20180702
 - Fix Issue #369: Update parser for member token if using option 2.
+- Fix Issue #374: Update datediff handler to include utc timezone.
+- Fix Issue #381: Fix Ugoira2Webm converter.
 
 20180607
 - Fix Issue #355: Initial support for new ui.
