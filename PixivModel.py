@@ -350,11 +350,13 @@ class PixivImage:
 
     def ParseInfo(self, page):
         temp = None
-        links = page.find(attrs={'class': 'works_display'}).findAll('a')
-        for a in links:
-            if re.search(r'illust_id=(\d+)', a['href']) is not None:
-                temp = str(a['href'])
-                break
+        links = page.find(attrs={'class': 'works_display'})
+        if links is not None:
+            links2 = links.findAll('a')
+            for a in links2:
+                if re.search(r'illust_id=(\d+)', a['href']) is not None:
+                    temp = str(a['href'])
+                    break
 
         if temp is None:
             # changes on pixiv website to handle big image
