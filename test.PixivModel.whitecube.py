@@ -2,14 +2,16 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
-import PixivHelper
+import sys
 import os
 import unittest
-import json
-from PixivModelWhiteCube import PixivImage, PixivArtist
-from BeautifulSoup import BeautifulSoup
 
+from BeautifulSoup import BeautifulSoup
+import json
 import pytest
+
+import PixivHelper
+from PixivModelWhiteCube import PixivImage, PixivArtist
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):

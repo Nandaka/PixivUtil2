@@ -79,7 +79,6 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -95,7 +94,6 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.createAvatarFilename(artist, targetDir)
         self.assertEqual(filename, self.currPath + os.sep + u'folder.jpg')
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -110,7 +108,6 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.createAvatarFilename(artist, targetDir)
         self.assertEqual(filename, self.currPath + os.sep + u'kirabara29 (1107124)\\folder.jpg')
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatNoSubfolderWithRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -124,7 +121,6 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.createAvatarFilename(artist, targetDir)
         self.assertEqual(filename, targetDir + os.sep + u'folder.jpg')
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatWithSubfolderWithRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -138,7 +134,6 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.createAvatarFilename(artist, targetDir)
         self.assertEqual(filename, targetDir + os.sep + u'kirabara29 (1107124)\\folder.jpg')
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
@@ -152,7 +147,6 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.createAvatarFilename(artist, targetDir)
         self.assertEqual(filename, u'C:\\images\\folder.jpg')
 
-    @pytest.mark.xfail
     def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir(self):
         p = open('./test/test-helper-avatar-name.htm', 'r')
         page = BeautifulSoup(p.read())
