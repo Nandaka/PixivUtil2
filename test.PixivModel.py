@@ -578,7 +578,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 40)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2278)
+        self.assertEqual(image.availableImages, 2287)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -647,7 +647,7 @@ class TestPixivTags(unittest.TestCase):
         # self.assertEqual(image.itemList[0].imageId, 53977340)
         # self.assertEqual(image.itemList[19].imageId, 45511597)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 70)
+        self.assertEqual(image.availableImages, 73)
 
     def testTagsMemberSearchLast(self):
         path = './test/test-tags-member-search-last.htm'
