@@ -355,6 +355,13 @@ def createAvatarFilename(artistPage, targetDir):
     return filename
 
 
+def createBackgroundFilenameFromAvatarFilename(avatarFilename):
+    filenames = avatarFilename.split(os.sep)
+    filenames[-1] = "bg_" + filenames[-1]
+    filename = os.sep.join(filenames)
+    return filename
+
+
 def we_are_frozen():
     """Returns whether we are frozen via py2exe.
         This will affect how we find out where we are located.

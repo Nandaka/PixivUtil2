@@ -68,6 +68,13 @@ class PixivArtist:
         avatar_box = page.find(attrs={'class': '_unit profile-unit'})
         self.artistToken = self.ParseToken(page, fromImage)
 
+        styles = page.findAll('style')
+        for style in styles:
+            urls = re.findall('background:.*url\(\'(.*?)\'\)', str(style))
+            if len(urls) > 0:
+                self.artistBackground = urls[0]
+                break
+
         if avatar_box is not None:
             temp = str(avatar_box.find('a')['href'])
             self.artistId = int(re.search(r'id=(\d+)', temp).group(1))

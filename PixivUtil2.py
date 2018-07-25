@@ -457,6 +457,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             PixivHelper.safePrint('Member Name  : ' + artist.artistName)
             print('Member Avatar:', artist.artistAvatar)
             print('Member Token :', artist.artistToken)
+            print('Member Background :', artist.artistBackground)
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
                 if user_dir == '':
@@ -469,6 +470,10 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     # hardcode the referer to pixiv main site
                     download_image(artist.artistAvatar, avatar_filename, "https://www.pixiv.net/", __config__.overwrite,
                                    __config__.retry, __config__.backupOldFile)
+                    if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
+                        bg_name = PixivHelper.createBackgroundFilenameFromAvatarFilename(avatar_filename)
+                        download_image(artist.artistBackground, bg_name, "https://www.pixiv.net/", __config__.overwrite,
+                                       __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
@@ -685,6 +690,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 PixivHelper.safePrint('Member Name  : ' + image.artist.artistName)
                 print('Member Avatar:', image.artist.artistAvatar)
                 print('Member Token :', image.artist.artistToken)
+                print('Member Background :', image.artist.artistBackground)
             PixivHelper.safePrint("Title: " + image.imageTitle)
             PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
