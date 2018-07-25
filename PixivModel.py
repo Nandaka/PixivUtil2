@@ -23,6 +23,7 @@ class PixivArtist:
     artistName = ""
     artistAvatar = ""
     artistToken = ""
+    artistBackground = ""
     imageList = []
     isLastPage = None
     haveImages = None

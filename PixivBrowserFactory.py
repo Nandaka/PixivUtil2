@@ -326,41 +326,45 @@ class PixivBrowser(mechanize.Browser):
 
             # Issue #355 new ui handler
             image = None
-            if response.find("globalInitData") > 0:
-                PixivHelper.print_and_log('debug', 'New UI Mode')
-                image = PixivModelWhiteCube.PixivImage(image_id,
-                                                       response,
-                                                       parent,
-                                                       from_bookmark,
-                                                       bookmark_count,
-                                                       image_response_count,
-                                                       dateFormat=self._config.dateFormat)
+            try:
+                if response.find("globalInitData") > 0:
+                    PixivHelper.print_and_log('debug', 'New UI Mode')
+                    image = PixivModelWhiteCube.PixivImage(image_id,
+                                                           response,
+                                                           parent,
+                                                           from_bookmark,
+                                                           bookmark_count,
+                                                           image_response_count,
+                                                           dateFormat=self._config.dateFormat)
 
-                if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
-                    meta_response = self.open(ugoira_meta_url).read()
-                    image.ParseUgoira(meta_response)
-##                    PixivHelper.GetLogger().debug("animation.js")
-##                    PixivHelper.GetLogger().debug(image.ugoira_data)
+                    if image.imageMode == "ugoira_view":
+                        ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                        meta_response = self.open(ugoira_meta_url).read()
+                        image.ParseUgoira(meta_response)
+    ##                    PixivHelper.GetLogger().debug("animation.js")
+    ##                    PixivHelper.GetLogger().debug(image.ugoira_data)
 
-                if parent is None:
-                    if from_bookmark:
-                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-                    else:
-                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+                    if parent is None:
+                        if from_bookmark:
+                            self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                        else:
+                            self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
 
-            else:
-                parsed = BeautifulSoup(response)
-                image = PixivModel.PixivImage(image_id,
-                                              parsed,
-                                              parent,
-                                              from_bookmark,
-                                              bookmark_count,
-                                              image_response_count,
-                                              dateFormat=self._config.dateFormat)
-                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                    image.ParseImages(parsed)
-                parsed.decompose()
+                else:
+                    parsed = BeautifulSoup(response)
+                    image = PixivModel.PixivImage(image_id,
+                                                  parsed,
+                                                  parent,
+                                                  from_bookmark,
+                                                  bookmark_count,
+                                                  image_response_count,
+                                                  dateFormat=self._config.dateFormat)
+                    if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+                        image.ParseImages(parsed)
+                    parsed.decompose()
+            except:
+                PixivHelper.GetLogger().error("Respose data: \r\n" + response)
+                raise
 
         return (image, response)
 

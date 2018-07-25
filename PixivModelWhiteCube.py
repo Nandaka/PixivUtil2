@@ -55,6 +55,7 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistAvatar = "no_profile"
         self.artistToken = "self"
         self.artistName = "self"
+        self.artistBackground = "no_background"
 
         if page is not None:
             if fromImage:
@@ -66,10 +67,13 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.artistName = root["name"]
                 # user token is stored in background
                 if root["background"] is not None:
-                    self.artistToken = root["background"]["extra"]["user_account"]
-                else:
-                    self.artistToken = self.artistName  # will be overwritten later
-
+                    self.artistBackground = root["background"]["url"]
+                # Issue 388
+                illusts = page["preload"]["illust"]
+                for il in illusts:
+                    if illusts[il]["userAccount"]:
+                        self.artistToken = illusts[il]["userAccount"]
+                        break
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
