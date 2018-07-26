@@ -59,7 +59,7 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page is not None:
             if fromImage:
-                key = page["preload"]["user"].keys()[0]
+                key = list(page["preload"]["user"].keys())[0]
                 root = page["preload"]["user"][key]
 
                 self.artistId = root["userId"]
@@ -148,15 +148,15 @@ class PixivImage(PixivModel.PixivImage):
                 # detect if there is any other error
                 errorMessage = self.IsErrorExist(page)
                 if errorMessage is not None:
-                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
                 # detect if there is server error
                 errorMessage = self.IsServerErrorExist(page)
                 if errorMessage is not None:
-                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             # parse artist information
             if parent is None:
-                temp_artist_id = payload["preload"]["user"].keys()[0]
+                temp_artist_id = list(payload["preload"]["user"].keys())[0]
                 self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
@@ -171,7 +171,7 @@ class PixivImage(PixivModel.PixivImage):
             self.ParseInfo(payload)
 
     def ParseInfo(self, page):
-        key = page["preload"]["illust"].keys()[0]
+        key = list(page["preload"]["illust"].keys())[0]
         assert(str(key) == str(self.imageId))
         root = page["preload"]["illust"][key]
 
