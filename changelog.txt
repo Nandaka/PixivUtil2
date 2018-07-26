@@ -1,3 +1,8 @@
+20180726
+- Fix Issue #388: Update parser for artist info.
+- Implement #373: artist background image will be downloaded together with artist avatar.
+- Update test cases.
+
 20180702
 - Fix Issue #369: Update parser for member token if using option 2.
 - Fix Issue #374: Update datediff handler to include utc timezone.
