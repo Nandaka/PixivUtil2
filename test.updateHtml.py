@@ -112,6 +112,8 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
 
         downloadPage('https://www.pixiv.net/group/images.php?format=json&max_id=946801&id=881', './test/group.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=554800', './test/detail-554800.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=267014', './test/detail-267014.json')
 
         # Not updated:
         # ./test/test-login-error.htm

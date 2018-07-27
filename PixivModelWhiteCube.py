@@ -63,7 +63,7 @@ class PixivArtist(PixivModel.PixivArtist):
                 root = page["preload"]["user"][key]
 
                 self.artistId = root["userId"]
-                self.artistAvatar = root["image"].replace("_50", "")
+                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
                 self.artistName = root["name"]
                 # user token is stored in background
                 if root["background"] is not None:
@@ -90,7 +90,7 @@ class PixivArtist(PixivModel.PixivArtist):
 
                     avatar_data = data["user"]["profile_image_urls"]
                     if avatar_data is not None and avatar_data.has_key("medium"):
-                        self.artistAvatar = avatar_data["medium"]
+                        self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
                 if page.has_key("profile"):
                     if bookmark:
