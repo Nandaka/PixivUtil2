@@ -44,12 +44,12 @@ class PixivArtist:
             # detect if there is any other error
             errorMessage = self.IsErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                raise PixivException('Member Error: ' + str(errorMessage), errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
 
             # detect if there is server error
             errorMessage = self.IsServerErrorExist(page)
             if errorMessage is not None:
-                raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
+                raise PixivException('Member Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             # detect if image count != 0
             if not fromImage:
@@ -793,7 +793,7 @@ class PixivListItem:
                     parsed = urlparse.urlparse(items[0])
                     if parsed.path == "/member.php" or parsed.path == "/member_illust.php":
                         query_str = urlparse.parse_qs(parsed.query)
-                        if query_str.has_key("id"):
+                        if 'id' in query_str:
                             member_id = int(query_str["id"][0])
                         else:
                             PixivHelper.print_and_log('error', "Cannot detect member id from url: " + items[0])
@@ -1123,16 +1123,16 @@ class PixivGroup:
         self.externalImageList = list()
 
         for imageData in data["imageArticles"]:
-            if imageData["detail"].has_key("id"):
+            if "id" in imageData["detail"]:
                 # hosted in pixiv
                 imageId = imageData["detail"]["id"]
                 self.imageList.append(imageId)
-            elif imageData["detail"].has_key("fullscale_url"):
+            elif "fullscale_url" in imageData["detail"]:
                 # external images?
                 fullscale_url = imageData["detail"]["fullscale_url"]
                 member_id = PixivArtist()
                 member_id.artistId = imageData["user_id"]
-                if imageData.has_key("user_name"):
+                if "user_name" in imageData:
                     member_id.artistName = imageData["user_name"]
                     member_id.artistAvatar = self.parseAvatar(imageData["img"])
                     member_id.artistToken = self.parseToken(imageData["img"])
