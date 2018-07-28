@@ -78,9 +78,9 @@ class PixivArtist(PixivModel.PixivArtist):
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
                 data = None
-                if page.has_key("user"):
+                if "user" in page:
                     data = page
-                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+                elif "illusts" in page and len(page["illusts"]) > 0:
                     data = page["illusts"][0]
 
                 if data is not None:
@@ -89,10 +89,10 @@ class PixivArtist(PixivModel.PixivArtist):
                     self.artistName = data["user"]["name"]
 
                     avatar_data = data["user"]["profile_image_urls"]
-                    if avatar_data is not None and avatar_data.has_key("medium"):
+                    if avatar_data is not None and "medium" in avatar_data:
                         self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
-                if page.has_key("profile"):
+                if "profile" in page:
                     if bookmark:
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:

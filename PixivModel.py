@@ -385,7 +385,7 @@ class PixivImage:
 
         # meta_data = page.findAll('meta')
         # for meta in meta_data:
-        #     if meta.has_key("property"):
+        #     if "property" in meta:
         #         if "og:title" == meta["property"]:
         #             self.imageTitle = meta["content"].split("|")[0].strip()
         #         if "og:description" in meta["property"]:
@@ -467,7 +467,7 @@ class PixivImage:
             temp2 = temp.findAll('a')
             if temp2 is not None and len(temp2) > 0:
                 for tag in temp2:
-                    if tag.has_key('class'):
+                    if 'class' in tag:
                         if tag['class'] == 'portal':
                             pass
                         elif tag['class'] == 'text' and tag.string is not None:
@@ -1051,7 +1051,7 @@ class PixivTags:
 
         linkList = page.findAll('a')
         for link in linkList:
-            if link.has_key('href'):
+            if 'href' in link:
                 result = self.__re_illust.findall(link['href'])
                 if len(result) > 0:
                     image_id = int(result[0])

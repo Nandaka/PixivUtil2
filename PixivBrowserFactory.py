@@ -244,7 +244,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.GetLogger().info(str(js))
         result = json.loads(js)
         # Fix Issue #181
-        if result["body"] is not None and result["body"].has_key("success"):
+        if result["body"] is not None and "success" in result["body"]:
             for cookie in self._ua_handlers['_cookies'].cookiejar:
                 if cookie.name == 'PHPSESSID':
                     PixivHelper.print_and_log('info', 'new cookie value: ' + str(cookie.value))
@@ -261,7 +261,7 @@ class PixivBrowser(mechanize.Browser):
 
             return True
         else:
-            if result["body"] is not None and result["body"].has_key("validation_errors"):
+            if result["body"] is not None and "validationi_errors" in result["body"]:
                 PixivHelper.print_and_log('info', "Server reply: " + str(result["body"]["validation_errors"]))
             else:
                 PixivHelper.print_and_log('info', 'Unknown login issue, please use cookie login method.')
@@ -380,7 +380,7 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using AppAPI '''
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-        if self._cache.has_key(url):
+        if url in self._cache:
             info = self._cache[url]
         else:
             PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
@@ -404,7 +404,7 @@ class PixivBrowser(mechanize.Browser):
                 url = last_member_bookmark_next_url
 
             # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
-            if self._cache.has_key(url):
+            if url in self._cache:
                 response = self._cache[url]
             else:
                 response = self.open(url).read()
