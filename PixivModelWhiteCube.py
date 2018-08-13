@@ -91,7 +91,6 @@ class PixivArtist(PixivModel.PixivArtist):
 
     def ParseImages(self, payload):
         self.imageList = list()
-        # print(payload)
 
         if payload.has_key("works"):  # filter by tags
             for image in payload["works"]:
