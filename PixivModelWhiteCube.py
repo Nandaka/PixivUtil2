@@ -101,7 +101,6 @@ class PixivArtist(PixivModel.PixivArtist):
             if len(self.imageList) > 0:
                 self.haveImages = True
 
-            print("{0} + {1} == {2}".format(len(self.imageList), self.offset, self.totalImages))
             if len(self.imageList) + self.offset == self.totalImages:
                 self.isLastPage = True
             else:
