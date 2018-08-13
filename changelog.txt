@@ -1,3 +1,7 @@
+20180813-beta1
+- Implement #394: update parser for artist images using ajax api.
+- Update test cases.
+
 20180726
 - Fix Issue #388: Update parser for artist info.
 - Implement #373: artist background image will be downloaded together with artist avatar.
