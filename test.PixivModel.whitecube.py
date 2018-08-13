@@ -90,6 +90,19 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertTrue(member.haveImages)
         self.assertTrue(member.isLastPage)
 
+    def testParseMemberBookmarksByTags(self):
+        p = open('./test/bookmarks-1039353.json', 'r')
+        member = PixivArtist(1039353, p.read(), False, 0, 24)
+        self.assertIsNotNone(member)
+        p2 = open('./test/userdetail-1039353.json', 'r')
+        info = json.loads(p2.read())
+        member.ParseInfo(info, False, True)
+
+        member.PrintInfo()
+        self.assertEqual(member.artistId, 1039353)
+        self.assertTrue(member.haveImages)
+        self.assertFalse(member.isLastPage)
+
 if __name__ == '__main__':
         # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivModel_WhiteCube)
