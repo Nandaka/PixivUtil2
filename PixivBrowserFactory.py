@@ -278,14 +278,12 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Unable to get User Id')
 
     def detectWhiteCube(self, page, url):
-        if url.find("pixiv.net/whitecube") > 0:
+        if page.find("capybara-status-check") == -1:
             print("*******************************************")
-            print("* Pixiv whitecube UI mode.                *")
+            print("* Pixiv AJAX UI mode.                     *")
             print("* Some feature might not working properly *")
             print("*******************************************")
-            js_init = self._getInitConfig(page)
-            self._whitecubeToken = js_init["pixiv.context.token"]
-            print("whitecube token:", self._whitecubeToken)
+
             self._isWhitecube = True
 
     def parseLoginError(self, res):
@@ -427,23 +425,29 @@ class PixivBrowser(mechanize.Browser):
         if tags is not None:
             tags = PixivHelper.encode_tags(tags)
 
-        if self._isWhitecube:
-            limit = 50
+        if True:
+            limit = 24
             if bookmark:
                 (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
             else:
+                # https://www.pixiv.net/ajax/user/1813972/illusts/tag/Fate%2FGrandOrder?offset=0&limit=24
+                # https://www.pixiv.net/ajax/user/1813972/manga/tag/%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
+                # https://www.pixiv.net/ajax/user/1813972/profile/all
                 offset = (page - 1) * limit
-                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
+                url = None
                 if tags is not None:
-                    url = url + '&tag={0}'.format(tags)
+                    url = 'https://www.pixiv.net/ajax/user/{0}/illusts/tag/{1}?offset={2}&limit={3}'.format(member_id, tags, offset, limit)
                 elif self._config.r18mode:
-                    url = url + '&tag=R-18'
+                    url = 'https://www.pixiv.net/ajax/user/{0}/illusts/tag/{1}?offset={2}&limit={3}'.format(member_id, 'R-18', offset, limit)
+                else:
+                    url = 'https://www.pixiv.net/ajax/user/{0}/profile/all'.format(member_id)
+
                 PixivHelper.print_and_log('info', 'Member Url: ' + url)
 
             if url is not None:
                 response = self.open(url).read()
                 PixivHelper.GetLogger().debug(response)
-                artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
+                artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
                 self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
         else:

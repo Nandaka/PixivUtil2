@@ -17,32 +17,23 @@ re_payload = re.compile(r"(\{token.*\})\);")
 
 
 class PixivArtist(PixivModel.PixivArtist):
-    def __init__(self, mid=0, page=None, fromImage=False):
+    offset = None
+    limit = None
+
+    def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
+        self.offset = offset
+        self.limit = limit
+
         if page is not None:
             self.artistId = mid
             payload = parseJs(page)
 
-            # check error
-            if payload is None:
-                if self.is_not_logged_in(page):
-                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
-                if self.IsUserNotExist(page):
-                    raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
-                if self.IsUserSuspended(page):
-                    raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=page)
-                # detect if there is any other error
-                errorMessage = self.IsErrorExist(page)
-                if errorMessage is not None:
-                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
-                # detect if there is server error
-                errorMessage = self.IsServerErrorExist(page)
-                if errorMessage is not None:
-                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
-
             # detect if image count != 0
             if not fromImage:
-                # self.ParseImages(payload)
-                raise NotImplementedError
+                payload = demjson.decode(page)
+                if payload["error"]:
+                    raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                self.ParseImages(payload["body"])
             else:
                 self.isLastPage = True
                 self.haveImages = True
@@ -98,23 +89,36 @@ class PixivArtist(PixivModel.PixivArtist):
                     else:
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
-    def ParseImages(self, page):
+    def ParseImages(self, payload):
         self.imageList = list()
-        parsed = BeautifulSoup(page["body"]["html"])
-        item_containers = parsed.findAll("div", attrs={"class": re.compile("item-container _work-item-container.*")})
-        for item in item_containers:
-            # data-entry-id="illust:59640232"
-            image_id_illust = item["data-entry-id"]
-            image_id = int(image_id_illust.replace("illust:", ""))
-            self.imageList.append(image_id)
+        # print(payload)
 
-        self.isLastPage = True
-        if page["body"]["next_url"] is not None:
-            self.isLastPage = False
+        if payload.has_key("works"):  # filter by tags
+            for image in payload["works"]:
+                self.imageList.append(image["id"])
+            self.totalImages = int(payload["total"])
 
-        self.haveImages = False
-        if len(self.imageList) > 0:
-            self.haveImages = True
+            if len(self.imageList) > 0:
+                self.haveImages = True
+
+            print("{0} + {1} == {2}".format(len(self.imageList), self.offset, self.totalImages))
+            if len(self.imageList) + self.offset == self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
+
+            return
+        else:
+            if payload.has_key("illusts"):  # all illusts
+                for image in payload["illusts"]:
+                    self.imageList.append(image)
+            if payload.has_key("manga"):  # all manga
+                for image in payload["manga"]:
+                    self.imageList.append(image)
+            self.totalImages = len(self.imageList)
+            self.isLastPage = True
+            if len(self.imageList) > 0:
+                self.haveImages = True
 
 
 class PixivImage(PixivModel.PixivImage):
