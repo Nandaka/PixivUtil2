@@ -53,7 +53,20 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
 
     def testParseMemberImages(self):
         p = open('./test/all-14095911.json', 'r')
-        member = PixivArtist(14095911, p.read())
+        member = PixivArtist(14095911, p.read(), False, 0, 24)
+        self.assertIsNotNone(member)
+        p2 = open('./test/userdetail-14095911.json', 'r')
+        info = json.loads(p2.read())
+        member.ParseInfo(info, False, False)
+
+        member.PrintInfo()
+        self.assertEqual(member.artistId, 14095911)
+        self.assertTrue(member.haveImages)
+        self.assertFalse(member.isLastPage)
+
+    def testParseMemberImagesLastPage(self):
+        p = open('./test/all-14095911.json', 'r')
+        member = PixivArtist(14095911, p.read(), False, 92, 24)
         self.assertIsNotNone(member)
         p2 = open('./test/userdetail-14095911.json', 'r')
         info = json.loads(p2.read())

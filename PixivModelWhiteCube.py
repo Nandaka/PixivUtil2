@@ -115,6 +115,7 @@ class PixivArtist(PixivModel.PixivArtist):
                     self.imageList.append(image)
             self.imageList = sorted(self.imageList, reverse=True)
             self.totalImages = len(self.imageList)
+            # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
 
             if self.offset + self.limit >= self.totalImages:
                 self.isLastPage = True
