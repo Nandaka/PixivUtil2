@@ -34,6 +34,20 @@ class PixivBrowser(mechanize.Browser):
     _cache = dict()
     _myId = 0
 
+    def put_to_cache(self, key, item, expiration=3600):
+        expiry = time.time() + expiration
+        self._cache[key] = (item, expiry)
+
+    def get_from_cache(self, key):
+        if key in self._cache.keys():
+            (item, expiry) = self._cache[key]
+            if expiry - time.time() > 0:
+                return item
+            else:
+                del item
+                self._cache.pop(key)
+        return None
+
     def __init__(self, config, cookie_jar):
         # fix #218
         try:
@@ -378,46 +392,46 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using AppAPI '''
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-        if self._cache.has_key(url):
-            info = self._cache[url]
-        else:
+        info = self.get_from_cache(url)
+        if info is None:
             PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
             infoStr = self.open(url).read()
             info = json.loads(infoStr)
-            self._cache[url] = info
+            self.put_to_cache(url, info)
+
         artist.ParseInfo(info, False, bookmark=bookmark)
         return artist
 
-    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
-        response = None
-        PixivHelper.print_and_log('info', 'Getting Bookmark Url for page {0}...'.format(page))
-        # iterate to get next page url
-        start = 1
-        last_member_bookmark_next_url = None
-        while start <= page:
-            if start == 1:
-                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
-                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
-            else:
-                url = last_member_bookmark_next_url
-
-            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
-            if self._cache.has_key(url):
-                response = self._cache[url]
-            else:
-                response = self.open(url).read()
-                self._cache[url] = response
-
-            payload = json.loads(response)
-            last_member_bookmark_next_url = payload["body"]["next_url"]
-            if last_member_bookmark_next_url is None and start < page:
-                PixivHelper.print_and_log('info', 'No more images for {0} bookmarks'.format(member_id))
-                url = None
-                break
-
-            start = start + 1
-        PixivHelper.print_and_log('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
-        return (url, response)
+##    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
+##        response = None
+##        PixivHelper.print_and_log('info', 'Getting Bookmark Url for page {0}...'.format(page))
+##        # iterate to get next page url
+##        start = 1
+##        last_member_bookmark_next_url = None
+##        while start <= page:
+##            if start == 1:
+##                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
+##                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
+##            else:
+##                url = last_member_bookmark_next_url
+##
+##            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
+##            if self._cache.has_key(url):
+##                response = self._cache[url]
+##            else:
+##                response = self.open(url).read()
+##                self._cache[url] = response
+##
+##            payload = json.loads(response)
+##            last_member_bookmark_next_url = payload["body"]["next_url"]
+##            if last_member_bookmark_next_url is None and start < page:
+##                PixivHelper.print_and_log('info', 'No more images for {0} bookmarks'.format(member_id))
+##                url = None
+##                break
+##
+##            start = start + 1
+##        PixivHelper.print_and_log('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
+##        return (url, response)
 
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
@@ -429,6 +443,7 @@ class PixivBrowser(mechanize.Browser):
 
         if True:
             limit = 24
+            need_to_slice = False
             if bookmark:
                 # (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
                 # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
@@ -446,15 +461,23 @@ class PixivBrowser(mechanize.Browser):
                     url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag/{1}?offset={2}&limit={3}'.format(member_id, 'R-18', offset, limit)
                 else:
                     url = 'https://www.pixiv.net/ajax/user/{0}/profile/all'.format(member_id)
+                    need_to_slice = True
 
                 PixivHelper.print_and_log('info', 'Member Url: ' + url)
 
             if url is not None:
-                response = self.open(url).read()
+                # cache the response
+                response = self.get_from_cache(url)
+                if response is None:
+                    response = self.open(url).read()
+                    self.put_to_cache(url, response)
+
                 PixivHelper.GetLogger().debug(response)
                 artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
                 self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
+                if artist.haveImages and need_to_slice:
+                    artist.imageList = artist.imageList[offset:offset + limit]
         else:
             if bookmark:
                 member_url = 'https://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)

@@ -113,8 +113,14 @@ class PixivArtist(PixivModel.PixivArtist):
             if payload.has_key("manga"):  # all manga
                 for image in payload["manga"]:
                     self.imageList.append(image)
+            self.imageList = sorted(self.imageList, reverse=True)
             self.totalImages = len(self.imageList)
-            self.isLastPage = True
+
+            if self.offset + self.limit >= self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
+
             if len(self.imageList) > 0:
                 self.haveImages = True
 
