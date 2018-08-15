@@ -390,17 +390,37 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
 
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
-        ''' get artist information using AppAPI '''
-        url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-        info = self.get_from_cache(url)
-        if info is None:
-            PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-            infoStr = self.open(url).read()
-            info = json.loads(infoStr)
-            self.put_to_cache(url, info)
+        ''' get artist information using Ajax and AppAPI '''
+        try:
+            # will throw HTTPError if user is suspended/not logged in.
+            url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
+            info_ajax = self.get_from_cache(url_ajax)
+            if info_ajax is None:
+                info_ajax_str = self.open(url_ajax).read()
+                info_ajax = json.loads(info_ajax_str)
+                self.put_to_cache(url_ajax, info_ajax)
 
-        artist.ParseInfo(info, False, bookmark=bookmark)
-        return artist
+            url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
+            info = self.get_from_cache(url)
+            if info is None:
+                PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
+                infoStr = self.open(url).read()
+                info = json.loads(infoStr)
+                self.put_to_cache(url, info)
+
+            artist.ParseInfo(info, False, bookmark=bookmark)
+            return artist
+        except urllib2.HTTPError, error:
+            errorCode = error.getcode()
+            errorMessage = error.get_data()
+            payload = json.loads(errorMessage)
+            if errorCode == 401:
+                raise PixivException(payload["message"], errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
+            elif errorCode == 403:
+                raise PixivException(payload["message"], errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
+            else:
+                raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
+
 
 ##    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
 ##        response = None
