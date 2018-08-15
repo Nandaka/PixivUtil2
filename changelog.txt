@@ -1,5 +1,6 @@
-20180813-beta1
-- Implement #394: update parser for artist images using ajax api.
+20180813-beta2
+- Implement #394: update parser for artist info and images using ajax api.
+- Add API call caching with 1 hour expiry.
 - Update test cases.
 
 20180726
