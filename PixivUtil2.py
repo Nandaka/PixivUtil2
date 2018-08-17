@@ -406,7 +406,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
     __config__.loadConfig(path=configfile)
 
     # calculate the offset for display properties
-    offset = 20
+    offset = 24  # new offset for AJAX call
     if __br__._isWhitecube:
         offset = 50
     offset_start = (page - 1) * offset
@@ -458,6 +458,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             print('Member Avatar:', artist.artistAvatar)
             print('Member Token :', artist.artistToken)
             print('Member Background :', artist.artistBackground)
+            print('Processing images from {0} to {1} of {2}'.format(offset_start + 1, offset_stop if offset_stop < artist.totalImages else artist.totalImages, artist.totalImages))
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
                 if user_dir == '':
