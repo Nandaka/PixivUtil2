@@ -33,6 +33,8 @@ class PixivArtist(PixivModel.PixivArtist):
                 payload = demjson.decode(page)
                 if payload["error"]:
                     raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                if payload["body"] is None:
+                    raise PixivException("Missing body content, possible artist id doesn't exists.", errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
                 self.ParseImages(payload["body"])
             else:
                 self.isLastPage = True
