@@ -463,17 +463,17 @@ class PixivBrowser(mechanize.Browser):
 
         if True:
             limit = 24
+            offset = (page - 1) * limit
             need_to_slice = False
             if bookmark:
                 # (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
                 # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
-                url = 'https://www.pixiv.net/ajax/user/{0}/illusts/bookmarks?tag={1}&offset={2}&limit={3}'.format(member_id, tags, offset, limit)
+                url = 'https://www.pixiv.net/ajax/user/{0}/illusts/bookmarks?tag={1}&offset={2}&limit={3}&rest=show'.format(member_id, tags, offset, limit)
             else:
                 # https://www.pixiv.net/ajax/user/1813972/illusts/tag/Fate%2FGrandOrder?offset=0&limit=24
                 # https://www.pixiv.net/ajax/user/1813972/manga/tag/%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
                 # https://www.pixiv.net/ajax/user/1113943/illustmanga/tag/%E6%A5%B5%E4%B8%8A%E3%81%AE%E4%B9%B3?offset=0&limit=24
                 # https://www.pixiv.net/ajax/user/1813972/profile/all
-                offset = (page - 1) * limit
                 url = None
                 if len(tags) > 0:
                     url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag/{1}?offset={2}&limit={3}'.format(member_id, tags, offset, limit)

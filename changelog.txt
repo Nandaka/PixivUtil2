@@ -1,6 +1,7 @@
-20180819-beta3
+20180829-beta4
 - Implement #394: update parser for artist info and images using ajax api.
 - Fix Issue #400: update parser for artist if artist doesn't exists.
+- Fix Issue #404: update parser for artist bookmarks.
 - Add API call caching with 1 hour expiry.
 - Update test cases.
 
