@@ -458,7 +458,8 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             print('Member Avatar:', artist.artistAvatar)
             print('Member Token :', artist.artistToken)
             print('Member Background :', artist.artistBackground)
-            print('Processing images from {0} to {1} of {2}'.format(offset_start + 1, offset_stop if offset_stop < artist.totalImages else artist.totalImages, artist.totalImages))
+            print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
+            print('Processing images from {0} to {1} of {2}'.format(offset_start + 1, print_offset_stop, artist.totalImages))
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
                 if user_dir == '':

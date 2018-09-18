@@ -85,7 +85,7 @@ class PixivArtist(PixivModel.PixivArtist):
                     if avatar_data is not None and avatar_data.has_key("medium"):
                         self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
-                if page.has_key("profile"):
+                if page.has_key("profile") and self.totalImages == 0:
                     if bookmark:
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:
