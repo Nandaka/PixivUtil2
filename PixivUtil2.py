@@ -611,9 +611,14 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
         print('Processing Image Id:', image_id)
 
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
-        r = __dbManager__.selectImageByImageId(image_id)
-        if r is not None and not __config__.alwaysCheckFileSize:
-            if not __config__.overwrite:
+        r = __dbManager__.selectImageByImageId(image_id,cols='save_name')
+        exists = True
+
+        if __config__.alwaysCheckFileExists:
+            exists=__dbManager__.cleanupFileExists(r[0])
+
+        if r is not None and not __config__.alwaysCheckFileSize or not exists:
+            if not __config__.overwrite and exists:
                 print('Already downloaded:', image_id)
                 gc.collect()
                 return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
@@ -822,6 +827,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
+
+        if not exists and result == PixivConstant.PIXIVUTIL_OK:
+            result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD #There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
