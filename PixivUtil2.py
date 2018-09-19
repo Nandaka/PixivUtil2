@@ -18,6 +18,7 @@ import traceback
 import gc
 import time
 import datetime
+import datetime_z
 import urllib2
 import getpass
 import httplib
@@ -405,7 +406,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
     __config__.loadConfig(path=configfile)
 
     # calculate the offset for display properties
-    offset = 20
+    offset = 24  # new offset for AJAX call
     if __br__._isWhitecube:
         offset = 50
     offset_start = (page - 1) * offset
@@ -456,6 +457,9 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             PixivHelper.safePrint('Member Name  : ' + artist.artistName)
             print('Member Avatar:', artist.artistAvatar)
             print('Member Token :', artist.artistToken)
+            print('Member Background :', artist.artistBackground)
+            print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
+            print('Processing images from {0} to {1} of {2}'.format(offset_start + 1, print_offset_stop, artist.totalImages))
 
             if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
                 if user_dir == '':
@@ -468,6 +472,10 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     # hardcode the referer to pixiv main site
                     download_image(artist.artistAvatar, avatar_filename, "https://www.pixiv.net/", __config__.overwrite,
                                    __config__.retry, __config__.backupOldFile)
+                    if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
+                        bg_name = PixivHelper.createBackgroundFilenameFromAvatarFilename(avatar_filename)
+                        download_image(artist.artistBackground, bg_name, "https://www.pixiv.net/", __config__.overwrite,
+                                       __config__.retry, __config__.backupOldFile)
                 is_avatar_downloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
@@ -664,8 +672,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
         # date validation and blacklist tag validation
         if __config__.dateDiff > 0:
-            if image.worksDateDateTime != datetime.datetime.fromordinal(1):
-                if image.worksDateDateTime < datetime.datetime.today() - datetime.timedelta(__config__.dateDiff):
+            if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
+                if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(__config__.dateDiff)).replace(tzinfo=datetime_z.utc):
                     PixivHelper.print_and_log('info', 'Skipping image_id: ' + str(image_id) + ' because contains older than: ' + str(__config__.dateDiff) + ' day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
@@ -689,6 +697,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 PixivHelper.safePrint('Member Name  : ' + image.artist.artistName)
                 print('Member Avatar:', image.artist.artistAvatar)
                 print('Member Token :', image.artist.artistToken)
+                print('Member Background :', image.artist.artistBackground)
             PixivHelper.safePrint("Title: " + image.imageTitle)
             PixivHelper.safePrint("Tags : " + ', '.join(image.imageTags))
             PixivHelper.safePrint("Date : " + str(image.worksDateDateTime))
@@ -1380,13 +1389,13 @@ def menu():
     print('2. Download by image_id')
     print('3. Download by tags')
     print('4. Download from list')
-    print('5. Download from bookmarked artists (bookmark.php?type=user)')
-    print('6. Download from bookmarked images (bookmark.php)')
+    print('5. Download from bookmarked artists (/bookmark.php?type=user)')
+    print('6. Download from bookmarked images (/bookmark.php)')
     print('7. Download from tags list')
-    print('8. Download new illust from bookmarked members (bookmark_new_illust.php)')
+    print('8. Download new illust from bookmarked members (/bookmark_new_illust.php)')
     print('9. Download by Title/Caption')
     print('10. Download by Tag and Member Id')
-    print('11. Download Member Bookmark')
+    print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('------------------------')
     print('d. Manage database')
@@ -1444,7 +1453,7 @@ def menu_download_by_member_bookmark(opisvalid, args):
         if __br__._myId in valid_ids:
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
         for mid in valid_ids:
-            process_member(mid)
+            process_member(mid, bookmark=True, tags=tags)
 
     else:
         member_id = raw_input('Member id: ')

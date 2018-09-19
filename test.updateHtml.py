@@ -112,6 +112,16 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
 
         downloadPage('https://www.pixiv.net/group/images.php?format=json&max_id=946801&id=881', './test/group.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=554800', './test/detail-554800.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=267014', './test/detail-267014.json')
+
+        # AJAX calls
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/profile/all', './test/all-14095911.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag/R-18?offset=0&limit=24', './test/tag-R-18-14095911.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=14095911', './test/userdetail-14095911.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag/R-18?offset=48&limit=24', './test/tag-R-18-14095911-lastpage.json')
+        downloadPage('https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show', './test/bookmarks-1039353.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=1039353', './test/userdetail-1039353.json')
 
         # Not updated:
         # ./test/test-login-error.htm

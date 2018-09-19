@@ -2,7 +2,7 @@
 # pylint: disable=I0011, C, C0302
 
 
-PIXIVUTIL_VERSION = '201805011-beta3'
+PIXIVUTIL_VERSION = '20180918'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'
 PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
 PIXIV_URL = 'https://www.pixiv.net'

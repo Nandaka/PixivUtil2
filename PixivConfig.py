@@ -35,7 +35,6 @@ class PixivConfig:
     username = ''
     password = ''
     cookie = ''
-    keepSignedIn = 0
 
     # Pixiv related?
     numberOfPage = 0
@@ -341,13 +340,6 @@ class PixivConfig:
                 haveError = True
 
             try:
-                self.keepSignedIn = config.getint('Authentication', 'keepSignedIn')
-            except ValueError:
-                print("keepSignedIn = 0")
-                self.keepSignedIn = 0
-                haveError = True
-
-            try:
                 self.backupOldFile = config.getboolean('Settings', 'backupOldFile')
             except ValueError:
                 self.backupOldFile = False
@@ -631,7 +623,6 @@ class PixivConfig:
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
-        config.set('Authentication', 'keepSignedIn', self.keepSignedIn)
 
         config.add_section('Pixiv')
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
@@ -674,7 +665,6 @@ class PixivConfig:
         print(' - username     =', self.username)
         print(' - password     = ', self.password)
         print(' - cookie       = ', self.cookie)
-        print(' - keepSignedIn = ', self.keepSignedIn)
 
         print(' [Network]')
         print(' - useproxy         =', self.useProxy)

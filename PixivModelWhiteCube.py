@@ -17,32 +17,25 @@ re_payload = re.compile(r"(\{token.*\})\);")
 
 
 class PixivArtist(PixivModel.PixivArtist):
-    def __init__(self, mid=0, page=None, fromImage=False):
+    offset = None
+    limit = None
+
+    def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
+        self.offset = offset
+        self.limit = limit
+
         if page is not None:
             self.artistId = mid
             payload = parseJs(page)
 
-            # check error
-            if payload is None:
-                if self.is_not_logged_in(page):
-                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
-                if self.IsUserNotExist(page):
-                    raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
-                if self.IsUserSuspended(page):
-                    raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=page)
-                # detect if there is any other error
-                errorMessage = self.IsErrorExist(page)
-                if errorMessage is not None:
-                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
-                # detect if there is server error
-                errorMessage = self.IsServerErrorExist(page)
-                if errorMessage is not None:
-                    raise PixivException('Member Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
-
             # detect if image count != 0
             if not fromImage:
-                # self.ParseImages(payload)
-                raise NotImplementedError
+                payload = demjson.decode(page)
+                if payload["error"]:
+                    raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                if payload["body"] is None:
+                    raise PixivException("Missing body content, possible artist id doesn't exists.", errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
+                self.ParseImages(payload["body"])
             else:
                 self.isLastPage = True
                 self.haveImages = True
@@ -55,21 +48,25 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistAvatar = "no_profile"
         self.artistToken = "self"
         self.artistName = "self"
+        self.artistBackground = "no_background"
 
         if page is not None:
             if fromImage:
-                key = page["preload"]["user"].keys()[0]
+                key = list(page["preload"]["user"].keys())[0]
                 root = page["preload"]["user"][key]
 
                 self.artistId = root["userId"]
-                self.artistAvatar = root["image"].replace("_50", "")
+                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
                 self.artistName = root["name"]
                 # user token is stored in background
                 if root["background"] is not None:
-                    self.artistToken = root["background"]["extra"]["user_account"]
-                else:
-                    self.artistToken = self.artistName
-
+                    self.artistBackground = root["background"]["url"]
+                # Issue 388
+                illusts = page["preload"]["illust"]
+                for il in illusts:
+                    if illusts[il]["userAccount"]:
+                        self.artistToken = illusts[il]["userAccount"]
+                        break
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
@@ -86,31 +83,49 @@ class PixivArtist(PixivModel.PixivArtist):
 
                     avatar_data = data["user"]["profile_image_urls"]
                     if avatar_data is not None and avatar_data.has_key("medium"):
-                        self.artistAvatar = avatar_data["medium"]
+                        self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
-                if page.has_key("profile"):
+                if page.has_key("profile") and self.totalImages == 0:
                     if bookmark:
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
-    def ParseImages(self, page):
+    def ParseImages(self, payload):
         self.imageList = list()
-        parsed = BeautifulSoup(page["body"]["html"])
-        item_containers = parsed.findAll("div", attrs={"class": re.compile("item-container _work-item-container.*")})
-        for item in item_containers:
-            # data-entry-id="illust:59640232"
-            image_id_illust = item["data-entry-id"]
-            image_id = int(image_id_illust.replace("illust:", ""))
-            self.imageList.append(image_id)
 
-        self.isLastPage = True
-        if page["body"]["next_url"] is not None:
-            self.isLastPage = False
+        if payload.has_key("works"):  # filter by tags
+            for image in payload["works"]:
+                self.imageList.append(image["id"])
+            self.totalImages = int(payload["total"])
 
-        self.haveImages = False
-        if len(self.imageList) > 0:
-            self.haveImages = True
+            if len(self.imageList) > 0:
+                self.haveImages = True
+
+            if len(self.imageList) + self.offset == self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
+
+            return
+        else:
+            if payload.has_key("illusts"):  # all illusts
+                for image in payload["illusts"]:
+                    self.imageList.append(image)
+            if payload.has_key("manga"):  # all manga
+                for image in payload["manga"]:
+                    self.imageList.append(image)
+            self.imageList = sorted(self.imageList, reverse=True)
+            self.totalImages = len(self.imageList)
+            # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
+
+            if self.offset + self.limit >= self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
+
+            if len(self.imageList) > 0:
+                self.haveImages = True
 
 
 class PixivImage(PixivModel.PixivImage):
@@ -144,15 +159,15 @@ class PixivImage(PixivModel.PixivImage):
                 # detect if there is any other error
                 errorMessage = self.IsErrorExist(page)
                 if errorMessage is not None:
-                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
                 # detect if there is server error
                 errorMessage = self.IsServerErrorExist(page)
                 if errorMessage is not None:
-                    raise PixivException('Image Error: ' + errorMessage, errorCode=PixivException.SERVER_ERROR, htmlPage=page)
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
 
             # parse artist information
             if parent is None:
-                temp_artist_id = payload["preload"]["user"].keys()[0]
+                temp_artist_id = list(payload["preload"]["user"].keys())[0]
                 self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
@@ -167,7 +182,7 @@ class PixivImage(PixivModel.PixivImage):
             self.ParseInfo(payload)
 
     def ParseInfo(self, page):
-        key = page["preload"]["illust"].keys()[0]
+        key = list(page["preload"]["illust"].keys())[0]
         assert(str(key) == str(self.imageId))
         root = page["preload"]["illust"][key]
 
@@ -180,7 +195,12 @@ class PixivImage(PixivModel.PixivImage):
                 self.imageMode = "ugoira_view"
                 # https://i.pximg.net/img-zip-ugoira/img/2018/04/22/00/01/06/68339821_ugoira600x600.zip 1920x1080
                 # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
-                self.imageUrls.append(temp_url.replace("/img-original/", "/img-zip-ugoira/").replace("_ugoira0.jpg", "_ugoira1920x1080.zip"))
+                # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.png
+                # Fix Issue #372
+                temp_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
+                temp_url = temp_url.split("_ugoira0")[0]
+                temp_url = temp_url + "_ugoira1920x1080.zip"
+                self.imageUrls.append(temp_url)
                 # self.ParseUgoira(page)
             else:
                 self.imageMode = "big"
@@ -211,6 +231,7 @@ class PixivImage(PixivModel.PixivImage):
                 self.imageTags.append(tag["tag"])
 
         # datetime, in utc
+        # "createDate" : "2018-06-08T15:00:04+00:00",
         self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
         tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)

@@ -355,6 +355,13 @@ def createAvatarFilename(artistPage, targetDir):
     return filename
 
 
+def createBackgroundFilenameFromAvatarFilename(avatarFilename):
+    filenames = avatarFilename.split(os.sep)
+    filenames[-1] = "bg_" + filenames[-1]
+    filename = os.sep.join(filenames)
+    return filename
+
+
 def we_are_frozen():
     """Returns whether we are frozen via py2exe.
         This will affect how we find out where we are located.
@@ -809,6 +816,8 @@ def ugoira2webm(ugoira_file,
         for i in frames:
             ffconcat += "file " + i['file'] + '\n'
             ffconcat += "duration " + str(float(i['delay']) / 1000) + '\n'
+        # Fix ffmpeg concat demuxer as described in issue #381
+        ffconcat += "file " + frames[-1]['file'] + '\n'
 
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)

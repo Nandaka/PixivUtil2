@@ -20,3 +20,5 @@ testapp*/*
 *.bak
 *.pyo
 pixivutil.log*
+.pytest_cache/*
+__pycache__/*

@@ -34,6 +34,20 @@ class PixivBrowser(mechanize.Browser):
     _cache = dict()
     _myId = 0
 
+    def put_to_cache(self, key, item, expiration=3600):
+        expiry = time.time() + expiration
+        self._cache[key] = (item, expiry)
+
+    def get_from_cache(self, key):
+        if key in self._cache.keys():
+            (item, expiry) = self._cache[key]
+            if expiry - time.time() > 0:
+                return item
+            else:
+                del item
+                self._cache.pop(key)
+        return None
+
     def __init__(self, config, cookie_jar):
         # fix #218
         try:
@@ -278,14 +292,12 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Unable to get User Id')
 
     def detectWhiteCube(self, page, url):
-        if url.find("pixiv.net/whitecube") > 0:
+        if page.find("capybara-status-check") == -1:
             print("*******************************************")
-            print("* Pixiv whitecube UI mode.                *")
+            print("* Pixiv AJAX UI mode.                     *")
             print("* Some feature might not working properly *")
             print("*******************************************")
-            js_init = self._getInitConfig(page)
-            self._whitecubeToken = js_init["pixiv.context.token"]
-            print("whitecube token:", self._whitecubeToken)
+
             self._isWhitecube = True
 
     def parseLoginError(self, res):
@@ -326,35 +338,45 @@ class PixivBrowser(mechanize.Browser):
 
             # Issue #355 new ui handler
             image = None
-            if response.find("globalInitData") > 0:
-                PixivHelper.print_and_log('debug', 'New UI Mode')
-                image = PixivModelWhiteCube.PixivImage(image_id,
-                                                       response,
-                                                       parent,
-                                                       from_bookmark,
-                                                       bookmark_count,
-                                                       image_response_count,
-                                                       dateFormat=self._config.dateFormat)
+            try:
+                if response.find("globalInitData") > 0:
+                    PixivHelper.print_and_log('debug', 'New UI Mode')
+                    image = PixivModelWhiteCube.PixivImage(image_id,
+                                                           response,
+                                                           parent,
+                                                           from_bookmark,
+                                                           bookmark_count,
+                                                           image_response_count,
+                                                           dateFormat=self._config.dateFormat)
 
-                if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
-                    meta_response = self.open(ugoira_meta_url).read()
-                    image.ParseUgoira(meta_response)
-##                    PixivHelper.GetLogger().debug("animation.js")
-##                    PixivHelper.GetLogger().debug(image.ugoira_data)
+                    if image.imageMode == "ugoira_view":
+                        ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                        meta_response = self.open(ugoira_meta_url).read()
+                        image.ParseUgoira(meta_response)
+    ##                    PixivHelper.GetLogger().debug("animation.js")
+    ##                    PixivHelper.GetLogger().debug(image.ugoira_data)
 
-            else:
-                parsed = BeautifulSoup(response)
-                image = PixivModel.PixivImage(image_id,
-                                              parsed,
-                                              parent,
-                                              from_bookmark,
-                                              bookmark_count,
-                                              image_response_count,
-                                              dateFormat=self._config.dateFormat)
-                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                    image.ParseImages(parsed)
-                parsed.decompose()
+                    if parent is None:
+                        if from_bookmark:
+                            self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                        else:
+                            self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+
+                else:
+                    parsed = BeautifulSoup(response)
+                    image = PixivModel.PixivImage(image_id,
+                                                  parsed,
+                                                  parent,
+                                                  from_bookmark,
+                                                  bookmark_count,
+                                                  image_response_count,
+                                                  dateFormat=self._config.dateFormat)
+                    if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+                        image.ParseImages(parsed)
+                    parsed.decompose()
+            except:
+                PixivHelper.GetLogger().error("Respose data: \r\n" + response)
+                raise
 
         return (image, response)
 
@@ -368,91 +390,133 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
 
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
-        ''' get artist information using AppAPI '''
-        url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-        if self._cache.has_key(url):
-            info = self._cache[url]
-        else:
-            PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-            infoStr = self.open(url).read()
-            info = json.loads(infoStr)
-            self._cache[url] = info
-        artist.ParseInfo(info, False, bookmark=bookmark)
+        ''' get artist information using Ajax and AppAPI '''
+        try:
+            # will throw HTTPError if user is suspended/not logged in.
+            url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
+            info_ajax = self.get_from_cache(url_ajax)
+            if info_ajax is None:
+                info_ajax_str = self.open(url_ajax).read()
+                info_ajax = json.loads(info_ajax_str)
+                self.put_to_cache(url_ajax, info_ajax)
 
-    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
-        response = None
-        PixivHelper.print_and_log('info', 'Getting Bookmark Url for page {0}...'.format(page))
-        # iterate to get next page url
-        start = 1
-        last_member_bookmark_next_url = None
-        while start <= page:
-            if start == 1:
-                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
-                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
+            url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
+            info = self.get_from_cache(url)
+            if info is None:
+                PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
+                infoStr = self.open(url).read()
+                info = json.loads(infoStr)
+                self.put_to_cache(url, info)
+
+            artist.ParseInfo(info, False, bookmark=bookmark)
+            return artist
+        except urllib2.HTTPError, error:
+            errorCode = error.getcode()
+            errorMessage = error.get_data()
+            payload = json.loads(errorMessage)
+            if errorCode == 401:
+                raise PixivException(payload["message"], errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
+            elif errorCode == 403:
+                raise PixivException(payload["message"], errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
             else:
-                url = last_member_bookmark_next_url
+                raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
-            if self._cache.has_key(url):
-                response = self._cache[url]
-            else:
-                response = self.open(url).read()
-                self._cache[url] = response
 
-            payload = json.loads(response)
-            last_member_bookmark_next_url = payload["body"]["next_url"]
-            if last_member_bookmark_next_url is None and start < page:
-                PixivHelper.print_and_log('info', 'No more images for {0} bookmarks'.format(member_id))
-                url = None
-                break
-
-            start = start + 1
-        PixivHelper.print_and_log('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
-        return (url, response)
+##    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
+##        response = None
+##        PixivHelper.print_and_log('info', 'Getting Bookmark Url for page {0}...'.format(page))
+##        # iterate to get next page url
+##        start = 1
+##        last_member_bookmark_next_url = None
+##        while start <= page:
+##            if start == 1:
+##                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
+##                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
+##            else:
+##                url = last_member_bookmark_next_url
+##
+##            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
+##            if self._cache.has_key(url):
+##                response = self._cache[url]
+##            else:
+##                response = self.open(url).read()
+##                self._cache[url] = response
+##
+##            payload = json.loads(response)
+##            last_member_bookmark_next_url = payload["body"]["next_url"]
+##            if last_member_bookmark_next_url is None and start < page:
+##                PixivHelper.print_and_log('info', 'No more images for {0} bookmarks'.format(member_id))
+##                url = None
+##                break
+##
+##            start = start + 1
+##        PixivHelper.print_and_log('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
+##        return (url, response)
 
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
         response = None
         if tags is not None:
             tags = PixivHelper.encode_tags(tags)
-
-        if self._isWhitecube:
-            limit = 50
-            if bookmark:
-                (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
-            else:
-                offset = (page - 1) * limit
-                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_new_unified&id={0}&offset_illusts={1}&offset_novels={2}&limit={3}&tt={4}'.format(member_id, offset, 0, limit, self._whitecubeToken)
-                if tags is not None:
-                    url = url + '&tag={0}'.format(tags)
-                elif self._config.r18mode:
-                    url = url + '&tag=R-18'
-                PixivHelper.print_and_log('info', 'Member Url: ' + url)
-
-            if url is not None:
-                response = self.open(url).read()
-                PixivHelper.GetLogger().debug(response)
-                artist = PixivModelWhiteCube.PixivArtist(member_id, response, False)
-                self.getMemberInfoWhitecube(member_id, artist, bookmark)
-
         else:
-            if bookmark:
-                member_url = 'https://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
-            else:
-                member_url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
+            tags = ''
 
-            if tags is not None:
-                member_url = member_url + "&tag=" + tags
-            elif self._config.r18mode and not bookmark:
-                member_url = member_url + '&tag=R-18'
-                PixivHelper.print_and_log('info', 'R-18 Mode only.')
-            PixivHelper.print_and_log('info', 'Member Url: ' + member_url)
-            response = self.getPixivPage(member_url)
-            artist = PixivModel.PixivArtist(mid=member_id, page=response)
+        ## if True:
+        limit = 24
+        offset = (page - 1) * limit
+        need_to_slice = False
+        if bookmark:
+            # (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
+            # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
+            url = 'https://www.pixiv.net/ajax/user/{0}/illusts/bookmarks?tag={1}&offset={2}&limit={3}&rest=show'.format(member_id, tags, offset, limit)
+        else:
+            # https://www.pixiv.net/ajax/user/1813972/illusts/tag/Fate%2FGrandOrder?offset=0&limit=24
+            # https://www.pixiv.net/ajax/user/1813972/manga/tag/%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
+            # https://www.pixiv.net/ajax/user/1113943/illustmanga/tag/%E6%A5%B5%E4%B8%8A%E3%81%AE%E4%B9%B3?offset=0&limit=24
+            # https://www.pixiv.net/ajax/user/1813972/profile/all
+            url = None
+            if len(tags) > 0:
+                url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag/{1}?offset={2}&limit={3}'.format(member_id, tags, offset, limit)
+            elif self._config.r18mode:
+                url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag/{1}?offset={2}&limit={3}'.format(member_id, 'R-18', offset, limit)
+            else:
+                url = 'https://www.pixiv.net/ajax/user/{0}/profile/all'.format(member_id)
+                need_to_slice = True
+
+            PixivHelper.print_and_log('info', 'Member Url: ' + url)
+
+        if url is not None:
+            # cache the response
+            response = self.get_from_cache(url)
+            if response is None:
+                response = self.open(url).read()
+                self.put_to_cache(url, response)
+
+            PixivHelper.GetLogger().debug(response)
+            artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
+            self.getMemberInfoWhitecube(member_id, artist, bookmark)
+
+            if artist.haveImages and need_to_slice:
+                artist.imageList = artist.imageList[offset:offset + limit]
+            ##        else:
+            ##            if bookmark:
+            ##                member_url = 'https://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
+            ##            else:
+            ##                member_url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
+            ##
+            ##            if len(tags) > 0:
+            ##                member_url = member_url + "&tag=" + tags
+            ##            elif self._config.r18mode and not bookmark:
+            ##                member_url = member_url + '&tag=R-18'
+            ##                PixivHelper.print_and_log('info', 'R-18 Mode only.')
+            ##            PixivHelper.print_and_log('info', 'Member Url: ' + member_url)
+            ##            response = self.getPixivPage(member_url)
+            ##            artist = PixivModel.PixivArtist(mid=member_id, page=response)
 
         return (artist, response)
 
-    def getSearchTagPage(self, tags, i,
+    def getSearchTagPage(self, tags,
+                         current_page,
                          wild_card=True,
                          title_caption=False,
                          start_date=None,
@@ -464,53 +528,55 @@ class PixivBrowser(mechanize.Browser):
         result = None
         url = ''
 
-        if self._isWhitecube:
-            if member_id is None:
-                # from search page:
-                # https://www.pixiv.net/rpc/whitecube/index.php?order=date&adult_mode=include&q=vocaloid&p=0&type=&mode=whitecube_search&s_mode=s_tag&scd=&size=&ratio=&like=&tools=&tt=4e2cdee233f1156231ee99da1e51a83c
-                url = "https://www.pixiv.net/rpc/whitecube/index.php?q={0}".format(tags)
-                url = url + "&adult_mode={0}".format("include")
-                url = url + "&mode={0}".format("whitecube_search")
+        if member_id is not None:
+            ##            if member_id is None:
+            ##                # from search page:
+            ##                # https://www.pixiv.net/rpc/whitecube/index.php?order=date&adult_mode=include&q=vocaloid&p=0&type=&mode=whitecube_search&s_mode=s_tag&scd=&size=&ratio=&like=&tools=&tt=4e2cdee233f1156231ee99da1e51a83c
+            ##                url = "https://www.pixiv.net/rpc/whitecube/index.php?q={0}".format(tags)
+            ##                url = url + "&adult_mode={0}".format("include")
+            ##                url = url + "&mode={0}".format("whitecube_search")
+            ##
+            ##                # date ordering
+            ##                order = "date_d"
+            ##                if oldest_first:
+            ##                    order = "date"
+            ##                url = url + "&order={0}".format(order)
+            ##
+            ##                # search mode
+            ##                s_mode = "s_tag_full"
+            ##                if wild_card:
+            ##                    s_mode = "s_tag"
+            ##                elif title_caption:
+            ##                    s_mode = "s_tc"
+            ##                url = url + "&s_mode={0}".format(s_mode)
+            ##
+            ##                # start/end date
+            ##                if start_date is not None:
+            ##                    url = url + "&scd={0}".format(start_date)
+            ##                if end_date is not None:
+            ##                    url = url + "&ecd={0}".format(end_date)
+            ##
+            ##                url = url + "&p={0}".format(i)
+            ##                url = url + "&start_page={0}".format(start_page)
+            ##                url = url + "&tt={0}".format(self._whitecubeToken)
+            ##
+            ##                PixivHelper.print_and_log('info', 'Looping for {0} ...'.format(url))
+            ##                response = self.open(url).read()
+            ##                self.handleDebugTagSearchPage(response, url)
+            ##
+            ##                PixivHelper.GetLogger().debug(response)
+            ##                result = PixivModelWhiteCube.PixivTags()
+            ##                result.parseTags(response, tags)
+            ##            else:
+            # from member id search by tags
+            (artist, response) = self.getMemberPage(member_id, current_page, False, tags)
 
-                # date ordering
-                order = "date_d"
-                if oldest_first:
-                    order = "date"
-                url = url + "&order={0}".format(order)
-
-                # search mode
-                s_mode = "s_tag_full"
-                if wild_card:
-                    s_mode = "s_tag"
-                elif title_caption:
-                    s_mode = "s_tc"
-                url = url + "&s_mode={0}".format(s_mode)
-
-                # start/end date
-                if start_date is not None:
-                    url = url + "&scd={0}".format(start_date)
-                if end_date is not None:
-                    url = url + "&ecd={0}".format(end_date)
-
-                url = url + "&p={0}".format(i)
-                url = url + "&start_page={0}".format(start_page)
-                url = url + "&tt={0}".format(self._whitecubeToken)
-
-                PixivHelper.print_and_log('info', 'Looping for {0} ...'.format(url))
-                response = self.open(url).read()
-                self.handleDebugTagSearchPage(response, url)
-
-                PixivHelper.GetLogger().debug(response)
-                result = PixivModelWhiteCube.PixivTags()
-                result.parseTags(response, tags)
-            else:
-                # from member id search by tags
-                (artist, response) = self.getMemberPage(member_id, i, False, tags)
-                # convert to PixivTags
-                result = PixivModelWhiteCube.PixivTags()
-                result.parseMemberTags(artist, member_id, tags)
+            # convert to PixivTags
+            result = PixivModelWhiteCube.PixivTags()
+            result.parseMemberTags(artist, member_id, tags)
         else:
-            url = PixivHelper.generateSearchTagUrl(tags, i,
+            # search by tags
+            url = PixivHelper.generateSearchTagUrl(tags, current_page,
                                                    title_caption,
                                                    wild_card,
                                                    oldest_first,
