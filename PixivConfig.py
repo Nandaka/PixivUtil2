@@ -79,6 +79,7 @@ class PixivConfig:
     deleteUgoira = False
     createWebm = False
     setLastModified = True
+    alwaysCheckFileExists = False
 
     # IrfanView
     createDownloadLists = False
