@@ -494,7 +494,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         print('Already downloaded:', image_id)
                         updated_limit_count = updated_limit_count + 1
                         if updated_limit_count > __config__.checkUpdatedLimit:
-                            if __config__.checkUpdatedLimit != 0:
+                            if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
                                 print('Skipping member:', member_id)
                                 __dbManager__.updateLastDownloadedImage(member_id, image_id)
 
