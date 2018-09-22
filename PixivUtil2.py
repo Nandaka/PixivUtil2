@@ -490,7 +490,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                 print('#' + str(no_of_images))
                 if not __config__.overwrite:
                     r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
-                    if r is not None and not __config__.alwaysCheckFileSize and not __config__.alwaysCheckFileExists:
+                    if r is not None and not __config__.alwaysCheckFileSize:
                         print('Already downloaded:', image_id)
                         updated_limit_count = updated_limit_count + 1
                         if updated_limit_count > __config__.checkUpdatedLimit:
