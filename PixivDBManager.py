@@ -551,10 +551,10 @@ class PixivDBManager:
         finally:
             c.close()
 
-    def selectImageByImageId(self, image_id,cols='*'):
+    def selectImageByImageId(self, image_id, cols='*'):
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT %s FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' ''' %(cols,), (image_id,))
+            c.execute('''SELECT %s FROM pixiv_master_image WHERE image_id = ? AND save_name != 'N/A' ''' % (cols,), (image_id,))
             return c.fetchone()
         except BaseException:
             print('Error at selectImageByImageId():', str(sys.exc_info()))
@@ -611,7 +611,7 @@ class PixivDBManager:
                 return True
         return False
 
-    def cleanupFileExists(self,filename):
+    def cleanupFileExists(self, filename):
         anim_ext = ['.zip', '.gif', '.apng', '.ugoira', '.webm']
         fileExists = False
         if filename is not None or len(filename) > 0:
@@ -639,7 +639,7 @@ class PixivDBManager:
                 filename = row[1]
                 fileExists = False
 
-                if filename is not None or len(filename) > 0:
+                if filename is not None and len(filename) > 0:
                     if os.path.exists(filename):
                         continue
 
@@ -663,7 +663,7 @@ class PixivDBManager:
             c.close()
 
     def interactiveCleanUp(self):
-        l=[]
+        l = []
         try:
             print("Start clean-up operation.")
             print("Selecting all images, this may take some times.")
@@ -673,31 +673,31 @@ class PixivDBManager:
             for row in c:
                 # Issue 340
                 filename = row[1]
-                fileExists= self.cleanupFileExists(filename)
+                fileExists = self.cleanupFileExists(filename)
                 if not fileExists:
                     l.append(row)
                     PixivHelper.safePrint("Missing: {0} at \n{1}".format(row[0], row[1]))
 
-            while not len(l)==0:
-                #End scan
+            while not len(l) == 0:
+                # End scan
                 print(l)
-                regex= raw_input("Please provide a search regex, use empty string to skip(Empty to stop now):")
-                if regex=="":
+                regex = raw_input("Please provide a search regex, use empty string to skip(Empty to stop now):")
+                if regex == "":
                     break
-                repl= raw_input("Replace regex with what?")
+                repl = raw_input("Replace regex with what?")
                 regex = re.compile(regex)
 
-                #Replace any paths where replacement results in a correct path
-                ll=[]
+                # Replace any paths where replacement results in a correct path
+                ll = []
                 for row in l:
-                    new_name=regex.sub(repl,row[1])
+                    new_name = regex.sub(repl, row[1])
                     if self.cleanupFileExists(filename):
                         c.execute('''UPDATE pixiv_master_image
                             SET save_name = ?
-                            WHERE id = ?''', (new_name,row[0]))
+                            WHERE id = ?''', (new_name, row[0]))
                     else:
                         ll.append(l)
-                l=ll
+                l = ll
             c.close()
             self.conn.commit()
         except BaseException:
@@ -707,9 +707,8 @@ class PixivDBManager:
         finally:
             c.close()
 
-        #TODO check mangaimage
-        #TODO check for files which exist but don't have a DB entry
-
+        # TODO check mangaimage
+        # TODO check for files which exist but don't have a DB entry
 
     def replaceRootPath(self):
         oldPath = raw_input("Old Path to Replace = ")
