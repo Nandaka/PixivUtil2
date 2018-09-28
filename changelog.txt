@@ -1,3 +1,8 @@
+20180928
+- Fix Issue #415: change 'or' to 'and', reformat code to conform pep8.
+- Fix Issue #416: sort the imagelist as int.
+- Merge #410, #411, and #413 from @awiebe.
+
 20180918
 - Implement #394: update parser for artist info and images using ajax api.
 - Fix Issue #399: update the total images display.
