@@ -115,7 +115,7 @@ class PixivArtist(PixivModel.PixivArtist):
             if payload.has_key("manga"):  # all manga
                 for image in payload["manga"]:
                     self.imageList.append(image)
-            self.imageList = sorted(self.imageList, reverse=True)
+            self.imageList = sorted(self.imageList, reverse=True, key=int)
             self.totalImages = len(self.imageList)
             # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
 
