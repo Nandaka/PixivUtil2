@@ -232,16 +232,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             return (check_result, filename)
 
                 # actual download
-                print('\rStart downloading...', end=' ')
-                req = PixivHelper.create_custom_request(url, __config__, referer)
-                res = __br__.open_novisit(req)
-                if file_size < 0:
-                    try:
-                        file_size = int(res.info()['Content-Length'])
-                    except KeyError:
-                        file_size = -1
-                        PixivHelper.print_and_log('info', "\tNo file size information!")
-                (downloadedSize, filename) = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
+                (downloadedSize, filename) = perform_download(url, file_size, filename, overwrite, referer)
 
                 # check the downloaded file size again
                 if file_size > 0 and downloadedSize != file_size:
@@ -329,6 +320,23 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 PixivHelper.printDelay(__config__.retryWait)
             else:
                 raise
+
+
+def perform_download(url, file_size, filename, overwrite, referer=None):
+    if referer is None:
+        referer = __config__, referer
+    # actual download
+    print('\rStart downloading...', end=' ')
+    req = PixivHelper.create_custom_request(url, referer)
+    res = __br__.open_novisit(req)
+    if file_size < 0:
+        try:
+            file_size = int(res.info()['Content-Length'])
+        except KeyError:
+            file_size = -1
+            PixivHelper.print_and_log('info', "\tNo file size information!")
+    (downloadedSize, filename) = PixivHelper.downloadImage(url, filename, res, file_size, overwrite)
+    return (downloadedSize, filename)
 
 
 #  Start of main processing logic
@@ -1800,14 +1808,14 @@ def processFanboxArtist(artist_id, end_page):
                                                      "cover")
                 filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
                 referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
+                # don't pass the post id and page number to skip db check
                 (result, filename) = download_image(post.coverImageUrl,
                                                     filename,
                                                     referer,
                                                     __config__.overwrite,
                                                     __config__.retry,
-                                                    __config__.backupOldFile,
-                                                    post.post_id,
-                                                    post)
+                                                    __config__.backupOldFile)
+
             else:
                 PixivHelper.print_and_log(info, "No Cover Image for post: {0}.".format(post.post_id))
 
@@ -1839,14 +1847,13 @@ def processFanboxImages(post):
                                             curent_page)
         filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
         referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
+        # don't pass the post id and page number to skip db check
         (result, filename) = download_image(image_url,
                                             filename,
                                             referer,
                                             __config__.overwrite,
                                             __config__.retry,
-                                            __config__.backupOldFile,
-                                            post.post_id,
-                                            post)
+                                            __config__.backupOldFile)
         current_page = current_page + 1
 
 
