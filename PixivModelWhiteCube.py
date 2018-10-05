@@ -23,9 +23,9 @@ class PixivArtist(PixivModel.PixivArtist):
     def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
         self.offset = offset
         self.limit = limit
+        self.artistId = mid
 
         if page is not None:
-            self.artistId = mid
             payload = parseJs(page)
 
             # detect if image count != 0

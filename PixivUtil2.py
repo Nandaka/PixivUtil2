@@ -72,7 +72,6 @@ from PixivModel import PixivImage, PixivListItem, PixivBookmark, PixivTags
 from PixivModel import PixivNewIllustBookmark, PixivGroup
 from PixivException import PixivException
 import PixivBrowserFactory
-from PixivModelFanbox import FanboxHelper
 
 from optparse import OptionParser
 
@@ -1803,21 +1802,27 @@ def processFanboxArtist(artist_id, end_page):
 
         for post in result_artist.posts:
             print("#{0}".format(image_count))
-            print("Post  = {0}".format(post.post_id))
-            print("Title = {0}".format(post.title))
+            print("Post  = {0}".format(post.imageId))
+            print("Title = {0}".format(post.imageTitle))
             print("Type  = {0}".format(post.type))
-            print("Created Date  = {0}".format(post.publishedDatetime))
+            print("Created Date  = {0}".format(post.worksDate))
             print("Is Restricted = {0}".format(post.is_restricted))
             # cover image
             if post.coverImageUrl is not None:
-                print("Downloading cover from {0}".format(post.coverImageUrl))
-                filename = FanboxHelper.makeFilename(__config__.filenameFormat,
-                                                     post.coverImageUrl,
-                                                     result_artist,
-                                                     post,
-                                                     "cover")
+                filename = PixivHelper.makeFilename(__config__.filenameFormat,
+                                                    post,
+                                                    artistInfo=result_artist,
+                                                    tagsSeparator=__config__.tagsSeparator,
+                                                    tagsLimit=__config__.tagsLimit,
+                                                    fileUrl=post.coverImageUrl,
+                                                    bookmark=None,
+                                                    searchTags='')
                 filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
+
+                print("Downloading cover from {0}".format(post.coverImageUrl))
+                print("Saved to {0}".format(filename))
+
+                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.imageId)
                 # don't pass the post id and page number to skip db check
                 (result, filename) = download_image(post.coverImageUrl,
                                                     filename,
@@ -1827,11 +1832,11 @@ def processFanboxArtist(artist_id, end_page):
                                                     __config__.backupOldFile)
 
             else:
-                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.post_id))
+                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
 
             # images
-            if post.type == 'images':
-                processFanboxImages(post)
+            if post.type == 'image':
+                processFanboxImages(post, result_artist)
             image_count = image_count + 1
 
         if not result_artist.hasNextPage:
@@ -1844,24 +1849,29 @@ def processFanboxArtist(artist_id, end_page):
         next_url = result_artist.nextUrl
 
 
-def processFanboxImages(post):
+def processFanboxImages(post, result_artist):
     if post.is_restricted:
-        PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.post_id))
+        PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
         return
 
     current_page = 0
     print("Image Count = {0}".format(len(post.images)))
     for image_url in post.images:
-        filename = FanboxHelper.makeFilename(__config__.filenameFormat,
-                                            image_url,
-                                            result_artist,
+        filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
                                             post,
-                                            "image",
-                                            curent_page)
+                                            artistInfo=result_artist,
+                                            tagsSeparator=__config__.tagsSeparator,
+                                            tagsLimit=__config__.tagsLimit,
+                                            fileUrl=image_url,
+                                            bookmark=None,
+                                            searchTags='')
         filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
-        referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
-        # don't pass the post id and page number to skip db check
+        referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
+
         print("Downloading image {0} from {1}".format(current_page, image_url))
+        print("Saved to {0}".format(filename))
+
+        # don't pass the post id and page number to skip db check
         (result, filename) = download_image(image_url,
                                             filename,
                                             referer,

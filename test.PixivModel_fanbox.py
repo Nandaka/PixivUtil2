@@ -29,7 +29,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
-        self.assertEqual(result.artist_id, 15521131)
+        self.assertEqual(result.artistId, 15521131)
         self.assertTrue(result.hasNextPage)
         self.assertTrue(len(result.nextUrl) > 0)
         self.assertTrue(len(result.posts) > 0)
@@ -38,22 +38,22 @@ class TestPixivModel_Fanbox(unittest.TestCase):
             self.assertFalse(post.is_restricted)
 
         # post-136761
-        self.assertEqual(result.posts[0].post_id, 136761)
-        self.assertTrue(len(result.posts[0].title) > 0)
+        self.assertEqual(result.posts[0].imageId, 136761)
+        self.assertTrue(len(result.posts[0].imageTitle) > 0)
         self.assertTrue(len(result.posts[0].coverImageUrl) > 0)
         self.assertEqual(result.posts[0].type, "image")
         self.assertEqual(len(result.posts[0].images), 5)
 
         # post-132919
-        self.assertEqual(result.posts[2].post_id, 132919)
-        self.assertTrue(len(result.posts[2].title) > 0)
+        self.assertEqual(result.posts[2].imageId, 132919)
+        self.assertTrue(len(result.posts[2].imageTitle) > 0)
         self.assertIsNone(result.posts[2].coverImageUrl)
         self.assertEqual(result.posts[2].type, "text")
         self.assertEqual(len(result.posts[2].images), 0)
 
         # post-79695
-        self.assertEqual(result.posts[3].post_id, 79695)
-        self.assertTrue(len(result.posts[3].title) > 0)
+        self.assertEqual(result.posts[3].imageId, 79695)
+        self.assertTrue(len(result.posts[3].imageTitle) > 0)
         self.assertIsNone(result.posts[3].coverImageUrl)
         self.assertEqual(result.posts[3].type, "image")
         self.assertEqual(len(result.posts[3].images), 4)
@@ -63,7 +63,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         result = FanboxArtist(15521131, p2)
         self.assertIsNotNone(result)
 
-        self.assertEqual(result.artist_id, 15521131)
+        self.assertEqual(result.artistId, 15521131)
         self.assertFalse(result.hasNextPage)
         self.assertTrue(result.nextUrl is None)
         self.assertEqual(len(result.posts), 1)
@@ -73,7 +73,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
-        self.assertEqual(result.artist_id, 15521131)
+        self.assertEqual(result.artistId, 15521131)
         self.assertTrue(result.hasNextPage)
         self.assertTrue(len(result.nextUrl) > 0)
         self.assertEqual(len(result.posts), 10)
@@ -86,7 +86,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
-        self.assertEqual(result.artist_id, 15521131)
+        self.assertEqual(result.artistId, 15521131)
         self.assertFalse(result.hasNextPage)
         self.assertTrue(result.nextUrl is None)
         self.assertEqual(len(result.posts), 6)

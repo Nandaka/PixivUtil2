@@ -636,6 +636,12 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
         response = self.open(url).read()
         result = FanboxArtist(artist_id, response)
+
+        pixivArtist = PixivModelWhiteCube.PixivArtist(artist_id)
+        self.getMemberInfoWhitecube(artist_id, pixivArtist)
+        result.artistName = pixivArtist.artistName
+        result.artistToken = pixivArtist.artistToken
+
         return result
 
 

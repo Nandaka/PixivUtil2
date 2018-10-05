@@ -1,5 +1,7 @@
 import PixivException
+import PixivHelper
 import demjson
+import datetime_z
 import os
 
 
@@ -22,17 +24,21 @@ class Fanbox:
 
 
 class FanboxArtist:
-    artist_id = 0
+    artistId = 0
     posts = None
     nextUrl = None
     hasNextPage = False
 
+    # require additional API call
+    artistName = ""
+    artistToken = ""
+
     def __init__(self, artist_id, page):
-        self.artist_id = int(artist_id)
+        self.artistId = int(artist_id)
         js = demjson.decode(page)
 
         if js["error"]:
-            raise PixivException("Error when requesting Fanbox artist: {0}".format(artist_id), 9999, page)
+            raise PixivException("Error when requesting Fanbox artist: {0}".format(artistId), 9999, page)
 
         if js["body"] is not None:
             self.parsePosts(js["body"])
@@ -55,10 +61,11 @@ class FanboxArtist:
 
 
 class FanboxPost:
-    post_id = 0
-    title = ""
+    imageId = 0
+    imageTitle = ""
     coverImageUrl = ""
-    publishedDatetime = ""
+    worksDate = ""
+    worksDateDateTime = None
     updatedDatetime = ""
     # image|text
     type = ""
@@ -68,9 +75,18 @@ class FanboxPost:
     parent = None
     is_restricted = False
 
+    # not implemented
+    worksResolution = ""
+    worksTools = ""
+    searchTags = ""
+    imageMode = ""
+    imageTags = list()
+    bookmark_count = 0
+    image_response_count = 0
+
     def __init__(self, post_id, parent, page):
         self.images = list()
-        self.post_id = int(post_id)
+        self.imageId = int(post_id)
         self.parent = parent
         self.parsePost(page)
         if not self.is_restricted:
@@ -79,9 +95,10 @@ class FanboxPost:
                 self.parseImages(page)
 
     def parsePost(self, jsPost):
-        self.title = jsPost["title"]
+        self.imageTitle = jsPost["title"]
         self.coverImageUrl = jsPost["coverImageUrl"]
-        self.publishedDatetime = jsPost["publishedDatetime"]
+        self.worksDate = jsPost["publishedDatetime"]
+        self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
         self.likeCount = int(jsPost["likeCount"])
@@ -94,21 +111,3 @@ class FanboxPost:
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:
             self.images.append(image["originalUrl"])
-
-
-class FanboxHelper:
-
-    @staticmethod
-    def makeFilename(filename_format, url, artist, post, type, image_pos=0):
-        fileUrl = os.path.basename(url)
-        splittedUrl = fileUrl.split('.')
-        imageExtension = splittedUrl[1]
-        imageExtension = imageExtension.split('?')[0]
-
-        # fake it for now
-        if type != "cover":
-            filename = "{0}/FANBOX {1} {4} {2}.{3}".format(artist.artist_id, post.post_id, splittedUrl[0], imageExtension, image_pos)
-        else:
-            filename = "{0}/FANBOX {1} cover {2}.{3}".format(artist.artist_id, post.post_id, splittedUrl[0], imageExtension)
-
-        return filename
