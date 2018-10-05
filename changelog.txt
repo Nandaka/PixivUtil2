@@ -1,4 +1,4 @@
-20181005-alpha1
+20181006-alpha2
 - Start Implement #402: allow download from pixiv Fanbox.
   - Use 'f1' to download from the artists you following.
   - Use 'f2' to download specific artist you want to download. Please note you need to follow the artist Fanbox, else it will only get the free post.
