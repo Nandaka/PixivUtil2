@@ -1835,7 +1835,7 @@ def processFanboxArtist(artist_id, end_page):
                 PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
 
             # images
-            if post.type == 'image':
+            if post.type == 'image' or post.type == 'file':
                 processFanboxImages(post, result_artist)
             image_count = image_count + 1
 

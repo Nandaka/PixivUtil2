@@ -94,6 +94,8 @@ class FanboxPost:
             self.parseBody(page)
             if self.type == 'image':
                 self.parseImages(page)
+            if self.type == 'file':
+                self.parseFiles(page)
 
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
@@ -102,7 +104,7 @@ class FanboxPost:
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
-        if self.type not in ["image", "text"]:
+        if self.type not in ["image", "text", "file"]:
             raise PixivException("Unsupported post type = {0} for post = ".format(self.type, self.imageId), errorCode=9999, htmlPage=jsPost)
 
         self.likeCount = int(jsPost["likeCount"])
@@ -115,3 +117,7 @@ class FanboxPost:
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:
             self.images.append(image["originalUrl"])
+
+    def parseFiles(self, jsPost):
+        for image in jsPost["body"]["files"]:
+            self.images.append(image["url"])
