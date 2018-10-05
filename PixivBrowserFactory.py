@@ -628,7 +628,7 @@ class PixivBrowser(mechanize.Browser):
 
     def fanboxGetPostsFromArtist(self, artist_id, next_url=""):
         ''' get all posts from the supported user from https://www.pixiv.net/ajax/fanbox/creator?userId=15521131 '''
-        if next_url == "":
+        if next_url is None or next_url == "":
             url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
         else:
             url = "https://www.pixiv.net" + next_url

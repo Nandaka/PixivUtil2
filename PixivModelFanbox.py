@@ -1,5 +1,6 @@
 import PixivException
 import demjson
+import os
 
 
 class Fanbox:
@@ -38,12 +39,17 @@ class FanboxArtist:
 
     def parsePosts(self, js_body):
         self.posts = list()
-        for jsPost in js_body["post"]["items"]:
+        if js_body.has_key("post"):
+            post_root = js_body["post"]
+        else:
+            post_root = js_body
+
+        for jsPost in post_root["items"]:
             post_id = int(jsPost["id"])
             post = FanboxPost(post_id, self, jsPost)
             self.posts.append(post)
 
-        self.nextUrl = js_body["post"]["nextUrl"]
+        self.nextUrl = post_root["nextUrl"]
         if self.nextUrl is not None and len(self.nextUrl) > 0:
             self.hasNextPage = True
 
@@ -91,6 +97,8 @@ class FanboxPost:
 
 
 class FanboxHelper:
+
+    @staticmethod
     def makeFilename(filename_format, url, artist, post, type, image_pos=0):
         fileUrl = os.path.basename(url)
         splittedUrl = fileUrl.split('.')

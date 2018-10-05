@@ -327,7 +327,8 @@ def perform_download(url, file_size, filename, overwrite, referer=None):
         referer = __config__, referer
     # actual download
     print('\rStart downloading...', end=' ')
-    req = PixivHelper.create_custom_request(url, referer)
+    # fetch filesize
+    req = PixivHelper.create_custom_request(url, __config__, referer)
     res = __br__.open_novisit(req)
     if file_size < 0:
         try:
@@ -1794,13 +1795,22 @@ def menu_fanbox_download_supported_artist():
 
 def processFanboxArtist(artist_id, end_page):
     current_page = 1
+    next_url = None
+    image_count = 1
     while(True):
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist_id, current_page))
-        result_artist = __br__.fanboxGetPostsFromArtist(artist_id)
+        result_artist = __br__.fanboxGetPostsFromArtist(artist_id, next_url)
 
         for post in result_artist.posts:
+            print("#{0}".format(image_count))
+            print("Post  = {0}".format(post.post_id))
+            print("Title = {0}".format(post.title))
+            print("Type  = {0}".format(post.type))
+            print("Created Date  = {0}".format(post.publishedDatetime))
+            print("Is Restricted = {0}".format(post.is_restricted))
             # cover image
             if post.coverImageUrl is not None:
+                print("Downloading cover from {0}".format(post.coverImageUrl))
                 filename = FanboxHelper.makeFilename(__config__.filenameFormat,
                                                      post.coverImageUrl,
                                                      result_artist,
@@ -1822,6 +1832,7 @@ def processFanboxArtist(artist_id, end_page):
             # images
             if post.type == 'images':
                 processFanboxImages(post)
+            image_count = image_count + 1
 
         if not result_artist.hasNextPage:
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist_id))
@@ -1830,6 +1841,7 @@ def processFanboxArtist(artist_id, end_page):
         if current_page > end_page:
             PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist_id, end_page))
             break
+        next_url = result_artist.nextUrl
 
 
 def processFanboxImages(post):
@@ -1838,6 +1850,7 @@ def processFanboxImages(post):
         return
 
     current_page = 0
+    print("Image Count = {0}".format(len(post.images)))
     for image_url in post.images:
         filename = FanboxHelper.makeFilename(__config__.filenameFormat,
                                             image_url,
@@ -1848,6 +1861,7 @@ def processFanboxImages(post):
         filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
         referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
         # don't pass the post id and page number to skip db check
+        print("Downloading image {0} from {1}".format(current_page, image_url))
         (result, filename) = download_image(image_url,
                                             filename,
                                             referer,
