@@ -72,6 +72,7 @@ from PixivModel import PixivImage, PixivListItem, PixivBookmark, PixivTags
 from PixivModel import PixivNewIllustBookmark, PixivGroup
 from PixivException import PixivException
 import PixivBrowserFactory
+from PixivModelFanbox import FanboxHelper
 
 from optparse import OptionParser
 
@@ -619,14 +620,14 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
         print('Processing Image Id:', image_id)
 
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
-        r = __dbManager__.selectImageByImageId(image_id,cols='save_name')
-        exists=False
-        in_db=False
+        r = __dbManager__.selectImageByImageId(image_id, cols='save_name')
+        exists = False
+        in_db = False
         if r is not None:
-            exists=True
-            in_db=True
+            exists = True
+            in_db = True
         if r is not None and __config__.alwaysCheckFileExists:
-            exists=__dbManager__.cleanupFileExists(r[0])
+            exists = __dbManager__.cleanupFileExists(r[0])
 
         if r is not None and not __config__.alwaysCheckFileSize and exists:
             if not __config__.overwrite and exists:
@@ -841,7 +842,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
 
         if in_db and not exists:
-            result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD #There was something in the database which had not been downloaded
+            result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
         if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
@@ -1401,6 +1402,9 @@ def menu():
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('------------------------')
+    print('f1. Download from supported artists (FANBOX)')
+    print('f2. Download by artist id (FANBOX)')
+    print('------------------------')
     print('d. Manage database')
     print('e. Export online bookmark')
     print('m. Export online user bookmark')
@@ -1766,6 +1770,92 @@ def menu_export_online_user_bookmark(opisvalid, args):
     export_bookmark(filename, 'n', 1, 0, member_id)
 
 
+def menu_fanbox_download_supported_artist():
+    end_page = raw_input("Max Page = ") or 0
+
+    result = __br__.fanboxGetSupportedUsers()
+    if len(result.supportedArtist) == 0:
+        PixivHelper.print_and_log(info, "No supported artist!")
+        return
+    PixivHelper.print_and_log(info, "Found {0} supported artist(s)".format(len(result.supportedArtist)))
+    PixivHelper.print_and_log(info, result.supportedArtist)
+
+    for artist_id in result.supportedArtist:
+        processFanboxArtist(artist_id, end_page)
+
+
+def processFanboxArtist(artist_id, end_page):
+    current_page = 1
+    while(True):
+        PixivHelper.print_and_log(info, "Processing {0}, page {1}".format(artist_id, current_page))
+        result_artist = __br__.fanboxGetPostsFromArtist(artist_id)
+
+        for post in result_artist.posts:
+            # cover image
+            if post.coverImageUrl is not None:
+                filename = FanboxHelper.makeFilename(__config__.filenameFormat,
+                                                     post.coverImageUrl,
+                                                     result_artist,
+                                                     post,
+                                                     "cover")
+                filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
+                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
+                (result, filename) = download_image(post.coverImageUrl,
+                                                    filename,
+                                                    referer,
+                                                    __config__.overwrite,
+                                                    __config__.retry,
+                                                    __config__.backupOldFile,
+                                                    post.post_id,
+                                                    post)
+            else:
+                PixivHelper.print_and_log(info, "No Cover Image for post: {0}.".format(post.post_id))
+
+            # images
+            if post.type == 'images':
+                processFanboxImages(post)
+
+        if not result_artist.hasNextPage:
+            PixivHelper.print_and_log(info, "No more post for {0}".format(artist_id))
+            break
+        current_page = current_page + 1
+        if current_page > end_page:
+            PixivHelper.print_and_log(info, "Reaching page limit for {0}, limit {1}".format(artist_id, end_page))
+            break
+
+
+def processFanboxImages(post):
+    if post.is_restricted:
+        PixivHelper.print_and_log(info, "Skipping post: {0} due to restricted post.".format(post.post_id))
+        return
+
+    current_page = 0
+    for image_url in post.images:
+        filename = FanboxHelper.makeFilename(__config__.filenameFormat,
+                                            image_url,
+                                            result_artist,
+                                            post,
+                                            "image",
+                                            curent_page)
+        filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
+        referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.post_id)
+        (result, filename) = download_image(image_url,
+                                            filename,
+                                            referer,
+                                            __config__.overwrite,
+                                            __config__.retry,
+                                            __config__.backupOldFile,
+                                            post.post_id,
+                                            post)
+        current_page = current_page + 1
+
+
+def menu_fanbox_download_by_artist_id():
+    artist_id = raw_input("Artist ID = ")
+    end_page = raw_input("Max Page = ") or 0
+    processFanboxArtist(artist_id, end_page)
+
+
 def menu_reload_config():
     __log__.info('Manual Reload Config.')
     __config__.loadConfig(path=configfile)
@@ -1869,6 +1959,12 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
                 menu_reload_config()
             elif selection == 'p':
                 menu_print_config()
+            # PIXIV FANBOX
+            elif selection == 'f1':
+                menu_fanbox_download_supported_artist()
+            elif selection == 'f2':
+                menu_fanbox_download_by_artist_id()
+            # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid:
                     np_is_valid = True

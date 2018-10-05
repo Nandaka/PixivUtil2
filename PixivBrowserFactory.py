@@ -20,6 +20,7 @@ import PixivHelper
 from PixivException import PixivException
 import PixivModelWhiteCube
 import PixivModel
+from PixivModelFanbox import Fanbox, FanboxArtist
 
 defaultCookieJar = None
 defaultConfig = None
@@ -615,6 +616,27 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', 'Dumping html to: {0}'.format(dump_filename))
             if self._config.debugHttp:
                 PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
+
+    def fanboxGetSupportedUsers(self):
+        ''' get all supported users from the list from https://www.pixiv.net/ajax/fanbox/support'''
+        url = 'https://www.pixiv.net/ajax/fanbox/support'
+        PixivHelper.print_and_log('info', 'Getting supported artists from ' + url)
+        # read the json response
+        response = self.open(url).read()
+        result = Fanbox(response)
+        return result
+
+    def fanboxGetPostsFromArtist(self, artist_id, next_url=""):
+        ''' get all posts from the supported user from https://www.pixiv.net/ajax/fanbox/creator?userId=15521131 '''
+        if next_url == "":
+            url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
+        else:
+            url = "https://www.pixiv.net" + next_url
+
+        PixivHelper.print_and_log('info', 'Getting posts from ' + url)
+        response = self.open(url).read()
+        result = FanboxArtist(artist_id, response)
+        return result
 
 
 def getBrowser(config=None, cookieJar=None):
