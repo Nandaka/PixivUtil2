@@ -1810,7 +1810,7 @@ def processFanboxArtist(artist_id, end_page):
             # cover image
             if post.coverImageUrl is not None:
                 # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = post.coverImageUrl.replace("{0}/".format(post.imageId), "{0}_".format(post.imageId, current_page))
+                fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId), "{0}_".format(post.imageId))
                 filename = PixivHelper.makeFilename(__config__.filenameFormat,
                                                     post,
                                                     artistInfo=result_artist,

@@ -145,8 +145,10 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         more_format()
 
         def cover_more_format():
-            fake_image_url = post.coverImageUrl.replace("{0}/".format(post.imageId), "{0}_".format(post.imageId, current_page))
-            filename_format = '%member_id%' + os.sep + '%image_id%_p%page_index%_%title%_%urlFilename%_%works_date%'
+            # https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/96862/cover/6SRpcQwIUuJdeZbhn5q85l9x.jpeg
+            fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId), "{0}_".format(post.imageId))
+            print(fake_image_url)
+            filename_format = '%member_id%' + os.sep + '%image_id%_%title%_%urlFilename%_%works_date%'
 
             filename = PixivHelper.makeFilename(filename_format,
                                                 post,
@@ -158,8 +160,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                 searchTags='')
             filename = PixivHelper.sanitizeFilename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_p0_アスナさん０２_136761_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg")
-        more_format()
+            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
+        cover_more_format()
 
 if __name__ == '__main__':
         # unittest.main()
