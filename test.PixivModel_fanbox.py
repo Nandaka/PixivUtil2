@@ -58,6 +58,16 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.posts[3].type, "image")
         self.assertEqual(len(result.posts[3].images), 4)
 
+    def testFanboxArtistPostsNextPage(self):
+        p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()
+        result = FanboxArtist(15521131, p2)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artist_id, 15521131)
+        self.assertFalse(result.hasNextPage)
+        self.assertTrue(result.nextUrl is None)
+        self.assertEqual(len(result.posts), 1)
+
     def testFanboxArtistPostsRestricted(self):
         p = open('./test/Fanbox_artist_posts_restricted.json', 'r').read()
         result = FanboxArtist(15521131, p)
@@ -66,10 +76,23 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.artist_id, 15521131)
         self.assertTrue(result.hasNextPage)
         self.assertTrue(len(result.nextUrl) > 0)
-        self.assertTrue(len(result.posts) > 0)
+        self.assertEqual(len(result.posts), 10)
 
         for post in result.posts:
             self.assertTrue(post.is_restricted)
+
+    def testFanboxArtistPostsRestrictedNextPage(self):
+        p = open('./test/Fanbox_artist_posts_next_page_restricted.json', 'r').read()
+        result = FanboxArtist(15521131, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artist_id, 15521131)
+        self.assertFalse(result.hasNextPage)
+        self.assertTrue(result.nextUrl is None)
+        self.assertEqual(len(result.posts), 6)
+
+        self.assertTrue(result.posts[0].is_restricted)
+        self.assertFalse(result.posts[1].is_restricted)
 
 if __name__ == '__main__':
         # unittest.main()
