@@ -1783,10 +1783,10 @@ def menu_fanbox_download_supported_artist():
 
     result = __br__.fanboxGetSupportedUsers()
     if len(result.supportedArtist) == 0:
-        PixivHelper.print_and_log(info, "No supported artist!")
+        PixivHelper.print_and_log("info", "No supported artist!")
         return
-    PixivHelper.print_and_log(info, "Found {0} supported artist(s)".format(len(result.supportedArtist)))
-    PixivHelper.print_and_log(info, result.supportedArtist)
+    PixivHelper.print_and_log("info", "Found {0} supported artist(s)".format(len(result.supportedArtist)))
+    PixivHelper.print_and_log("info", result.supportedArtist)
 
     for artist_id in result.supportedArtist:
         processFanboxArtist(artist_id, end_page)
@@ -1795,7 +1795,7 @@ def menu_fanbox_download_supported_artist():
 def processFanboxArtist(artist_id, end_page):
     current_page = 1
     while(True):
-        PixivHelper.print_and_log(info, "Processing {0}, page {1}".format(artist_id, current_page))
+        PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist_id, current_page))
         result_artist = __br__.fanboxGetPostsFromArtist(artist_id)
 
         for post in result_artist.posts:
@@ -1817,24 +1817,24 @@ def processFanboxArtist(artist_id, end_page):
                                                     __config__.backupOldFile)
 
             else:
-                PixivHelper.print_and_log(info, "No Cover Image for post: {0}.".format(post.post_id))
+                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.post_id))
 
             # images
             if post.type == 'images':
                 processFanboxImages(post)
 
         if not result_artist.hasNextPage:
-            PixivHelper.print_and_log(info, "No more post for {0}".format(artist_id))
+            PixivHelper.print_and_log("info", "No more post for {0}".format(artist_id))
             break
         current_page = current_page + 1
         if current_page > end_page:
-            PixivHelper.print_and_log(info, "Reaching page limit for {0}, limit {1}".format(artist_id, end_page))
+            PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist_id, end_page))
             break
 
 
 def processFanboxImages(post):
     if post.is_restricted:
-        PixivHelper.print_and_log(info, "Skipping post: {0} due to restricted post.".format(post.post_id))
+        PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.post_id))
         return
 
     current_page = 0
