@@ -424,7 +424,7 @@ def dumpHtml(filename, html):
                     isDumpEnabled = False
 
     if html is not None and len(html) == 0:
-        print_and_log('info', 'Empty Html')
+        print_and_log('info', 'Empty Html.')
         return ""
 
     if isDumpEnabled:
@@ -435,8 +435,9 @@ def dumpHtml(filename, html):
             return filename
         except Exception as ex:
             print_and_log('error', ex.message)
+        print_and_log("info", "Dump File created: {0}".format(filename))
     else:
-        print_and_log('info', 'No Dump')
+        print_and_log('info', 'Dump not enabled.')
     return ""
 
 

@@ -1,4 +1,4 @@
-import PixivException
+from PixivException import PixivException
 import PixivHelper
 import demjson
 import datetime_z
@@ -67,7 +67,7 @@ class FanboxPost:
     worksDate = ""
     worksDateDateTime = None
     updatedDatetime = ""
-    # image|text
+    # image|text|file
     type = ""
     body_text = ""
     images = None
@@ -89,6 +89,7 @@ class FanboxPost:
         self.imageId = int(post_id)
         self.parent = parent
         self.parsePost(page)
+
         if not self.is_restricted:
             self.parseBody(page)
             if self.type == 'image':
@@ -101,6 +102,9 @@ class FanboxPost:
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
+        if self.type not in ["image", "text"]:
+            raise PixivException("Unsupported post type = {0} for post = ".format(self.type, self.imageId), errorCode=9999, htmlPage=jsPost)
+
         self.likeCount = int(jsPost["likeCount"])
         if jsPost["body"] is None:
             self.is_restricted = True

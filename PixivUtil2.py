@@ -1786,7 +1786,7 @@ def menu_fanbox_download_supported_artist():
         PixivHelper.print_and_log("info", "No supported artist!")
         return
     PixivHelper.print_and_log("info", "Found {0} supported artist(s)".format(len(result.supportedArtist)))
-    PixivHelper.print_and_log("info", result.supportedArtist)
+    print(result.supportedArtist)
 
     for artist_id in result.supportedArtist:
         processFanboxArtist(artist_id, end_page)
@@ -1871,13 +1871,17 @@ def processFanboxImages(post, result_artist):
         print("Downloading image {0} from {1}".format(current_page, image_url))
         print("Saved to {0}".format(filename))
 
+        # filesize detection and overwrite issue
+        _oldvalue = __config__.alwaysCheckFileSize
+        __config__.alwaysCheckFileSize = False
         # don't pass the post id and page number to skip db check
         (result, filename) = download_image(image_url,
                                             filename,
                                             referer,
-                                            __config__.overwrite,
+                                            False,  # __config__.overwrite somehow unable to get remote filesize
                                             __config__.retry,
                                             __config__.backupOldFile)
+        __config__.alwaysCheckFileSize = _oldvalue
         current_page = current_page + 1
 
 
@@ -2015,6 +2019,12 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
             PixivHelper.clearScreen()
             print("Restarting...")
             selection = menu()
+        except PixivException as ex:
+            if ex.htmlPage is not None:
+                filename = PixivHelper.sanitizeFilename(ex.value)
+                PixivHelper.dumpHtml("Dump for {0}.html".format(filename), ex.htmlPage)
+            raise  # keep old behaviour
+
     return np_is_valid, op_is_valid, selection
 
 
