@@ -1809,12 +1809,14 @@ def processFanboxArtist(artist_id, end_page):
             print("Is Restricted = {0}".format(post.is_restricted))
             # cover image
             if post.coverImageUrl is not None:
+                # fake the image_url for filename compatibility, add post id and pagenum
+                fake_image_url = post.coverImageUrl.replace("{0}/".format(post.imageId), "{0}_".format(post.imageId, current_page))
                 filename = PixivHelper.makeFilename(__config__.filenameFormat,
                                                     post,
                                                     artistInfo=result_artist,
                                                     tagsSeparator=__config__.tagsSeparator,
                                                     tagsLimit=__config__.tagsLimit,
-                                                    fileUrl=post.coverImageUrl,
+                                                    fileUrl=fake_image_url,
                                                     bookmark=None,
                                                     searchTags='')
                 filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
