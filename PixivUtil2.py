@@ -1857,14 +1857,20 @@ def processFanboxImages(post, result_artist):
     current_page = 0
     print("Image Count = {0}".format(len(post.images)))
     for image_url in post.images:
+
+        # fake the image_url for filename compatibility, add post id and pagenum
+        fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
+        _oldposttype = post.type
+        post.type = 'manga'
         filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
                                             post,
                                             artistInfo=result_artist,
                                             tagsSeparator=__config__.tagsSeparator,
                                             tagsLimit=__config__.tagsLimit,
-                                            fileUrl=image_url,
+                                            fileUrl=fake_image_url,
                                             bookmark=None,
                                             searchTags='')
+        post.type = _oldposttype
         filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
         referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
 
