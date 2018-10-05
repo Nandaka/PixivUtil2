@@ -5,9 +5,12 @@ from __future__ import print_function
 import sys
 import os
 import unittest
+import re
 
 from PixivModelFanbox import Fanbox, FanboxArtist, FanboxPost
 import PixivHelper
+
+temp = PixivHelper.__re_manga_index
 
 
 class TestPixivModel_Fanbox(unittest.TestCase):
@@ -93,6 +96,53 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         self.assertTrue(result.posts[0].is_restricted)
         self.assertFalse(result.posts[1].is_restricted)
+
+    def testFanboxFilename(self):
+        p = open('./test/Fanbox_artist_posts.json', 'r').read()
+        result = FanboxArtist(15521131, p)
+        self.assertIsNotNone(result)
+        root_dir = os.path.abspath(os.path.curdir)
+        post = result.posts[0]
+        image_url = post.images[0]
+        current_page = 0
+        fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
+
+        re_page = temp.findall(fake_image_url)
+        self.assertIsNotNone(re_page)
+        self.assertEqual(re_page[0], u"0")
+
+        def simple_from_images():
+            filename_format = '%title%_%urlFilename%'
+
+            filename = PixivHelper.makeFilename(filename_format,
+                                                post,
+                                                artistInfo=result,
+                                                tagsSeparator=" ",
+                                                tagsLimit=0,
+                                                fileUrl=fake_image_url,
+                                                bookmark=None,
+                                                searchTags='')
+            filename = PixivHelper.sanitizeFilename(filename, root_dir)
+
+            self.assertEqual(filename, root_dir + os.sep + u"アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu.jpeg")
+        simple_from_images()
+
+        def more_format():
+            # from images
+            filename_format = '%member_id%' + os.sep + '%image_id%_p%page_index%_%title%_%urlFilename%_%works_date%'
+
+            filename = PixivHelper.makeFilename(filename_format,
+                                                post,
+                                                artistInfo=result,
+                                                tagsSeparator=" ",
+                                                tagsLimit=0,
+                                                fileUrl=fake_image_url,
+                                                bookmark=None,
+                                                searchTags='')
+            filename = PixivHelper.sanitizeFilename(filename, root_dir)
+
+            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_p0_アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg")
+        more_format()
 
 if __name__ == '__main__':
         # unittest.main()

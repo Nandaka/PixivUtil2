@@ -185,7 +185,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         if len(idx) > 0:
             page_index = idx[0]
             page_number = str(int(page_index) + 1)
-            padding = len(str(imageInfo.imageCount))
+            padding = len(str(imageInfo.imageCount)) or 1
             page_number = str(page_number)
             page_number = page_number.zfill(padding)
         if fileUrl.find('_big') > -1 or not fileUrl.find('_m') > -1:

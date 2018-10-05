@@ -75,11 +75,14 @@ class FanboxPost:
     parent = None
     is_restricted = False
 
+    # compatibility
+    imageMode = ""
+    imageCount = 0
+
     # not implemented
     worksResolution = ""
     worksTools = ""
     searchTags = ""
-    imageMode = ""
     imageTags = list()
     bookmark_count = 0
     image_response_count = 0
@@ -96,6 +99,10 @@ class FanboxPost:
                 self.parseImages(page)
             if self.type == 'file':
                 self.parseFiles(page)
+        # compatibility for PixivHelper.makeFilename()
+        self.imageCount = len(self.images)
+        if self.imageCount > 0:
+            self.imageMode = "manga"
 
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
