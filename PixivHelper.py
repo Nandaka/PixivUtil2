@@ -573,7 +573,7 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
 
 def makeSubdirs(filename):
     directory = os.path.dirname(filename)
-    if not os.path.exists(directory):
+    if not os.path.exists(directory) and len(directory) > 0:
         print_and_log('info', u'Creating directory: ' + directory)
         os.makedirs(directory)
 
@@ -724,7 +724,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         if len(filenamePattern) == 0:
             filenamePattern = "url_list_%Y%m%d"
         filename = date.today().strftime(filenamePattern) + ".txt"
-
+        makeSubdirs(filename)
         info = codecs.open(filename, 'a', encoding='utf-8')
         info.write("#" + str(image.imageId) + "\r\n")
         for link in valid_url:

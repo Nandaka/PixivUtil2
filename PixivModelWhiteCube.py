@@ -4,14 +4,16 @@ from __future__ import print_function
 
 import re
 import json
-import demjson
 from collections import OrderedDict
+import urllib
+
+import demjson
 from BeautifulSoup import BeautifulSoup
+import datetime_z
 
 import PixivModel
 from PixivModel import PixivException
 import PixivHelper
-import datetime_z
 
 re_payload = re.compile(r"(\{token.*\})\);")
 
@@ -253,6 +255,18 @@ class PixivImage(PixivModel.PixivImage):
 
         self.bookmark_count = root["bookmarkCount"]
         self.image_response_count = root["responseCount"]
+
+        # Issue 421
+        parsed = BeautifulSoup(self.imageCaption)
+        links = parsed.findAll('a')
+        if links is not None and len(links) > 0:
+            for link in links:
+                link_str = link["href"]
+                # "/jump.php?http%3A%2F%2Farsenixc.deviantart.com%2Fart%2FWatchmaker-house-567480110"
+                if link_str.startswith("/jump.php?"):
+                    link_str = link_str[10:]
+                    link_str = urllib.unquote(link_str)
+                self.descriptionUrlList.append(link_str)
 
     def ParseImages(self, page, mode=None, _br=None):
         pass
