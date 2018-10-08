@@ -1,11 +1,13 @@
-20181006-alpha2
-- Start Implement #402: allow download from pixiv Fanbox.
+20181008
+- Implement #402: allow download from pixiv Fanbox.
   - Use 'f1' to download from the artists you following.
   - Use 'f2' to download specific artist you want to download. Please note you need to follow the artist Fanbox, else it will only get the free post.
   - Limitation:
     - Somehow the file size detection doesn't works, so the overwrite feature is disabled.
     - The original url is modified for compatibility when generating the local filename.
     - Currently only support 'text', 'image', and 'file' post type.
+- Implement #420: enable timezone adjustment for works date. Set uselocaltimezone = True to enable in config.ini
+- Fix Issue #421: update parser for url in description.
 
 20180928
 - Fix Issue #415: change 'or' to 'and', reformat code to conform pep8.
