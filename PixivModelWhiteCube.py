@@ -129,8 +129,10 @@ class PixivArtist(PixivModel.PixivArtist):
 
 
 class PixivImage(PixivModel.PixivImage):
+    _tzInfo = None
+
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
-                 bookmark_count=-1, image_response_count=-1, dateFormat=None):
+                 bookmark_count=-1, image_response_count=-1, dateFormat=None, tzInfo=None):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
@@ -138,6 +140,7 @@ class PixivImage(PixivModel.PixivImage):
         self.imageUrls = []
         self.dateFormat = dateFormat
         self.descriptionUrlList = []
+        self._tzInfo = tzInfo
 
         if page is not None:
             payload = parseJs(page)
@@ -233,6 +236,10 @@ class PixivImage(PixivModel.PixivImage):
         # datetime, in utc
         # "createDate" : "2018-06-08T15:00:04+00:00",
         self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
+        # Issue #420
+        if self._tzInfo is not None:
+            self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+
         tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 

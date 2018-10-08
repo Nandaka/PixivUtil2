@@ -20,7 +20,8 @@ import urllib2
 import imageio
 import shutil
 import tempfile
-from datetime import datetime, date
+from datetime import datetime, date, tzinfo, timedelta
+
 import traceback
 import urllib
 from apng import APNG
@@ -570,16 +571,20 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
     return req
 
 
+def makeSubdirs(filename):
+    directory = os.path.dirname(filename)
+    if not os.path.exists(directory):
+        print_and_log('info', u'Creating directory: ' + directory)
+        os.makedirs(directory)
+
+
 def downloadImage(url, filename, res, file_size, overwrite):
     ''' Actual download, return the downloaded filesize and saved filename.'''
     start_time = datetime.now()
 
     # try to save to the given filename + .pixiv extension if possible
     try:
-        directory = os.path.dirname(filename)
-        if not os.path.exists(directory):
-            print_and_log('info', u'Creating directory: ' + directory)
-            os.makedirs(directory)
+        makeSubdirs(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
     except IOError:
         print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
@@ -909,3 +914,30 @@ def decode_tags(tags):
         search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
         search_tags = toUnicode(search_tags)
     return search_tags
+
+
+# Issue 420
+class LocalUTCOffsetTimezone(tzinfo):
+    def __init__(self, offset=0, name=None):
+        self.offset = time.timezone * -1
+        is_dst = time.localtime().tm_isdst
+        self.name = time.tzname[0] if not is_dst and len(time.tzname) > 1 else time.tzname[1]
+
+    def __str__(self):
+        return "{0}{1:02d}{2:02d}".format("-" if self.offset < 0 else "+", self.offset / 60 / 60, self.offset / 60 % 60)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def utcoffset(self, dt):
+        return timedelta(seconds=self.offset)
+
+    def tzname(self, dt):
+        return self.name
+
+    def dst(self, dt):
+        return timedelta(0) if (time.localtime().tm_isdst == 0) else timedelta(seconds=time.timezone - time.altzone)
+
+    def getTimeZoneOffset():
+        offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+        return offset / 60 / 60 * -1

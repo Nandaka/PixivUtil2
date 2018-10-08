@@ -28,13 +28,15 @@ class FanboxArtist:
     posts = None
     nextUrl = None
     hasNextPage = False
+    _tzInfo = None
 
     # require additional API call
     artistName = ""
     artistToken = ""
 
-    def __init__(self, artist_id, page):
+    def __init__(self, artist_id, page, tzInfo=None):
         self.artistId = int(artist_id)
+        self._tzInfo = tzInfo
         js = demjson.decode(page)
 
         if js["error"]:
@@ -52,7 +54,7 @@ class FanboxArtist:
 
         for jsPost in post_root["items"]:
             post_id = int(jsPost["id"])
-            post = FanboxPost(post_id, self, jsPost)
+            post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
             self.posts.append(post)
 
         self.nextUrl = post_root["nextUrl"]
@@ -78,6 +80,7 @@ class FanboxPost:
     # compatibility
     imageMode = ""
     imageCount = 0
+    _tzInfo = None
 
     # not implemented
     worksResolution = ""
@@ -87,11 +90,12 @@ class FanboxPost:
     bookmark_count = 0
     image_response_count = 0
 
-    def __init__(self, post_id, parent, page):
+    def __init__(self, post_id, parent, page, tzInfo=None):
         self.images = list()
         self.imageId = int(post_id)
         self.parent = parent
         self.parsePost(page)
+        self._tzInfo = tzInfo
 
         if not self.is_restricted:
             self.parseBody(page)
@@ -109,6 +113,10 @@ class FanboxPost:
         self.coverImageUrl = jsPost["coverImageUrl"]
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
+        # Issue #420
+        if self._tzInfo is not None:
+            self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
         if self.type not in ["image", "text", "file"]:

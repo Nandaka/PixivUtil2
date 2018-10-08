@@ -808,7 +808,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     print('')
 
             if __config__.writeImageInfo or __config__.writeImageJSON:
-                filename_info_format = __config__.filenameInfoFormat
+                filename_info_format = __config__.filenameInfoFormat or __config__.filenameFormat
                 info_filename = PixivHelper.makeFilename(filename_info_format, image, tagsSeparator=__config__.tagsSeparator,
                                                     tagsLimit=__config__.tagsLimit, fileUrl=url, appendExtension=False, bookmark=bookmark,
                                                     searchTags=search_tags)
@@ -2197,6 +2197,9 @@ def main():
                 PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
                 PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
                 PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
+
+        if __config__.useLocalTimezone:
+            PixivHelper.print_and_log("info", "Using local timezone: {0}".format(PixivHelper.LocalUTCOffsetTimezone()))
 
         username = __config__.username
         if username == '':

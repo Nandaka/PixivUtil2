@@ -669,6 +669,9 @@ class PixivImage:
     def WriteInfo(self, filename):
         info = None
         try:
+            # Issue #421 ensure subdir exists.
+            PixivHelper.makeSubdirs(filename)
+
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
@@ -699,6 +702,8 @@ class PixivImage:
     def WriteJSON(self, filename):
         info = None
         try:
+            # Issue #421 ensure subdir exists.
+            PixivHelper.makeSubdirs(filename)
             info = codecs.open(filename, 'w', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt", 'w', encoding='utf-8')
@@ -726,6 +731,8 @@ class PixivImage:
     def WriteUgoiraData(self, filename):
         info = None
         try:
+            # Issue #421 ensure subdir exists.
+            PixivHelper.makeSubdirs(filename)
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".js", 'wb', encoding='utf-8')

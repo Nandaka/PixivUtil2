@@ -342,13 +342,20 @@ class PixivBrowser(mechanize.Browser):
             try:
                 if response.find("globalInitData") > 0:
                     PixivHelper.print_and_log('debug', 'New UI Mode')
+
+                    # Issue #420
+                    _tzInfo = None
+                    if self._config.useLocalTimezone:
+                        _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+
                     image = PixivModelWhiteCube.PixivImage(image_id,
                                                            response,
                                                            parent,
                                                            from_bookmark,
                                                            bookmark_count,
                                                            image_response_count,
-                                                           dateFormat=self._config.dateFormat)
+                                                           dateFormat=self._config.dateFormat,
+                                                           tzInfo=_tzInfo)
 
                     if image.imageMode == "ugoira_view":
                         ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
@@ -635,7 +642,11 @@ class PixivBrowser(mechanize.Browser):
 
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
         response = self.open(url).read()
-        result = FanboxArtist(artist_id, response)
+        # Issue #420
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        result = FanboxArtist(artist_id, response, tzInfo=_tzInfo)
 
         pixivArtist = PixivModelWhiteCube.PixivArtist(artist_id)
         self.getMemberInfoWhitecube(artist_id, pixivArtist)

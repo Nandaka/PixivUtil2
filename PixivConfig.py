@@ -80,6 +80,7 @@ class PixivConfig:
     createWebm = False
     setLastModified = True
     alwaysCheckFileExists = False
+    useLocalTimezone = False  # Issue #420
 
     # IrfanView
     createDownloadLists = False
@@ -538,6 +539,13 @@ class PixivConfig:
                 self.setLastModified = True
                 haveError = True
 
+            try:
+                self.useLocalTimezone = config.getboolean('Settings', 'useLocalTimezone')
+            except ValueError:
+                print("useLocalTimezone = False")
+                self.useLocalTimezone = False
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -618,6 +626,7 @@ class PixivConfig:
         config.set('Settings', 'deleteUgoira', self.deleteUgoira)
         config.set('Settings', 'createWebm', self.createWebm)
         config.set('Settings', 'setLastModified', self.setLastModified)
+        config.set('Settings', 'useLocalTimezone', self.useLocalTimezone)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -729,6 +738,7 @@ class PixivConfig:
         print(' - deleteUgoira     =', self.deleteUgoira)
         print(' - createWebm       =', self.createWebm)
         print(' - setLastModified  =', self.setLastModified)
+        print(' - useLocalTimezone =', self.useLocalTimezone)
 
         print(' [Pixiv]')
         print(' - numberOfPage =', self.numberOfPage)
