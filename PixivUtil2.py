@@ -101,6 +101,7 @@ __suppressTags = list()
 __log__ = PixivHelper.GetLogger()
 __errorList = list()
 __blacklistMembers = list()
+__valid_options = ()
 
 start_iv = False
 dfilename = ""
@@ -1778,8 +1779,14 @@ def menu_export_online_user_bookmark(opisvalid, args):
     export_bookmark(filename, 'n', 1, 0, member_id)
 
 
-def menu_fanbox_download_supported_artist():
-    end_page = raw_input("Max Page = ") or 0
+def menu_fanbox_download_supported_artist(op_is_valid, args):
+    __log__.info('Download FANBOX Supported Artists mode.')
+    end_page = 0
+
+    if op_is_valid and len(args) > 0:
+        end_page = int(args[0])
+    else:
+        end_page = raw_input("Max Page = ")
 
     result = __br__.fanboxGetSupportedUsers()
     if len(result.supportedArtist) == 0:
@@ -1890,9 +1897,19 @@ def processFanboxImages(post, result_artist):
         current_page = current_page + 1
 
 
-def menu_fanbox_download_by_artist_id():
-    artist_id = raw_input("Artist ID = ")
-    end_page = raw_input("Max Page = ") or 0
+def menu_fanbox_download_by_artist_id(op_is_valid, args):
+    __log__.info('Download FANBOX by Artist ID mode.')
+    end_page = 0
+    artist_id = ''
+
+    if op_is_valid and len(args) > 0:
+        artist_id = str(int(args[0]))
+        if len(args) > 1:
+            end_page = int(args[1])
+    else:
+        artist_id = raw_input("Artist ID = ")
+        end_page = raw_input("Max Page = ")
+
     processFanboxArtist(artist_id, end_page)
 
 
@@ -1912,23 +1929,27 @@ def set_console_title(title=''):
 
 
 def setup_option_parser():
+    global __valid_options
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'd', 'e', 'm')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
-                      help='Action you want to load your program with:            ' +
-                            '1 - Download by member_id                              ' +
-                            '2 - Download by image_id                              ' +
-                            '3 - Download by tags                                    ' +
-                            '4 - Download from list                                 ' +
-                            '5 - Download from user bookmark                        ' +
-                            '6 - Download from user\'s image bookmark               ' +
-                            '7 - Download from tags list                           ' +
-                            '8 - Download new illust from bookmark                  ' +
-                            '9 - Download by Title/Caption                           ' +
-                            '10 - Download by Tag and Member Id                     ' +
-                            '11 - Download images from Member Bookmark               ' +
-                            '12 - Download images by Group Id                        ' +
-                            'e - Export online bookmark                              ' +
-                            'm - Export online user bookmark                         ' +
+                      help='Action you want to load your program with:       ' +
+                            '1 - Download by member_id                       ' +
+                            '2 - Download by image_id                        ' +
+                            '3 - Download by tags                            ' +
+                            '4 - Download from list                          ' +
+                            '5 - Download from user bookmark                 ' +
+                            '6 - Download from user\'s image bookmark        ' +
+                            '7 - Download from tags list                     ' +
+                            '8 - Download new illust from bookmark           ' +
+                            '9 - Download by Title/Caption                   ' +
+                            '10 - Download by Tag and Member Id              ' +
+                            '11 - Download images from Member Bookmark       ' +
+                            '12 - Download images by Group Id                ' +
+                            'f1 - Download from supported artists (FANBOX)   ' +
+                            'f2 - Download by artist id (FANBOX)             ' +
+                            'e - Export online bookmark                      ' +
+                            'm - Export online user bookmark                 ' +
                             'd - Manage database')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
                       help='Exit programm when done. (only useful when not using DB-Manager)',
@@ -1941,6 +1962,7 @@ def setup_option_parser():
     parser.add_option('-c', '--config', dest='configlocation',
                       help='load the config file from a custom location',
                       default=None)
+
     return parser
 
 
@@ -2001,9 +2023,9 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
                 menu_print_config()
             # PIXIV FANBOX
             elif selection == 'f1':
-                menu_fanbox_download_supported_artist()
+                menu_fanbox_download_supported_artist(op_is_valid, args)
             elif selection == 'f2':
-                menu_fanbox_download_by_artist_id()
+                menu_fanbox_download_by_artist_id(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid:
@@ -2069,12 +2091,13 @@ def main():
     global configfile
     global ERROR_CODE
     global __dbManager__
+    global __valid_options
 
     parser = setup_option_parser()
     (options, args) = parser.parse_args()
 
     op = options.startaction
-    if op in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'd', 'e', 'm'):
+    if op in __valid_options:
         op_is_valid = True
     elif op is None:
         op_is_valid = False
