@@ -93,6 +93,13 @@ class PixivArtist(PixivModel.PixivArtist):
                     else:
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
+    def ParseBackground(self, payload):
+        self.artistBackground = "no_background"
+        # https://www.pixiv.net/ajax/user/8021957
+        if payload.has_key("body"):
+            if payload["body"].has_key("background"):
+                self.artistBackground = payload["body"]["background"]["url"]
+
     def ParseImages(self, payload):
         self.imageList = list()
 

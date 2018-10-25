@@ -400,14 +400,6 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
         try:
-            # will throw HTTPError if user is suspended/not logged in.
-            url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
-            info_ajax = self.get_from_cache(url_ajax)
-            if info_ajax is None:
-                info_ajax_str = self.open(url_ajax).read()
-                info_ajax = json.loads(info_ajax_str)
-                self.put_to_cache(url_ajax, info_ajax)
-
             url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
             info = self.get_from_cache(url)
             if info is None:
@@ -417,6 +409,17 @@ class PixivBrowser(mechanize.Browser):
                 self.put_to_cache(url, info)
 
             artist.ParseInfo(info, False, bookmark=bookmark)
+
+            # will throw HTTPError if user is suspended/not logged in.
+            url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
+            info_ajax = self.get_from_cache(url_ajax)
+            if info_ajax is None:
+                info_ajax_str = self.open(url_ajax).read()
+                info_ajax = json.loads(info_ajax_str)
+                self.put_to_cache(url_ajax, info_ajax)
+            # 2nd pass to get the background
+            artist.ParseBackground(info_ajax)
+
             return artist
         except urllib2.HTTPError, error:
             errorCode = error.getcode()
