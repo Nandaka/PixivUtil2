@@ -97,7 +97,7 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistBackground = "no_background"
         # https://www.pixiv.net/ajax/user/8021957
         if payload.has_key("body"):
-            if payload["body"].has_key("background"):
+            if payload["body"].has_key("background") and payload["body"]["background"] is not None:
                 self.artistBackground = payload["body"]["background"]["url"]
 
     def ParseImages(self, payload):
