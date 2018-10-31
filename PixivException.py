@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
+import PixivHelper
 
 
 class PixivException(Exception):
@@ -41,4 +42,6 @@ class PixivException(Exception):
         self.htmlPage = htmlPage
 
     def __str__(self):
-        return str(self.errorCode) + " " + repr(self.value)
+        # return str(self.errorCode) + " " + repr(self.value)
+        has_page = "Y" if self.htmlPage is not None and len(self.htmlPage) > 0 else "N"
+        return PixivHelper.toUnicode(u"{0} {1}, hasDumpPage={2}".format(self.errorCode, self.value, has_page))

@@ -14,6 +14,7 @@ import httplib
 import time
 import sys
 import json
+import demjson
 import re
 
 import PixivHelper
@@ -424,13 +425,23 @@ class PixivBrowser(mechanize.Browser):
         except urllib2.HTTPError, error:
             errorCode = error.getcode()
             errorMessage = error.get_data()
-            payload = json.loads(errorMessage)
+            PixivHelper.GetLogger().error("Error data: \r\n" + errorMessage)
+            payload = demjson.decode(errorMessage)
+            # Issue #432
+            if payload.has_key("message"):
+                msg = payload["message"]
+            elif payload.has_key("error") and payload["error"] is not None:
+                msgs = list()
+                msgs.append(payload["error"]["user_message"])
+                msgs.append(payload["error"]["message"])
+                msgs.append(payload["error"]["reason"])
+                msg = ",".join(msgs)
             if errorCode == 401:
-                raise PixivException(payload["message"], errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
             elif errorCode == 403:
-                raise PixivException(payload["message"], errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
             else:
-                raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
 
 ##    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
