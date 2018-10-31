@@ -5,12 +5,12 @@
   - Windows Vista and up.
 
 - Running from source code:
-  - Python 2.7.11++ (http://www.python.org/)
-  - BeautifulSoup 3.2.1 (http://www.crummy.com/software/BeautifulSoup/)
+  - Python 2.7.11++ (https://www.python.org/)
+  - BeautifulSoup 3.2.1 (https://www.crummy.com/software/BeautifulSoup/)
   - mechanize (http://wwwsearch.sourceforge.net/mechanize/)
   - socksipy-branch 1.2 (http://socksipy.sourceforge.net/)
-  - Pillow (https://python-pillow.github.io/)
-  - imageio(https://imageio.github.io/)
+  - Pillow (https://python-pillow.org/)
+  - imageio (https://imageio.github.io/)
   - numpy (https://github.com/numpy/numpy)
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
@@ -23,13 +23,13 @@
 - Download by image_id
 - Download by tags
 - Download from list (list.txt)
-- Download from user bookmark (http://www.pixiv.net/bookmark.php?type=user),
+- Download from user bookmark (https://www.pixiv.net/bookmark.php?type=user),
   including private/hidden bookmarks.
-- Download from image bookmark (http://www.pixiv.net/bookmark.php), including
+- Download from image bookmark (https://www.pixiv.net/bookmark.php), including
   private/hidden bookmarks.
 - Download from tags list (tags.txt)
 - Download new illustrations from bookmarks
-  (http://www.pixiv.net/bookmark_new_illust.php)
+  (https://www.pixiv.net/bookmark_new_illust.php)
 - Manage database:
   - Show all member
   - Show all downloaded images
@@ -70,7 +70,7 @@ A.Usage:
       - Check your password.
       - Try to login to the Pixiv Website.
       - Try to use the config.ini on the [Authentication] section.
-      - Check your date and time setting (e.g.: http://www.timeanddate.com/)
+      - Check your date and time setting (e.g.: https://www.timeanddate.com/)
       - Disable Daylight Saving Time and try again.
       - Copy your session values from browser:
         1. Open Firefox.
@@ -123,7 +123,7 @@ B.Bugs/Source Code/Supports:
   Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
       - Please modify _html.py from mechanize library, search for
         'def unescape_charref(data, encoding):' and replace with patch in
-        http://pastebin.com/5bT5HFkb.
+        https://pastebin.com/5bT5HFkb.
   Q5. I got '<library_name> module no found error'
       - Download the library from the source (see links from the Requirements
         section) and copy the file into your Lib\site-packages directory.
