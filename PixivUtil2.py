@@ -2134,6 +2134,9 @@ def main():
     if __br__ is None:
         __br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
+    if __config__.checkNewVersion:
+        PixivHelper.check_version()
+
     selection = None
 
     # Yavos: adding File for downloadlist

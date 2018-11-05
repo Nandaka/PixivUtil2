@@ -8,8 +8,6 @@ import codecs
 from HTMLParser import HTMLParser
 import subprocess
 import sys
-import PixivModel
-import PixivConstant
 import logging
 import logging.handlers
 import zipfile
@@ -21,6 +19,10 @@ import imageio
 import shutil
 import tempfile
 from datetime import datetime, date, tzinfo, timedelta
+
+import PixivModel
+import PixivConstant
+import PixivBrowserFactory
 
 import traceback
 import urllib
@@ -900,6 +902,19 @@ def encode_tags(tags):
             except UnicodeDecodeError:
                 print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
     return tags
+
+
+def check_version():
+    br = PixivBrowserFactory.getBrowser()
+    result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
+    page = result.read()
+    latest_version_full = re.findall("PIXIVUTIL_VERSION = \'(\d+)(.*)\'", page)
+
+    latest_version_int = int(latest_version_full[0][0])
+    curr_version_int = int(re.findall("(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
+    is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
+    if latest_version_int > curr_version_int:
+        print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
 
 
 def decode_tags(tags):

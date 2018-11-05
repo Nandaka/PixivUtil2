@@ -1,3 +1,11 @@
+20181105
+- Fix Issue #432: Fix parser for suspended users.
+- Fix Issue #429: Fix parser for user background image.
+- Implement #423: Update command line switches for FANBOX.
+- Add new config to check latest version in github.
+  - set `checknewversion = False` in the `[Network]` section at config.ini
+- Update readme.txt
+
 20181008
 - Implement #402: allow download from pixiv Fanbox.
   - Use 'f1' to download from the artists you following.

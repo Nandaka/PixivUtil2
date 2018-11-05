@@ -30,6 +30,7 @@ class PixivConfig:
     retry = 3
     retryWait = 5
     downloadDelay = 2
+    checkNewVersion = True
 
     # Authentication related
     username = ''
@@ -546,6 +547,13 @@ class PixivConfig:
                 self.useLocalTimezone = False
                 haveError = True
 
+            try:
+                self.checkNewVersion = config.getboolean('Network', 'checkNewVersion')
+            except ValueError:
+                print("checkNewVersion = True")
+                self.checkNewVersion = True
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -572,6 +580,7 @@ class PixivConfig:
         config.set('Network', 'retry', self.retry)
         config.set('Network', 'retrywait', self.retryWait)
         config.set('Network', 'downloadDelay', self.downloadDelay)
+        config.set('Network', 'checkNewVersion', self.checkNewVersion)
 
         config.add_section('Debug')
         config.set('Debug', 'logLevel', self.logLevel)
@@ -683,7 +692,8 @@ class PixivConfig:
         print(' - timeout          =', self.timeout)
         print(' - retry            =', self.retry)
         print(' - retryWait        =', self.retryWait)
-        print(' - downloadDelay      =', self.downloadDelay)
+        print(' - downloadDelay    =', self.downloadDelay)
+        print(' - checkNewVersion  =', self.checkNewVersion)
 
         print(' [Debug]')
         print(' - logLevel         =', self.logLevel)

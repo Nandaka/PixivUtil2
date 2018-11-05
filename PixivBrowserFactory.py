@@ -121,9 +121,9 @@ class PixivBrowser(mechanize.Browser):
 
     def open_with_retry(self, url, data=None,
                         timeout=mechanize._sockettimeout._GLOBAL_DEFAULT_TIMEOUT,
-                        retry=None):
+                        retry=0):
         retry_count = 0
-        if retry is None:
+        if retry == 0 and self._config is not None:
             retry = self._config.retry
 
         while True:
