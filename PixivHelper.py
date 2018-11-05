@@ -22,7 +22,6 @@ from datetime import datetime, date, tzinfo, timedelta
 
 import PixivModel
 import PixivConstant
-import PixivBrowserFactory
 
 import traceback
 import urllib
@@ -905,6 +904,7 @@ def encode_tags(tags):
 
 
 def check_version():
+    import PixivBrowserFactory
     br = PixivBrowserFactory.getBrowser()
     result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
     page = result.read()
