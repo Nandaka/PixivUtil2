@@ -12,7 +12,7 @@ from BeautifulSoup import BeautifulSoup
 import datetime_z
 
 import PixivModel
-from PixivModel import PixivException
+from PixivException import PixivException
 import PixivHelper
 
 re_payload = re.compile(r"(\{token.*\})\);")
