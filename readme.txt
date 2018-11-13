@@ -1,8 +1,8 @@
 ================================================================================
-= Requirement:                                                                 =
+= Requirements:                                                                 =
 ================================================================================
-- Running from windows binary:
-  - Windows Vista and up.
+- Running from Windows binary:
+  - Windows Vista or a more recent version.
 
 - Running from source code:
   - Python 2.7.11++ (https://www.python.org/)
@@ -55,7 +55,7 @@ Overusage can lead to Pixiv blocking your IP for a few hours.
 = FAQs:                                                                        =
 ================================================================================
 A.Usage:
-  Q1. How to paste japanese tags to the console window?
+  Q1. How to paste Japanese tags to the console window?
       - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
         it show up as question mark -> Change the Language for non-Unicode
         program to Japanese (google it).
@@ -64,9 +64,9 @@ A.Usage:
       - or paste it to tags.txt and select download by tags list. Separate each
         tags with space, and separate with new line for new query.
   Q2. My password doesn't show up in the console!
-      - This is normal. The program still read it.
+      - This is normal. The program still reads it.
       - or you can put in the config.ini if not sure.
-  Q3. I cannot login to pixiv!
+  Q3. I cannot login to Pixiv!
       - Check your password.
       - Try to login to the Pixiv Website.
       - Try to use the config.ini on the [Authentication] section.
@@ -104,13 +104,13 @@ A.Usage:
       - Check the value of r18mode in config.ini. Setting it to True will only
         download R-18 images.
   Q7. The apps show square/question mark texts in the console output!
-      - This is because your windows is not to Japanese for the Regional Settings
+      - This is because your Windows is not set to Japanese for the Regional Settings
         in control panel.
       - Since 20161114+ version, you need to set the console font properties to
         use font with unicode support (e.g. Arial Unicode, MS Gothic).
 
 B.Bugs/Source Code/Supports:
-  Q1. Where I can report for bugs?
+  Q1. Where I can report bugs?
       - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
   Q2. Where I can support/donate to you?
       - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
@@ -131,7 +131,7 @@ B.Bugs/Source Code/Supports:
 
 C.Log Messages:
 Q1: HTTPError: HTTP Error 404: Not Found
-    - This is because the file doesn't exists in the pixiv server, usually
+    - This is because the file doesn't exist in the pixiv server, usually
        because there is no big images version for the manga mode (currently the
        apps will try to download the big version first then try the normal size
        if failed, this is only for the manga mode and it is normal).
@@ -140,16 +140,16 @@ Q2: Error at process_image(): (<type 'exceptions.WindowsError'>, WindowsError
     (32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin
     kaytossa')
     - The file is being used by another process (google translate). Either you
-      ran multiple instace of pixiv downloader from the same folder, or there
+      ran multiple instace of Pixiv downloader from the same folder, or there
       are other processes locking the file/db.sqllite (usually from antivirus
       or some sync/backup application).
 
 Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
     AttributeError ("'NoneType' object has no attribute 'find'",)
-    - Usually this is because of login failed (cookie not valid). Try to change
+    - Usually this is because of failed login (cookie not valid). Try to change
       your password to simple one for testing, or copy the cookie from browser:
       1. Open Firefox/Chrome.
-      2. Login to your pixiv.
+      2. Login to your Pixiv.
       3. Right click the page and select View Page Info -> Security tab (Firefox), or
          Right click on the leftmost address bar/the (i) icon (Chrome)
       5. Click the View Cookies button.
@@ -157,19 +157,19 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
       7. Copy the content value.
       8. Open config.ini, go to [Authentication] section, paste the value to
          cookie.
-    - Or because pixiv have changed the layout code, so the pixiv
-      downloader cannot parse the page correctly. Please tell me by put a
-      comment if this happen and include the details, such as the member/image
+    - Or because Pixiv has changed the layout code, so the Pixiv
+      downloader cannot parse the page correctly. Please tell me by posting a
+      comment if this happens and include the details, such as the member/image
       id, dump html, and log file (check on the application folder).
 
 Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
-    - This is because the pixiv downloader cannot resolve the address to
+    - This is because the Pixiv downloader cannot resolve the address to
       download the images, please try to restart the network connection or do
       ipconfig /flushdns to refresh the dns cache (windows).
 
 Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
-    - This is because the pixiv downloaded didn't receive any reply for
-      specified time in config.ini from pixiv. Please retry the download again
+    - This is because the Pixiv downloader didn't receive any reply for
+      specified time in config.ini from Pixiv. Please retry the download again
       later.
 
 Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
