@@ -5,11 +5,6 @@ python:
 install:
   - pip install -e .
   - pip install pytest
-  - ln -s test.PixivDBManager.py test_PixivDBManager.py
-  - ln -s test.PixivHelper.py test_PixivHelper.py
-  - ln -s test.PixivModel.whitecube.py test_PixivModel_whitecube.py
-  - ln -s test.updateHtml.py test_updateHtml.py
 # command to run tests
 script:
-  - ln -s test.PixivModel.py test_PixivModel.py
   - pytest -v ./test_*
