@@ -12,7 +12,7 @@ import collections
 import urllib
 import PixivHelper
 import urlparse
-import PixivException
+from PixivException import PixivException
 from datetime import datetime
 import json
 

@@ -77,7 +77,6 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNone(result.posts[0].coverImageUrl)
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 5)
-        print(result.posts[0].body_text)
         self.assertEqual(len(result.posts[0].body_text), 1292)
 
     def testFanboxArtistPostsNextPage(self):

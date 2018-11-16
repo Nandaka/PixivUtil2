@@ -136,10 +136,10 @@ class FanboxPost:
             for image in jsPost["body"]["imageMap"]:
                 self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
 
-        if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None:
+        if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
             raise PixivException("Unsupported article node = {0} for post = {1}".format("fileMap", self.imageId), errorCode=9999, htmlPage=jsPost)
 
-        if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None:
+        if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
             raise PixivException("Unsupported article node = {0} for post = {1}".format("embedMap", self.imageId), errorCode=9999, htmlPage=jsPost)
 
         if jsPost["body"].has_key("blocks") and jsPost["body"]["blocks"] is not None:
