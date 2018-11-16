@@ -69,7 +69,7 @@ class FanboxPost:
     worksDate = ""
     worksDateDateTime = None
     updatedDatetime = ""
-    # image|text|file
+    # image|text|file|article
     type = ""
     body_text = ""
     images = None
@@ -119,15 +119,39 @@ class FanboxPost:
 
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
-        if self.type not in ["image", "text", "file"]:
-            raise PixivException("Unsupported post type = {0} for post = ".format(self.type, self.imageId), errorCode=9999, htmlPage=jsPost)
+        if self.type not in ["image", "text", "file", "article"]:
+            raise PixivException("Unsupported post type = {0} for post = {1}".format(self.type, self.imageId), errorCode=9999, htmlPage=jsPost)
 
         self.likeCount = int(jsPost["likeCount"])
         if jsPost["body"] is None:
             self.is_restricted = True
 
     def parseBody(self, jsPost):
-        self.body_text = jsPost["body"]["text"]
+        self.body_text = ""
+        if jsPost["body"].has_key("text"):
+            self.body_text = jsPost["body"]["text"]
+
+        # Issue #438
+        if jsPost["body"].has_key("imageMap") and jsPost["body"]["imageMap"] is not None:
+            for image in jsPost["body"]["imageMap"]:
+                self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
+
+        if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None:
+            raise PixivException("Unsupported article node = {0} for post = {1}".format("fileMap", self.imageId), errorCode=9999, htmlPage=jsPost)
+
+        if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None:
+            raise PixivException("Unsupported article node = {0} for post = {1}".format("embedMap", self.imageId), errorCode=9999, htmlPage=jsPost)
+
+        if jsPost["body"].has_key("blocks") and jsPost["body"]["blocks"] is not None:
+            for block in jsPost["body"]["blocks"]:
+                if block["type"] == "p":
+                    self.body_text = u"{0}<p>{1}</p>".format(self.body_text, block["text"])
+                elif block["type"] == "image":
+                    imageId = block["imageId"]
+                    self.body_text = u"{0}<br \><a href='{1}'><img src='{2}'/></a>".format(
+                                     self.body_text,
+                                     jsPost["body"]["imageMap"][imageId]["originalUrl"],
+                                     jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
 
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:

@@ -40,26 +40,45 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         for post in result.posts:
             self.assertFalse(post.is_restricted)
 
-        # post-136761
+        # post-136761 image
         self.assertEqual(result.posts[0].imageId, 136761)
         self.assertTrue(len(result.posts[0].imageTitle) > 0)
         self.assertTrue(len(result.posts[0].coverImageUrl) > 0)
         self.assertEqual(result.posts[0].type, "image")
         self.assertEqual(len(result.posts[0].images), 5)
 
-        # post-132919
+        # post-132919 text
         self.assertEqual(result.posts[2].imageId, 132919)
         self.assertTrue(len(result.posts[2].imageTitle) > 0)
         self.assertIsNone(result.posts[2].coverImageUrl)
         self.assertEqual(result.posts[2].type, "text")
         self.assertEqual(len(result.posts[2].images), 0)
 
-        # post-79695
+        # post-79695 image
         self.assertEqual(result.posts[3].imageId, 79695)
         self.assertTrue(len(result.posts[3].imageTitle) > 0)
         self.assertIsNone(result.posts[3].coverImageUrl)
         self.assertEqual(result.posts[3].type, "image")
         self.assertEqual(len(result.posts[3].images), 4)
+
+    def testFanboxArtistArticle(self):
+        p = open('./test/Fanbox_artist_posts_article.json', 'r').read()
+        result = FanboxArtist(190026, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artistId, 190026)
+        self.assertTrue(result.hasNextPage)
+        self.assertTrue(len(result.nextUrl) > 0)
+        self.assertTrue(len(result.posts) > 0)
+
+        # post-201946 article
+        self.assertEqual(result.posts[0].imageId, 201946)
+        self.assertTrue(len(result.posts[0].imageTitle) > 0)
+        self.assertIsNone(result.posts[0].coverImageUrl)
+        self.assertEqual(result.posts[0].type, "article")
+        self.assertEqual(len(result.posts[0].images), 5)
+        print(result.posts[0].body_text)
+        self.assertEqual(len(result.posts[0].body_text), 1292)
 
     def testFanboxArtistPostsNextPage(self):
         p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()
