@@ -15,6 +15,9 @@
   - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
   - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
   - demjson-2.2.4 (https://github.com/dmeranda/demjson)
+ 
+- Dependent software
+  - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
 
 ================================================================================
 = Capabilities:                                                                =
@@ -108,6 +111,14 @@ A.Usage:
         in control panel.
       - Since 20161114+ version, you need to set the console font properties to
         use font with unicode support (e.g. Arial Unicode, MS Gothic).
+  Q8. Where to get FFmpeg software? How to enable `createwebm`?
+      - Download the stable version of FFmpeg from https://www.ffmpeg.org/download.html.
+      - For Windows:
+        - Extract the archive to a folder.
+        - Open the extracted folder and open to the `/bin` folder.
+        - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
+      - For Linux:
+        - Install the package using your favorite package manager.
 
 B.Bugs/Source Code/Supports:
   Q1. Where I can report bugs?
