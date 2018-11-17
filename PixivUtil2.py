@@ -68,6 +68,7 @@ import PixivConstant
 import PixivConfig
 import PixivDBManager
 import PixivHelper
+import PixivModelFanbox
 from PixivModel import PixivImage, PixivListItem, PixivBookmark, PixivTags
 from PixivModel import PixivNewIllustBookmark, PixivGroup
 from PixivException import PixivException
@@ -1844,7 +1845,7 @@ def processFanboxArtist(artist_id, end_page):
                 PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
 
             # images
-            if post.type == 'image' or post.type == 'file':
+            if post.type in PixivModelFanbox.FanboxPost._supportedType:
                 processFanboxImages(post, result_artist)
             image_count = image_count + 1
 
@@ -1861,6 +1862,9 @@ def processFanboxArtist(artist_id, end_page):
 def processFanboxImages(post, result_artist):
     if post.is_restricted:
         PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
+        return
+    if post.images is None or len(post.images) == 0:
+        PixivHelper.print_and_log("info", "Skipping post: {0} due to no images.".format(post.imageId))
         return
 
     current_page = 0

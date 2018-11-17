@@ -90,6 +90,8 @@ class FanboxPost:
     bookmark_count = 0
     image_response_count = 0
 
+    _supportedType = ["image", "text", "file", "article"]
+
     def __init__(self, post_id, parent, page, tzInfo=None):
         self.images = list()
         self.imageId = int(post_id)
@@ -99,6 +101,7 @@ class FanboxPost:
 
         if not self.is_restricted:
             self.parseBody(page)
+
             if self.type == 'image':
                 self.parseImages(page)
             if self.type == 'file':
@@ -119,7 +122,7 @@ class FanboxPost:
 
         self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
-        if self.type not in ["image", "text", "file", "article"]:
+        if self.type not in FanboxPost._supportedType:
             raise PixivException("Unsupported post type = {0} for post = {1}".format(self.type, self.imageId), errorCode=9999, htmlPage=jsPost)
 
         self.likeCount = int(jsPost["likeCount"])
@@ -127,6 +130,7 @@ class FanboxPost:
             self.is_restricted = True
 
     def parseBody(self, jsPost):
+        ''' Parse general data for text and article'''
         self.body_text = ""
         if jsPost["body"].has_key("text"):
             self.body_text = jsPost["body"]["text"]
