@@ -1,3 +1,8 @@
+20181121
+- Implement #438: update Fanbox parser for article post.
+- Update test script for pytest.
+- Update readme.txt.
+
 20181105
 - Fix Issue #432: Fix parser for suspended users.
 - Fix Issue #429: Fix parser for user background image.
