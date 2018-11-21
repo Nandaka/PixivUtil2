@@ -119,7 +119,12 @@ A.Usage:
         - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
       - For Linux:
         - Install the package using your favorite package manager.
-
+  Q9. The downloaded images are corrupted, how to redownload it again?
+      - You can delete the download history in databases by manually delete the image id 
+        from databases (enter d, followed by 10).
+      - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini 
+        and retry the download.
+	
 B.Bugs/Source Code/Supports:
   Q1. Where I can report bugs?
       - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
