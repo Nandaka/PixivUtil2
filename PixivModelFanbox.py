@@ -141,7 +141,8 @@ class FanboxPost:
                 self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
 
         if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
-            raise PixivException("Unsupported article node = {0} for post = {1}".format("fileMap", self.imageId), errorCode=9999, htmlPage=jsPost)
+            for filename in jsPost["body"]["fileMap"]:
+                self.images.append(jsPost["body"]["fileMap"][filename]["url"])
 
         if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
             raise PixivException("Unsupported article node = {0} for post = {1}".format("embedMap", self.imageId), errorCode=9999, htmlPage=jsPost)
@@ -156,6 +157,12 @@ class FanboxPost:
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
+                elif block["type"] == "file":
+                    fileId = block["fileId"]
+                    self.body_text = u"{0}<br \><a href='{1}'>{2}</a>".format(
+                                     self.body_text,
+                                     jsPost["body"]["fileMap"][fileId]["url"],
+                                     jsPost["body"]["fileMap"][fileId]["name"])
 
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:

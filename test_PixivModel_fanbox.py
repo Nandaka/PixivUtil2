@@ -79,6 +79,24 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts[0].images), 5)
         self.assertEqual(len(result.posts[0].body_text), 1292)
 
+    def testFanboxArtistArticleFileMap(self):
+        p = open('./test/creator_with_filemap.json', 'r').read()
+        result = FanboxArtist(190026, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artistId, 190026)
+        self.assertTrue(result.hasNextPage)
+        self.assertTrue(len(result.nextUrl) > 0)
+        self.assertTrue(len(result.posts) > 0)
+
+        # post-201946 article
+        self.assertEqual(result.posts[0].imageId, 210980)
+        self.assertTrue(len(result.posts[0].imageTitle) > 0)
+        self.assertIsNone(result.posts[0].coverImageUrl)
+        self.assertEqual(result.posts[0].type, "article")
+        self.assertEqual(len(result.posts[0].images), 15)
+        self.assertEqual(len(result.posts[0].body_text), 3006)
+
     def testFanboxArtistPostsNextPage(self):
         p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()
         result = FanboxArtist(15521131, p2)
