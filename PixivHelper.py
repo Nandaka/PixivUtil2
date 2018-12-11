@@ -176,7 +176,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     if nameFormat.find("%date_fmt") > -1:
         to_replace2 = re.findall("(%date_fmt{.*}%)", nameFormat)
         date_format2 = re.findall("{(.*)}", to_replace2[0])
-        nameFormat = nameFormat.replace(to_replace2[0], date.today().strftime(date_format2[0]))
+        nameFormat = nameFormat.replace(to_replace2[0], datetime.today().strftime(date_format2[0]))
 
     # get the page index & big mode if manga
     page_index = ''
