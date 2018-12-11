@@ -1,3 +1,8 @@
+20181212
+- Implement #445: update parser for FANBOX post.
+- Implement #449: enable time format for filename format=%date_fmt{format}%
+- Implement #451: update ugoira creation handler if zip file already exists.
+
 20181121
 - Implement #438: update Fanbox parser for article post.
 - Update test script for pytest.
