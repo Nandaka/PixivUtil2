@@ -1,11 +1,12 @@
-from PixivException import PixivException
-import PixivHelper
+# -*- coding: utf-8 -*-
+# pylint: disable=C1801, C0330
 import demjson
+
 import datetime_z
-import os
+from PixivException import PixivException
 
 
-class Fanbox:
+class Fanbox(object):
     supportedArtist = None
 
     def __init__(self, page):
@@ -23,7 +24,7 @@ class Fanbox:
             self.supportedArtist.append(int(creator["user"]["userId"]))
 
 
-class FanboxArtist:
+class FanboxArtist(object):
     artistId = 0
     posts = None
     nextUrl = None
@@ -40,7 +41,7 @@ class FanboxArtist:
         js = demjson.decode(page)
 
         if js["error"]:
-            raise PixivException("Error when requesting Fanbox artist: {0}".format(artistId), 9999, page)
+            raise PixivException("Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
 
         if js["body"] is not None:
             self.parsePosts(js["body"])
@@ -62,7 +63,7 @@ class FanboxArtist:
             self.hasNextPage = True
 
 
-class FanboxPost:
+class FanboxPost(object):
     imageId = 0
     imageTitle = ""
     coverImageUrl = ""
@@ -153,13 +154,13 @@ class FanboxPost:
                     self.body_text = u"{0}<p>{1}</p>".format(self.body_text, block["text"])
                 elif block["type"] == "image":
                     imageId = block["imageId"]
-                    self.body_text = u"{0}<br \><a href='{1}'><img src='{2}'/></a>".format(
+                    self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
                 elif block["type"] == "file":
                     fileId = block["fileId"]
-                    self.body_text = u"{0}<br \><a href='{1}'>{2}</a>".format(
+                    self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
