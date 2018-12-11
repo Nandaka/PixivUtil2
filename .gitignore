@@ -22,3 +22,5 @@ testapp*/*
 pixivutil.log*
 .pytest_cache/*
 __pycache__/*
+.vscode/*
+.idea/*

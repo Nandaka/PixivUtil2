@@ -1,7 +1,8 @@
 ﻿# -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
+# pylint: disable=I0011, C, C0302, W0603
 from __future__ import print_function
 
+from mechanize import Browser
 import mechanize
 from BeautifulSoup import BeautifulSoup
 import cookielib
@@ -29,7 +30,7 @@ _browser = None
 
 
 # pylint: disable=E1101
-class PixivBrowser(mechanize.Browser):
+class PixivBrowser(Browser):
     _config = None
     _isWhitecube = False
     _whitecubeToken = ""
@@ -53,13 +54,21 @@ class PixivBrowser(mechanize.Browser):
     def __init__(self, config, cookie_jar):
         # fix #218
         try:
-            mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
+            Browser.__init__(self, factory=mechanize.RobustFactory())
         except BaseException:
             PixivHelper.GetLogger().info("Using default factory (mechanize 3.x ?)")
-            mechanize.Browser.__init__(self)
+            Browser.__init__(self)
 
         self._configureBrowser(config)
         self._configureCookie(cookie_jar)
+
+    def clear_history(self):
+        super(PixivBrowser, self).clear_history()
+        return
+
+    def back(self):
+        super(PixivBrowser, self).back()
+        return
 
     def _configureBrowser(self, config):
         if config is None:
@@ -384,7 +393,7 @@ class PixivBrowser(mechanize.Browser):
                         image.ParseImages(parsed)
                     parsed.decompose()
             except:
-                PixivHelper.GetLogger().error("Respose data: \r\n" + response)
+                PixivHelper.GetLogger().error("Respose data: \r\n %s", response)
                 raise
 
         return (image, response)
@@ -425,7 +434,7 @@ class PixivBrowser(mechanize.Browser):
         except urllib2.HTTPError, error:
             errorCode = error.getcode()
             errorMessage = error.get_data()
-            PixivHelper.GetLogger().error("Error data: \r\n" + errorMessage)
+            PixivHelper.GetLogger().error("Error data: \r\n %s", errorMessage)
             payload = demjson.decode(errorMessage)
             # Issue #432
             if payload.has_key("message"):
@@ -739,7 +748,6 @@ def test():
             print(result.artist.PrintInfo())
             assert(len(result.artist.artistToken) > 0)
             assert(not("R-18" in result.imageTags))
-            assert(result.worksTools.find("CLIP STUDIO PAINT") > -1)
 
             print(">>")
             (result2, page2) = b.getImagePage(59628358)

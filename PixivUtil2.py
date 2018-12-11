@@ -1476,7 +1476,7 @@ def menu_download_by_member_bookmark(opisvalid, args):
         if __br__._myId in valid_ids:
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
         for mid in valid_ids:
-            process_member(mid, bookmark=True, tags=tags)
+            process_member(mid, bookmark=True, tags=None)
 
     else:
         member_id = raw_input('Member id: ')
