@@ -1,19 +1,19 @@
 ﻿# -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
 from __future__ import print_function
 
 import ConfigParser
-import sys
 import os
-import PixivHelper
-import shutil
-import time
 import os.path
+import shutil
+import sys
+import time
+
+import PixivHelper
 
 script_path = PixivHelper.module_path()
 
 
-class PixivConfig:
+class PixivConfig(object):
     '''Configuration class'''
     __logger = PixivHelper.GetLogger()
     configFileLocation = "config.ini"
@@ -664,8 +664,7 @@ class PixivConfig:
             if os.path.exists(configlocation):
                 if error:
                     backupName = configlocation + '.error-' + str(int(time.time()))
-                    print("Backing up old config (error exist!) to " +
-                            backupName)
+                    print("Backing up old config (error exist!) to " + backupName)
                     shutil.move(configlocation, backupName)
                 else:
                     print("Backing up old config to config.ini.bak")

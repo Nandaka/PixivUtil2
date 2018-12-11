@@ -24,3 +24,10 @@ pixivutil.log*
 __pycache__/*
 .vscode/*
 .idea/*
+blacklist_members.txt
+blacklist_tags.txt
+ffmpeg.exe
+ignore_list.txt
+numpy-atlas.dll
+tags.txt
+url_list_*.txt

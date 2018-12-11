@@ -1,32 +1,32 @@
 ﻿# -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
+# pylint: disable=W0603
 from __future__ import print_function
 
-import re
-import os
 import codecs
-from HTMLParser import HTMLParser
-import subprocess
-import sys
+import json
 import logging
 import logging.handlers
-import zipfile
-import time
-import unicodedata
-import json
-import urllib2
-import imageio
-import shutil
-import tempfile
-from datetime import datetime, date, tzinfo, timedelta
-
-import PixivModel
-import PixivConstant
-
-import traceback
-import urllib
-from apng import APNG
+import os
+import re
 import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import traceback
+import unicodedata
+import urllib
+import urllib2
+import zipfile
+from datetime import date, datetime, timedelta, tzinfo
+from HTMLParser import HTMLParser
+
+import imageio
+
+import PixivConstant
+import PixivModel
+from apng import APNG
 
 Logger = None
 _config = None
@@ -540,8 +540,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             print_and_log('info', u"\t Found file with different file size, backing up to: " + new_name)
             os.rename(filename, new_name)
         else:
-            print_and_log('info',
-               u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
+            print_and_log('info', u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
             os.remove(filename)
         return PixivConstant.PIXIVUTIL_OK
 
@@ -868,9 +867,7 @@ def ParseDateTime(worksDate, dateFormat):
         try:
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
         except ValueError as ve:
-            GetLogger().exception(
-                'Error when parsing datetime: {0} using date format {1}'.format(worksDate, str(dateFormat)),
-                ve)
+            GetLogger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
             raise
     else:
         worksDate = worksDate.replace(u'/', u'-')
@@ -878,8 +875,7 @@ def ParseDateTime(worksDate, dateFormat):
             try:
                 worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
             except ValueError as ve:
-                GetLogger().exception(
-                    'Error when parsing datetime: {0}'.format(worksDate), ve)
+                GetLogger().exception('Error when parsing datetime: %s', worksDate)
                 worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
             tempDate = worksDate.replace(u'年', '-').replace(u'月', '-').replace(u'日', '')
@@ -908,10 +904,10 @@ def check_version():
     br = PixivBrowserFactory.getBrowser()
     result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
     page = result.read()
-    latest_version_full = re.findall("PIXIVUTIL_VERSION = \'(\d+)(.*)\'", page)
+    latest_version_full = re.findall(r"PIXIVUTIL_VERSION = '(\d+)(.*)'", page)
 
     latest_version_int = int(latest_version_full[0][0])
-    curr_version_int = int(re.findall("(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
+    curr_version_int = int(re.findall(r"(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
     is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
     if latest_version_int > curr_version_int:
         print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
@@ -953,6 +949,6 @@ class LocalUTCOffsetTimezone(tzinfo):
     def dst(self, dt):
         return timedelta(0) if (time.localtime().tm_isdst == 0) else timedelta(seconds=time.timezone - time.altzone)
 
-    def getTimeZoneOffset():
+    def getTimeZoneOffset(self):
         offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
         return offset / 60 / 60 * -1

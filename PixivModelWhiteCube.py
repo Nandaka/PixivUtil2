@@ -2,18 +2,17 @@
 # pylint: disable=I0011, C, C0302
 from __future__ import print_function
 
-import re
 import json
-from collections import OrderedDict
+import re
 import urllib
+from collections import OrderedDict
 
 import demjson
 from BeautifulSoup import BeautifulSoup
-import datetime_z
 
+import datetime_z
 import PixivModel
 from PixivException import PixivException
-import PixivHelper
 
 re_payload = re.compile(r"(\{token.*\})\);")
 

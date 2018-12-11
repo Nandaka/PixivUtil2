@@ -1,5 +1,4 @@
 ﻿# -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
 
 
 class PixivException(Exception):

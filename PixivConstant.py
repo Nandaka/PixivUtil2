@@ -1,6 +1,4 @@
 # -*- coding: UTF-8 -*-
-# pylint: disable=I0011, C, C0302
-
 
 PIXIVUTIL_VERSION = '20181212'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'

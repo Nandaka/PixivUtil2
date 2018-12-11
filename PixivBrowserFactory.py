@@ -1,27 +1,27 @@
 ﻿# -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302, W0603
+# pylint: disable=W0603, C0325
 from __future__ import print_function
 
-from mechanize import Browser
-import mechanize
-from BeautifulSoup import BeautifulSoup
 import cookielib
+import httplib
+import json
+import re
 import socket
-import socks
-import urlparse
+import sys
+import time
 import urllib
 import urllib2
-import httplib
-import time
-import sys
-import json
+import urlparse
+
 import demjson
-import re
+import mechanize
+import socks
+from BeautifulSoup import BeautifulSoup
 
 import PixivHelper
-from PixivException import PixivException
-import PixivModelWhiteCube
 import PixivModel
+import PixivModelWhiteCube
+from PixivException import PixivException
 from PixivModelFanbox import Fanbox, FanboxArtist
 
 defaultCookieJar = None
@@ -30,7 +30,7 @@ _browser = None
 
 
 # pylint: disable=E1101
-class PixivBrowser(Browser):
+class PixivBrowser(mechanize.Browser):
     _config = None
     _isWhitecube = False
     _whitecubeToken = ""
@@ -54,10 +54,10 @@ class PixivBrowser(Browser):
     def __init__(self, config, cookie_jar):
         # fix #218
         try:
-            Browser.__init__(self, factory=mechanize.RobustFactory())
+            mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
         except BaseException:
             PixivHelper.GetLogger().info("Using default factory (mechanize 3.x ?)")
-            Browser.__init__(self)
+            mechanize.Browser.__init__(self)
 
         self._configureBrowser(config)
         self._configureCookie(cookie_jar)
@@ -196,10 +196,10 @@ class PixivBrowser(Browser):
     def _loadCookie(self, cookie_value):
         """ Load cookie to the Browser instance """
         ck = cookielib.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                             port_specified=False, domain='pixiv.net', domain_specified=False,
-                             domain_initial_dot=False, path='/', path_specified=True,
-                             secure=False, expires=None, discard=True, comment=None,
-                             comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+                              port_specified=False, domain='pixiv.net', domain_specified=False,
+                              domain_initial_dot=False, path='/', path_specified=True,
+                              secure=False, expires=None, discard=True, comment=None,
+                              comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
     def _getInitConfig(self, page):
@@ -729,13 +729,13 @@ def test():
             oldest_first = True
             start_page = 1
             (resultS, page) = b.getSearchTagPage(tags, p,
-                                                wild_card,
-                                                title_caption,
-                                                start_date,
-                                                end_date,
-                                                member_id,
-                                                oldest_first,
-                                                start_page)
+                                                 wild_card,
+                                                 title_caption,
+                                                 start_date,
+                                                 end_date,
+                                                 member_id,
+                                                 oldest_first,
+                                                 start_page)
             resultS.PrintInfo()
             assert(len(resultS.itemList) > 0)
 

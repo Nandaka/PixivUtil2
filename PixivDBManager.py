@@ -1,21 +1,23 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
+# pylint: disable=C0330
 from __future__ import print_function
 
+import codecs
+import os
+import re
 import sqlite3
 import sys
-import os
-import codecs
 from datetime import datetime
 
-from PixivModel import PixivListItem
 import PixivConfig
 import PixivHelper
+from PixivModel import PixivListItem
+
 script_path = PixivHelper.module_path()
 
 
-class PixivDBManager:
+class PixivDBManager(object):
     """Pixiv Database Manager"""
     __config__ = None
 
