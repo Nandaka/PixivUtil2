@@ -825,23 +825,29 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             if image.imageMode == 'ugoira_view':
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
-                if __config__.createUgoira and result == PixivConstant.PIXIVUTIL_OK:
+                # Handle #451
+                if __config__.createUgoira and (result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE):
                     ugo_name = filename[:-4] + ".ugoira"
-                    PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
-                    image.CreateUgoira(filename)
+                    if not os.path.exists(ugo_name):
+                        PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
+                        image.CreateUgoira(filename)
+
                     if __config__.deleteZipFile:
                         PixivHelper.print_and_log('info', "Deleting zip file => " + filename)
                         os.remove(filename)
 
                     if __config__.createGif:
                         gif_filename = ugo_name[:-7] + ".gif"
-                        PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira)
+                        if not os.path.exists(gif_filename):
+                            PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira)
                     if __config__.createApng:
                         gif_filename = ugo_name[:-7] + ".png"
-                        PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
+                        if not os.path.exists(gif_filename):
+                            PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
                     if __config__.createWebm:
                         gif_filename = ugo_name[:-7] + ".webm"
-                        PixivHelper.ugoira2webm(ugo_name,
+                        if not os.path.exists(gif_filename):
+                            PixivHelper.ugoira2webm(ugo_name,
                                                 gif_filename,
                                                 __config__.deleteUgoira,
                                                 __config__.ffmpeg,
