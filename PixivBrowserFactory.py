@@ -63,11 +63,11 @@ class PixivBrowser(mechanize.Browser):
         self._configureCookie(cookie_jar)
 
     def clear_history(self):
-        super(PixivBrowser, self).clear_history()
+        mechanize.Browser.clear_history(self)
         return
 
     def back(self):
-        super(PixivBrowser, self).back()
+        mechanize.Browser.back(self)
         return
 
     def _configureBrowser(self, config):
