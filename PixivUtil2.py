@@ -832,7 +832,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                         PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
                         image.CreateUgoira(filename)
 
-                    if __config__.deleteZipFile:
+                    if __config__.deleteZipFile and os.path.exists(filename):
                         PixivHelper.print_and_log('info', "Deleting zip file => " + filename)
                         os.remove(filename)
 
