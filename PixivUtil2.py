@@ -155,8 +155,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     webm_name = filename[:-4] + ".webm"
                     # non-converted zip (no animation.json)
                     if os.path.exists(filename) and os.path.isfile(filename):
-                        # not sure what is the proper handling, currently it will throw error after download due to file already exists.
-                        pass
+                        # update for #451, always return identical?
+                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename)
                     # converted to ugoira (has animation.json)
                     if os.path.exists(ugo_name) and os.path.isfile(ugo_name):
                         old_size = PixivHelper.getUgoiraSize(ugo_name)
