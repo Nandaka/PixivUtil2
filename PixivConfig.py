@@ -64,24 +64,27 @@ class PixivConfig(object):
     writeImageJSON = False
     dateDiff = 0
     backupOldFile = False
-    writeUgoiraInfo = False
-    createUgoira = False
-    deleteZipFile = False
     enableInfiniteLoop = False
     verifyImage = False
     writeUrlInDescription = False
     urlBlacklistRegex = ""
     urlDumpFilename = "url_list_%Y%m%d"
     dbPath = ''
-    createGif = False
     useBlacklistMembers = False
     avatarNameFormat = ""
-    createApng = False
-    deleteUgoira = False
-    createWebm = False
     setLastModified = True
     alwaysCheckFileExists = False
     useLocalTimezone = False  # Issue #420
+
+    # ugoira
+    writeUgoiraInfo = False
+    createUgoira = False
+    deleteZipFile = False
+    createGif = False
+    createApng = False
+    deleteUgoira = False
+    createWebm = False
+    createWebp = False
 
     # IrfanView
     createDownloadLists = False
@@ -94,6 +97,8 @@ class PixivConfig(object):
     ffmpeg = "ffmpeg"
     ffmpegCodec = "libvpx-vp9"
     ffmpegParam = "-lossless 1"
+    webpCodec = "libwebp"
+    webpParam = "-lossless 0 -q:v 90"
 
     # Debug related
     logLevel = "DEBUG"
@@ -379,27 +384,6 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.writeUgoiraInfo = config.getboolean('Settings', 'writeUgoiraInfo')
-            except ValueError:
-                self.writeUgoiraInfo = False
-                print("writeUgoiraInfo = False")
-                haveError = True
-
-            try:
-                self.createUgoira = config.getboolean('Settings', 'createUgoira')
-            except ValueError:
-                self.createUgoira = False
-                print("createUgoira = False")
-                haveError = True
-
-            try:
-                self.deleteZipFile = config.getboolean('Settings', 'deleteZipFile')
-            except ValueError:
-                self.deleteZipFile = False
-                print("deleteZipFile = False")
-                haveError = True
-
-            try:
                 self.enableInfiniteLoop = config.getboolean('Settings', 'enableInfiniteLoop')
             except ValueError:
                 self.enableInfiniteLoop = False
@@ -456,13 +440,6 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.createGif = config.getboolean('Settings', 'createGif')
-            except ValueError:
-                print("createGif = False")
-                self.createGif = False
-                haveError = True
-
-            try:
                 self.useBlacklistMembers = config.getboolean('Settings', 'useBlacklistMembers')
             except ValueError:
                 print("useBlacklistMembers = False")
@@ -478,13 +455,6 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.createApng = config.getboolean('Settings', 'createApng')
-            except ValueError:
-                print("createApng = False")
-                self.createApng = False
-                haveError = True
-
-            try:
                 self.writeImageJSON = config.getboolean('Settings', 'writeImageJSON')
             except ValueError:
                 self.writeImageJSON = False
@@ -496,20 +466,6 @@ class PixivConfig(object):
             except ValueError:
                 self.downloadDelay = 2
                 print("downloadDelay = 2")
-                haveError = True
-
-            try:
-                self.deleteUgoira = config.getboolean('Settings', 'deleteUgoira')
-            except ValueError:
-                print("deleteUgoira = False")
-                self.deleteUgoira = False
-                haveError = True
-
-            try:
-                self.createWebm = config.getboolean('Settings', 'createWebm')
-            except ValueError:
-                print("createWebm = False")
-                self.createWebm = False
                 haveError = True
 
             try:
@@ -552,6 +508,76 @@ class PixivConfig(object):
             except ValueError:
                 print("checkNewVersion = True")
                 self.checkNewVersion = True
+                haveError = True
+
+            try:
+                self.webpCodec = config.get('FFmpeg', 'webpCodec')
+            except ValueError:
+                print("webpCodec = 'libwebp'")
+                self.webpCodec = 'libwebp'
+                haveError = True
+
+            try:
+                self.webpParam = config.get('FFmpeg', 'webpParam')
+            except ValueError:
+                print("webpParam = '-lossless 0 -q:v 90'")
+                self.webpParam = '-lossless 0 -q:v 90'
+                haveError = True
+
+            try:
+                self.createWebp = config.getboolean('Ugoira', 'createWebp')
+            except ValueError:
+                print("createWebp = False")
+                self.createWebp = False
+                haveError = True
+
+            try:
+                self.writeUgoiraInfo = config.getboolean('Ugoira', 'writeUgoiraInfo')
+            except ValueError:
+                self.writeUgoiraInfo = False
+                print("writeUgoiraInfo = False")
+                haveError = True
+
+            try:
+                self.createUgoira = config.getboolean('Ugoira', 'createUgoira')
+            except ValueError:
+                self.createUgoira = False
+                print("createUgoira = False")
+                haveError = True
+
+            try:
+                self.deleteZipFile = config.getboolean('Ugoira', 'deleteZipFile')
+            except ValueError:
+                self.deleteZipFile = False
+                print("deleteZipFile = False")
+                haveError = True
+
+            try:
+                self.createGif = config.getboolean('Ugoira', 'createGif')
+            except ValueError:
+                print("createGif = False")
+                self.createGif = False
+                haveError = True
+
+            try:
+                self.createApng = config.getboolean('Ugoira', 'createApng')
+            except ValueError:
+                print("createApng = False")
+                self.createApng = False
+                haveError = True
+
+            try:
+                self.deleteUgoira = config.getboolean('Ugoira', 'deleteUgoira')
+            except ValueError:
+                print("deleteUgoira = False")
+                self.deleteUgoira = False
+                haveError = True
+
+            try:
+                self.createWebm = config.getboolean('Ugoira', 'createWebm')
+            except ValueError:
+                print("createWebm = False")
+                self.createWebm = False
                 haveError = True
 
         except BaseException:
@@ -620,20 +646,13 @@ class PixivConfig(object):
         config.set('Settings', 'writeImageJSON', self.writeImageJSON)
         config.set('Settings', 'dateDiff', self.dateDiff)
         config.set('Settings', 'backupOldFile', self.backupOldFile)
-        config.set('Settings', 'writeUgoiraInfo', self.writeUgoiraInfo)
-        config.set('Settings', 'createUgoira', self.createUgoira)
-        config.set('Settings', 'deleteZipFile', self.deleteZipFile)
         config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
         config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
         config.set('Settings', 'dbPath', self.dbPath)
-        config.set('Settings', 'createGif', self.createGif)
         config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
-        config.set('Settings', 'createApng', self.createApng)
-        config.set('Settings', 'deleteUgoira', self.deleteUgoira)
-        config.set('Settings', 'createWebm', self.createWebm)
         config.set('Settings', 'setLastModified', self.setLastModified)
         config.set('Settings', 'useLocalTimezone', self.useLocalTimezone)
 
@@ -651,6 +670,18 @@ class PixivConfig(object):
         config.set('FFmpeg', 'ffmpeg', self.ffmpeg)
         config.set('FFmpeg', 'ffmpegCodec', self.ffmpegCodec)
         config.set('FFmpeg', 'ffmpegParam', self.ffmpegParam)
+        config.set('FFmpeg', 'webpCodec', self.webpCodec)
+        config.set('FFmpeg', 'webpParam', self.webpParam)
+
+        config.add_section('Ugoira')
+        config.set('Ugoira', 'writeUgoiraInfo', self.writeUgoiraInfo)
+        config.set('Ugoira', 'createUgoira', self.createUgoira)
+        config.set('Ugoira', 'deleteZipFile', self.deleteZipFile)
+        config.set('Ugoira', 'createGif', self.createGif)
+        config.set('Ugoira', 'createApng', self.createApng)
+        config.set('Ugoira', 'deleteUgoira', self.deleteUgoira)
+        config.set('Ugoira', 'createWebm', self.createWebm)
+        config.set('Ugoira', 'createWebp', self.createWebp)
 
         if path is not None:
             configlocation = path
@@ -732,20 +763,13 @@ class PixivConfig(object):
         print(' - writeImageJSON   =', self.writeImageJSON)
         print(' - dateDiff         =', self.dateDiff)
         print(' - backupOldFile    =', self.backupOldFile)
-        print(' - writeUgoiraInfo  =', self.writeUgoiraInfo)
-        print(' - createUgoira     =', self.createUgoira)
-        print(' - deleteZipFile    =', self.deleteZipFile)
         print(' - enableInfiniteLoop    =', self.enableInfiniteLoop)
         print(' - verifyImage      =', self.verifyImage)
         print(' - writeUrlInDescription =', self.writeUrlInDescription)
         print(' - urlBlacklistRegex =', self.urlBlacklistRegex)
         print(' - urlDumpFilename  =', self.urlDumpFilename)
         print(' - dbPath           =', self.dbPath)
-        print(' - createGif        =', self.createGif)
         print(' - useBlacklistMembers  =', self.useBlacklistMembers)
-        print(' - createApng       =', self.createApng)
-        print(' - deleteUgoira     =', self.deleteUgoira)
-        print(' - createWebm       =', self.createWebm)
         print(' - setLastModified  =', self.setLastModified)
         print(' - useLocalTimezone =', self.useLocalTimezone)
 
@@ -758,4 +782,16 @@ class PixivConfig(object):
         print(' - ffmpeg       =', self.ffmpeg)
         print(' - ffmpegCodec  =', self.ffmpegCodec)
         print(' - ffmpegParam  =', self.ffmpegParam)
+        print(' - webpCodec    =', self.webpCodec)
+        print(' - webpParam    =', self.webpParam)
+
+        print(' [Ugoira]')
+        print(' - writeUgoiraInfo  =', self.writeUgoiraInfo)
+        print(' - createUgoira     =', self.createUgoira)
+        print(' - deleteZipFile    =', self.deleteZipFile)
+        print(' - createGif        =', self.createGif)
+        print(' - createApng       =', self.createApng)
+        print(' - deleteUgoira     =', self.deleteUgoira)
+        print(' - createWebm       =', self.createWebm)
+        print(' - createWebp       =', self.createWebp)
         print('')

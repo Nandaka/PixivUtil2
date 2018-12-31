@@ -798,8 +798,9 @@ def ugoira2webm(ugoira_file,
                 delete_ugoira,
                 ffmpeg=u"ffmpeg",
                 codec="libvpx-vp9",
-                param="-lossless 1"):
-    ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py'''
+                param="-lossless 1",
+                extension="webm"):
+    ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
     d = d.replace(os.sep, '/')
 
@@ -809,9 +810,9 @@ def ugoira2webm(ugoira_file,
 
         if exportname is None or len(exportname) == 0:
             name = '.'.join(ugoira_file.split('.')[:-1])
-            exportname = os.path.basename(name) + ".webm"
+            exportname = u"{0}.{1}".format(os.path.basename(name), extension)
 
-        tempname = d + "/temp.webm"
+        tempname = d + "/temp." + extension
 
         with zipfile.ZipFile(ugoira_file) as f:
             f.extractall(d)
