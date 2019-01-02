@@ -824,7 +824,8 @@ def ugoira2webm(ugoira_file,
             ffconcat += "file " + i['file'] + '\n'
             ffconcat += "duration " + str(float(i['delay']) / 1000) + '\n'
         # Fix ffmpeg concat demuxer as described in issue #381
-        ffconcat += "file " + frames[-1]['file'] + '\n'
+        if extension == 'webm':
+            ffconcat += "file " + frames[-1]['file'] + '\n'
 
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
