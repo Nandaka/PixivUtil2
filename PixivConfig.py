@@ -98,7 +98,7 @@ class PixivConfig(object):
     ffmpegCodec = "libvpx-vp9"
     ffmpegParam = "-lossless 1"
     webpCodec = "libwebp"
-    webpParam = "-lossless 0 -q:v 90"
+    webpParam = "-lossless 0 -q:v 90 -loop 0"
 
     # Debug related
     logLevel = "DEBUG"
