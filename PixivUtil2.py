@@ -179,7 +179,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                         __config__.ffmpegParam)
                             if __config__.createWebp and not os.path.exists(webp_name):
                                 PixivHelper.ugoira2webm(ugo_name,
-                                                        webm_name,
+                                                        webp_name,
                                                         __config__.deleteUgoira,
                                                         __config__.ffmpeg,
                                                         __config__.webpCodec,
@@ -242,7 +242,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                             __config__.ffmpegParam)
                                 if __config__.createWebp and not os.path.exists(webp_name):
                                     PixivHelper.ugoira2webm(ugo_name,
-                                                            webm_name,
+                                                            webp_name,
                                                             __config__.deleteUgoira,
                                                             __config__.ffmpeg,
                                                             __config__.webpCodec,
