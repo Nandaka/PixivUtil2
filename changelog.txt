@@ -1,3 +1,9 @@
+20190108
+- Implement #455: Add Animated WebP support for ugoira.
+- Implement #451: Update file already downloaded check for ugoira.
+- Move ugoira related configuration to separate section in config.ini
+- Change the default parameter for WebM creation to '-lossless 1 -vsync 2 -r 999' to support variable fps.
+
 20181212
 - Implement #445: update parser for FANBOX post.
 - Implement #449: enable time format for filename format=%date_fmt{format}%
