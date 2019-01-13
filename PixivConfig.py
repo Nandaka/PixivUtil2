@@ -96,7 +96,7 @@ class PixivConfig(object):
     # FFmpeg
     ffmpeg = "ffmpeg"
     ffmpegCodec = "libvpx-vp9"
-    ffmpegParam = "-lossless 1 -vsync 2 -r 999"
+    ffmpegParam = "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"
     webpCodec = "libwebp"
     webpParam = "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"
 
