@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 PIXIVUTIL_VERSION = '20190108'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'

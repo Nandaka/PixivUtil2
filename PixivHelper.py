@@ -732,7 +732,7 @@ def writeUrlInDescription(image, blacklistRegex, filenamePattern):
         info.close()
 
 
-def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif'):
+def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif', image=None):
     print_and_log('info', 'processing ugoira to animated gif...')
     temp_folder = tempfile.mkdtemp()
     # imageio cannot handle utf-8 filename
@@ -761,8 +761,13 @@ def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif'):
         print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
         os.remove(ugoira_file)
 
+    # set last-modified and last-accessed timestamp
+    if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
+        ts = time.mktime(image.worksDateDateTime.timetuple())
+        os.utime(exportname, (ts, ts))
 
-def ugoira2apng(ugoira_file, exportname, delete_ugoira):
+
+def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
     print_and_log('info', 'processing ugoira to apng...')
     temp_folder = tempfile.mkdtemp()
     temp_name = temp_folder + os.sep + "temp.png"
@@ -792,14 +797,20 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira):
         print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
         os.remove(ugoira_file)
 
+    # set last-modified and last-accessed timestamp
+    if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
+        ts = time.mktime(image.worksDateDateTime.timetuple())
+        os.utime(exportname, (ts, ts))
+
 
 def ugoira2webm(ugoira_file,
                 exportname,
                 delete_ugoira,
                 ffmpeg=u"ffmpeg",
                 codec="libvpx-vp9",
-                param="-lossless 1",
-                extension="webm"):
+                param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
+                extension="webm", 
+                image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
     d = d.replace(os.sep, '/')
@@ -824,8 +835,8 @@ def ugoira2webm(ugoira_file,
             ffconcat += "file " + i['file'] + '\n'
             ffconcat += "duration " + str(float(i['delay']) / 1000) + '\n'
         # Fix ffmpeg concat demuxer as described in issue #381
-        if extension == 'webm':
-            ffconcat += "file " + frames[-1]['file'] + '\n'
+        # this will increase the frame count, but will fix the last frame timestamp issue.
+        ffconcat += "file " + frames[-1]['file'] + '\n'
 
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
@@ -857,6 +868,11 @@ def ugoira2webm(ugoira_file,
 
         if ret is not None:
             print("done with status= {0}".format(ret))
+        
+        # set last-modified and last-accessed timestamp
+        if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
+            ts = time.mktime(image.worksDateDateTime.timetuple())
+            os.utime(exportname, (ts, ts))
 
     finally:
         shutil.rmtree(d)

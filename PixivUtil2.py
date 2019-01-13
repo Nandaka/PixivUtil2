@@ -129,7 +129,7 @@ def get_remote_filesize(url, referer):
 
 
 # -T04------For download file
-def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image_id=None, page=None):
+def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image=None, page=None):
     '''return download result and filename if ok'''
     global ERROR_CODE
     temp_error_code = None
@@ -167,16 +167,18 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         if check_result != PixivConstant.PIXIVUTIL_OK:
                             # try to convert existing file.
                             if __config__.createGif and not os.path.exists(gif_name):
-                                PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
+                                PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira, image)
                             if __config__.createApng and not os.path.exists(apng_name):
-                                PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
+                                PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira, image)
                             if __config__.createWebm and not os.path.exists(webm_name):
                                 PixivHelper.ugoira2webm(ugo_name,
                                                         webm_name,
                                                         __config__.deleteUgoira,
                                                         __config__.ffmpeg,
                                                         __config__.ffmpegCodec,
-                                                        __config__.ffmpegParam)
+                                                        __config__.ffmpegParam,
+                                                        "webm",
+                                                        image)
                             if __config__.createWebp and not os.path.exists(webp_name):
                                 PixivHelper.ugoira2webm(ugo_name,
                                                         webp_name,
@@ -184,7 +186,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                         __config__.ffmpeg,
                                                         __config__.webpCodec,
                                                         __config__.webpParam,
-                                                        "webp")
+                                                        "webp",
+                                                        image)
 
                             return (check_result, filename)
                 elif os.path.exists(filename) and os.path.isfile(filename):
@@ -197,14 +200,14 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         return (check_result, filename)
 
                 # check based on filename stored in DB using image id
-                if image_id is not None:
+                if image is not None:
                     db_filename = None
                     if page is not None:
-                        row = __dbManager__.selectImageByImageIdAndPage(image_id, page)
+                        row = __dbManager__.selectImageByImageIdAndPage(image.imageId, page)
                         if row is not None:
                             db_filename = row[2]
                     else:
-                        row = __dbManager__.selectImageByImageId(image_id)
+                        row = __dbManager__.selectImageByImageId(image.imageId)
                         if row is not None:
                             db_filename = row[3]
                     if db_filename is not None and os.path.exists(db_filename) and os.path.isfile(db_filename):
@@ -230,16 +233,18 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             if ugo_name is not None and os.path.exists(ugo_name) and os.path.isfile(ugo_name):
                                 # try to convert existing file.
                                 if __config__.createGif and not os.path.exists(gif_name):
-                                    PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira)
+                                    PixivHelper.ugoira2gif(ugo_name, gif_name, __config__.deleteUgoira, image)
                                 if __config__.createApng and not os.path.exists(apng_name):
-                                    PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira)
+                                    PixivHelper.ugoira2apng(ugo_name, apng_name, __config__.deleteUgoira, image)
                                 if __config__.createWebm and not os.path.exists(webm_name):
                                     PixivHelper.ugoira2webm(ugo_name,
                                                             webm_name,
                                                             __config__.deleteUgoira,
                                                             __config__.ffmpeg,
                                                             __config__.ffmpegCodec,
-                                                            __config__.ffmpegParam)
+                                                            __config__.ffmpegParam,
+                                                            "webm",
+                                                            image)
                                 if __config__.createWebp and not os.path.exists(webp_name):
                                     PixivHelper.ugoira2webm(ugo_name,
                                                             webp_name,
@@ -247,12 +252,17 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                                             __config__.ffmpeg,
                                                             __config__.webpCodec,
                                                             __config__.webpParam,
-                                                            "webp")
+                                                            "webp",
+                                                            image)
 
                             return (check_result, filename)
 
                 # actual download
                 (downloadedSize, filename) = perform_download(url, file_size, filename, overwrite, referer)
+                # set last-modified and last-accessed timestamp
+                if image is not None and __config__.setLastModified and filename is not None and os.path.isfile(filename):
+                    ts = time.mktime(image.worksDateDateTime.timetuple())
+                    os.utime(filename, (ts, ts))
 
                 # check the downloaded file size again
                 if file_size > 0 and downloadedSize != file_size:
@@ -810,11 +820,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
-                        (result, filename) = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image_id, page)
-                        # set last-modified and last-accessed timestamp
-                        if __config__.setLastModified and filename is not None and os.path.isfile(filename):
-                            ts = time.mktime(image.worksDateDateTime.timetuple())
-                            os.utime(filename, (ts, ts))
+                        (result, filename) = download_image(img, filename, referer, __config__.overwrite, __config__.retry, __config__.backupOldFile, image, page)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.print_and_log('error', 'Image url not found/failed to download: ' + str(image.imageId))
@@ -850,6 +856,10 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     if not os.path.exists(ugo_name):
                         PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
                         image.CreateUgoira(filename)
+                        # set last-modified and last-accessed timestamp
+                        if __config__.setLastModified and ugo_name is not None and os.path.isfile(ugo_name):
+                            ts = time.mktime(image.worksDateDateTime.timetuple())
+                            os.utime(ugo_name, (ts, ts))
 
                     if __config__.deleteZipFile and os.path.exists(filename):
                         PixivHelper.print_and_log('info', "Deleting zip file => " + filename)
@@ -858,11 +868,11 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                     if __config__.createGif:
                         gif_filename = ugo_name[:-7] + ".gif"
                         if not os.path.exists(gif_filename):
-                            PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira)
+                            PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira, image)
                     if __config__.createApng:
                         gif_filename = ugo_name[:-7] + ".png"
                         if not os.path.exists(gif_filename):
-                            PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira)
+                            PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira, image)
                     if __config__.createWebm:
                         gif_filename = ugo_name[:-7] + ".webm"
                         if not os.path.exists(gif_filename):
@@ -871,7 +881,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                                                 __config__.deleteUgoira,
                                                 __config__.ffmpeg,
                                                 __config__.ffmpegCodec,
-                                                __config__.ffmpegParam)
+                                                __config__.ffmpegParam,
+                                                "webm", 
+                                                image)
                     if __config__.createWebp:
                         gif_filename = ugo_name[:-7] + ".webp"
                         if not os.path.exists(gif_filename):
@@ -881,7 +893,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                                                 __config__.ffmpeg,
                                                 __config__.webpCodec,
                                                 __config__.webpParam,
-                                                "webp")
+                                                "webp",
+                                                image)
 
             if __config__.writeUrlInDescription:
                 PixivHelper.writeUrlInDescription(image, __config__.urlBlacklistRegex, __config__.urlDumpFilename)
