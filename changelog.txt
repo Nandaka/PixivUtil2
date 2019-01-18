@@ -1,3 +1,6 @@
+20190119
+- Fix #457: update ugoira handler.
+
 20190108
 - Implement #455: Add Animated WebP support for ugoira.
 - Implement #451: Update file already downloaded check for ugoira.
