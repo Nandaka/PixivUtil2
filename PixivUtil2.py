@@ -882,7 +882,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                                                 __config__.ffmpeg,
                                                 __config__.ffmpegCodec,
                                                 __config__.ffmpegParam,
-                                                "webm", 
+                                                "webm",
                                                 image)
                     if __config__.createWebp:
                         gif_filename = ugo_name[:-7] + ".webp"

@@ -809,7 +809,7 @@ def ugoira2webm(ugoira_file,
                 ffmpeg=u"ffmpeg",
                 codec="libvpx-vp9",
                 param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
-                extension="webm", 
+                extension="webm",
                 image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
@@ -868,7 +868,6 @@ def ugoira2webm(ugoira_file,
 
         if ret is not None:
             print("done with status= {0}".format(ret))
-        
         # set last-modified and last-accessed timestamp
         if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
             ts = time.mktime(image.worksDateDateTime.timetuple())
