@@ -1,5 +1,8 @@
+20190120
+- Fix Issue #461: ugoira to gif.
+
 20190119
-- Fix #457: update ugoira handler.
+- Fix Issue #457: update ugoira handler.
 
 20190108
 - Implement #455: Add Animated WebP support for ugoira.

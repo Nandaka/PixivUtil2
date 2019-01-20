@@ -864,11 +864,11 @@ def handle_ugoira(image, filename):
     if __config__.createGif:
         gif_filename = ugo_name[:-7] + ".gif"
         if not os.path.exists(gif_filename):
-            PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira, image)
+            PixivHelper.ugoira2gif(ugo_name, gif_filename, __config__.deleteUgoira, image=image)
     if __config__.createApng:
         gif_filename = ugo_name[:-7] + ".png"
         if not os.path.exists(gif_filename):
-            PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira, image)
+            PixivHelper.ugoira2apng(ugo_name, gif_filename, __config__.deleteUgoira, image=image)
     if __config__.createWebm:
         gif_filename = ugo_name[:-7] + ".webm"
         if not os.path.exists(gif_filename):
