@@ -347,17 +347,17 @@ overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
 alwaysCheckFileSize   ==> Check the file size, if different then it will be
                           downloaded again, set 'False' to disable.
- 		       -> Override the overwrite and image_id checking from db
+ 		                  This will override the image_id checking from db
                           (always fetch the image page for checking the size)
 checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
                           previously downloaded images.
-			  alwaysCheckFileSize must be set to False.
+			              alwaysCheckFileSize must be set to False.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                     is created by splitting the image_id by '_pxx' pattern.
                     This setting is depended on %urlFilename% format.
 downloadListDirectory ==> set directory for download-lists needed for
                           createDownloadLists and IrfanView-Handling
-	               -> if leaved blank it will create download-lists in
+	                      If leaved blank it will create download-lists in
                           pixivUtil-directory.
 downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
 usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory
@@ -369,7 +369,7 @@ usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
                     The list is taken from suppress_tags.txt, each tags is
                     separated by new line.
 tagsLimit	==> Number of tags to be used for %tags% meta in filename.
-		    Use -1 to use all tags.
+		        Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
 dateDiff        ==> Process only new images within the given date difference.
@@ -377,33 +377,46 @@ dateDiff        ==> Process only new images within the given date difference.
                     by Member', stop processing if in 'Download New Illust' mode.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
-writeugoirainfo ==> If set to True, it will dump the .js to external file.
-createugoira    ==> If set to True, it will create .ugoira file, see:
-                    http://www.bandisoft.com/forum/viewtopic.php?f=8&t=3359
-deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
-                    Only active if createUgoira = True.
 enableInfiniteLoop ==> Enable infinite loop for download by tags.
                        Only applicable for download in descending order (newest
                        first).
 verifyimage     ==> Do image and zip checking after download. Set the value to
                     True to enable.
 writeUrlInDescription ==> Write all url found in the image description to a text
-			  file. Set to True to enable. The list will be saved to
+                          file. Set to True to enable. The list will be saved to
                           to the application folder as url_list_<timestamp>.txt
-urlBlacklistRegex     ==> Used to filter out the url in the description using
+urlBlacklistRegex   ==> Used to filter out the url in the description using
                           regular expression.
-urlDumpFilename       ==> Define the dump filename, use python strftime() format.
+urlDumpFilename     ==> Define the dump filename, use python strftime() format.
                           Default value is 'url_list_%Y%m%d'
-dbPath		==> use different database.
+dbPath		        ==> use different database.
+useBlacklistMembers ==> Skip image by member id.
+                        Please create 'blacklist_members.txt' in the same folder
+                        of the application.
+
+[FFmpeg]
+ffmpeg      ==> path to ffmpeg executable
+ffmpegcodec ==> codec to be used for encoding webm, default is using 'libvpx-vp9'.
+ffmpegparam ==> parameter to be used to encode webm.
+                default is '-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p'
+webpcodec   ==> codec to be used for encoding webm, default is using 'libwebp'.
+webpparam   ==> parameter to be used to encode webm.
+                default is 'lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999'
+
+[Ugoira]
+writeugoirainfo ==> If set to True, it will dump the .js to external file.
+createugoira    ==> If set to True, it will create .ugoira file.
+                    This is Pixiv own format for animated images.
+deleteZipFile   ==> If set to True, it will delete the zip files from ugoira.
+                    Only active if createUgoira = True.
 creategif       ==> Set to True to convert ugoira file to gif.
                     Required createUgoira = True.
 createapng      ==> Set to True to convert ugoira file to animated png.
                     Required createUgoira = True.
 					The generated png is not optimized due to library limitation.
-useBlacklistMembers ==> Skip image by member id.
-                        Please create 'blacklist_members.txt' in the same folder
-                        of the application.
-deleteugoira ==> set to True to delete original ugoira after conversion to gif/apng.
+deleteugoira    ==> set to True to delete original ugoira after conversion.
+createwebm      ==> set to True to create webm file (video format).
+createwebp      ==> set to True to create webp file (image format).
 
 ===============================================================================
 = Filename Format Syntax                                                      =
