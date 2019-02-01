@@ -520,7 +520,11 @@ class PixivBrowser(mechanize.Browser):
             # cache the response
             response = self.get_from_cache(url)
             if response is None:
-                response = self.open(url).read()
+                try:
+                    response = self.open(url).read()
+                except urllib2.HTTPError as ex:
+                    if ex.code == 404:
+                        response = ex.read()
                 self.put_to_cache(url, response)
 
             PixivHelper.GetLogger().debug(response)
