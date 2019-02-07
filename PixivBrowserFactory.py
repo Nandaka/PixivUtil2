@@ -162,7 +162,7 @@ class PixivBrowser(mechanize.Browser):
             req = urllib2.Request(url)
             req.add_header('Referer', referer)
             try:
-                page = self.open(req)
+                page = self.open_with_retry(req)
                 if returnParsed:
                     parsedPage = BeautifulSoup(page.read())
                     return parsedPage
@@ -216,7 +216,7 @@ class PixivBrowser(mechanize.Browser):
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self._loadCookie(login_cookie)
-            res = self.open('https://www.pixiv.net/mypage.php')
+            res = self.open_with_retry('https://www.pixiv.net/mypage.php')
             resData = res.read()
 
             parsed = BeautifulSoup(resData)
@@ -236,7 +236,7 @@ class PixivBrowser(mechanize.Browser):
         try:
             PixivHelper.print_and_log('info', 'Logging in...')
             url = "https://accounts.pixiv.net/login"
-            page = self.open(url)
+            page = self.open_with_retry(url)
 
             # get the post key
             parsed = BeautifulSoup(page)
@@ -254,7 +254,7 @@ class PixivBrowser(mechanize.Browser):
             data['ref'] = ''
 
             request = urllib2.Request("https://accounts.pixiv.net/api/login?lang=en", urllib.urlencode(data))
-            response = self.open(request)
+            response = self.open_with_retry(request)
 
             return self.processLoginResult(response)
         except BaseException:
@@ -278,7 +278,7 @@ class PixivBrowser(mechanize.Browser):
                     break
 
             # check whitecube
-            page = self.open(result["body"]["success"]["return_to"])
+            page = self.open_with_retry(result["body"]["success"]["return_to"])
             parsed = BeautifulSoup(page)
             self.detectWhiteCube(parsed, page.geturl())
 
@@ -369,7 +369,7 @@ class PixivBrowser(mechanize.Browser):
 
                     if image.imageMode == "ugoira_view":
                         ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
-                        meta_response = self.open(ugoira_meta_url).read()
+                        meta_response = self.open_with_retry(ugoira_meta_url).read()
                         image.ParseUgoira(meta_response)
     ##                    PixivHelper.GetLogger().debug("animation.js")
     ##                    PixivHelper.GetLogger().debug(image.ugoira_data)
@@ -414,7 +414,7 @@ class PixivBrowser(mechanize.Browser):
             info = self.get_from_cache(url)
             if info is None:
                 PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-                infoStr = self.open(url).read()
+                infoStr = self.open_with_retry(url).read()
                 info = json.loads(infoStr)
                 self.put_to_cache(url, info)
 
@@ -424,7 +424,7 @@ class PixivBrowser(mechanize.Browser):
             url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
             info_ajax = self.get_from_cache(url_ajax)
             if info_ajax is None:
-                info_ajax_str = self.open(url_ajax).read()
+                info_ajax_str = self.open_with_retry(url_ajax).read()
                 info_ajax = json.loads(info_ajax_str)
                 self.put_to_cache(url_ajax, info_ajax)
             # 2nd pass to get the background
@@ -521,7 +521,7 @@ class PixivBrowser(mechanize.Browser):
             response = self.get_from_cache(url)
             if response is None:
                 try:
-                    response = self.open(url).read()
+                    response = self.open_with_retry(url).read()
                 except urllib2.HTTPError as ex:
                     if ex.code == 404:
                         response = ex.read()
@@ -656,7 +656,7 @@ class PixivBrowser(mechanize.Browser):
         url = 'https://www.pixiv.net/ajax/fanbox/support'
         PixivHelper.print_and_log('info', 'Getting supported artists from ' + url)
         # read the json response
-        response = self.open(url).read()
+        response = self.open_with_retry(url).read()
         result = Fanbox(response)
         return result
 
@@ -668,7 +668,7 @@ class PixivBrowser(mechanize.Browser):
             url = "https://www.pixiv.net" + next_url
 
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
-        response = self.open(url).read()
+        response = self.open_with_retry(url).read()
         # Issue #420
         _tzInfo = None
         if self._config.useLocalTimezone:
