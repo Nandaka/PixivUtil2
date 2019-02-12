@@ -1,3 +1,7 @@
+20190212
+- Fix #466: Update handler for deleted member.
+- Fix #467: Add retry for pixiv FANBOX handler.
+
 20190120
 - Fix Issue #461: ugoira to gif.
 
