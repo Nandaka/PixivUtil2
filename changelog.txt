@@ -1,6 +1,10 @@
+20190301
+- Implement #470: add support for embedMap for twitter.
+- Fix Issue #472: Update search by tags parser for null illustId.
+
 20190212
-- Fix #466: Update handler for deleted member.
-- Fix #467: Add retry for pixiv FANBOX handler.
+- Fix Issue #466: Update handler for deleted member.
+- Fix Issue #467: Add retry for pixiv FANBOX handler.
 
 20190120
 - Fix Issue #461: ugoira to gif.

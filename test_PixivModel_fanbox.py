@@ -112,8 +112,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.posts[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 7)
-        print(result.posts[0].body_text)
-        self.assertEqual(len(result.posts[0].body_text), 1292)
+        self.assertEqual(len(result.posts[0].body_text), 3095)
 
     def testFanboxArtistPostsNextPage(self):
         p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()
