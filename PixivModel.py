@@ -1006,9 +1006,10 @@ class PixivTags:
             items = json.loads(js)
             for item in items:
                 image_id = item["illustId"]
-                bookmarkCount = item["bookmarkCount"]
-                imageResponse = item["responseCount"]
-                self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+                if image_id is not None:  # Fix #472 skip if no illustId
+                    bookmarkCount = item["bookmarkCount"]
+                    imageResponse = item["responseCount"]
+                    self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
 
         else:
             search_result = page.find('section', attrs={'class': 'column-search-result'})
