@@ -97,6 +97,24 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts[0].images), 15)
         self.assertEqual(len(result.posts[0].body_text), 3006)
 
+    def testFanboxArtistArticleEmbedTwitter(self):
+        p = open('./test/creator_embedMap.json', 'r').read()
+        result = FanboxArtist(68813, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artistId, 68813)
+        self.assertFalse(result.hasNextPage)
+        self.assertTrue(len(result.posts) > 0)
+
+        # post-201946 article
+        self.assertEqual(result.posts[0].imageId, 285502)
+        self.assertTrue(len(result.posts[0].imageTitle) > 0)
+        self.assertEqual(result.posts[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
+        self.assertEqual(result.posts[0].type, "article")
+        self.assertEqual(len(result.posts[0].images), 7)
+        print(result.posts[0].body_text)
+        self.assertEqual(len(result.posts[0].body_text), 1292)
+
     def testFanboxArtistPostsNextPage(self):
         p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()
         result = FanboxArtist(15521131, p2)

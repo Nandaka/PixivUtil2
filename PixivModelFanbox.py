@@ -133,6 +133,7 @@ class FanboxPost(object):
     def parseBody(self, jsPost):
         ''' Parse general data for text and article'''
         self.body_text = ""
+        embedData = list()
         if jsPost["body"].has_key("text"):
             self.body_text = jsPost["body"]["text"]
 
@@ -146,7 +147,9 @@ class FanboxPost(object):
                 self.images.append(jsPost["body"]["fileMap"][filename]["url"])
 
         if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
-            raise PixivException("Unsupported article node = {0} for post = {1}".format("embedMap", self.imageId), errorCode=9999, htmlPage=jsPost)
+
+            for embed in jsPost["body"]["embedMap"]:
+                embedData.append(jsPost["body"]["embedMap"][embed])
 
         if jsPost["body"].has_key("blocks") and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
@@ -164,6 +167,20 @@ class FanboxPost(object):
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
+                elif block["type"] == "embed":  # Implement #470
+                    embedId = block["embedId"]
+                    self.body_text = u"{0}<br />{1}".format(
+                                     self.body_text,
+                                     self.getEmbedData(jsPost["body"]["embedMap"][embedId]))
+
+    def getEmbedData(self, embedData):
+        if embedData["serviceProvider"] == "twitter":
+            return "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>".format(embedData["contentId"])
+        else:
+            raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"],
+                                                                                          self.imageId),
+                                 errorCode=9999,
+                                 htmlPage=jsPost)
 
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:
