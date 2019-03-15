@@ -1,3 +1,6 @@
+20190316
+- Implement #447: Write FANBOX post info to text file.
+
 20190301
 - Implement #470: add support for embedMap for twitter.
 - Fix Issue #472: Update search by tags parser for null illustId.
