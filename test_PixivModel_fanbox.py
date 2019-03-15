@@ -78,6 +78,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 5)
         self.assertEqual(len(result.posts[0].body_text), 1292)
+        # result.posts[0].WriteInfo("./201946.txt")
 
     def testFanboxArtistArticleFileMap(self):
         p = open('./test/creator_with_filemap.json', 'r').read()
@@ -97,6 +98,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts[0].images), 15)
         self.assertEqual(len(result.posts[0].body_text), 3006)
 
+        # result.posts[0].WriteInfo("./210980.txt")
+
     def testFanboxArtistArticleEmbedTwitter(self):
         p = open('./test/creator_embedMap.json', 'r').read()
         result = FanboxArtist(68813, p)
@@ -113,6 +116,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 7)
         self.assertEqual(len(result.posts[0].body_text), 3095)
+
+        # result.posts[0].WriteInfo("./285502.txt")
 
     def testFanboxArtistPostsNextPage(self):
         p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r').read()

@@ -143,9 +143,13 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
 
     # Get the image extension
     fileUrl = os.path.basename(fileUrl)
-    splittedUrl = fileUrl.split('.')
-    imageExtension = splittedUrl[1]
-    imageExtension = imageExtension.split('?')[0]
+    imageExtension = ""
+    imageFile = fileUrl
+    if fileUrl.find(".") > 0:
+        splittedUrl = fileUrl.split('.')
+        imageFile = splittedUrl[0]
+        imageExtension = splittedUrl[1]
+        imageExtension = imageExtension.split('?')[0]
 
     # artist related
     nameFormat = nameFormat.replace('%artist%', replacePathSeparator(artistInfo.artistName))
@@ -166,7 +170,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
 
     nameFormat = nameFormat.replace('%works_res%', imageInfo.worksResolution)
     nameFormat = nameFormat.replace('%works_tools%', replacePathSeparator(imageInfo.worksTools))
-    nameFormat = nameFormat.replace('%urlFilename%', splittedUrl[0])
+    nameFormat = nameFormat.replace('%urlFilename%', imageFile)
     nameFormat = nameFormat.replace('%searchTags%', replacePathSeparator(searchTags))
 
     # date

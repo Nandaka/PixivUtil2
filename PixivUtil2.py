@@ -1897,8 +1897,23 @@ def processFanboxImages(post, result_artist):
                                             False,  # __config__.overwrite somehow unable to get remote filesize
                                             __config__.retry,
                                             __config__.backupOldFile)
+
         __config__.alwaysCheckFileSize = _oldvalue
         current_page = current_page + 1
+
+    # Implement #447
+    if __config__.writeImageInfo:
+        filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
+                                            post,
+                                            artistInfo=result_artist,
+                                            tagsSeparator=__config__.tagsSeparator,
+                                            tagsLimit=__config__.tagsLimit,
+                                            fileUrl="{0}".format(post.imageId),
+                                            bookmark=None,
+                                            searchTags='')
+
+        filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
+        post.WriteInfo(filename + ".txt")
 
 
 def menu_fanbox_download_by_artist_id(op_is_valid, args):
