@@ -1864,42 +1864,42 @@ def processFanboxImages(post, result_artist):
         PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
         return
     if post.images is None or len(post.images) == 0:
-        PixivHelper.print_and_log("info", "Skipping post: {0} due to no images.".format(post.imageId))
-        return
+        PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
+        # return
+    else:
+        current_page = 0
+        print("Image Count = {0}".format(len(post.images)))
+        for image_url in post.images:
+            # fake the image_url for filename compatibility, add post id and pagenum
+            fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
+            filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
+                                                post,
+                                                artistInfo=result_artist,
+                                                tagsSeparator=__config__.tagsSeparator,
+                                                tagsLimit=__config__.tagsLimit,
+                                                fileUrl=fake_image_url,
+                                                bookmark=None,
+                                                searchTags='')
 
-    current_page = 0
-    print("Image Count = {0}".format(len(post.images)))
-    for image_url in post.images:
-        # fake the image_url for filename compatibility, add post id and pagenum
-        fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
-        filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
-                                            post,
-                                            artistInfo=result_artist,
-                                            tagsSeparator=__config__.tagsSeparator,
-                                            tagsLimit=__config__.tagsLimit,
-                                            fileUrl=fake_image_url,
-                                            bookmark=None,
-                                            searchTags='')
+            filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
+            referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
 
-        filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
-        referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
+            print("Downloading image {0} from {1}".format(current_page, image_url))
+            print("Saved to {0}".format(filename))
 
-        print("Downloading image {0} from {1}".format(current_page, image_url))
-        print("Saved to {0}".format(filename))
+            # filesize detection and overwrite issue
+            _oldvalue = __config__.alwaysCheckFileSize
+            __config__.alwaysCheckFileSize = False
+            # don't pass the post id and page number to skip db check
+            (result, filename) = download_image(image_url,
+                                                filename,
+                                                referer,
+                                                False,  # __config__.overwrite somehow unable to get remote filesize
+                                                __config__.retry,
+                                                __config__.backupOldFile)
 
-        # filesize detection and overwrite issue
-        _oldvalue = __config__.alwaysCheckFileSize
-        __config__.alwaysCheckFileSize = False
-        # don't pass the post id and page number to skip db check
-        (result, filename) = download_image(image_url,
-                                            filename,
-                                            referer,
-                                            False,  # __config__.overwrite somehow unable to get remote filesize
-                                            __config__.retry,
-                                            __config__.backupOldFile)
-
-        __config__.alwaysCheckFileSize = _oldvalue
-        current_page = current_page + 1
+            __config__.alwaysCheckFileSize = _oldvalue
+            current_page = current_page + 1
 
     # Implement #447
     if __config__.writeImageInfo:
