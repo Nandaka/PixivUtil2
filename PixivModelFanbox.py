@@ -186,9 +186,9 @@ class FanboxPost(object):
                     embedId = block["embedId"]
                     self.body_text = u"{0}<br />{1}".format(
                                      self.body_text,
-                                     self.getEmbedData(jsPost["body"]["embedMap"][embedId]))
+                                     self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
 
-    def getEmbedData(self, embedData):
+    def getEmbedData(self, embedData, jsPost):
         if embedData["serviceProvider"] == "twitter":
             return "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>".format(embedData["contentId"])
         elif embedData["serviceProvider"] == "youtube":  # implement #475
