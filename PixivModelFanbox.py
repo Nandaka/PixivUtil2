@@ -191,6 +191,8 @@ class FanboxPost(object):
     def getEmbedData(self, embedData):
         if embedData["serviceProvider"] == "twitter":
             return "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>".format(embedData["contentId"])
+        elif embedData["serviceProvider"] == "youtube":  # implement #475
+            return "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>".format(embedData["contentId"])
         else:
             raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"],
                                                                                           self.imageId),
