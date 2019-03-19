@@ -1,4 +1,8 @@
 20190316
+- Implement #475: support youtube for embedMap.
+- Update #447: allow to write info text even if no images.
+
+20190316
 - Implement #447: Write FANBOX post info to text file.
 
 20190301
