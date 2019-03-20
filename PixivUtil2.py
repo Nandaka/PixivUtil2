@@ -1903,7 +1903,7 @@ def processFanboxImages(post, result_artist):
 
     # Implement #447
     if __config__.writeImageInfo:
-        filename = PixivHelper.makeFilename(__config__.filenameMangaFormat,
+        filename = PixivHelper.makeFilename(__config__.filenameFormat,
                                             post,
                                             artistInfo=result_artist,
                                             tagsSeparator=__config__.tagsSeparator,
