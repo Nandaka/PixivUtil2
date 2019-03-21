@@ -1,4 +1,7 @@
-20190316
+20190321
+- Update #447: change filenameMangaFormat to filenameformat.
+
+20190319
 - Implement #475: support youtube for embedMap.
 - Update #447: allow to write info text even if no images.
 
