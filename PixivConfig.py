@@ -43,20 +43,14 @@ class PixivConfig(object):
     dateFormat = ''
 
     # generic Settings
-    filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
-    filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
-    filenameInfoFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     rootDirectory = unicode('.')
     overwrite = False
     useList = False
     processFromDb = True
     dayLastUpdated = 7
-    tagsSeparator = unicode(', ')
     alwaysCheckFileSize = False
     checkUpdatedLimit = 0
     downloadAvatar = True
-    createMangaDir = False
-    useTagsAsDir = False
     useBlacklistTags = False
     useSuppressTags = False
     tagsLimit = -1
@@ -68,13 +62,21 @@ class PixivConfig(object):
     verifyImage = False
     writeUrlInDescription = False
     urlBlacklistRegex = ""
-    urlDumpFilename = "url_list_%Y%m%d"
     dbPath = ''
     useBlacklistMembers = False
-    avatarNameFormat = ""
     setLastModified = True
     alwaysCheckFileExists = False
     useLocalTimezone = False  # Issue #420
+
+    # filename related
+    filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameInfoFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    avatarNameFormat = ""
+    tagsSeparator = unicode(', ')
+    createMangaDir = False
+    useTagsAsDir = False
+    urlDumpFilename = "url_list_%Y%m%d"
 
     # ugoira
     writeUgoiraInfo = False
@@ -126,7 +128,7 @@ class PixivConfig(object):
             self.password = config.get('Authentication', 'password')
             self.cookie = config.get('Authentication', 'cookie')
 
-            self.tagsSeparator = PixivHelper.toUnicode(config.get('Settings', 'tagsseparator'), encoding=sys.stdin.encoding)
+            self.tagsSeparator = PixivHelper.toUnicode(config.get('Filename', 'tagsseparator'), encoding=sys.stdin.encoding)
             self.rootDirectory = os.path.expanduser(PixivHelper.toUnicode(config.get('Settings', 'rootdirectory'), encoding=sys.stdin.encoding))
 
             try:
@@ -191,12 +193,12 @@ class PixivConfig(object):
             if _useragent is not None:
                 self.useragent = _useragent
 
-            _filenameFormat = config.get('Settings', 'filenameformat')
+            _filenameFormat = config.get('Filename', 'filenameformat')
             _filenameFormat = PixivHelper.toUnicode(_filenameFormat, encoding=sys.stdin.encoding)
             if _filenameFormat is not None and len(_filenameFormat) > 0:
                 self.filenameFormat = _filenameFormat
 
-            _filenameMangaFormat = config.get('Settings', 'filenamemangaformat')
+            _filenameMangaFormat = config.get('Filename', 'filenamemangaformat')
             _filenameMangaFormat = PixivHelper.toUnicode(_filenameMangaFormat, encoding=sys.stdin.encoding)
             if _filenameMangaFormat is not None and len(_filenameMangaFormat) > 0:
                 # check if the filename format have page identifier if not using %urlFilename%
@@ -208,7 +210,7 @@ class PixivConfig(object):
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
 
-            _filenameInfoFormat = config.get('Settings', 'filenameinfoformat')
+            _filenameInfoFormat = config.get('Filename', 'filenameinfoformat')
             _filenameInfoFormat = PixivHelper.toUnicode(_filenameInfoFormat, encoding=sys.stdin.encoding)
             if _filenameInfoFormat is not None and len(_filenameInfoFormat) > 0:
                 self.filenameInfoFormat = _filenameInfoFormat
@@ -235,7 +237,7 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.createMangaDir = config.getboolean('Settings', 'createMangaDir')
+                self.createMangaDir = config.getboolean('Filename', 'createMangaDir')
             except ValueError:
                 print("createMangaDir = False")
                 self.createMangaDir = False
@@ -312,7 +314,7 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.useTagsAsDir = config.getboolean('Settings', 'useTagsAsDir')
+                self.useTagsAsDir = config.getboolean('Filename', 'useTagsAsDir')
             except ValueError:
                 self.useTagsAsDir = False
                 print("useTagsAsDir = False")
@@ -426,7 +428,7 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.urlDumpFilename = config.get('Settings', 'urlDumpFilename')
+                self.urlDumpFilename = config.get('Filename', 'urlDumpFilename')
             except ValueError:
                 print("urlDumpFilename = url_list_%Y%m%d")
                 self.urlDumpFilename = "url_list_%Y%m%d"
@@ -447,7 +449,7 @@ class PixivConfig(object):
                 haveError = True
 
             try:
-                self.avatarNameFormat = config.get('Settings', 'avatarNameFormat')
+                self.avatarNameFormat = config.get('Filename', 'avatarNameFormat')
                 self.avatarNameFormat = PixivHelper.toUnicode(self.avatarNameFormat, encoding=sys.stdin.encoding)
             except ValueError:
                 print("avatarNameFormat = ")
@@ -623,22 +625,15 @@ class PixivConfig(object):
         config.set('IrfanView', 'createDownloadLists', self.createDownloadLists)
 
         config.add_section('Settings')
-        config.set('Settings', 'filenameFormat', self.filenameFormat)
-        config.set('Settings', 'filenameMangaFormat', self.filenameMangaFormat)
-        config.set('Settings', 'filenameInfoFormat', self.filenameInfoFormat)
-        config.set('Settings', 'avatarNameFormat', self.avatarNameFormat)
         config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
         config.set('Settings', 'overwrite', self.overwrite)
-        config.set('Settings', 'tagsseparator', self.tagsSeparator)
         config.set('Settings', 'daylastupdated', self.dayLastUpdated)
         config.set('Settings', 'rootdirectory', self.rootDirectory)
         config.set('Settings', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
         config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
-        config.set('Settings', 'createMangaDir', self.createMangaDir)
-        config.set('Settings', 'useTagsAsDir', self.useTagsAsDir)
         config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
@@ -650,11 +645,20 @@ class PixivConfig(object):
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
-        config.set('Settings', 'urlDumpFilename', self.urlDumpFilename)
         config.set('Settings', 'dbPath', self.dbPath)
         config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
         config.set('Settings', 'setLastModified', self.setLastModified)
         config.set('Settings', 'useLocalTimezone', self.useLocalTimezone)
+
+        config.add_section('Filename')
+        config.set('Filename', 'filenameFormat', self.filenameFormat)
+        config.set('Filename', 'filenameMangaFormat', self.filenameMangaFormat)
+        config.set('Filename', 'filenameInfoFormat', self.filenameInfoFormat)
+        config.set('Filename', 'avatarNameFormat', self.avatarNameFormat)
+        config.set('Filename', 'tagsSeparator', self.tagsSeparator)
+        config.set('Filename', 'createMangaDir', self.createMangaDir)
+        config.set('Filename', 'useTagsAsDir', self.useTagsAsDir)
+        config.set('Filename', 'urlDumpFilename', self.urlDumpFilename)
 
         config.add_section('Authentication')
         config.set('Authentication', 'username', self.username)
@@ -740,22 +744,15 @@ class PixivConfig(object):
         print(' - createDownloadLists   =', self.createDownloadLists)
 
         print(' [Settings]')
-        print(' - filename_format       =', self.filenameFormat)
-        print(' - filename_manga_format =', self.filenameMangaFormat)
-        print(' - filename_info_format  =', self.filenameInfoFormat)
-        print(' - avatarNameFormat =', self.avatarNameFormat)
         print(' - downloadListDirectory =', self.downloadListDirectory)
         print(' - overwrite        =', self.overwrite)
         print(' - useList          =', self.useList)
         print(' - processFromDb    =', self.processFromDb)
-        print(' - tagsSeparator    =', self.tagsSeparator)
         print(' - dayLastUpdated   =', self.dayLastUpdated)
         print(' - rootDirectory    =', self.rootDirectory)
         print(' - alwaysCheckFileSize   =', self.alwaysCheckFileSize)
         print(' - checkUpdatedLimit     =', self.checkUpdatedLimit)
         print(' - downloadAvatar   =', self.downloadAvatar)
-        print(' - createMangaDir   =', self.createMangaDir)
-        print(' - useTagsAsDir     =', self.useTagsAsDir)
         print(' - useBlacklistTags =', self.useBlacklistTags)
         print(' - useSuppressTags  =', self.useSuppressTags)
         print(' - tagsLimit        =', self.tagsLimit)
@@ -767,11 +764,20 @@ class PixivConfig(object):
         print(' - verifyImage      =', self.verifyImage)
         print(' - writeUrlInDescription =', self.writeUrlInDescription)
         print(' - urlBlacklistRegex =', self.urlBlacklistRegex)
-        print(' - urlDumpFilename  =', self.urlDumpFilename)
         print(' - dbPath           =', self.dbPath)
         print(' - useBlacklistMembers  =', self.useBlacklistMembers)
         print(' - setLastModified  =', self.setLastModified)
         print(' - useLocalTimezone =', self.useLocalTimezone)
+
+        print(' [Filename]')
+        print(' - filename_format       =', self.filenameFormat)
+        print(' - filename_manga_format =', self.filenameMangaFormat)
+        print(' - filename_info_format  =', self.filenameInfoFormat)
+        print(' - avatarNameFormat =', self.avatarNameFormat)
+        print(' - tagsSeparator    =', self.tagsSeparator)
+        print(' - createMangaDir   =', self.createMangaDir)
+        print(' - useTagsAsDir     =', self.useTagsAsDir)
+        print(' - urlDumpFilename  =', self.urlDumpFilename)
 
         print(' [Pixiv]')
         print(' - numberOfPage =', self.numberOfPage)
