@@ -1,3 +1,6 @@
+20190401
+- Implement #476: FANBOX support for video post.
+
 20190321
 - Update #447: change filenameMangaFormat to filenameformat.
 

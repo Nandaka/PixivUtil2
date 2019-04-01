@@ -100,6 +100,26 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         # result.posts[0].WriteInfo("./210980.txt")
 
+    def testFanboxArtistVideo(self):
+        p = open('./test/creator_posts_with_video.json', 'r').read()
+        result = FanboxArtist(711048, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(result.artistId, 711048)
+        self.assertTrue(result.hasNextPage)
+        self.assertTrue(len(result.nextUrl) > 0)
+        self.assertTrue(len(result.posts) > 0)
+
+        # post-201946 article
+        self.assertEqual(result.posts[4].imageId, 330905)
+        self.assertTrue(len(result.posts[4].imageTitle) > 0)
+        self.assertEqual(result.posts[4].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
+        self.assertEqual(result.posts[4].type, "video")
+        self.assertEqual(len(result.posts[4].images), 0)
+        self.assertEqual(len(result.posts[4].body_text), 99)
+
+        # result.posts[0].WriteInfo("./210980.txt")
+
     def testFanboxArtistArticleEmbedTwitter(self):
         p = open('./test/creator_embedMap.json', 'r').read()
         result = FanboxArtist(68813, p)

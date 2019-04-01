@@ -78,7 +78,7 @@ class FanboxPost(object):
     worksDate = ""
     worksDateDateTime = None
     updatedDatetime = ""
-    # image|text|file|article
+    # image|text|file|article|video
     type = ""
     body_text = ""
     images = None
@@ -99,8 +99,9 @@ class FanboxPost(object):
     bookmark_count = 0
     image_response_count = 0
 
-    _supportedType = ["image", "text", "file", "article"]
+    _supportedType = ["image", "text", "file", "article", "video"]
     embeddedFiles = None
+    provider = None
 
     def __init__(self, post_id, parent, page, tzInfo=None):
         self.images = list()
@@ -188,14 +189,26 @@ class FanboxPost(object):
                                      self.body_text,
                                      self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
 
+        # Issue #476
+        if jsPost["body"].has_key("video"):
+            self.body_text = u"{0}<br />{1}".format(
+                             self.body_text,
+                             self.getEmbedData(jsPost["body"]["video"], jsPost))
+
     def getEmbedData(self, embedData, jsPost):
         if embedData["serviceProvider"] == "twitter":
+            self.provider = "twitter"
             return "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>".format(embedData["contentId"])
         elif embedData["serviceProvider"] == "youtube":  # implement #475
-            return "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>".format(embedData["contentId"])
+            self.provider = "youtube"
+            video_id = "N/A"
+            if embedData.has_key("contentId"):
+                video_id = embedData["contentId"]
+            elif embedData.has_key("videoId"):
+                video_id = embedData["videoId"]
+            return "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>".format(video_id)
         else:
-            raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"],
-                                                                                          self.imageId),
+            raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"], self.imageId),
                                  errorCode=9999,
                                  htmlPage=jsPost)
 
