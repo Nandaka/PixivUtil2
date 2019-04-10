@@ -149,7 +149,7 @@ class PixivBrowser(mechanize.Browser):
                     print('')
                     retry_count = retry_count + 1
                 else:
-                    raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
+                    raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus.".format(ex.message), errorCode=PixivException.SERVER_ERROR)
 
     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
