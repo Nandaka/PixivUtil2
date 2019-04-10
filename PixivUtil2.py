@@ -1787,7 +1787,7 @@ def menu_fanbox_download_supported_artist(op_is_valid, args):
     if op_is_valid and len(args) > 0:
         end_page = int(args[0])
     else:
-        end_page = raw_input("Max Page = ")
+        end_page = int(raw_input("Max Page = "))
 
     result = __br__.fanboxGetSupportedUsers()
     if len(result.supportedArtist) == 0:
@@ -1927,7 +1927,7 @@ def menu_fanbox_download_by_artist_id(op_is_valid, args):
             end_page = int(args[1])
     else:
         artist_id = raw_input("Artist ID = ")
-        end_page = raw_input("Max Page = ")
+        end_page = int(raw_input("Max Page = "))
 
     processFanboxArtist(artist_id, end_page)
 
