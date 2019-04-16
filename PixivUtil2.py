@@ -1051,7 +1051,7 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
         raise
 
 
-def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=''):
+def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=None):
     global np_is_valid
     global np
     try:
@@ -1060,13 +1060,13 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=''):
         image_count = 1
 
         if hide == 'n':
-            totalList.extend(get_image_bookmark(False, start_page, end_page, tag))
+            totalList.extend(get_image_bookmark(False, start_page, end_page, tag, sorting))
         elif hide == 'y':
             # public and private image bookmarks
-            totalList.extend(get_image_bookmark(False, start_page, end_page, tag))
-            totalList.extend(get_image_bookmark(True, start_page, end_page, tag))
+            totalList.extend(get_image_bookmark(False, start_page, end_page, tag, sorting))
+            totalList.extend(get_image_bookmark(True, start_page, end_page, tag, sorting))
         else:
-            totalList.extend(get_image_bookmark(True, start_page, end_page, tag))
+            totalList.extend(get_image_bookmark(True, start_page, end_page, tag, sorting))
 
         PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
@@ -1083,7 +1083,7 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=''):
         raise
 
 
-def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
+def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
     """Get user's image bookmark"""
     total_list = list()
     i = start_page
@@ -1095,9 +1095,11 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag=''):
         url = 'https://www.pixiv.net/bookmark.php?p=' + str(i)
         if hide:
             url = url + "&rest=hide"
+        # Implement #468 default is desc, only for your own bookmark.
+        if sorting in ('asc', 'date_d', 'date'):
+            url = url + "&order=" + sorting
         if tag is not None and len(tag) > 0:
             url = url + '&tag=' + PixivHelper.encode_tags(tag)
-
         PixivHelper.print_and_log('info', "Importing user's bookmarked image from page " + str(i))
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
@@ -1640,31 +1642,37 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
     __log__.info("User's Image Bookmark mode.")
     start_page = 1
     end_page = 0
-    hide = False
+    hide = 'n'
     tag = ''
 
     if opisvalid and len(args) > 0:
-        arg = args[0].lower()
-        if arg == 'y' or arg == 'n' or arg == 'o':
-            hide = arg
-        else:
+        hide = args[0].lower()
+        if hide not in ('y', 'n', 'o'):
             print("Invalid args: ", args)
             return
         (start_page, end_page) = get_start_and_end_number_from_args(args, offset=1)
         if len(args) > 3:
             tag = args[3]
+        if len(args) > 4:
+            sorting = args[4].lower()
+            if sorting not in ('asc', 'desc', 'date', 'date_d'):
+                print("Invalid sorting order: ", sorting)
+                return
     else:
-        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
-        arg = arg.lower()
-        if arg == 'y' or arg == 'n' or arg == 'o':
-            hide = arg
-        else:
+        hide = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
+        hide = hide.lower()
+        if hide not in ('y', 'n', 'o'):
             print("Invalid args: ", arg)
             return
         tag = raw_input("Tag (default=All Images): ") or ''
         (start_page, end_page) = get_start_and_end_number()
+        sorting = raw_input("Sort Order [asc/desc/date/date_d]: ") or 'desc'
+        sorting = sorting.lower()
+        if sorting not in ('asc', 'desc', 'date', 'date_d'):
+            print("Invalid sorting order: ", sorting)
+            return
 
-    process_image_bookmark(hide, start_page, end_page, tag)
+    process_image_bookmark(hide, start_page, end_page, tag, sorting)
 
 
 def menu_download_from_tags_list(opisvalid, args):
