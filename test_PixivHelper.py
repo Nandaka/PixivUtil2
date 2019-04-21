@@ -96,86 +96,86 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
-    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = ''
-        # change the config value
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%image_id% - %title%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        PixivHelper.setConfig(_config)
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, self.currPath + os.sep + u'folder.jpg')
+##    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = ''
+##        # change the config value
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%image_id% - %title%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        PixivHelper.setConfig(_config)
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, self.currPath + os.sep + u'folder.jpg')
 
-    def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = ''
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%image_id% - %title% - %tags%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        PixivHelper.setConfig(_config)
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, self.currPath + os.sep + u'kirabara29 (1107124)' + os.sep + 'folder.jpg')
+##    def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = ''
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%image_id% - %title% - %tags%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        PixivHelper.setConfig(_config)
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, self.currPath + os.sep + u'kirabara29 (1107124)' + os.sep + 'folder.jpg')
 
-    def testcreateAvatarFilenameFormatNoSubfolderWithRootDir3(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = os.path.abspath('.')
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%image_id% - %title%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, targetDir + os.sep + u'folder.jpg')
+##    def testcreateAvatarFilenameFormatNoSubfolderWithRootDir3(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = os.path.abspath('.')
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%image_id% - %title%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, targetDir + os.sep + u'folder.jpg')
 
-    def testcreateAvatarFilenameFormatWithSubfolderWithRootDir4(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = os.path.abspath('.')
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%R-18%' + os.sep + '%image_id% - %title% - %tags%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, targetDir + os.sep + u'kirabara29 (1107124)' + os.sep + 'folder.jpg')
+##    def testcreateAvatarFilenameFormatWithSubfolderWithRootDir4(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = os.path.abspath('.')
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%R-18%' + os.sep + '%image_id% - %title% - %tags%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, targetDir + os.sep + u'kirabara29 (1107124)' + os.sep + 'folder.jpg')
 
-    def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir5(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = os.path.abspath(os.sep + 'images')
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%image_id% - %title%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, targetDir + os.sep + 'folder.jpg')
+##    def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir5(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = os.path.abspath(os.sep + 'images')
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%image_id% - %title%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, targetDir + os.sep + 'folder.jpg')
 
-    def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir6(self):
-        p = open('./test/test-helper-avatar-name.htm', 'r')
-        page = BeautifulSoup(p.read())
-        artist = PixivArtist(mid=1107124, page=page)
-        targetDir = os.path.abspath(os.sep + 'images')
-        _config = PixivConfig.PixivConfig()
-        _config.avatarNameFormat = ''
-        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%R-18%' + os.sep + '%image_id% - %title% - %tags%'
-        _config.tagsSeparator = ' '
-        _config.tagsLimit = 0
-        filename = PixivHelper.createAvatarFilename(artist, targetDir)
-        self.assertEqual(filename, targetDir + os.sep + 'kirabara29 (1107124)' + os.sep + 'folder.jpg')
+##    def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir6(self):
+##        p = open('./test/test-helper-avatar-name.htm', 'r')
+##        page = BeautifulSoup(p.read())
+##        artist = PixivArtist(mid=1107124, page=page)
+##        targetDir = os.path.abspath(os.sep + 'images')
+##        _config = PixivConfig.PixivConfig()
+##        _config.avatarNameFormat = ''
+##        _config.filenameFormat = '%member_token% (%member_id%)' + os.sep + '%R-18%' + os.sep + '%image_id% - %title% - %tags%'
+##        _config.tagsSeparator = ' '
+##        _config.tagsLimit = 0
+##        filename = PixivHelper.createAvatarFilename(artist, targetDir)
+##        self.assertEqual(filename, targetDir + os.sep + 'kirabara29 (1107124)' + os.sep + 'folder.jpg')
 
     def testParseLoginError(self):
         p = open('./test/test-login-error.htm', 'r')

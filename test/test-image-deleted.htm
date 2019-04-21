@@ -48,7 +48,6 @@ var pageLoadStartTime = +(new Date);
 
 
 
-
 <script>
 !function(){"use strict";function h(e,t){return Object.prototype.toString.call(e)==="[object "+t+"]"}function p(e){return h(e,"Error")}window.ErrorLogger=function(){function e(e,t,n){this.userId=e,this.production=t,this.premium=n,t?(this.service="www.pixiv.net",this.api="https://www.pixiv.net/rpc/js_error.php"):(this.service=location.host,this.api="/rpc/js_error.php")}return e.prototype.install=function(e){var o=this;if(!function(){for(var e=0,t=[/\bMSIE\b/,/\bBingPreview\b/];e<t.length;e++){var n=t[e];if(n.test(navigator.userAgent))return!0}return!1}()){e!==undefined&&(this.service=this.service+"/"+e);var s=!1;window.onerror=function(e,t,n,r,i){window.onerror=null,o.handle(e,t,n,r,i,s)};var t=function(e){p(e.reason)&&(s||(s=!0,setTimeout(function(){throw e.reason})))};window.onunhandledrejection=t,window.addEventListener&&window.addEventListener("unhandledrejection",t)}},e.prototype.time=function(e,t,n){this.send("js_time",location.href,0,e,t,n)},e.prototype.send=function(e,t,n,r,i,o,s){var c=encodeURIComponent;try{var a=function(e,t){var n=t?"Promise.reject: ":"";{if(function(e){if(h(e,"Event"))return!0;return/^\[object \w+Event\]$/.test(Object.prototype.toString.call(e))}(e))return n+["type: "+e.type,(r=e.target,h(r,"HTMLScriptElement")?"target: {src: "+e.target.src+"}":"target: "+e.target),"currentTarget: "+e.currentTarget,"eventPhase: "+e.eventPhase].join(", ");if(p(e))return n+e.toString();if("object"==typeof e)try{return n+JSON.stringify(e)}catch(i){}}var r;return n+e}(e,!!s),u=["service="+c(this.service),"message="+c(a),"url="+c(""+t),"line="+c(""+n),"location="+c(location.href),"user_id="+c(this.userId),"premium="+this.premium];null!=r&&u.push("html_end_sec="+c(""+r),"dom_ready_sec="+c(""+(i||0)),"onload_sec="+c(""+(o||0))),(new Image).src=this.api+"?"+u.join("&")}catch(d){(new Image).src=this.api+"?service="+c(this.service)+"&message="+c("send error: "+d.message)+"&line="+c(""+(d.line||""))}},e.prototype.handle=function(e,t,n,r,i,o){if(t||0!==n){var s=null!=i?i:e;this.production?this.send(s,t,n,undefined,undefined,undefined,!!o):"undefined"!=typeof console&&console&&console.debug?"undefined"!=typeof navigator&&navigator.userAgent.match(/Firefox\//)&&console.error(s):alert(["[JavaScript Error]","",s,"",(t||"unknown")+":"+(n||"unknown"),"","---",location.href].join("\n"))}},e}()}();
     </script><script>
@@ -61,12 +60,11 @@ var pageLoadStartTime = +(new Date);
     window._send = function () { h.send.apply(h, arguments) };
 })()
 </script>
-    <link rel="stylesheet" href="https://s.pximg.net/www/css/global.css?4c432906fa2e892f96b07ea3aaa0090a">
-            <link rel="stylesheet" href="https://s.pximg.net/www/css/global_2.css?742eed684b191eeb3c4b5999f276cbb0">
-        <link rel="stylesheet" href="https://s.pximg.net/www/css/app.css?10772acdb18617dcdac1921f8effd45d">
-
+    <link rel="stylesheet" href="https://s.pximg.net/www/css/global.css?a5c1ef546c1e9749bd2d56c9ac1dbd38">
+            <link rel="stylesheet" href="https://s.pximg.net/www/css/global_2.css?00d905a6560856b40d35af7c2272828a">
+    
 <!--[if IE 8]>
-    <link rel="stylesheet" href="https://s.pximg.net/www/css/ie.css?9955c9072470e7612f9192fb8238fa08">
+    <link rel="stylesheet" href="https://s.pximg.net/www/css/ie.css?beb3f35140ed7140d4ae95ca04999e3f">
 <![endif]-->
 <!--[if IE 9]>
     <link rel="stylesheet" href="https://s.pximg.net/www/css/ie9.css?e2871da6753d43533b513cdac2d82a38">
@@ -82,14 +80,15 @@ var pageLoadStartTime = +(new Date);
     <script src="https://s.pximg.net/www/js/lib/svg4everybody/svg4everybody.ie8.js"></script>
 <!--<![endif]-->
 
-<script>
+
+<link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/pixiv.css~whitecube.55b5b7b95244c0dacf29.1.css" crossorigin="anonymous"><link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/pixiv.css.3c2802b944dfa1fd85ca.1.css" crossorigin="anonymous"><script src="https://s.pximg.net/www/js/bundle/runtime.dd7b7317ec7ed0752189.js" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/pixiv.css~whitecube.074a47975a7eae924d21.js" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/pixiv.css.b40a5907dccf9d73c005.js" charset="utf8" crossorigin="anonymous"></script>        <script>
     Object.defineProperty(window, 'bundle_public_path', {
         value: "https:\/\/s.pximg.net\/www\/js\/bundle\/"
     })
 </script>
-<meta id="meta-pixiv-tests" name="pixiv-tests" content="{&quot;www_premium_lead_popular_d_popup_d&quot;:true}">
+<meta id="meta-pixiv-tests" name="pixiv-tests" content="{&quot;www_multiple_illust_viewer_c&quot;:true,&quot;www_new_novel_series&quot;:true}">
 
-<link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/lib.f577b9fc57cbcbd18ce9.css?1"><link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/common.9e8d3d57f2e069030cc9.css?1"><script src="https://s.pximg.net/www/js/bundle/runtime.f3ec2f91a3e458214411.js?1" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/lib.08af19ac64540585c61b.js?1" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/common.ca43eae10f3460f023c4.js?1" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/pixiv.70da326e8c26e40752a3.js?1" charset="utf8" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://s.pximg.net/www/js/bundle/pixiv.64846fe4c63aa35fdd58.1.css" crossorigin="anonymous"><script src="https://s.pximg.net/www/js/bundle/vendors~pixiv~stacc3.52c665ff70b4decb2ea4.js" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/vendors~pixiv.a42ffa138c2e1bf7b5f5.js" charset="utf8" crossorigin="anonymous"></script><script src="https://s.pximg.net/www/js/bundle/pixiv.e62873add5e4e4f5641b.js" charset="utf8" crossorigin="anonymous"></script>
 <!--[if lte IE 9]>
     <script src="https://s.pximg.net/www/js/lib/ajaxhooks/xdr.js"></script>
 <![endif]-->
@@ -100,7 +99,7 @@ var pageLoadStartTime = +(new Date);
     pixiv.commonSourcePath = "https:\/\/s.pximg.net\/common\/";
     pixiv.config.sketchUrlBase = "https:\/\/sketch.pixiv.net";
     pixiv.config.oneSignalAppId = "b2af994d-2a00-40ba-b1fa-684491f6760a";
-    pixiv.context.token = "e28addd158eb060e3ad6990bf81f320c";
+    pixiv.context.token = "6324aadee53510721ccd4caedec58bdf";
     
     </script>
     <script>
@@ -116,94 +115,84 @@ var pageLoadStartTime = +(new Date);
 
         
         pixiv.user.unreadCount = {
-            popboard: 4        };
+            popboard: 0        };
 
         pixiv.config.facebookAppId = "140810032656374";
                 pixiv.context.self = false;
         pixiv.user.mutes = [];
     </script>
     
+<script type="text/javascript" src="https://d.pixiv.org/cache?name=yufulight181030.min.js"></script>
+
 <script>
-    
-var _gaq = _gaq || [];
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-
-
-
-
-_gaq.push(['_setAccount', 'UA-1830249-3']);
-_gaq.push(['_setDomainName', 'pixiv.net']);
-
-
-
-
-if (window.pixiv) {
-    if (pixiv.user && pixiv.user.loggedIn) {
-        _gaq.push(['_setCustomVar', 1, 'login', 'yes', 3]);
-        _gaq.push(['_setCustomVar', 3, 'plan', pixiv.user.premium ? 'premium' : 'normal', 1]);
-        _gaq.push(['_setCustomVar', 5, 'gender', pixiv.user.gender, 1]);
-        _gaq.push(['_setCustomVar', 6, 'user_id', pixiv.user.id, 1]);
-        _gaq.push(['_setCustomVar', 12, 'illustup_flg', pixiv.user.illustup_flg ? 'uploaded' : 'not_uploaded', 3]);
-        _gaq.push(['_setCustomVar', 13, 'user_id_per_pv', pixiv.user.id, 3]);
-    } else {
-        _gaq.push(['_setCustomVar', 1, 'login', 'no', 3]);
-    }
-
-    
-                                    _gaq.push(['_setCustomVar', 25, 'first_visit_datetime_pc', "2018-08-13 21:33:28", 3]);
-                            _gaq.push(['_setCustomVar', 26, 'privacy_policy_agreement', "1", 3]);
-            
+    var _gaq = _gaq || [];
 
     (function() {
-        // クッキーあれば、一回でもログインした人とみなす
-        if (pixiv.user && window.colon && colon.storage) {
-            var cookie_name = 'login_ever';
-
-            if (colon.storage.cookie(cookie_name)) {// 一度でもログインしたことある
-                _gaq.push(['_setCustomVar', 2, 'login ever', 'yes', 1]);
-
-            } else if (pixiv.user.loggedIn) { // ログインしてる
-                colon.storage.cookie(cookie_name, 'yes', {
-                    expires: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
-                    domain: location.hostname
-                });
-                _gaq.push(['_setCustomVar', 2, 'login ever', 'yes', 1]);
-
-            } else { // ログインしたこと無いし、ログインしてもない
-                _gaq.push(['_setCustomVar', 2, 'login ever', 'no', 1]);
-            }
-
-            
-            var p_ab_id = colon.storage.cookie('p_ab_id');
-            var p_ab_id_2 = colon.storage.cookie('p_ab_id_2');
-            _gaq.push(['_setCustomVar', 9, 'p_ab_id', p_ab_id, 1]);
-            _gaq.push(['_setCustomVar', 10, 'p_ab_id_2', p_ab_id_2, 1]);
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    _gaq.push(['_setAccount', 'UA-1830249-3']);_gaq.push(['_setDomainName', 'pixiv.net']);
+    if (window.pixiv) {
+        if (pixiv.user && pixiv.user.loggedIn) {
+            _gaq.push(['_setCustomVar', 1, 'login', 'yes', 3]);
+            _gaq.push(['_setCustomVar', 3, 'plan', pixiv.user.premium ? 'premium' : 'normal', 1]);
+            _gaq.push(['_setCustomVar', 5, 'gender', pixiv.user.gender, 1]);
+            _gaq.push(['_setCustomVar', 6, 'user_id', pixiv.user.id, 1]);
+            _gaq.push(['_setCustomVar', 12, 'illustup_flg', pixiv.user.illustup_flg ? 'uploaded' : 'not_uploaded', 3]);
+            _gaq.push(['_setCustomVar', 13, 'user_id_per_pv', pixiv.user.id, 3]);
+        } else {
+            _gaq.push(['_setCustomVar', 1, 'login', 'no', 3]);
         }
-    } ())
 
-    _gaq.push(['_setCustomVar', 11, 'lang', "en", 1]);
-}
+        _gaq.push(['_setCustomVar', 25, 'first_visit_datetime_pc', "2019-04-21 23:29:13", 3]);_gaq.push(['_setCustomVar', 26, 'privacy_policy_agreement', "1", 3]);
 
+        (function() {
+            // クッキーあれば、一回でもログインした人とみなす
+            if (pixiv.user && window.colon && colon.storage) {
+                var cookie_name = 'login_ever';
 
+                if (colon.storage.cookie(cookie_name)) {// 一度でもログインしたことある
+                    _gaq.push(['_setCustomVar', 2, 'login ever', 'yes', 1]);
 
-    _gaq.push(['_setSiteSpeedSampleRate', 20]);
+                } else if (pixiv.user.loggedIn) { // ログインしてる
+                    colon.storage.cookie(cookie_name, 'yes', {
+                        expires: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
+                        domain: location.hostname
+                    });
+                    _gaq.push(['_setCustomVar', 2, 'login ever', 'yes', 1]);
 
+                } else { // ログインしたこと無いし、ログインしてもない
+                    _gaq.push(['_setCustomVar', 2, 'login ever', 'no', 1]);
+                }
 
+                
+                var p_ab_id = colon.storage.cookie('p_ab_id');
+                var p_ab_id_2 = colon.storage.cookie('p_ab_id_2');
+                _gaq.push(['_setCustomVar', 9, 'p_ab_id', p_ab_id, 1]);
+                _gaq.push(['_setCustomVar', 10, 'p_ab_id_2', p_ab_id_2, 1]);
 
-if (window.pixiv && pixiv.tracking && pixiv.tracking.URL) {
-    _gaq.push(['_trackPageview', pixiv.tracking.URL]);
-} else {
-    _gaq.push(['_trackPageview']);
-}
+                var p_ab_d_id = colon.storage.cookie('p_ab_d_id');
+                _gaq.push(['_setCustomVar', 27, 'p_ab_d_id', p_ab_d_id, 3]);
+            }
+        } ())
 
-
-</script>
-<script>
+        _gaq.push(['_setCustomVar', 11, 'lang', "en", 1]);
+    }
+    
+        _gaq.push(['_setSiteSpeedSampleRate', 20]);
+    
+    if (window.pixiv && pixiv.tracking && pixiv.tracking.URL) {
+        _gaq.push(['_trackPageview', pixiv.tracking.URL]);
+    } else {
+        _gaq.push(['_trackPageview']);
+    }
+    </script><script async src="https://www.googletagmanager.com/gtag/js?id=AW-996000095"></script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-996000095');
+    </script><script>
     
 if (window.pixiv && !pixiv.text) pixiv.text = {};
 
@@ -213,15 +202,13 @@ if (window.pixiv && !pixiv.text) pixiv.text = {};
 
 
 
+<script src="https://pixon.ads-pixiv.net/show?zone_id=footer&amp;format=fif&amp;s=1&amp;up=0&amp;a=34&amp;ng=g&amp;l=en&amp;uri=%2Fmember_illust.php&amp;K=69ec144648&amp;ab_test_digits_first=4&amp;ab_test_digits_second=2&amp;Yuid=J0KWKFE&amp;suid=Pg2amkcmru0pal2zf&amp;num=5cbc7e53493"></script>
 </head>
 <body class="">
 
 
     
-<header class="_global-header"><div class="layout-wrapper"><h1 class="title header-logo"><div id="logoMap"><iframe src="https://d.pixiv.org/show?zone_id=logo_side&amp;format=html&amp;s=1&amp;up=0&amp;a=33&amp;ng=g&amp;l=en&amp;K=69ec144648&amp;ab_test_digits_first=3&amp;ab_test_digits_second=8&amp;Yuid=MwQBCWc63&amp;suid=Pfu8colzbywurqsny&amp;num=5b717ab5906" width="185" height="50" marginwidth="0" marginheight="0" frameborder="0" allowtransparency="true" scrolling="no" name="logo_side"></iframe></div><a href="/" class="_icon _pixiv-logo">pixiv</a></h1><nav class="link-list"><ul><li class="link-item"><span class="_premium-lead-header"><strong><a href="/premium.php?ref=header" style="color: #ff7e48;">Premium</a></strong></span></li><li class="link-item"><a href="/novel" class="header-novel js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="novel"data-click-label="/member_illust.php">Novels</a></li><li class="link-item"><a href="/cate_r18.php" class="header-r18 js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="r18"data-click-label="/member_illust.php">R-18</a></li><li class="link-item"><a href="https://www.pixiv.help/hc/" class="header-help" target="_blank">Help</a></li><li class="link-item settings-menu"><a href="/setting_user.php" class="label header-settings">Settings ▾</a><ul class="items"><li><a href="/setting_user.php" class="item">User settings</a></li><li><a href="/setting_profile.php" class="item">Profile settings</a></li><li><a href="/setting_info.php" class="item">Notification Settings</a></li><li><a href="/stacc/my/setting" class="item">Auto Feed activity</a></li><li><a href="/setting_mute.php" class="item">Mute setting</a></li><li><span class="_premium-lead-header-setting"><a href="/premium.php?ref=header_setting" class="premium item">Premium member</a></span></li><li class="separated"><a href="/logout.php?return_to=%2F" data-text-confirm="Are you sure you want to logout?" onclick="return confirm(this.getAttribute('data-text-confirm'))" class="item header-logout">Logout</a></li></ul></li></ul></nav><nav class="navigation-list"><ul class="menus"><li class="home"><a href="/"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="home"data-click-label="/member_illust.php"><span class="menu-icon icon-home"></span>Home</a></li><li class="upload"><a href="/upload.php"class="require-mail-authorization js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="upload"data-click-label="/member_illust.php"><span class="menu-icon icon-upload"></span>Submit</a><a href="/manage/illusts/"class="header-manage require-mail-authorization js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="manage"data-click-label="/member_illust.php"><span class="text">Manage</span></a></li><li class="bookmarks"><a href="/bookmark.php"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="bookmark"data-click-label="/member_illust.php"><span class="menu-icon icon-bookmark"></span>Bookmarks</a></li><li class="stacc"><a href="/stacc/?mode=unify"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="stacc"data-click-label="/member_illust.php"><span class="menu-icon icon-feed"></span>Feed</a></li></ul><ul class="notifications new-version"><li class="message"><a href="/messages.php" class="notification-button ui-modal-trigger" data-type="message"><span class="count"></span></a><div id="notification-message" class="notification-popup new-version"></div></li><li class="popboard"><div class="notification-button unread ui-modal-trigger" data-type="popboard"><span class="count">4</span></div><div id="notification-popboard" class="notification-popup new-version"></div></li></ul></nav><div class="navigation-menu-right"><div class="menu-group"><a href="/discovery"class="menu-item  js-click-trackable-later gtm-www-header-discovery-icon"data-click-category="header-menu-ref"data-click-action="discovery"data-click-label="/member_illust.php"><img class="_discovery-icon" src="https://s.pximg.net/www/images/discovery/compass.svg"><span class="label">Discovery</span></a></div><div class="menu-group"><a href="/howto"class="menu-item  js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="howto"data-click-label="/member_illust.php"><img class="_howto-icon" src="https://s.pximg.net/www/images/howto/icon/howto-brush.svg?20171004"><span class="label">How to draw</span></a><a href="/idea"class="menu-item  js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="idea"data-click-label="/member_illust.php"><img class="_idea-icon" src="https://s.pximg.net/www/images/idea-board/global-header-idea-icon.svg"><span class="label">Creative Ideas</span></a></div></div><form id="suggest-container" autocomplete="off" method="get" class="ui-search" action="/search.php"><input type="hidden" name="s_mode" value="s_tag"><div class="container"><input type="text" id="suggest-input" name="word" value="" placeholder="Search results"></div><input type="submit" class="submit sprites-search-old" value=""><div id="suggest-list"><p>Search history<a>Clear</a></p><ul></ul></div><script id="search-category-template" type="text/x-jquery-tmpl"><li class="search-category"><a href="/search.php?s_mode=s_tag&amp;word=${word}">Sort by newest</a></li><li class="search-category"><span class="_premium-lead-search-box-popular"><a href="/premium.php?ref=search_box_popular&amp;page=visitor">Search by popularity<span>pixiv Premium</span></a></span></li></script><script id="search-suggest-with-translation-inner-li-template" type="text/x-jquery-tmpl">
-            <p class="js-search-suggest-tag-name search-suggest-tag-name">${tagName}</p>
-            <p class="js-search-suggest-tag-translation search-suggest-tag-translation">${tagTranslation}</p>
-        </script></form></div></header>
+<header class="_global-header"><div class="layout-wrapper"><h1 class="title header-logo"><div id="logoMap"><script name=logo_side src="https://pixon.ads-pixiv.net/show?zone_id=logo_side&format=fif&s=1&up=0&a=34&ng=g&l=en&uri=%2Fmember_illust.php&K=69ec144648&ab_test_digits_first=4&ab_test_digits_second=2&Yuid=J0KWKFE&suid=Pg2amkcmqe2miizhd&num=5cbc7e53659"></script></div><a href="/" class="_icon _pixiv-logo">pixiv</a></h1><nav class="link-list"><ul><li class="link-item"><span class="_premium-lead-header"><iframe class="premium-impression js-lazyload" data-src="https://imp.pixiv.net/premium_lp?g=anchor&amp;i=site_header&amp;d=pc" data-expand="-1"></iframe><strong><a href="/premium/lead/lp/?g=anchor&amp;i=site_header" style="color: #ff7e48;">Premium</a></strong></span></li><li class="link-item"><a href="/novel" class="header-novel js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="novel"data-click-label="/member_illust.php">Novels</a></li><li class="link-item"><a href="/cate_r18.php" class="header-r18 js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="r18"data-click-label="/member_illust.php">R-18</a></li><li class="link-item"><a href="https://www.pixiv.help/hc/?utm_campaign=header&amp;utm_medium=help_link&amp;utm_source=www_pixiv" class="header-help" target="_blank" rel='noopener'>Help</a></li><li class="link-item settings-menu"><a href="/setting_user.php" class="label header-settings">Settings ▾</a><ul class="items"><li><a href="/setting_user.php" class="item">User settings</a></li><li><a href="/setting_profile.php" class="item">Profile settings</a></li><li><a href="/setting_info.php" class="item">Notification Settings</a></li><li><a href="/stacc/my/setting" class="item">Auto Feed activity</a></li><li><a href="/setting_mute.php" class="item">Mute setting</a></li><li><span class="_premium-lead-header-setting"><iframe class="premium-impression js-lazyload" data-src="https://imp.pixiv.net/premium_lp?g=anchor&amp;i=site_header_setting&amp;d=pc" data-expand="-1"></iframe><a href="/premium/lead/lp/?g=anchor&amp;i=site_header_setting" class="premium item">pixiv Premium</a></span></li><li class="separated"><a href="/logout.php?return_to=%2F" data-text-confirm="Are you sure you want to logout?" onclick="return confirm(this.getAttribute('data-text-confirm'))" class="item header-logout">Logout</a></li></ul></li></ul></nav><nav class="navigation-list"><ul class="menus"><li class="home"><a href="/"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="home"data-click-label="/member_illust.php"><span class="menu-icon icon-home"></span>Home</a></li><li class="upload"><a href="/upload.php"class="require-mail-authorization js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="upload"data-click-label="/member_illust.php"><span class="menu-icon icon-upload"></span>Submit</a><a href="/manage/illusts/"class="header-manage require-mail-authorization js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="manage"data-click-label="/member_illust.php"><span class="text">Manage</span></a></li><li class="bookmarks"><a href="/bookmark.php"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="bookmark"data-click-label="/member_illust.php"><span class="menu-icon icon-bookmark"></span>Bookmarks</a></li><li class="stacc"><a href="/stacc/?mode=unify"class=" js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="stacc"data-click-label="/member_illust.php"><span class="menu-icon icon-feed"></span>Feed</a></li></ul><ul class="notifications new-version"><li class="message"><a href="/messages.php" class="notification-button ui-modal-trigger" data-type="message"><span class="count"></span></a><div id="notification-message" class="notification-popup new-version"></div></li><li class="popboard"><div class="notification-button ui-modal-trigger" data-type="popboard"><span class="count">0</span></div><div id="notification-popboard" class="notification-popup new-version"></div></li></ul></nav><div class="navigation-menu-right"><div class="menu-group"><a href="/discovery"class="menu-item  js-click-trackable-later gtm-www-header-discovery-icon"data-click-category="header-menu-ref"data-click-action="discovery"data-click-label="/member_illust.php"><img class="_discovery-icon" src="https://s.pximg.net/www/images/discovery/compass.svg"><span class="label">Discovery</span></a></div><div class="menu-group"><a href="/howto"class="menu-item  js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="howto"data-click-label="/member_illust.php"><img class="_howto-icon" src="https://s.pximg.net/www/images/howto/icon/howto-brush.svg?20171004"><span class="label">How to draw</span></a><a href="/idea"class="menu-item  js-click-trackable-later"data-click-category="header-menu-ref"data-click-action="idea"data-click-label="/member_illust.php"><img class="_idea-icon" src="https://s.pximg.net/www/images/idea-board/global-header-idea-icon.svg"><span class="label">Creative Ideas</span></a></div></div><form id="suggest-container" autocomplete="off" method="get" class="ui-search" action="/search.php"><input type="hidden" name="s_mode" value="s_tag"><div class="container"><input type="text" id="suggest-input" name="word" value="" placeholder="Search results"></div><input type="submit" class="submit sprites-search-old" value=""><div id="suggest-list"><p>Search history<a>Clear</a></p><ul></ul></div></form></div></header>
 
 <ul class="_toolmenu"><li id="back-to-top" class="item ui-scroll"><i class="_icon-12 _icon-up"></i></li></ul>
 
@@ -231,9 +218,6 @@ if (window.pixiv && !pixiv.text) pixiv.text = {};
         <div class="nipple"></div>
     </div>
 </div>
-
-<div id="status-bar"></div>
-
 
 <script>
 pixiv.text.today = 'Today';
@@ -265,13 +249,13 @@ pixiv.text.femaleRanking = 'Popularity Ranking (Females)';
         
             <p class="error-message"><a href="/">Back</a></p>
                 <div class="bigbanner">
-            <iframe src="https://d.pixiv.org/show?zone_id=bigbanner&format=html&s=1&up=0&a=33&ng=g&l=en&K=69ec144648&ab_test_digits_first=3&ab_test_digits_second=8&Yuid=MwQBCWc63&suid=Pfu8colzdp0qwpwx&num=5b717ab5286" width="500" height="520" marginwidth="0" marginheight="0" frameborder="0" allowtransparency="true" scrolling="no" class="ad-bigbanner"></iframe>        </div>
+            <iframe src="https://pixon.ads-pixiv.net/show?zone_id=bigbanner&format=html&s=1&up=0&a=34&ng=g&l=en&uri=%2Fmember_illust.php&K=69ec144648&ab_test_digits_first=4&ab_test_digits_second=2&Yuid=J0KWKFE&suid=Pg2amkcmr4t6uu8yz&num=5cbc7e53581" width="500" height="520" marginwidth="0" marginheight="0" frameborder="0" allowtransparency="true" scrolling="no" class="ad-bigbanner"></iframe>        </div>
     </div>
 
-            <div id="header-banner" class="ad "><span class='multi-ads-area'><div><iframe name="header" src="https://d.pixiv.org/show?zone_id=header&format=html&s=1&up=0&a=33&ng=g&l=en&K=69ec144648&ab_test_digits_first=3&ab_test_digits_second=8&Yuid=MwQBCWc63&suid=Pfu8colze2wobbohz&num=5b717ab5982" width="468" height="60"></iframe></div></span></div><div class="ad-footer" class="ad"><span class='multi-ads-area'><div id="footer" style='margin-left:auto; margin-right:auto;'><script type="text/javascript" src="https://storage.googleapis.com/yufulight-cdn/yufulight180723.min.js"></script><script name="footer" src="https://d.pixiv.org/show?zone_id=footer&format=fif&s=1&up=0&a=33&ng=g&l=en&K=69ec144648&ab_test_digits_first=3&ab_test_digits_second=8&Yuid=MwQBCWc63&suid=Pfu8colzealw1ikfn&num=5b717ab5188"></script></div></span></div><footer class="footer _classic-footer ya-pc-overlay"><div class="container"><ul class="languages"><li>
+            <div id="header-banner" class="ad "><span class='multi-ads-area'><div id="ads-header"><script name="header" src="https://pixon.ads-pixiv.net/show?zone_id=header&format=fif&s=1&up=0&a=34&ng=g&l=en&uri=%2Fmember_illust.php&K=69ec144648&ab_test_digits_first=4&ab_test_digits_second=2&Yuid=J0KWKFE&suid=Pg2amkcmre9ecxd7u&num=5cbc7e53700"></script></div></span></div><div class="ad-footer" class="ad"><span class='multi-ads-area'><div id="ad-footer-inner"><script>if (typeof ads !== 'undefined' && typeof footerTag !== 'undefined') {ads.appendFIF('ad-footer-inner', footerTag, {width: 728, height: 130});}</script></div></span></div><footer class="footer _classic-footer ya-pc-overlay"><div class="container"><ul class="languages"><li>
             <form name="setja" method="POST" action="/rpc_language_setting.php">
         <input type="hidden" name="mode" value="set">
-        <input type="hidden" name="tt" value="e28addd158eb060e3ad6990bf81f320c">
+        <input type="hidden" name="tt" value="6324aadee53510721ccd4caedec58bdf">
         <input type="hidden" name="user_language" value="ja">
         <a href="#" onclick="document.setja.submit();return false">日本語</a>
         </form>
@@ -282,7 +266,7 @@ pixiv.text.femaleRanking = 'Popularity Ranking (Females)';
 <li>
             <form name="setko" method="POST" action="/rpc_language_setting.php">
         <input type="hidden" name="mode" value="set">
-        <input type="hidden" name="tt" value="e28addd158eb060e3ad6990bf81f320c">
+        <input type="hidden" name="tt" value="6324aadee53510721ccd4caedec58bdf">
         <input type="hidden" name="user_language" value="ko">
         <a href="#" onclick="document.setko.submit();return false">한국어</a>
         </form>
@@ -290,7 +274,7 @@ pixiv.text.femaleRanking = 'Popularity Ranking (Females)';
 <li>
             <form name="setzh" method="POST" action="/rpc_language_setting.php">
         <input type="hidden" name="mode" value="set">
-        <input type="hidden" name="tt" value="e28addd158eb060e3ad6990bf81f320c">
+        <input type="hidden" name="tt" value="6324aadee53510721ccd4caedec58bdf">
         <input type="hidden" name="user_language" value="zh">
         <a href="#" onclick="document.setzh.submit();return false">简体中文</a>
         </form>
@@ -298,19 +282,18 @@ pixiv.text.femaleRanking = 'Popularity Ranking (Females)';
 <li>
             <form name="setzh_tw" method="POST" action="/rpc_language_setting.php">
         <input type="hidden" name="mode" value="set">
-        <input type="hidden" name="tt" value="e28addd158eb060e3ad6990bf81f320c">
+        <input type="hidden" name="tt" value="6324aadee53510721ccd4caedec58bdf">
         <input type="hidden" name="user_language" value="zh_tw">
         <a href="#" onclick="document.setzh_tw.submit();return false">繁體中文</a>
         </form>
     </li>
-</ul><dl class="links"><dt>Services</dt><dd><ul><li><a href="https://comic.pixiv.net/" target="_blank">pixiv Comic</a></li><li><a href="https://novel.pixiv.net/" target="_blank">pixiv Novel</a></li><li><a href="https://pixiv-bungei.net/" target="_blank">pixiv literature</a></li><li><a href="https://factory.pixiv.net/" target="_blank">pixivFACTORY</a><span style="color: #666;">｜</span><a href="https://factory.pixiv.net/books" target="_blank">BOOKS</a></li><li><a href="https://booth.pm" target="_blank">BOOTH</a></li><li><a href="https://www.pixiv.net/fanbox/?utm_campaign=www_footer&amp;utm_medium=site_flow&amp;utm_source=pixiv" target="_blank">pixivFANBOX</a></li><li><a href="https://www.pixivision.net/en/" target="_blank">pixivision</a></li><li><a href="https://sketch.pixiv.net/" target="_blank">pixiv Sketch</a></li><li><a href="https://sensei.pixiv.net/" target="_blank">sensei</a></li></ul></dd></dl><dl class="links"><dt>&nbsp;</dt><dd><ul><li><a href="https://en-dic.pixiv.net/" target="_blank">pixiv Encyclopedia</a></li><li><a href="https://pawoo.net/" target="_blank">Pawoo</a><span style="color: #666;">｜</span><a href="https://music.pawoo.net/" target="_blank">Pawoo Music</a></li><li><a href="https://market.pixiv.net/" title="pixivMARKET" target="_blank" rel="noopener">pixivMARKET</a></li><li><a href="https://chatstory.pixiv.net/" title="pixiv chatstory" target="_blank" rel="noopener">pixiv chatstory</a></li><li><a href="http://drawr.net/" target="_blank">drawr</a></li><li><a href="/premium.php?ref=footer" class="_ui-tooltip" data-tooltip="Tons of pixiv Premium only features!"><i class="_icon sprites-premium"></i><span class="icon-text">Premium member</span></a></li></ul></dd></dl><dl class="links"><dt>About pixiv</dt><dd><ul><li><a href="https://www.pixiv.net/terms.php">Terms of Use</a></li><li><a href="https://www.pixiv.net/guideline.php">Guidelines</a></li><li><a href="https://www.pixiv.net/privacy.php">Privacy Policy</a></li><li><a href="https://www.pixiv.net/ads">Advertise on pixiv</a></li><li><a href="https://www.pixiv.net/support.php">Contact Us</a></li><li><a href="https://www.pixiv.help/hc/" target="_blank">Help</a></li></ul></dd></dl><dl class="links"><dt>Info</dt><dd><ul><li></li><li><a href="https://www.pixiv.net/info.php">Info</a></li><li><a href="https://inside.pixiv.blog/" target="_blank">pixiv inside</a></li><li><a href="https://twitter.com/pixiv" target="_blank">Twitter</a></li><li><a href="https://www.facebook.com/pixiv" target="_blank">Facebook</a></li><li><a href="https://plus.google.com/+pixiv" target="_blank" rel="publisher">Google+</a></li><li><a href="https://www.instagram.com/pixiv/" target="_blank">Instagram</a></li><li><a href="https://www.plurk.com/pixiv_tw" target="_blank">Plurk</a></li><li><a href="https://www.weibo.com/pixivcn" target="_blank">weibo</a></li></ul></dd></dl><dl class="links"><dt>Company Info</dt><dd><ul><li><a href="https://www.pixiv.co.jp/" target="_blank">About pixiv Inc.</a></li><li><a href="https://recruit.jobcan.jp/pixiv" target="_blank" class="js-click-trackable" data-click-category="recruit" data-click-action="From_Footer" data-click-label="">Careers</a></li></ul></dd></dl><div class="copyright">&copy; pixiv</div></div><input type="hidden" id="init-config" class="json-data" value='[]'></footer>
+</ul><dl class="links"><dt>Services</dt><dd><ul><li><a href="https://comic.pixiv.net/" target="_blank">pixiv Comic</a></li><li><a href="https://novel.pixiv.net/" target="_blank">pixiv Novel</a></li><li><a href="https://pixiv-bungei.net/" target="_blank">pixiv literature</a></li><li><a href="https://factory.pixiv.net/" target="_blank">pixivFACTORY</a><span style="color: #666;">｜</span><a href="https://factory.pixiv.net/books" target="_blank">BOOKS</a></li><li><a href="https://booth.pm" target="_blank">BOOTH</a></li><li><a href="https://www.pixiv.net/fanbox/?utm_campaign=www_footer&amp;utm_medium=site_flow&amp;utm_source=pixiv" target="_blank">pixivFANBOX</a></li><li><a href="https://www.pixivision.net/en/" target="_blank">pixivision</a></li><li><a href="https://sketch.pixiv.net/" target="_blank">pixiv Sketch</a></li><li><a href="https://sensei.pixiv.net/" target="_blank">sensei</a></li></ul></dd></dl><dl class="links"><dt>&nbsp;</dt><dd><ul><li><a href="https://studio.vroid.com/" target="_blank">VRoid Studio</a></li><li><a href="https://hub.vroid.com/" target="_blank">VRoid Hub</a></li><li><a href="https://en-dic.pixiv.net/" target="_blank">pixiv Encyclopedia</a></li><li><a href="https://pawoo.net/" target="_blank">Pawoo</a><span style="color: #666;">｜</span><a href="https://music.pawoo.net/" target="_blank">Pawoo Music</a></li><li><a href="https://pixiv-waengallery.com/" target="_blank" rel="noopener">pixiv WAEN GALLERY</a></li><li><a href="https://market.pixiv.net/" title="pixivMARKET" target="_blank" rel="noopener">pixivMARKET</a></li><li><a href="https://chatstory.pixiv.net/" title="pixiv chatstory" target="_blank" rel="noopener">pixiv chatstory</a></li><li><a href="http://drawr.net/" target="_blank">drawr</a></li><li><iframe class="premium-impression js-lazyload" data-src="https://imp.pixiv.net/premium_lp?g=anchor&amp;i=index_footer&amp;d=pc" data-expand="-1"></iframe><a href="/premium/lead/lp/?g=anchor&amp;i=index_footer" class="_ui-tooltip" data-tooltip="Tons of pixiv Premium only features!"><i class="_icon sprites-premium"></i><span class="icon-text">pixiv Premium</span></a></li></ul></dd></dl><dl class="links"><dt>About pixiv</dt><dd><ul><li><a href="https://www.pixiv.help/hc/?utm_campaign=footer&amp;utm_medium=help_link&amp;utm_source=www_pixiv" target="_blank" rel='noopener'>Help</a></li><li><a href="https://www.pixiv.net/terms.php">Terms of Use</a></li><li><a href="https://www.pixiv.net/guideline.php">Guidelines</a></li><li><a href="https://www.pixiv.net/privacy.php">Privacy Policy</a></li><li><a href="https://www.pixiv.net/ads">Advertise on pixiv</a></li></ul></dd></dl><dl class="links"><dt>Info</dt><dd><ul><li></li><li><a href="https://www.pixiv.net/info.php">Info</a></li><li><a href="https://inside.pixiv.blog/" target="_blank">pixiv inside</a></li><li><a href="https://twitter.com/pixiv" target="_blank">Twitter</a></li><li><a href="https://www.facebook.com/pixiv" target="_blank">Facebook</a></li><li><a href="https://plus.google.com/+pixiv" target="_blank" rel="publisher">Google+</a></li><li><a href="https://www.instagram.com/pixiv/" target="_blank">Instagram</a></li><li><a href="https://www.plurk.com/pixiv_tw" target="_blank">Plurk</a></li><li><a href="https://www.weibo.com/pixivcn" target="_blank">weibo</a></li></ul></dd></dl><dl class="links"><dt>Company Info</dt><dd><ul><li><a href="https://www.pixiv.co.jp/" target="_blank">About pixiv Inc.</a></li><li><a href="https://recruit.jobcan.jp/pixiv" target="_blank" class="js-click-trackable" data-click-category="recruit" data-click-action="From_Footer" data-click-label="">Careers</a></li></ul></dd></dl><div class="copyright">&copy; pixiv</div></div><input type="hidden" id="init-config" class="json-data" value='[]'></footer>
     </div>
-
 
     <div id='js-mount-point-sketch-notification'></div>
 
     
-<script>dataLayer = [{login: 'yes',gender: "male",user_id: "189816",lang: "en",illustup_flg: 'not_uploaded',premium: 'no',}];</script>
+<script>'use strict';var dataLayer = [{login: 'yes',gender: "male",user_id: "189816",lang: "en",illustup_flg: 'not_uploaded',premium: 'no',}];</script>
 <!-- Google Tag Manager -->
 <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-55FG"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

@@ -64,9 +64,10 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertTrue(member.haveImages)
         self.assertFalse(member.isLastPage)
 
+    # https://www.pixiv.net/ajax/user/14095911/profile/all
     def testParseMemberImagesLastPage(self):
         p = open('./test/all-14095911.json', 'r')
-        member = PixivArtist(14095911, p.read(), False, 92, 24)
+        member = PixivArtist(14095911, p.read(), False, 96, 48)
         self.assertIsNotNone(member)
         p2 = open('./test/userdetail-14095911.json', 'r')
         info = json.loads(p2.read())
@@ -74,9 +75,11 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
 
         member.PrintInfo()
         self.assertEqual(member.artistId, 14095911)
+        self.assertEqual(member.totalImages, 143)
         self.assertTrue(member.haveImages)
         self.assertTrue(member.isLastPage)
 
+    # /ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48
     def testParseMemberImagesByTags(self):
         p = open('./test/tag-R-18-14095911.json', 'r')
         member = PixivArtist(14095911, p.read(), False, 0, 24)
@@ -90,6 +93,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertTrue(member.haveImages)
         self.assertFalse(member.isLastPage)
 
+    # /ajax/user/14095911/illustmanga/tag?tag=R-18&offset=48&limit=48
     def testParseMemberImagesByTagsLastPage(self):
         p = open('./test/tag-R-18-14095911-lastpage.json', 'r')
         member = PixivArtist(14095911, p.read(), False, 48, 24)
