@@ -65,12 +65,12 @@ def main():
 
         # ./test/test-helper-avatar-name.htm
         # https://www.pixiv.net/member_illust.php?id=1107124
-        downloadPage('https://www.pixiv.net/member_illust.php?id=1107124', './test/test-helper-avatar-name.htm')
+        # downloadPage('https://www.pixiv.net/member_illust.php?id=1107124', './test/test-helper-avatar-name.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=1', './test/test-nouser.htm')
-        downloadPage('https://www.pixiv.net/member_illust.php?id=26357', './test/test-member-noavatar.htm')
+        # downloadPage('https://www.pixiv.net/member_illust.php?id=26357', './test/test-member-noavatar.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=1233', './test/test-noimage.htm')
-        downloadPage('https://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
+        # downloadPage('https://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
         downloadPage('https://www.pixiv.net/manage/illusts/', './test/test-member-self.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32039274', './test/test-image-info.html')
@@ -117,8 +117,10 @@ def main():
 
         # AJAX calls
         downloadPage('https://www.pixiv.net/ajax/user/14095911/profile/all', './test/all-14095911.json')
-        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48', './test/tag-R-18-14095911.json')
         downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=14095911', './test/userdetail-14095911.json')
+        downloadPage('https://www.pixiv.net/ajax/user/26357/profile/all', './test/all-26357.json')
+        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=26357', './test/userdetail-26357.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48', './test/tag-R-18-14095911.json')
         downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=48&limit=48', './test/tag-R-18-14095911-lastpage.json')
         downloadPage('https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show', './test/bookmarks-1039353.json')
         downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=1039353', './test/userdetail-1039353.json')

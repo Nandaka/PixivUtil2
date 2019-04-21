@@ -63,6 +63,25 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertEqual(member.artistId, 14095911)
         self.assertTrue(member.haveImages)
         self.assertFalse(member.isLastPage)
+        self.assertEqual(member.artistToken, 'p199451')
+        self.assertGreater(member.totalImages, 70)
+        self.assertEqual(member.artistAvatar, "https://i.pximg.net/user-profile/img/2018/02/01/23/55/46/13768317_dc1474fef3dc982ade71c1b2dbf32d9e.png")
+
+    def testParseMemberImages2(self):
+        p = open('./test/all-26357.json', 'r')
+        member = PixivArtist(26357, p.read(), False, 0, 24)
+        self.assertIsNotNone(member)
+        p2 = open('./test/userdetail-26357.json', 'r')
+        info = json.loads(p2.read())
+        member.ParseInfo(info, False, False)
+
+        member.PrintInfo()
+        self.assertEqual(member.artistId, 26357)
+        self.assertTrue(member.haveImages)
+        self.assertFalse(member.isLastPage)
+        self.assertEqual(member.artistToken, 'yukimaruko')
+        self.assertGreater(member.totalImages, 7)
+        self.assertEqual(member.artistAvatar, "https://s.pximg.net/common/images/no_profile.png")
 
     # https://www.pixiv.net/ajax/user/14095911/profile/all
     def testParseMemberImagesLastPage(self):
