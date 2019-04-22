@@ -737,7 +737,7 @@ class PixivBrowser(mechanize.Browser):
             self._oauth_reply = json.loads(oauth_response)
             self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] - 10))
         except urllib2.HTTPError as ex:
-            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format1(json.loads(ex.read())))
+            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format(json.loads(ex.read())))
             raise ex
 
 
