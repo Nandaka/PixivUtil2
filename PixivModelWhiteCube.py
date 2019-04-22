@@ -53,21 +53,7 @@ class PixivArtist(PixivModel.PixivArtist):
 
         if page is not None:
             if fromImage:
-                key = list(page["preload"]["user"].keys())[0]
-                root = page["preload"]["user"][key]
-
-                self.artistId = root["userId"]
-                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
-                self.artistName = root["name"]
-                # user token is stored in background
-                if root["background"] is not None:
-                    self.artistBackground = root["background"]["url"]
-                # Issue 388
-                illusts = page["preload"]["illust"]
-                for il in illusts:
-                    if illusts[il]["userAccount"]:
-                        self.artistToken = illusts[il]["userAccount"]
-                        break
+                self.ParseInfoFromImage(page)
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
@@ -91,6 +77,23 @@ class PixivArtist(PixivModel.PixivArtist):
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+
+    def ParseInfoFromImage(self, page):
+        key = list(page["preload"]["user"].keys())[0]
+        root = page["preload"]["user"][key]
+
+        self.artistId = root["userId"]
+        self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
+        self.artistName = root["name"]
+        # user token is stored in background
+        if root["background"] is not None:
+            self.artistBackground = root["background"]["url"]
+        # Issue 388
+        illusts = page["preload"]["illust"]
+        for il in illusts:
+            if illusts[il]["userAccount"]:
+                self.artistToken = illusts[il]["userAccount"]
+                break
 
     def ParseBackground(self, payload):
         self.artistBackground = "no_background"

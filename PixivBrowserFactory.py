@@ -9,6 +9,7 @@ import re
 import socket
 import sys
 import time
+from datetime import datetime, timedelta
 import urllib
 import urllib2
 import urlparse
@@ -36,6 +37,8 @@ class PixivBrowser(mechanize.Browser):
     _whitecubeToken = ""
     _cache = dict()
     _myId = 0
+    _oauth_reply = None
+    _oauth_expiry = None
 
     def put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -202,6 +205,18 @@ class PixivBrowser(mechanize.Browser):
                               comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
+##        cookies = cookie_value.split(";")
+##        for cookie in cookies:
+##            temp = cookie.split("=")
+##            name = temp[0].strip()
+##            value= temp[1] if len(temp) > 1 else ""
+##            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
+##                                  port_specified=False, domain='pixiv.net', domain_specified=False,
+##                                  domain_initial_dot=False, path='/', path_specified=True,
+##                                  secure=False, expires=None, discard=True, comment=None,
+##                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+##            self.addCookie(ck)
+
     def _getInitConfig(self, page):
         init_config = page.find('input', attrs={'id': 'init-config'})
         js_init_config = json.loads(init_config['value'])
@@ -270,6 +285,10 @@ class PixivBrowser(mechanize.Browser):
         result = json.loads(js)
         # Fix Issue #181
         if result["body"] is not None and result["body"].has_key("success"):
+            #            cookie.value = self._ua_handlers['_cookies']
+            #            PixivHelper.print_and_log('info', 'new cookie value: ' + str(cookie.value))
+            #            self._config.cookie = cookie.value
+            #            self._config.writeConfig(path=self._config.configFileLocation)
             for cookie in self._ua_handlers['_cookies'].cookiejar:
                 if cookie.name == 'PHPSESSID':
                     PixivHelper.print_and_log('info', 'new cookie value: ' + str(cookie.value))
@@ -410,11 +429,20 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
         try:
+            if self._oauth_reply is None:
+                PixivHelper.safePrint(u"No OAuth token available yet, retrieving...")
+                self.get_oauth_token(self._config.username, self._config.password)
+            if datetime.now() > self._oauth_expiry:
+                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
+                self.get_oauth_token(self._config.username, self._config.password, self._oauth_reply['response']['refresh_token'])
+
             url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
             info = self.get_from_cache(url)
             if info is None:
                 PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-                infoStr = self.open_with_retry(url).read()
+                request = urllib2.Request(url)
+                request.add_header("Authorization", "Bearer " + self._oauth_reply['response']['access_token'])
+                infoStr = self.open_with_retry(request).read()
                 info = json.loads(infoStr)
                 self.put_to_cache(url, info)
 
@@ -682,6 +710,36 @@ class PixivBrowser(mechanize.Browser):
 
         return result
 
+    def get_oauth_token(self, username, password, refresh_token=None):
+        url = "https://oauth.secure.pixiv.net/auth/token"
+        value = None
+        if refresh_token is not None:
+            values = {'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
+                      'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
+                      'device_token': 'af014441a5f1a3340952922adeba1c36',
+                      'refresh_token': refresh_token,
+                      'grant_type': 'refresh_token'}
+        else:
+            values = {'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
+                      'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
+                      'device_token': 'af014441a5f1a3340952922adeba1c36',
+                      'username': username,
+                      'password': password,
+                      'grant_type': 'password'}
+        data = urllib.urlencode(values)
+        request = urllib2.Request(url, data)
+        request.add_header("User-Agent", "PixivIOSApp/5.1.1")
+        request.add_header("Referer", "https://www.pixiv.net")
+        request.add_header("Content-Type", "application/x-www-form-urlencoded")
+        request.add_header("Authorization", "Bearer 8mMXXWT9iuwdJvsVIvQsFYDwuZpRCMePeyagSh30ZdU")
+        try:
+            oauth_response = self.open(request).read()
+            self._oauth_reply = json.loads(oauth_response)
+            self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] - 10))
+        except urllib2.HTTPError as ex:
+            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format1(json.loads(ex.read())))
+            raise ex
+
 
 def getBrowser(config=None, cookieJar=None):
     global defaultCookieJar
@@ -709,16 +767,20 @@ def getExistingBrowser():
 
 
 # pylint: disable=W0612
-def test():
+def get_br():
     from PixivConfig import PixivConfig
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
     b = getBrowser(cfg, None)
-    success = False
     if cfg.cookie is not None and len(cfg.cookie) > 0:
         success = b.loginUsingCookie(cfg.cookie)
     elif not success:
         success = b.login(cfg.username, cfg.password)
+    return (b, success)
+
+
+def test():
+    (b, success) = get_br()
 
     if success:
         def testSearchTags():
