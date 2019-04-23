@@ -343,80 +343,59 @@ class PixivBrowser(mechanize.Browser):
         image = None
         response = None
         PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
-        if self._isWhitecube:
-            pass
-##            url = "https://www.pixiv.net/rpc/whitecube/index.php?mode=work_details_modal_whitecube&id={0}&tt={1}".format(image_id, self._whitecubeToken)
-##            response = self.open(url).read()
-##            self.handleDebugMediumPage(response, image_id)
-##            # PixivHelper.GetLogger().debug(response)
-##
-##            image = PixivModelWhiteCube.PixivImage(image_id,
-##                                                   response,
-##                                                   parent,
-##                                                   from_bookmark,
-##                                                   bookmark_count,
-##                                                   image_response_count,
-##                                                   dateFormat=self._config.dateFormat)
-##            # overwrite artist info
-##            if from_bookmark:
-##                self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+        url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
+        # response = self.open(url).read()
+        response = self.getPixivPage(url, returnParsed=False).read()
+        self.handleDebugMediumPage(response, image_id)
+
+        # Issue #355 new ui handler
+        image = None
+        try:
+            if response.find("globalInitData") > 0:
+                PixivHelper.print_and_log('debug', 'New UI Mode')
+
+                # Issue #420
+                _tzInfo = None
+                if self._config.useLocalTimezone:
+                    _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+
+                image = PixivModelWhiteCube.PixivImage(image_id,
+                                                       response,
+                                                       parent,
+                                                       from_bookmark,
+                                                       bookmark_count,
+                                                       image_response_count,
+                                                       dateFormat=self._config.dateFormat,
+                                                       tzInfo=_tzInfo)
+
+                if image.imageMode == "ugoira_view":
+                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                    meta_response = self.open_with_retry(ugoira_meta_url).read()
+                    image.ParseUgoira(meta_response)
+
+                if parent is None:
+                    if from_bookmark:
+                        image.originalArtist.reference_image_id = image_id
+                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                    else:
+                        image.artist.reference_image_id = image_id
+                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+
 ##            else:
-##                self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
-
-        else:
-            url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
-            # response = self.open(url).read()
-            response = self.getPixivPage(url, returnParsed=False).read()
-            self.handleDebugMediumPage(response, image_id)
-
-            # Issue #355 new ui handler
-            image = None
-            try:
-                if response.find("globalInitData") > 0:
-                    PixivHelper.print_and_log('debug', 'New UI Mode')
-
-                    # Issue #420
-                    _tzInfo = None
-                    if self._config.useLocalTimezone:
-                        _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-
-                    image = PixivModelWhiteCube.PixivImage(image_id,
-                                                           response,
-                                                           parent,
-                                                           from_bookmark,
-                                                           bookmark_count,
-                                                           image_response_count,
-                                                           dateFormat=self._config.dateFormat,
-                                                           tzInfo=_tzInfo)
-
-                    if image.imageMode == "ugoira_view":
-                        ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
-                        meta_response = self.open_with_retry(ugoira_meta_url).read()
-                        image.ParseUgoira(meta_response)
-    ##                    PixivHelper.GetLogger().debug("animation.js")
-    ##                    PixivHelper.GetLogger().debug(image.ugoira_data)
-
-                    if parent is None:
-                        if from_bookmark:
-                            self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-                        else:
-                            self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
-
-                else:
-                    parsed = BeautifulSoup(response)
-                    image = PixivModel.PixivImage(image_id,
-                                                  parsed,
-                                                  parent,
-                                                  from_bookmark,
-                                                  bookmark_count,
-                                                  image_response_count,
-                                                  dateFormat=self._config.dateFormat)
-                    if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-                        image.ParseImages(parsed)
-                    parsed.decompose()
-            except:
-                PixivHelper.GetLogger().error("Respose data: \r\n %s", response)
-                raise
+##                parsed = BeautifulSoup(response)
+##                image = PixivModel.PixivImage(image_id,
+##                                              parsed,
+##                                              parent,
+##                                              from_bookmark,
+##                                              bookmark_count,
+##                                              image_response_count,
+##                                              dateFormat=self._config.dateFormat)
+##                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
+##                    image.ParseImages(parsed)
+##                parsed.decompose()
+        except:
+            PixivHelper.GetLogger().error("Respose data: \r\n %s", response)
+            raise
 
         return (image, response)
 
@@ -432,14 +411,29 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
         try:
-            if self._oauth_reply is None:
-                PixivHelper.safePrint(u"No OAuth token available yet, retrieving...")
+##            if artist.reference_image_id > 0:
+##                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(artist.reference_image_id)
+##                info = self.get_from_cache(url)
+##                if info is None:
+##                    request = urllib2.Request(url)
+##                    infoStr = self.open_with_retry(request).read()
+##                    info = json.loads(infoStr)
+##                    self.put_to_cache(url, info)
+##            else:
+##            if self._oauth_reply is None or datetime.now() > self._oauth_expiry:
+##                PixivHelper.safePrint(u"No OAuth token available yet or already expired, retrieving...")
+            if True:
                 if self._config.username is None or self._config.password is None:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
                 self.get_oauth_token(self._config.username, self._config.password)
-            if datetime.now() > self._oauth_expiry:
-                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
-                self.get_oauth_token(self._config.username, self._config.password, self._oauth_reply['response']['refresh_token'])
+            # refresh always failed....
+##            elif datetime.now() < self._oauth_expiry:
+##                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
+##                refresh_token = self._oauth_reply['response']['refresh_token']
+##                auth_token = self._oauth_reply['response']['access_token']
+##                PixivHelper.GetLogger().debug("refresh: %s", refresh_token)
+##                PixivHelper.GetLogger().debug("auth: %s", auth_token)
+##                self.get_oauth_token(self._config.username, self._config.password, refresh_token, auth_token)
 
             url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
             info = self.get_from_cache(url)
@@ -450,6 +444,7 @@ class PixivBrowser(mechanize.Browser):
                 infoStr = self.open_with_retry(request).read()
                 info = json.loads(infoStr)
                 self.put_to_cache(url, info)
+                PixivHelper.GetLogger().debug("reply: %s", infoStr)
 
             artist.ParseInfo(info, False, bookmark=bookmark)
 
@@ -562,6 +557,7 @@ class PixivBrowser(mechanize.Browser):
 
             PixivHelper.GetLogger().debug(response)
             artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
+            artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
             if artist.haveImages and need_to_slice:
@@ -715,17 +711,21 @@ class PixivBrowser(mechanize.Browser):
 
         return result
 
-    def get_oauth_token(self, username, password, refresh_token=None):
+    def get_oauth_token(self, username, password, refresh_token=None, auth_token=None):
         url = "https://oauth.secure.pixiv.net/auth/token"
+        if auth_token is None:
+            auth_token = "8mMXXWT9iuwdJvsVIvQsFYDwuZpRCMePeyagSh30ZdU"
         value = None
         if refresh_token is not None:
-            values = {'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
+            values = {'get_secure_url': 1,
+                      'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
                       'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
                       'device_token': 'af014441a5f1a3340952922adeba1c36',
-                      'refresh_token': refresh_token,
-                      'grant_type': 'refresh_token'}
+                      'grant_type': 'refresh_token',
+                      'refresh_token': refresh_token}
         else:
-            values = {'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
+            values = {'get_secure_url': 1,
+                      'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
                       'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
                       'device_token': 'af014441a5f1a3340952922adeba1c36',
                       'username': username,
@@ -736,11 +736,12 @@ class PixivBrowser(mechanize.Browser):
         request.add_header("User-Agent", "PixivIOSApp/5.1.1")
         request.add_header("Referer", "https://www.pixiv.net")
         request.add_header("Content-Type", "application/x-www-form-urlencoded")
-        request.add_header("Authorization", "Bearer 8mMXXWT9iuwdJvsVIvQsFYDwuZpRCMePeyagSh30ZdU")
+        request.add_header("Authorization", "Bearer " + auth_token)
         try:
             oauth_response = self.open(request).read()
+            PixivHelper.GetLogger().debug("reply: %s", oauth_response)
             self._oauth_reply = json.loads(oauth_response)
-            self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] - 10))
+            self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] / 2))
         except urllib2.HTTPError as ex:
             error_response = ex.read()
             error_json = json.loads(error_response)
@@ -790,6 +791,11 @@ def get_br():
 
 def test():
     (b, success) = get_br()
+    b.get_oauth_token("nandaka", "sakuraba2")
+
+    refresh_token = b._oauth_reply['response']['refresh_token']
+    auth_token = b._oauth_reply['response']['access_token']
+    b.get_oauth_token("nandaka", "sakuraba2", refresh_token, auth_token)
 
     if success:
         def testSearchTags():
