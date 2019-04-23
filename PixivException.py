@@ -14,6 +14,8 @@ class PixivException(Exception):
     PARSE_TOKEN_NO_IMAGES                 = 1006
     NO_PAGE_GIVEN                         = 1007
 
+    OAUTH_LOGIN_ISSUE  = 1508
+
     FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION = 4002
     FILE_NOT_EXISTS_OR_NO_READ_PERMISSION  = 4001
 

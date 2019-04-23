@@ -271,12 +271,12 @@ class PixivBrowser(mechanize.Browser):
             request = urllib2.Request("https://accounts.pixiv.net/api/login?lang=en", urllib.urlencode(data))
             response = self.open_with_retry(request)
 
-            return self.processLoginResult(response)
+            return self.processLoginResult(response, username, password)
         except BaseException:
             PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
             raise
 
-    def processLoginResult(self, response):
+    def processLoginResult(self, response, username, password):
         PixivHelper.GetLogger().info('Logging in, return url: %s', response.geturl())
 
         # check the returned json
@@ -303,6 +303,9 @@ class PixivBrowser(mechanize.Browser):
 
             self.getMyId(parsed)
 
+            # store the username and password in memory for oAuth login
+            self._config.username = username
+            self._config.password = password
             return True
         else:
             if result["body"] is not None and result["body"].has_key("validation_errors"):
@@ -431,6 +434,8 @@ class PixivBrowser(mechanize.Browser):
         try:
             if self._oauth_reply is None:
                 PixivHelper.safePrint(u"No OAuth token available yet, retrieving...")
+                if self._config.username is None or self._config.password is None:
+                    raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
                 self.get_oauth_token(self._config.username, self._config.password)
             if datetime.now() > self._oauth_expiry:
                 PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
@@ -737,8 +742,12 @@ class PixivBrowser(mechanize.Browser):
             self._oauth_reply = json.loads(oauth_response)
             self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] - 10))
         except urllib2.HTTPError as ex:
-            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format(json.loads(ex.read())))
-            raise ex
+            error_response = ex.read()
+            error_json = json.loads(error_response)
+            error_msg = error_json['errors']['system']['message']
+            error_code = error_json['errors']['system']['code']
+            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format(error_response))
+            raise PixivException(error_msg, error_code, error_response)
 
 
 def getBrowser(config=None, cookieJar=None):
