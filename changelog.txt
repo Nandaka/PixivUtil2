@@ -1,3 +1,6 @@
+20190416-beta1
+- Fix Issue #483: handle oAuth to get the member information.
+
 20190416
 - Implement #468: add sorting order for download bookmarked images.
 - Implement #480: update API url.
