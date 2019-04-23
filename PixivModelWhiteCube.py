@@ -20,6 +20,7 @@ re_payload = re.compile(r"(\{token.*\})\);")
 class PixivArtist(PixivModel.PixivArtist):
     offset = None
     limit = None
+    reference_image_id = 0
 
     def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
         self.offset = offset
@@ -56,6 +57,18 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.ParseInfoFromImage(page)
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
+                # webrpc method
+                if page.has_key("body") and page["body"].has_key("illust") and page["body"]["illust"]:
+                    root = page["body"]["illust"]
+                    self.artistId = root["illust_user_id"]
+                    self.artistToken = root["user_account"]
+                    self.artistName = root["user_name"]
+                elif page.has_key("body") and page["body"].has_key("novel") and page["body"]["novel"]:
+                    root = page["body"]["novel"]
+                    self.artistId = root["user_id"]
+                    self.artistToken = root["user_account"]
+                    self.artistName = root["user_name"]
+
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
                 data = None
                 if page.has_key("user"):
