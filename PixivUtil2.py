@@ -2090,6 +2090,11 @@ def doLogin(password, username):
 
         if not result:
             result = PixivBrowserFactory.getBrowser(config=__config__).login(username, password)
+
+        # store username/password for oAuth in case not stored in config.ini
+        if result:
+            __config__.username = username
+            __config__.password = password
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
