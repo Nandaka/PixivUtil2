@@ -461,38 +461,6 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-
-##    def getMemberBookmarkWhiteCube(self, member_id, page, limit, tag):
-##        response = None
-##        PixivHelper.print_and_log('info', 'Getting Bookmark Url for page {0}...'.format(page))
-##        # iterate to get next page url
-##        start = 1
-##        last_member_bookmark_next_url = None
-##        while start <= page:
-##            if start == 1:
-##                url = 'https://www.pixiv.net/rpc/whitecube/index.php?mode=user_collection_unified&id={0}&bookmark_restrict={1}&limit={2}&is_profile_page={3}&is_first_request={4}&max_illust_bookmark_id={5}&max_novel_bookmark_id={6}&tt={7}&tag={8}'
-##                url = url.format(member_id, 0, limit, 1, 1, 0, 0, self._whitecubeToken, tag)
-##            else:
-##                url = last_member_bookmark_next_url
-##
-##            # PixivHelper.printAndLog('info', 'Member Bookmark Page {0} Url: {1}'.format(start, url))
-##            if self._cache.has_key(url):
-##                response = self._cache[url]
-##            else:
-##                response = self.open(url).read()
-##                self._cache[url] = response
-##
-##            payload = json.loads(response)
-##            last_member_bookmark_next_url = payload["body"]["next_url"]
-##            if last_member_bookmark_next_url is None and start < page:
-##                PixivHelper.print_and_log('info', 'No more images for {0} bookmarks'.format(member_id))
-##                url = None
-##                break
-##
-##            start = start + 1
-##        PixivHelper.print_and_log('info', 'Member Bookmark Page {0} Url: {1}'.format(page, url))
-##        return (url, response)
-
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
         response = None
