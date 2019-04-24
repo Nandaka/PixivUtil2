@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import urllib
 import urllib2
 import urlparse
+import uuid
 
 import demjson
 import mechanize
@@ -37,8 +38,14 @@ class PixivBrowser(mechanize.Browser):
     _whitecubeToken = ""
     _cache = dict()
     _myId = 0
+
+    _client_id = 'bYGKuGVw91e0NMfPGp44euvGt59s'
+    _client_secret = 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK'
+    _device_token = 'af014441a5f1a3340952922adeba1c36'  # uuid.uuid4().hex
     _oauth_reply = None
     _oauth_expiry = None
+    _username = None
+    _password = None
 
     def put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -424,9 +431,9 @@ class PixivBrowser(mechanize.Browser):
 ##            if self._oauth_reply is None or datetime.now() > self._oauth_expiry:
 ##                PixivHelper.safePrint(u"No OAuth token available yet or already expired, retrieving...")
             if True:
-                if self._config.username is None or self._config.password is None:
+                if self._username is None or self._username is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
-                self.get_oauth_token(self._config.username, self._config.password)
+                self.get_oauth_token()
             # refresh always failed....
 ##            elif datetime.now() < self._oauth_expiry:
 ##                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
@@ -521,12 +528,10 @@ class PixivBrowser(mechanize.Browser):
         else:
             tags = ''
 
-        ## if True:
         limit = 48
         offset = (page - 1) * limit
         need_to_slice = False
         if bookmark:
-            # (url, response) = self.getMemberBookmarkWhiteCube(member_id, page, limit, tags)
             # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
             url = 'https://www.pixiv.net/ajax/user/{0}/illusts/bookmarks?tag={1}&offset={2}&limit={3}&rest=show'.format(member_id, tags, offset, limit)
         else:
@@ -563,20 +568,6 @@ class PixivBrowser(mechanize.Browser):
 
             if artist.haveImages and need_to_slice:
                 artist.imageList = artist.imageList[offset:offset + limit]
-            ##        else:
-            ##            if bookmark:
-            ##                member_url = 'https://www.pixiv.net/bookmark.php?id=' + str(member_id) + '&p=' + str(page)
-            ##            else:
-            ##                member_url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&p=' + str(page)
-            ##
-            ##            if len(tags) > 0:
-            ##                member_url = member_url + "&tag=" + tags
-            ##            elif self._config.r18mode and not bookmark:
-            ##                member_url = member_url + '&tag=R-18'
-            ##                PixivHelper.print_and_log('info', 'R-18 Mode only.')
-            ##            PixivHelper.print_and_log('info', 'Member Url: ' + member_url)
-            ##            response = self.getPixivPage(member_url)
-            ##            artist = PixivModel.PixivArtist(mid=member_id, page=response)
 
         return (artist, response)
 
@@ -594,45 +585,6 @@ class PixivBrowser(mechanize.Browser):
         url = ''
 
         if member_id is not None:
-            ##            if member_id is None:
-            ##                # from search page:
-            ##                # https://www.pixiv.net/rpc/whitecube/index.php?order=date&adult_mode=include&q=vocaloid&p=0&type=&mode=whitecube_search&s_mode=s_tag&scd=&size=&ratio=&like=&tools=&tt=4e2cdee233f1156231ee99da1e51a83c
-            ##                url = "https://www.pixiv.net/rpc/whitecube/index.php?q={0}".format(tags)
-            ##                url = url + "&adult_mode={0}".format("include")
-            ##                url = url + "&mode={0}".format("whitecube_search")
-            ##
-            ##                # date ordering
-            ##                order = "date_d"
-            ##                if oldest_first:
-            ##                    order = "date"
-            ##                url = url + "&order={0}".format(order)
-            ##
-            ##                # search mode
-            ##                s_mode = "s_tag_full"
-            ##                if wild_card:
-            ##                    s_mode = "s_tag"
-            ##                elif title_caption:
-            ##                    s_mode = "s_tc"
-            ##                url = url + "&s_mode={0}".format(s_mode)
-            ##
-            ##                # start/end date
-            ##                if start_date is not None:
-            ##                    url = url + "&scd={0}".format(start_date)
-            ##                if end_date is not None:
-            ##                    url = url + "&ecd={0}".format(end_date)
-            ##
-            ##                url = url + "&p={0}".format(i)
-            ##                url = url + "&start_page={0}".format(start_page)
-            ##                url = url + "&tt={0}".format(self._whitecubeToken)
-            ##
-            ##                PixivHelper.print_and_log('info', 'Looping for {0} ...'.format(url))
-            ##                response = self.open(url).read()
-            ##                self.handleDebugTagSearchPage(response, url)
-            ##
-            ##                PixivHelper.GetLogger().debug(response)
-            ##                result = PixivModelWhiteCube.PixivTags()
-            ##                result.parseTags(response, tags)
-            ##            else:
             # from member id search by tags
             (artist, response) = self.getMemberPage(member_id, current_page, False, tags)
 
@@ -712,33 +664,33 @@ class PixivBrowser(mechanize.Browser):
 
         return result
 
-    def get_oauth_token(self, username, password, refresh_token=None, auth_token=None):
+    def get_oauth_token(self, refresh_token=None, auth_token=None):
         url = "https://oauth.secure.pixiv.net/auth/token"
         if auth_token is None:
             auth_token = "8mMXXWT9iuwdJvsVIvQsFYDwuZpRCMePeyagSh30ZdU"
         value = None
         if refresh_token is not None:
             values = {'get_secure_url': 1,
-                      'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
-                      'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
-                      'device_token': 'af014441a5f1a3340952922adeba1c36',
+                      'client_id': self._client_id,
+                      'client_secret': self._client_secret,
+                      'device_token': self._device_token,
                       'grant_type': 'refresh_token',
                       'refresh_token': refresh_token}
-        elif username is not None and password is not None:
+        elif self._username is not None and len(self._username) > 0 and self._password is not None and len(self._password) > 0:
             values = {'get_secure_url': 1,
-                      'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
-                      'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
-                      'device_token': 'af014441a5f1a3340952922adeba1c36',
-                      'username': username,
-                      'password': password,
+                      'client_id': self._client_id,
+                      'client_secret': self._client_secret,
+                      'device_token': self._device_token,
+                      'username': self._username,
+                      'password': self._password,
                       'grant_type': 'password'}
         else:
             raise PixivException("Username/Password are required for oAuth.", PixivException.CANNOT_LOGIN)
         data = urllib.urlencode(values)
         request = urllib2.Request(url, data)
-        request.add_header("User-Agent", "PixivIOSApp/5.1.1")
-        request.add_header("Referer", "https://www.pixiv.net")
-        request.add_header("Content-Type", "application/x-www-form-urlencoded")
+        request.add_header("User-Agent", "PixivAndroidApp/5.0.136 (Android 6.0; Google Pixel C - 6.0.0 - API 23 - 2560x1800")
+        # request.add_header("Referer", "https://www.pixiv.net")
+        request.add_header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
         request.add_header("Authorization", "Bearer " + auth_token)
         try:
             oauth_response = self.open(request).read()
@@ -768,6 +720,9 @@ def getBrowser(config=None, cookieJar=None):
             PixivHelper.GetLogger().info("No default cookie jar available, creating... ")
             defaultCookieJar = cookielib.LWPCookieJar()
         _browser = PixivBrowser(defaultConfig, defaultCookieJar)
+    elif config is not None:
+        defaultConfig = config
+        _browser._configureBrowser(config)
 
     return _browser
 
@@ -787,18 +742,24 @@ def get_br():
     b = getBrowser(cfg, None)
     if cfg.cookie is not None and len(cfg.cookie) > 0:
         success = b.loginUsingCookie(cfg.cookie)
+        b._username = cfg.username
+        b._password = cfg.password
     elif not success:
         success = b.login(cfg.username, cfg.password)
+
     return (b, success)
 
 
 def test():
     (b, success) = get_br()
-    b.get_oauth_token("nandaka", "xx")
+    b.get_oauth_token()
 
     refresh_token = b._oauth_reply['response']['refresh_token']
     auth_token = b._oauth_reply['response']['access_token']
-    b.get_oauth_token("nandaka", "xx", refresh_token, auth_token)
+    print("Reply = {0}".format(b._oauth_reply))
+    print("Auth Token = " + auth_token)
+    print("Refr Token = " + refresh_token)
+    b.get_oauth_token(refresh_token, auth_token)
 
     if success:
         def testSearchTags():

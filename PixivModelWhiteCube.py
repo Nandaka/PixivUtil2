@@ -98,10 +98,11 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistId = root["userId"]
         self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
         self.artistName = root["name"]
-        # user token is stored in background
+
         if root["background"] is not None:
             self.artistBackground = root["background"]["url"]
-        # Issue 388
+
+        # Issue 388 user token is stored in image
         illusts = page["preload"]["illust"]
         for il in illusts:
             if illusts[il]["userAccount"]:
@@ -110,10 +111,20 @@ class PixivArtist(PixivModel.PixivArtist):
 
     def ParseBackground(self, payload):
         self.artistBackground = "no_background"
+
         # https://www.pixiv.net/ajax/user/8021957
         if payload.has_key("body"):
-            if payload["body"].has_key("background") and payload["body"]["background"] is not None:
-                self.artistBackground = payload["body"]["background"]["url"]
+            root = payload["body"]
+            self.artistId = root["userId"]
+            self.artistName = root["name"]
+            if root.has_key("imageBig") and root["imageBig"] is not None:
+                self.artistAvatar = payload["body"]["imageBig"].replace("_50", "").replace("_170", "")
+            elif root.has_key("image") and root["image"] is not None:
+                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
+
+            # https://www.pixiv.net/ajax/user/1893126
+            if root.has_key("background") and root["background"] is not None:
+                self.artistBackground = root["background"]["url"]
 
     def ParseImages(self, payload):
         self.imageList = list()
