@@ -1,5 +1,6 @@
-20190424-beta2
+20190424-beta3
 - Fix Issue #483: handle oAuth to get the member information.
+- Fix Issue #481: update write image info for json.
 
 20190416
 - Implement #468: add sorting order for download bookmarked images.
