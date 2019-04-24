@@ -706,26 +706,29 @@ class PixivImage:
             PixivHelper.makeSubdirs(filename)
             info = codecs.open(filename, 'w', encoding='utf-8')
         except IOError:
-            info = codecs.open(str(self.imageId) + ".txt", 'w', encoding='utf-8')
-            PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
-        info.write("{" + "\r\n")
-        info.write("\t" + json.dumps("Artist ID") + ": " + json.dumps(self.artist.artistId, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Artist Name") + ": " + json.dumps(self.artist.artistName, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Image ID") + ": " + json.dumps(self.imageId, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Title") + ": " + json.dumps(self.imageTitle, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Caption") + ": " + json.dumps(self.imageCaption, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Tags") + ": " + json.dumps(self.imageTags, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Image Mode") + ": " + json.dumps(self.imageMode, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Pages") + ": " + json.dumps(self.imageCount, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Date") + ": " + json.dumps(self.worksDate, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Resolution") + ": " + json.dumps(self.worksResolution, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Tools") + ": " + json.dumps(self.worksTools, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("BookmarkCount") + ": " + json.dumps(self.bookmark_count, ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Link") + ": " + json.dumps("https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId), ensure_ascii=False) + "," + "\r\n")
-        info.write("\t" + json.dumps("Ugoira Data") + ": " + json.dumps(self.ugoira_data, ensure_ascii=False) + "\r\n")
+            info = codecs.open(str(self.imageId) + ".json", 'w', encoding='utf-8')
+            PixivHelper.GetLogger().exception("Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".json")
+
+        # Fix Issue #481
+        jsonInfo = collections.OrderedDict()
+        jsonInfo["Artist ID"] = self.artist.artistId
+        jsonInfo["Artist Name"] = self.artist.artistName
+        jsonInfo["Image ID"] = self.imageId
+        jsonInfo["Title"] = self.imageTitle
+        jsonInfo["Caption"] = self.imageCaption
+        jsonInfo["Tags"] = self.imageTags
+        jsonInfo["Image Mode"] = self.imageMode
+        jsonInfo["Pages"] = self.imageCount
+        jsonInfo["Date"] = self.worksDate
+        jsonInfo["Resolution"] = self.worksResolution
+        jsonInfo["Tools"] = self.worksTools
+        jsonInfo["BookmarkCount"] = self.bookmark_count
+        jsonInfo["Link"] = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + str(self.imageId)
+        jsonInfo["Ugoira Data"] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
-            info.write("\t" + json.dumps("Urls") + ": " + json.dumps(self.descriptionUrlList, ensure_ascii=False) + "," + "\r\n")
-        info.write("}")
+            jsonInfo["Urls"] = self.descriptionUrlList
+
+        info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
         info.close()
 
     def WriteUgoiraData(self, filename):

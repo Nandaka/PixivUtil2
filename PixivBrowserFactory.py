@@ -794,11 +794,11 @@ def get_br():
 
 def test():
     (b, success) = get_br()
-    b.get_oauth_token("nandaka", "***REMOVED***")
+    b.get_oauth_token("nandaka", "sakuraba2")
 
     refresh_token = b._oauth_reply['response']['refresh_token']
     auth_token = b._oauth_reply['response']['access_token']
-    b.get_oauth_token("nandaka", "***REMOVED***", refresh_token, auth_token)
+    b.get_oauth_token("nandaka", "sakuraba2", refresh_token, auth_token)
 
     if success:
         def testSearchTags():
