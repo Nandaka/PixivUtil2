@@ -306,6 +306,7 @@ class PixivBrowser(mechanize.Browser):
             # store the username and password in memory for oAuth login
             self._config.username = username
             self._config.password = password
+
             return True
         else:
             if result["body"] is not None and result["body"].has_key("validation_errors"):
@@ -723,7 +724,7 @@ class PixivBrowser(mechanize.Browser):
                       'device_token': 'af014441a5f1a3340952922adeba1c36',
                       'grant_type': 'refresh_token',
                       'refresh_token': refresh_token}
-        else:
+        elif username is not None and password is not None:
             values = {'get_secure_url': 1,
                       'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
                       'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
@@ -731,6 +732,8 @@ class PixivBrowser(mechanize.Browser):
                       'username': username,
                       'password': password,
                       'grant_type': 'password'}
+        else:
+            raise PixivException("Username/Password are required for oAuth.", PixivException.CANNOT_LOGIN)
         data = urllib.urlencode(values)
         request = urllib2.Request(url, data)
         request.add_header("User-Agent", "PixivIOSApp/5.1.1")
