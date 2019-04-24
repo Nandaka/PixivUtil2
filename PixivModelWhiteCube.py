@@ -57,6 +57,7 @@ class PixivArtist(PixivModel.PixivArtist):
                 self.ParseInfoFromImage(page)
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
+
                 # webrpc method
                 if page.has_key("body") and page["body"].has_key("illust") and page["body"]["illust"]:
                     root = page["body"]["illust"]

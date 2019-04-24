@@ -47,11 +47,11 @@ class PixivBrowser(mechanize.Browser):
     _username = None
     _password = None
 
-    def put_to_cache(self, key, item, expiration=3600):
+    def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
         self._cache[key] = (item, expiry)
 
-    def get_from_cache(self, key):
+    def _get_from_cache(self, key):
         if key in self._cache.keys():
             (item, expiry) = self._cache[key]
             if expiry - time.time() > 0:
@@ -242,7 +242,6 @@ class PixivBrowser(mechanize.Browser):
             resData = res.read()
 
             parsed = BeautifulSoup(resData)
-            self.detectWhiteCube(parsed, res.geturl())
 
             if "logout.php" in resData:
                 PixivHelper.print_and_log('info', 'Login successful.')
@@ -306,8 +305,6 @@ class PixivBrowser(mechanize.Browser):
             # check whitecube
             page = self.open_with_retry(result["body"]["success"]["return_to"])
             parsed = BeautifulSoup(page)
-            self.detectWhiteCube(parsed, page.geturl())
-
             self.getMyId(parsed)
 
             # store the username and password in memory for oAuth login
@@ -331,15 +328,6 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'My User Id: {0}.'.format(self._myId))
         else:
             PixivHelper.print_and_log('info', 'Unable to get User Id')
-
-    def detectWhiteCube(self, page, url):
-        if page.find("capybara-status-check") == -1:
-            print("*******************************************")
-            print("* Pixiv AJAX UI mode.                     *")
-            print("* Some feature might not working properly *")
-            print("*******************************************")
-
-            self._isWhitecube = True
 
     def parseLoginError(self, res):
         page = BeautifulSoup(res.read())
@@ -388,19 +376,6 @@ class PixivBrowser(mechanize.Browser):
                     else:
                         image.artist.reference_image_id = image_id
                         self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
-
-##            else:
-##                parsed = BeautifulSoup(response)
-##                image = PixivModel.PixivImage(image_id,
-##                                              parsed,
-##                                              parent,
-##                                              from_bookmark,
-##                                              bookmark_count,
-##                                              image_response_count,
-##                                              dateFormat=self._config.dateFormat)
-##                if image.imageMode == "ugoira_view" or image.imageMode == "bigNew":
-##                    image.ParseImages(parsed)
-##                parsed.decompose()
         except:
             PixivHelper.GetLogger().error("Respose data: \r\n %s", response)
             raise
@@ -419,18 +394,18 @@ class PixivBrowser(mechanize.Browser):
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
         try:
-##            if artist.reference_image_id > 0:
-##                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(artist.reference_image_id)
-##                info = self.get_from_cache(url)
-##                if info is None:
-##                    request = urllib2.Request(url)
-##                    infoStr = self.open_with_retry(request).read()
-##                    info = json.loads(infoStr)
-##                    self.put_to_cache(url, info)
-##            else:
-##            if self._oauth_reply is None or datetime.now() > self._oauth_expiry:
-##                PixivHelper.safePrint(u"No OAuth token available yet or already expired, retrieving...")
-            if True:
+            info = None
+            if artist.reference_image_id > 0:
+                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(artist.reference_image_id)
+                PixivHelper.GetLogger().debug("using webrpc: %s", url)
+                info = self._get_from_cache(url)
+                if info is None:
+                    request = urllib2.Request(url)
+                    infoStr = self.open_with_retry(request).read()
+                    info = json.loads(infoStr)
+                    self._put_to_cache(url, info)
+            else:
+                PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
                 if self._username is None or self._username is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
                 self.get_oauth_token()
@@ -439,30 +414,28 @@ class PixivBrowser(mechanize.Browser):
 ##                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
 ##                refresh_token = self._oauth_reply['response']['refresh_token']
 ##                auth_token = self._oauth_reply['response']['access_token']
-##                PixivHelper.GetLogger().debug("refresh: %s", refresh_token)
-##                PixivHelper.GetLogger().debug("auth: %s", auth_token)
 ##                self.get_oauth_token(self._config.username, self._config.password, refresh_token, auth_token)
 
-            url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
-            info = self.get_from_cache(url)
-            if info is None:
-                PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-                request = urllib2.Request(url)
-                request.add_header("Authorization", "Bearer " + self._oauth_reply['response']['access_token'])
-                infoStr = self.open_with_retry(request).read()
-                info = json.loads(infoStr)
-                self.put_to_cache(url, info)
-                PixivHelper.GetLogger().debug("reply: %s", infoStr)
+                url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
+                info = self._get_from_cache(url)
+                if info is None:
+                    PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
+                    request = urllib2.Request(url)
+                    request.add_header("Authorization", "Bearer " + self._oauth_reply['response']['access_token'])
+                    infoStr = self.open_with_retry(request).read()
+                    info = json.loads(infoStr)
+                    self._put_to_cache(url, info)
+                    PixivHelper.GetLogger().debug("reply: %s", infoStr)
 
             artist.ParseInfo(info, False, bookmark=bookmark)
 
             # will throw HTTPError if user is suspended/not logged in.
             url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
-            info_ajax = self.get_from_cache(url_ajax)
+            info_ajax = self._get_from_cache(url_ajax)
             if info_ajax is None:
                 info_ajax_str = self.open_with_retry(url_ajax).read()
                 info_ajax = json.loads(info_ajax_str)
-                self.put_to_cache(url_ajax, info_ajax)
+                self._put_to_cache(url_ajax, info_ajax)
             # 2nd pass to get the background
             artist.ParseBackground(info_ajax)
 
@@ -552,14 +525,14 @@ class PixivBrowser(mechanize.Browser):
 
         if url is not None:
             # cache the response
-            response = self.get_from_cache(url)
+            response = self._get_from_cache(url)
             if response is None:
                 try:
                     response = self.open_with_retry(url).read()
                 except urllib2.HTTPError as ex:
                     if ex.code == 404:
                         response = ex.read()
-                self.put_to_cache(url, response)
+                self._put_to_cache(url, response)
 
             PixivHelper.GetLogger().debug(response)
             artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
