@@ -2083,18 +2083,21 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
 
 
 def doLogin(password, username):
+    global __br__
     result = False
+    # store username/password for oAuth in case not stored in config.ini
+    if username is not None and len(username) > 0:
+        __br__._username = username
+    if password is not None and len(password) > 0:
+        __br__._password = password
+
     try:
         if len(__config__.cookie) > 0:
-            result = PixivBrowserFactory.getBrowser(config=__config__).loginUsingCookie()
+            result = __br__.loginUsingCookie()
 
         if not result:
-            result = PixivBrowserFactory.getBrowser(config=__config__).login(username, password)
+            result = __br__.login(username, password)
 
-        # store username/password for oAuth in case not stored in config.ini
-        if result:
-            __config__.username = username
-            __config__.password = password
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)

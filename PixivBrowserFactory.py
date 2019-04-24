@@ -39,6 +39,8 @@ class PixivBrowser(mechanize.Browser):
     _myId = 0
     _oauth_reply = None
     _oauth_expiry = None
+    _username = None
+    _password = None
 
     def put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -424,9 +426,9 @@ class PixivBrowser(mechanize.Browser):
 ##            if self._oauth_reply is None or datetime.now() > self._oauth_expiry:
 ##                PixivHelper.safePrint(u"No OAuth token available yet or already expired, retrieving...")
             if True:
-                if self._config.username is None or self._config.password is None:
+                if self._username is None or self._username is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
-                self.get_oauth_token(self._config.username, self._config.password)
+                self.get_oauth_token(self._username, self._password)
             # refresh always failed....
 ##            elif datetime.now() < self._oauth_expiry:
 ##                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
@@ -724,7 +726,7 @@ class PixivBrowser(mechanize.Browser):
                       'device_token': 'af014441a5f1a3340952922adeba1c36',
                       'grant_type': 'refresh_token',
                       'refresh_token': refresh_token}
-        elif username is not None and password is not None:
+        elif username is not None and password is not None and len(username) > 0 and len(password) > 0:
             values = {'get_secure_url': 1,
                       'client_id': 'bYGKuGVw91e0NMfPGp44euvGt59s',
                       'client_secret': 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK',
@@ -768,6 +770,9 @@ def getBrowser(config=None, cookieJar=None):
             PixivHelper.GetLogger().info("No default cookie jar available, creating... ")
             defaultCookieJar = cookielib.LWPCookieJar()
         _browser = PixivBrowser(defaultConfig, defaultCookieJar)
+    elif config is not None:
+        defaultConfig = config
+        _browser._configureBrowser(config)
 
     return _browser
 

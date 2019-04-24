@@ -1,4 +1,4 @@
-20190416-beta1
+20190424-beta2
 - Fix Issue #483: handle oAuth to get the member information.
 
 20190416
