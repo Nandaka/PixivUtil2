@@ -6,4 +6,5 @@ Pillow>=4.3.0
 socksipy-branch>=1.01
 win_unicode_console>=0.5
 demjson>=2.2.4
+requests>=2.21.0
 
