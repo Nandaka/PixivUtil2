@@ -25,6 +25,7 @@ import PixivModel
 import PixivModelWhiteCube
 from PixivException import PixivException
 from PixivModelFanbox import Fanbox, FanboxArtist
+from PixivOAuth import PixivOAuth
 
 defaultCookieJar = None
 defaultConfig = None
@@ -39,13 +40,9 @@ class PixivBrowser(mechanize.Browser):
     _cache = dict()
     _myId = 0
 
-    _client_id = 'bYGKuGVw91e0NMfPGp44euvGt59s'
-    _client_secret = 'HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK'
-    _device_token = 'af014441a5f1a3340952922adeba1c36'  # uuid.uuid4().hex
-    _oauth_reply = None
-    _oauth_expiry = None
     _username = None
     _password = None
+    _oauth_manager = None
 
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -408,24 +405,22 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
                 if self._username is None or self._username is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
-                self.get_oauth_token()
-            # refresh always failed....
-##            elif datetime.now() < self._oauth_expiry:
-##                PixivHelper.safePrint(u"Expiring OAuth token, refreshing...")
-##                refresh_token = self._oauth_reply['response']['refresh_token']
-##                auth_token = self._oauth_reply['response']['access_token']
-##                self.get_oauth_token(self._config.username, self._config.password, refresh_token, auth_token)
+
+                if self._oauth_manager is None:
+                    proxy = None
+                    if _config.useProxy:
+                        proxy = _config.proxy
+                    self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=_config.refresh_token)
 
                 url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
                 info = self._get_from_cache(url)
                 if info is None:
                     PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-                    request = urllib2.Request(url)
-                    request.add_header("Authorization", "Bearer " + self._oauth_reply['response']['access_token'])
-                    infoStr = self.open_with_retry(request).read()
-                    info = json.loads(infoStr)
+                    self._oauth_manager.login()
+                    response = self._oauth_manager.get_user_info(member_id)
+                    info = json.loads(response.text)
                     self._put_to_cache(url, info)
-                    PixivHelper.GetLogger().debug("reply: %s", infoStr)
+                    PixivHelper.GetLogger().debug("reply: %s", response.text)
 
             artist.ParseInfo(info, False, bookmark=bookmark)
 
@@ -604,47 +599,6 @@ class PixivBrowser(mechanize.Browser):
         result.artistToken = pixivArtist.artistToken
 
         return result
-
-    def get_oauth_token(self, refresh_token=None, auth_token=None):
-        url = "https://oauth.secure.pixiv.net/auth/token"
-        if auth_token is None:
-            auth_token = "8mMXXWT9iuwdJvsVIvQsFYDwuZpRCMePeyagSh30ZdU"
-        value = None
-        if refresh_token is not None:
-            values = {'get_secure_url': 1,
-                      'client_id': self._client_id,
-                      'client_secret': self._client_secret,
-                      'device_token': self._device_token,
-                      'grant_type': 'refresh_token',
-                      'refresh_token': refresh_token}
-        elif self._username is not None and len(self._username) > 0 and self._password is not None and len(self._password) > 0:
-            values = {'get_secure_url': 1,
-                      'client_id': self._client_id,
-                      'client_secret': self._client_secret,
-                      'device_token': self._device_token,
-                      'username': self._username,
-                      'password': self._password,
-                      'grant_type': 'password'}
-        else:
-            raise PixivException("Username/Password are required for oAuth.", PixivException.CANNOT_LOGIN)
-        data = urllib.urlencode(values)
-        request = urllib2.Request(url, data)
-        request.add_header("User-Agent", "PixivAndroidApp/5.0.136 (Android 6.0; Google Pixel C - 6.0.0 - API 23 - 2560x1800")
-        # request.add_header("Referer", "https://www.pixiv.net")
-        request.add_header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-        request.add_header("Authorization", "Bearer " + auth_token)
-        try:
-            oauth_response = self.open(request).read()
-            PixivHelper.GetLogger().debug("reply: %s", oauth_response)
-            self._oauth_reply = json.loads(oauth_response)
-            self._oauth_expiry = datetime.now() + timedelta(seconds=(self._oauth_reply['response']['expires_in'] / 2))
-        except urllib2.HTTPError as ex:
-            error_response = ex.read()
-            error_json = json.loads(error_response)
-            error_msg = error_json['errors']['system']['message']
-            error_code = error_json['errors']['system']['code']
-            PixivHelper.print_and_log('error', "Failed to get OAuth Token: {0}".format(error_response))
-            raise PixivException(error_msg, error_code, error_response)
 
 
 def getBrowser(config=None, cookieJar=None):

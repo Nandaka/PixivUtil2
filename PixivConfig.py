@@ -36,6 +36,7 @@ class PixivConfig(object):
     username = ''
     password = ''
     cookie = ''
+    refresh_token = None
 
     # Pixiv related?
     numberOfPage = 0
@@ -582,6 +583,13 @@ class PixivConfig(object):
                 self.createWebm = False
                 haveError = True
 
+            try:
+                self.refresh_token = config.get('Authentication', 'refresh_token')
+            except ValueError:
+                print("refresh_token = ''")
+                self.refresh_token = None
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -664,6 +672,7 @@ class PixivConfig(object):
         config.set('Authentication', 'username', self.username)
         config.set('Authentication', 'password', self.password)
         config.set('Authentication', 'cookie', self.cookie)
+        config.set('Authentication', 'refresh_token', self.refresh_token)
 
         config.add_section('Pixiv')
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
@@ -717,6 +726,7 @@ class PixivConfig(object):
         print(' - username     =', self.username)
         print(' - password     = ', self.password)
         print(' - cookie       = ', self.cookie)
+        print(' - refresh token= ', self.refresh_token)
 
         print(' [Network]')
         print(' - useproxy         =', self.useProxy)

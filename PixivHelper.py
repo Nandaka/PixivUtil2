@@ -956,7 +956,7 @@ class LocalUTCOffsetTimezone(tzinfo):
         self.name = time.tzname[0] if not is_dst and len(time.tzname) > 1 else time.tzname[1]
 
     def __str__(self):
-        return "{0}{1:02d}{2:02d}".format("-" if self.offset < 0 else "+", self.offset / 60 / 60, self.offset / 60 % 60)
+        return "{0}{1:02d}:{2:02d}".format("-" if self.offset < 0 else "+", self.offset / 60 / 60, self.offset / 60 % 60)
 
     def __repr__(self):
         return self.__str__()
