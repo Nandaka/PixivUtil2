@@ -409,14 +409,19 @@ class PixivBrowser(mechanize.Browser):
                 if self._oauth_manager is None:
                     proxy = None
                     if _config.useProxy:
-                        proxy = _config.proxy
-                    self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=_config.refresh_token)
+                        proxy = self._config.proxy
+                    self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=self._config.refresh_token)
 
                 url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
                 info = self._get_from_cache(url)
                 if info is None:
                     PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
-                    self._oauth_manager.login()
+                    login_response = self._oauth_manager.login()
+                    if login_response.status_code == 200:
+                        login_response = json.loads(oauth_response.text)
+                        self._config.refresh_token = info["response"]["refresh_token"]
+                        self._config.writeConfig(path=self._config.configFileLocation)
+
                     response = self._oauth_manager.get_user_info(member_id)
                     info = json.loads(response.text)
                     self._put_to_cache(url, info)
