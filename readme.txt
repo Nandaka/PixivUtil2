@@ -334,16 +334,6 @@ uselist       ==> set to 'True' to parse list.txt.
                   and custom folder).
 daylastupdated ==> Only process member_id which x days from the last check.
 processfromdb  ==> Set 'True' to use the member_id from the DB.
-filenameformat ==> The format for the filename, reserved/illegal character
-                   will be replaced with underscore '_', repeated space will
-				   be trimmed to single space.
-                   The filename (+full path) will be trimmed to the first 250
-				   character (Windows limitation).
-				   Refer to Filename Format Syntax for available format.
-filenamemangaformat ==> Similar like filename format, but for manga pages.
-avatarNameFormat ==> Similar like filename format, but for avatar image.
-                     Not all format available.
-tagsseparator  ==> Separator for each tag in filename, put %space% for space.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 downloadlistdirectory ==> list.txt path.
 alwaysCheckFileSize   ==> Check the file size, if different then it will be
@@ -353,16 +343,12 @@ alwaysCheckFileSize   ==> Check the file size, if different then it will be
 checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
                           previously downloaded images.
 			              alwaysCheckFileSize must be set to False.
-createmangadir  ==> Create a directory if the imageMode is manga. The directory
-                    is created by splitting the image_id by '_pxx' pattern.
-                    This setting is depended on %urlFilename% format.
 downloadListDirectory ==> set directory for download-lists needed for
                           createDownloadLists and IrfanView-Handling
 	                      If leaved blank it will create download-lists in
                           pixivUtil-directory.
 downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
-usetagsasdir 	==> Append the query tags in tagslist.txt to the root directory
-                    as save folder.
+
 useblacklisttags==> Skip image if containing blacklisted tags.
                     The list is taken from blacklist_tags.txt, each tags is
                     separated by new line.
@@ -388,8 +374,6 @@ writeUrlInDescription ==> Write all url found in the image description to a text
                           to the application folder as url_list_<timestamp>.txt
 urlBlacklistRegex   ==> Used to filter out the url in the description using
                           regular expression.
-urlDumpFilename     ==> Define the dump filename, use python strftime() format.
-                          Default value is 'url_list_%Y%m%d'
 dbPath		        ==> use different database.
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
@@ -418,6 +402,26 @@ createapng      ==> Set to True to convert ugoira file to animated png.
 deleteugoira    ==> set to True to delete original ugoira after conversion.
 createwebm      ==> set to True to create webm file (video format).
 createwebp      ==> set to True to create webp file (image format).
+
+[Filename]
+filenameformat  ==> The format for the filename, reserved/illegal character
+                   will be replaced with underscore '_', repeated space will
+                   be trimmed to single space.
+                   The filename (+full path) will be trimmed to the first 250
+                   character (Windows limitation).
+                   Refer to Filename Format Syntax for available format.
+filenamemangaformat ==> Similar like filename format, but for manga pages.
+filenameinfoformat  ==> Similar like filename format, but for info dumps.
+avatarNameFormat    ==> Similar like filename format, but for avatar image.
+                        Not all format available.
+tagsseparator   ==> Separator for each tag in filename, put %space% for space.
+createmangadir  ==> Create a directory if the imageMode is manga. The directory
+                   is created by splitting the image_id by '_pxx' pattern.
+                   This setting is depended on %urlFilename% format.
+usetagsasdir    ==> Append the query tags in tagslist.txt to the root directory
+                   as save folder.
+urlDumpFilename ==> Define the dump filename, use python strftime() format.
+                   Default value is 'url_list_%Y%m%d'
 
 ===============================================================================
 = Filename Format Syntax                                                      =
