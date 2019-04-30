@@ -1862,10 +1862,13 @@ def processFanboxArtist(artist_id, end_page):
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist_id))
             break
         current_page = current_page + 1
-        if current_page > end_page:
+        if end_page > 0 and current_page > end_page:
             PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist_id, end_page))
             break
         next_url = result_artist.nextUrl
+        if next_url is None:
+            PixivHelper.print_and_log("info", "No more next page for {0}".format(artist_id))
+            break
 
 
 def processFanboxImages(post, result_artist):
@@ -1933,10 +1936,12 @@ def menu_fanbox_download_by_artist_id(op_is_valid, args):
     if op_is_valid and len(args) > 0:
         artist_id = str(int(args[0]))
         if len(args) > 1:
-            end_page = int(args[1])
+            end_page = args[1]
     else:
         artist_id = raw_input("Artist ID = ")
-        end_page = int(raw_input("Max Page = "))
+        end_page = raw_input("Max Page = ") or 0
+
+    end_page = int(end_page)
 
     processFanboxArtist(artist_id, end_page)
 
@@ -2158,7 +2163,10 @@ def main():
         ### end new lines by Yavos ###
 
     __log__.info('###############################################################')
-    __log__.info('Starting...')
+    if len(sys.argv) == 0:
+        __log__.info('Starting with no argument..')
+    else:
+        __log__.info('Starting with argument: [{0}].'.format(" ".join(sys.argv)))
     try:
         __config__.loadConfig(path=configfile)
         PixivHelper.setConfig(__config__)
