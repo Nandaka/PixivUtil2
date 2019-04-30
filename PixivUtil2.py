@@ -1644,6 +1644,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
     end_page = 0
     hide = 'n'
     tag = ''
+    sorting = 'desc'
 
     if opisvalid and len(args) > 0:
         hide = args[0].lower()
