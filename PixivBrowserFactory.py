@@ -9,11 +9,9 @@ import re
 import socket
 import sys
 import time
-from datetime import datetime, timedelta
 import urllib
 import urllib2
 import urlparse
-import uuid
 
 import demjson
 import mechanize
@@ -145,10 +143,9 @@ class PixivBrowser(mechanize.Browser):
         while True:
             try:
                 return self.open(url, data, timeout)
+            except urllib2.HTTPError:
+                raise
             except Exception as ex:
-                if isinstance(ex, urllib2.HTTPError):
-                    raise
-
                 if retry_count < retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
@@ -175,11 +172,10 @@ class PixivBrowser(mechanize.Browser):
                     return parsedPage
                 else:
                     return page
+            except urllib2.HTTPError as ex:
+                if ex.code in [403, 404, 503]:
+                    return BeautifulSoup(ex.read())
             except Exception as ex:
-                if isinstance(ex, urllib2.HTTPError):
-                    if ex.code in [403, 404, 503]:
-                        return BeautifulSoup(ex.read())
-
                 if retry_count < self._config.retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
@@ -209,17 +205,17 @@ class PixivBrowser(mechanize.Browser):
                               comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
-##        cookies = cookie_value.split(";")
-##        for cookie in cookies:
-##            temp = cookie.split("=")
-##            name = temp[0].strip()
-##            value= temp[1] if len(temp) > 1 else ""
-##            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
-##                                  port_specified=False, domain='pixiv.net', domain_specified=False,
-##                                  domain_initial_dot=False, path='/', path_specified=True,
-##                                  secure=False, expires=None, discard=True, comment=None,
-##                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-##            self.addCookie(ck)
+#        cookies = cookie_value.split(";")
+#        for cookie in cookies:
+#            temp = cookie.split("=")
+#            name = temp[0].strip()
+#            value= temp[1] if len(temp) > 1 else ""
+#            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
+#                                  port_specified=False, domain='pixiv.net', domain_specified=False,
+#                                  domain_initial_dot=False, path='/', path_specified=True,
+#                                  secure=False, expires=None, discard=True, comment=None,
+#                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+#            self.addCookie(ck)
 
     def _getInitConfig(self, page):
         init_config = page.find('input', attrs={'id': 'init-config'})
@@ -418,7 +414,7 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.GetLogger().debug("Getting member information: %s", member_id)
                     login_response = self._oauth_manager.login()
                     if login_response.status_code == 200:
-                        login_response = json.loads(oauth_response.text)
+                        info = json.loads(login_response.text)
                         self._config.refresh_token = info["response"]["refresh_token"]
                         self._config.writeConfig(path=self._config.configFileLocation)
 
