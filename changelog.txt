@@ -1,6 +1,8 @@
-20190429-beta4
+20190501
 - Fix Issue #483: handle oAuth to get the member information for FANBOX, use WEB-RPC to get member info if image id available.
 - Fix Issue #481: update write image info for json.
+- Fix Issue #485: update parser for sorting parameter.
+- Update readme.txt
 - Update requirements for running from source code.
 
 20190416

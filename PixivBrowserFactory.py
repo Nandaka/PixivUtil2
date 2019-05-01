@@ -408,7 +408,7 @@ class PixivBrowser(mechanize.Browser):
 
                 if self._oauth_manager is None:
                     proxy = None
-                    if _config.useProxy:
+                    if self._config.useProxy:
                         proxy = self._config.proxy
                     self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=self._config.refresh_token)
 
