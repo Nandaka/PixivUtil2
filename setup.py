@@ -52,7 +52,7 @@ if isWindows:
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
-requires = ['BeautifulSoup', 'certifi']
+requires = ['BeautifulSoup']
 options = {'py2exe': {'bundle_files': 2,
                       'compressed': 1,
                       'excludes': ['Tkconstants', 'Tkinter']}, }
