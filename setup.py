@@ -5,8 +5,6 @@ from __future__ import print_function
 from os import path
 import os
 import sys
-import certifi
-import zipfile
 
 try:
     from setuptools import setup, convert_path, find_packages
@@ -118,6 +116,8 @@ setup(
 
 if isWindows:
     # add certify cacert.pem in library.zip/certifi
+    import certifi
+    import zipfile
     zip = zipfile.ZipFile('./dist/library.zip', 'a')
     zip.write(certifi.where(), "/certifi/cacert.pem")
     zip.close()
