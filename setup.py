@@ -5,6 +5,9 @@ from __future__ import print_function
 from os import path
 import os
 import sys
+import certifi
+import zipfile
+
 try:
     from setuptools import setup, convert_path, find_packages
     SETUPTOOLS_USED = True
@@ -49,8 +52,10 @@ if isWindows:
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
-requires = ['BeautifulSoup']
-options = {'py2exe': {'compressed': 1, 'excludes': ['Tkconstants', 'Tkinter']}, }
+requires = ['BeautifulSoup', 'certifi']
+options = {'py2exe': {'bundle_files': 2,
+                      'compressed': 1,
+                      'excludes': ['Tkconstants', 'Tkinter']}, }
 
 setup_kwargs = dict(console=console, requires=requires, options=options)
 
@@ -110,3 +115,9 @@ setup(
     install_requires=install_requires,
     **setup_kwargs
 )
+
+if isWindows:
+    # add certify cacert.pem in library.zip/certifi
+    zip = zipfile.ZipFile('./dist/library.zip', 'a')
+    zip.write(certifi.where(), "/certifi/cacert.pem")
+    zip.close()
