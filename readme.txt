@@ -273,7 +273,8 @@ username ==> Your pixiv username.
 password ==> Your pixiv password, in clear text!
 cookie   ==> Your cookies for pixiv login, will be automatically updated in the
              login.
-keepsignedin ==> Set to 1 to tick the keep signed in check box on login form.
+refresh_token ==> Used for OAuth refresh token to avoid relogin too many time.
+                  Automatically generated upon succesful OAuth login.
 
 [Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
