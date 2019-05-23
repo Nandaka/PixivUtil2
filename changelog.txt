@@ -1,3 +1,6 @@
+20190523
+- Implement #493: update fanbox parser to support fanbox content provider.
+
 20190501
 - Fix Issue #483: handle oAuth to get the member information for FANBOX, use WEB-RPC to get member info if image id available.
 - Fix Issue #481: update write image info for json.

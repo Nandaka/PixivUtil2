@@ -207,6 +207,10 @@ class FanboxPost(object):
             elif embedData.has_key("videoId"):
                 video_id = embedData["videoId"]
             return "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>".format(video_id)
+        elif embedData["serviceProvider"] == "fanbox":  # implement #493
+            self.provider = "fanbox"
+            fanbox_post_id = embedData["contentId"]
+            return "<a href='https://www.pixiv.net/fanbox/{0}'>fanbox post: {0}</a>".format(fanbox_post_id)
         else:
             raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"], self.imageId),
                                  errorCode=9999,
