@@ -1,4 +1,7 @@
 20190523
+- Update #493: update fanbox parser to support vimeo content provider.
+
+20190523
 - Implement #493: update fanbox parser to support fanbox content provider.
 
 20190501
