@@ -584,7 +584,7 @@ class PixivBrowser(mechanize.Browser):
         if next_url is None or next_url == "":
             url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
         else:
-            url = "https://www.pixiv.net" + next_url
+            url = "https://www.pixiv.net" + next_url.replace("https://fanbox.pixiv.net/api/post.listCreator", "/ajax/fanbox/creator")
 
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
         response = self.open_with_retry(url).read()
