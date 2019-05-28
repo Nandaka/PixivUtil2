@@ -1,3 +1,6 @@
+20190528
+- Fix Issue #494: update fanbox next page url handling.
+
 20190523
 - Update #493: update fanbox parser to support vimeo content provider.
 
