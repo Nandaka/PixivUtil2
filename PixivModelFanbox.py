@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C1801, C0330
-import demjson
-
-import datetime_z
 import codecs
+
+import demjson
+import datetime_z
 
 from PixivException import PixivException
 import PixivHelper
@@ -43,7 +43,7 @@ class FanboxArtist(object):
         self._tzInfo = tzInfo
         js = demjson.decode(page)
 
-        if js["error"]:
+        if js.has_key("error") and js["error"]:
             raise PixivException("Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
 
         if js["body"] is not None:

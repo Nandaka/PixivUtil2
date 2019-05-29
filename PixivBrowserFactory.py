@@ -406,7 +406,7 @@ class PixivBrowser(mechanize.Browser):
                     proxy = None
                     if self._config.useProxy:
                         proxy = self._config.proxy
-                    self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=self._config.refresh_token)
+                    self._oauth_manager = PixivOAuth(self._username, self._password, proxies=proxy, refresh_token=self._config.refresh_token, validate_ssl=self._config.enableSSLVerification)
 
                 url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(member_id)
                 info = self._get_from_cache(url)
@@ -583,11 +583,21 @@ class PixivBrowser(mechanize.Browser):
         ''' get all posts from the supported user from https://www.pixiv.net/ajax/fanbox/creator?userId=15521131 '''
         if next_url is None or next_url == "":
             url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
+        elif next_url.startswith("https://"):
+            url = next_url
         else:
-            url = "https://www.pixiv.net" + next_url.replace("https://fanbox.pixiv.net/api/post.listCreator", "/ajax/fanbox/creator")
+            url = "https://www.pixiv.net" + next_url
 
+        # Fix #494
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
-        response = self.open_with_retry(url).read()
+        referer = "https://www.pixiv.net/fanbox/creator/{0}".format(artist_id)
+        req = urllib2.Request(url)
+        req.add_header('Accept', 'application/json, text/plain, */*')
+        req.add_header('Referer', referer)
+        req.add_header('Origin', 'https://www.pixiv.net')
+        req.add_header('User-Agent', self._config.useragent)
+
+        response = self.open_with_retry(req).read()
         # Issue #420
         _tzInfo = None
         if self._config.useLocalTimezone:

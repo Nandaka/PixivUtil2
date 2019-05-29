@@ -31,6 +31,7 @@ class PixivConfig(object):
     retryWait = 5
     downloadDelay = 2
     checkNewVersion = True
+    enableSSLVerification = True
 
     # Authentication related
     username = ''
@@ -590,6 +591,13 @@ class PixivConfig(object):
                 self.refresh_token = None
                 haveError = True
 
+            try:
+                self.enableSSLVerification = config.getboolean('Network', 'enableSSLVerification')
+            except ValueError:
+                print("enableSSLVerification = False")
+                self.enableSSLVerification = False
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -617,6 +625,7 @@ class PixivConfig(object):
         config.set('Network', 'retrywait', self.retryWait)
         config.set('Network', 'downloadDelay', self.downloadDelay)
         config.set('Network', 'checkNewVersion', self.checkNewVersion)
+        config.set('Network', 'enableSSLVerification', self.enableSSLVerification)
 
         config.add_section('Debug')
         config.set('Debug', 'logLevel', self.logLevel)
@@ -738,6 +747,7 @@ class PixivConfig(object):
         print(' - retryWait        =', self.retryWait)
         print(' - downloadDelay    =', self.downloadDelay)
         print(' - checkNewVersion  =', self.checkNewVersion)
+        print(' - enableSSLVerification =', self.enableSSLVerification)
 
         print(' [Debug]')
         print(' - logLevel         =', self.logLevel)
