@@ -23,6 +23,9 @@ class Fanbox(object):
 
     def parseSupportedArtists(self, js_body):
         self.supportedArtist = list()
+        # Fix #495
+        if js_body.has_key("supportingPlans"):
+            js_body = js_body["supportingPlans"]
         for creator in js_body:
             self.supportedArtist.append(int(creator["user"]["userId"]))
 

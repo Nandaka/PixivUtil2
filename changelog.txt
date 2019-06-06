@@ -1,3 +1,6 @@
+20190606
+- Fix Issue #495: Update FANBOX parser for supported artist.
+
 20190529
 - Fix Issue #494: update fanbox next page url handling.
 - Add option to skip SSL verification for OAuth (useful in debugging).

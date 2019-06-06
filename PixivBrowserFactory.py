@@ -571,8 +571,8 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(PixivHelper.toUnicode(response)))
 
     def fanboxGetSupportedUsers(self):
-        ''' get all supported users from the list from https://www.pixiv.net/ajax/fanbox/support'''
-        url = 'https://www.pixiv.net/ajax/fanbox/support'
+        ''' get all supported users from the list from https://www.pixiv.net/ajax/fanbox/index'''
+        url = 'https://www.pixiv.net/ajax/fanbox/index'
         PixivHelper.print_and_log('info', 'Getting supported artists from ' + url)
         # read the json response
         response = self.open_with_retry(url).read()

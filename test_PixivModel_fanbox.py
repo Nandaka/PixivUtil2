@@ -22,10 +22,10 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         result = Fanbox(p)
         self.assertIsNotNone(result)
 
-        self.assertEqual(len(result.supportedArtist), 3)
-        self.assertTrue(190026 in result.supportedArtist)
-        self.assertTrue(685000 in result.supportedArtist)
-        self.assertTrue(15521131 in result.supportedArtist)
+        self.assertEqual(len(result.supportedArtist), 19)
+        self.assertTrue(7968 in result.supportedArtist)
+        self.assertTrue(3931854 in result.supportedArtist)
+        self.assertTrue(30716447 in result.supportedArtist)
 
     def testFanboxArtistPosts(self):
         p = open('./test/Fanbox_artist_posts.json', 'r').read()
@@ -240,6 +240,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
             self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
         cover_more_format()
+
 
 if __name__ == '__main__':
         # unittest.main()
