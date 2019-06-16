@@ -371,10 +371,14 @@ def process_list(list_file_name=None, tags=None):
         raise
 
 
-def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
+def process_member(member_id, user_dir='', page=1, end_page=-2, bookmark=False, tags=None):
     global __errorList
     global ERROR_CODE
     list_page = None
+    end_page_menu=True
+    if (end_page==-2): #no menu
+       end_page_menu=False
+       end_page=0
 
     PixivHelper.print_and_log('info', 'Processing Member Id: ' + str(member_id))
     if page != 1:
@@ -477,6 +481,10 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
                     if r is not None and not __config__.alwaysCheckFileSize:
                         print('Already downloaded:', image_id)
+                        if end_page == -1 or (np_is_valid and np == -1) or (not end_page_menu and __config__.numberOfPage == -1):
+                            flag = False
+                            gc.collect()
+                            break
                         updated_limit_count = updated_limit_count + 1
                         if updated_limit_count > __config__.checkUpdatedLimit:
                             if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
@@ -1324,10 +1332,12 @@ def get_start_and_end_number(start_only=False):
         end_page_num = __config__.numberOfPage
 
     if not start_only:
-        end_page_num = raw_input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ') or end_page_num
+        end_page_num = raw_input(
+             'End Page (default=' + str(end_page_num) + ', 0 for no limit, -1 to stop after finding an already downloaded image):'
+             ) or end_page_num
         try:
             end_page_num = int(end_page_num)
-            if page_num > end_page_num and end_page_num != 0:
+            if page_num > end_page_num and end_page_num != 0 and end_page_num != -1:
                 print("page_num is bigger than end_page_num, assuming as page count.")
                 end_page_num = page_num + end_page_num
         except BaseException:
