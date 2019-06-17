@@ -1,3 +1,7 @@
+20190617-beta1
+- Fix Issue #500: add 'google_forms' for embed provider and update max page parser.
+- Update the embedData parser to use configuration in content_provider.json.
+
 20190606
 - Fix Issue #495: Update FANBOX parser for supported artist.
 

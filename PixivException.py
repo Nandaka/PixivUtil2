@@ -31,6 +31,9 @@ class PixivException(Exception):
     DOWNLOAD_FAILED_NETWORK = 9002
     SERVER_ERROR  = 9005
 
+    MISSING_CONFIG = 9901
+    OTHER_ERROR = 9999
+
     errorCode = -1
     htmlPage = None
 

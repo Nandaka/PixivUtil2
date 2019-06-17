@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C1801, C0330
 import codecs
+import os
 
 import demjson
 import datetime_z
@@ -199,27 +200,34 @@ class FanboxPost(object):
                              self.getEmbedData(jsPost["body"]["video"], jsPost))
 
     def getEmbedData(self, embedData, jsPost):
-        if embedData["serviceProvider"] == "twitter":
-            self.provider = "twitter"
-            return "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>".format(embedData["contentId"])
-        elif embedData["serviceProvider"] == "youtube":  # implement #475
-            self.provider = "youtube"
-            video_id = "N/A"
-            if embedData.has_key("contentId"):
-                video_id = embedData["contentId"]
-            elif embedData.has_key("videoId"):
-                video_id = embedData["videoId"]
-            return "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>".format(video_id)
-        elif embedData["serviceProvider"] == "fanbox":  # implement #493
-            self.provider = "fanbox"
-            fanbox_post_id = embedData["contentId"]
-            return "<a href='https://www.pixiv.net/fanbox/{0}'>fanbox post: {0}</a>".format(fanbox_post_id)
-        elif embedData["serviceProvider"] == "vimeo":  # implement #493
-            self.provider = "vimeo"
-            contentId = embedData["contentId"]
-            return "<a href='https://vimeo.com/{0}'>fanbox post: {0}</a>".format(contentId)
+        if not os.path.exists("content_provider.json"):
+            raise PixivException("Missing content_provider.json, please redownload application!",
+                                  errorCode=PixivException.MISSING_CONFIG,
+                                  htmlPage=None)
+
+        cfg = demjson.decode_file("content_provider.json")
+        embed_cfg = cfg["embedConfig"]
+        current_provider = embedData["serviceProvider"]
+
+        if current_provider in embed_cfg:
+            if embed_cfg[current_provider]["ignore"]:
+                return ""
+
+            content_id = None
+            for key in embed_cfg[current_provider]["keys"]:
+                if embedData.has_key(key):
+                    content_id = embedData[key]
+                    break
+
+            if content_id is not None and len(content_id) > 0:
+                content_format = embed_cfg[current_provider]["format"]
+                return content_format.format(content_id)
+            else:
+                raise PixivException("Empty content_id for embed provider = {0} for post = {1}, please update content_provider.json.".format(embedData["serviceProvider"], self.imageId),
+                                      errorCode=9999,
+                                      htmlPage=jsPost)
         else:
-            raise PixivException("Unsupported embed provider = {0} for post = {1}".format(embedData["serviceProvider"], self.imageId),
+            raise PixivException("Unsupported embed provider = {0} for post = {1}, please update content_provider.json.".format(embedData["serviceProvider"], self.imageId),
                                  errorCode=9999,
                                  htmlPage=jsPost)
 

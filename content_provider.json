@@ -1,0 +1,34 @@
+{
+	"embedConfig": {
+		"twitter": {
+			"serviceProvider": "twitter",
+			"keys": ["contentId"],
+			"format": "<a href='https://twitter.com/_/status/{0}'>twitter post: {0}</a>",
+            "ignore": false
+		},
+		"youtube": {
+			"serviceProvider": "youtube",
+			"keys": ["contentId", "videoId"],
+			"format": "<a href='https://www.youtube.com/watch?v={0}'>youtube post: {0}</a>",
+            "ignore": false
+		},
+		"fanbox": {
+			"serviceProvider": "fanbox",
+			"keys": ["contentId"],
+			"format": "<a href='https://www.pixiv.net/fanbox/{0}'>fanbox post: {0}</a>",
+            "ignore": false
+		},
+		"vimeo": {
+			"serviceProvider": "vimeo",
+			"keys": ["contentId"],
+			"format": "https://vimeo.com/{0}'>vimeo post: {0}</a>",
+            "ignore": false
+		},
+		"google_forms": {
+			"serviceProvider": "google_forms",
+			"keys": ["contentId"],
+			"format": "<a href='https://docs.google.com/forms/d/e/{0}/viewform?usp=sf_link'>Google Form: {0}</a>",
+            "ignore": false
+		}
+	}
+}
