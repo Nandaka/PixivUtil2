@@ -653,7 +653,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
         del save
 
-        return (curr, filename)
+    return (curr, filename)
 
 
 def print_progress(curr, total):

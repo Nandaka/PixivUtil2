@@ -519,7 +519,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                             # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
-                        title_prefix_img = "{0}MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(title_prefix,
+                        title_prefix_img = "{0}MemberId: {1} Page: {2} Image {3}+{4} of {5}".format(title_prefix,
                                                                                                     member_id,
                                                                                                     page,
                                                                                                     no_of_images,
