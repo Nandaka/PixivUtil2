@@ -117,13 +117,21 @@ def get_remote_filesize(url, referer):
     print('Getting remote filesize...')
     # open with HEAD method, might be expensive
     req = PixivHelper.create_custom_request(url, __config__, referer, head=True)
-    res = __br__.open_novisit(req)
-
     try:
+        res = __br__.open_novisit(req)
         file_size = int(res.info()['Content-Length'])
     except KeyError:
         file_size = -1
         PixivHelper.print_and_log('info', "\tNo file size information!")
+    except mechanize.HTTPError, e:
+        # fix Issue #503
+        # handle http errors explicit by code
+        if int(e.code) in (404, 500):
+            file_size = -1
+            PixivHelper.print_and_log('info', "\tNo file size information!")
+        else:
+            raise
+
     print("Remote filesize = {0} ({1} Bytes)".format(PixivHelper.sizeInStr(file_size), file_size))
     return file_size
 
@@ -343,12 +351,14 @@ def process_list(list_file_name=None, tags=None):
                         break
 
         print("Found " + str(len(result)) + " items.")
-
+        current_member = 1
         for item in result:
             retry_count = 0
             while True:
                 try:
-                    process_member(item.memberId, item.path, tags=tags)
+                    prefix = "[{0} of {1}] ".format(current_member, len(result))
+                    process_member(item.memberId, item.path, tags=tags, title_prefix=prefix)
+                    current_member = current_member + 1
                     break
                 except KeyboardInterrupt:
                     raise
@@ -371,7 +381,7 @@ def process_list(list_file_name=None, tags=None):
         raise
 
 
-def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None):
+def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None, title_prefix=""):
     global __errorList
     global ERROR_CODE
     list_page = None
@@ -406,7 +416,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
 
         while flag:
             print('Page ', page)
-            set_console_title("MemberId: " + str(member_id) + " Page: " + str(page))
+            set_console_title("{0}MemberId: {1} Page: {2}".format(title_prefix, member_id, page))
             # Try to get the member page
             while True:
                 try:
@@ -509,13 +519,14 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                             # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
-                        title_prefix = "MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(member_id,
-                                                                                             page,
-                                                                                             no_of_images,
-                                                                                             updated_limit_count,
-                                                                                             total_image_page_count)
+                        title_prefix_img = "{0}MemberId: {0} Page: {1} Image {2}+{3} of {4}".format(title_prefix,
+                                                                                                    member_id,
+                                                                                                    page,
+                                                                                                    no_of_images,
+                                                                                                    updated_limit_count,
+                                                                                                    total_image_page_count)
                         if not DEBUG_SKIP_PROCESS_IMAGE:
-                            result = process_image(artist, image_id, user_dir, bookmark, title_prefix=title_prefix)  # Yavos added dir-argument to pass
+                            result = process_image(artist, image_id, user_dir, bookmark, title_prefix=title_prefix_img)
                             wait()
 
                         break
@@ -597,7 +608,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
         raise
 
 
-def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix=None, bookmark_count=-1, image_response_count=-1):
+def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix="", bookmark_count=-1, image_response_count=-1):
     global __errorList
     global ERROR_CODE
 
@@ -633,10 +644,10 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                                                                                        parent=artist,
                                                                                        from_bookmark=bookmark,
                                                                                        bookmark_count=bookmark_count)
-            if title_prefix is not None:
-                set_console_title(title_prefix + " ImageId: {0}".format(image.imageId))
+            if len(title_prefix) > 0:
+                set_console_title("{0} ImageId: {1}".format(title_prefix, image.imageId))
             else:
-                set_console_title('MemberId: ' + str(image.artist.artistId) + ' ImageId: ' + str(image.imageId))
+                set_console_title("MemberId: {0} ImageId: {1}".format(image.artist.artistId, image.imageId))
 
         except PixivException as ex:
             ERROR_CODE = ex.errorCode
@@ -1168,10 +1179,13 @@ def process_bookmark(hide='n', start_page=1, end_page=0):
             total_list.extend(get_bookmarks(True, start_page, end_page))
         print("Result: ", str(len(total_list)), "items.")
         i = 0
+        current_member = 1
         for item in total_list:
             print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
             i += 1
-            process_member(item.memberId, item.path)
+            prefix = "[{0} of {1}]".format(current_member, len(total_list))
+            process_member(item.memberId, item.path, title_prefix=prefix)
+            current_member = current_member + 1
         print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
     except KeyboardInterrupt:
         raise
@@ -1437,13 +1451,17 @@ def menu():
 
 def menu_download_by_member_id(opisvalid, args):
     __log__.info('Member id mode.')
+    current_member = 1
     page = 1
     end_page = 0
+
     if opisvalid and len(args) > 0:
         for member_id in args:
             try:
+                prefix = "[{0} of {1}] ".format(current_member, len(args))
                 test_id = int(member_id)
-                process_member(test_id)
+                process_member(test_id, title_prefix=prefix)
+                current_member = current_member + 1
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
                 global ERROR_CODE
@@ -1456,7 +1474,9 @@ def menu_download_by_member_id(opisvalid, args):
         member_ids = PixivHelper.getIdsFromCsv(member_ids, sep=" ")
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
         for member_id in member_ids:
-            process_member(member_id, page=page, end_page=end_page)
+            prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+            process_member(member_id, page=page, end_page=end_page, title_prefix=prefix)
+            current_member = current_member + 1
 
 
 def menu_download_by_member_bookmark(opisvalid, args):
@@ -1464,6 +1484,7 @@ def menu_download_by_member_bookmark(opisvalid, args):
     page = 1
     end_page = 0
     i = 0
+    current_member = 1
     if opisvalid and len(args) > 0:
         valid_ids = list()
         for member_id in args:
@@ -1480,7 +1501,9 @@ def menu_download_by_member_bookmark(opisvalid, args):
         if __br__._myId in valid_ids:
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
         for mid in valid_ids:
-            process_member(mid, bookmark=True, tags=None)
+            prefix = "[{0} of {1}] ".format(current_member, len(valid_ids))
+            process_member(mid, bookmark=True, tags=None, title_prefix=prefix)
+            current_member = current_member + 1
 
     else:
         member_id = raw_input('Member id: ')
@@ -1671,7 +1694,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
         hide = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
         hide = hide.lower()
         if hide not in ('y', 'n', 'o'):
-            print("Invalid args: ", arg)
+            print("Invalid args: ", hide)
             return
         tag = raw_input("Tag (default=All Images): ") or ''
         (start_page, end_page) = get_start_and_end_number()
