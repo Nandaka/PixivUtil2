@@ -446,7 +446,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
             print('Processing images from {0} to {1} of {2}'.format(offset_start + 1, print_offset_stop, artist.totalImages))
 
-            if artist.artistAvatar.find('no_profile') == -1 and not is_avatar_downloaded and __config__.downloadAvatar:
+            if not is_avatar_downloaded and __config__.downloadAvatar:
                 if user_dir == '':
                     target_dir = __config__.rootDirectory
                 else:
@@ -454,13 +454,21 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
 
                 avatar_filename = PixivHelper.createAvatarFilename(artist, target_dir)
                 if not DEBUG_SKIP_PROCESS_IMAGE:
-                    # hardcode the referer to pixiv main site
-                    download_image(artist.artistAvatar, avatar_filename, "https://www.pixiv.net/", __config__.overwrite,
-                                   __config__.retry, __config__.backupOldFile)
+                    if artist.artistAvatar.find('no_profile') == -1:
+                        download_image(artist.artistAvatar,
+                                       avatar_filename,
+                                       "https://www.pixiv.net/",
+                                       __config__.overwrite,
+                                       __config__.retry,
+                                       __config__.backupOldFile)
+                    # Issue #508
                     if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
                         bg_name = PixivHelper.createBackgroundFilenameFromAvatarFilename(avatar_filename)
-                        download_image(artist.artistBackground, bg_name, "https://www.pixiv.net/", __config__.overwrite,
-                                       __config__.retry, __config__.backupOldFile)
+                        download_image(artist.artistBackground,
+                                       bg_name, "https://www.pixiv.net/",
+                                       __config__.overwrite,
+                                       __config__.retry,
+                                       __config__.backupOldFile)
                 is_avatar_downloaded = True
 
             __dbManager__.updateMemberName(member_id, artist.artistName)
