@@ -265,7 +265,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
             except urllib2.HTTPError as httpError:
                 PixivHelper.print_and_log('error', '[download_image()] HTTP Error: {0} at {1}'.format(str(httpError), url))
-                if httpError.code == 404 or httpError.code == 502:
+                if httpError.code == 404 or httpError.code == 502 or httpError.code == 500:
                     return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
