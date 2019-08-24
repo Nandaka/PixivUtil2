@@ -4,7 +4,7 @@ from datetime import datetime
 
 import PixivHelper
 from PixivHelper import LocalUTCOffsetTimezone
-import PixivException
+from PixivException import PixivException
 
 
 class PixivOAuth(object):
@@ -104,8 +104,13 @@ class PixivOAuth(object):
             self._refresh_token = info["response"]["refresh_token"]
             self._access_token = info["response"]["access_token"]
         elif oauth_response.status_code == 400:
-            PixivHelper.print_and_log('error', oauth_response.text)
-            raise PixivException("Failed to login using OAuth", PixivException.OAUTH_LOGIN_ISSUE, oauth_response.text)
+            info = oauth_response.text
+            try:
+                info = json.loads(info)["errors"]["system"]["message"]
+            except (ValueError, KeyError):
+                pass
+            PixivHelper.print_and_log('error', info)
+            raise PixivException("Failed to login using OAuth", PixivException.OAUTH_LOGIN_ISSUE)
 
         return oauth_response
 
