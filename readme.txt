@@ -402,7 +402,9 @@ createapng      ==> Set to True to convert ugoira file to animated png.
 					The generated png is not optimized due to library limitation.
 deleteugoira    ==> set to True to delete original ugoira after conversion.
 createwebm      ==> set to True to create webm file (video format).
+                    Required createUgoira = True.
 createwebp      ==> set to True to create webp file (image format).
+                    Required createUgoira = True.
 
 [Filename]
 filenameformat  ==> The format for the filename, reserved/illegal character
