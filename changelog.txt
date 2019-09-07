@@ -1,7 +1,8 @@
-20190907
+20190907b
 - Implement #518: show asterisk '*' when entering password on console for Windows.
 - Implement #521: skip tags if exceeding limit defined in 'checkUpdatedLimit'. 'alwaysCheckFileSize' need to be disabled.
 - Merge #513 and #519
+- Fix Issue #522: rearrange import for getpass.
 
 20190712
 - Implement #490: Show current and total member id in the title.

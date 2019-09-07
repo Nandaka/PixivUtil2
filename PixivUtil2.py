@@ -24,6 +24,7 @@ import httplib
 import codecs
 import subprocess
 
+import getpass
 from BeautifulSoup import BeautifulSoup
 
 if os.name == 'nt':
@@ -62,8 +63,6 @@ if os.name == 'nt':
 
     win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
     win_unicode_console.enable()
-
-    import getpass
 
     # patch getpass.getpass() for windows to show '*'
     def win_getpass_with_mask(prompt='Password: ', stream=None):
