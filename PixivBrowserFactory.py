@@ -14,8 +14,8 @@ import urllib2
 import urlparse
 
 import mechanize
-import socks
 from BeautifulSoup import BeautifulSoup
+import socks
 import demjson
 
 import PixivHelper
@@ -37,6 +37,7 @@ class PixivBrowser(mechanize.Browser):
     _whitecubeToken = ""
     _cache = dict()
     _myId = 0
+    _isPremium = False
 
     _username = None
     _password = None
@@ -321,6 +322,14 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'My User Id: {0}.'.format(self._myId))
         else:
             PixivHelper.print_and_log('info', 'Unable to get User Id')
+
+        self._isPremium = False
+        temp = re.findall(r"pixiv.user.premium = (\w+);", unicode(parsed))
+        print(temp)
+        raw_input()
+        if temp is not None:
+            self._isPremium = True if temp[0] == "true" else False
+        PixivHelper.print_and_log('info', 'Premium User: {0}.'.format(self._isPremium))
 
     def parseLoginError(self, res):
         page = BeautifulSoup(res.read())
