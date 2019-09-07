@@ -325,8 +325,6 @@ class PixivBrowser(mechanize.Browser):
 
         self._isPremium = False
         temp = re.findall(r"pixiv.user.premium = (\w+);", unicode(parsed))
-        print(temp)
-        raw_input()
         if temp is not None:
             self._isPremium = True if temp[0] == "true" else False
         PixivHelper.print_and_log('info', 'Premium User: {0}.'.format(self._isPremium))
