@@ -146,7 +146,7 @@ class PixivBrowser(mechanize.Browser):
                 return self.open(url, data, timeout)
             except urllib2.HTTPError:
                 raise
-            except Exception as ex:
+            except BaseException as ex:
                 if retry_count < retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
@@ -154,7 +154,8 @@ class PixivBrowser(mechanize.Browser):
                     print('')
                     retry_count = retry_count + 1
                 else:
-                    raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus.".format(ex.message), errorCode=PixivException.SERVER_ERROR)
+                    PixivHelper.print_and_log('error', 'Error at open_with_retry(): {0}'.format(str(sys.exc_info())))
+                    raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus.".format(url), errorCode=PixivException.SERVER_ERROR)
 
     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
@@ -184,7 +185,8 @@ class PixivBrowser(mechanize.Browser):
                     print('')
                     retry_count = retry_count + 1
                 else:
-                    raise PixivException("Failed to get page: " + ex.message, errorCode=PixivException.SERVER_ERROR)
+                    PixivHelper.print_and_log('error', 'Error at getPixivPage(): {0}'.format(str(sys.exc_info())))
+                    raise PixivException("Failed to get page: {0}".format(url), errorCode=PixivException.SERVER_ERROR)
 
     def fixUrl(self, url, useHttps=True):
         # url = str(url)
