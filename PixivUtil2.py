@@ -918,6 +918,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
 
     search_page = None
     i = page
+    updated_limit_count = 0
+
     try:
         __config__.loadConfig(path=configfile)  # Reset the config for root directory
 
@@ -982,8 +984,9 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                                                                                                               images,
                                                                                                               skipped_count,
                                                                                                               total_image)
+                            result = PixivConstant.PIXIVUTIL_OK
                             if not DEBUG_SKIP_PROCESS_IMAGE:
-                                process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
+                                result = process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
                                 wait()
                             break
                         except KeyboardInterrupt:
@@ -994,8 +997,16 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             time.sleep(2)
 
                     images = images + 1
-
-                    if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
+                    if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
+                        updated_limit_count = updated_limit_count + 1
+                        if updated_limit_count > __config__.checkUpdatedLimit:
+                            if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
+                                PixivHelper.safePrint("Skipping tags: {0}".format(tags))
+                                __br__.clear_history()
+                                return
+                        gc.collect()
+                        continue
+                    elif result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                         choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)")
                         if choice.upper() == 'N':
                             PixivHelper.print_and_log("info", "Tags: " + tags + ", processing aborted")
