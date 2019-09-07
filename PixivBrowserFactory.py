@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
 from __future__ import print_function
 
@@ -146,7 +146,7 @@ class PixivBrowser(mechanize.Browser):
                 return self.open(url, data, timeout)
             except urllib2.HTTPError:
                 raise
-            except BaseException as ex:
+            except BaseException:
                 if retry_count < retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
@@ -177,7 +177,7 @@ class PixivBrowser(mechanize.Browser):
             except urllib2.HTTPError as ex:
                 if ex.code in [403, 404, 503]:
                     return BeautifulSoup(ex.read())
-            except Exception as ex:
+            except BaseException:
                 if retry_count < self._config.retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
