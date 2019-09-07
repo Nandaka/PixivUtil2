@@ -1,3 +1,8 @@
+20190907
+- Implement #518: show asterisk '*' when entering password on console for Windows.
+- Implement #521: skip tags if exceeding limit defined in 'checkUpdatedLimit'. 'alwaysCheckFileSize' need to be disabled.
+- Merge #513 and #519
+
 20190712
 - Implement #490: Show current and total member id in the title.
 - Fix Issue #503: skip remote file size if server return error 404 or 500.
