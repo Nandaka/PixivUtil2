@@ -13,10 +13,10 @@ import urllib
 import urllib2
 import urlparse
 
-import demjson
 import mechanize
 import socks
 from BeautifulSoup import BeautifulSoup
+import demjson
 
 import PixivHelper
 import PixivModel

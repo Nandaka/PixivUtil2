@@ -20,7 +20,6 @@ import time
 import datetime
 import datetime_z
 import urllib2
-import getpass
 import httplib
 import codecs
 import subprocess
@@ -63,6 +62,35 @@ if os.name == 'nt':
 
     win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
     win_unicode_console.enable()
+
+    import getpass
+
+    # patch getpass.getpass() for windows to show '*'
+    def win_getpass_with_mask(prompt='Password: ', stream=None):
+        """Prompt for password with echo off, using Windows getch()."""
+        if sys.stdin is not sys.__stdin__:
+            return getpass.fallback_getpass(prompt, stream)
+        import msvcrt
+        for c in prompt:
+            msvcrt.putch(c)
+        pw = ""
+        while 1:
+            c = msvcrt.getch()
+            if c == '\r' or c == '\n':
+                break
+            if c == '\003':
+                raise KeyboardInterrupt
+            if c == '\b':
+                pw = pw[:-1]
+                print("\b \b", end="")
+            else:
+                pw = pw + c
+                print("*", end="")
+        msvcrt.putch('\r')
+        msvcrt.putch('\n')
+        return pw
+
+    getpass.getpass = win_getpass_with_mask
 
 import PixivConstant
 import PixivConfig
