@@ -3,7 +3,34 @@
 # pylint: disable=I0011, C, C0302, W0602, W0603, W0703, R0102, R1702, R0912, R0915
 from __future__ import print_function
 
+import codecs
+import datetime
+import gc
+import getpass
+import httplib
+import mechanize
+import os
+import random
+import re
+import subprocess
 import sys
+import time
+import traceback
+import urllib2
+from BeautifulSoup import BeautifulSoup
+from optparse import OptionParser
+
+import datetime_z
+import PixivBrowserFactory
+import PixivConfig
+import PixivConstant
+import PixivDBManager
+import PixivHelper
+import PixivModelFanbox
+from PixivException import PixivException
+from PixivModel import (PixivBookmark, PixivGroup, PixivImage, PixivListItem,
+                        PixivNewIllustBookmark, PixivTags)
+
 try:
     stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
     reload(sys)
@@ -11,21 +38,6 @@ try:
     sys.setdefaultencoding("utf-8")
 except Exception as e:
     pass  # swallow the exception
-
-import os
-import re
-import traceback
-import gc
-import time
-import datetime
-import datetime_z
-import urllib2
-import httplib
-import codecs
-import subprocess
-
-import getpass
-from BeautifulSoup import BeautifulSoup
 
 if os.name == 'nt':
     # enable unicode support on windows console.
@@ -91,20 +103,6 @@ if os.name == 'nt':
 
     getpass.getpass = win_getpass_with_mask
 
-import PixivConstant
-import PixivConfig
-import PixivDBManager
-import PixivHelper
-import PixivModelFanbox
-from PixivModel import PixivImage, PixivListItem, PixivBookmark, PixivTags
-from PixivModel import PixivNewIllustBookmark, PixivGroup
-from PixivException import PixivException
-import PixivBrowserFactory
-
-from optparse import OptionParser
-
-import random
-
 script_path = PixivHelper.module_path()
 
 np_is_valid = False
@@ -116,7 +114,6 @@ ERROR_CODE = 0
 gc.enable()
 # gc.set_debug(gc.DEBUG_LEAK)
 
-import mechanize
 # replace unenscape_charref implementation with our implementation due to bug.
 mechanize._html.unescape_charref = PixivHelper.unescape_charref
 
@@ -2070,7 +2067,7 @@ def setup_option_parser():
 
 
 # Main thread #
-def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
+def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
     global __errorList
     global ERROR_CODE
     global np
@@ -2131,12 +2128,12 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
                 menu_fanbox_download_by_artist_id(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
-                if not np_is_valid:
-                    np_is_valid = True
+                if not np_is_valid_local:
+                    np_is_valid_local = True
                     np = 0
                     print('download all mode activated')
                 else:
-                    np_is_valid = False
+                    np_is_valid_local = False
                     print('download mode reset to', __config__.numberOfPage, 'pages')
             elif selection == 'x':
                 break
@@ -2155,7 +2152,7 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid, args):
                 PixivHelper.dumpHtml("Dump for {0}.html".format(filename), ex.htmlPage)
             raise  # keep old behaviour
 
-    return np_is_valid, op_is_valid, selection
+    return np_is_valid_local, op_is_valid, selection
 
 
 def doLogin(password, username):
@@ -2236,7 +2233,7 @@ def main():
     if len(sys.argv) == 0:
         __log__.info('Starting with no argument..')
     else:
-        __log__.info('Starting with argument: [{0}].'.format(" ".join(sys.argv)))
+        __log__.info('Starting with argument: [%s].', " ".join(sys.argv))
     try:
         __config__.loadConfig(path=configfile)
         PixivHelper.setConfig(__config__)
