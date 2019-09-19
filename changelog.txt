@@ -1,3 +1,6 @@
+20190919
+- Fix Issue #530: update OAuth login header.
+
 20190907b
 - Implement #518: show asterisk '*' when entering password on console for Windows.
 - Implement #521: skip tags if exceeding limit defined in 'checkUpdatedLimit'. 'alwaysCheckFileSize' need to be disabled.
