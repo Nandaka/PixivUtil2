@@ -1,10 +1,12 @@
 language: python
 python:
-  - "2.7"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 # command to install dependencies
 install:
   - pip install -e .
-  - pip install pytest
+  - pip install nosetests
 # command to run tests
 script:
-  - pytest -v ./test_*
+  - python3 -m nose --exe
