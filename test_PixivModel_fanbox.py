@@ -1,6 +1,6 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
+
 
 import sys
 import os
@@ -14,7 +14,7 @@ temp = PixivHelper.__re_manga_index
 
 
 class TestPixivModel_Fanbox(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testFanboxSupportedArtist(self):
@@ -113,7 +113,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # post-201946 article
         self.assertEqual(result.posts[4].imageId, 330905)
         self.assertTrue(len(result.posts[4].imageTitle) > 0)
-        self.assertEqual(result.posts[4].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
+        self.assertEqual(result.posts[4].coverImageUrl, 'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
         self.assertEqual(result.posts[4].type, "video")
         self.assertEqual(len(result.posts[4].images), 0)
         self.assertEqual(len(result.posts[4].body_text), 99)
@@ -132,7 +132,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # post-201946 article
         self.assertEqual(result.posts[0].imageId, 285502)
         self.assertTrue(len(result.posts[0].imageTitle) > 0)
-        self.assertEqual(result.posts[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
+        self.assertEqual(result.posts[0].coverImageUrl, 'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 7)
         self.assertEqual(len(result.posts[0].body_text), 3095)
@@ -187,7 +187,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         re_page = temp.findall(fake_image_url)
         self.assertIsNotNone(re_page)
-        self.assertEqual(re_page[0], u"0")
+        self.assertEqual(re_page[0], "0")
 
         def simple_from_images():
             filename_format = '%title%_%urlFilename%'
@@ -202,7 +202,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                 searchTags='')
             filename = PixivHelper.sanitizeFilename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu.jpeg")
+            self.assertEqual(filename, root_dir + os.sep + "アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu.jpeg")
         simple_from_images()
 
         def more_format():
@@ -219,7 +219,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                 searchTags='')
             filename = PixivHelper.sanitizeFilename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_p0_アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg")
+            self.assertEqual(filename, root_dir + os.sep + "15521131" + os.sep + "136761_p0_アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg")
         more_format()
 
         def cover_more_format():
@@ -238,7 +238,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                 searchTags='')
             filename = PixivHelper.sanitizeFilename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
+            self.assertEqual(filename, root_dir + os.sep + "15521131" + os.sep + "136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
         cover_more_format()
 
 

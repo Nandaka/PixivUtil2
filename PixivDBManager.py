@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # pylint: disable=C0330
-from __future__ import print_function
+
 
 import codecs
 import os
@@ -168,7 +168,7 @@ class PixivDBManager(object):
             writer.write('###Export date: ' + str(datetime.today()) + '###\r\n')
             for row in c:
                 if include_artist_token:
-                    data = unicode(row[2])
+                    data = str(row[2])
                     writer.write("# ")
                     writer.write(data)
                     writer.write("\r\n")
@@ -200,7 +200,7 @@ class PixivDBManager(object):
             for row in c:
                 for string in row:
                     # Unicode write!!
-                    data = unicode(string)
+                    data = str(string)
                     writer.write(data)
                     writer.write(',')
                 writer.write('\r\n')
@@ -229,10 +229,10 @@ class PixivDBManager(object):
                 'is_deleted'))
             i = 0
             for row in c:
-                PixivHelper.safePrint('%10d %#25s %#25s %20s %20s %10d %5s' % (row[0], unicode(row[1]).strip(), row[2], row[3], row[4], row[5], row[6]))
+                PixivHelper.safePrint('%10d %#25s %#25s %20s %20s %10d %5s' % (row[0], str(row[1]).strip(), row[2], row[3], row[4], row[5], row[6]))
                 i = i + 1
                 if i == 79:
-                    select = raw_input('Continue [y/n]? ')
+                    select = input('Continue [y/n]? ')
                     if select == 'n':
                         break
                     else:
@@ -255,7 +255,7 @@ class PixivDBManager(object):
             if result[0][0] > 10000:
                 print('Row count is more than 10000 (actual row count:', str(result[0][0]), ')')
                 print('It may take a while to retrieve the data.')
-                answer = raw_input('Continue [y/n]')
+                answer = input('Continue [y/n]')
                 if answer == 'y':
                     c.execute('''SELECT * FROM pixiv_master_image
                                     ORDER BY member_id''')
@@ -263,7 +263,7 @@ class PixivDBManager(object):
                     for row in c:
                         for string in row:
                             print('   ', end=' ')
-                            PixivHelper.safePrint(unicode(string), False)
+                            PixivHelper.safePrint(str(string), False)
                         print('')
                 else:
                     return
@@ -275,7 +275,7 @@ class PixivDBManager(object):
                 for row in c:
                     for string in row:
                         print('   ', end=' ')
-                        PixivHelper.safePrint(unicode(string), False)   # would it make more sense to set output to file?
+                        PixivHelper.safePrint(str(string), False)   # would it make more sense to set output to file?
                     print('')
             # Yavos: end of change
         except BaseException:
@@ -294,7 +294,7 @@ class PixivDBManager(object):
             c = self.conn.cursor()
             member_id = 0
             while True:
-                temp = raw_input('Member ID: ')
+                temp = input('Member ID: ')
                 try:
                     member_id = int(temp)
                 except BaseException:
@@ -391,7 +391,7 @@ class PixivDBManager(object):
         for row in rows:
             for string in row:
                 print('   ', end=' ')
-                PixivHelper.safePrint(unicode(string), False)
+                PixivHelper.safePrint(str(string), False)
             print('\n')
 
     def updateMemberName(self, memberId, memberName):
@@ -683,10 +683,10 @@ class PixivDBManager(object):
             while not len(l) == 0:
                 # End scan
                 print(l)
-                regex = raw_input("Please provide a search regex, use empty string to skip(Empty to stop now):")
+                regex = input("Please provide a search regex, use empty string to skip(Empty to stop now):")
                 if regex == "":
                     break
-                repl = raw_input("Replace regex with what?")
+                repl = input("Replace regex with what?")
                 regex = re.compile(regex)
 
                 # Replace any paths where replacement results in a correct path
@@ -713,9 +713,9 @@ class PixivDBManager(object):
         # TODO check for files which exist but don't have a DB entry
 
     def replaceRootPath(self):
-        oldPath = raw_input("Old Path to Replace = ")
+        oldPath = input("Old Path to Replace = ")
         PixivHelper.safePrint("Replacing " + oldPath + " to " + self.__config__.rootDirectory)
-        cont = raw_input("continue[y/n]?") or 'n'
+        cont = input("continue[y/n]?") or 'n'
         if cont != "y":
             print("Aborted")
             return
@@ -780,7 +780,7 @@ class PixivDBManager(object):
         print('p. Compact Database')
         print('r. Replace Root Path')
         print('x. Exit')
-        selection = raw_input('Select one?')
+        selection = input('Select one?')
         return selection
 
     def main(self):
@@ -793,18 +793,18 @@ class PixivDBManager(object):
                 elif selection == '2':
                     self.printImageList()
                 elif selection == '3':
-                    filename = raw_input('Filename? ')
-                    includeArtistToken = raw_input('Include Artist Token[y/n]? ')
+                    filename = input('Filename? ')
+                    includeArtistToken = input('Include Artist Token[y/n]? ')
                     if includeArtistToken.lower() == 'y':
                         includeArtistToken = True
                     else:
                         includeArtistToken = False
                     self.exportList(filename, includeArtistToken)
                 elif selection == '4':
-                    filename = raw_input('Filename? ')
+                    filename = input('Filename? ')
                     self.exportDetailedList(filename)
                 elif selection == '5':
-                    date = raw_input('Number of date? ')
+                    date = input('Number of date? ')
                     rows = self.selectMembersByLastDownloadDate(date)
                     if rows is not None:
                         for row in rows:
@@ -812,48 +812,48 @@ class PixivDBManager(object):
                     else:
                         print('Not Found!\n')
                 elif selection == '6':
-                    image_id = raw_input('image_id? ')
+                    image_id = input('image_id? ')
                     row = self.selectImageByImageId(image_id)
                     if row is not None:
                         for string in row:
                             print('	', end=' ')
-                            PixivHelper.safePrint(unicode(string), False)
+                            PixivHelper.safePrint(str(string), False)
                         print('\n')
                     else:
                         print('Not Found!\n')
                 elif selection == '7':
-                    member_id = raw_input('member_id? ')
+                    member_id = input('member_id? ')
                     row = self.selectMemberByMemberId(member_id)
                     if row is not None:
                         for string in row:
                             print('	', end=' ')
-                            PixivHelper.safePrint(unicode(string), False)
+                            PixivHelper.safePrint(str(string), False)
                         print('\n')
                     else:
                         print('Not Found!\n')
                 elif selection == '8':
-                    member_id = raw_input('member_id? ')
+                    member_id = input('member_id? ')
                     rows = self.selectImageByMemberId(member_id)
                     if rows is not None:
                         for row in rows:
                             for string in row:
                                 print('	', end=' ')
-                                PixivHelper.safePrint(unicode(string), False)
+                                PixivHelper.safePrint(str(string), False)
                             print('\n')
                     else:
                         print('Not Found!\n')
                 elif selection == '9':
-                    member_id = raw_input('member_id? ')
+                    member_id = input('member_id? ')
                     self.deleteMemberByMemberId(member_id)
                 elif selection == '10':
-                    image_id = raw_input('image_id? ')
+                    image_id = input('image_id? ')
                     self.deleteImage(image_id)
                 elif selection == '11':
-                    member_id = raw_input('member_id? ')
+                    member_id = input('member_id? ')
                     self.deleteCascadeMemberByMemberId(member_id)
                 elif selection == '12':
-                    member_id = raw_input('member_id? ')
-                    image_id = raw_input('image_id? ')
+                    member_id = input('member_id? ')
+                    image_id = input('image_id? ')
                     self.blacklistImage(member_id, image_id)
                 elif selection == '13':
                     self.printMemberList(isDeleted=True)

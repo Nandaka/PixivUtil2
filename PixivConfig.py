@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 
-import ConfigParser
+
+import configparser
 import os
 import os.path
 import shutil
@@ -45,7 +45,7 @@ class PixivConfig(object):
     dateFormat = ''
 
     # generic Settings
-    rootDirectory = unicode('.')
+    rootDirectory = str('.')
     overwrite = False
     useList = False
     processFromDb = True
@@ -71,11 +71,11 @@ class PixivConfig(object):
     useLocalTimezone = False  # Issue #420
 
     # filename related
-    filenameFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
-    filenameMangaFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
-    filenameInfoFormat = unicode('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameFormat = str('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameMangaFormat = str('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
+    filenameInfoFormat = str('%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%')
     avatarNameFormat = ""
-    tagsSeparator = unicode(', ')
+    tagsSeparator = str(', ')
     createMangaDir = False
     useTagsAsDir = False
     urlDumpFilename = "url_list_%Y%m%d"
@@ -92,10 +92,10 @@ class PixivConfig(object):
 
     # IrfanView
     createDownloadLists = False
-    downloadListDirectory = unicode('.')
+    downloadListDirectory = str('.')
     startIrfanView = False
     startIrfanSlide = False
-    IrfanViewPath = unicode(r'C:\Program Files\IrfanView')
+    IrfanViewPath = str(r'C:\Program Files\IrfanView')
 
     # FFmpeg
     ffmpeg = "ffmpeg"
@@ -122,7 +122,7 @@ class PixivConfig(object):
 
         print('Reading', self.configFileLocation, '...')
         haveError = False
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         try:
             config.readfp(PixivHelper.OpenTextFile(self.configFileLocation))
 
@@ -207,7 +207,7 @@ class PixivConfig(object):
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
                     if _filenameMangaFormat.find('%page_index%') == -1 and _filenameMangaFormat.find('%page_number%') == -1:
                         print('No page identifier, appending %page_index% to the filename manga format.')
-                        _filenameMangaFormat = _filenameMangaFormat + unicode(' %page_index%')
+                        _filenameMangaFormat = _filenameMangaFormat + str(' %page_index%')
                         print("_filenameMangaFormat =", _filenameMangaFormat)
                         haveError = True
                 self.filenameMangaFormat = _filenameMangaFormat
@@ -613,7 +613,7 @@ class PixivConfig(object):
     def writeConfig(self, error=False, path=None):
         '''Backup old config if exist and write updated config.ini'''
         print('Writing config file...', end=' ')
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
 
         config.add_section('Network')
         config.set('Network', 'useProxy', self.useProxy)

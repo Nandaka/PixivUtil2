@@ -1,14 +1,13 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
+
 
 import sys
 import os
 import unittest
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import json
-import pytest
 
 import PixivHelper
 from PixivModelWhiteCube import PixivImage, PixivArtist
@@ -16,12 +15,12 @@ from PixivException import PixivException
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testParseLoginForm(self):
         p = open('./test/pixiv-whitecube-main.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(), features='lxml')
         init_config = page.find('input', attrs={'id': 'init-config'})
         js_init_config = json.loads(init_config['value'])
         self.assertIsNotNone(js_init_config)

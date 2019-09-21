@@ -25,7 +25,7 @@ class Fanbox(object):
     def parseSupportedArtists(self, js_body):
         self.supportedArtist = list()
         # Fix #495
-        if js_body.has_key("supportingPlans"):
+        if "supportingPlans" in js_body:
             js_body = js_body["supportingPlans"]
         for creator in js_body:
             self.supportedArtist.append(int(creator["user"]["userId"]))
@@ -47,7 +47,7 @@ class FanboxArtist(object):
         self._tzInfo = tzInfo
         js = demjson.decode(page)
 
-        if js.has_key("error") and js["error"]:
+        if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
 
         if js["body"] is not None:
@@ -56,10 +56,10 @@ class FanboxArtist(object):
     def parsePosts(self, js_body):
         self.posts = list()
 
-        if js_body.has_key("creator"):
+        if "creator" in js_body:
             self.artistName = js_body["creator"]["user"]["name"]
 
-        if js_body.has_key("post"):
+        if "post" in js_body:
             post_root = js_body["post"]
         else:
             # https://www.pixiv.net/ajax/fanbox/post?postId={0}
@@ -152,50 +152,50 @@ class FanboxPost(object):
         ''' Parse general data for text and article'''
         self.body_text = ""
         embedData = list()
-        if jsPost["body"].has_key("text"):
+        if "text" in jsPost["body"]:
             self.body_text = jsPost["body"]["text"]
 
         # Issue #438
-        if jsPost["body"].has_key("imageMap") and jsPost["body"]["imageMap"] is not None:
+        if "imageMap" in jsPost["body"] and jsPost["body"]["imageMap"] is not None:
             for image in jsPost["body"]["imageMap"]:
                 self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
                 self.embeddedFiles.append(jsPost["body"]["imageMap"][image]["originalUrl"])
 
-        if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
+        if "fileMap" in jsPost["body"] and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
             for filename in jsPost["body"]["fileMap"]:
                 self.images.append(jsPost["body"]["fileMap"][filename]["url"])
                 self.embeddedFiles.append(jsPost["body"]["fileMap"][filename]["url"])
 
-        if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
+        if "embedMap" in jsPost["body"] and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
             for embed in jsPost["body"]["embedMap"]:
                 embedData.append(jsPost["body"]["embedMap"][embed])
                 self.embeddedFiles.append(jsPost["body"]["embedMap"][embed])
 
-        if jsPost["body"].has_key("blocks") and jsPost["body"]["blocks"] is not None:
+        if "blocks" in jsPost["body"] and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
                 if block["type"] == "p":
-                    self.body_text = u"{0}<p>{1}</p>".format(self.body_text, block["text"])
+                    self.body_text = "{0}<p>{1}</p>".format(self.body_text, block["text"])
                 elif block["type"] == "image":
                     imageId = block["imageId"]
-                    self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
+                    self.body_text = "{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
                 elif block["type"] == "file":
                     fileId = block["fileId"]
-                    self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
+                    self.body_text = "{0}<br /><a href='{1}'>{2}</a>".format(
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
-                    self.body_text = u"{0}<br />{1}".format(
+                    self.body_text = "{0}<br />{1}".format(
                                      self.body_text,
                                      self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
 
         # Issue #476
-        if jsPost["body"].has_key("video"):
-            self.body_text = u"{0}<br />{1}".format(
+        if "video" in jsPost["body"]:
+            self.body_text = "{0}<br />{1}".format(
                              self.body_text,
                              self.getEmbedData(jsPost["body"]["video"], jsPost))
 
@@ -215,7 +215,7 @@ class FanboxPost(object):
 
             content_id = None
             for key in embed_cfg[current_provider]["keys"]:
-                if embedData.has_key(key):
+                if key in embedData:
                     content_id = embedData[key]
                     break
 
@@ -254,23 +254,23 @@ class FanboxPost(object):
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
             PixivHelper.GetLogger().exception("Error when saving image info: {0}, file is saved to: {1}.txt".format(filename, self.imageId))
 
-        info.write(u"ArtistID      = {0}\r\n".format(self.parent.artistId))
-        info.write(u"ArtistName    = {0}\r\n".format(self.parent.artistName))
+        info.write("ArtistID      = {0}\r\n".format(self.parent.artistId))
+        info.write("ArtistName    = {0}\r\n".format(self.parent.artistName))
 
-        info.write(u"ImageID       = {0}\r\n".format(self.imageId))
-        info.write(u"Title         = {0}\r\n".format(self.imageTitle))
-        info.write(u"Caption       = {0}\r\n".format(self.body_text))
+        info.write("ImageID       = {0}\r\n".format(self.imageId))
+        info.write("Title         = {0}\r\n".format(self.imageTitle))
+        info.write("Caption       = {0}\r\n".format(self.body_text))
         # info.write(u"Tags          = " + ", ".join(self.imageTags) + "\r\n")
         if self.is_restricted:
-            info.write(u"Image Mode    = {0}, Restricted\r\n".format(self.type))
+            info.write("Image Mode    = {0}, Restricted\r\n".format(self.type))
         else:
-            info.write(u"Image Mode    = {0}\r\n".format(self.type))
-        info.write(u"Pages         = {0}\r\n".format(self.imageCount))
-        info.write(u"Date          = {0}\r\n".format(self.worksDate))
+            info.write("Image Mode    = {0}\r\n".format(self.type))
+        info.write("Pages         = {0}\r\n".format(self.imageCount))
+        info.write("Date          = {0}\r\n".format(self.worksDate))
         # info.write(u"Resolution    = " + self.worksResolution + "\r\n")
         # info.write(u"Tools         = " + self.worksTools + "\r\n")
-        info.write(u"Like Count    = {0}\r\n".format(self.likeCount))
-        info.write(u"Link          = https://www.pixiv.net/fanbox/creator/{0}/post/{1}\r\n".format(self.parent.artistId, self.imageId))
+        info.write("Like Count    = {0}\r\n".format(self.likeCount))
+        info.write("Link          = https://www.pixiv.net/fanbox/creator/{0}/post/{1}\r\n".format(self.parent.artistId, self.imageId))
         # info.write("Ugoira Data   = " + str(self.ugoira_data) + "\r\n")
         if len(self.embeddedFiles) > 0:
             info.write("Urls          =\r\n")

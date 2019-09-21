@@ -1,7 +1,7 @@
 import requests
 import json
 from datetime import datetime
-import md5
+import hashlib
 
 import PixivHelper
 from PixivHelper import LocalUTCOffsetTimezone
@@ -59,7 +59,7 @@ class PixivOAuth(object):
         # fix #530
         time = "{0}{1}".format(datetime.now().isoformat()[:19], self._tzInfo)
         secret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
-        time_hash = md5.md5("{0}{1}".format(time, secret))
+        time_hash = hashlib.md5("{0}{1}".format(time, secret).encode("ascii"))
         return {'User-Agent': 'PixivAndroidApp/5.0.136 (Android 6.0; Google Pixel C - 6.0.0 - API 23 - 2560x1800)',
                        'Accept-Language': 'en_US',
                        'App-OS': 'android',

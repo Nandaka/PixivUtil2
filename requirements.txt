@@ -1,4 +1,4 @@
-BeautifulSoup>=3.2.1
+bs4>=4.0.0
 imageio>=2.1.2
 mechanize>=0.3.3
 numpy>=1.13.3

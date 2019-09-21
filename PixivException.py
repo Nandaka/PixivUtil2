@@ -48,4 +48,4 @@ class PixivException(Exception):
         import PixivHelper
         # return str(self.errorCode) + " " + repr(self.value)
         has_page = "Y" if self.htmlPage is not None and len(self.htmlPage) > 0 else "N"
-        return PixivHelper.toUnicode(u"{0} {1}, hasDumpPage={2}".format(self.errorCode, self.value, has_page))
+        return PixivHelper.toUnicode("{0} {1}, hasDumpPage={2}".format(self.errorCode, self.value, has_page))

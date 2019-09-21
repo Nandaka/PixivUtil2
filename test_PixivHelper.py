@@ -1,6 +1,6 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
+
 
 import os
 import unittest
@@ -11,18 +11,19 @@ from PixivModelWhiteCube import PixivImage
 from PixivModel import PixivArtist
 import PixivConfig
 
-from BeautifulSoup import BeautifulSoup
+import bs4
 
-import pytest
 
+def as_soup(text):
+    return bs4.BeautifulSoup(text, features='lxml')
 
 class TestPixivHelper(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testSanitizeFilename(self):
         rootDir = '.'
-        filename = u'12345.jpg'
+        filename = '12345.jpg'
         currentDir = os.path.abspath('.')
         expected = currentDir + os.sep + filename
 
@@ -33,7 +34,7 @@ class TestPixivHelper(unittest.TestCase):
 
     def testSanitizeFilename2(self):
         rootDir = '.'
-        filename = u'12345.jpg'
+        filename = '12345.jpg'
         currentDir = os.path.abspath('.')
         expected = currentDir + os.sep + filename
 
@@ -44,7 +45,7 @@ class TestPixivHelper(unittest.TestCase):
 
     def testCreateMangaFilename(self):
         p = open('./test/test-image-manga.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = as_soup(p.read())
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
         page.decompose()
@@ -60,24 +61,24 @@ class TestPixivHelper(unittest.TestCase):
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
-        expected = unicode(u'maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str('maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = unicode(u'maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str('maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = unicode(u'maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str('maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
     def testCreateFilenameUnicode(self):
         p = open('./test/test-image-unicode.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = as_soup(p.read())
         imageInfo = PixivImage(2493913, page)
         page.decompose()
         del page
@@ -91,14 +92,14 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
-        expected = unicode(u'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg')
+        expected = str('balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = ''
 ##        # change the config value
@@ -113,7 +114,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = ''
 ##        _config = PixivConfig.PixivConfig()
@@ -127,7 +128,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderWithRootDir3(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath('.')
 ##        _config = PixivConfig.PixivConfig()
@@ -140,7 +141,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderWithRootDir4(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath('.')
 ##        _config = PixivConfig.PixivConfig()
@@ -153,7 +154,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir5(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath(os.sep + 'images')
 ##        _config = PixivConfig.PixivConfig()
@@ -166,7 +167,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir6(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = as_soup(p.read())
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath(os.sep + 'images')
 ##        _config = PixivConfig.PixivConfig()
@@ -179,14 +180,14 @@ class TestPixivHelper(unittest.TestCase):
 
     def testParseLoginError(self):
         p = open('./test/test-login-error.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = as_soup(p.read())
         r = page.findAll('span', attrs={'class': 'error'})
         self.assertTrue(len(r) > 0)
-        self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
+        self.assertEqual('Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
 
     def testParseLoginForm(self):
         p = open('./test/test-login-form.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = as_soup(p.read())
         r = page.findAll('form', attrs={'action': '/login.php'})
         # print(r)
         self.assertTrue(len(r) > 0)

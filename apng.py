@@ -1,4 +1,4 @@
-u"""This is an APNG module, which can create apng file from pngs
+"""This is an APNG module, which can create apng file from pngs
 
 Reference:
 http://littlesvr.ca/apng/
@@ -6,15 +6,15 @@ http://wiki.mozilla.org/APNG_Specification
 https://www.w3.org/TR/PNG/
 """
 
-from __future__ import with_statement
-from __future__ import absolute_import
+
+
 import struct
 import binascii
 import itertools
 import io
 from io import open
 
-__version__ = u"0.1.0"
+__version__ = "0.1.0"
 
 try:
     import PIL.Image
@@ -26,22 +26,22 @@ PNG_SIGN = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
 
 
 def is_png(png):
-    u"""Test if @png is valid png file by checking signature
+    """Test if @png is valid png file by checking signature
 
     @png can be str of the filename, a file-like object, or a bytes object.
     """
-    if isinstance(png, unicode):
-        with open(png, u"rb") as f:
+    if isinstance(png, str):
+        with open(png, "rb") as f:
             png = f.read(8)
 
-    if hasattr(png, u"read"):
+    if hasattr(png, "read"):
         png = png.read(8)
 
     return png[:8] == PNG_SIGN
 
 
 def chunks_read(b):
-    u"""Parse PNG bytes into different chunks, yielding (type, data).
+    """Parse PNG bytes into different chunks, yielding (type, data).
 
     @type is a string of chunk type.
     @data is the bytes of the chunk. Including length, type, data, and crc.
@@ -50,14 +50,14 @@ def chunks_read(b):
     i = 8
     # yield chunks
     while i < len(b):
-        data_len, = struct.unpack(u"!I", b[i:i + 4])
-        type = b[i + 4:i + 8].decode(u"latin-1")
+        data_len, = struct.unpack("!I", b[i:i + 4])
+        type = b[i + 4:i + 8].decode("latin-1")
         yield type, b[i:i + data_len + 12]
         i += data_len + 12
 
 
 def chunks(png):
-    u"""Yield chunks from png.
+    """Yield chunks from png.
 
     @png can be a string of filename, a file-like object, or a bytes bject.
     """
@@ -66,19 +66,19 @@ def chunks(png):
         if isinstance(png, str):
             with io.BytesIO(png) as f:
                 with io.BytesIO() as f2:
-                    PIL.Image.open(f).save(f2, u"PNG", optimize=True)
+                    PIL.Image.open(f).save(f2, "PNG", optimize=True)
                     png = f2.getvalue()
         else:
             with io.BytesIO() as f2:
-                PIL.Image.open(png).save(f2, u"PNG", optimize=True)
+                PIL.Image.open(png).save(f2, "PNG", optimize=True)
                 png = f2.getvalue()
 
-    if isinstance(png, unicode):
+    if isinstance(png, str):
         # file name
-        with open(png, u"rb") as f:
+        with open(png, "rb") as f:
             png = f.read()
 
-    if hasattr(png, u"read"):
+    if hasattr(png, "read"):
         # file like
         png = png.read()
 
@@ -86,21 +86,21 @@ def chunks(png):
 
 
 def make_chunk(type, data):
-    u"""Create chunk with @type and chunk data @data.
+    """Create chunk with @type and chunk data @data.
 
     It will calculate length and crc for you. Return bytes.
 
     @type is str and @data is bytes.
     """
-    out = struct.pack(u"!I", len(data))
-    data = type.encode(u"latin-1") + data
+    out = struct.pack("!I", len(data))
+    data = type.encode("latin-1") + data
     crc32 = binascii.crc32(data)
-    out += data + struct.pack(u"!i", crc32)
+    out += data + struct.pack("!i", crc32)
     return out
 
 
 class PNG(object):
-    u"""Construct PNG image"""
+    """Construct PNG image"""
 
     def __init__(self):
         self.hdr = None
@@ -110,20 +110,20 @@ class PNG(object):
         self.chunks = []
 
     def init(self):
-        u"""Extract some info from chunks"""
+        """Extract some info from chunks"""
         for type, data in self.chunks:
-            if type == u"IHDR":
+            if type == "IHDR":
                 self.hdr = data
-            elif type == u"IEND":
+            elif type == "IEND":
                 self.end = data
 
         if self.hdr:
             # grab w, h info
-            self.width, self.height = struct.unpack(u"!II", self.hdr[8:16])
+            self.width, self.height = struct.unpack("!II", self.hdr[8:16])
 
     @classmethod
     def open(cls, file):
-        u"""Open a png from file. See chunks()."""
+        """Open a png from file. See chunks()."""
         o = cls()
         o.chunks = list(chunks(file))
         o.init()
@@ -131,7 +131,7 @@ class PNG(object):
 
     @classmethod
     def from_chunks(cls, chunks):
-        u"""Construct PNG from chunks.
+        """Construct PNG from chunks.
 
         @chunks is a list of (type, data) tuple. See chunks().
         """
@@ -141,23 +141,23 @@ class PNG(object):
         return o
 
     def to_bytes(self):
-        u"""Get bytes"""
+        """Get bytes"""
         chunks = [PNG_SIGN]
         chunks.extend(c[1] for c in self.chunks)
         return "".join(chunks)
 
     def save(self, file):
-        u"""Save to file. @file can be a str of filename or a file-like object.
+        """Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode):
-            with open(file, u"wb") as f:
+        if isinstance(file, str):
+            with open(file, "wb") as f:
                 f.write(self.to_bytes())
         else:
             file.write(self.to_bytes())
 
 
 class FrameControl(object):
-    u"""Construct fcTL info"""
+    """Construct fcTL info"""
 
     def __init__(self, width=None, height=None, x_offset=0, y_offset=0, delay=100, delay_den=1000, depose_op=1, blend_op=0):
         self.width = width
@@ -170,26 +170,26 @@ class FrameControl(object):
         self.blend_op = blend_op
 
     def to_bytes(self):
-        u"""Return bytes"""
-        return struct.pack(u"!IIIIHHbb", self.width, self.height, self.x_offset, self.y_offset, self.delay, self.delay_den, self.depose_op, self.blend_op)
+        """Return bytes"""
+        return struct.pack("!IIIIHHbb", self.width, self.height, self.x_offset, self.y_offset, self.delay, self.delay_den, self.depose_op, self.blend_op)
 
     @classmethod
     def from_bytes(cls, b):
-        u"""Contruct fcTL info from bytes.
+        """Contruct fcTL info from bytes.
 
         @b should be a 28 length bytes object, excluding sequence number and crc.
         """
-        return cls(*struct.unpack(u"!IIIIHHbb", b))
+        return cls(*struct.unpack("!IIIIHHbb", b))
 
 
 class APNG(object):
-    u"""Construct APNG image"""
+    """Construct APNG image"""
 
     def __init__(self):
         self.frames = []
 
     def append(self, png, **options):
-        u"""Append one frame.
+        """Append one frame.
 
         @png      See PNG.open.
         @options  See FrameControl.
@@ -203,7 +203,7 @@ class APNG(object):
         self.frames.append((png, control))
 
     def to_bytes(self):
-        u"""Return binary."""
+        """Return binary."""
 
         # grab the chunks we needs
         out = [PNG_SIGN]
@@ -216,21 +216,21 @@ class APNG(object):
         out.append(png.hdr)
 
         # acTL
-        out.append(make_chunk(u"acTL", struct.pack(u"!II", len(self.frames), 0)))
+        out.append(make_chunk("acTL", struct.pack("!II", len(self.frames), 0)))
 
         # tRNS.
         # FIXME: HoneyView need this chunk to render animation, but why?
         # HoneyView 5.16 #4750, 2016/02/05
-        out.append(make_chunk(u"tRNS", str(6)))
+        out.append(make_chunk("tRNS", str(6)))
 
         # fcTL
         if control:
-            out.append(make_chunk(u"fcTL", struct.pack(u"!I", seq) + control.to_bytes()))
+            out.append(make_chunk("fcTL", struct.pack("!I", seq) + control.to_bytes()))
             seq += 1
 
         # and others...
         for type, data in png.chunks:
-            if type in (u"IHDR", u"IEND"):
+            if type in ("IHDR", "IEND"):
                 continue
             out.append(data)
 
@@ -239,19 +239,19 @@ class APNG(object):
         for png, control in self.frames[1:]:
             # fcTL
             out.append(
-                make_chunk(u"fcTL", struct.pack(u"!I", seq) + control.to_bytes())
+                make_chunk("fcTL", struct.pack("!I", seq) + control.to_bytes())
             )
             seq += 1
 
             # and others...
             for type, data in png.chunks:
-                if type in (u"IHDR", u"IEND"):
+                if type in ("IHDR", "IEND"):
                     continue
 
                 # convert IDAT to fdAT
-                if type == u"IDAT":
+                if type == "IDAT":
                     out.append(
-                        make_chunk(u"fdAT", struct.pack(u"!I", seq) + data[8:-4])
+                        make_chunk("fdAT", struct.pack("!I", seq) + data[8:-4])
                     )
                     seq += 1
                 else:
@@ -264,7 +264,7 @@ class APNG(object):
 
     @classmethod
     def from_files(cls, files, **options):
-        u"""Create APNG instance from multiple files.
+        """Create APNG instance from multiple files.
 
         You can convert a series of image into apng by:
           APNG.from_files(files, delay=100).save(out_file_name)
@@ -282,12 +282,12 @@ class APNG(object):
 
     @classmethod
     def open(cls, file):
-        u"""Open a apng file.
+        """Open a apng file.
 
         @file can be a str of filename, a file-like object, or a bytes object.
         """
         hdr = None
-        end = (u"IEND", make_chunk(u"IEND", ""))
+        end = ("IEND", make_chunk("IEND", ""))
 
         frame_chunks = []
         frames = []
@@ -295,26 +295,26 @@ class APNG(object):
         control = None
 
         for type, data in PNG.open(file).chunks:
-            if type == u"IHDR":
+            if type == "IHDR":
                 hdr = data
                 frame_chunks.append((type, data))
-            elif type == u"acTL":
+            elif type == "acTL":
                 continue
-            elif type == u"fcTL":
-                if any(c[0] == u"IDAT" for c in frame_chunks):
+            elif type == "fcTL":
+                if any(c[0] == "IDAT" for c in frame_chunks):
                     # IDAT inside chunk
                     frame_chunks.append(end)
                     frames.append((PNG.from_chunks(frame_chunks), control))
 
                     control = FrameControl.from_bytes(data[12:-4])
-                    hdr = make_chunk(u"IHDR", struct.pack(u"!II", control.width, control.height) + hdr[16:-4])
-                    frame_chunks = [(u"IHDR", hdr)]
+                    hdr = make_chunk("IHDR", struct.pack("!II", control.width, control.height) + hdr[16:-4])
+                    frame_chunks = [("IHDR", hdr)]
                 else:
                     control = FrameControl.from_bytes(data[12:-4])
-            elif type == u"fdAT":
+            elif type == "fdAT":
                 # convert to IDAT
-                frame_chunks.append((u"IDAT", make_chunk(u"IDAT", data[12:-4])))
-            elif type == u"IEND":
+                frame_chunks.append(("IDAT", make_chunk("IDAT", data[12:-4])))
+            elif type == "IEND":
                 # end
                 frame_chunks.append(end)
                 frames.append((PNG.from_chunks(frame_chunks), control))
@@ -327,10 +327,10 @@ class APNG(object):
         return o
 
     def save(self, file):
-        u"""Save to file. @file can be a str of filename or a file-like object.
+        """Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode) or isinstance(file, str):
-            with open(file, u"wb") as f:
+        if isinstance(file, str) or isinstance(file, str):
+            with open(file, "wb") as f:
                 f.write(self.to_bytes())
         else:
             file.write(self.to_bytes())

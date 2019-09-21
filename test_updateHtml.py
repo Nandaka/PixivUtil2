@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
+
 
 import PixivUtil2
 import PixivBrowserFactory
@@ -17,7 +17,7 @@ def prepare():
     # Log in
     username = __config__.username
     if username == '':
-        username = raw_input('Username ? ')
+        username = input('Username ? ')
     password = __config__.password
     if password == '':
         password = getpass.getpass('Password ? ')
@@ -138,4 +138,4 @@ if __name__ == '__main__':
         main()
     except Exception as ex:
         print(ex)
-    raw_input("anykey")
+    input("anykey")

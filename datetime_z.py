@@ -132,7 +132,7 @@ def parse_date(value):
     """
     match = date_re.match(value)
     if match:
-        kw = {k: int(v) for k, v in match.groupdict().items()}
+        kw = {k: int(v) for k, v in list(match.groupdict().items())}
         return datetime.date(**kw)
 
 
@@ -150,7 +150,7 @@ def parse_time(value):
         kw = match.groupdict()
         if kw['microsecond']:
             kw['microsecond'] = kw['microsecond'].ljust(6, '0')
-        kw = {k: int(v) for k, v in kw.items() if v is not None}
+        kw = {k: int(v) for k, v in list(kw.items()) if v is not None}
         return datetime.time(**kw)
 
 
@@ -183,7 +183,7 @@ def parse_datetime(value):
             if tzinfo[0] == '-':
                 offset = -offset
             tzinfo = get_fixed_timezone(offset)
-        kw = {k: int(v) for k, v in kw.items() if v is not None}
+        kw = {k: int(v) for k, v in list(kw.items()) if v is not None}
         kw['tzinfo'] = tzinfo
         return datetime.datetime(**kw)
 
@@ -209,7 +209,7 @@ def parse_duration(value):
             kw['microseconds'] = kw['microseconds'].ljust(6, '0')
         if kw.get('seconds') and kw.get('microseconds') and kw['seconds'].startswith('-'):
             kw['microseconds'] = '-' + kw['microseconds']
-        kw = {k: float(v) for k, v in kw.items() if v is not None}
+        kw = {k: float(v) for k, v in list(kw.items()) if v is not None}
         return days + sign * datetime.timedelta(**kw)
 
 

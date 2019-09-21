@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603
-from __future__ import print_function
+
 
 import codecs
 import json
@@ -16,11 +16,11 @@ import tempfile
 import time
 import traceback
 import unicodedata
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 import imageio
 
@@ -115,7 +115,7 @@ def sanitizeFilename(s, rootDir=None):
         name = name[:newLen]
 
     # Remove unicode control character
-    if isinstance(name, unicode):
+    if isinstance(name, str):
         tempName = ""
         for c in name:
             if unicodedata.category(c) == 'Cc':
@@ -203,7 +203,7 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
     if tagsSeparator == '%ideo_space%':
-        tagsSeparator = u'\u3000'
+        tagsSeparator = '\u3000'
 
     if tagsLimit != -1:
         tagsLimit = tagsLimit if tagsLimit < len(imageInfo.imageTags) else len(imageInfo.imageTags)
@@ -293,7 +293,7 @@ def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfa
             Logger.info(ivcommand)
             subprocess.Popen(ivcommand, startupinfo=info)
     else:
-        print_and_log('error', u'could not load' + dfilename)
+        print_and_log('error', 'could not load' + dfilename)
 
 
 def OpenTextFile(filename, mode='r', encoding='utf-8'):
@@ -323,14 +323,14 @@ def OpenTextFile(filename, mode='r', encoding='utf-8'):
 
 
 def toUnicode(obj, encoding='utf-8'):
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
+    if isinstance(obj, str):
+        if not isinstance(obj, str):
+            obj = str(obj, encoding)
     return obj
 
 
 def uni_input(message=''):
-    result = raw_input(message)
+    result = input(message)
     return toUnicode(result, encoding=sys.stdin.encoding)
 
 
@@ -382,9 +382,9 @@ def module_path():
   even if we are frozen using py2exe"""
 
     if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+        return os.path.dirname(sys.executable)
 
-    return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
+    return os.path.dirname(__file__)
 
 
 def speedInStr(totalSize, totalTime):
@@ -479,9 +479,9 @@ def getIdsFromCsv(ids_str, sep=','):
                 _id = int(temp)
                 ids.append(_id)
             except BaseException:
-                print_and_log('error', u"ID: {0} is not valid".format(id_str))
+                print_and_log('error', "ID: {0} is not valid".format(id_str))
     if len(ids) > 1:
-        print_and_log('info', u"Found {0} ids".format(len(ids)))
+        print_and_log('info', "Found {0} ids".format(len(ids)))
     return ids
 
 
@@ -502,7 +502,7 @@ def unescape_charref(data, encoding):
             result = int(name, base)
         except BaseException:
             base = 16
-        uc = unichr(int(name, base))
+        uc = chr(int(name, base))
         if encoding is None:
             return uc
         else:
@@ -523,14 +523,14 @@ def getUgoiraSize(ugoName):
             size = json.loads(animJson)['zipSize']
             z.close()
     except BaseException:
-        print_and_log('error', u'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
+        print_and_log('error', 'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
         size = os.path.getsize(ugoName)
     return size
 
 
 def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
-        print_and_log('info', u"\tFile exist! (Identical Size)")
+        print_and_log('info', "\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
     # elif int(file_size) < old_size:
     #    printAndLog('info', "\tFile exist! (Local is larger)")
@@ -541,16 +541,16 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:
                 new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-            print_and_log('info', u"\t Found file with different file size, backing up to: " + new_name)
+            print_and_log('info', "\t Found file with different file size, backing up to: " + new_name)
             os.rename(filename, new_name)
         else:
-            print_and_log('info', u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
+            print_and_log('info', "\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
             os.remove(filename)
         return PixivConstant.PIXIVUTIL_OK
 
 
 def printDelay(retryWait):
-    repeat = range(1, retryWait)
+    repeat = list(range(1, retryWait))
     for t in repeat:
         print(t, end=' ')
         time.sleep(1)
@@ -559,13 +559,13 @@ def printDelay(retryWait):
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
     if config.useProxy:
-        proxy = urllib2.ProxyHandler(config.proxy)
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
-    req = urllib2.Request(url)
+        proxy = urllib.request.ProxyHandler(config.proxy)
+        opener = urllib.request.build_opener(proxy)
+        urllib.request.install_opener(opener)
+    req = urllib.request.Request(url)
 
     req.add_header('Referer', referer)
-    print_and_log('info', u"Using Referer: " + str(referer))
+    print_and_log('info', "Using Referer: " + str(referer))
 
     if head:
         req.get_method = lambda: 'HEAD'
@@ -578,7 +578,7 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
 def makeSubdirs(filename):
     directory = os.path.dirname(filename)
     if not os.path.exists(directory) and len(directory) > 0:
-        print_and_log('info', u'Creating directory: ' + directory)
+        print_and_log('info', 'Creating directory: ' + directory)
         os.makedirs(directory)
 
 
@@ -591,14 +591,14 @@ def downloadImage(url, filename, res, file_size, overwrite):
         makeSubdirs(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
     except IOError:
-        print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
+        print_and_log('error', "Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
 
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
         save = file(filename + '.pixiv', 'wb+', 4096)
-        print_and_log('info', u'File is saved to ' + filename)
+        print_and_log('info', 'File is saved to ' + filename)
 
     # download the file
     prev = 0
@@ -613,12 +613,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
+                print(' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
+                print(' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
                 break
 
             prev = curr
@@ -633,15 +633,15 @@ def downloadImage(url, filename, res, file_size, overwrite):
         completed = True
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
-            print_and_log('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            print_and_log('error', u'Filename = ' + unicode(filename))
-            print_and_log('error', u'URL      = {0}'.format(url))
+            print_and_log('error', 'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
+            print_and_log('error', 'Filename = ' + str(filename))
+            print_and_log('error', 'URL      = {0}'.format(url))
             completed = False
         elif curr == 0:
             # No data received.
-            print_and_log('error', u'No data received!')
-            print_and_log('error', u'Filename = ' + unicode(filename))
-            print_and_log('error', u'URL      = {0}'.format(url))
+            print_and_log('error', 'No data received!')
+            print_and_log('error', 'Filename = ' + str(filename))
+            print_and_log('error', 'URL      = {0}'.format(url))
             completed = False
 
         if completed:
@@ -688,14 +688,14 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     else:
         if title_caption:
             url = 'https://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
-            print(u"Using Title Match (s_tc)")
+            print("Using Title Match (s_tc)")
         else:
             if wild_card:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print(u"Using Partial Match (s_tag)")
+                print("Using Partial Match (s_tag)")
             else:
                 url = 'https://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
-                print(u"Using Full Match (s_tag_full)")
+                print("Using Full Match (s_tag_full)")
 
     if r18mode:
         url = url + '&mode=r18'
@@ -706,7 +706,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
         url = url + '&order=date_d'
 
     # encode to ascii
-    url = unicode(url).encode('iso_8859_1')
+    url = str(url).encode('iso_8859_1')
 
     return url
 
@@ -810,7 +810,7 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
 def ugoira2webm(ugoira_file,
                 exportname,
                 delete_ugoira,
-                ffmpeg=u"ffmpeg",
+                ffmpeg="ffmpeg",
                 codec="libvpx-vp9",
                 param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
                 extension="webm",
@@ -825,7 +825,7 @@ def ugoira2webm(ugoira_file,
 
         if exportname is None or len(exportname) == 0:
             name = '.'.join(ugoira_file.split('.')[:-1])
-            exportname = u"{0}.{1}".format(os.path.basename(name), extension)
+            exportname = "{0}.{1}".format(os.path.basename(name), extension)
 
         tempname = d + "/temp." + extension
 
@@ -845,14 +845,14 @@ def ugoira2webm(ugoira_file,
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
 
-        cmd = u"{0} -y -i \"{1}/i.ffconcat\" -c:v {2} {3} \"{4}\""
+        cmd = "{0} -y -i \"{1}/i.ffconcat\" -c:v {2} {3} \"{4}\""
         cmd = cmd.format(ffmpeg, d, codec, param, tempname)
         ffmpeg_args = shlex.split(cmd)
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
         chatter = ""
-        print_and_log('info', u"Start encoding {0}".format(exportname))
+        print_and_log('info', "Start encoding {0}".format(exportname))
         while p.stderr:
             buff = p.stderr.read(1)
             chatter += buff
@@ -891,15 +891,15 @@ def ParseDateTime(worksDate, dateFormat):
             GetLogger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
             raise
     else:
-        worksDate = worksDate.replace(u'/', u'-')
+        worksDate = worksDate.replace('/', '-')
         if worksDate.find('-') > -1:
             try:
-                worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
+                worksDateDateTime = datetime.strptime(worksDate, '%m-%d-%Y %H:%M')
             except ValueError as ve:
                 GetLogger().exception('Error when parsing datetime: %s', worksDate)
-                worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
+                worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], '%Y-%m-%d')
         else:
-            tempDate = worksDate.replace(u'年', '-').replace(u'月', '-').replace(u'日', '')
+            tempDate = worksDate.replace('年', '-').replace('月', '-').replace('日', '')
             worksDateDateTime = datetime.strptime(tempDate, '%Y-%m-%d %H:%M')
 
     return worksDateDateTime
@@ -910,11 +910,11 @@ def encode_tags(tags):
         try:
             # Encode the tags
             tags = tags.encode('utf-8')
-            tags = urllib.quote_plus(tags)
+            tags = urllib.parse.quote_plus(tags)
         except UnicodeDecodeError:
             try:
                 # from command prompt
-                tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
+                tags = urllib.parse.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError:
                 print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
     return tags
@@ -938,7 +938,7 @@ def decode_tags(tags):
     # decode tags.
     try:
         if tags.startswith("%"):
-            search_tags = toUnicode(urllib.unquote_plus(tags))
+            search_tags = toUnicode(urllib.parse.unquote_plus(tags))
         else:
             search_tags = toUnicode(tags)
     except UnicodeDecodeError:
