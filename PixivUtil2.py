@@ -281,7 +281,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
                 # write to downloaded lists
                 if start_iv or __config__.createDownloadLists:
-                    dfile = codecs.open(dfilename, 'a+', encoding='utf-8-sig')
+                    dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
                     dfile.write(filename + "\n")
                     dfile.close()
 
@@ -2264,7 +2264,14 @@ def main():
     if not os.path.exists(directory):
         os.makedirs(directory)
         __log__.info('Creating directory: %s', directory)
-
+	
+    # write BOM
+    if start_iv or __config__.createDownloadLists:
+        if not os.path.isfile(dfilename) or os.path(dfilename).getsize == 0:
+            dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
+            dfile.write(u'\ufeff')
+            dfile.close()
+  
     # Yavos: adding IrfanView-Handling
     start_irfan_slide = False
     start_irfan_view = False
