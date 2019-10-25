@@ -281,7 +281,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
                 # write to downloaded lists
                 if start_iv or __config__.createDownloadLists:
-                    dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
+                    dfile = codecs.open(dfilename, 'a+', encoding='utf-8-sig')
                     dfile.write(filename + "\n")
                     dfile.close()
 
