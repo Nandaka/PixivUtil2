@@ -267,9 +267,20 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         import zipfile
                         fp = open(filename, "rb")
                         zf = zipfile.ZipFile(fp)
-                        zf.testzip()
+                        check_result = None
+                        try:
+                            check_result = zf.testzip()
+                        except RuntimeError as e:
+                            if 'encrypted' in str(e):
+                                PixivHelper.print_and_log('info', ' archive is encrypted, cannot verify.')
+                            else:
+                                raise
                         fp.close()
-                        PixivHelper.print_and_log('info', ' Image verified.')
+                        if check_result is None:
+                            PixivHelper.print_and_log('info', ' Image verified.')
+                        else:
+                            PixivHelper.print_and_log('info', ' Corrupted file in archive: {0}.'.format(check_result))
+                            raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
                     except BaseException:
                         if fp is not None:
                             fp.close()
@@ -1341,6 +1352,7 @@ def process_from_group(group_id, limit=0, process_external=True):
                     filename = PixivHelper.sanitizeFilename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
+                    PixivHelper.GetLogger().debug("Download %s result: %s", filename, result)
                     if __config__.setLastModified and filename is not None and os.path.isfile(filename):
                         ts = time.mktime(image_data.worksDateDateTime.timetuple())
                         os.utime(filename, (ts, ts))
@@ -1916,6 +1928,7 @@ def processFanboxArtist(artist_id, end_page):
                                                     __config__.overwrite,
                                                     __config__.retry,
                                                     __config__.backupOldFile)
+                PixivHelper.GetLogger().debug("Download %s result: %s", filename, result)
 
             else:
                 PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
@@ -1976,6 +1989,7 @@ def processFanboxImages(post, result_artist):
                                                 False,  # __config__.overwrite somehow unable to get remote filesize
                                                 __config__.retry,
                                                 __config__.backupOldFile)
+            PixivHelper.GetLogger().debug("Download %s result: %s", filename, result)
 
             __config__.alwaysCheckFileSize = _oldvalue
             current_page = current_page + 1
