@@ -82,7 +82,8 @@ class FanboxPost(object):
     worksDate = ""
     worksDateDateTime = None
     updatedDatetime = ""
-    # image|text|file|article|video
+    # image|text|file|article|video|entry
+    _supportedType = ["image", "text", "file", "article", "video", "entry"]
     type = ""
     body_text = ""
     images = None
@@ -103,7 +104,6 @@ class FanboxPost(object):
     bookmark_count = 0
     image_response_count = 0
 
-    _supportedType = ["image", "text", "file", "article", "video"]
     embeddedFiles = None
     provider = None
 
@@ -154,6 +154,11 @@ class FanboxPost(object):
         embedData = list()
         if jsPost["body"].has_key("text"):
             self.body_text = jsPost["body"]["text"]
+        # Issue #544
+        elif jsPost["body"].has_key("html"):
+            self.body_text = jsPost["body"]["html"]
+        if jsPost["body"].has_key("thumbnailUrl") and jsPost["body"]["thumbnailUrl"] is not None:
+            self.embeddedFiles.append(jsPost["body"]["thumbnailUrl"])
 
         # Issue #438
         if jsPost["body"].has_key("imageMap") and jsPost["body"]["imageMap"] is not None:

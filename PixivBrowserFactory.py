@@ -5,7 +5,6 @@ from __future__ import print_function
 import cookielib
 import httplib
 import json
-import mechanize
 import re
 import socket
 import sys
@@ -13,6 +12,7 @@ import time
 import urllib
 import urllib2
 import urlparse
+import mechanize
 from BeautifulSoup import BeautifulSoup
 
 import demjson
