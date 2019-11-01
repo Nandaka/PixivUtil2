@@ -267,16 +267,29 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     fp = None
                     try:
                         import zipfile
-                        fp = open(filename, "rb")
+                        fp = open(filename_save, "rb")
                         zf = zipfile.ZipFile(fp)
+                        check_result = None
+                        try:
+                            check_result = zf.testzip()
+                        except RuntimeError as e:
+                            if 'encrypted' in str(e):
+                                PixivHelper.print_and_log('info', ' archive is encrypted, cannot verify.')
+                            else:
+                                raise
                         zf.testzip()
                         fp.close()
+                        if check_result is None:
+                            PixivHelper.print_and_log('info', ' Image verified.')
+                        else:
+                            PixivHelper.print_and_log('info', ' Corrupted file in archive: {0}.'.format(check_result))
+                            raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
                         PixivHelper.print_and_log('info', ' Image verified.')
                     except BaseException:
                         if fp is not None:
                             fp.close()
                         PixivHelper.print_and_log('info', ' Image invalid, deleting...')
-                        os.remove(filename_name)
+                        os.remove(filename_save)
                         raise
                 else:
                     PixivHelper.print_and_log('info', ' done.')
@@ -290,6 +303,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 return (PixivConstant.PIXIVUTIL_OK, filename)
 
             except urllib2.HTTPError as httpError:
+                PixivHelper.print_and_log('error', '[download_image()] HTTP Error: {0} at {1}'.format(str(httpError), url))
+                if httpError.code == 404 or httpError.code == 502 or httpError.code == 500:
+                    return (PixivConstant.PIXIVUTIL_NOT_OK, None)
+                temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
+                raise
+            except urllib2.URLError as urlError:
                 PixivHelper.print_and_log('error', '[download_image()] URL Error: {0} at {1}'.format(str(urlError), url))
                 temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
