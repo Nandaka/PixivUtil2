@@ -277,14 +277,12 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                                 PixivHelper.print_and_log('info', ' archive is encrypted, cannot verify.')
                             else:
                                 raise
-                        zf.testzip()
                         fp.close()
                         if check_result is None:
                             PixivHelper.print_and_log('info', ' Image verified.')
                         else:
                             PixivHelper.print_and_log('info', ' Corrupted file in archive: {0}.'.format(check_result))
                             raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
-                        PixivHelper.print_and_log('info', ' Image verified.')
                     except BaseException:
                         if fp is not None:
                             fp.close()
