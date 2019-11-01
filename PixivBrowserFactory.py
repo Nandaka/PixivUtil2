@@ -134,6 +134,12 @@ class PixivBrowser(mechanize.Browser):
             defaultCookieJar = cookielib.LWPCookieJar()
         defaultCookieJar.set_cookie(cookie)
 
+    def clearCookie(self):
+        global defaultCookieJar
+        if defaultCookieJar is None:
+            defaultCookieJar = cookielib.LWPCookieJar()
+        defaultCookieJar.clear()
+
     def open_with_retry(self, url, data=None,
                         timeout=mechanize._sockettimeout._GLOBAL_DEFAULT_TIMEOUT,
                         retry=0):
@@ -233,8 +239,9 @@ class PixivBrowser(mechanize.Browser):
 
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
+            self.clearCookie()
             self._loadCookie(login_cookie)
-            res = self.open_with_retry('https://www.pixiv.net/mypage.php')
+            res = self.open_with_retry('https://www.pixiv.net/')
             resData = res.read()
 
             parsed = BeautifulSoup(resData)
