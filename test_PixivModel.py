@@ -2,14 +2,14 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+import unittest
+
+from BeautifulSoup import BeautifulSoup
+
 from PixivModel import PixivArtist, PixivBookmark, PixivNewIllustBookmark, PixivTags, PixivGroup
 from PixivModelWhiteCube import PixivImage
 from PixivBrowserFactory import PixivBrowser
 from PixivException import PixivException
-from BeautifulSoup import BeautifulSoup
-from mechanize import Browser
-import os
-import unittest
 
 
 class MockPixivBrowser(PixivBrowser):
@@ -17,7 +17,6 @@ class MockPixivBrowser(PixivBrowser):
 
     def __init__(self, mode):
         self.mode = mode
-        pass
 
     def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
         if self.mode == 1:
@@ -25,7 +24,7 @@ class MockPixivBrowser(PixivBrowser):
             page = BeautifulSoup(p.read())
             return page
         else:
-            ''' fake the manga page '''
+            # fake the manga page
             pageNo = url.split("=")[-1]
             p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
             page = BeautifulSoup(p.read())
@@ -412,7 +411,7 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-image-nologin.htm', 'r')
         page = BeautifulSoup(p.read())
         try:
-            image = PixivImage(9138317, page)
+            image = PixivImage(67089412, page)
             self.assertRaises(PixivException)
         except PixivException as ex:
             self.assertEqual(ex.errorCode, PixivException.NOT_LOGGED_IN)
