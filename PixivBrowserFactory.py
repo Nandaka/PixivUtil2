@@ -311,7 +311,7 @@ class PixivBrowser(mechanize.Browser):
         else:
             if result["body"] is not None and result["body"].has_key("validation_errors"):
                 PixivHelper.print_and_log('info', "Server reply: " + str(result["body"]["validation_errors"]))
-                if str(result["body"]["validation_errors"]).find("reCAPTCHA" > 0):
+                if str(result["body"]["validation_errors"]).find("reCAPTCHA") > 0:
                     print("Please follow the method described in https://github.com/Nandaka/PixivUtil2/issues/505")
             else:
                 PixivHelper.print_and_log('info', 'Unknown login issue, please use cookie login method.')
