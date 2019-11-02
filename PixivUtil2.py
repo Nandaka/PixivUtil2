@@ -147,7 +147,7 @@ def get_remote_filesize(url, referer):
     except KeyError:
         file_size = -1
         PixivHelper.print_and_log('info', "\tNo file size information!")
-    except mechanize.HTTPError, e:
+    except mechanize.HTTPError as e:
         # fix Issue #503
         # handle http errors explicit by code
         if int(e.code) in (404, 500):
@@ -161,13 +161,22 @@ def get_remote_filesize(url, referer):
 
 
 # -T04------For download file
-#issue 548 fix
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image=None, page=None):
     '''return download result and filename if ok'''
     global ERROR_CODE
     temp_error_code = None
     retry_count = 0
-    filename_save = filename.encode('utf-8')#For file operations, force the usage of a utf-8 encode filename
+
+    # Issue #548
+    filename_save = filename
+    try:
+        PixivHelper.makeSubdirs(filename_save)
+        test_utf = file(filename_save + '.test', "wb")
+        test_utf.close()
+        os.remove(filename_save + '.test')
+    except UnicodeEncodeError:
+        filename_save = filename.encode('utf-8')  # For file operations, force the usage of a utf-8 encode filename
+
     while retry_count <= max_retry:
         res = None
         req = None
@@ -177,7 +186,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     print('\rChecking local filename...', end=' ')
                     if os.path.exists(filename_save) and os.path.isfile(filename_save):
                         PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename.encode('utf-8')))
-                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save )
+                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 file_size = get_remote_filesize(url, referer)
 
@@ -241,7 +250,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 # set last-modified and last-accessed timestamp
                 if image is not None and __config__.setLastModified and filename_save is not None and os.path.isfile(filename_save):
                     ts = time.mktime(image.worksDateDateTime.timetuple())
-                    os.utime(filename_save ,(ts, ts))
+                    os.utime(filename_save, (ts, ts))
 
                 # check the downloaded file size again
                 if file_size > 0 and downloadedSize != file_size:
