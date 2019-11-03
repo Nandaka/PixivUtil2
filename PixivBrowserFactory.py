@@ -170,30 +170,27 @@ class PixivBrowser(mechanize.Browser):
             throw PixivException as server error
         '''
         url = self.fixUrl(url)
-        retry_count = 0
         while True:
             req = urllib2.Request(url)
             req.add_header('Referer', referer)
-            try:
-                page = self.open_with_retry(req)
-                if returnParsed:
-                    parsedPage = BeautifulSoup(page.read())
-                    return parsedPage
-                else:
-                    return page
-            except urllib2.HTTPError as ex:
-                if ex.code in [403, 404, 503]:
-                    return BeautifulSoup(ex.read())
-            except BaseException:
-                if retry_count < self._config.retry:
-                    for t in range(1, self._config.retryWait):
-                        print(t, end=' ')
-                        time.sleep(1)
-                    print('')
-                    retry_count = retry_count + 1
-                else:
+
+            read_page = self._get_from_cache(url)
+            if read_page is None:
+                try:
+                    temp = self.open_with_retry(req)
+                    read_page = temp.read()
+                    self._put_to_cache(url, read_page)
+                except urllib2.HTTPError as ex:
+                    if ex.code in [403, 404, 503]:
+                        read_page = ex.read()
+                except BaseException:
                     PixivHelper.print_and_log('error', 'Error at getPixivPage(): {0}'.format(str(sys.exc_info())))
                     raise PixivException("Failed to get page: {0}".format(url), errorCode=PixivException.SERVER_ERROR)
+
+            if returnParsed:
+                parsedPage = BeautifulSoup(read_page)
+                return parsedPage
+            return read_page
 
     def fixUrl(self, url, useHttps=True):
         # url = str(url)
@@ -353,8 +350,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
         # https://www.pixiv.net/en/artworks/76656661
         url = "https://www.pixiv.net/{1}/artworks/{0}".format(image_id, self._locale)
-        # response = self.open(url).read()
-        response = self.getPixivPage(url, returnParsed=False).read()
+        response = self.getPixivPage(url, returnParsed=False)
         self.handleDebugMediumPage(response, image_id)
 
         # Issue #355 new ui handler
@@ -561,8 +557,7 @@ class PixivBrowser(mechanize.Browser):
                                                    self._config.r18mode)
 
             PixivHelper.print_and_log('info', 'Looping... for ' + url)
-            # response = self.open(url).read()
-            response = self.getPixivPage(url, returnParsed=False).read()
+            response = self.getPixivPage(url, returnParsed=False)
             self.handleDebugTagSearchPage(response, url)
 
             result = None

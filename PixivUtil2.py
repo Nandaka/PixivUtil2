@@ -662,7 +662,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
     parse_medium_page = None
     image = None
     result = None
-    referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(image_id)
+    referer = 'https://www.pixiv.net/artworks/{0}'.format(image_id)
     filename = u'no-filename-{0}.tmp'.format(image_id)
 
     try:
@@ -759,7 +759,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             # get bookmark count
             if ("%bookmark_count%" in __config__.filenameFormat or "%image_response_count%" in __config__.filenameFormat) and image.bookmark_count == -1:
                 print("Parsing bookmark page", end=' ')
-                bookmark_url = 'https://www.pixiv.net/bookmark_detail.php?illust_id=' + str(image_id)
+                bookmark_url = 'https://www.pixiv.net/bookmark_detail.php?illust_id={0}'.format(image_id)
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
                 image.ParseBookmarkDetails(parse_bookmark_page)
                 parse_bookmark_page.decompose()
@@ -776,7 +776,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             if image.imageMode == 'manga' or image.imageMode == 'big':
                 while True:
                     try:
-                        big_url = 'https://www.pixiv.net/member_illust.php?mode={0}&illust_id={1}'.format(image.imageMode, image_id)
+                        big_url = 'https://www.pixiv.net/{1}/artworks/{0}'.format(image_id, PixivBrowserFactory.getBrowser()._locale)
                         parse_big_image = PixivBrowserFactory.getBrowser().getPixivPage(big_url, referer)
                         if parse_big_image is not None:
                             image.ParseImages(page=parse_big_image, _br=PixivBrowserFactory.getExistingBrowser())
@@ -1010,8 +1010,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                     last_image_id = item.imageId
                     print('Image #' + str(images))
                     print('Image Id:', str(item.imageId))
-                    print('Bookmark Count:', str(item.bookmarkCount))
                     if bookmark_count is not None and bookmark_count > item.bookmarkCount:
+                        print('Bookmark Count:', str(item.bookmarkCount))
                         PixivHelper.print_and_log('info', 'Skipping imageId= {0} because less than bookmark count limit ({1} > {2}).'.format(item.imageId, bookmark_count, item.bookmarkCount))
                         skipped_count = skipped_count + 1
                         continue
@@ -1081,7 +1081,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                 if last_image_id > 0:
                     # get the last date
                     PixivHelper.print_and_log('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
-                    referer = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + str(last_image_id)
+                    referer = 'https://www.pixiv.net/en/artworks/{0}'.format(last_image_id)
                     parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
                     image = PixivImage(iid=last_image_id, page=parse_medium_page, dateFormat=__config__.dateFormat)
                     _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
