@@ -685,7 +685,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     if end_date is not None:
         date_param = date_param + "&ecd=" + end_date
     if page is not None and int(page) > 1:
-        page_param = "&page={0}".format(page)
+        page_param = "&p={0}".format(page)
 
     if member_id is not None:
         url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
