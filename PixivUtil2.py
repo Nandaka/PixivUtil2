@@ -776,7 +776,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             if image.imageMode == 'manga' or image.imageMode == 'big':
                 while True:
                     try:
-                        big_url = 'https://www.pixiv.net/{1}/artworks/{0}'.format(image_id, PixivBrowserFactory.getBrowser()._locale)
+                        big_url = 'https://www.pixiv.net{1}/artworks/{0}'.format(image_id, PixivBrowserFactory.getBrowser()._locale)
                         parse_big_image = PixivBrowserFactory.getBrowser().getPixivPage(big_url, referer)
                         if parse_big_image is not None:
                             image.ParseImages(page=parse_big_image, _br=PixivBrowserFactory.getExistingBrowser())

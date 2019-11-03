@@ -42,7 +42,7 @@ class PixivBrowser(mechanize.Browser):
     _username = None
     _password = None
     _oauth_manager = None
-    _locale = "en"
+    _locale = "/en"
 
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -250,8 +250,11 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
                 self.getMyId(parsed)
-                self._locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
+                temp_locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
+                if len(temp_locale) > 0:
+                    self._locale = '/' + temp_locale
                 PixivHelper.GetLogger().info('Locale = %s', self._locale)
+
                 return True
             else:
                 PixivHelper.GetLogger().info('Failed to log in using cookie')
@@ -350,7 +353,7 @@ class PixivBrowser(mechanize.Browser):
         response = None
         PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
         # https://www.pixiv.net/en/artworks/76656661
-        url = "https://www.pixiv.net/{1}/artworks/{0}".format(image_id, self._locale)
+        url = "https://www.pixiv.net{1}/artworks/{0}".format(image_id, self._locale)
         response = self.getPixivPage(url, returnParsed=False)
         self.handleDebugMediumPage(response, image_id)
 
