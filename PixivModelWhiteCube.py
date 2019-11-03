@@ -342,7 +342,7 @@ class PixivTags(PixivModel.PixivTags):
         for image in artist.imageList:
             self.itemList.append(PixivModel.PixivTagsItem(int(image), 0, 0))
 
-    def parseTags(self, page, query=""):
+    def parseTags(self, page, query="", curr_page=1):
         payload = json.loads(page)
         self.query = query
 
@@ -350,30 +350,27 @@ class PixivTags(PixivModel.PixivTags):
         if payload["error"]:
             raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
 
-        # parse image information
-        parsed = BeautifulSoup(payload["body"]["html"])
+        # parse images information
         self.itemList = list()
-        images = parsed.findAll("div", attrs={"class": self.__re_imageItemClass})
-        for item in images:
-            thumbnail_container = item.find("div", attrs={"class": "thumbnail-container"})
-            image_details = thumbnail_container.find("a", attrs={"class": "_work-modal-target user-activity"})
-            image_id = image_details["data-work-id"]
+        for item in payload["body"]["illustManga"]["data"]:
+            if item["isAdContainer"]:
+                continue
 
-            # like count
-            status_container = thumbnail_container.find("div", attrs={"class": "status-container"})
-            bookmarkCount = status_container.text
-
+            image_id = item["id"]
+            # like count not available anymore, need to call separate request...
+            bookmarkCount = 0
             imageResponse = 0
-            self.itemList.append(PixivModel.PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
+            tag_item = PixivModel.PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse))
+            self.itemList.append(tag_item)
 
+        self.haveImage = False
         if len(self.itemList) > 0:
             self.haveImage = True
-        else:
-            self.haveImage = False
 
         # search page info
-        self.availableImages = int(payload["body"]["total"])
-        if len(payload["body"]["next_url"]) > 0:
+        self.availableImages = int(payload["body"]["illustManga"]["total"])
+        # assuming there are only 47 image (1 is marked as ad)
+        if self.availableImages > 47 * curr_page:
             self.isLastPage = False
         else:
             self.isLastPage = True

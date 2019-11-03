@@ -980,6 +980,9 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
         images = 1
         last_image_id = -1
         skipped_count = 0
+        use_bookmark_data = False
+        if bookmark_count is not None and bookmark_count > 0:
+            use_bookmark_data = True
 
         offset = 20
         if __br__._isWhitecube:
@@ -997,7 +1000,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                                                   end_date,
                                                   member_id,
                                                   oldest_first,
-                                                  page)
+                                                  page,
+                                                  use_bookmark_data)
             if len(t.itemList) == 0:
                 print('No more images')
                 flag = False

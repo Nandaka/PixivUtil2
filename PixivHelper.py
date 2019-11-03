@@ -678,32 +678,39 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
                          r18mode=False):
     url = ""
     date_param = ""
+    page_param = ""
+
     if start_date is not None:
         date_param = date_param + "&scd=" + start_date
     if end_date is not None:
         date_param = date_param + "&ecd=" + end_date
+    if page is not None and int(page) > 1:
+        page_param = "&page={0}".format(page)
 
     if member_id is not None:
         url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
     else:
+        root_url = 'https://www.pixiv.net/ajax/search/artworks'
+        search_mode = ""
         if title_caption:
-            url = 'https://www.pixiv.net/search.php?s_mode=s_tc&p=' + str(page) + '&word=' + tags + date_param
+            search_mode = '&s_mode=s_tc'
             print(u"Using Title Match (s_tc)")
+        elif wild_card:
+            # partial match
+            print(u"Using Partial Match (s_tag)")
         else:
-            if wild_card:
-                url = 'https://www.pixiv.net/search.php?s_mode=s_tag&p=' + str(page) + '&word=' + tags + date_param
-                print(u"Using Partial Match (s_tag)")
-            else:
-                url = 'https://www.pixiv.net/search.php?s_mode=s_tag_full&word=' + tags + '&p=' + str(page) + date_param
-                print(u"Using Full Match (s_tag_full)")
+            search_mode = '&s_mode=s_tag_full'
+            print(u"Using Full Match (s_tag_full)")
+
+        url = root_url + '/{0}?word={0}{1}{2}{3}'.format(tags, date_param, page_param, search_mode)
 
     if r18mode:
         url = url + '&mode=r18'
 
     if oldest_first:
         url = url + '&order=date'
-    else:
-        url = url + '&order=date_d'
+    # else:
+    #    url = url + '&order=date_d'
 
     # encode to ascii
     url = unicode(url).encode('iso_8859_1')
@@ -910,11 +917,11 @@ def encode_tags(tags):
         try:
             # Encode the tags
             tags = tags.encode('utf-8')
-            tags = urllib.quote_plus(tags)
+            tags = urllib.quote(tags)
         except UnicodeDecodeError:
             try:
                 # from command prompt
-                tags = urllib.quote_plus(tags.decode(sys.stdout.encoding).encode("utf8"))
+                tags = urllib.quote(tags.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError:
                 print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
     return tags
@@ -951,6 +958,7 @@ def decode_tags(tags):
 # Issue 420
 class LocalUTCOffsetTimezone(tzinfo):
     def __init__(self, offset=0, name=None):
+        super(LocalUTCOffsetTimezone, self).__init__()
         self.offset = time.timezone * -1
         is_dst = time.localtime().tm_isdst
         self.name = time.tzname[0] if not is_dst and len(time.tzname) > 1 else time.tzname[1]

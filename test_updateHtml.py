@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+import getpass
+import mechanize
+
 import PixivUtil2
 import PixivBrowserFactory
 import PixivConfig
-import getpass
-import mechanize
 
 __config__ = PixivConfig.PixivConfig()
 PixivUtil2.__config__ = __config__
@@ -97,17 +98,16 @@ def main():
         downloadPage('https://www.pixiv.net/bookmark.php?id=283027', './test/test-image-bookmark-member.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&p=7', './test/test-tags-member-search-last.htm')
-        downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag_full&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact.htm')
-        downloadPage('https://www.pixiv.net/search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full&order=date_d&p=70', './test/test-tags-search-exact-last.htm')
-        downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&s_mode=s_tag_full&order=date_d&p=12', './test/test-tags-search-partial.htm')
-        downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
-        downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
-        downloadPage('https://www.pixiv.net/search.php?word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!&order=date_d&p=6', './test/test-tags-search-partial-last.htm')
 
-        downloadPage('https://www.pixiv.net/search.php?s_mode=s_tag&word=R-18%20K-On!', './test/test-tags-search-skip-showcase.htm')
-
-        downloadPage('https://www.pixiv.net/search.php?word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB&s_mode=s_tag_full', './test/test-tags-search-exact2.htm')
-
+        # tag search
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p=70&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag_full&order=date_d&p=12&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/XXXXXX?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?order=date_d&p=6&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial-last.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/R-18%20K-On!?s_mode=s_tag&word=R-18%20K-On!', './test/test-tags-search-skip-showcase.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB?s_mode=s_tag_full&word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB', './test/test-tags-search-exact2.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
 

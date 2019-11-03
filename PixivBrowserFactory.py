@@ -42,6 +42,7 @@ class PixivBrowser(mechanize.Browser):
     _username = None
     _password = None
     _oauth_manager = None
+    _locale = "en"
 
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -245,11 +246,14 @@ class PixivBrowser(mechanize.Browser):
             resData = res.read()
 
             parsed = BeautifulSoup(resData)
+            PixivHelper.GetLogger().info('Logging in, return url: %s', res.geturl())
 
             if "logout.php" in resData:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.GetLogger().info('Logged in using cookie')
                 self.getMyId(parsed)
+                self._locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
+                PixivHelper.GetLogger().info('Locale = %s', self._locale)
                 return True
             else:
                 PixivHelper.GetLogger().info('Failed to log in using cookie')
@@ -292,12 +296,9 @@ class PixivBrowser(mechanize.Browser):
         js = response.read()
         PixivHelper.GetLogger().info(str(js))
         result = json.loads(js)
+
         # Fix Issue #181
         if result["body"] is not None and result["body"].has_key("success"):
-            #            cookie.value = self._ua_handlers['_cookies']
-            #            PixivHelper.print_and_log('info', 'new cookie value: ' + str(cookie.value))
-            #            self._config.cookie = cookie.value
-            #            self._config.writeConfig(path=self._config.configFileLocation)
             for cookie in self._ua_handlers['_cookies'].cookiejar:
                 if cookie.name == 'PHPSESSID':
                     PixivHelper.print_and_log('info', 'new cookie value: ' + str(cookie.value))
@@ -350,7 +351,8 @@ class PixivBrowser(mechanize.Browser):
         image = None
         response = None
         PixivHelper.GetLogger().debug("Getting image page: %s", image_id)
-        url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id={0}".format(image_id)
+        # https://www.pixiv.net/en/artworks/76656661
+        url = "https://www.pixiv.net/{1}/artworks/{0}".format(image_id, self._locale)
         # response = self.open(url).read()
         response = self.getPixivPage(url, returnParsed=False).read()
         self.handleDebugMediumPage(response, image_id)
@@ -534,7 +536,8 @@ class PixivBrowser(mechanize.Browser):
                          end_date=None,
                          member_id=None,
                          oldest_first=False,
-                         start_page=1):
+                         start_page=1,
+                         include_bookmark_data=False):
         response = None
         result = None
         url = ''
@@ -562,20 +565,44 @@ class PixivBrowser(mechanize.Browser):
             response = self.getPixivPage(url, returnParsed=False).read()
             self.handleDebugTagSearchPage(response, url)
 
-            parse_search_page = BeautifulSoup(response)
-
-            result = PixivModel.PixivTags()
+            result = None
             if member_id is not None:
+                result = PixivModel.PixivTags()
+                parse_search_page = BeautifulSoup(response)
                 result.parseMemberTags(parse_search_page, member_id, tags)
+                parse_search_page.decompose()
+                del parse_search_page
             else:
                 try:
-                    result.parseTags(parse_search_page, tags)
+                    result = PixivModelWhiteCube.PixivTags()
+                    result.parseTags(response, tags, current_page)
+
+                    # parse additional information
+                    if include_bookmark_data:
+                        idx = 0
+                        print("Retrieving bookmark information...", end=' ')
+                        for image in result.itemList:
+                            idx = idx + 1
+                            print("\r", end=' ')
+                            print("Retrieving bookmark information... [{0}] of [{1}]".format(idx, len(result.itemList)), end=' ')
+
+                            img_url = "https://www.pixiv.net/ajax/illust/{0}".format(image.imageId)
+                            response = self._get_from_cache(img_url)
+                            if response is None:
+                                try:
+                                    response = self.open_with_retry(img_url).read()
+                                except urllib2.HTTPError as ex:
+                                    if ex.code == 404:
+                                        response = ex.read()
+                                self._put_to_cache(img_url, response)
+
+                            image_info_js = json.loads(response)
+                            image.bookmarkCount = int(image_info_js["body"]["bookmarkCount"])
+                            image.imageResponse = int(image_info_js["body"]["responseCount"])
+                    print("")
                 except BaseException:
                     PixivHelper.dumpHtml("Dump for SearchTags " + tags + ".html", response)
                     raise
-
-            parse_search_page.decompose()
-            del parse_search_page
 
         return (result, response)
 

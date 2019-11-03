@@ -966,7 +966,15 @@ class PixivBookmark:
         writer.close()
 
 
-PixivTagsItem = collections.namedtuple('PixivTagsItem', ['imageId', 'bookmarkCount', 'imageResponse'])
+class PixivTagsItem:
+    imageId = 0
+    bookmarkCount = 0
+    imageResponse = 0
+
+    def __init__(self, image_id, bookmark_count, image_response_count):
+        self.imageId = image_id
+        self.bookmarkCount = bookmark_count
+        self.imageResponse = image_response_count
 
 
 class PixivTags:
