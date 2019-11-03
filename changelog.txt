@@ -1,3 +1,10 @@
+20191103-beta1
+- Fix Issue #550: update download by tag.
+- Fix Issue #548: encode filename to utf-8 if required.
+- Fix Issue #540: skip password protected zip file checking.
+- Update #505: update error message for reCAPTCHA.
+- Implement #544: support for FANBOX post type = entry.
+
 20190919
 - Fix Issue #530: update OAuth login header.
 
