@@ -183,9 +183,10 @@ class PixivBrowser(mechanize.Browser):
                 except urllib2.HTTPError as ex:
                     if ex.code in [403, 404, 503]:
                         read_page = ex.read()
-                except BaseException:
-                    PixivHelper.print_and_log('error', 'Error at getPixivPage(): {0}'.format(str(sys.exc_info())))
-                    raise PixivException("Failed to get page: {0}".format(url), errorCode=PixivException.SERVER_ERROR)
+                        raise PixivException("Failed to get page: {0} => {1}".format(url, ex), errorCode=PixivException.SERVER_ERROR)
+                    else:
+                        PixivHelper.print_and_log('error', 'Error at getPixivPage(): {0}'.format(str(sys.exc_info())))
+                        raise PixivException("Failed to get page: {0}".format(url), errorCode=PixivException.SERVER_ERROR)
 
             if returnParsed:
                 parsedPage = BeautifulSoup(read_page)

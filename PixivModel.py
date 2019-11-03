@@ -662,7 +662,7 @@ class PixivImage:
             self.bookmark_count = 0
             self.image_response_count = 0
         except BaseException:
-            PixivHelper.GetLogger().exception("Cannot parse bookmark count for: " + str(self.imageId))
+            PixivHelper.GetLogger().exception("Cannot parse bookmark count for: %d", self.imageId)
 
     def WriteInfo(self, filename):
         info = None
@@ -673,8 +673,7 @@ class PixivImage:
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
-            PixivHelper.GetLogger().exception(
-                "Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".txt")
+            PixivHelper.GetLogger().exception("Error when saving image info: %s, file is saved to: %d.txt", filename, self.imageId)
 
         info.write("ArtistID      = " + str(self.artist.artistId) + "\r\n")
         info.write("ArtistName    = " + self.artist.artistName + "\r\n")
@@ -736,14 +735,13 @@ class PixivImage:
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".js", 'wb', encoding='utf-8')
-            PixivHelper.GetLogger().exception(
-                "Error when saving image info: " + filename + ", file is saved to: " + str(self.imageId) + ".js")
+            PixivHelper.GetLogger().exception("Error when saving image info: %s, file is saved to: %d.js", filename, self.imageId)
         info.write(str(self.ugoira_data))
         info.close()
 
     def CreateUgoira(self, filename):
         if len(self.ugoira_data) == 0:
-            PixivHelper.GetLogger().exception("Missing ugoira animation info for image: " + str(self.imageId))
+            PixivHelper.GetLogger().exception("Missing ugoira animation info for image: %d", self.imageId)
 
         zipTarget = filename[:-4] + ".ugoira"
         if os.path.exists(zipTarget):
