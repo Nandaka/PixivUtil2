@@ -2294,6 +2294,13 @@ def main():
         os.makedirs(directory)
         __log__.info('Creating directory: %s', directory)
 
+    # write BOM
+    if start_iv or __config__.createDownloadLists:
+        if not os.path.isfile(dfilename) or os.path.getsize(dfilename) == 0:
+            dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
+            dfile.write(u'\ufeff')
+            dfile.close()
+
     # Yavos: adding IrfanView-Handling
     start_irfan_slide = False
     start_irfan_view = False
