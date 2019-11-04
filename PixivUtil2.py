@@ -31,6 +31,7 @@ from PixivException import PixivException
 from PixivModel import (PixivBookmark, PixivGroup, PixivImage, PixivListItem,
                         PixivNewIllustBookmark, PixivTags)
 
+
 try:
     stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
     reload(sys)
@@ -73,8 +74,8 @@ if os.name == 'nt':
         else:
             return 2 * code_units_read.value  # bytes read
 
-    win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
-    win_unicode_console.enable()
+    # win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
+    # win_unicode_console.enable()
 
     # patch getpass.getpass() for windows to show '*'
     def win_getpass_with_mask(prompt='Password: ', stream=None):
@@ -593,7 +594,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                 no_of_images = no_of_images + 1
 
                 if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
-                    choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)")
+                    choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)").rstrip("\r")
                     if choice.upper() == 'N':
                         PixivHelper.print_and_log("info", "Member: " + str(member_id) + ", processing aborted")
                         flag = False
@@ -1064,7 +1065,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                         gc.collect()
                         continue
                     elif result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
-                        choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)")
+                        choice = raw_input("Keyboard Interrupt detected, continue to next image (Y/N)").rstrip("\r")
                         if choice.upper() == 'N':
                             PixivHelper.print_and_log("info", "Tags: " + tags + ", processing aborted")
                             flag = False
@@ -1400,7 +1401,7 @@ def get_start_and_end_number(start_only=False):
     global np_is_valid
     global np
 
-    page_num = raw_input('Start Page (default=1): ') or 1
+    page_num = raw_input('Start Page (default=1): ').rstrip("\r") or 1
     try:
         page_num = int(page_num)
     except BaseException:
@@ -1414,7 +1415,7 @@ def get_start_and_end_number(start_only=False):
         end_page_num = __config__.numberOfPage
 
     if not start_only:
-        end_page_num = raw_input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ') or end_page_num
+        end_page_num = raw_input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
                 end_page_num = int(end_page_num)
@@ -1470,7 +1471,7 @@ def get_start_and_end_date():
     end_date = None
     while True:
         try:
-            start_date = raw_input('Start Date [YYYY-MM-DD]: ') or None
+            start_date = raw_input('Start Date [YYYY-MM-DD]: ').rstrip("\r") or None
             if start_date is not None and len(start_date) == 10:
                 start_date = check_date_time(start_date)
             break
@@ -1479,7 +1480,7 @@ def get_start_and_end_date():
 
     while True:
         try:
-            end_date = raw_input('End Date [YYYY-MM-DD]: ') or None
+            end_date = raw_input('End Date [YYYY-MM-DD]: ').rstrip("\r") or None
             if end_date is not None and len(end_date) == 10:
                 end_date = check_date_time(end_date)
             break
@@ -1537,7 +1538,7 @@ def menu_download_by_member_id(opisvalid, args):
                 ERROR_CODE = -1
                 continue
     else:
-        member_ids = raw_input('Member ids: ')
+        member_ids = raw_input('Member ids: ').rstrip("\r")
         (page, end_page) = get_start_and_end_number()
 
         member_ids = PixivHelper.getIdsFromCsv(member_ids, sep=" ")
@@ -1575,8 +1576,8 @@ def menu_download_by_member_bookmark(opisvalid, args):
             current_member = current_member + 1
 
     else:
-        member_id = raw_input('Member id: ')
-        tags = raw_input('Filter Tags: ')
+        member_id = raw_input('Member id: ').rstrip("\r")
+        tags = raw_input('Filter Tags: ').rstrip("\r")
         (page, end_page) = get_start_and_end_number()
         if __br__._myId == int(member_id):
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(member_id))
@@ -1597,7 +1598,7 @@ def menu_download_by_image_id(opisvalid, args):
                 ERROR_CODE = -1
                 continue
     else:
-        image_ids = raw_input('Image ids: ')
+        image_ids = raw_input('Image ids: ').rstrip("\r")
         image_ids = PixivHelper.getIdsFromCsv(image_ids, sep=" ")
         for image_id in image_ids:
             process_image(None, int(image_id))
@@ -1622,13 +1623,13 @@ def menu_download_by_tags(opisvalid, args):
         tags = " ".join(args[3:])
     else:
         tags = PixivHelper.uni_input('Tags: ')
-        bookmark_count = raw_input('Bookmark Count: ') or None
-        wildcard = raw_input('Use Partial Match (s_tag) [y/n]: ') or 'n'
+        bookmark_count = raw_input('Bookmark Count: ').rstrip("\r") or None
+        wildcard = raw_input('Use Partial Match (s_tag) [y/n]: ').rstrip("\r") or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
             wildcard = False
-        oldest_first = raw_input('Oldest first[y/n]: ') or 'n'
+        oldest_first = raw_input('Oldest first[y/n]: ').rstrip("\r") or 'n'
         if oldest_first.lower() == 'y':
             oldest_first = True
         else:
@@ -1681,7 +1682,7 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
         tags = " ".join(args[3:])
         PixivHelper.safePrint("Looking tags: " + tags + " from memberId: " + str(member_id))
     else:
-        member_id = raw_input('Member Id: ')
+        member_id = raw_input('Member Id: ').rstrip("\r")
         tags = PixivHelper.uni_input('Tag      : ')
         (page, end_page) = get_start_and_end_number()
 
@@ -1729,7 +1730,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args):
                 return
             (start_page, end_page) = get_start_and_end_number_from_args(args, offset=1)
     else:
-        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
+        arg = raw_input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
         arg = arg.lower()
         if arg == 'y' or arg == 'n' or arg == 'o':
             hide = arg
@@ -1762,14 +1763,14 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
                 print("Invalid sorting order: ", sorting)
                 return
     else:
-        hide = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
+        hide = raw_input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
         hide = hide.lower()
         if hide not in ('y', 'n', 'o'):
             print("Invalid args: ", hide)
             return
-        tag = raw_input("Tag (default=All Images): ") or ''
+        tag = raw_input("Tag (default=All Images): ").rstrip("\r") or ''
         (start_page, end_page) = get_start_and_end_number()
-        sorting = raw_input("Sort Order [asc/desc/date/date_d]: ") or 'desc'
+        sorting = raw_input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
         sorting = sorting.lower()
         if sorting not in ('asc', 'desc', 'date', 'date_d'):
             print("Invalid sorting order: ", sorting)
@@ -1792,18 +1793,18 @@ def menu_download_from_tags_list(opisvalid, args):
         filename = args[0]
         (page, end_page) = get_start_and_end_number_from_args(args, offset=1)
     else:
-        filename = raw_input("Tags list filename [tags.txt]: ") or './tags.txt'
-        wildcard = raw_input('Use Wildcard[y/n]: ') or 'n'
+        filename = raw_input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
+        wildcard = raw_input('Use Wildcard[y/n]: ').rstrip("\r") or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
             wildcard = False
-        oldest_first = raw_input('Oldest first[y/n]: ') or 'n'
+        oldest_first = raw_input('Oldest first[y/n]: ').rstrip("\r") or 'n'
         if oldest_first.lower() == 'y':
             oldest_first = True
         else:
             oldest_first = False
-        bookmark_count = raw_input('Bookmark Count: ') or None
+        bookmark_count = raw_input('Bookmark Count: ').rstrip("\r") or None
         (page, end_page) = get_start_and_end_number()
         (start_date, end_date) = get_start_and_end_date()
     if bookmark_count is not None:
@@ -1835,9 +1836,9 @@ def menu_download_by_group_id(opisvalid, args):
         if args[2].lower() == 'y':
             process_external = True
     else:
-        group_id = raw_input("Group Id: ")
-        limit = int(raw_input("Limit: "))
-        arg = raw_input("Process External Image [y/n]: ") or 'n'
+        group_id = raw_input("Group Id: ").rstrip("\r")
+        limit = int(raw_input("Limit: ").rstrip("\r"))
+        arg = raw_input("Process External Image [y/n]: ").rstrip("\r") or 'n'
         arg = arg.lower()
         if arg == 'y':
             process_external = True
@@ -1855,8 +1856,8 @@ def menu_export_online_bookmark(opisvalid, args):
         if len(args) > 1:
             filename = args[1]
     else:
-        filename = raw_input("Filename: ")
-        arg = raw_input("Include Private bookmarks [y/n/o]: ") or 'n'
+        filename = raw_input("Filename: ").rstrip("\r")
+        arg = raw_input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
         arg = arg.lower()
 
     if arg == 'y' or arg == 'n' or arg == 'o':
@@ -1879,8 +1880,8 @@ def menu_export_online_user_bookmark(opisvalid, args):
         else:
             filename = "export-user-{0}.txt".format(arg)
     else:
-        filename = raw_input("Filename: ") or filename
-        arg = raw_input("Member Id: ") or ''
+        filename = raw_input("Filename: ").rstrip("\r") or filename
+        arg = raw_input("Member Id: ").rstrip("\r") or ''
         arg = arg.lower()
 
     if arg.isdigit():
@@ -1898,7 +1899,7 @@ def menu_fanbox_download_supported_artist(op_is_valid, args):
     if op_is_valid and len(args) > 0:
         end_page = int(args[0])
     else:
-        end_page = raw_input("Max Page = ") or 0
+        end_page = raw_input("Max Page = ").rstrip("\r") or 0
         end_page = int(end_page)
 
     result = __br__.fanboxGetSupportedUsers()
@@ -2043,8 +2044,8 @@ def menu_fanbox_download_by_artist_id(op_is_valid, args):
         if len(args) > 1:
             end_page = args[1]
     else:
-        artist_id = raw_input("Artist ID = ")
-        end_page = raw_input("Max Page = ") or 0
+        artist_id = raw_input("Artist ID = ").rstrip("\r")
+        end_page = raw_input("Max Page = ").rstrip("\r") or 0
 
     end_page = int(end_page)
 
@@ -2385,7 +2386,7 @@ def main():
 
         username = __config__.username
         if username == '':
-            username = raw_input('Username ? ')
+            username = raw_input('Username ? ').rstrip("\r")
         else:
             msg = 'Using Username: ' + username
             print(msg)

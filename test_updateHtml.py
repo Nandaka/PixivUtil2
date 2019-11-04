@@ -18,7 +18,7 @@ def prepare():
     # Log in
     username = __config__.username
     if username == '':
-        username = raw_input('Username ? ')
+        username = raw_input('Username ? ').rstrip("\r")
     password = __config__.password
     if password == '':
         password = getpass.getpass('Password ? ')

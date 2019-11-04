@@ -330,7 +330,7 @@ def toUnicode(obj, encoding='utf-8'):
 
 
 def uni_input(message=''):
-    result = raw_input(message)
+    result = raw_input(message).rstrip("\r")
     return toUnicode(result, encoding=sys.stdin.encoding)
 
 
