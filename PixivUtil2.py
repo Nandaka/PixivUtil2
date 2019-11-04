@@ -108,7 +108,7 @@ script_path = PixivHelper.module_path()
 np_is_valid = False
 np = 0
 op = ''
-DEBUG_SKIP_PROCESS_IMAGE = False
+DEBUG_SKIP_PROCESS_IMAGE = True
 ERROR_CODE = 0
 
 gc.enable()
@@ -963,6 +963,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                bookmark_count=None, oldest_first=False):
 
     search_page = None
+    _last_search_result = None
     i = page
     updated_limit_count = 0
 
@@ -1005,6 +1006,12 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
             if len(t.itemList) == 0:
                 print('No more images')
                 flag = False
+            elif _last_search_result is not None:
+                set1 = set((x.imageId) for x in _last_search_result.itemList)
+                difference = [x for x in t.itemList if (x.imageId) not in set1]
+                if len(difference) == 0:
+                    print('Getting duplicated result set, no more new images.')
+                    flag = False
             else:
                 for item in t.itemList:
                     last_image_id = item.imageId
@@ -1068,8 +1075,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
             __br__.clear_history()
 
             i = i + 1
-
-            del search_page
+            _last_search_result = t
 
             if end_page != 0 and end_page < i:
                 PixivHelper.print_and_log('info', "End Page reached: " + str(end_page))
@@ -1081,14 +1087,14 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                 if last_image_id > 0:
                     # get the last date
                     PixivHelper.print_and_log('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
-                    referer = 'https://www.pixiv.net/en/artworks/{0}'.format(last_image_id)
-                    parse_medium_page = PixivBrowserFactory.getBrowser().getPixivPage(referer)
-                    image = PixivImage(iid=last_image_id, page=parse_medium_page, dateFormat=__config__.dateFormat)
-                    _last_date = image.worksDateDateTime.strftime("%Y-%m-%d")
+                    # referer = 'https://www.pixiv.net/en/artworks/{0}'.format(last_image_id)
+                    image = PixivBrowserFactory.getBrowser().getImagePage(last_image_id)
+                    _last_date = image.worksDateDateTime
+                    # _start_date = image.worksDateDateTime + datetime.timedelta(365)
                     # hit the last page
-                    PixivHelper.print_and_log('info', "Hit page 1000, looping back to page 1 with ecd: " + str(_last_date))
                     i = 1
-                    end_date = _last_date
+                    end_date = _last_date.strftime("%Y-%m-%d")
+                    PixivHelper.print_and_log('info', "Hit page 1000, looping back to page 1 with ecd: {0}.".format(end_date))
                     flag = True
                     last_image_id = -1
                 else:
@@ -1409,14 +1415,15 @@ def get_start_and_end_number(start_only=False):
 
     if not start_only:
         end_page_num = raw_input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ') or end_page_num
-        try:
-            end_page_num = int(end_page_num)
-            if page_num > end_page_num and end_page_num != 0:
-                print("page_num is bigger than end_page_num, assuming as page count.")
-                end_page_num = page_num + end_page_num
-        except BaseException:
-            print("Invalid end page number:", end_page_num)
-            raise
+        if end_page_num is not None:
+            try:
+                end_page_num = int(end_page_num)
+                if page_num > end_page_num and end_page_num != 0:
+                    print("page_num is bigger than end_page_num, assuming as page count.")
+                    end_page_num = page_num + end_page_num
+            except BaseException:
+                print("Invalid end page number:", end_page_num)
+                raise
 
     return page_num, end_page_num
 
@@ -1464,7 +1471,7 @@ def get_start_and_end_date():
     while True:
         try:
             start_date = raw_input('Start Date [YYYY-MM-DD]: ') or None
-            if start_date is not None:
+            if start_date is not None and len(start_date) == 10:
                 start_date = check_date_time(start_date)
             break
         except Exception as e:
@@ -1473,7 +1480,7 @@ def get_start_and_end_date():
     while True:
         try:
             end_date = raw_input('End Date [YYYY-MM-DD]: ') or None
-            if end_date is not None:
+            if end_date is not None and len(end_date) == 10:
                 end_date = check_date_time(end_date)
             break
         except Exception as e:
@@ -1630,7 +1637,9 @@ def menu_download_by_tags(opisvalid, args):
         (page, end_page) = get_start_and_end_number()
         (start_date, end_date) = get_start_and_end_date()
     if bookmark_count is not None:
-        bookmark_count = int(bookmark_count)
+        bookmark_count = bookmark_count.strip()
+        if len(bookmark_count) > 0:
+            bookmark_count = int(bookmark_count)
     process_tags(tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
                 use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first)
 
