@@ -108,7 +108,7 @@ script_path = PixivHelper.module_path()
 np_is_valid = False
 np = 0
 op = ''
-DEBUG_SKIP_PROCESS_IMAGE = True
+DEBUG_SKIP_PROCESS_IMAGE = False
 ERROR_CODE = 0
 
 gc.enable()
@@ -1088,7 +1088,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                     # get the last date
                     PixivHelper.print_and_log('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
                     # referer = 'https://www.pixiv.net/en/artworks/{0}'.format(last_image_id)
-                    image = PixivBrowserFactory.getBrowser().getImagePage(last_image_id)
+                    (image, response) = PixivBrowserFactory.getBrowser().getImagePage(last_image_id)
                     _last_date = image.worksDateDateTime
                     # _start_date = image.worksDateDateTime + datetime.timedelta(365)
                     # hit the last page
