@@ -916,8 +916,8 @@ def encode_tags(tags):
     if not tags.startswith("%"):
         try:
             # Encode the tags
-            tags = tags.encode('utf-8')
-            tags = urllib.quote(tags)
+            tags = tags.encode('utf-8').replace(' ', '%%space%%')
+            tags = urllib.quote_plus(tags).replace('%25%25space%25%25', '%20')
         except UnicodeDecodeError:
             try:
                 # from command prompt

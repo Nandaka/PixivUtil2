@@ -74,8 +74,8 @@ if os.name == 'nt':
         else:
             return 2 * code_units_read.value  # bytes read
 
-    # win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
-    # win_unicode_console.enable()
+    win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
+    win_unicode_console.enable()
 
     # patch getpass.getpass() for windows to show '*'
     def win_getpass_with_mask(prompt='Password: ', stream=None):
@@ -1013,7 +1013,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                 if len(difference) == 0:
                     print('Getting duplicated result set, no more new images.')
                     flag = False
-            else:
+
+            if flag:
                 for item in t.itemList:
                     last_image_id = item.imageId
                     print('Image #' + str(images))
