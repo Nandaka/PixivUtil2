@@ -720,6 +720,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 PixivHelper.dumpHtml(dump_filename, parse_medium_page)
                 PixivHelper.print_and_log('error', 'Dumping html to: ' + dump_filename)
             PixivHelper.print_and_log('error', 'Stack Trace: {0}'.format(str(sys.exc_info())))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
@@ -1517,7 +1519,8 @@ def menu():
     print('p. Print config.ini')
     print('x. Exit')
 
-    return raw_input('Input: ').strip()
+    sel = raw_input('Input: ').rstrip("\r")
+    return sel
 
 
 def menu_download_by_member_id(opisvalid, args):

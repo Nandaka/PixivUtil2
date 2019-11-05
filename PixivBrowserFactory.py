@@ -360,7 +360,7 @@ class PixivBrowser(mechanize.Browser):
         # Issue #355 new ui handler
         image = None
         try:
-            if response.find("globalInitData") > 0:
+            if response.find("meta-preload-data") > 0:
                 PixivHelper.print_and_log('debug', 'New UI Mode')
 
                 # Issue #420

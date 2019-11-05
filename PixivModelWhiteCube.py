@@ -93,8 +93,8 @@ class PixivArtist(PixivModel.PixivArtist):
                         self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
 
     def ParseInfoFromImage(self, page):
-        key = list(page["preload"]["user"].keys())[0]
-        root = page["preload"]["user"][key]
+        key = list(page["user"].keys())[0]
+        root = page["user"][key]
 
         self.artistId = root["userId"]
         self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
@@ -104,7 +104,7 @@ class PixivArtist(PixivModel.PixivArtist):
             self.artistBackground = root["background"]["url"]
 
         # Issue 388 user token is stored in image
-        illusts = page["preload"]["illust"]
+        illusts = page["illust"]
         for il in illusts:
             if illusts[il]["userAccount"]:
                 self.artistToken = illusts[il]["userAccount"]
@@ -179,12 +179,14 @@ class PixivImage(PixivModel.PixivImage):
         self._tzInfo = tzInfo
 
         if page is not None:
+
+            # Issue #556
             payload = parseJs(page)
 
             # check error
             if payload is None:
-                if self.IsNotLoggedIn(page):
-                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+                # if self.IsNotLoggedIn(page):
+                #    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
                 if self.IsNeedPermission(page):
                     raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
                 if self.IsNeedAppropriateLevel(page):
@@ -206,7 +208,7 @@ class PixivImage(PixivModel.PixivImage):
 
             # parse artist information
             if parent is None:
-                temp_artist_id = list(payload["preload"]["user"].keys())[0]
+                temp_artist_id = list(payload["user"].keys())[0]
                 self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
@@ -221,9 +223,9 @@ class PixivImage(PixivModel.PixivImage):
             self.ParseInfo(payload)
 
     def ParseInfo(self, page):
-        key = list(page["preload"]["illust"].keys())[0]
+        key = list(page["illust"].keys())[0]
         assert(str(key) == str(self.imageId))
-        root = page["preload"]["illust"][key]
+        root = page["illust"][key]
 
         self.imageUrls = list()
 
@@ -379,43 +381,10 @@ class PixivTags(PixivModel.PixivTags):
 
 
 def parseJs(page):
-    jss = re_payload.findall(str(page))
-
+    page = BeautifulSoup(page)
+    jss = page.find('meta', attrs={'id': 'meta-preload-data'})["content"]
     if len(jss) == 0:
         return None  # Possibly error page
 
-    # Fix issue #364, switch to demjson
-    return demjson.decode(jss[0])
-##
-##
-##    js = jss[0]
-##    js1_split = js.split('{')
-##    upd_js1_split = list()
-##    for js1_token in js1_split:
-##        js2_split = js1_token.split(',')
-##        upd_js2_split = list()
-##
-##        for token in js2_split:
-##            token_split = token.split(':', 1)
-##            if len(token_split[0]) > 0 and not token_split[0].startswith("\"") and not token_split[0].startswith("{") and not token_split[0].startswith("}"):
-##                token_split[0] = "\"" + token_split[0].strip() + "\""
-##            else:
-##                token_split[0] = token_split[0].strip()
-##            if len(token_split) > 1:
-##                token_split[1] = token_split[1].strip()
-##            token_join = ":".join(token_split)
-##            upd_js2_split.append(token_join)
-##        js1_join = ",".join(upd_js2_split)
-##        upd_js1_split.append(js1_join)
-##
-##    result = "{".join(upd_js1_split)
-##    result = result.replace(",}", "}")
-##
-##    # PixivHelper.GetLogger().debug("ConvertedJson")
-##    # PixivHelper.GetLogger().debug(result)
-##    try:
-##        return json.loads(result)
-##    except:
-##        PixivHelper.print_and_log("error", "failed to parse json:")
-##        PixivHelper.print_and_log("error", result)
-##        raise
+    payload = demjson.decode(jss)
+    return payload
