@@ -28,8 +28,7 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistId = mid
 
         if page is not None:
-            payload = parseJs(page)
-
+            payload = None
             # detect if image count != 0
             if not fromImage:
                 payload = demjson.decode(page)
@@ -39,6 +38,7 @@ class PixivArtist(PixivModel.PixivArtist):
                     raise PixivException("Missing body content, possible artist id doesn't exists.", errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
                 self.ParseImages(payload["body"])
             else:
+                payload = parseJs(page)
                 self.isLastPage = True
                 self.haveImages = True
 
