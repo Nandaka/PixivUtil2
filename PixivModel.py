@@ -719,7 +719,7 @@ class PixivImage:
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
-        jsonInfo["Link"] = "https://www.pixiv.net/en/artworks/{0}}".format(self.imageId)
+        jsonInfo["Link"] = "https://www.pixiv.net/en/artworks/{0}".format(self.imageId)
         jsonInfo["Ugoira Data"] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
             jsonInfo["Urls"] = self.descriptionUrlList
