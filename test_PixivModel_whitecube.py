@@ -5,10 +5,10 @@ from __future__ import print_function
 import sys
 import os
 import unittest
-
-from BeautifulSoup import BeautifulSoup
 import json
 import pytest
+
+from BeautifulSoup import BeautifulSoup
 
 import PixivHelper
 from PixivModelWhiteCube import PixivImage, PixivArtist
@@ -48,7 +48,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         try:
             member = PixivArtist(14095911, p.read())
             self.fail("Exception expected.")
-        except Exception as ex:
+        except PixivException as ex:
             self.assertTrue(ex.errorCode == PixivException.OTHER_MEMBER_ERROR)
 
     def testParseMemberImages(self):
@@ -86,7 +86,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
     # https://www.pixiv.net/ajax/user/14095911/profile/all
     def testParseMemberImagesLastPage(self):
         p = open('./test/all-14095911.json', 'r')
-        member = PixivArtist(14095911, p.read(), False, 96, 48)
+        member = PixivArtist(14095911, p.read(), False, 144, 48)
         self.assertIsNotNone(member)
         p2 = open('./test/userdetail-14095911.json', 'r')
         info = json.loads(p2.read())
@@ -94,7 +94,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
 
         member.PrintInfo()
         self.assertEqual(member.artistId, 14095911)
-        self.assertEqual(member.totalImages, 143)
+        self.assertEqual(member.totalImages, 177)
         self.assertTrue(member.haveImages)
         self.assertTrue(member.isLastPage)
 

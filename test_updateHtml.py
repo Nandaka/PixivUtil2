@@ -7,6 +7,7 @@ import mechanize
 import PixivUtil2
 import PixivBrowserFactory
 import PixivConfig
+from PixivOAuth import PixivOAuth
 
 __config__ = PixivConfig.PixivConfig()
 PixivUtil2.__config__ = __config__
@@ -30,7 +31,23 @@ def prepare():
     if not result:
         result = __br__.login(username, password)
 
+    __br__._oauth_manager = PixivOAuth(username, password, proxies=None, refresh_token=__config__.refresh_token, validate_ssl=__config__.enableSSLVerification)
+    __br__._oauth_manager.login()
+
     return result
+
+
+def downloadMemberIdUsingOauth(member_id, filename):
+    global __br__
+    print("Dumping member id: {0} using OAuth to {1}".format(member_id, filename))
+    response = __br__._oauth_manager.get_user_info(member_id)
+    js = response.text
+    try:
+        dump = file(filename, 'wb')
+        dump.write(js)
+        dump.close()
+    except BaseException:
+        pass
 
 
 def downloadPage(url, filename):
@@ -68,9 +85,9 @@ def main():
         # https://www.pixiv.net/member_illust.php?id=1107124
         # downloadPage('https://www.pixiv.net/member_illust.php?id=1107124', './test/test-helper-avatar-name.htm')
 
-        downloadPage('https://www.pixiv.net/member_illust.php?id=1', './test/test-nouser.htm')
+        downloadPage('https://www.pixiv.net/ajax/user/1/profile/all', './test/test-nouser.htm')
         # downloadPage('https://www.pixiv.net/member_illust.php?id=26357', './test/test-member-noavatar.htm')
-        downloadPage('https://www.pixiv.net/member_illust.php?id=1233', './test/test-noimage.htm')
+        downloadPage('https://www.pixiv.net/ajax/user/1233/profile/all', './test/test-noimage.htm')
         # downloadPage('https://www.pixiv.net/bookmark.php?id=490219', './test/test-member-bookmark.htm')
         downloadPage('https://www.pixiv.net/manage/illusts/', './test/test-member-self.htm')
 
@@ -101,29 +118,29 @@ def main():
 
         # tag search
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact.htm')
-        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p=70&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p=59&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag_full&order=date_d&p=12&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/XXXXXX?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
-        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?order=date_d&p=6&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial-last.htm')
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?order=date_d&p=5&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial-last.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/R-18%20K-On!?s_mode=s_tag&word=R-18%20K-On!', './test/test-tags-search-skip-showcase.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB?s_mode=s_tag_full&word=%E3%82%AF%E3%83%89%E3%83%AA%E3%83%A3%E3%83%95%E3%82%AB', './test/test-tags-search-exact2.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&tag=R-18', './test/test-tags-member-search.htm')
 
         downloadPage('https://www.pixiv.net/group/images.php?format=json&max_id=946801&id=881', './test/group.json')
-        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=554800', './test/detail-554800.json')
-        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=267014', './test/detail-267014.json')
+        downloadMemberIdUsingOauth(554800, './test/detail-554800.json')
+        downloadMemberIdUsingOauth(267014, './test/detail-267014.json')
 
         # AJAX calls
         downloadPage('https://www.pixiv.net/ajax/user/14095911/profile/all', './test/all-14095911.json')
-        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=14095911', './test/userdetail-14095911.json')
+        downloadMemberIdUsingOauth(14095911, './test/userdetail-14095911.json')
         downloadPage('https://www.pixiv.net/ajax/user/26357/profile/all', './test/all-26357.json')
-        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=26357', './test/userdetail-26357.json')
+        downloadMemberIdUsingOauth(26357, './test/userdetail-26357.json')
         downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48', './test/tag-R-18-14095911.json')
         downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=48&limit=48', './test/tag-R-18-14095911-lastpage.json')
         downloadPage('https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show', './test/bookmarks-1039353.json')
-        downloadPage('https://app-api.pixiv.net/v1/user/detail?user_id=1039353', './test/userdetail-1039353.json')
+        downloadMemberIdUsingOauth(1039353, './test/userdetail-1039353.json')
 
         # Not updated:
         # ./test/test-login-error.htm
@@ -138,4 +155,6 @@ if __name__ == '__main__':
         main()
     except Exception as ex:
         print(ex)
+        raw_input("anykey")
+
     raw_input("anykey")

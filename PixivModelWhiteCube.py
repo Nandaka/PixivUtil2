@@ -185,26 +185,29 @@ class PixivImage(PixivModel.PixivImage):
 
             # check error
             if payload is None:
-                # if self.IsNotLoggedIn(page):
-                #    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
-                if self.IsNeedPermission(page):
+                parsed = BeautifulSoup(page)
+                if self.IsNotLoggedIn(parsed):
+                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+                if self.IsNeedPermission(parsed):
                     raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
-                if self.IsNeedAppropriateLevel(page):
+                if self.IsNeedAppropriateLevel(parsed):
                     raise PixivException('Public works can not be viewed by the appropriate level!',
                                          errorCode=PixivException.NO_APPROPRIATE_LEVEL, htmlPage=page)
-                if self.IsDeleted(page):
+                if self.IsDeleted(parsed):
                     raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED, htmlPage=page)
-                if self.IsGuroDisabled(page):
+                if self.IsGuroDisabled(parsed):
                     raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!',
                                          errorCode=PixivException.R_18_DISABLED, htmlPage=page)
                 # detect if there is any other error
-                errorMessage = self.IsErrorExist(page)
+                errorMessage = self.IsErrorExist(parsed)
                 if errorMessage is not None:
                     raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
                 # detect if there is server error
-                errorMessage = self.IsServerErrorExist(page)
+                errorMessage = self.IsServerErrorExist(parsed)
                 if errorMessage is not None:
                     raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
+                parsed.decompose()
+                del parsed
 
             # parse artist information
             if parent is None:
@@ -354,8 +357,10 @@ class PixivTags(PixivModel.PixivTags):
 
         # parse images information
         self.itemList = list()
+        ad_container_count = 0
         for item in payload["body"]["illustManga"]["data"]:
             if item["isAdContainer"]:
+                ad_container_count = ad_container_count + 1
                 continue
 
             image_id = item["id"]
@@ -372,7 +377,9 @@ class PixivTags(PixivModel.PixivTags):
         # search page info
         self.availableImages = int(payload["body"]["illustManga"]["total"])
         # assuming there are only 47 image (1 is marked as ad)
-        if self.availableImages > 47 * curr_page:
+        # if self.availableImages > 47 * curr_page:
+        # assume it always return 48 images, including the advert
+        if len(self.itemList) + ad_container_count == 48:
             self.isLastPage = False
         else:
             self.isLastPage = True
@@ -381,10 +388,15 @@ class PixivTags(PixivModel.PixivTags):
 
 
 def parseJs(page):
-    page = BeautifulSoup(page)
-    jss = page.find('meta', attrs={'id': 'meta-preload-data'})["content"]
-    if len(jss) == 0:
+    parsed = BeautifulSoup(page)
+    jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
+
+    # cleanup
+    parsed.decompose()
+    del parsed
+
+    if jss is None or len(jss["content"]) == 0:
         return None  # Possibly error page
 
-    payload = demjson.decode(jss)
+    payload = demjson.decode(jss["content"])
     return payload

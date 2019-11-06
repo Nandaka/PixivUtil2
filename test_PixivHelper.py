@@ -44,11 +44,9 @@ class TestPixivHelper(unittest.TestCase):
 
     def testCreateMangaFilename(self):
         p = open('./test/test-image-manga.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = p.read()
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
-        page.decompose()
-        del page
 
         # cross check with json value for artist info
         js_file = open('./test/detail-554800.json', 'r')
@@ -77,10 +75,8 @@ class TestPixivHelper(unittest.TestCase):
 
     def testCreateFilenameUnicode(self):
         p = open('./test/test-image-unicode.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = p.read()
         imageInfo = PixivImage(2493913, page)
-        page.decompose()
-        del page
 
         # cross check with json value for artist info
         js_file = open('./test/detail-267014.json', 'r')
