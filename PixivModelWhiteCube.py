@@ -185,7 +185,7 @@ class PixivImage(PixivModel.PixivImage):
 
             # check error
             if payload is None:
-                parsed = BeautifulSoup(page)
+                parsed = BeautifulSoup(page.decode("utf8"))
                 if self.IsNotLoggedIn(parsed):
                     raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
                 if self.IsNeedPermission(parsed):
@@ -388,7 +388,7 @@ class PixivTags(PixivModel.PixivTags):
 
 
 def parseJs(page):
-    parsed = BeautifulSoup(page)
+    parsed = BeautifulSoup(page.decode("utf8"))
     jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
 
     # cleanup

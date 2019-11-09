@@ -179,6 +179,7 @@ class PixivBrowser(mechanize.Browser):
                 try:
                     temp = self.open_with_retry(req)
                     read_page = temp.read()
+                    read_page = read_page.decode('utf8')
                     self._put_to_cache(url, read_page)
                 except urllib2.HTTPError as ex:
                     if ex.code in [403, 404, 503]:
