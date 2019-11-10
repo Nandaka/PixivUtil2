@@ -28,7 +28,7 @@ import PixivDBManager
 import PixivHelper
 import PixivModelFanbox
 from PixivException import PixivException
-from PixivModel import (PixivBookmark, PixivGroup, PixivImage, PixivListItem,
+from PixivModel import (PixivBookmark, PixivGroup, PixivListItem,
                         PixivNewIllustBookmark, PixivTags)
 
 

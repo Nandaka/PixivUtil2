@@ -481,9 +481,7 @@ class PixivBrowser(mechanize.Browser):
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None
         response = None
-        if tags is not None:
-            tags = PixivHelper.encode_tags(tags)
-        else:
+        if tags is None:
             tags = ''
 
         limit = 48
