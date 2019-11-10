@@ -111,6 +111,7 @@ np = 0
 op = ''
 DEBUG_SKIP_PROCESS_IMAGE = False
 ERROR_CODE = 0
+UTF8_FS = None
 
 gc.enable()
 # gc.set_debug(gc.DEBUG_LEAK)
@@ -164,18 +165,26 @@ def get_remote_filesize(url, referer):
 # -T04------For download file
 def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image=None, page=None):
     '''return download result and filename if ok'''
-    global ERROR_CODE
+    global ERROR_CODE, UTF8_FS
     temp_error_code = None
     retry_count = 0
 
     # Issue #548
     filename_save = filename
-    try:
-        PixivHelper.makeSubdirs(filename_save)
-        test_utf = file(filename_save + '.test', "wb")
-        test_utf.close()
-        os.remove(filename_save + '.test')
-    except UnicodeEncodeError:
+
+    # test once and set the result
+    if UTF8_FS is None:
+        filename_test = filename_save + "あいうえお"
+        try:
+            PixivHelper.makeSubdirs(filename_test)
+            test_utf = file(filename_test + '.test', "wb")
+            test_utf.close()
+            os.remove(filename_test + '.test')
+            UTF8_FS = True
+        except UnicodeEncodeError:
+            UTF8_FS = False
+    
+    if not UTF8_FS:        
         filename_save = filename.encode('utf-8')  # For file operations, force the usage of a utf-8 encode filename
 
     while retry_count <= max_retry:
