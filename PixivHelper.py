@@ -454,6 +454,8 @@ def print_and_log(level, msg):
         safePrint(msg)
         if level == 'info':
             GetLogger().info(msg)
+        elif level == 'warn':
+            GetLogger().warn(msg)
         elif level == 'error':
             GetLogger().error(msg)
             GetLogger().error(traceback.format_exc())

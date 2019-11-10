@@ -183,8 +183,8 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
             UTF8_FS = True
         except UnicodeEncodeError:
             UTF8_FS = False
-    
-    if not UTF8_FS:        
+
+    if not UTF8_FS:
         filename_save = filename.encode('utf-8')  # For file operations, force the usage of a utf-8 encode filename
 
     while retry_count <= max_retry:
@@ -2341,9 +2341,14 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList:
-            list_txt = PixivListItem.parseList(__config__.downloadListDirectory + os.sep + 'list.txt', __config__.rootDirectory)
-            __dbManager__.importList(list_txt)
-            print("Updated " + str(len(list_txt)) + " items.")
+            list_path = __config__.downloadListDirectory + os.sep + 'list.txt'
+            if(os.path.exists(list_path)):
+                list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
+                __dbManager__.importList(list_txt)
+                print("Updated " + str(len(list_txt)) + " items.")
+            else:
+                msg = "List file not found: {0}".format(list_path)
+                PixivHelper.print_and_log('warn', msg)
 
         if __config__.overwrite:
             msg = 'Overwrite enabled.'
