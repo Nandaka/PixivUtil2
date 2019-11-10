@@ -1,4 +1,4 @@
-20191106-beta3
+20191111
 - Fix Issue #550: update download by tag.
 - Fix Issue #548: encode filename to utf-8 if required.
 - Fix Issue #540: skip password protected zip file checking.
@@ -6,6 +6,10 @@
 - Implement #544: support for FANBOX post type = entry.
 - Fix Issue #556: update parser for image and member.
 - Fix Issue #558: update write json function.
+- Fix Issue #559: fix tags encoding for option 10.
+- Fix Issue #555: skip import to db if list.txt doesn't exists.
+- Merge #563: perform FS with utf8 support check only once.
+- Fix Issue #562: Fix encoding when writing info file.
 
 20190919
 - Fix Issue #530: update OAuth login header.
