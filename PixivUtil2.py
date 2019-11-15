@@ -32,6 +32,8 @@ from PixivModel import (PixivBookmark, PixivGroup, PixivListItem,
                         PixivNewIllustBookmark, PixivTags)
 
 
+DEBUG_SKIP_PROCESS_IMAGE = False
+
 try:
     stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
     reload(sys)
@@ -109,7 +111,6 @@ script_path = PixivHelper.module_path()
 np_is_valid = False
 np = 0
 op = ''
-DEBUG_SKIP_PROCESS_IMAGE = False
 ERROR_CODE = 0
 UTF8_FS = None
 
@@ -457,9 +458,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
     __config__.loadConfig(path=configfile)
 
     # calculate the offset for display properties
-    offset = 24  # new offset for AJAX call
-    if __br__._isWhitecube:
-        offset = 50
+    offset = 48  # new offset for AJAX call
     offset_start = (page - 1) * offset
     offset_stop = end_page * offset
 
@@ -575,7 +574,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                             # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         else:
                             total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
-                        title_prefix_img = "{0}MemberId: {1} Page: {2} Image {3}+{4} of {5}".format(title_prefix,
+                        title_prefix_img = "{0}MemberId: {1} Page: {2} Post {3}+{4} of {5}".format(title_prefix,
                                                                                                     member_id,
                                                                                                     page,
                                                                                                     no_of_images,

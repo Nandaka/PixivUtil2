@@ -378,8 +378,8 @@ class PixivTags(PixivModel.PixivTags):
         self.availableImages = int(payload["body"]["illustManga"]["total"])
         # assuming there are only 47 image (1 is marked as ad)
         # if self.availableImages > 47 * curr_page:
-        # assume it always return 48 images, including the advert
-        if len(self.itemList) + ad_container_count == 48:
+        # assume it always return 6 images, including the advert
+        if len(self.itemList) + ad_container_count == 60:
             self.isLastPage = False
         else:
             self.isLastPage = True
