@@ -419,7 +419,7 @@ class PixivBrowser(mechanize.Browser):
                     self._put_to_cache(url, info)
             else:
                 PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
-                if self._username is None or self._username is None or len(self._username) < 0 or len(self._password) < 0:
+                if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, please remove the cookie value and relogin, or add username/password to config.ini.")
 
                 if self._oauth_manager is None:
