@@ -1922,7 +1922,11 @@ def menu_fanbox_download_supported_artist(op_is_valid, args):
     print(result.supportedArtist)
 
     for artist_id in result.supportedArtist:
-        processFanboxArtist(artist_id, end_page)
+        # Issue #567
+        try:
+            processFanboxArtist(artist_id, end_page)
+        except PixivException as pex:
+            PixivHelper.print_and_log("error", "Error processing FANBOX Artist: {0} ==> {1}".format(artist_id, pex.message))
 
 
 def processFanboxArtist(artist_id, end_page):

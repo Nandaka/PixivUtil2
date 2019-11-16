@@ -1,3 +1,7 @@
+20191116
+- Fix Issue #567: add try-catch for suspended user for FANBOX.
+- Fix Issue #568: update post counter limit to 60.
+
 20191111
 - Fix Issue #550: update download by tag.
 - Fix Issue #548: encode filename to utf-8 if required.
