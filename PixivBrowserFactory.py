@@ -19,8 +19,7 @@ import demjson
 import socks
 
 import PixivHelper
-import PixivModel
-import PixivModelWhiteCube
+from PixivModel import PixivImage, PixivArtist, PixivTags
 from PixivException import PixivException
 from PixivModelFanbox import Fanbox, FanboxArtist
 from PixivOAuth import PixivOAuth
@@ -369,14 +368,14 @@ class PixivBrowser(mechanize.Browser):
                 if self._config.useLocalTimezone:
                     _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
 
-                image = PixivModelWhiteCube.PixivImage(image_id,
-                                                       response,
-                                                       parent,
-                                                       from_bookmark,
-                                                       bookmark_count,
-                                                       image_response_count,
-                                                       dateFormat=self._config.dateFormat,
-                                                       tzInfo=_tzInfo)
+                image = PixivImage(image_id,
+                                   response,
+                                   parent,
+                                   from_bookmark,
+                                   bookmark_count,
+                                   image_response_count,
+                                   dateFormat=self._config.dateFormat,
+                                   tzInfo=_tzInfo)
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
@@ -518,7 +517,7 @@ class PixivBrowser(mechanize.Browser):
                 self._put_to_cache(url, response)
 
             PixivHelper.GetLogger().debug(response)
-            artist = PixivModelWhiteCube.PixivArtist(member_id, response, False, offset, limit)
+            artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
@@ -546,7 +545,7 @@ class PixivBrowser(mechanize.Browser):
             (artist, response) = self.getMemberPage(member_id, current_page, False, tags)
 
             # convert to PixivTags
-            result = PixivModelWhiteCube.PixivTags()
+            result = PixivTags()
             result.parseMemberTags(artist, member_id, tags)
         else:
             # search by tags
@@ -565,14 +564,14 @@ class PixivBrowser(mechanize.Browser):
 
             result = None
             if member_id is not None:
-                result = PixivModel.PixivTags()
+                result = PixivTags()
                 parse_search_page = BeautifulSoup(response)
                 result.parseMemberTags(parse_search_page, member_id, tags)
                 parse_search_page.decompose()
                 del parse_search_page
             else:
                 try:
-                    result = PixivModelWhiteCube.PixivTags()
+                    result = PixivTags()
                     result.parseTags(response, tags, current_page)
 
                     # parse additional information
@@ -647,7 +646,7 @@ class PixivBrowser(mechanize.Browser):
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         result = FanboxArtist(artist_id, response, tzInfo=_tzInfo)
 
-        pixivArtist = PixivModelWhiteCube.PixivArtist(artist_id)
+        pixivArtist = PixivArtist(artist_id)
         self.getMemberInfoWhitecube(artist_id, pixivArtist)
         result.artistName = pixivArtist.artistName
         result.artistToken = pixivArtist.artistToken

@@ -6,11 +6,10 @@ import unittest
 
 from BeautifulSoup import BeautifulSoup
 
-from PixivModelWhiteCube import PixivImage, PixivArtist, PixivTags
 from PixivBrowserFactory import PixivBrowser
 from PixivException import PixivException
-
-from PixivModel import PixivBookmark, PixivNewIllustBookmark, PixivGroup
+from PixivModel import (PixivArtist, PixivBookmark, PixivGroup, PixivImage,
+                        PixivNewIllustBookmark, PixivTags)
 
 
 class MockPixivBrowser(PixivBrowser):

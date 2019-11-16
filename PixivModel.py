@@ -8,11 +8,18 @@ import shutil
 import zipfile
 import codecs
 import collections
-import PixivHelper
 import urlparse
-from PixivException import PixivException
+import datetime_z
+import urllib
+from collections import OrderedDict
 from datetime import datetime
 import json
+
+import demjson
+from BeautifulSoup import BeautifulSoup
+
+import PixivHelper
+from PixivException import PixivException
 
 
 class PixivArtist:
@@ -27,189 +34,210 @@ class PixivArtist:
     haveImages = None
     totalImages = 0
     __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
+    offset = None
+    limit = None
+    reference_image_id = 0
 
-    def __init__(self, mid=0, page=None, fromImage=False):
+    def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
+        self.offset = offset
+        self.limit = limit
+        self.artistId = mid
+
         if page is not None:
-            if self.is_not_logged_in(page):
-                raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
-
-            if self.IsUserNotExist(page):
-                raise PixivException('User ID not exist/deleted!', errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
-
-            if self.IsUserSuspended(page):
-                raise PixivException('User Account is Suspended!', errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=page)
-
-            # detect if there is any other error
-            errorMessage = self.IsErrorExist(page)
-            if errorMessage is not None:
-                raise PixivException('Member Error: ' + str(errorMessage), errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
-
-            # detect if there is server error
-            errorMessage = self.IsServerErrorExist(page)
-            if errorMessage is not None:
-                raise PixivException('Member Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
-
+            payload = None
             # detect if image count != 0
             if not fromImage:
-                self.ParseImages(page)
+                payload = demjson.decode(page)
+                if payload["error"]:
+                    raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
+                if payload["body"] is None:
+                    raise PixivException("Missing body content, possible artist id doesn't exists.", errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
+                self.ParseImages(payload["body"])
+            else:
+                payload = parseJs(page)
+                self.isLastPage = True
+                self.haveImages = True
 
             # parse artist info
-            self.ParseInfo(page, fromImage)
-
-            # check if no images
-            self.haveImages = bool(len(self.imageList) > 0)
-
-            # check if the last page
-            self.CheckLastPage(page)
+            self.ParseInfo(payload, fromImage)
 
     def ParseInfo(self, page, fromImage=False, bookmark=False):
-        avatar_box = page.find(attrs={'class': '_unit profile-unit'})
-        self.artistToken = self.ParseToken(page, fromImage)
+        self.artistId = 0
+        self.artistAvatar = "no_profile"
+        self.artistToken = "self"
+        self.artistName = "self"
+        self.artistBackground = "no_background"
 
-        styles = page.findAll('style')
-        for style in styles:
-            urls = re.findall('background:.*url\(\'(.*?)\'\)', str(style))
-            if len(urls) > 0:
-                self.artistBackground = urls[0]
+        if page is not None:
+            if fromImage:
+                self.ParseInfoFromImage(page)
+            else:
+                # used in PixivBrowserFactory.getMemberInfoWhitecube()
+
+                # webrpc method
+                if page.has_key("body") and page["body"].has_key("illust") and page["body"]["illust"]:
+                    root = page["body"]["illust"]
+                    self.artistId = root["illust_user_id"]
+                    self.artistToken = root["user_account"]
+                    self.artistName = root["user_name"]
+                elif page.has_key("body") and page["body"].has_key("novel") and page["body"]["novel"]:
+                    root = page["body"]["novel"]
+                    self.artistId = root["user_id"]
+                    self.artistToken = root["user_account"]
+                    self.artistName = root["user_name"]
+
+                # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
+                data = None
+                if page.has_key("user"):
+                    data = page
+                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+                    data = page["illusts"][0]
+
+                if data is not None:
+                    self.artistId = data["user"]["id"]
+                    self.artistToken = data["user"]["account"]
+                    self.artistName = data["user"]["name"]
+
+                    avatar_data = data["user"]["profile_image_urls"]
+                    if avatar_data is not None and avatar_data.has_key("medium"):
+                        self.artistAvatar = avatar_data["medium"].replace("_170", "")
+
+                if page.has_key("profile") and self.totalImages == 0:
+                    if bookmark:
+                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
+                    else:
+                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+
+    def ParseInfoFromImage(self, page):
+        key = list(page["user"].keys())[0]
+        root = page["user"][key]
+
+        self.artistId = root["userId"]
+        self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
+        self.artistName = root["name"]
+
+        if root["background"] is not None:
+            self.artistBackground = root["background"]["url"]
+
+        # Issue 388 user token is stored in image
+        illusts = page["illust"]
+        for il in illusts:
+            if illusts[il]["userAccount"]:
+                self.artistToken = illusts[il]["userAccount"]
                 break
 
-        if avatar_box is not None:
-            temp = str(avatar_box.find('a')['href'])
-            self.artistId = int(re.search(r'id=(\d+)', temp).group(1))
+    def ParseBackground(self, payload):
+        self.artistBackground = "no_background"
 
-            self.artistAvatar = str(page.find('img', attrs={'class': 'user-image'})['src'])
+        # https://www.pixiv.net/ajax/user/8021957
+        if payload.has_key("body"):
+            root = payload["body"]
+            self.artistId = root["userId"]
+            self.artistName = root["name"]
+            if root.has_key("imageBig") and root["imageBig"] is not None:
+                self.artistAvatar = payload["body"]["imageBig"].replace("_50", "").replace("_170", "")
+            elif root.has_key("image") and root["image"] is not None:
+                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
 
-            try:
-                h1 = page.find('h1', attrs={'class': 'user'})
-                if h1 is not None:
-                    self.artistName = unicode(h1.string.extract())
-                else:
-                    avatar_m = page.findAll(attrs={"class": "avatar_m"})
-                    if avatar_m is not None and len(avatar_m) > 0:
-                        self.artistName = unicode(avatar_m[0]["title"])
-            except BaseException:
-                self.artistName = self.artistToken  # use the token.
+            # https://www.pixiv.net/ajax/user/1893126
+            if root.has_key("background") and root["background"] is not None:
+                self.artistBackground = root["background"]["url"]
+
+    def ParseImages(self, payload):
+        self.imageList = list()
+
+        if payload.has_key("works"):  # filter by tags
+            for image in payload["works"]:
+                self.imageList.append(image["id"])
+            self.totalImages = int(payload["total"])
+
+            if len(self.imageList) > 0:
+                self.haveImages = True
+
+            if len(self.imageList) + self.offset == self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
+
             return
         else:
-            # Issue #236
-            avatar_box = page.find(attrs={'class': '_user-profile-card'})
-            if avatar_box is not None:
-                temp = avatar_box.find('a')
-                self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
-                self.artistName = unicode(temp['title'])
-                self.artistAvatar = avatar_box.find('a')['style'].replace("background-image: url('", "").replace("');", "")
-                return
+            if payload.has_key("illusts"):  # all illusts
+                for image in payload["illusts"]:
+                    self.imageList.append(image)
+            if payload.has_key("manga"):  # all manga
+                for image in payload["manga"]:
+                    self.imageList.append(image)
+            self.imageList = sorted(self.imageList, reverse=True, key=int)
+            self.totalImages = len(self.imageList)
+            # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
 
-        # check if self manage page
-        submit_related = page.findAll("ul", attrs={'class': 'related'})
-        if len(submit_related) > 0 and str(submit_related[0]).find("upload.php") > 0:
-            PixivHelper.print_and_log("info", "Manage Page")
-            self.artistAvatar = "no_profile"
-            self.artistName = u"yourself"
-            self.artistToken = "yourself"
-            temp = page.find("h1", attrs={'class': 'column-title'}).find("a")
-            self.artistId = int(re.findall(r'pixiv.user.id = "(\d+)";', unicode(page))[0])
-            return
+            if self.offset + self.limit >= self.totalImages:
+                self.isLastPage = True
+            else:
+                self.isLastPage = False
 
-        # Issue #236
-        # cannot parse information
-        self.artistAvatar = "no_profile"
-        self.artistName = "self"
-        title = page.find("title").text
-        filename = u"Dump for {0} UnknownProfile for {1}.html".format(title, self.artistToken)
-        PixivHelper.print_and_log("error", u"Cannot parse artist info, dumping to {0}".format(filename))
-        # PixivHelper.printAndLog("error", u"{0}".format(page))
-        PixivHelper.dumpHtml(filename, page)
+            if len(self.imageList) > 0:
+                self.haveImages = True
 
-    def ParseToken(self, page, fromImage=False):
-        try:
-            # get the token from stacc feed
-            # tab_feeds = page.findAll('a', attrs={'class': 'tab-feed'})
-            tab_feeds = page.findAll(href=re.compile('/stacc/[^/?]*$'))
-            if tab_feeds is not None and len(tab_feeds) > 0:
-                for a in tab_feeds:
-                    if str(a["href"]).find("stacc/") > 0:
-                        self.artistToken = a["href"].split("/")[-1]
-                        return self.artistToken
-            # no token, possibly self page from manage works.
-            # https://www.pixiv.net/manage/illusts/
-            self.artistToken = "self"
-            return self.artistToken
-##            if fromImage:
-##                uls = page.findAll('ul', attrs={'class': 'tabs'})
-##                for ul in uls:
-##                    links = ul.findAll('a')
-##                    for a in links:
-##                        if str(a["href"]).find("stacc/") > 0:
-##                            self.artistToken = a["href"].split("/")[-1]
-##                            return self.artistToken
+    # older function
+    # def ParseToken(self, page, fromImage=False):
+    #     try:
+    #         # get the token from stacc feed
+    #         # tab_feeds = page.findAll('a', attrs={'class': 'tab-feed'})
+    #         tab_feeds = page.findAll(href=re.compile('/stacc/[^/?]*$'))
+    #         if tab_feeds is not None and len(tab_feeds) > 0:
+    #             for a in tab_feeds:
+    #                 if str(a["href"]).find("stacc/") > 0:
+    #                     self.artistToken = a["href"].split("/")[-1]
+    #                     return self.artistToken
+    #         # no token, possibly self page from manage works.
+    #         # https://www.pixiv.net/manage/illusts/
+    #         self.artistToken = "self"
+    #         return self.artistToken
 
-        except BaseException:
-            raise PixivException('Cannot parse artist token, possibly different image structure.',
-                                 errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE, htmlPage=page)
+    #     except BaseException:
+    #         raise PixivException('Cannot parse artist token, possibly different image structure.',
+    #                              errorCode=PixivException.PARSE_TOKEN_DIFFERENT_IMAGE_STRUCTURE, htmlPage=page)
 
-    def ParseImages(self, page):
-        del self.imageList[:]
-        temp = page.find('ul', attrs={'class': PixivArtist.__re_imageULItemsClass})
-        if temp is not None and len(temp) > 0:
-            temp = temp.findAll('a')
-            for item in temp:
-                href = re.search(r'member_illust.php.*illust_id=(\d+)', str(item))
-                if href is not None:
-                    href = int(href.group(1))
-                    # fuck performance :D
-                    if href not in self.imageList:
-                        self.imageList.append(href)
-        self.totalImages = SharedParser.parseCountBadge(page)
+    # def IsUserNotExist(self, page):
+    #     errorMessages = ['該当ユーザーは既に退会したか、存在しないユーザーIDです',
+    #                      'The user has either left pixiv, or the user ID does not exist.',
+    #                      'User has left pixiv or the user ID does not exist.',
+    #                      '該当作品は削除されたか、存在しない作品IDです。',
+    #                      'The following work is either deleted, or the ID does not exist.',
+    #                      'User has left pixiv or the user ID does not exist.']
+    #     return PixivHelper.HaveStrings(page, errorMessages)
 
-        if len(self.imageList) == 0:
-            raise PixivException('No image found!', errorCode=PixivException.NO_IMAGES, htmlPage=page)
+    # def IsUserSuspended(self, page):
+    #     errorMessages = ['該当ユーザーのアカウントは停止されています。',
+    #                      'This user account has been suspended.']
+    #     return PixivHelper.HaveStrings(page, errorMessages)
 
-    def is_not_logged_in(self, page):
-        check = page.findAll('div', attrs={'id': 'register-introduction-modal'})
-        if check is not None and len(check) > 0:
-            return True
-        return False
+    # def IsErrorExist(self, page):
+    #     check = page.findAll('span', attrs={'class': 'error'})
+    #     if len(check) > 0:
+    #         check2 = check[0].findAll('strong')
+    #         if len(check2) > 0:
+    #             return check2[0].renderContents()
+    #         return check[0].renderContents()
+    #     return None
 
-    def IsUserNotExist(self, page):
-        errorMessages = ['該当ユーザーは既に退会したか、存在しないユーザーIDです',
-                         'The user has either left pixiv, or the user ID does not exist.',
-                         'User has left pixiv or the user ID does not exist.',
-                         '該当作品は削除されたか、存在しない作品IDです。',
-                         'The following work is either deleted, or the ID does not exist.',
-                         'User has left pixiv or the user ID does not exist.']
-        return PixivHelper.HaveStrings(page, errorMessages)
+    # def IsServerErrorExist(self, page):
+    #     check = page.findAll('div', attrs={'class': 'errorArea'})
+    #     if len(check) > 0:
+    #         check2 = check[0].findAll('h2')
+    #         if len(check2) > 0:
+    #             return check2[0].renderContents()
+    #         return check[0].renderContents()
+    #     return None
 
-    def IsUserSuspended(self, page):
-        errorMessages = ['該当ユーザーのアカウントは停止されています。',
-                         'This user account has been suspended.']
-        return PixivHelper.HaveStrings(page, errorMessages)
-
-    def IsErrorExist(self, page):
-        check = page.findAll('span', attrs={'class': 'error'})
-        if len(check) > 0:
-            check2 = check[0].findAll('strong')
-            if len(check2) > 0:
-                return check2[0].renderContents()
-            return check[0].renderContents()
-        return None
-
-    def IsServerErrorExist(self, page):
-        check = page.findAll('div', attrs={'class': 'errorArea'})
-        if len(check) > 0:
-            check2 = check[0].findAll('h2')
-            if len(check2) > 0:
-                return check2[0].renderContents()
-            return check[0].renderContents()
-        return None
-
-    def CheckLastPage(self, page):
-        check = page.findAll('a', attrs={'class': '_button', 'rel': 'next'})
-        if len(check) > 0:
-            self.isLastPage = False
-        else:
-            self.isLastPage = True
-        return self.isLastPage
+    # def CheckLastPage(self, page):
+    #     check = page.findAll('a', attrs={'class': '_button', 'rel': 'next'})
+    #     if len(check) > 0:
+    #         self.isLastPage = False
+    #     else:
+    #         self.isLastPage = True
+    #     return self.isLastPage
 
     def PrintInfo(self):
         PixivHelper.safePrint('Artist Info')
@@ -249,6 +277,167 @@ class PixivImage:
     dateFormat = None
     descriptionUrlList = []
     __re_caption = re.compile("caption")
+    _tzInfo = None
+
+    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
+                 bookmark_count=-1, image_response_count=-1, dateFormat=None, tzInfo=None):
+        self.artist = parent
+        self.fromBookmark = fromBookmark
+        self.bookmark_count = bookmark_count
+        self.imageId = iid
+        self.imageUrls = []
+        self.dateFormat = dateFormat
+        self.descriptionUrlList = []
+        self._tzInfo = tzInfo
+
+        if page is not None:
+
+            # Issue #556
+            payload = parseJs(page)
+
+            # check error
+            if payload is None:
+                parsed = BeautifulSoup(page.decode("utf8"))
+                if self.IsNotLoggedIn(parsed):
+                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+                if self.IsNeedPermission(parsed):
+                    raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
+                if self.IsNeedAppropriateLevel(parsed):
+                    raise PixivException('Public works can not be viewed by the appropriate level!',
+                                         errorCode=PixivException.NO_APPROPRIATE_LEVEL, htmlPage=page)
+                if self.IsDeleted(parsed):
+                    raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED, htmlPage=page)
+                if self.IsGuroDisabled(parsed):
+                    raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!',
+                                         errorCode=PixivException.R_18_DISABLED, htmlPage=page)
+                # detect if there is any other error
+                errorMessage = self.IsErrorExist(parsed)
+                if errorMessage is not None:
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
+                # detect if there is server error
+                errorMessage = self.IsServerErrorExist(parsed)
+                if errorMessage is not None:
+                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
+                parsed.decompose()
+                del parsed
+
+            # parse artist information
+            if parent is None:
+                temp_artist_id = list(payload["user"].keys())[0]
+                self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
+
+            if fromBookmark and self.originalArtist is None:
+                assert(self.artist is not None)
+                self.originalArtist = PixivArtist(page=page, fromImage=True)
+                print("From Artist Bookmark: {0}".format(self.artist.artistId))
+                print("Original Artist: {0}".format(self.originalArtist.artistId))
+            else:
+                self.originalArtist = self.artist
+
+            # parse image
+            self.ParseInfo(payload)
+
+    def ParseInfo(self, page):
+        key = list(page["illust"].keys())[0]
+        assert(str(key) == str(self.imageId))
+        root = page["illust"][key]
+
+        self.imageUrls = list()
+
+        self.imageCount = int(root["pageCount"])
+        temp_url = root["urls"]["original"]
+        if self.imageCount == 1:
+            if temp_url.find("ugoira") > 0:
+                self.imageMode = "ugoira_view"
+                # https://i.pximg.net/img-zip-ugoira/img/2018/04/22/00/01/06/68339821_ugoira600x600.zip 1920x1080
+                # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
+                # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.png
+                # Fix Issue #372
+                temp_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
+                temp_url = temp_url.split("_ugoira0")[0]
+                temp_url = temp_url + "_ugoira1920x1080.zip"
+                self.imageUrls.append(temp_url)
+                # self.ParseUgoira(page)
+            else:
+                self.imageMode = "big"
+                self.imageUrls.append(temp_url)
+        elif self.imageCount > 1:
+            self.imageMode = "manga"
+            for i in range(0, self.imageCount):
+                url = temp_url.replace("_p0", "_p{0}".format(i))
+                self.imageUrls.append(url)
+
+        # title/caption
+        self.imageTitle = root["illustTitle"]
+        self.imageCaption = root["illustComment"]
+
+        # view count
+        self.jd_rtv = root["viewCount"]
+        # like count
+        self.jd_rtc = root["likeCount"]
+        # not available anymore
+        self.jd_rtt = self.jd_rtc
+
+        # tags
+        self.imageTags = list()
+        tags = root["tags"]
+        if tags is not None:
+            tags = root["tags"]["tags"]
+            for tag in tags:
+                self.imageTags.append(tag["tag"])
+
+        # datetime, in utc
+        # "createDate" : "2018-06-08T15:00:04+00:00",
+        self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
+        # Issue #420
+        if self._tzInfo is not None:
+            self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+
+        tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
+        self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
+
+        # resolution
+        self.worksResolution = "{0}x{1}".format(root["width"], root["height"])
+        if self.imageCount > 1:
+            self.worksResolution = "Multiple images: {0}P".format(self.imageCount)
+
+        # tools = No more tool information
+        self.worksTools = ""
+
+        self.bookmark_count = root["bookmarkCount"]
+        self.image_response_count = root["responseCount"]
+
+        # Issue 421
+        parsed = BeautifulSoup(self.imageCaption)
+        links = parsed.findAll('a')
+        if links is not None and len(links) > 0:
+            for link in links:
+                link_str = link["href"]
+                # "/jump.php?http%3A%2F%2Farsenixc.deviantart.com%2Fart%2FWatchmaker-house-567480110"
+                if link_str.startswith("/jump.php?"):
+                    link_str = link_str[10:]
+                    link_str = urllib.unquote(link_str)
+                self.descriptionUrlList.append(link_str)
+
+    def ParseImages(self, page, mode=None, _br=None):
+        pass
+
+    def ParseUgoira(self, page):
+        # preserve the order
+        js = json.loads(page, object_pairs_hook=OrderedDict)
+        self.imageCount = 1
+        js = js["body"]
+
+        # convert to full screen url
+        # ugoira600x600.zip ==> ugoira1920x1080.zip
+        # js["src_low"] = js["src"]
+        js["src"] = js["src"].replace("ugoira600x600.zip", "ugoira1920x1080.zip")
+
+        # need to be minified
+        self.ugoira_data = json.dumps(js, separators=(',', ':'))  # ).replace("/", r"\/")
+
+        assert(len(self.ugoira_data) > 0)
+        return js["src"]
 
     def IsNotLoggedIn(self, page):
         check = page.findAll('a', attrs={'class': 'signup_button'})
@@ -289,7 +478,6 @@ class PixivImage:
             check2 = check[0].findAll('strong')
             if len(check2) > 0:
                 return check2[0].renderContents()
-
         check = page.findAll('div', attrs={'class': '_unit error-unit'})
         if len(check) > 0:
             check2 = check[0].findAll('p', attrs={'class': 'error-message'})
@@ -304,25 +492,6 @@ class PixivImage:
             if len(check2) > 0:
                 return check2[0].renderContents()
         return None
-
-    # def ParseWorksData(self, page):
-    #     temp = page.find(attrs={'class': 'meta'}).findAll('li')
-    #     # 07/22/2011 03:09|512×600|RETAS STUDIO
-    #     # 07/26/2011 00:30|Manga 39P|ComicStudio 鉛筆 つけペン
-    #     # 1/05/2011 07:09|723×1023|Photoshop SAI  [ R-18 ]
-    #     # 2013年3月16日 06:44 | 800×1130 | Photoshop ComicStudio | R-18
-    #     # 2013年12月14日 19:00 855×1133 PhotoshopSAI
-
-    #     self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
-    #     self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
-
-    #     self.worksResolution = unicode(temp[1].string).replace(u'×', u'x')
-    #     toolsTemp = page.find(attrs={'class': 'meta'}).find(attrs={'class': 'tools'})
-    #     if toolsTemp is not None and len(toolsTemp) > 0:
-    #         tools = toolsTemp.findAll('li')
-    #         for tool in tools:
-    #             self.worksTools = self.worksTools + ' ' + unicode(tool.string)
-    #         self.worksTools = self.worksTools.strip()
 
     def ParseTags(self, page):
         del self.imageTags[:]
@@ -369,115 +538,6 @@ class PixivImage:
         PixivHelper.safePrint('Tools : ' + self.worksTools)
         return ""
 
-    # def ParseBigImages(self, page, _br):
-    #     self.imageCount = 1
-
-    #     # Issue #224
-    #     # work manga
-    #     temp = page.find('a', attrs={'class': ' _work manga '})
-    #     if temp is not None:
-    #         if _br is None:
-    #             import PixivBrowserFactory
-    #             _br = PixivBrowserFactory.getExistingBrowser()
-
-    #         expected_url = 'https://www.pixiv.net/en/artworks/{0}'.format(self.imageId)
-    #         try:
-    #             href = _br.fixUrl(expected_url)
-    #             print("Fetching big image page:", href)
-    #             referer = "https://www.pixiv.net/en/artworks/{0}".format(self.imageId)
-    #             bigPage = _br.getPixivPage(url=href, referer=referer)
-    #             bigImg = bigPage.find('img')
-    #             imgUrl = bigImg["src"]
-    #             # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
-    #             print("Found: ", imgUrl)
-    #             bigImg.decompose()
-    #             bigPage.decompose()
-    #             del bigImg
-    #             del bigPage
-    #             return imgUrl
-    #         except Exception as ex:
-    #             print(ex)
-
-    #     # new layout for big 20141216
-    #     temp = page.find('img', attrs={'class': 'original-image'})
-    #     if temp is not None:
-    #         return str(temp['data-src'])
-
-    #     # new layout for big 20141212
-    #     temp = page.find('img', attrs={'class': 'big'})
-    #     if temp is not None:
-    #         return str(temp['data-src'])
-
-    #     # old layout
-    #     temp = page.find('img')['src']
-    #     return str(temp)
-
-    # def CheckMangaType(self, page, _br):
-    #     # _book-viewer
-    #     twopage_format = page.find("html", attrs={'class': re.compile(r".*\b_book-viewer\b.*")})
-    #     if twopage_format is not None and len(twopage_format) > 0:
-    #         # new format
-    #         # print("2-page manga viewer mode")
-    #         return self.ParseMangaImagesScript(page)
-    #     else:
-    #         # standard format
-    #         return self.ParseMangaImagesNew(page, _br)
-
-    # def ParseMangaImagesScript(self, page):
-    #     urls = []
-    #     scripts = page.findAll('script')
-    #     pattern = re.compile(r"pixiv.context.originalImages\[\d+\].*(http.*)\"")
-    #     for script in scripts:
-    #         s = str(script)
-    #         if "pixiv.context.originalImages" in s:
-    #             # <script>pixiv.context.images[10] = "http:\/\/i2.pixiv.net\/c\/1200x1200\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_master1200.jpg";pixiv.context.thumbnailImages[10] = "http:\/\/i2.pixiv.net\/c\/128x128\/img-master\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10_square1200.jpg";pixiv.context.originalImages[10] = "http:\/\/i2.pixiv.net\/img-original\/img\/2014\/10\/03\/14\/13\/59\/46322053_p10.jpg";</script>
-    #             m = pattern.findall(s)
-    #             if len(m) > 0:
-    #                 # http:\\/\\/i2.pixiv.net\\/img-original\\/img\\/2014\\/10\\/03\\/14\\/13\\/59\\/46322053_p0.jpg
-    #                 img = m[0].replace('\\/', "/")
-    #                 urls.append(img)
-
-    #     self.imageCount = len(urls)
-    #     return urls
-
-    # def ParseMangaImagesNew(self, page, _br):
-    #     urls = []
-    #     # mangaSection = page.find("section", attrs={'class': 'manga'})
-    #     # links = mangaSection.findAll('a')
-    #     # pattern /member_illust.php?mode=manga_big&illust_id=46279245&page=0
-    #     if _br is None:
-    #         import PixivBrowserFactory
-    #         _br = PixivBrowserFactory.getExistingBrowser()
-
-    #     total = page.find("span", attrs={'class': 'total'})
-    #     if total is not None:
-    #         self.imageCount = int(total.string)
-
-    #     for currPage in range(0, self.imageCount):
-    #         expected_url = '/member_illust.php?mode=manga_big&illust_id=' + str(self.imageId) + '&page=' + str(currPage)
-    #         try:
-    #             href = _br.fixUrl(expected_url)
-    #             msg = "\rFetching big image page: {0}".format(href)
-    #             print("{0:79}".format(msg), end=' ')
-    #             referer = "https://www.pixiv.net/en/artworks/{0}".format(self.imageId)
-    #             bigPage = _br.getPixivPage(url=href, referer=referer)
-
-    #             bigImg = bigPage.find('img')
-    #             imgUrl = bigImg["src"]
-    #             # http://i2.pixiv.net/img-original/img/2013/12/27/01/51/37/40538869_p7.jpg
-    #             msg = "\rFound: {0}".format(imgUrl)
-    #             print("{0:79}".format(msg), end=' ')
-    #             urls.append(imgUrl)
-    #             bigImg.decompose()
-    #             bigPage.decompose()
-    #             del bigImg
-    #             del bigPage
-    #         except Exception as ex:
-    #             print(ex)
-    #     print("\r{0:120}".format("Manga pages parsed."))
-
-    #     return urls
-
     def ParseBookmarkDetails(self, page):
         if page is None:
             raise PixivException('No page given', errorCode=PixivException.NO_PAGE_GIVEN)
@@ -492,7 +552,6 @@ class PixivImage:
                         elif "image-response-count" in a["class"]:
                             self.image_response_count = int(a.text)
                     return
-
             # no bookmark count
             self.bookmark_count = 0
             self.image_response_count = 0
@@ -818,114 +877,71 @@ class PixivTags:
     query = ""
     memberId = 0
 
-    def parseIgnoreSection(self, page, sectionName):
-        ignore = list()
-        showcases = page.findAll('section', attrs={'class': sectionName})
-        for showcase in showcases:
-            lis = showcase.findAll('li', attrs={'class': self.__re_imageItemClass})
-            for li in lis:
-                if str(li).find('member_illust.php?') > -1:
-                    image_id = self.__re_illust.findall(li.find('a')['href'])[0]
-                    ignore.append(image_id)
-        return ignore
-
-    def parseTags(self, page, query=""):
-        '''parse tags search page and return the image list with bookmarkCount and imageResponse'''
-        self.itemList = list()
-        self.query = query
-
-        ignore = list()
-        # ignore showcase and popular-introduction
-        # ignore.extend(self.parseIgnoreSection(page, 'showcase'))
-        # ignore.extend(self.parseIgnoreSection(page, 'popular-introduction'))
-
-        # new format for tag list, fix issue #252
-        # fix issue #270, changed to search based on id only
-        js_tags_item = page.find(id="js-mount-point-search-result-list")
-        if js_tags_item is not None:
-            js = js_tags_item["data-items"]
-            items = json.loads(js)
-            for item in items:
-                image_id = item["illustId"]
-                if image_id is not None:  # Fix #472 skip if no illustId
-                    bookmarkCount = item["bookmarkCount"]
-                    imageResponse = item["responseCount"]
-                    self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
-
-        else:
-            search_result = page.find('section', attrs={'class': 'column-search-result'})
-            # new parse for bookmark items
-            items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
-
-            # possible bug related to #143
-            if len(items) == 0:
-                # showcase must be removed first
-                showcase = page.find("section", attrs={'class': 'showcase'})
-                if showcase is not None:
-                    showcase.extract()
-                search_result = page.find("ul", attrs={'class': '_image-items autopagerize_page_element'})
-                if search_result is None or len(search_result) == 0:
-                    return self.itemList
-                items = search_result.findAll('li', attrs={'class': self.__re_imageItemClass})
-
-            for item in items:
-                if str(item).find('member_illust.php?') > -1:
-                    image_id = self.__re_illust.findall(item.find('a')['href'])[0]
-                    if not str(image_id).isdigit() or image_id in ignore:
-                        continue
-
-                    bookmarkCount = 0
-                    imageResponse = 0
-                    countList = item.find('ul', attrs={'class': 'count-list'})
-                    if countList is not None:
-                        countList = countList.findAll('li')
-                        if len(countList) > 0:
-                            for count in countList:
-                                temp = count.find('a')
-                                if 'bookmark-count' in temp['class']:
-                                    bookmarkCount = temp.contents[1]
-                                elif 'image-response-count' in temp['class']:
-                                    imageResponse = temp.contents[1]
-                    self.itemList.append(PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse)))
-
-        self.checkLastPage(page)
-        self.availableImages = SharedParser.parseCountBadge(page)
-        return self.itemList
-
-    def parseMemberTags(self, page, memberId, query=""):
-        '''parse member tags search page and return the image list'''
+    def parseMemberTags(self, artist, memberId, query=""):
+        '''process artist result and return the image list'''
         self.itemList = list()
         self.memberId = memberId
         self.query = query
+        self.haveImage = artist.haveImages
+        self.isLastPage = artist.isLastPage
+        for image in artist.imageList:
+            self.itemList.append(PixivTagsItem(int(image), 0, 0))
 
-        linkList = page.findAll('a')
-        for link in linkList:
-            if link.has_key('href'):
-                result = self.__re_illust.findall(link['href'])
-                if len(result) > 0:
-                    image_id = int(result[0])
-                    self.itemList.append(PixivTagsItem(int(image_id), 0, 0))
-        self.checkLastPage(page, fromMember=True)
-        self.availableImages = SharedParser.parseCountBadge(page)
-        return self.itemList
+    def parseTags(self, page, query="", curr_page=1):
+        payload = json.loads(page)
+        self.query = query
 
-    def checkLastPage(self, page, fromMember=False):
-        # Check if have image
+        # check error
+        if payload["error"]:
+            raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+
+        # parse images information
+        self.itemList = list()
+        ad_container_count = 0
+        for item in payload["body"]["illustManga"]["data"]:
+            if item["isAdContainer"]:
+                ad_container_count = ad_container_count + 1
+                continue
+
+            image_id = item["id"]
+            # like count not available anymore, need to call separate request...
+            bookmarkCount = 0
+            imageResponse = 0
+            tag_item = PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse))
+            self.itemList.append(tag_item)
+
+        self.haveImage = False
         if len(self.itemList) > 0:
             self.haveImage = True
+
+        # search page info
+        self.availableImages = int(payload["body"]["illustManga"]["total"])
+        # assuming there are only 47 image (1 is marked as ad)
+        # if self.availableImages > 47 * curr_page:
+        # assume it always return 6 images, including the advert
+        if len(self.itemList) + ad_container_count == 60:
+            self.isLastPage = False
         else:
-            self.haveImage = False
+            self.isLastPage = True
+        return self.itemList
 
-        # check if the last page
-        check = page.findAll('i', attrs={'class': '_icon sprites-next-linked'})
-        self.isLastPage = not bool(len(check) > 0)
+    # def checkLastPage(self, page, fromMember=False):
+    #     # Check if have image
+    #     if len(self.itemList) > 0:
+    #         self.haveImage = True
+    #     else:
+    #         self.haveImage = False
 
-        if fromMember:
-            # check if the last page for member tags
-            if self.isLastPage:
-                check = page.findAll(name='a', attrs={'class': 'button', 'rel': 'next'})
-                if len(check) > 0:
-                    self.isLastPage = False
+    #     # check if the last page
+    #     check = page.findAll('i', attrs={'class': '_icon sprites-next-linked'})
+    #     self.isLastPage = not bool(len(check) > 0)
+
+    #     if fromMember:
+    #         # check if the last page for member tags
+    #         if self.isLastPage:
+    #             check = page.findAll(name='a', attrs={'class': 'button', 'rel': 'next'})
+    #             if len(check) > 0:
+    #                 self.isLastPage = False
 
     def PrintInfo(self):
         PixivHelper.safePrint('Search Result')
@@ -1047,3 +1063,18 @@ class SharedParser:
             if temp_count > 0:
                 total_images = int(temp_count[0])
         return total_images
+
+
+def parseJs(page):
+    parsed = BeautifulSoup(page.decode("utf8"))
+    jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
+
+    # cleanup
+    parsed.decompose()
+    del parsed
+
+    if jss is None or len(jss["content"]) == 0:
+        return None  # Possibly error page
+
+    payload = demjson.decode(jss["content"])
+    return payload

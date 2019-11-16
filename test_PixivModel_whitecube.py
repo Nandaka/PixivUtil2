@@ -2,17 +2,15 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
-import sys
+import json
 import os
 import unittest
-import json
-import pytest
 
+import pytest
 from BeautifulSoup import BeautifulSoup
 
 import PixivHelper
-from PixivModelWhiteCube import PixivImage, PixivArtist
-from PixivException import PixivException
+from PixivModel import PixivArtist, PixivException, PixivImage
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
@@ -140,6 +138,6 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertFalse(member.isLastPage)
 
 if __name__ == '__main__':
-        # unittest.main()
+    # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivModel_WhiteCube)
     unittest.TextTestRunner(verbosity=5).run(suite)

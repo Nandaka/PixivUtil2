@@ -25,7 +25,7 @@ from HTMLParser import HTMLParser
 import imageio
 
 import PixivConstant
-import PixivModelWhiteCube
+import PixivModel
 from apng import APNG
 
 Logger = None
@@ -336,7 +336,7 @@ def uni_input(message=''):
 
 def createAvatarFilename(artistPage, targetDir):
     filename = ''
-    image = PixivModelWhiteCube.PixivImage(parent=artistPage)
+    image = PixivModel.PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
     if len(_config.avatarNameFormat) > 0:
         filenameFormat = _config.avatarNameFormat
