@@ -31,3 +31,4 @@ ignore_list.txt
 numpy-atlas.dll
 tags.txt
 url_list_*.txt
+test.db.sqlite
