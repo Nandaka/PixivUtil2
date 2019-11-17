@@ -550,13 +550,13 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         break
                     except BaseException:
                         if retry_count > __config__.retry:
-                            PixivHelper.print_and_log('error', "Giving up image_id: " + str(image_id))
+                            PixivHelper.print_and_log('error', "Giving up image_id: {0}".format(image_id))
                             return
                         retry_count = retry_count + 1
                         print("Stuff happened, trying again after 2 second (", retry_count, ")")
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         traceback.print_exception(exc_type, exc_value, exc_traceback)
-                        __log__.exception('Error at process_member(): ' + str(sys.exc_info()) + ' Member Id: ' + str(member_id))
+                        __log__.exception('Error at process_member(): %s Member Id: %d', str(sys.exc_info()), member_id)
                         time.sleep(2)
 
                 no_of_images = no_of_images + 1
@@ -606,7 +606,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
         else:
             log_message = 'no images were found'
         print('Done.\n')
-        __log__.info('Member_id: ' + str(member_id) + ' complete, ' + log_message)
+        __log__.info('Member_id: %d complete, %s', member_id, log_message)
     except KeyboardInterrupt:
         raise
     except BaseException:
@@ -2416,7 +2416,7 @@ def main():
         __log__.setLevel("INFO")
         __log__.info('EXIT: %s', ERROR_CODE)
         __log__.info('###############################################################')
-        # sys.exit(ERROR_CODE)
+        sys.exit(ERROR_CODE)
 
 
 if __name__ == '__main__':

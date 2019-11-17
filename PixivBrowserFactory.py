@@ -436,9 +436,8 @@ class PixivBrowser(mechanize.Browser):
         ''' get artist information using Ajax and AppAPI '''
         try:
             info = None
-            if artist.reference_image_id > 0:
-                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(
-                    artist.reference_image_id)
+            if int(artist.reference_image_id) > 0:
+                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(artist.reference_image_id)
                 PixivHelper.GetLogger().debug("using webrpc: %s", url)
                 info = self._get_from_cache(url)
                 if info is None:

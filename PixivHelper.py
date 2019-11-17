@@ -21,11 +21,11 @@ import zipfile
 from datetime import date, datetime, timedelta, tzinfo
 
 import imageio
+import mechanize
 
 import PixivConstant
 from apng import APNG
 from PixivImage import PixivImage
-import mechanize
 
 Logger = None
 _config = None
@@ -45,7 +45,8 @@ def GetLogger(level=logging.DEBUG):
         Logger.setLevel(level)
         __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
                                                               maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
-                                                              backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+                                                              backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
+                                                              encoding="utf-8")
         __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
         __logHandler__.setFormatter(__formatter__)
         Logger.addHandler(__logHandler__)
@@ -413,7 +414,7 @@ def sizeInStr(totalSize):
     return "{0:.2f} GiB".format(totalSize)
 
 
-def dumpHtml(filename, html):
+def dumpHtml(filename, html_text):
     isDumpEnabled = True
     filename = sanitizeFilename(filename)
     if _config is not None:
@@ -424,14 +425,14 @@ def dumpHtml(filename, html):
                 if matchResult is not None and len(matchResult) > 0:
                     isDumpEnabled = False
 
-    if html is not None and len(html) == 0:
+    if html_text is not None and len(html_text) == 0:
         print_and_log('info', 'Empty Html.')
         return ""
 
     if isDumpEnabled:
         try:
-            dump = open(filename, 'wb')
-            dump.write(str(html))
+            dump = open(filename, 'wb', encoding="utf-8")
+            dump.write(str(html_text))
             dump.close()
             return filename
         except Exception as ex:
@@ -450,7 +451,7 @@ def print_and_log(level, msg):
         if level == 'info':
             GetLogger().info(msg)
         elif level == 'warn':
-            GetLogger().warn(msg)
+            GetLogger().warning(msg)
         elif level == 'error':
             GetLogger().error(msg)
             GetLogger().error(traceback.format_exc())
@@ -619,9 +620,6 @@ def downloadImage(url, filename, res, file_size, overwrite):
                 break
 
             prev = curr
-
-    except BaseException:
-        raise
 
     finally:
         if save is not None:
