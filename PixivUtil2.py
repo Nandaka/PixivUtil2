@@ -956,9 +956,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
         if bookmark_count is not None and bookmark_count > 0:
             use_bookmark_data = True
 
-        offset = 20
-        if __br__._isWhitecube:
-            offset = 50
+        offset = 60
         start_offset = (page - 1) * offset
         stop_offset = end_page * offset
 

@@ -602,7 +602,7 @@ class PixivBrowser(mechanize.Browser):
                                                    member_id,
                                                    self._config.r18mode)
 
-            PixivHelper.print_and_log('info', 'Looping... for ' + url)
+            PixivHelper.print_and_log('info', 'Looping... for {0}'.format(url))
             response = self.getPixivPage(url, returnParsed=False)
             self.handleDebugTagSearchPage(response, url)
 

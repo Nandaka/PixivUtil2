@@ -708,7 +708,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     #    url = url + '&order=date_d'
 
     # encode to ascii
-    url = url.encode('iso_8859_1')
+    # url = url.encode('iso_8859_1')
 
     return url
 
@@ -911,7 +911,7 @@ def encode_tags(tags):
     if not tags.startswith("%"):
         try:
             # Encode the tags
-            tags = tags.encode('utf-8').replace(' ', '%%space%%')
+            tags = tags.replace(' ', '%%space%%')
             tags = urllib.parse.quote_plus(tags).replace('%25%25space%25%25', '%20')
         except UnicodeDecodeError:
             try:
