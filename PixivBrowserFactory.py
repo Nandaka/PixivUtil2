@@ -151,7 +151,7 @@ class PixivBrowser(mechanize.Browser):
                 return self.open(url, data, timeout)
             except urllib.error.HTTPError:
                 raise
-            except BaseException as ex:
+            except BaseException:
                 if retry_count < retry:
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
@@ -795,7 +795,7 @@ def test():
             assert(len(result.imageTitle) > 0)
             print(result.artist.PrintInfo())
             assert(len(result.artist.artistToken) > 0)
-            assert(not("R-18" in result.imageTags))
+            assert("R-18" not in result.imageTags)
 
             print(">>")
             (result2, page2) = b.getImagePage(59628358)

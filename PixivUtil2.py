@@ -600,7 +600,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             __br__.clear_history()
             gc.collect()
 
-        if image_id > 0:
+        if int(image_id) > 0:
             __dbManager__.updateLastDownloadedImage(member_id, image_id)
             log_message = 'last image_id: ' + str(image_id)
         else:
@@ -2354,7 +2354,7 @@ def main():
                     PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
                     PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
                     PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
-            except Exception as ex:
+            except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 __config__.createWebm = False
                 PixivHelper.print_and_log('error', '{0}'.format("#" * 80))

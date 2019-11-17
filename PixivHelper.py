@@ -497,7 +497,7 @@ def unescape_charref(data, encoding):
         if name.lower().startswith("x"):
             name, base = name[1:], 16
         try:
-            result = int(name, base)
+            int(name, base)
         except BaseException:
             base = 16
         uc = chr(int(name, base))
@@ -889,7 +889,7 @@ def ParseDateTime(worksDate, dateFormat):
         worksDateDateTime = None
         try:
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
-        except ValueError as ve:
+        except ValueError:
             GetLogger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
             raise
     else:
@@ -897,7 +897,7 @@ def ParseDateTime(worksDate, dateFormat):
         if worksDate.find('-') > -1:
             try:
                 worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
-            except ValueError as ve:
+            except ValueError:
                 GetLogger().exception('Error when parsing datetime: %s', worksDate)
                 worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
@@ -932,7 +932,9 @@ def check_version():
     latest_version_int = int(latest_version_full[0][0])
     curr_version_int = int(re.findall(r"(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
     is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
-    if latest_version_int > curr_version_int:
+    if latest_version_int > curr_version_int and is_beta:
+        print_and_log("info", "New beta version available: {0}".format(latest_version_full[0]))
+    else:
         print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
 
 
