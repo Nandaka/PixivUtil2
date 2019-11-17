@@ -38,7 +38,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertTrue(len(result) < 255)
 
     def testCreateMangaFilename(self):
-        p = open(r'D:\PixivUtil3\test\test-image-manga.htm', 'r', encoding='utf-8')
+        p = open(r'./test/test-image-manga.htm', 'r', encoding='utf-8')
         page = p.read()
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
