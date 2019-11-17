@@ -856,7 +856,7 @@ def ugoira2webm(ugoira_file,
         chatter = ""
         print_and_log('info', u"Start encoding {0}".format(exportname))
         while p.stderr:
-            buff = p.stderr.read(1)
+            buff = p.stderr.readline().decode('utf-8').rstrip('\n')
             chatter += buff
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
