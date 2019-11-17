@@ -30,9 +30,8 @@ def is_png(png):
 
     @png can be str of the filename, a file-like object, or a bytes object.
     """
-    if isinstance(png, unicode):
-        with open(png, u"rb") as f:
-            png = f.read(8)
+    with open(png, u"rb") as f:
+        png = f.read(8)
 
     if hasattr(png, u"read"):
         png = png.read(8)
@@ -73,10 +72,9 @@ def chunks(png):
                 PIL.Image.open(png).save(f2, u"PNG", optimize=True)
                 png = f2.getvalue()
 
-    if isinstance(png, unicode):
-        # file name
-        with open(png, u"rb") as f:
-            png = f.read()
+    # file name
+    with open(png, u"rb") as f:
+        png = f.read()
 
     if hasattr(png, u"read"):
         # file like
@@ -149,11 +147,8 @@ class PNG(object):
     def save(self, file):
         u"""Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode):
-            with open(file, u"wb") as f:
-                f.write(self.to_bytes())
-        else:
-            file.write(self.to_bytes())
+        with open(file, u"wb") as f:
+            f.write(self.to_bytes())
 
 
 class FrameControl(object):
@@ -171,7 +166,15 @@ class FrameControl(object):
 
     def to_bytes(self):
         u"""Return bytes"""
-        return struct.pack(u"!IIIIHHbb", self.width, self.height, self.x_offset, self.y_offset, self.delay, self.delay_den, self.depose_op, self.blend_op)
+        return struct.pack(u"!IIIIHHbb",
+                           self.width,
+                           self.height,
+                           self.x_offset,
+                           self.y_offset,
+                           self.delay,
+                           self.delay_den,
+                           self.depose_op,
+                           self.blend_op)
 
     @classmethod
     def from_bytes(cls, b):
@@ -294,6 +297,7 @@ class APNG(object):
 
         control = None
 
+        hdr = ""
         for type, data in PNG.open(file).chunks:
             if type == u"IHDR":
                 hdr = data
@@ -329,7 +333,7 @@ class APNG(object):
     def save(self, file):
         u"""Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode) or isinstance(file, str):
+        if isinstance(file, str):
             with open(file, u"wb") as f:
                 f.write(self.to_bytes())
         else:

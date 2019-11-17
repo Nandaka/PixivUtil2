@@ -1,25 +1,23 @@
-# -*- coding: UTF-8 -*-
-from __future__ import print_function
+#!C:/Python37-32/python
+# -*- coding: utf-8 -*-
 
 import getpass
 import mechanize
 
-import PixivUtil2
 import PixivBrowserFactory
 import PixivConfig
 from PixivOAuth import PixivOAuth
 
 __config__ = PixivConfig.PixivConfig()
-PixivUtil2.__config__ = __config__
 __config__.loadConfig()
-__br__ = PixivUtil2.__br__ = PixivBrowserFactory.getBrowser(config=__config__)
+__br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
 
 def prepare():
     # Log in
     username = __config__.username
     if username == '':
-        username = raw_input('Username ? ').rstrip("\r")
+        username = input('Username ? ').rstrip("\r")
     password = __config__.password
     if password == '':
         password = getpass.getpass('Password ? ')
@@ -31,7 +29,11 @@ def prepare():
     if not result:
         result = __br__.login(username, password)
 
-    __br__._oauth_manager = PixivOAuth(username, password, proxies=None, refresh_token=__config__.refresh_token, validate_ssl=__config__.enableSSLVerification)
+    __br__._oauth_manager = PixivOAuth(username,
+                                       password,
+                                       proxies=None,
+                                       refresh_token=__config__.refresh_token,
+                                       validate_ssl=__config__.enableSSLVerification)
     __br__._oauth_manager.login()
 
     return result
@@ -43,11 +45,11 @@ def downloadMemberIdUsingOauth(member_id, filename):
     response = __br__._oauth_manager.get_user_info(member_id)
     js = response.text
     try:
-        dump = file(filename, 'wb')
+        dump = open(filename, 'wb')
         dump.write(js)
         dump.close()
     except BaseException:
-        pass
+        raise
 
 
 def downloadPage(url, filename):
@@ -60,11 +62,11 @@ def downloadPage(url, filename):
         else:
             raise
     try:
-        dump = file(filename, 'wb')
+        dump = open(filename, 'wb')
         dump.write(html)
         dump.close()
     except BaseException:
-        pass
+        raise
 
 
 def main():
@@ -72,6 +74,7 @@ def main():
     downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67089412', './test/test-image-nologin.htm')
 
     result = prepare()
+    print(result)
     if result:
         # ./test/test-image-manga.htm
         # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
@@ -99,7 +102,7 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=11164869', './test/test-image-parse-tags.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=9175987', './test/test-image-no_tags.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28865189', './test/test-image-rate_count.htm')
-        ## downloadPage('https://www.pixiv.net/member_illust.php?mode=big&illust_id=20644633', './test/test-image-parsebig.htm')
+        # downloadPage('https://www.pixiv.net/member_illust.php?mode=big&illust_id=20644633', './test/test-image-parsebig.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=manga&illust_id=46279245', './test/test-image-parsemanga.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46281014', './test/test-image-ugoira.htm')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=manga&illust_id=46322053', './test/test-image-manga-2page.htm')
@@ -155,6 +158,6 @@ if __name__ == '__main__':
         main()
     except Exception as ex:
         print(ex)
-        raw_input("anykey")
+        raise
 
-    raw_input("anykey")
+    input("anykey")
