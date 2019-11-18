@@ -1174,6 +1174,8 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
 
         parse_page.decompose()
         del parse_page
+        # Issue#569
+        wait()
 
     return total_list
 
@@ -1203,6 +1205,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         total_list.extend(bookmarks)
         i = i + 1
         print(str(len(bookmarks)), 'items')
+        wait()
     return total_list
 
 
