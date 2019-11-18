@@ -1100,8 +1100,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                     # get the last date
                     PixivHelper.print_and_log('info', "Hit page 1000, trying to get workdate for last image id: " + str(last_image_id))
                     # referer = 'https://www.pixiv.net/en/artworks/{0}'.format(last_image_id)
-                    (image, response) = PixivBrowserFactory.getBrowser().getImagePage(last_image_id)
-                    _last_date = image.worksDateDateTime
+                    result = PixivBrowserFactory.getBrowser().getImagePage(last_image_id)
+                    _last_date = result[0].worksDateDateTime
                     # _start_date = image.worksDateDateTime + datetime.timedelta(365)
                     # hit the last page
                     i = 1
@@ -1136,8 +1136,8 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
 
     try:
         print("Reading:", filename)
-        l = PixivTags.parseTagsList(filename)
-        for tag in l:
+        tags = PixivTags.parseTagsList(filename)
+        for tag in tags:
             process_tags(tag, page=page, end_page=end_page, wild_card=wild_card,
                          use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first,
                          bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
@@ -1203,18 +1203,20 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
 
         page = __br__.open(url)
         parse_page = BeautifulSoup(page.read())
-        l = PixivBookmark.parseImageBookmark(parse_page)
-        total_list.extend(l)
-        if len(l) == 0:
+        bookmarks = PixivBookmark.parseImageBookmark(parse_page)
+        total_list.extend(bookmarks)
+        if len(bookmarks) == 0:
             print("No more images.")
             break
         else:
-            print(" found " + str(len(l)) + " images.")
+            print(" found " + str(len(bookmarks)) + " images.")
 
         i = i + 1
 
         parse_page.decompose()
         del parse_page
+        # Issue#569
+        wait()
 
     return total_list
 
@@ -1237,13 +1239,13 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
 
         page = __br__.open_with_retry(url)
         parse_page = BeautifulSoup(page.read())
-        l = PixivBookmark.parseBookmark(parse_page)
-        if len(l) == 0:
+        bookmarks = PixivBookmark.parseBookmark(parse_page)
+        if len(bookmarks) == 0:
             print('No more data')
             break
-        total_list.extend(l)
+        total_list.extend(bookmarks)
         i = i + 1
-        print(str(len(l)), 'items')
+        print(str(len(bookmarks)), 'items')
     return total_list
 
 
@@ -2088,24 +2090,24 @@ def setup_option_parser():
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'd', 'e', 'm')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
-                      help='Action you want to load your program with:       ' +
-                            '1 - Download by member_id                       ' +
-                            '2 - Download by image_id                        ' +
-                            '3 - Download by tags                            ' +
-                            '4 - Download from list                          ' +
-                            '5 - Download from user bookmark                 ' +
-                            '6 - Download from user\'s image bookmark        ' +
-                            '7 - Download from tags list                     ' +
-                            '8 - Download new illust from bookmark           ' +
-                            '9 - Download by Title/Caption                   ' +
-                            '10 - Download by Tag and Member Id              ' +
-                            '11 - Download images from Member Bookmark       ' +
-                            '12 - Download images by Group Id                ' +
-                            'f1 - Download from supported artists (FANBOX)   ' +
-                            'f2 - Download by artist id (FANBOX)             ' +
-                            'e - Export online bookmark                      ' +
-                            'm - Export online user bookmark                 ' +
-                            'd - Manage database')
+                      help='''Action you want to load your program with:
+ 1 - Download by member_id
+ 2 - Download by image_id
+ 3 - Download by tags
+ 4 - Download from list
+ 5 - Download from user bookmark
+ 6 - Download from user's image bookmark
+ 7 - Download from tags list
+ 8 - Download new illust from bookmark
+ 9 - Download by Title/Caption
+10 - Download by Tag and Member Id
+11 - Download images from Member Bookmark
+12 - Download images by Group Id
+f1 - Download from supported artists (FANBOX)
+f2 - Download by artist id (FANBOX)
+ e - Export online bookmark
+ m - Export online user bookmark
+ d - Manage database''')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
                       help='Exit programm when done. (only useful when not using DB-Manager)',
                       action='store_true', default=False)
@@ -2282,7 +2284,7 @@ def main():
         np_is_valid = False
         parser.error('Value %s used for numberOfPage is not an integer.' % options.numberofpages)
         # Yavos: use print option instead when program should be running even with this error
-        ### end new lines by Yavos ###
+        # end new lines by Yavos
 
     __log__.info('###############################################################')
     if len(sys.argv) == 0:
