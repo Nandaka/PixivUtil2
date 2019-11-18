@@ -250,7 +250,7 @@ class PixivBrowser(mechanize.Browser):
             self.clearCookie()
             self._loadCookie(login_cookie)
             res = self.open_with_retry('https://www.pixiv.net/')
-            parsed = BeautifulSoup(res, features="html5lib")
+            parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
             PixivHelper.GetLogger().info('Logging in, return url: %s', res.geturl())
 
             if "logout.php" in parsed:
@@ -276,8 +276,8 @@ class PixivBrowser(mechanize.Browser):
             url = "https://accounts.pixiv.net/login"
             # get the post key
             res = self.open_with_retry(url)
-            parsed = BeautifulSoup(res, features="html5lib")
-            js_init_config = self._getInitConfig(parsed)
+            # parsed = BeautifulSoup(res, features="html5lib")
+            # js_init_config = self._getInitConfig(parsed)
 
             data = {}
             data['pixiv_id'] = username
@@ -286,7 +286,7 @@ class PixivBrowser(mechanize.Browser):
             data['g_recaptcha_response'] = ''
             data['return_to'] = 'https://www.pixiv.net'
             data['lang'] = 'en'
-            data['post_key'] = js_init_config["pixivAccount.postKey"]
+            # data['post_key'] = js_init_config["pixivAccount.postKey"]
             data['source'] = "accounts"
             data['ref'] = ''
 

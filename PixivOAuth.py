@@ -4,23 +4,23 @@
 import hashlib
 import json
 from datetime import datetime
+from typing import Dict
 
 import requests
 
 import PixivHelper
 from PixivException import PixivException
-from PixivHelper import LocalUTCOffsetTimezone
 
 
-class PixivOAuth(object):
-    _username = None
-    _password = None
-    _refresh_token = None
-    _access_token = None
-    _url = "https://oauth.secure.pixiv.net/auth/token"
-    _proxies = None
-    _tzInfo = None
-    _validate_ssl = True
+class PixivOAuth():
+    _username: str = None
+    _password: str = None
+    _refresh_token: str = None
+    _access_token: str = None
+    _url: str = "https://oauth.secure.pixiv.net/auth/token"
+    _proxies: Dict[str, str] = None
+    _tzInfo: PixivHelper.LocalUTCOffsetTimezone = None
+    _validate_ssl: bool = True
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
         if username is None or len(username) <= 0:
@@ -36,7 +36,7 @@ class PixivOAuth(object):
         else:
             self._refresh_token = None
         self._access_token = None
-        self._tzInfo = LocalUTCOffsetTimezone()
+        self._tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         self._validate_ssl = validate_ssl
 
     def _get_default_values(self):
