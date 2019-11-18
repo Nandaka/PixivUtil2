@@ -1,3 +1,8 @@
+20191118
+- Merged #571: fix password check logic.
+- Merged #572: fix Issue #565 with negative time zone offset.
+- Implement #569: Add delay for downloading bookmark pages.
+
 20191116
 - Fix Issue #567: add try-catch for suspended user for FANBOX.
 - Fix Issue #568: update post counter limit to 60.
