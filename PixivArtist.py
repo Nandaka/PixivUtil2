@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
-import os
 import re
-import shutil
-import zipfile
-import codecs
-import collections
-import urllib
-import datetime_z
-import urllib
-from collections import OrderedDict
-from datetime import datetime
-import json
 
 import demjson
 from bs4 import BeautifulSoup

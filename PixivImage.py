@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
+import codecs
+import collections
+import json
 import os
 import re
 import shutil
+import urllib
 import zipfile
-import codecs
-import collections
-import urllib
-import datetime_z
-import urllib
 from collections import OrderedDict
 from datetime import datetime
-import json
 
 import demjson
 from bs4 import BeautifulSoup
 
+import datetime_z
 import PixivHelper
-from PixivException import PixivException
 from PixivArtist import PixivArtist
+from PixivException import PixivException
 
 
 class PixivImage (object):
