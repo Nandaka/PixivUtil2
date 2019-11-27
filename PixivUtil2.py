@@ -1,4 +1,4 @@
-#!C:/Python37-32/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302, W0602, W0603, W0703, R0102, R1702, R0912, R0915
 import codecs

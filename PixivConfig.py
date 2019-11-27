@@ -11,7 +11,7 @@ import PixivHelper
 script_path = PixivHelper.module_path()
 
 
-class PixivConfig(object):
+class PixivConfig():
     '''Configuration class'''
     __logger = PixivHelper.get_logger()
     configFileLocation = "config.ini"

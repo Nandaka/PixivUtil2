@@ -26,10 +26,9 @@ import mechanize
 import PixivConstant
 from apng import APNG
 from PixivImage import PixivImage
-from PixivConfig import PixivConfig
 
 logger = None
-_config: PixivConfig = None
+_config = None
 
 
 def set_config(config):
