@@ -1,45 +1,38 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
 
 import json
 import os
 import unittest
 
 import pytest
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import PixivHelper
-from PixivModel import PixivArtist, PixivException, PixivImage
+from PixivArtist import PixivArtist
+from PixivException import PixivException
+from PixivImage import PixivImage
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = os.path.abspath('.')
     PixivHelper.GetLogger()
 
-    def testParseLoginForm(self):
-        p = open('./test/pixiv-whitecube-main.html', 'r')
-        page = BeautifulSoup(p.read())
-        init_config = page.find('input', attrs={'id': 'init-config'})
-        js_init_config = json.loads(init_config['value'])
-        self.assertIsNotNone(js_init_config)
-        self.assertIsNotNone(js_init_config["pixiv.context.token"])
-
-##    @pytest.mark.xfail
-##    def testParseImage(self):
-##        p = open('./test/work_details_modal_whitecube.json', 'r')
-##        image = PixivImage(59521621, p.read())
-##        self.assertIsNotNone(image)
-##        image.PrintInfo()
-##        self.assertEqual(image.imageMode, "big")
-##
-##    @pytest.mark.xfail
-##    def testParseManga(self):
-##        p = open('./test/work_details_modal_whitecube-manga.json', 'r')
-##        image = PixivImage(59532028, p.read())
-##        self.assertIsNotNone(image)
-##        image.PrintInfo()
-##        self.assertEqual(image.imageMode, "manga")
+#    @pytest.mark.xfail
+#    def testParseImage(self):
+#        p = open('./test/work_details_modal_whitecube.json', 'r')
+#        image = PixivImage(59521621, p.read())
+#        self.assertIsNotNone(image)
+#        image.PrintInfo()
+#        self.assertEqual(image.imageMode, "big")
+#
+#    @pytest.mark.xfail
+#    def testParseManga(self):
+#        p = open('./test/work_details_modal_whitecube-manga.json', 'r')
+#        image = PixivImage(59532028, p.read())
+#        self.assertIsNotNone(image)
+#        image.PrintInfo()
+#        self.assertEqual(image.imageMode, "manga")
 
     def testParseMemberError(self):
         p = open('./test/ajax-error.json', 'r')
@@ -136,6 +129,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         self.assertEqual(member.artistId, 1039353)
         self.assertTrue(member.haveImages)
         self.assertFalse(member.isLastPage)
+
 
 if __name__ == '__main__':
     # unittest.main()

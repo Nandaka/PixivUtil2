@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603
-from __future__ import print_function
 
 import codecs
+import html
 import json
 import logging
 import logging.handlers
@@ -17,16 +17,15 @@ import time
 import traceback
 import unicodedata
 import urllib
-import urllib2
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
-from HTMLParser import HTMLParser
 
 import imageio
+import mechanize
 
 import PixivConstant
-import PixivModel
 from apng import APNG
+from PixivImage import PixivImage
 
 Logger = None
 _config = None
@@ -46,7 +45,8 @@ def GetLogger(level=logging.DEBUG):
         Logger.setLevel(level)
         __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
                                                               maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
-                                                              backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT)
+                                                              backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
+                                                              encoding="utf-8")
         __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
         __logHandler__.setFormatter(__formatter__)
         Logger.addHandler(__logHandler__)
@@ -64,7 +64,6 @@ else:
     __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
 __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 
-__h__ = HTMLParser()
 __re_manga_index = re.compile(r'_p(\d+)')
 
 
@@ -75,7 +74,7 @@ def sanitizeFilename(s, rootDir=None):
         rootDir = os.path.abspath(rootDir)
 
     # Unescape '&amp;', '&lt;', and '&gt;'
-    s = __h__.unescape(s)
+    s = html.unescape(s)
 
     # Replace badchars and badnames with _
     name = __badchars__.sub('_', s)
@@ -115,15 +114,12 @@ def sanitizeFilename(s, rootDir=None):
         name = name[:newLen]
 
     # Remove unicode control character
-    if isinstance(name, unicode):
-        tempName = ""
-        for c in name:
-            if unicodedata.category(c) == 'Cc':
-                tempName = tempName + '_'
-            else:
-                tempName = tempName + c
-    else:
-        tempName = name
+    tempName = ""
+    for c in name:
+        if unicodedata.category(c) == 'Cc':
+            tempName = tempName + '_'
+        else:
+            tempName = tempName + c
 
     GetLogger().debug("Sanitized Filename: %s", tempName.strip())
 
@@ -322,21 +318,21 @@ def OpenTextFile(filename, mode='r', encoding='utf-8'):
     return f
 
 
-def toUnicode(obj, encoding='utf-8'):
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
-    return obj
+# def toUnicode(obj, encoding='utf-8'):
+#     if isinstance(obj, basestring):
+#         if not isinstance(obj, unicode):
+#             obj = unicode(obj, encoding)
+#     return obj
 
 
-def uni_input(message=''):
-    result = raw_input(message).rstrip("\r")
-    return toUnicode(result, encoding=sys.stdin.encoding)
+# def uni_input(message=''):
+#     result = input(message).rstrip("\r")
+#     return toUnicode(result, encoding=sys.stdin.encoding)
 
 
 def createAvatarFilename(artistPage, targetDir):
     filename = ''
-    image = PixivModel.PixivImage(parent=artistPage)
+    image = PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
     if len(_config.avatarNameFormat) > 0:
         filenameFormat = _config.avatarNameFormat
@@ -382,9 +378,9 @@ def module_path():
   even if we are frozen using py2exe"""
 
     if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+        return os.path.dirname(sys.executable)
 
-    return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
+    return os.path.dirname(__file__)
 
 
 def speedInStr(totalSize, totalTime):
@@ -418,7 +414,7 @@ def sizeInStr(totalSize):
     return "{0:.2f} GiB".format(totalSize)
 
 
-def dumpHtml(filename, html):
+def dumpHtml(filename, html_text):
     isDumpEnabled = True
     filename = sanitizeFilename(filename)
     if _config is not None:
@@ -429,18 +425,18 @@ def dumpHtml(filename, html):
                 if matchResult is not None and len(matchResult) > 0:
                     isDumpEnabled = False
 
-    if html is not None and len(html) == 0:
+    if html_text is not None and len(html_text) == 0:
         print_and_log('info', 'Empty Html.')
         return ""
 
     if isDumpEnabled:
         try:
-            dump = file(filename, 'wb')
-            dump.write(str(html))
+            dump = open(filename, 'wb', encoding="utf-8")
+            dump.write(str(html_text))
             dump.close()
             return filename
         except Exception as ex:
-            print_and_log('error', ex.message)
+            print_and_log('error', str(ex))
         print_and_log("info", "Dump File created: {0}".format(filename))
     else:
         print_and_log('info', 'Dump not enabled.')
@@ -455,7 +451,7 @@ def print_and_log(level, msg):
         if level == 'info':
             GetLogger().info(msg)
         elif level == 'warn':
-            GetLogger().warn(msg)
+            GetLogger().warning(msg)
         elif level == 'error':
             GetLogger().error(msg)
             GetLogger().error(traceback.format_exc())
@@ -501,10 +497,10 @@ def unescape_charref(data, encoding):
         if name.lower().startswith("x"):
             name, base = name[1:], 16
         try:
-            result = int(name, base)
+            int(name, base)
         except BaseException:
             base = 16
-        uc = unichr(int(name, base))
+        uc = chr(int(name, base))
         if encoding is None:
             return uc
         else:
@@ -546,7 +542,8 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
             print_and_log('info', u"\t Found file with different file size, backing up to: " + new_name)
             os.rename(filename, new_name)
         else:
-            print_and_log('info', u"\tFound file with different file size, removing old file (old: {0} vs new: {1})".format(old_size, file_size))
+            print_and_log('info', u"\tFound file with different file size, removing old file (old: {0} vs new: {1})"
+                          .format(old_size, file_size))
             os.remove(filename)
         return PixivConstant.PIXIVUTIL_OK
 
@@ -561,11 +558,10 @@ def printDelay(retryWait):
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
     if config.useProxy:
-        proxy = urllib2.ProxyHandler(config.proxy)
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
-    req = urllib2.Request(url)
-
+        proxy = urllib.request.ProxyHandler(config.proxy)
+        opener = urllib.request.build_opener(proxy)
+        urllib.request.install_opener(opener)
+    req = mechanize.Request(url)
     req.add_header('Referer', referer)
     print_and_log('info', u"Using Referer: " + str(referer))
 
@@ -591,7 +587,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     # try to save to the given filename + .pixiv extension if possible
     try:
         makeSubdirs(filename)
-        save = file(filename + '.pixiv', 'wb+', 4096)
+        save = open(filename + '.pixiv', 'wb+', 4096)
     except IOError:
         print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
 
@@ -599,7 +595,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
-        save = file(filename + '.pixiv', 'wb+', 4096)
+        save = open(filename + '.pixiv', 'wb+', 4096)
         print_and_log('info', u'File is saved to ' + filename)
 
     # download the file
@@ -625,9 +621,6 @@ def downloadImage(url, filename, res, file_size, overwrite):
 
             prev = curr
 
-    except BaseException:
-        raise
-
     finally:
         if save is not None:
             save.close()
@@ -636,13 +629,13 @@ def downloadImage(url, filename, res, file_size, overwrite):
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
             print_and_log('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'Filename = ' + filename)
             print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
         elif curr == 0:
             # No data received.
             print_and_log('error', u'No data received!')
-            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'Filename = ' + filename)
             print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
 
@@ -663,7 +656,7 @@ def print_progress(curr, total):
     # [||||||||------------]
 
     if total > 0:
-        complete = (curr * 20) / total
+        complete = int((curr * 20) / total)
         print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
         print('{0}'.format(msg), end=' ')
@@ -715,7 +708,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     #    url = url + '&order=date_d'
 
     # encode to ascii
-    url = unicode(url).encode('iso_8859_1')
+    # url = url.encode('iso_8859_1')
 
     return url
 
@@ -863,7 +856,7 @@ def ugoira2webm(ugoira_file,
         chatter = ""
         print_and_log('info', u"Start encoding {0}".format(exportname))
         while p.stderr:
-            buff = p.stderr.read(1)
+            buff = p.stderr.readline().decode('utf-8').rstrip('\n')
             chatter += buff
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
@@ -896,7 +889,7 @@ def ParseDateTime(worksDate, dateFormat):
         worksDateDateTime = None
         try:
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
-        except ValueError as ve:
+        except ValueError:
             GetLogger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
             raise
     else:
@@ -904,7 +897,7 @@ def ParseDateTime(worksDate, dateFormat):
         if worksDate.find('-') > -1:
             try:
                 worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
-            except ValueError as ve:
+            except ValueError:
                 GetLogger().exception('Error when parsing datetime: %s', worksDate)
                 worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
@@ -918,14 +911,14 @@ def encode_tags(tags):
     if not tags.startswith("%"):
         try:
             # Encode the tags
-            tags = tags.encode('utf-8').replace(' ', '%%space%%')
-            tags = urllib.quote_plus(tags).replace('%25%25space%25%25', '%20')
+            tags = tags.replace(' ', '%%space%%')
+            tags = urllib.parse.quote_plus(tags).replace('%25%25space%25%25', '%20')
         except UnicodeDecodeError:
             try:
                 # from command prompt
-                tags = urllib.quote(tags.decode(sys.stdout.encoding).encode("utf8"))
+                tags = urllib.request.quote(tags.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError:
-                print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
+                print_and_log('error', 'Cannot decode tags, use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste result.')
     return tags
 
 
@@ -933,13 +926,15 @@ def check_version():
     import PixivBrowserFactory
     br = PixivBrowserFactory.getBrowser()
     result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
-    page = result.read()
+    page = result.read().decode('utf-8')
     latest_version_full = re.findall(r"PIXIVUTIL_VERSION = '(\d+)(.*)'", page)
 
     latest_version_int = int(latest_version_full[0][0])
     curr_version_int = int(re.findall(r"(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
     is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
-    if latest_version_int > curr_version_int:
+    if latest_version_int > curr_version_int and is_beta:
+        print_and_log("info", "New beta version available: {0}".format(latest_version_full[0]))
+    else:
         print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
 
 
@@ -947,13 +942,13 @@ def decode_tags(tags):
     # decode tags.
     try:
         if tags.startswith("%"):
-            search_tags = toUnicode(urllib.unquote_plus(tags))
+            search_tags = urllib.parse.unquote_plus(tags)
         else:
-            search_tags = toUnicode(tags)
+            search_tags = tags
     except UnicodeDecodeError:
         # From command prompt
         search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
-        search_tags = toUnicode(search_tags)
+        search_tags = search_tags
     return search_tags
 
 

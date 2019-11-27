@@ -1,25 +1,26 @@
-from __future__ import print_function
+#!C:/Python37-32/python
+# -*- coding: utf-8 -*-
 
+import hashlib
 import json
-import md5
 from datetime import datetime
+from typing import Dict
 
 import requests
 
 import PixivHelper
 from PixivException import PixivException
-from PixivHelper import LocalUTCOffsetTimezone
 
 
-class PixivOAuth(object):
-    _username = None
-    _password = None
-    _refresh_token = None
-    _access_token = None
-    _url = "https://oauth.secure.pixiv.net/auth/token"
-    _proxies = None
-    _tzInfo = None
-    _validate_ssl = True
+class PixivOAuth():
+    _username: str = None
+    _password: str = None
+    _refresh_token: str = None
+    _access_token: str = None
+    _url: str = "https://oauth.secure.pixiv.net/auth/token"
+    _proxies: Dict[str, str] = None
+    _tzInfo: PixivHelper.LocalUTCOffsetTimezone = None
+    _validate_ssl: bool = True
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
         if username is None or len(username) <= 0:
@@ -35,13 +36,13 @@ class PixivOAuth(object):
         else:
             self._refresh_token = None
         self._access_token = None
-        self._tzInfo = LocalUTCOffsetTimezone()
+        self._tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         self._validate_ssl = validate_ssl
 
     def _get_default_values(self):
         return {'client_id': 'MOBrBDS8blbauoSck0ZfDbtuzpyT',
                 'client_secret': 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj',
-                'device_token': '416eeaafe17577e471b35d2cee7cdfdc',
+                'device_token': 'pixiv',
                 'get_secure_url': 'true',
                 'include_policy': 'true'}
 
@@ -60,9 +61,10 @@ class PixivOAuth(object):
 
     def _get_default_headers(self):
         # fix #530
+        # 2019-11-17T10:04:40+8.00
         time = "{0}{1}".format(datetime.now().isoformat()[0:19], self._tzInfo)
         secret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
-        time_hash = md5.md5("{0}{1}".format(time, secret))
+        time_hash = hashlib.md5("{0}{1}".format(time, secret).encode('utf-8'))
         return {'User-Agent': 'PixivAndroidApp/5.0.145 (Android 4.4.2; R831T)',
                 'Accept-Language': 'en_US',
                 'App-OS': 'android',
@@ -143,9 +145,9 @@ def test_OAuth():
     from PixivConfig import PixivConfig
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
-    # oauth = PixivOAuth(cfg.username, cfg.password, proxies, False, cfg.refresh_token)
+    oauth = PixivOAuth(cfg.username, cfg.password, proxies, False, cfg.refresh_token)
     # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, cfg.refresh_token)
-    oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
+    # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
     result = oauth.login()
     assert oauth._refresh_token is not None
     print("refresh token {0}".format(oauth._refresh_token))
@@ -164,6 +166,7 @@ def test_OAuth():
         info = oauth.get_user_info(39182623)
         print(info.text)
         print("")
+
 
 if __name__ == '__main__':
     test_OAuth()

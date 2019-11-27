@@ -1,7 +1,5 @@
-#!/c/Python27/python.exe
-# -*- coding: UTF-8 -*-
-from __future__ import print_function
-
+#!C:/Python37-32/python
+# -*- coding: utf-8 -*-
 from os import path
 import os
 import sys
@@ -14,7 +12,7 @@ except ImportError:
     from distutils.util import convert_path
     SETUPTOOLS_USED = False
 
-isWindows = os.name is 'nt'
+isWindows = os.name == 'nt'
 ranWithPy3 = sys.version_info >= (3, 0)
 
 
@@ -32,17 +30,17 @@ class bcolors:
 
 if not isWindows:
     if ranWithPy3:
-        print(bcolors.WARNING)
-        print("Attention: PixivUtil2 is not yet compatible with Python 3.  You have run this script with Python 3.")
-        print("To install dependancies you will need to use a specific version of pip e.g.:\n")
-        print("\tpip-2.7 install -r requirements.txt\n")
-        print("To run you will need to specify python 2.x:\n")
-        print("\tpython2 PixivUtil2.py\n")
-        print(bcolors.ENDC)
-        exit(-1)
-    else:
         print("After installing, run with command:\n")
         print("\tPixivUtil2\n")
+    else:
+        print(bcolors.WARNING)
+        print("Attention: This PixivUtil2 is Python 3 version. You have run this script with Python 3.")
+        print("To install dependancies you will need to use a specific version of pip e.g.:\n")
+        print("\tpip-3.7 install -r requirements.txt\n")
+        print("To run you will need to specify python 3.x:\n")
+        print("\tpython3 PixivUtil2.py\n")
+        print(bcolors.ENDC)
+        exit(-1)
 
 
 if isWindows:
@@ -105,8 +103,8 @@ setup(
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='pixiv downloader',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
@@ -118,6 +116,6 @@ if isWindows:
     # add certify cacert.pem in library.zip/certifi
     import certifi
     import zipfile
-    zip = zipfile.ZipFile('./dist/library.zip', 'a')
-    zip.write(certifi.where(), "/certifi/cacert.pem")
-    zip.close()
+    zip2 = zipfile.ZipFile('./dist/library.zip', 'a')
+    zip2.write(certifi.where(), "/certifi/cacert.pem")
+    zip2.close()

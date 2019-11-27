@@ -1,6 +1,5 @@
 #!/c/Python27/python.exe
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
 
 import sys
 import os
@@ -14,7 +13,7 @@ temp = PixivHelper.__re_manga_index
 
 
 class TestPixivModel_Fanbox(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = os.path.abspath('.')
     PixivHelper.GetLogger()
 
     def testFanboxSupportedArtist(self):
@@ -243,6 +242,6 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
 
 if __name__ == '__main__':
-        # unittest.main()
+    # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivModel_Fanbox)
     unittest.TextTestRunner(verbosity=5).run(suite)
