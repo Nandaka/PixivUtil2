@@ -13,7 +13,7 @@ from PixivImage import PixivImage
 
 class TestPixivHelper(unittest.TestCase):
     currPath = os.path.abspath('.')
-    PixivHelper.GetLogger()
+    PixivHelper.get_logger()
 
     def testSanitizeFilename(self):
         rootDir = '.'
@@ -21,7 +21,7 @@ class TestPixivHelper(unittest.TestCase):
         currentDir = os.path.abspath('.')
         expected = currentDir + os.sep + filename
 
-        result = PixivHelper.sanitizeFilename(filename, rootDir)
+        result = PixivHelper.sanitize_filename(filename, rootDir)
 
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
@@ -32,7 +32,7 @@ class TestPixivHelper(unittest.TestCase):
         currentDir = os.path.abspath('.')
         expected = currentDir + os.sep + filename
 
-        result = PixivHelper.sanitizeFilename(filename, rootDir)
+        result = PixivHelper.sanitize_filename(filename, rootDir)
 
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
@@ -54,29 +54,29 @@ class TestPixivHelper(unittest.TestCase):
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
         expected = u'maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
-        result = PixivHelper.makeFilename(nameFormat,
-                                          imageInfo,
-                                          artistInfo=None,
-                                          tagsSeparator=' ',
-                                          fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
+        result = PixivHelper.make_filename(nameFormat,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
         expected = u'maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
-        result = PixivHelper.makeFilename(nameFormat,
-                                          imageInfo,
-                                          artistInfo=None,
-                                          tagsSeparator=' ',
-                                          fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
+        result = PixivHelper.make_filename(nameFormat,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
         expected = u'maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
-        result = PixivHelper.makeFilename(nameFormat,
-                                          imageInfo,
-                                          artistInfo=None,
-                                          tagsSeparator=' ',
-                                          fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
+        result = PixivHelper.make_filename(nameFormat,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
@@ -95,11 +95,11 @@ class TestPixivHelper(unittest.TestCase):
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
         expected = u'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg'
-        result = PixivHelper.makeFilename(nameFormat,
-                                          imageInfo,
-                                          artistInfo=None,
-                                          tagsSeparator=' ',
-                                          fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
+        result = PixivHelper.make_filename(nameFormat,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
         # print(result)
         self.assertEqual(result, expected)
 

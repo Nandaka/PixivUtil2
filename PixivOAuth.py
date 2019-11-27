@@ -82,7 +82,7 @@ class PixivOAuth():
         return headers
 
     def login_with_username_and_password(self):
-        PixivHelper.GetLogger().info("Login to OAuth using username and password.")
+        PixivHelper.get_logger().info("Login to OAuth using username and password.")
         oauth_response = requests.post(self._url,
                                        self._get_values_for_login(),
                                        headers=self._get_default_headers(),
@@ -94,7 +94,7 @@ class PixivOAuth():
         oauth_response = None
         need_relogin = True
         if self._refresh_token is not None:
-            PixivHelper.GetLogger().info("Login to OAuth using refresh token.")
+            PixivHelper.get_logger().info("Login to OAuth using refresh token.")
             oauth_response = requests.post(self._url,
                                            self._get_values_for_refresh(),
                                            headers=self._get_default_headers(),
@@ -103,12 +103,12 @@ class PixivOAuth():
             if oauth_response.status_code == 200:
                 need_relogin = False
             else:
-                PixivHelper.GetLogger().info("OAuth Refresh Token invalid, Relogin needed.")
+                PixivHelper.get_logger().info("OAuth Refresh Token invalid, Relogin needed.")
 
         if need_relogin:
             oauth_response = self.login_with_username_and_password()
 
-        PixivHelper.GetLogger().debug("%s: %s", oauth_response.status_code, oauth_response.text)
+        PixivHelper.get_logger().debug("%s: %s", oauth_response.status_code, oauth_response.text)
         if oauth_response.status_code == 200:
             info = json.loads(oauth_response.text)
             self._refresh_token = info["response"]["refresh_token"]

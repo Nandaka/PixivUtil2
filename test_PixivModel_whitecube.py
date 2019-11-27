@@ -1,22 +1,18 @@
-#!/c/Python27/python.exe
+#!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
 import json
 import os
 import unittest
 
-import pytest
-from bs4 import BeautifulSoup
-
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
-from PixivImage import PixivImage
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
     currPath = os.path.abspath('.')
-    PixivHelper.GetLogger()
+    PixivHelper.get_logger()
 
 #    @pytest.mark.xfail
 #    def testParseImage(self):
@@ -37,7 +33,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
     def testParseMemberError(self):
         p = open('./test/ajax-error.json', 'r')
         try:
-            member = PixivArtist(14095911, p.read())
+            PixivArtist(14095911, p.read())
             self.fail("Exception expected.")
         except PixivException as ex:
             self.assertTrue(ex.errorCode == PixivException.OTHER_MEMBER_ERROR)

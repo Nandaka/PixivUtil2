@@ -26,36 +26,37 @@ import mechanize
 import PixivConstant
 from apng import APNG
 from PixivImage import PixivImage
+from PixivConfig import PixivConfig
 
-Logger = None
-_config = None
+logger = None
+_config: PixivConfig = None
 
 
-def setConfig(config):
+def set_config(config):
     global _config
     _config = config
 
 
-def GetLogger(level=logging.DEBUG):
+def get_logger(level=logging.DEBUG):
     '''Set up logging'''
-    global Logger
-    if Logger is None:
+    global logger
+    if logger is None:
         script_path = module_path()
-        Logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
-        Logger.setLevel(level)
+        logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
+        logger.setLevel(level)
         __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
                                                               maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
                                                               backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
                                                               encoding="utf-8")
         __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
         __logHandler__.setFormatter(__formatter__)
-        Logger.addHandler(__logHandler__)
-    return Logger
+        logger.addHandler(__logHandler__)
+    return logger
 
 
-def setLogLevel(level):
-    Logger.info("Setting log level to: %s", level)
-    GetLogger(level).setLevel(level)
+def set_log_level(level):
+    logger.info("Setting log level to: %s", level)
+    get_logger(level).setLevel(level)
 
 
 if os.sep == '/':
@@ -67,7 +68,7 @@ __badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 __re_manga_index = re.compile(r'_p(\d+)')
 
 
-def sanitizeFilename(s, rootDir=None):
+def sanitize_filename(s, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
     if rootDir is not None:
@@ -121,18 +122,18 @@ def sanitizeFilename(s, rootDir=None):
         else:
             tempName = tempName + c
 
-    GetLogger().debug("Sanitized Filename: %s", tempName.strip())
+    get_logger().debug("Sanitized Filename: %s", tempName.strip())
 
     return tempName.strip()
 
 
 # Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
-def replacePathSeparator(s, replacement='_'):
+def replace_path_separator(s, replacement='_'):
     return s.replace(os.sep, replacement).replace('/', replacement).replace('\\', replacement)
 
 
-def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
-                 appendExtension=True, bookmark=False, searchTags=''):
+def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
+                  appendExtension=True, bookmark=False, searchTags=''):
     '''Build the filename from given info to the given format.'''
     if artistInfo is None:
         artistInfo = imageInfo.artist
@@ -148,12 +149,12 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         imageExtension = imageExtension.split('?')[0]
 
     # artist related
-    nameFormat = nameFormat.replace('%artist%', replacePathSeparator(artistInfo.artistName))
+    nameFormat = nameFormat.replace('%artist%', replace_path_separator(artistInfo.artistName))
     nameFormat = nameFormat.replace('%member_id%', str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
 
     # image related
-    nameFormat = nameFormat.replace('%title%', replacePathSeparator(imageInfo.imageTitle))
+    nameFormat = nameFormat.replace('%title%', replace_path_separator(imageInfo.imageTitle))
     nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
@@ -165,9 +166,9 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
         nameFormat = nameFormat.replace(to_replace[0], imageInfo.worksDateDateTime.strftime(date_format[0]))
 
     nameFormat = nameFormat.replace('%works_res%', imageInfo.worksResolution)
-    nameFormat = nameFormat.replace('%works_tools%', replacePathSeparator(imageInfo.worksTools))
+    nameFormat = nameFormat.replace('%works_tools%', replace_path_separator(imageInfo.worksTools))
     nameFormat = nameFormat.replace('%urlFilename%', imageFile)
-    nameFormat = nameFormat.replace('%searchTags%', replacePathSeparator(searchTags))
+    nameFormat = nameFormat.replace('%searchTags%', replace_path_separator(searchTags))
 
     # date
     nameFormat = nameFormat.replace('%date%', date.today().strftime('%Y%m%d'))
@@ -211,19 +212,19 @@ def makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tags
     elif "R-18" in imageInfo.imageTags:
         r18Dir = "R-18"
     nameFormat = nameFormat.replace('%R-18%', r18Dir)
-    nameFormat = nameFormat.replace('%tags%', replacePathSeparator(tags))
+    nameFormat = nameFormat.replace('%tags%', replace_path_separator(tags))
     nameFormat = nameFormat.replace('&#039;', '\'')  # Yavos: added html-code for "'" - works only when ' is excluded from __badchars__
 
     if bookmark:  # from member bookmarks
         nameFormat = nameFormat.replace('%bookmark%', 'Bookmarks')
         nameFormat = nameFormat.replace('%original_member_id%', str(imageInfo.originalArtist.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', imageInfo.originalArtist.artistToken)
-        nameFormat = nameFormat.replace('%original_artist%', replacePathSeparator(imageInfo.originalArtist.artistName))
+        nameFormat = nameFormat.replace('%original_artist%', replace_path_separator(imageInfo.originalArtist.artistName))
     else:
         nameFormat = nameFormat.replace('%bookmark%', '')
         nameFormat = nameFormat.replace('%original_member_id%', str(artistInfo.artistId))
         nameFormat = nameFormat.replace('%original_member_token%', artistInfo.artistToken)
-        nameFormat = nameFormat.replace('%original_artist%', replacePathSeparator(artistInfo.artistName))
+        nameFormat = nameFormat.replace('%original_artist%', replace_path_separator(artistInfo.artistName))
 
     if imageInfo.bookmark_count > 0:
         nameFormat = nameFormat.replace('%bookmark_count%', str(imageInfo.bookmark_count))
@@ -256,7 +257,7 @@ def safePrint(msg, newline=True):
         print("")
 
 
-def setConsoleTitle(title):
+def set_console_title(title):
     if os.name == 'nt':
         subprocess.call('title' + ' ' + title, shell=True)
     else:
@@ -270,7 +271,7 @@ def clearScreen():
         subprocess.call('clear', shell=True)
 
 
-def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
+def start_irfanview(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
     print_and_log('info', 'starting IrfanView...')
     if os.path.exists(dfilename):
         ivpath = irfanViewPath + os.sep + 'i_view32.exe'  # get first part from config.ini
@@ -282,17 +283,17 @@ def startIrfanView(dfilename, irfanViewPath, start_irfan_slide=False, start_irfa
             info.dwFlags = 1
             info.wShowWindow = 6  # start minimized in background (6)
             ivcommand = ivpath + ' /slideshow=' + dfilename
-            Logger.info(ivcommand)
+            logger.info(ivcommand)
             subprocess.Popen(ivcommand)
         elif start_irfan_view:
             ivcommand = ivpath + ' /filelist=' + dfilename
-            Logger.info(ivcommand)
+            logger.info(ivcommand)
             subprocess.Popen(ivcommand, startupinfo=info)
     else:
         print_and_log('error', u'could not load' + dfilename)
 
 
-def OpenTextFile(filename, mode='r', encoding='utf-8'):
+def open_text_file(filename, mode='r', encoding='utf-8'):
     ''' taken from: http://www.velocityreviews.com/forums/t328920-remove-bom-from-string-read-from-utf-8-file.html'''
     hasBOM = False
     if os.path.isfile(filename):
@@ -318,46 +319,34 @@ def OpenTextFile(filename, mode='r', encoding='utf-8'):
     return f
 
 
-# def toUnicode(obj, encoding='utf-8'):
-#     if isinstance(obj, basestring):
-#         if not isinstance(obj, unicode):
-#             obj = unicode(obj, encoding)
-#     return obj
-
-
-# def uni_input(message=''):
-#     result = input(message).rstrip("\r")
-#     return toUnicode(result, encoding=sys.stdin.encoding)
-
-
-def createAvatarFilename(artistPage, targetDir):
+def create_avatar_filename(artistPage, targetDir):
     filename = ''
     image = PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
     if len(_config.avatarNameFormat) > 0:
         filenameFormat = _config.avatarNameFormat
-        filename = makeFilename(filenameFormat, image,
-                                tagsSeparator=_config.tagsSeparator,
-                                tagsLimit=_config.tagsLimit,
-                                fileUrl=artistPage.artistAvatar,
-                                appendExtension=True)
-        filename = sanitizeFilename(filename, targetDir)
+        filename = make_filename(filenameFormat, image,
+                                 tagsSeparator=_config.tagsSeparator,
+                                 tagsLimit=_config.tagsLimit,
+                                 fileUrl=artistPage.artistAvatar,
+                                 appendExtension=True)
+        filename = sanitize_filename(filename, targetDir)
     else:
         # or as folder.jpg
         filenameFormat = _config.filenameFormat
         if filenameFormat.find(os.sep) == -1:
             filenameFormat = os.sep + filenameFormat
         filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
-        filename = makeFilename(filenameFormat, image,
-                                tagsSeparator=_config.tagsSeparator,
-                                tagsLimit=_config.tagsLimit,
-                                fileUrl=artistPage.artistAvatar,
-                                appendExtension=False)
-        filename = sanitizeFilename(filename + os.sep + 'folder.jpg', targetDir)
+        filename = make_filename(filenameFormat, image,
+                                 tagsSeparator=_config.tagsSeparator,
+                                 tagsLimit=_config.tagsLimit,
+                                 fileUrl=artistPage.artistAvatar,
+                                 appendExtension=False)
+        filename = sanitize_filename(filename + os.sep + 'folder.jpg', targetDir)
     return filename
 
 
-def createBackgroundFilenameFromAvatarFilename(avatarFilename):
+def create_bg_filename_from_avatar_filename(avatarFilename):
     filenames = avatarFilename.split(os.sep)
     filenames[-1] = "bg_" + filenames[-1]
     filename = os.sep.join(filenames)
@@ -383,7 +372,7 @@ def module_path():
     return os.path.dirname(__file__)
 
 
-def speedInStr(totalSize, totalTime):
+def speed_in_str(totalSize, totalTime):
     if totalTime > 0:
         speed = totalSize / totalTime
         if speed < 1024:
@@ -400,7 +389,7 @@ def speedInStr(totalSize, totalTime):
         return " infinity B/s"
 
 
-def sizeInStr(totalSize):
+def size_in_str(totalSize):
     totalSize = float(totalSize)
     if totalSize < 1024:
         return "{0:.0f} B".format(totalSize)
@@ -414,9 +403,9 @@ def sizeInStr(totalSize):
     return "{0:.2f} GiB".format(totalSize)
 
 
-def dumpHtml(filename, html_text):
+def dump_html(filename, html_text):
     isDumpEnabled = True
-    filename = sanitizeFilename(filename)
+    filename = sanitize_filename(filename)
     if _config is not None:
         isDumpEnabled = _config.enableDump
         if _config.enableDump:
@@ -445,19 +434,19 @@ def dumpHtml(filename, html_text):
 
 def print_and_log(level, msg):
     if level == 'debug':
-        GetLogger().debug(msg)
+        get_logger().debug(msg)
     else:
         safePrint(msg)
         if level == 'info':
-            GetLogger().info(msg)
+            get_logger().info(msg)
         elif level == 'warn':
-            GetLogger().warning(msg)
+            get_logger().warning(msg)
         elif level == 'error':
-            GetLogger().error(msg)
-            GetLogger().error(traceback.format_exc())
+            get_logger().error(msg)
+            get_logger().error(traceback.format_exc())
 
 
-def HaveStrings(page, strings):
+def have_strings(page, strings):
     for string in strings:
         pattern = re.compile(string)
         test_2 = pattern.findall(str(page))
@@ -467,7 +456,7 @@ def HaveStrings(page, strings):
     return False
 
 
-def getIdsFromCsv(ids_str, sep=','):
+def get_ids_from_csv(ids_str, sep=','):
     ids = list()
     ids_str = str(ids_str).split(sep)
     for id_str in ids_str:
@@ -513,7 +502,7 @@ def unescape_charref(data, encoding):
         return data
 
 
-def getUgoiraSize(ugoName):
+def get_ugoira_size(ugoName):
     size = 0
     try:
         with zipfile.ZipFile(ugoName) as z:
@@ -526,7 +515,7 @@ def getUgoiraSize(ugoName):
     return size
 
 
-def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
+def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
         print_and_log('info', u"\tFile exist! (Identical Size)")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
@@ -548,7 +537,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
         return PixivConstant.PIXIVUTIL_OK
 
 
-def printDelay(retryWait):
+def print_delay(retryWait):
     repeat = range(1, retryWait)
     for t in repeat:
         print(t, end=' ')
@@ -580,7 +569,7 @@ def makeSubdirs(filename):
         os.makedirs(directory)
 
 
-def downloadImage(url, filename, res, file_size, overwrite):
+def download_image(url, filename, res, file_size, overwrite):
     ''' Actual download, return the downloaded filesize and saved filename.'''
     start_time = datetime.now()
 
@@ -594,7 +583,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
-        filename = sanitizeFilename(filename)
+        filename = sanitize_filename(filename)
         save = open(filename + '.pixiv', 'wb+', 4096)
         print_and_log('info', u'File is saved to ' + filename)
 
@@ -611,12 +600,12 @@ def downloadImage(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(file_size, total_time)))
+                print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(file_size, total_time)))
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print(u' Completed in {0}s ({1})'.format(total_time, speedInStr(curr, total_time)))
+                print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(curr, total_time)))
                 break
 
             prev = curr
@@ -658,19 +647,19 @@ def print_progress(curr, total):
     if total > 0:
         complete = int((curr * 20) / total)
         print('\r', end=' ')
-        msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
+        msg = '[{0:20}] {1} of {2}'.format('|' * complete, size_in_str(curr), size_in_str(total))
         print('{0}'.format(msg), end=' ')
     else:
         # indeterminite
         pos = curr % 20
         anim = "{0}{1}".format('.' * pos, '|||' + '.' * (20 - pos))
         print('\r', end=' ')
-        print('[{0:20}] {1}'.format(anim, sizeInStr(curr)), end=' ')
+        print('[{0:20}] {1}'.format(anim, size_in_str(curr)), end=' ')
 
 
-def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
-                         start_date=None, end_date=None, member_id=None,
-                         r18mode=False):
+def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
+                            start_date=None, end_date=None, member_id=None,
+                            r18mode=False):
     url = ""
     date_param = ""
     page_param = ""
@@ -713,7 +702,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     return url
 
 
-def writeUrlInDescription(image, blacklistRegex, filenamePattern):
+def write_url_in_description(image, blacklistRegex, filenamePattern):
     valid_url = list()
     if len(image.descriptionUrlList) > 0:
         # filter first
@@ -883,14 +872,14 @@ def ugoira2webm(ugoira_file,
         shutil.rmtree(d)
 
 
-def ParseDateTime(worksDate, dateFormat):
+def parse_date_time(worksDate, dateFormat):
     if dateFormat is not None and len(dateFormat) > 0 and '%' in dateFormat:
         # use the user defined format
         worksDateDateTime = None
         try:
             worksDateDateTime = datetime.strptime(worksDate, dateFormat)
         except ValueError:
-            GetLogger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
+            get_logger().exception('Error when parsing datetime: %s using date format %s', worksDate, dateFormat)
             raise
     else:
         worksDate = worksDate.replace(u'/', u'-')
@@ -898,7 +887,7 @@ def ParseDateTime(worksDate, dateFormat):
             try:
                 worksDateDateTime = datetime.strptime(worksDate, u'%m-%d-%Y %H:%M')
             except ValueError:
-                GetLogger().exception('Error when parsing datetime: %s', worksDate)
+                get_logger().exception('Error when parsing datetime: %s', worksDate)
                 worksDateDateTime = datetime.strptime(worksDate.split(" ")[0], u'%Y-%m-%d')
         else:
             tempDate = worksDate.replace(u'年', '-').replace(u'月', '-').replace(u'日', '')
@@ -934,7 +923,7 @@ def check_version():
     is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
     if latest_version_int > curr_version_int and is_beta:
         print_and_log("info", "New beta version available: {0}".format(latest_version_full[0]))
-    else:
+    elif latest_version_int > curr_version_int:
         print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
 
 

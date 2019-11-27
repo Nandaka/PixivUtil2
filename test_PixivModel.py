@@ -1,4 +1,4 @@
-#!/c/Python27/python.exe
+#!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
 import unittest
@@ -20,7 +20,7 @@ class MockPixivBrowser(PixivBrowser):
     def __init__(self, mode):
         self.mode = mode
 
-    def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
+    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
         if self.mode == 1:
             p = open('./test/test-image-big-single.html', 'r', encoding="utf-8")
             page = BeautifulSoup(p.read())
@@ -386,7 +386,7 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-image-nologin.htm', 'r', encoding="utf-8")
         page = p.read()
         try:
-            image = PixivImage(67089412, page)
+            PixivImage(67089412, page)
             self.assertRaises(PixivException)
         except PixivException as ex:
             self.assertEqual(ex.errorCode, PixivException.NOT_LOGGED_IN)
@@ -396,7 +396,7 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-server-error.html', 'r', encoding="utf-8")
         page = p.read()
         with self.assertRaises(PixivException) as ex:
-            image = PixivImage(9138317, page)
+            PixivImage(9138317, page)
         self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
 
     def testPixivImageServerError2(self):
@@ -404,7 +404,7 @@ class TestPixivImage(unittest.TestCase):
         p = open('./test/test-image-generic-error.html', 'r', encoding="utf-8")
         page = p.read()
         with self.assertRaises(PixivException) as ex:
-            image = PixivImage(37882549, page)
+            PixivImage(37882549, page)
         self.assertEqual(ex.exception.errorCode, PixivException.UNKNOWN_IMAGE_ERROR)
 
     def testPixivImageUgoira(self):
@@ -650,6 +650,7 @@ def main():
 
     runner = unittest.TextTestRunner(verbosity=5)
     results = runner.run(big_suite)
+    return results
 
 
 if __name__ == '__main__':

@@ -100,7 +100,7 @@ class PixivTags:
             raise PixivException("File doesn't exists or no permission to read: " + filename,
                                  PixivException.FILE_NOT_EXISTS_OR_NO_READ_PERMISSION)
 
-        reader = PixivHelper.OpenTextFile(filename)
+        reader = PixivHelper.open_text_file(filename)
         for line in reader:
             if line.startswith('#') or len(line) < 1:
                 continue

@@ -32,7 +32,7 @@ class PixivListItem(object):
             raise PixivException("File doesn't exists or no permission to read: " + filename,
                                  errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION)
 
-        reader = PixivHelper.OpenTextFile(filename)
+        reader = PixivHelper.open_text_file(filename)
         line_no = 1
         try:
             for line in reader:
@@ -82,11 +82,11 @@ class PixivListItem(object):
                     # have drive letter
                     if re.match(r'[a-zA-Z]:', path):
                         dirpath = path.split(os.sep, 1)
-                        dirpath[1] = PixivHelper.sanitizeFilename(
+                        dirpath[1] = PixivHelper.sanitize_filename(
                             dirpath[1], None)
                         path = os.sep.join(dirpath)
                     else:
-                        path = PixivHelper.sanitizeFilename(path, rootDir)
+                        path = PixivHelper.sanitize_filename(path, rootDir)
 
                     path = path.replace('\\\\', '\\')
                     path = path.replace('\\', os.sep)
@@ -97,12 +97,12 @@ class PixivListItem(object):
                 line_no = line_no + 1
                 original_line = ""
         except UnicodeDecodeError:
-            PixivHelper.GetLogger().exception(
+            PixivHelper.get_logger().exception(
                 "PixivListItem.parseList(): Invalid value when parsing list")
             PixivHelper.print_and_log('error', 'Invalid value: {0} at line {1}, try to save the list.txt in UTF-8.'.format(
                                       original_line, line_no))
         except BaseException:
-            PixivHelper.GetLogger().exception(
+            PixivHelper.get_logger().exception(
                 "PixivListItem.parseList(): Invalid value when parsing list")
             PixivHelper.print_and_log(
                 'error', 'Invalid value: {0} at line {1}'.format(original_line, line_no))

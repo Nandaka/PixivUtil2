@@ -6,12 +6,12 @@ http://wiki.mozilla.org/APNG_Specification
 https://www.w3.org/TR/PNG/
 """
 
-from __future__ import with_statement
-from __future__ import absolute_import
-import struct
+from __future__ import absolute_import, with_statement
+
 import binascii
-import itertools
 import io
+import itertools
+import struct
 from io import open
 
 __version__ = u"0.1.0"

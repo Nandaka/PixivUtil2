@@ -216,14 +216,14 @@ class PixivImage (object):
 
     def IsNeedAppropriateLevel(self, page):
         errorMessages = ['該当作品の公開レベルにより閲覧できません。']
-        return PixivHelper.HaveStrings(page, errorMessages)
+        return PixivHelper.have_strings(page, errorMessages)
 
     def IsNeedPermission(self, page):
         errorMessages = ['この作品は.+さんのマイピクにのみ公開されています|この作品は、.+さんのマイピクにのみ公開されています',
                          'This work is viewable only for users who are in .+\'s My pixiv list',
                          'Only .+\'s My pixiv list can view this.',
                          '<section class="restricted-content">']
-        return PixivHelper.HaveStrings(page, errorMessages)
+        return PixivHelper.have_strings(page, errorMessages)
 
     def IsDeleted(self, page):
         errorMessages = ['該当イラストは削除されたか、存在しないイラストIDです。|該当作品は削除されたか、存在しない作品IDです。',
@@ -231,12 +231,12 @@ class PixivImage (object):
                          'The following work is either deleted, or the ID does not exist.',
                          'This work was deleted.',
                          'Work has been deleted or the ID does not exist.']
-        return PixivHelper.HaveStrings(page, errorMessages)
+        return PixivHelper.have_strings(page, errorMessages)
 
     def IsGuroDisabled(self, page):
         errorMessages = ['表示されるページには、18歳未満の方には不適切な表現内容が含まれています。',
                          'The page you are trying to access contains content that may be unsuitable for minors']
-        return PixivHelper.HaveStrings(page, errorMessages)
+        return PixivHelper.have_strings(page, errorMessages)
 
     def IsErrorExist(self, page):
         check = page.findAll('span', attrs={'class': 'error'})
@@ -322,7 +322,7 @@ class PixivImage (object):
             self.bookmark_count = 0
             self.image_response_count = 0
         except BaseException:
-            PixivHelper.GetLogger().exception("Cannot parse bookmark count for: %d", self.imageId)
+            PixivHelper.get_logger().exception("Cannot parse bookmark count for: %d", self.imageId)
 
     def WriteInfo(self, filename):
         info = None
@@ -333,7 +333,7 @@ class PixivImage (object):
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
-            PixivHelper.GetLogger().exception("Error when saving image info: %s, file is saved to: %d.txt", filename, self.imageId)
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %d.txt", filename, self.imageId)
 
         info.write("ArtistID      = " + str(self.artist.artistId) + "\r\n")
         info.write("ArtistName    = " + self.artist.artistName + "\r\n")
@@ -363,7 +363,7 @@ class PixivImage (object):
             info = codecs.open(filename, 'w', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".json", 'w', encoding='utf-8')
-            PixivHelper.GetLogger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
 
         # Fix Issue #481
         jsonInfo = collections.OrderedDict()
@@ -395,13 +395,13 @@ class PixivImage (object):
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".js", 'wb', encoding='utf-8')
-            PixivHelper.GetLogger().exception("Error when saving image info: %s, file is saved to: %d.js", filename, self.imageId)
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %d.js", filename, self.imageId)
         info.write(str(self.ugoira_data))
         info.close()
 
     def CreateUgoira(self, filename):
         if len(self.ugoira_data) == 0:
-            PixivHelper.GetLogger().exception("Missing ugoira animation info for image: %d", self.imageId)
+            PixivHelper.get_logger().exception("Missing ugoira animation info for image: %d", self.imageId)
 
         zipTarget = filename[:-4] + ".ugoira"
         if os.path.exists(zipTarget):

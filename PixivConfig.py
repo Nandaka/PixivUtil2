@@ -13,7 +13,7 @@ script_path = PixivHelper.module_path()
 
 class PixivConfig(object):
     '''Configuration class'''
-    __logger = PixivHelper.GetLogger()
+    __logger = PixivHelper.get_logger()
     configFileLocation = "config.ini"
 
     # initialize default value
@@ -122,7 +122,7 @@ class PixivConfig(object):
         haveError = False
         config = configparser.RawConfigParser()
         try:
-            config.readfp(PixivHelper.OpenTextFile(self.configFileLocation))
+            config.read_file(PixivHelper.open_text_file(self.configFileLocation))
 
             self.username = config.get('Authentication', 'username')
             self.password = config.get('Authentication', 'password')
