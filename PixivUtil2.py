@@ -1197,6 +1197,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
         page = __br__.open_with_retry(url)
+
         parse_page = BeautifulSoup(page.read().decode("utf-8"))
         bookmarks = PixivBookmark.parseBookmark(parse_page, root_directory=__config__.rootDirectory)
         if len(bookmarks) == 0:
@@ -2051,23 +2052,23 @@ def setup_option_parser():
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
                       help='''Action you want to load your program with:
-1 - Download by member_id
-2 - Download by image_id
-3 - Download by tags
-4 - Download from list
-5 - Download from user bookmark
-6 - Download from user's image bookmark
-7 - Download from tags list
-8 - Download new illust from bookmark
-9 - Download by Title/Caption
+ 1 - Download by member_id
+ 2 - Download by image_id
+ 3 - Download by tags
+ 4 - Download from list
+ 5 - Download from user bookmark
+ 6 - Download from user's image bookmark
+ 7 - Download from tags list
+ 8 - Download new illust from bookmark
+ 9 - Download by Title/Caption
 10 - Download by Tag and Member Id
 11 - Download images from Member Bookmark
 12 - Download images by Group Id
 f1 - Download from supported artists (FANBOX)
 f2 - Download by artist id (FANBOX)
-e - Export online bookmark
-m - Export online user bookmark
-d - Manage database''')
+ e - Export online bookmark
+ m - Export online user bookmark
+ d - Manage database''')
     parser.add_option('-x', '--exitwhendone', dest='exitwhendone',
                       help='Exit programm when done. (only useful when not using DB-Manager)',
                       action='store_true', default=False)
@@ -2244,7 +2245,7 @@ def main():
         np_is_valid = False
         parser.error('Value %s used for numberOfPage is not an integer.' % options.numberofpages)
         # Yavos: use print option instead when program should be running even with this error
-        # end new lines by Yavos ###
+        # end new lines by Yavos
 
     __log__.info('###############################################################')
     if len(sys.argv) == 0:
