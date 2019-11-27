@@ -5,17 +5,8 @@
   - Windows Vista or a more recent version.
 
 - Running from source code:
-  - Python 2.7.11++ (https://www.python.org/)
-  - BeautifulSoup 3.2.1 (https://www.crummy.com/software/BeautifulSoup/)
-  - mechanize (http://wwwsearch.sourceforge.net/mechanize/)
-  - socksipy-branch 1.2 (http://socksipy.sourceforge.net/)
-  - Pillow (https://python-pillow.org/)
-  - imageio (https://imageio.github.io/)
-  - numpy (https://github.com/numpy/numpy)
-  - freeimage-3.15.4-win32.dll (https://github.com/imageio/imageio-binaries/tree/master/freeimage)
-  - win_unicode_console 0.5 (https://github.com/Drekin/win-unicode-console) Windows Only
-  - demjson-2.2.4 (https://github.com/dmeranda/demjson)
-  - requests-2.21.0 (https://2.python-requests.org/en/master/)
+  - Python 3.7+ (https://www.python.org/)
+  - Additional library listed in requirements.txt
  
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
