@@ -66,7 +66,7 @@ class PixivImage (object):
 
             # check error
             if payload is None:
-                parsed = BeautifulSoup(page)
+                parsed = BeautifulSoup(page, features="html5lib")
                 if self.IsNotLoggedIn(parsed):
                     raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
                 if self.IsNeedPermission(parsed):

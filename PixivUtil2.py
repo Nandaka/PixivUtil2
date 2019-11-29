@@ -1166,7 +1166,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
         page = __br__.open(url)
-        parse_page = BeautifulSoup(page.read().decode("utf-8"))
+        parse_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
         bookmarks = PixivBookmark.parseImageBookmark(parse_page)
         total_list.extend(bookmarks)
         if len(bookmarks) == 0:
@@ -1203,7 +1203,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
 
         page = __br__.open_with_retry(url)
 
-        parse_page = BeautifulSoup(page.read().decode("utf-8"))
+        parse_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
         bookmarks = PixivBookmark.parseBookmark(parse_page, root_directory=__config__.rootDirectory)
         if len(bookmarks) == 0:
             print('No more data')
@@ -1273,7 +1273,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
 
             PixivHelper.print_and_log('info', "Source URL: " + url)
             page = __br__.open(url)
-            parsed_page = BeautifulSoup(page.read().decode("utf-8"))
+            parsed_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
             pb = PixivNewIllustBookmark(parsed_page)
             if not pb.haveImages:
                 print("No images!")

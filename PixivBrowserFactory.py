@@ -58,12 +58,8 @@ class PixivBrowser(mechanize.Browser):
         return None
 
     def __init__(self, config, cookie_jar):
-        # fix #218
-        try:
-            mechanize.Browser.__init__(self, factory=mechanize.RobustFactory())
-        except BaseException:
-            PixivHelper.get_logger().info("Using default factory (mechanize 3.x ?)")
-            mechanize.Browser.__init__(self)
+        # fix #218 not applicable after upgrading to mechanize 4.x
+        mechanize.Browser.__init__(self)
 
         self._configureBrowser(config)
         self._configureCookie(cookie_jar)

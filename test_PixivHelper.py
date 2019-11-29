@@ -186,14 +186,14 @@ class TestPixivHelper(unittest.TestCase):
 
     def testParseLoginError(self):
         p = open('./test/test-login-error.htm', 'r', encoding='utf-8')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(), features="html5lib")
         r = page.findAll('span', attrs={'class': 'error'})
         self.assertTrue(len(r) > 0)
         self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
 
     def testParseLoginForm(self):
         p = open('./test/test-login-form.html', 'r', encoding='utf-8')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(), features="html5lib")
         r = page.findAll('form', attrs={'action': '/login.php'})
         # print(r)
         self.assertTrue(len(r) > 0)
