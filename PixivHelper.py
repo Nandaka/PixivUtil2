@@ -423,7 +423,7 @@ def dump_html(filename, html_text):
             dump.write(str(html_text))
             dump.close()
             return filename
-        except Exception as ex:
+        except IOError as ex:
             print_and_log('error', str(ex))
         print_and_log("info", "Dump File created: {0}".format(filename))
     else:
@@ -464,7 +464,7 @@ def get_ids_from_csv(ids_str, sep=','):
             try:
                 _id = int(temp)
                 ids.append(_id)
-            except BaseException:
+            except ValueError:
                 print_and_log('error', u"ID: {0} is not valid".format(id_str))
     if len(ids) > 1:
         print_and_log('info', u"Found {0} ids".format(len(ids)))
@@ -477,28 +477,28 @@ def clear_all():
         del globals()[var]
 
 
-# pylint: disable=W0612
-def unescape_charref(data, encoding):
-    ''' Replace default mechanize method in _html.py'''
-    try:
-        name, base = data, 10
-        if name.lower().startswith("x"):
-            name, base = name[1:], 16
-        try:
-            int(name, base)
-        except BaseException:
-            base = 16
-        uc = chr(int(name, base))
-        if encoding is None:
-            return uc
-        else:
-            try:
-                repl = uc.encode(encoding)
-            except UnicodeError:
-                repl = "&#%s;" % data
-            return repl
-    except BaseException:
-        return data
+# # pylint: disable=W0612
+# def unescape_charref(data, encoding):
+#     ''' Replace default mechanize method in _html.py'''
+#     try:
+#         name, base = data, 10
+#         if name.lower().startswith("x"):
+#             name, base = name[1:], 16
+#         try:
+#             int(name, base)
+#         except ValueError:
+#             base = 16
+#         uc = chr(int(name, base))
+#         if encoding is None:
+#             return uc
+
+#         try:
+#             repl = uc.encode(encoding)
+#         except UnicodeError:
+#             repl = "&#%s;" % data
+#         return repl
+#     except BaseException:
+#         return data
 
 
 def get_ugoira_size(ugoName):
@@ -508,7 +508,7 @@ def get_ugoira_size(ugoName):
             animJson = z.read("animation.json")
             size = json.loads(animJson)['zipSize']
             z.close()
-    except BaseException:
+    except zipfile.BadZipFile:
         print_and_log('error', u'Failed to read ugoira size from json data: {0}, using filesize.'.format(ugoName))
         size = os.path.getsize(ugoName)
     return size

@@ -77,8 +77,9 @@ UTF8_FS = None
 gc.enable()
 # gc.set_debug(gc.DEBUG_LEAK)
 
+# not required in py3 mechanize
 # replace unenscape_charref implementation with our implementation due to bug.
-mechanize._html.unescape_charref = PixivHelper.unescape_charref
+# mechanize._html.unescape_charref = PixivHelper.unescape_charref
 
 __config__ = PixivConfig.PixivConfig()
 configfile = "config.ini"
@@ -104,17 +105,21 @@ def get_remote_filesize(url, referer):
     print('Getting remote filesize...')
     # open with HEAD method, might be expensive
     req = PixivHelper.create_custom_request(url, __config__, referer, head=True)
+    file_size = -1
+
     try:
         res = __br__.open_novisit(req)
-        file_size = int(res.info()['Content-Length'])
+        content_length = res.info()['Content-Length']
+        if content_length is not None:
+            file_size = int(content_length)
+        else:
+            PixivHelper.print_and_log('info', "\tNo file size information!")
     except KeyError:
-        file_size = -1
         PixivHelper.print_and_log('info', "\tNo file size information!")
     except mechanize.HTTPError as e:
         # fix Issue #503
         # handle http errors explicit by code
         if int(e.code) in (404, 500):
-            file_size = -1
             PixivHelper.print_and_log('info', "\tNo file size information!")
         else:
             raise
