@@ -337,7 +337,9 @@ def perform_download(url, file_size, filename, overwrite, referer=None):
     res = __br__.open_novisit(req)
     if file_size < 0:
         try:
-            file_size = int(res.info()['Content-Length'])
+            content_length = res.info()['Content-Length']
+            if content_length is not None:
+                file_size = int(content_length)
         except KeyError:
             file_size = -1
             PixivHelper.print_and_log('info', "\tNo file size information!")
