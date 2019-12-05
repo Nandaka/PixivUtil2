@@ -419,7 +419,7 @@ def dump_html(filename, html_text):
 
     if isDumpEnabled:
         try:
-            dump = open(filename, 'wb', encoding="utf-8")
+            dump = open(filename, 'wb')
             dump.write(str(html_text))
             dump.close()
             return filename
