@@ -420,7 +420,7 @@ def dump_html(filename, html_text):
     if isDumpEnabled:
         try:
             dump = open(filename, 'wb')
-            dump.write(str(html_text))
+            dump.write(html_text)
             dump.close()
             return filename
         except IOError as ex:
