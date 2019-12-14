@@ -1,3 +1,9 @@
+20191214
+- Moved to python 3.
+- Fix Issue #580: update error handler for suspended user.
+- Fix Issue #579: update remote filesize parser.
+- Fix Issue #586: update content_provider.json for vimeo.
+
 20191118
 - Merged #571: fix password check logic.
 - Merged #572: fix Issue #565 with negative time zone offset.
