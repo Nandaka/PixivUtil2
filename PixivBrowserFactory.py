@@ -269,24 +269,25 @@ class PixivBrowser(mechanize.Browser):
     def login(self, username, password):
         try:
             PixivHelper.print_and_log('info', 'Logging in...')
-            # url = "https://accounts.pixiv.net/login"
+            url = "https://accounts.pixiv.net/login"
             # get the post key
-            # res = self.open_with_retry(url)
-            # parsed = BeautifulSoup(res, features="html5lib")
+            res = self.open_with_retry(url)
+            parsed = BeautifulSoup(res, features="html5lib")
+            post_key = parsed.find('input', attrs={'name': 'post_key'})
             # js_init_config = self._getInitConfig(parsed)
 
             data = {}
             data['pixiv_id'] = username
             data['password'] = password
-            data['captcha'] = ''
-            data['g_recaptcha_response'] = ''
+            # data['captcha'] = ''
+            # data['g_recaptcha_response'] = ''
             data['return_to'] = 'https://www.pixiv.net'
             data['lang'] = 'en'
-            # data['post_key'] = js_init_config["pixivAccount.postKey"]
+            data['post_key'] = post_key['value']
             data['source'] = "accounts"
             data['ref'] = ''
 
-            request = mechanize.Request("https://accounts.pixiv.net/api/login?lang=en", urllib.parse.urlencode(data))
+            request = mechanize.Request("https://accounts.pixiv.net/api/login?lang=en", data, method='POST')
             response = self.open_with_retry(request)
 
             return self.processLoginResult(response, username, password)

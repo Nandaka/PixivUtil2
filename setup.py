@@ -48,9 +48,10 @@ if isWindows:
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
-requires = ['BeautifulSoup']
+requires = ['bs4', 'lxml', 'html5lib', 'sqlite3']
 options = {'py2exe': {'bundle_files': 3,
                       'compressed': 1,
+                      "packages": ['lxml', 'html5lib', 'sqlite3'],
                       'excludes': ['Tkconstants', 'Tkinter']}, }
 
 setup_kwargs = dict(console=console, requires=requires, options=options)

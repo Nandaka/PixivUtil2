@@ -46,10 +46,10 @@ if os.name == 'nt':
             return getpass.fallback_getpass(prompt, stream)
         import msvcrt
         for c in prompt:
-            msvcrt.putch(c)
+            msvcrt.putch(c.encode())
         pw = ""
         while 1:
-            c = msvcrt.getch()
+            c = msvcrt.getch().decode()
             if c == '\r' or c == '\n':
                 break
             if c == '\003':
@@ -60,8 +60,8 @@ if os.name == 'nt':
             else:
                 pw = pw + c
                 print("*", end="")
-        msvcrt.putch('\r')
-        msvcrt.putch('\n')
+        msvcrt.putch('\r'.encode())
+        msvcrt.putch('\n'.encode())
         return pw
 
     getpass.getpass = win_getpass_with_mask
