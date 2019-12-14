@@ -43,8 +43,7 @@ class PixivException(Exception):
         self.htmlPage = htmlPage
 
     def __str__(self):
-        import PixivHelper
         # return str(self.errorCode) + " " + repr(self.value)
         has_page = "Y" if self.htmlPage is not None and len(
             self.htmlPage) > 0 else "N"
-        return u"{0} {1}, hasDumpPage={2}".format(self.errorCode, self.value, has_page)
+        return u"{0} {1}, hasDumpPage={2}, pageData={3}".format(self.errorCode, self.value, has_page, self.htmlPage)

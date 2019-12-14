@@ -20,7 +20,7 @@
 		},
 		"vimeo": {
 			"serviceProvider": "vimeo",
-			"keys": ["contentId"],
+			"keys": ["contentId", "videoId"],
 			"format": "https://vimeo.com/{0}'>vimeo post: {0}</a>",
             "ignore": false
 		},
