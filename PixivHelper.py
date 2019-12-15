@@ -781,7 +781,7 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
 
     im = APNG()
     for fImage, delay in files:
-        im.append(fImage, delay=delay)
+        im.append_file(fImage, delay=delay)
     im.save(temp_name)
     shutil.move(temp_name, exportname)
     print_and_log('info', 'ugoira exported to: ' + exportname)

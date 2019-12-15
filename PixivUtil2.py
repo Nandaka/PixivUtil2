@@ -2354,8 +2354,8 @@ def main():
             cmd = u"{0} -encoders".format(__config__.ffmpeg)
             ffmpeg_args = shlex.split(cmd)
             try:
-                p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                buff = p.stdout.read()
+                p = subprocess.run(ffmpeg_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+                buff = p.stdout
                 if buff.find(__config__.ffmpegCodec) == 0:
                     __config__.createWebm = False
                     PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
