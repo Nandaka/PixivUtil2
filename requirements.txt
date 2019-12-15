@@ -8,4 +8,5 @@ Pillow>=6.1.0
 socksipy-branch>=1.1
 win_unicode_console>=0.5
 requests>=2.22.0
-apng=>0.3.3
+apng>=0.3.3
+
