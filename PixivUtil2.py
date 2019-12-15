@@ -634,7 +634,6 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
     global __errorList
     global ERROR_CODE
 
-    # parse_big_image = None
     parse_medium_page = None
     image = None
     result = None
@@ -844,8 +843,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
         if image is not None:
             del image
+        if parse_medium_page is not None:
+            del parse_medium_page
         gc.collect()
-        # clearall()
         print('\n')
         return result
     except KeyboardInterrupt:
@@ -1058,6 +1058,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                     flag = False
 
         print('done')
+        if search_page is not None:
+            del search_page
     except KeyboardInterrupt:
         raise
     except BaseException:

@@ -177,7 +177,7 @@ class PixivBrowser(mechanize.Browser):
                     raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus."
                                          .format(temp), errorCode=PixivException.SERVER_ERROR)
 
-    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
+    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True):
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
             throw PixivException as server error
@@ -193,7 +193,8 @@ class PixivBrowser(mechanize.Browser):
                     temp = self.open_with_retry(req)
                     read_page = temp.read()
                     read_page = read_page.decode('utf8')
-                    self._put_to_cache(url, read_page)
+                    if enable_cache:
+                        self._put_to_cache(url, read_page)
                 except urllib.error.HTTPError as ex:
                     if ex.code in [403, 404, 503]:
                         read_page = ex.read()
@@ -383,9 +384,8 @@ class PixivBrowser(mechanize.Browser):
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
         # https://www.pixiv.net/en/artworks/76656661
-        url = "https://www.pixiv.net{1}/artworks/{0}".format(
-            image_id, self._locale)
-        response = self.getPixivPage(url, returnParsed=False)
+        url = "https://www.pixiv.net{1}/artworks/{0}".format(image_id, self._locale)
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=False)
         self.handleDebugMediumPage(response, image_id)
 
         # Issue #355 new ui handler
@@ -409,21 +409,17 @@ class PixivBrowser(mechanize.Browser):
                                    tzInfo=_tzInfo)
 
                 if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(
-                        image_id)
-                    meta_response = self.open_with_retry(
-                        ugoira_meta_url).read()
+                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                    meta_response = self.open_with_retry(ugoira_meta_url).read()
                     image.ParseUgoira(meta_response)
 
                 if parent is None:
                     if from_bookmark:
                         image.originalArtist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(
-                            image.originalArtist.artistId, image.originalArtist)
+                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
                     else:
                         image.artist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(
-                            image.artist.artistId, image.artist)
+                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         except BaseException:
             PixivHelper.get_logger().error("Respose data: \r\n %s", response)
             raise
