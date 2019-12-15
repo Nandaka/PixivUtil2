@@ -59,14 +59,16 @@ class PixivBrowser(mechanize.Browser):
                     oldest_expiry = curr_expiry
             del self._cache[oldest_item]
 
-    def _get_from_cache(self, key):
+    def _get_from_cache(self, key, sliding_window=3600):
         if key in self._cache.keys():
-            (item, expiry) = self._cache[key]
+            (item, expiry) = self._cache.pop(key)
             if expiry - time.time() > 0:
+                self._cache[key] = (item, expiry + sliding_window)
                 return item
-            else:
-                del item
-                self._cache.pop(key)
+
+            # expired data
+            del item
+
         return None
 
     def __init__(self, config, cookie_jar):
