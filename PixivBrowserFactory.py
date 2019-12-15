@@ -88,10 +88,9 @@ class PixivBrowser(mechanize.Browser):
                 assert parseResult.scheme and parseResult.hostname and parseResult.port
                 socksType = socks.PROXY_TYPE_SOCKS5 if parseResult.scheme == 'socks5' else socks.PROXY_TYPE_SOCKS4
 
-                socks.setdefaultproxy(
-                    socksType, parseResult.hostname, parseResult.port)
-                socks.wrapmodule(urllib)
-                socks.wrapmodule(http.client)
+                # https://stackoverflow.com/a/14512227
+                socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
+                socket.socket = socks.socksocket
 
                 PixivHelper.get_logger().info("Using SOCKS Proxy: %s", config.proxyAddress)
             else:
