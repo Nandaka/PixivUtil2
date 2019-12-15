@@ -1,3 +1,9 @@
+20191215
+- Fix Issue #594: download by tag.
+- Fix Issue #592: update socks proxy handler.
+- Fix Issue #590: update webm creation handler.
+- Fix Issue #591: update apng creation handler.
+
 20191214
 - Moved to python 3.
 - Fix Issue #580: update error handler for suspended user.
