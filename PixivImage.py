@@ -187,6 +187,8 @@ class PixivImage (object):
                     link_str = link_str[10:]
                     link_str = urllib.parse.unquote(link_str)
                 self.descriptionUrlList.append(link_str)
+        parsed.decompose()
+        del parsed
 
     def ParseUgoira(self, page):
         # preserve the order

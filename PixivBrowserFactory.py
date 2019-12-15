@@ -254,30 +254,29 @@ class PixivBrowser(mechanize.Browser):
             login_cookie = self._config.cookie
 
         if len(login_cookie) > 0:
-            PixivHelper.print_and_log(
-                'info', 'Trying to log in with saved cookie')
+            PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie)
             res = self.open_with_retry('https://www.pixiv.net/')
             parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
             PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
 
+            result = False
             if "logout.php" in parsed:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.get_logger().info('Logged in using cookie')
                 self.getMyId(parsed)
-                temp_locale = str(res.geturl()).replace(
-                    'https://www.pixiv.net/', '').replace('/', '')
+                temp_locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
                 if len(temp_locale) > 0:
                     self._locale = '/' + temp_locale
                 PixivHelper.get_logger().info('Locale = %s', self._locale)
-
-                return True
+                result = True
             else:
                 PixivHelper.get_logger().info('Failed to log in using cookie')
-                PixivHelper.print_and_log(
-                    'info', 'Cookie already expired/invalid.')
-        return False
+                PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
+
+        del parsed
+        return result
 
     def login(self, username, password):
         try:
@@ -288,6 +287,8 @@ class PixivBrowser(mechanize.Browser):
             parsed = BeautifulSoup(res, features="html5lib")
             post_key = parsed.find('input', attrs={'name': 'post_key'})
             # js_init_config = self._getInitConfig(parsed)
+            parsed.decompose()
+            del parsed
 
             data = {}
             data['pixiv_id'] = username
@@ -337,6 +338,7 @@ class PixivBrowser(mechanize.Browser):
             self._config.username = username
             self._config.password = password
 
+            del parsed
             return True
         else:
             if result["body"] is not None and "validation_errors" in result["body"]:
@@ -371,6 +373,8 @@ class PixivBrowser(mechanize.Browser):
     def parseLoginError(self, res):
         page = BeautifulSoup(res, features="html5lib")
         r = page.findAll('span', attrs={'class': 'error'})
+        page.decompose()
+        del page
         return r
 
     def getImagePage(self, image_id, parent=None, from_bookmark=False,

@@ -751,30 +751,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                         image.imageTags.remove(item)
 
             # get manga page
-            if image.imageMode == 'manga' or image.imageMode == 'big':
-                # while True:
-                #     try:
-                #         big_url = 'https://www.pixiv.net{1}/artworks/{0}'.format(image_id, PixivBrowserFactory.getBrowser()._locale)
-                #         parse_big_image = PixivBrowserFactory.getBrowser().getPixivPage(big_url, referer)
-                #         if parse_big_image is not None:
-                #             image.ParseImages(page=parse_big_image, _br=PixivBrowserFactory.getExistingBrowser())
-                #             parse_big_image.decompose()
-                #             del parse_big_image
-                #         break
-                #     except Exception as ex:
-                #         __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
-                #         PixivHelper.print_and_log('info', 'Image ID (' + str(image_id) + '): ' + str(traceback.format_exc()))
-                #         try:
-                #             if parse_big_image is not None:
-                #                 dump_filename = 'Error Big Page for image ' + str(image_id) + '.html'
-                #                 PixivHelper.dumpHtml(dump_filename, parse_big_image)
-                #                 PixivHelper.print_and_log('error', 'Dumping html to: ' + dump_filename)
-                #         except BaseException:
-                #             PixivHelper.print_and_log('error', 'Cannot dump big page for image_id: ' + str(image_id))
-                #         return PixivConstant.PIXIVUTIL_NOT_OK
-
-                if image.imageMode == 'manga':
-                    print("Page Count :", image.imageCount)
+            if image.imageMode == 'manga':
+                print("Page Count :", image.imageCount)
 
             if user_dir == '':  # Yavos: use config-options
                 target_dir = __config__.rootDirectory
@@ -1213,6 +1191,8 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         total_list.extend(bookmarks)
         i = i + 1
         print(str(len(bookmarks)), 'items')
+        parse_page.decompose()
+        del parse_page
         wait()
     return total_list
 
