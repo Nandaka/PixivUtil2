@@ -429,14 +429,11 @@ class PixivBrowser(mechanize.Browser):
     def handleDebugMediumPage(self, response, imageId):
         if self._config.enableDump:
             if self._config.dumpMediumPage:
-                dump_filename = "Medium Page for Image Id {0}.html".format(
-                    imageId)
+                dump_filename = "Medium Page for Image Id {0}.html".format(imageId)
                 PixivHelper.dump_html(dump_filename, response)
-                PixivHelper.print_and_log(
-                    'info', 'Dumping html to: {0}'.format(dump_filename))
+                PixivHelper.print_and_log('info', 'Dumping html to: {0}'.format(dump_filename))
             if self._config.debugHttp:
-                PixivHelper.safePrint(u"reply: {0}".format(
-                    PixivHelper.toUnicode(response)))
+                PixivHelper.safePrint(u"reply: {0}".format(response))
 
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
@@ -609,7 +606,7 @@ class PixivBrowser(mechanize.Browser):
                                                       self._config.r18mode)
 
             PixivHelper.print_and_log('info', 'Looping... for {0}'.format(url))
-            response_page = self.getPixivPage(url, returnParsed=False).decode('utf-8')
+            response_page = self.getPixivPage(url, returnParsed=False)
             self.handleDebugTagSearchPage(response_page, url)
 
             result = None
