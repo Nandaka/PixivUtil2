@@ -35,6 +35,7 @@ class PixivBrowser(mechanize.Browser):
     _isWhitecube = False
     _whitecubeToken = ""
     _cache = dict()
+    _max_cache = 1000  # keep 1000 item in memory
     _myId = 0
     _isPremium = False
 
@@ -46,6 +47,17 @@ class PixivBrowser(mechanize.Browser):
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
         self._cache[key] = (item, expiry)
+
+        # check oldest item
+        oldest_expiry = expiry
+        oldest_item = key
+        if len(self._cache) > self._max_cache:
+            for key2 in self._cache.keys():
+                curr_expiry = self._cache[key2][1]
+                if curr_expiry < oldest_expiry:
+                    oldest_item = key2
+                    oldest_expiry = curr_expiry
+            del self._cache[oldest_item]
 
     def _get_from_cache(self, key):
         if key in self._cache.keys():

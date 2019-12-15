@@ -22,9 +22,9 @@ from datetime import date, datetime, timedelta, tzinfo
 
 import imageio
 import mechanize
+from apng import APNG
 
 import PixivConstant
-from apng import APNG
 from PixivImage import PixivImage
 
 logger = None
