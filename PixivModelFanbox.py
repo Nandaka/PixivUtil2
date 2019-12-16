@@ -179,7 +179,8 @@ class FanboxPost(object):
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
-                    for image in jsPost["body"]["imageMap"]:
+                    self.images.append(jsPost["body"]["imageMap"][imageId]["originalUrl"])
+                    self.embeddedFiles.append(jsPost["body"]["imageMap"][imageId]["originalUrl"])
                         if image == imageId:
                             self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
                             self.embeddedFiles.append(jsPost["body"]["imageMap"][image]["originalUrl"])
