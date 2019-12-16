@@ -163,20 +163,6 @@ class FanboxPost(object):
         if "thumbnailUrl" in jsPost["body"] and jsPost["body"]["thumbnailUrl"] is not None:
             self.embeddedFiles.append(jsPost["body"]["thumbnailUrl"])
 
-        # Issue #438
-        if "imageMap" in jsPost["body"] and jsPost["body"]["imageMap"] is not None:
-            for image in jsPost["body"]["imageMap"]:
-                self.images.append(
-                    jsPost["body"]["imageMap"][image]["originalUrl"])
-                self.embeddedFiles.append(
-                    jsPost["body"]["imageMap"][image]["originalUrl"])
-
-        if "fileMap" in jsPost["body"] and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
-            for filename in jsPost["body"]["fileMap"]:
-                self.images.append(jsPost["body"]["fileMap"][filename]["url"])
-                self.embeddedFiles.append(
-                    jsPost["body"]["fileMap"][filename]["url"])
-
         if "embedMap" in jsPost["body"] and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
             for embed in jsPost["body"]["embedMap"]:
                 embedData.append(jsPost["body"]["embedMap"][embed])
@@ -193,12 +179,22 @@ class FanboxPost(object):
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
+                    for image in jsPost["body"]["imageMap"]:
+                        if image == imageId:
+                            self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
+                            self.embeddedFiles.append(jsPost["body"]["imageMap"][image]["originalUrl"])
+                            break
                 elif block["type"] == "file":
                     fileId = block["fileId"]
                     self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
+                    for filename in jsPost["body"]["fileMap"]:
+                        if filename == fileId:
+                            self.images.append(jsPost["body"]["fileMap"][filename]["url"])
+                            self.embeddedFiles.append(jsPost["body"]["fileMap"][filename]["url"])
+                            break
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     self.body_text = u"{0}<br />{1}".format(
