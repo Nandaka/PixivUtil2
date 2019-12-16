@@ -190,7 +190,8 @@ class FanboxPost(object):
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
-                    for filename in jsPost["body"]["fileMap"]:
+                    self.images.append(jsPost["body"]["fileMap"][fileId]["url"])
+                    self.embeddedFiles.append(jsPost["body"]["fileMap"][fileId]["url"])
                         if filename == fileId:
                             self.images.append(jsPost["body"]["fileMap"][filename]["url"])
                             self.embeddedFiles.append(jsPost["body"]["fileMap"][filename]["url"])
