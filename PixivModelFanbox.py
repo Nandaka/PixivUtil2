@@ -189,7 +189,6 @@ class FanboxPost(object):
                                      jsPost["body"]["fileMap"][fileId]["name"])
                     self.images.append(jsPost["body"]["fileMap"][fileId]["url"])
                     self.embeddedFiles.append(jsPost["body"]["fileMap"][fileId]["url"])
-                            break
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     self.body_text = u"{0}<br />{1}".format(
