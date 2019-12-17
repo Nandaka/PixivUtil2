@@ -751,7 +751,8 @@ def get_br():
         success = b.loginUsingCookie(cfg.cookie)
         b._username = cfg.username
         b._password = cfg.password
-    elif not success:
+
+    if not success:
         success = b.login(cfg.username, cfg.password)
 
     return (b, success)
