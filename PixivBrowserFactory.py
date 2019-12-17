@@ -161,7 +161,9 @@ class PixivBrowser(mechanize.Browser):
             except urllib.error.HTTPError:
                 raise
             except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
                 if retry_count < retry:
+                    print(exc_value, end=' ')
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
                         time.sleep(1)
@@ -172,8 +174,7 @@ class PixivBrowser(mechanize.Browser):
                     if isinstance(url, urllib.request.Request):
                         temp = url.full_url
 
-                    PixivHelper.print_and_log(
-                        'error', 'Error at open_with_retry(): {0}'.format(str(sys.exc_info())))
+                    PixivHelper.print_and_log('error', 'Error at open_with_retry(): {0}'.format(str(sys.exc_info())))
                     raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus."
                                          .format(temp), errorCode=PixivException.SERVER_ERROR)
 

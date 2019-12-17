@@ -33,12 +33,9 @@ from PixivListItem import PixivListItem
 from PixivTags import PixivTags
 
 DEBUG_SKIP_PROCESS_IMAGE = False
+DEBUG_SKIP_DOWNLOAD_IMAGE = False
 
 if os.name == 'nt':
-    # enable unicode support on windows console.
-    import win_unicode_console
-    # win_unicode_console.enable()
-
     # patch getpass.getpass() for windows to show '*'
     def win_getpass_with_mask(prompt='Password: ', stream=None):
         """Prompt for password with echo off, using Windows getch()."""
@@ -75,11 +72,7 @@ ERROR_CODE = 0
 UTF8_FS = None
 
 gc.enable()
-# gc.set_debug(gc.DEBUG_LEAK)
-
-# not required in py3 mechanize
-# replace unenscape_charref implementation with our implementation due to bug.
-# mechanize._html.unescape_charref = PixivHelper.unescape_charref
+gc.set_debug(gc.DEBUG_LEAK)
 
 __config__ = PixivConfig.PixivConfig()
 configfile = "config.ini"
@@ -722,7 +715,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 download_image_flag = False
                 result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
-        if download_image_flag:
+        if download_image_flag and not DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
                 PixivHelper.safePrint('Member Name  : ' + image.artist.artistName)
                 print('Member Avatar:', image.artist.artistAvatar)
@@ -847,6 +840,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             del parse_medium_page
         gc.collect()
         print('\n')
+
         return result
     except KeyboardInterrupt:
         raise
@@ -2367,11 +2361,7 @@ def main():
 
         password = __config__.password
         if password == '':
-            if os.name == 'nt':
-                win_unicode_console.disable()
             password = getpass.getpass('Password ? ')
-            if os.name == 'nt':
-                win_unicode_console.enable()
 
         if np_is_valid and np != 0:  # Yavos: overwrite config-data
             msg = 'Limit up to: ' + str(np) + ' page(s). (set via commandline)'
