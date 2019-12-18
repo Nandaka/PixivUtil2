@@ -81,7 +81,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
 
         member.PrintInfo()
         self.assertEqual(member.artistId, 14095911)
-        self.assertEqual(member.totalImages, 179)
+        self.assertEqual(member.totalImages, 186)
         self.assertTrue(member.haveImages)
         self.assertTrue(member.isLastPage)
 
