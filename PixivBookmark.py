@@ -19,22 +19,20 @@ class PixivBookmark(object):
         bookmarks = list()
         db = PixivDBManager.PixivDBManager(root_directory)
         __re_member = re.compile(r'member\.php\?id=(\d*)')
-        try:
-            result = page.find(attrs={'class': 'members'}).findAll('a')
+        result = page.find(attrs={'class': 'members'}).findAll('a')
 
-            # filter duplicated member_id
-            d = collections.OrderedDict()
-            for r in result:
-                member_id = __re_member.findall(r['href'])
-                if len(member_id) > 0:
-                    d[member_id[0]] = member_id[0]
-            result2 = list(d.keys())
+        # filter duplicated member_id
+        d = collections.OrderedDict()
+        for r in result:
+            member_id = __re_member.findall(r['href'])
+            if len(member_id) > 0:
+                d[member_id[0]] = member_id[0]
+        result2 = list(d.keys())
 
-            for r in result2:
-                item = db.selectMemberByMemberId2(r)
-                bookmarks.append(item)
-        except BaseException:
-            pass
+        for r in result2:
+            item = db.selectMemberByMemberId2(r)
+            bookmarks.append(item)
+
         return bookmarks
 
     @staticmethod
@@ -46,7 +44,7 @@ class PixivBookmark(object):
         if temp is None or len(temp) == 0:
             return imageList
         for item in temp:
-            href = re.search(r'member_illust.php?.*illust_id=(\d+)', str(item))
+            href = re.search(r'/artworks/(\d+)', str(item))
             if href is not None:
                 href = href.group(1)
                 if not int(href) in imageList:
@@ -95,17 +93,13 @@ class PixivNewIllustBookmark(object):
                 # imageResponse = item["responseCount"]
                 self.imageList.append(int(image_id))
         else:
-            try:
-                result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
-                for r in result:
-                    href = re.search(r'member_illust.php?.*illust_id=(\d+)', r['href'])
-                    if href is not None:
-                        href = int(href.group(1))
-                        # fuck performance :D
-                        if href not in self.imageList:
-                            self.imageList.append(href)
-            except BaseException:
-                pass
+            result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
+            for r in result:
+                href = re.search(r'/artworks/(\d+)', r['href'])
+                if href is not None:
+                    href = int(href.group(1))
+                    if href not in self.imageList:
+                        self.imageList.append(href)
 
         return self.imageList
 
