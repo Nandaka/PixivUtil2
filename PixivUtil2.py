@@ -71,9 +71,6 @@ op = ''
 ERROR_CODE = 0
 UTF8_FS = None
 
-gc.enable()
-gc.set_debug(gc.DEBUG_LEAK)
-
 __config__ = PixivConfig.PixivConfig()
 configfile = "config.ini"
 __dbManager__ = None
@@ -107,6 +104,7 @@ def get_remote_filesize(url, referer):
             file_size = int(content_length)
         else:
             PixivHelper.print_and_log('info', "\tNo file size information!")
+        res.close()
     except KeyError:
         PixivHelper.print_and_log('info', "\tNo file size information!")
     except mechanize.HTTPError as e:
@@ -337,6 +335,8 @@ def perform_download(url, file_size, filename, overwrite, referer=None):
             file_size = -1
             PixivHelper.print_and_log('info', "\tNo file size information!")
     (downloadedSize, filename) = PixivHelper.download_image(url, filename, res, file_size, overwrite)
+    res.close()
+    gc.collect()
     return (downloadedSize, filename)
 
 
@@ -1153,6 +1153,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
 
         i = i + 1
 
+        page.close()
         parse_page.decompose()
         del parse_page
         # Issue#569
@@ -1187,6 +1188,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         total_list.extend(bookmarks)
         i = i + 1
         print(str(len(bookmarks)), 'items')
+        page.close()
         parse_page.decompose()
         del parse_page
         wait()
@@ -1269,6 +1271,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
                 wait()
             i = i + 1
 
+            page.close()
             parsed_page.decompose()
             del parsed_page
 
@@ -1302,6 +1305,7 @@ def process_from_group(group_id, limit=0, process_external=True):
             PixivHelper.print_and_log('info', "Getting images from: {0}".format(url))
             json_response = __br__.open(url)
             group_data = PixivGroup(json_response)
+            json_response.close()
             max_id = group_data.maxId
             if group_data.imageList is not None and len(group_data.imageList) > 0:
                 for image in group_data.imageList:
@@ -2404,4 +2408,8 @@ if __name__ == '__main__':
     if not sys.version_info >= (3, 7):
         print("Require Python 3.7++")
     else:
+        gc.enable()
+        gc.set_debug(gc.DEBUG_STATS)
         main()
+        gc.collect()
+        gc.collect()

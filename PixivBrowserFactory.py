@@ -196,6 +196,7 @@ class PixivBrowser(mechanize.Browser):
                     read_page = read_page.decode('utf8')
                     if enable_cache:
                         self._put_to_cache(url, read_page)
+                    temp.close()
                 except urllib.error.HTTPError as ex:
                     if ex.code in [403, 404, 503]:
                         read_page = ex.read()
@@ -262,6 +263,7 @@ class PixivBrowser(mechanize.Browser):
             res = self.open_with_retry('https://www.pixiv.net/')
             parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
             PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
+            res.close()
 
             result = False
             if "logout.php" in parsed:
@@ -289,6 +291,7 @@ class PixivBrowser(mechanize.Browser):
             parsed = BeautifulSoup(res, features="html5lib")
             post_key = parsed.find('input', attrs={'name': 'post_key'})
             # js_init_config = self._getInitConfig(parsed)
+            res.close()
             parsed.decompose()
             del parsed
 
@@ -306,7 +309,9 @@ class PixivBrowser(mechanize.Browser):
             request = mechanize.Request("https://accounts.pixiv.net/api/login?lang=en", data, method='POST')
             response = self.open_with_retry(request)
 
-            return self.processLoginResult(response, username, password)
+            result = self.processLoginResult(response, username, password)
+            response.close()
+            return result
         except BaseException:
             traceback.print_exc()
             PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
@@ -332,9 +337,10 @@ class PixivBrowser(mechanize.Browser):
                     break
 
             # check whitecube
-            res = self.open_with_retry(result["body"]["success"]["return_to"]).decode('utf-8')
-            parsed = BeautifulSoup(res, features="html5lib")
+            res = self.open_with_retry(result["body"]["success"]["return_to"])
+            parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
             self.getMyId(parsed)
+            res.close()
 
             # store the username and password in memory for oAuth login
             self._config.username = username
@@ -411,8 +417,10 @@ class PixivBrowser(mechanize.Browser):
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
-                    meta_response = self.open_with_retry(ugoira_meta_url).read()
+                    res = self.open_with_retry(ugoira_meta_url)
+                    meta_response = res.read()
                     image.ParseUgoira(meta_response)
+                    res.close()
 
                 if parent is None:
                     if from_bookmark:
@@ -446,7 +454,9 @@ class PixivBrowser(mechanize.Browser):
                 info = self._get_from_cache(url)
                 if info is None:
                     request = mechanize.Request(url)
-                    infoStr = self.open_with_retry(request).read()
+                    res = self.open_with_retry(request)
+                    infoStr = res.read()
+                    res.close()
                     info = json.loads(infoStr)
                     self._put_to_cache(url, info)
             else:
@@ -489,7 +499,9 @@ class PixivBrowser(mechanize.Browser):
             url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
             info_ajax = self._get_from_cache(url_ajax)
             if info_ajax is None:
-                info_ajax_str = self.open_with_retry(url_ajax).read()
+                res = self.open_with_retry(url_ajax)
+                info_ajax_str = res.read()
+                res.close()
                 info_ajax = json.loads(info_ajax_str)
                 self._put_to_cache(url_ajax, info_ajax)
             # 2nd pass to get the background
@@ -556,7 +568,9 @@ class PixivBrowser(mechanize.Browser):
             response = self._get_from_cache(url)
             if response is None:
                 try:
-                    response = self.open_with_retry(url).read()
+                    res = self.open_with_retry(url)
+                    response = res.read()
+                    res.close()
                 except urllib.error.HTTPError as ex:
                     if ex.code == 404:
                         response = ex.read()
@@ -637,8 +651,9 @@ class PixivBrowser(mechanize.Browser):
                             response_page = self._get_from_cache(img_url)
                             if response_page is None:
                                 try:
-                                    response_page = self.open_with_retry(
-                                        img_url).read()
+                                    res = self.open_with_retry(img_url)
+                                    response_page = res.read()
+                                    res.close()
                                 except urllib.error.HTTPError as ex:
                                     if ex.code == 404:
                                         response_page = ex.read()
@@ -674,7 +689,9 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.print_and_log(
             'info', 'Getting supported artists from ' + url)
         # read the json response
-        response = self.open_with_retry(url).read()
+        res = self.open_with_retry(url)
+        response = res.read()
+        res.close()
         result = Fanbox(response)
         return result
 
@@ -697,7 +714,9 @@ class PixivBrowser(mechanize.Browser):
         req.add_header('Origin', 'https://www.pixiv.net')
         req.add_header('User-Agent', self._config.useragent)
 
-        response = self.open_with_retry(req).read()
+        res = self.open_with_retry(req)
+        response = res.read()
+        res.close()
         # Issue #420
         _tzInfo = None
         if self._config.useLocalTimezone:
