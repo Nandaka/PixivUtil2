@@ -8,6 +8,8 @@ https://www.w3.org/TR/PNG/
 
 from __future__ import with_statement
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import struct
 import binascii
 import itertools
@@ -30,7 +32,7 @@ def is_png(png):
 
     @png can be str of the filename, a file-like object, or a bytes object.
     """
-    if isinstance(png, unicode):
+    if isinstance(png, str):
         with open(png, u"rb") as f:
             png = f.read(8)
 
@@ -73,7 +75,7 @@ def chunks(png):
                 PIL.Image.open(png).save(f2, u"PNG", optimize=True)
                 png = f2.getvalue()
 
-    if isinstance(png, unicode):
+    if isinstance(png, str):
         # file name
         with open(png, u"rb") as f:
             png = f.read()
@@ -149,7 +151,7 @@ class PNG(object):
     def save(self, file):
         u"""Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode):
+        if isinstance(file, str):
             with open(file, u"wb") as f:
                 f.write(self.to_bytes())
         else:
@@ -329,7 +331,7 @@ class APNG(object):
     def save(self, file):
         u"""Save to file. @file can be a str of filename or a file-like object.
         """
-        if isinstance(file, unicode) or isinstance(file, str):
+        if isinstance(file, str) or isinstance(file, str):
             with open(file, u"wb") as f:
                 f.write(self.to_bytes())
         else:

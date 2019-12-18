@@ -2,6 +2,11 @@
 # pylint: disable=I0011, C, C0302
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import re
 import sys
@@ -10,13 +15,13 @@ import zipfile
 import codecs
 import collections
 import PixivHelper
-import urlparse
+import urllib.parse
 from PixivException import PixivException
 from datetime import datetime
 import json
 
 
-class PixivArtist:
+class PixivArtist(object):
     '''Class for parsing member page.'''
     artistId = 0
     artistName = ""
@@ -83,11 +88,11 @@ class PixivArtist:
             try:
                 h1 = page.find('h1', attrs={'class': 'user'})
                 if h1 is not None:
-                    self.artistName = unicode(h1.string.extract())
+                    self.artistName = str(h1.string.extract())
                 else:
                     avatar_m = page.findAll(attrs={"class": "avatar_m"})
                     if avatar_m is not None and len(avatar_m) > 0:
-                        self.artistName = unicode(avatar_m[0]["title"])
+                        self.artistName = str(avatar_m[0]["title"])
             except BaseException:
                 self.artistName = self.artistToken  # use the token.
             return
@@ -97,7 +102,7 @@ class PixivArtist:
             if avatar_box is not None:
                 temp = avatar_box.find('a')
                 self.artistId = int(re.search(r'id=(\d+)', temp['href']).group(1))
-                self.artistName = unicode(temp['title'])
+                self.artistName = str(temp['title'])
                 self.artistAvatar = avatar_box.find('a')['style'].replace("background-image: url('", "").replace("');", "")
                 return
 
@@ -109,7 +114,7 @@ class PixivArtist:
             self.artistName = u"yourself"
             self.artistToken = "yourself"
             temp = page.find("h1", attrs={'class': 'column-title'}).find("a")
-            self.artistId = int(re.findall(r'pixiv.user.id = "(\d+)";', unicode(page))[0])
+            self.artistId = int(re.findall(r'pixiv.user.id = "(\d+)";', str(page))[0])
             return
 
         # Issue #236
@@ -225,7 +230,7 @@ class PixivArtist:
         PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
 
-class PixivImage:
+class PixivImage(object):
     '''Class for parsing image page, including manga page and big image.'''
     artist = None
     originalArtist = None
@@ -235,9 +240,9 @@ class PixivImage:
     imageTags = []
     imageMode = ""
     imageUrls = []
-    worksDate = unicode("")
-    worksResolution = unicode("")
-    worksTools = unicode("")
+    worksDate = str("")
+    worksResolution = str("")
+    worksTools = str("")
     jd_rtv = 0
     jd_rtc = 0
     # jd_rtt = 0
@@ -451,12 +456,12 @@ class PixivImage:
         self.worksDate = PixivHelper.toUnicode(temp[0].string, encoding=sys.stdin.encoding)
         self.worksDateDateTime = PixivHelper.ParseDateTime(self.worksDate, self.dateFormat)
 
-        self.worksResolution = unicode(temp[1].string).replace(u'×', u'x')
+        self.worksResolution = str(temp[1].string).replace(u'×', u'x')
         toolsTemp = page.find(attrs={'class': 'meta'}).find(attrs={'class': 'tools'})
         if toolsTemp is not None and len(toolsTemp) > 0:
             tools = toolsTemp.findAll('li')
             for tool in tools:
-                self.worksTools = self.worksTools + ' ' + unicode(tool.string)
+                self.worksTools = self.worksTools + ' ' + str(tool.string)
             self.worksTools = self.worksTools.strip()
 
     def ParseTags(self, page):
@@ -466,27 +471,27 @@ class PixivImage:
             temp2 = temp.findAll('a')
             if temp2 is not None and len(temp2) > 0:
                 for tag in temp2:
-                    if tag.has_key('class'):
+                    if 'class' in tag:
                         if tag['class'] == 'portal':
                             pass
                         elif tag['class'] == 'text' and tag.string is not None:
-                            self.imageTags.append(unicode(tag.string))
+                            self.imageTags.append(str(tag.string))
                         elif tag['class'].startswith('text js-click-trackable-later'):
                             # Issue#343
                             # no translation for tags
                             if tag.string is not None:
-                                self.imageTags.append(unicode(tag.string))
+                                self.imageTags.append(str(tag.string))
                             else:
                                 # with translation
                                 # print(tag.contents)
                                 # print(unicode(tag.contents[0]))
-                                self.imageTags.append(unicode(tag.contents[0]))
+                                self.imageTags.append(str(tag.contents[0]))
                         elif tag['class'] == 'text js-click-trackable':
                             # issue #200 fix
                             # need to split the tag 'incrediblycute <> なにこれかわいい'
                             # and take the 2nd tags
                             temp_tag = tag['data-click-action'].split('<>', 1)[1].strip()
-                            self.imageTags.append(unicode(temp_tag))
+                            self.imageTags.append(str(temp_tag))
 
     def PrintInfo(self):
         PixivHelper.safePrint('Image Info')
@@ -754,7 +759,7 @@ class PixivImage:
             z.writestr("animation.json", jsStr)
 
 
-class PixivListItem:
+class PixivListItem(object):
     '''Class for item in list.txt'''
     memberId = ""
     path = ""
@@ -795,9 +800,9 @@ class PixivListItem:
                     # handle urls:
                     # http://www.pixiv.net/member_illust.php?id=<member_id>
                     # http://www.pixiv.net/member.php?id=<member_id>
-                    parsed = urlparse.urlparse(items[0])
+                    parsed = urllib.parse.urlparse(items[0])
                     if parsed.path == "/member.php" or parsed.path == "/member_illust.php":
-                        query_str = urlparse.parse_qs(parsed.query)
+                        query_str = urllib.parse.parse_qs(parsed.query)
                         if 'id' in query_str:
                             member_id = int(query_str["id"][0])
                         else:
@@ -851,7 +856,7 @@ class PixivListItem:
         return l
 
 
-class PixivNewIllustBookmark:
+class PixivNewIllustBookmark(object):
     '''Class for parsing New Illust from Bookmarks'''
     imageList = None
     isLastPage = None
@@ -899,7 +904,7 @@ class PixivNewIllustBookmark:
         return self.isLastPage
 
 
-class PixivBookmark:
+class PixivBookmark(object):
     '''Class for parsing Bookmarks'''
     __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
@@ -952,16 +957,16 @@ class PixivBookmark:
         writer = codecs.open(filename, 'wb', encoding='utf-8')
         writer.write(u'###Export date: ' + str(datetime.today()) + '###\n')
         for item in l:
-            data = unicode(str(item.memberId))
+            data = str(str(item.memberId))
             if len(item.path) > 0:
-                data = data + unicode(' ' + item.path)
+                data = data + str(' ' + item.path)
             writer.write(data)
             writer.write(u'\r\n')
         writer.write('###END-OF-FILE###')
         writer.close()
 
 
-class PixivTagsItem:
+class PixivTagsItem(object):
     imageId = 0
     bookmarkCount = 0
     imageResponse = 0
@@ -972,7 +977,7 @@ class PixivTagsItem:
         self.imageResponse = image_response_count
 
 
-class PixivTags:
+class PixivTags(object):
     '''Class for parsing tags search page'''
     itemList = None
     haveImage = None
@@ -1065,7 +1070,7 @@ class PixivTags:
 
         linkList = page.findAll('a')
         for link in linkList:
-            if link.has_key('href'):
+            if 'href' in link:
                 result = self.__re_illust.findall(link['href'])
                 if len(result) > 0:
                     image_id = int(result[0])
@@ -1124,7 +1129,7 @@ class PixivTags:
         return l
 
 
-class PixivGroup:
+class PixivGroup(object):
     short_pattern = re.compile(r"https?://www.pixiv.net/member_illust.php\?mode=(.*)&illust_id=(\d+)")
     imageList = None
     externalImageList = None
@@ -1166,8 +1171,8 @@ class PixivGroup:
                 image_data.imageMode = ""
                 image_data.imageUrls = [fullscale_url]
                 image_data.worksDate = imageData["create_time"]
-                image_data.worksResolution = unicode("")
-                image_data.worksTools = unicode("")
+                image_data.worksResolution = str("")
+                image_data.worksTools = str("")
                 image_data.jd_rtv = 0
                 image_data.jd_rtc = 0
                 # image_data.jd_rtt = 0
@@ -1201,7 +1206,7 @@ class PixivGroup:
         return string
 
 
-class SharedParser:
+class SharedParser(object):
     @staticmethod
     def parseCountBadge(page):
         # parse image count from count-badge

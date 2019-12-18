@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C1801, C0330
+from builtins import str
+from builtins import object
 import codecs
 import os
 
@@ -25,7 +27,7 @@ class Fanbox(object):
     def parseSupportedArtists(self, js_body):
         self.supportedArtist = list()
         # Fix #495
-        if js_body.has_key("supportingPlans"):
+        if "supportingPlans" in js_body:
             js_body = js_body["supportingPlans"]
         for creator in js_body:
             self.supportedArtist.append(int(creator["user"]["userId"]))
@@ -47,7 +49,7 @@ class FanboxArtist(object):
         self._tzInfo = tzInfo
         js = demjson.decode(page)
 
-        if js.has_key("error") and js["error"]:
+        if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
 
         if js["body"] is not None:
@@ -56,10 +58,10 @@ class FanboxArtist(object):
     def parsePosts(self, js_body):
         self.posts = list()
 
-        if js_body.has_key("creator"):
+        if "creator" in js_body:
             self.artistName = js_body["creator"]["user"]["name"]
 
-        if js_body.has_key("post"):
+        if "post" in js_body:
             post_root = js_body["post"]
         else:
             # https://www.pixiv.net/ajax/fanbox/post?postId={0}
@@ -152,31 +154,31 @@ class FanboxPost(object):
         ''' Parse general data for text and article'''
         self.body_text = ""
         embedData = list()
-        if jsPost["body"].has_key("text"):
+        if "text" in jsPost["body"]:
             self.body_text = jsPost["body"]["text"]
         # Issue #544
-        elif jsPost["body"].has_key("html"):
+        elif "html" in jsPost["body"]:
             self.body_text = jsPost["body"]["html"]
-        if jsPost["body"].has_key("thumbnailUrl") and jsPost["body"]["thumbnailUrl"] is not None:
+        if "thumbnailUrl" in jsPost["body"] and jsPost["body"]["thumbnailUrl"] is not None:
             self.embeddedFiles.append(jsPost["body"]["thumbnailUrl"])
 
         # Issue #438
-        if jsPost["body"].has_key("imageMap") and jsPost["body"]["imageMap"] is not None:
+        if "imageMap" in jsPost["body"] and jsPost["body"]["imageMap"] is not None:
             for image in jsPost["body"]["imageMap"]:
                 self.images.append(jsPost["body"]["imageMap"][image]["originalUrl"])
                 self.embeddedFiles.append(jsPost["body"]["imageMap"][image]["originalUrl"])
 
-        if jsPost["body"].has_key("fileMap") and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
+        if "fileMap" in jsPost["body"] and jsPost["body"]["fileMap"] is not None and len(jsPost["body"]["fileMap"]) > 0:
             for filename in jsPost["body"]["fileMap"]:
                 self.images.append(jsPost["body"]["fileMap"][filename]["url"])
                 self.embeddedFiles.append(jsPost["body"]["fileMap"][filename]["url"])
 
-        if jsPost["body"].has_key("embedMap") and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
+        if "embedMap" in jsPost["body"] and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
             for embed in jsPost["body"]["embedMap"]:
                 embedData.append(jsPost["body"]["embedMap"][embed])
                 self.embeddedFiles.append(jsPost["body"]["embedMap"][embed])
 
-        if jsPost["body"].has_key("blocks") and jsPost["body"]["blocks"] is not None:
+        if "blocks" in jsPost["body"] and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
                 if block["type"] == "p":
                     self.body_text = u"{0}<p>{1}</p>".format(self.body_text, block["text"])
@@ -199,7 +201,7 @@ class FanboxPost(object):
                                      self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
 
         # Issue #476
-        if jsPost["body"].has_key("video"):
+        if "video" in jsPost["body"]:
             self.body_text = u"{0}<br />{1}".format(
                              self.body_text,
                              self.getEmbedData(jsPost["body"]["video"], jsPost))
@@ -220,7 +222,7 @@ class FanboxPost(object):
 
             content_id = None
             for key in embed_cfg[current_provider]["keys"]:
-                if embedData.has_key(key):
+                if key in embedData:
                     content_id = embedData[key]
                     break
 

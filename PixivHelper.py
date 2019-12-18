@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603
 from __future__ import print_function
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import chr
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from past.utils import old_div
 import codecs
 import json
 import logging
@@ -16,11 +25,11 @@ import tempfile
 import time
 import traceback
 import unicodedata
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 import imageio
 
@@ -115,7 +124,7 @@ def sanitizeFilename(s, rootDir=None):
         name = name[:newLen]
 
     # Remove unicode control character
-    if isinstance(name, unicode):
+    if isinstance(name, str):
         tempName = ""
         for c in name:
             if unicodedata.category(c) == 'Cc':
@@ -324,13 +333,13 @@ def OpenTextFile(filename, mode='r', encoding='utf-8'):
 
 def toUnicode(obj, encoding='utf-8'):
     if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
+        if not isinstance(obj, str):
+            obj = str(obj, encoding)
     return obj
 
 
 def uni_input(message=''):
-    result = raw_input(message)
+    result = input(message)
     return toUnicode(result, encoding=sys.stdin.encoding)
 
 
@@ -382,23 +391,23 @@ def module_path():
   even if we are frozen using py2exe"""
 
     if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+        return os.path.dirname(str(sys.executable, sys.getfilesystemencoding()))
 
-    return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
+    return os.path.dirname(str(__file__, sys.getfilesystemencoding()))
 
 
 def speedInStr(totalSize, totalTime):
     if totalTime > 0:
-        speed = totalSize / totalTime
+        speed = old_div(totalSize, totalTime)
         if speed < 1024:
             return "{0:.0f} B/s".format(speed)
-        speed = speed / 1024
+        speed = old_div(speed, 1024)
         if speed < 1024:
             return "{0:.2f} KiB/s".format(speed)
-        speed = speed / 1024
+        speed = old_div(speed, 1024)
         if speed < 1024:
             return "{0:.2f} MiB/s".format(speed)
-        speed = speed / 1024
+        speed = old_div(speed, 1024)
         return "{0:.2f} GiB/s".format(speed)
     else:
         return " infinity B/s"
@@ -408,13 +417,13 @@ def sizeInStr(totalSize):
     totalSize = float(totalSize)
     if totalSize < 1024:
         return "{0:.0f} B".format(totalSize)
-    totalSize = totalSize / 1024
+    totalSize = old_div(totalSize, 1024)
     if totalSize < 1024:
         return "{0:.2f} KiB".format(totalSize)
-    totalSize = totalSize / 1024
+    totalSize = old_div(totalSize, 1024)
     if totalSize < 1024:
         return "{0:.2f} MiB".format(totalSize)
-    totalSize = totalSize / 1024
+    totalSize = old_div(totalSize, 1024)
     return "{0:.2f} GiB".format(totalSize)
 
 
@@ -502,7 +511,7 @@ def unescape_charref(data, encoding):
             result = int(name, base)
         except BaseException:
             base = 16
-        uc = unichr(int(name, base))
+        uc = chr(int(name, base))
         if encoding is None:
             return uc
         else:
@@ -550,7 +559,7 @@ def checkFileExists(overwrite, filename, file_size, old_size, backup_old_file):
 
 
 def printDelay(retryWait):
-    repeat = range(1, retryWait)
+    repeat = list(range(1, retryWait))
     for t in repeat:
         print(t, end=' ')
         time.sleep(1)
@@ -559,10 +568,10 @@ def printDelay(retryWait):
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
     if config.useProxy:
-        proxy = urllib2.ProxyHandler(config.proxy)
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
-    req = urllib2.Request(url)
+        proxy = urllib.request.ProxyHandler(config.proxy)
+        opener = urllib.request.build_opener(proxy)
+        urllib.request.install_opener(opener)
+    req = urllib.request.Request(url)
 
     req.add_header('Referer', referer)
     print_and_log('info', u"Using Referer: " + str(referer))
@@ -634,13 +643,13 @@ def downloadImage(url, filename, res, file_size, overwrite):
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
             print_and_log('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'Filename = ' + str(filename))
             print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
         elif curr == 0:
             # No data received.
             print_and_log('error', u'No data received!')
-            print_and_log('error', u'Filename = ' + unicode(filename))
+            print_and_log('error', u'Filename = ' + str(filename))
             print_and_log('error', u'URL      = {0}'.format(url))
             completed = False
 
@@ -661,7 +670,7 @@ def print_progress(curr, total):
     # [||||||||------------]
 
     if total > 0:
-        complete = (curr * 20) / total
+        complete = old_div((curr * 20), total)
         print('\r', end=' ')
         msg = '[{0:20}] {1} of {2}'.format('|' * complete, sizeInStr(curr), sizeInStr(total))
         print('{0}'.format(msg), end=' ')
@@ -713,7 +722,7 @@ def generateSearchTagUrl(tags, page, title_caption, wild_card, oldest_first,
     #    url = url + '&order=date_d'
 
     # encode to ascii
-    url = unicode(url).encode('iso_8859_1')
+    url = str(url).encode('iso_8859_1')
 
     return url
 
@@ -917,11 +926,11 @@ def encode_tags(tags):
         try:
             # Encode the tags
             tags = tags.encode('utf-8')
-            tags = urllib.quote(tags)
+            tags = urllib.parse.quote(tags)
         except UnicodeDecodeError:
             try:
                 # from command prompt
-                tags = urllib.quote(tags.decode(sys.stdout.encoding).encode("utf8"))
+                tags = urllib.parse.quote(tags.decode(sys.stdout.encoding).encode("utf8"))
             except UnicodeDecodeError:
                 print_and_log('error', 'Cannot decode the tags, you can use URL Encoder (http://meyerweb.com/eric/tools/dencoder/) and paste the encoded tag.')
     return tags
@@ -945,7 +954,7 @@ def decode_tags(tags):
     # decode tags.
     try:
         if tags.startswith("%"):
-            search_tags = toUnicode(urllib.unquote_plus(tags))
+            search_tags = toUnicode(urllib.parse.unquote_plus(tags))
         else:
             search_tags = toUnicode(tags)
     except UnicodeDecodeError:
@@ -964,7 +973,7 @@ class LocalUTCOffsetTimezone(tzinfo):
         self.name = time.tzname[0] if not is_dst and len(time.tzname) > 1 else time.tzname[1]
 
     def __str__(self):
-        return "{0}{1:02d}:{2:02d}".format("-" if self.offset < 0 else "+", self.offset / 60 / 60, self.offset / 60 % 60)
+        return "{0}{1:02d}:{2:02d}".format("-" if self.offset < 0 else "+", old_div(old_div(self.offset, 60), 60), old_div(self.offset, 60) % 60)
 
     def __repr__(self):
         return self.__str__()
@@ -980,4 +989,4 @@ class LocalUTCOffsetTimezone(tzinfo):
 
     def getTimeZoneOffset(self):
         offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
-        return offset / 60 / 60 * -1
+        return old_div(old_div(offset, 60), 60) * -1

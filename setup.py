@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+from builtins import object
 from os import path
 import os
 import sys
@@ -19,7 +20,7 @@ ranWithPy3 = sys.version_info >= (3, 0)
 
 
 # Terminal colors on *nix systems
-class bcolors:
+class bcolors(object):
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'

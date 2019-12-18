@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+from builtins import str
 import os
 import unittest
 import json
@@ -17,7 +18,7 @@ import pytest
 
 
 class TestPixivHelper(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testSanitizeFilename(self):
@@ -60,17 +61,17 @@ class TestPixivHelper(unittest.TestCase):
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
-        expected = unicode(u'maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str(u'maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p0.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = unicode(u'maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str(u'maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p14.jpg')
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = unicode(u'maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
+        expected = str(u'maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img26/img/ffei/28865189_p921.jpg')
         # print(result)
         self.assertEqual(result, expected)
@@ -91,7 +92,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
-        expected = unicode(u'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg')
+        expected = str(u'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg')
         result = PixivHelper.makeFilename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg')
         # print(result)
         self.assertEqual(result, expected)

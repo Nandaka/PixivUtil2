@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+from builtins import str
 import sys
 import os
 import unittest
@@ -14,7 +15,7 @@ temp = PixivHelper.__re_manga_index
 
 
 class TestPixivModel_Fanbox(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testFanboxSupportedArtist(self):

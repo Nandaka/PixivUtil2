@@ -2,9 +2,13 @@
 # pylint: disable=I0011, C, C0302
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
 import json
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from collections import OrderedDict
 
 import demjson
@@ -59,12 +63,12 @@ class PixivArtist(PixivModel.PixivArtist):
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
 
                 # webrpc method
-                if page.has_key("body") and page["body"].has_key("illust") and page["body"]["illust"]:
+                if "body" in page and "illust" in page["body"] and page["body"]["illust"]:
                     root = page["body"]["illust"]
                     self.artistId = root["illust_user_id"]
                     self.artistToken = root["user_account"]
                     self.artistName = root["user_name"]
-                elif page.has_key("body") and page["body"].has_key("novel") and page["body"]["novel"]:
+                elif "body" in page and "novel" in page["body"] and page["body"]["novel"]:
                     root = page["body"]["novel"]
                     self.artistId = root["user_id"]
                     self.artistToken = root["user_account"]
@@ -72,9 +76,9 @@ class PixivArtist(PixivModel.PixivArtist):
 
                 # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
                 data = None
-                if page.has_key("user"):
+                if "user" in page:
                     data = page
-                elif page.has_key("illusts") and len(page["illusts"]) > 0:
+                elif "illusts" in page and len(page["illusts"]) > 0:
                     data = page["illusts"][0]
 
                 if data is not None:
@@ -83,10 +87,10 @@ class PixivArtist(PixivModel.PixivArtist):
                     self.artistName = data["user"]["name"]
 
                     avatar_data = data["user"]["profile_image_urls"]
-                    if avatar_data is not None and avatar_data.has_key("medium"):
+                    if avatar_data is not None and "medium" in avatar_data:
                         self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
-                if page.has_key("profile") and self.totalImages == 0:
+                if "profile" in page and self.totalImages == 0:
                     if bookmark:
                         self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
                     else:
@@ -114,23 +118,23 @@ class PixivArtist(PixivModel.PixivArtist):
         self.artistBackground = "no_background"
 
         # https://www.pixiv.net/ajax/user/8021957
-        if payload.has_key("body"):
+        if "body" in payload:
             root = payload["body"]
             self.artistId = root["userId"]
             self.artistName = root["name"]
-            if root.has_key("imageBig") and root["imageBig"] is not None:
+            if "imageBig" in root and root["imageBig"] is not None:
                 self.artistAvatar = payload["body"]["imageBig"].replace("_50", "").replace("_170", "")
-            elif root.has_key("image") and root["image"] is not None:
+            elif "image" in root and root["image"] is not None:
                 self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
 
             # https://www.pixiv.net/ajax/user/1893126
-            if root.has_key("background") and root["background"] is not None:
+            if "background" in root and root["background"] is not None:
                 self.artistBackground = root["background"]["url"]
 
     def ParseImages(self, payload):
         self.imageList = list()
 
-        if payload.has_key("works"):  # filter by tags
+        if "works" in payload:  # filter by tags
             for image in payload["works"]:
                 self.imageList.append(image["id"])
             self.totalImages = int(payload["total"])
@@ -145,10 +149,10 @@ class PixivArtist(PixivModel.PixivArtist):
 
             return
         else:
-            if payload.has_key("illusts"):  # all illusts
+            if "illusts" in payload:  # all illusts
                 for image in payload["illusts"]:
                     self.imageList.append(image)
-            if payload.has_key("manga"):  # all manga
+            if "manga" in payload:  # all manga
                 for image in payload["manga"]:
                     self.imageList.append(image)
             self.imageList = sorted(self.imageList, reverse=True, key=int)
@@ -299,7 +303,7 @@ class PixivImage(PixivModel.PixivImage):
                 # "/jump.php?http%3A%2F%2Farsenixc.deviantart.com%2Fart%2FWatchmaker-house-567480110"
                 if link_str.startswith("/jump.php?"):
                     link_str = link_str[10:]
-                    link_str = urllib.unquote(link_str)
+                    link_str = urllib.parse.unquote(link_str)
                 self.descriptionUrlList.append(link_str)
 
     def ParseImages(self, page, mode=None, _br=None):

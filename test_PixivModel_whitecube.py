@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
+from builtins import str
 import sys
 import os
 import unittest
@@ -16,7 +17,7 @@ from PixivException import PixivException
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
-    currPath = unicode(os.path.abspath('.'))
+    currPath = str(os.path.abspath('.'))
     PixivHelper.GetLogger()
 
     def testParseLoginForm(self):
