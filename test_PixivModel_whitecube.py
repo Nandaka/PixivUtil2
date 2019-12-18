@@ -7,7 +7,7 @@ import sys
 import os
 import unittest
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import json
 import pytest
 
@@ -22,7 +22,7 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
 
     def testParseLoginForm(self):
         p = open('./test/pixiv-whitecube-main.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(), features="html5lib")
         init_config = page.find('input', attrs={'id': 'init-config'})
         js_init_config = json.loads(init_config['value'])
         self.assertIsNotNone(js_init_config)

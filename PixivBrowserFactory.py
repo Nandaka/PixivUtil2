@@ -15,7 +15,7 @@ import sys
 import time
 import urllib.request, urllib.parse, urllib.error
 import mechanize
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import demjson
 import socks
@@ -189,7 +189,7 @@ class PixivBrowser(mechanize.Browser):
                         raise PixivException("Failed to get page: {0}".format(url), errorCode=PixivException.SERVER_ERROR)
 
             if returnParsed:
-                parsedPage = BeautifulSoup(read_page)
+                parsedPage = BeautifulSoup(read_page, features="html5lib")
                 return parsedPage
             return read_page
 
@@ -231,7 +231,7 @@ class PixivBrowser(mechanize.Browser):
             res = self.open_with_retry('https://www.pixiv.net/')
             resData = res.read()
 
-            parsed = BeautifulSoup(resData)
+            parsed = BeautifulSoup(resData,features="html5lib")
             PixivHelper.GetLogger().info('Logging in, return url: %s', res.geturl())
 
             if "logout.php" in resData:
@@ -253,7 +253,7 @@ class PixivBrowser(mechanize.Browser):
             page = self.open_with_retry(url)
 
             # get the post key
-            parsed = BeautifulSoup(page)
+            parsed = BeautifulSoup(page,features="html5lib")
             js_init_config = self._getInitConfig(parsed)
 
             data = {}
@@ -294,7 +294,7 @@ class PixivBrowser(mechanize.Browser):
 
             # check whitecube
             page = self.open_with_retry(result["body"]["success"]["return_to"])
-            parsed = BeautifulSoup(page)
+            parsed = BeautifulSoup(page,features="html5lib")
             self.getMyId(parsed)
 
             # store the username and password in memory for oAuth login
@@ -328,7 +328,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.print_and_log('info', 'Premium User: {0}.'.format(self._isPremium))
 
     def parseLoginError(self, res):
-        page = BeautifulSoup(res.read())
+        page = BeautifulSoup(res.read(),features="html5lib")
         r = page.findAll('span', attrs={'class': 'error'})
         return r
 
@@ -552,7 +552,7 @@ class PixivBrowser(mechanize.Browser):
             result = None
             if member_id is not None:
                 result = PixivModel.PixivTags()
-                parse_search_page = BeautifulSoup(response)
+                parse_search_page = BeautifulSoup(response,features="html5lib")
                 result.parseMemberTags(parse_search_page, member_id, tags)
                 parse_search_page.decompose()
                 del parse_search_page

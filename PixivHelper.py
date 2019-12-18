@@ -27,6 +27,7 @@ import traceback
 import unicodedata
 import urllib.request, urllib.parse, urllib.error
 import zipfile
+import html
 from datetime import date, datetime, timedelta, tzinfo
 from html.parser import HTMLParser
 
@@ -83,7 +84,7 @@ def sanitizeFilename(s, rootDir=None):
         rootDir = os.path.abspath(rootDir)
 
     # Unescape '&amp;', '&lt;', and '&gt;'
-    s = __h__.unescape(s)
+    s = html.unescape(s)
 
     # Replace badchars and badnames with _
     name = __badchars__.sub('_', s)
@@ -390,9 +391,9 @@ def module_path():
   even if we are frozen using py2exe"""
 
     if we_are_frozen():
-        return os.path.dirname(str(sys.executable, sys.getfilesystemencoding()))
+        return os.path.dirname(sys.executable)
 
-    return os.path.dirname(str(__file__, sys.getfilesystemencoding()))
+    return os.path.dirname(__file__)
 
 
 def speedInStr(totalSize, totalTime):

@@ -12,7 +12,7 @@ import urllib.request, urllib.parse, urllib.error
 from collections import OrderedDict
 
 import demjson
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import datetime_z
 import PixivModel
@@ -295,7 +295,7 @@ class PixivImage(PixivModel.PixivImage):
         self.image_response_count = root["responseCount"]
 
         # Issue 421
-        parsed = BeautifulSoup(self.imageCaption)
+        parsed = BeautifulSoup(self.imageCaption,features="html5lib")
         links = parsed.findAll('a')
         if links is not None and len(links) > 0:
             for link in links:

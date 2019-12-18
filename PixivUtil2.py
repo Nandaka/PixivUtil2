@@ -21,7 +21,7 @@ import sys
 import time
 import traceback
 import urllib.request, urllib.error, urllib.parse
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from optparse import OptionParser
 
 import datetime_z
@@ -1180,7 +1180,7 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
         page = __br__.open(url)
-        parse_page = BeautifulSoup(page.read())
+        parse_page = BeautifulSoup(page.read(),features="html5lib")
         l = PixivBookmark.parseImageBookmark(parse_page)
         total_list.extend(l)
         if len(l) == 0:
@@ -1214,7 +1214,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         PixivHelper.print_and_log('info', "Source URL: " + url)
 
         page = __br__.open_with_retry(url)
-        parse_page = BeautifulSoup(page.read())
+        parse_page = BeautifulSoup(page.read(),features="html5lib")
         l = PixivBookmark.parseBookmark(parse_page)
         if len(l) == 0:
             print('No more data')
@@ -1283,7 +1283,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
 
             PixivHelper.print_and_log('info', "Source URL: " + url)
             page = __br__.open(url)
-            parsed_page = BeautifulSoup(page.read())
+            parsed_page = BeautifulSoup(page.read(),features="html5lib")
             pb = PixivNewIllustBookmark(parsed_page)
             if not pb.haveImages:
                 print("No images!")

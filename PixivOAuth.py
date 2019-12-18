@@ -2,7 +2,7 @@ from __future__ import print_function
 import requests
 import json
 from datetime import datetime
-import md5
+from hashlib import md5
 
 import PixivHelper
 from PixivHelper import LocalUTCOffsetTimezone

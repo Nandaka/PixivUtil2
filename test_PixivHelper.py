@@ -12,7 +12,7 @@ from PixivModelWhiteCube import PixivImage
 from PixivModel import PixivArtist
 import PixivConfig
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import pytest
 
@@ -45,7 +45,7 @@ class TestPixivHelper(unittest.TestCase):
 
     def testCreateMangaFilename(self):
         p = open('./test/test-image-manga.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
         page.decompose()
@@ -78,7 +78,7 @@ class TestPixivHelper(unittest.TestCase):
 
     def testCreateFilenameUnicode(self):
         p = open('./test/test-image-unicode.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         imageInfo = PixivImage(2493913, page)
         page.decompose()
         del page
@@ -99,7 +99,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = ''
 ##        # change the config value
@@ -114,7 +114,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = ''
 ##        _config = PixivConfig.PixivConfig()
@@ -128,7 +128,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderWithRootDir3(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath('.')
 ##        _config = PixivConfig.PixivConfig()
@@ -141,7 +141,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderWithRootDir4(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath('.')
 ##        _config = PixivConfig.PixivConfig()
@@ -154,7 +154,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir5(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath(os.sep + 'images')
 ##        _config = PixivConfig.PixivConfig()
@@ -167,7 +167,7 @@ class TestPixivHelper(unittest.TestCase):
 
 ##    def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir6(self):
 ##        p = open('./test/test-helper-avatar-name.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        artist = PixivArtist(mid=1107124, page=page)
 ##        targetDir = os.path.abspath(os.sep + 'images')
 ##        _config = PixivConfig.PixivConfig()
@@ -180,14 +180,14 @@ class TestPixivHelper(unittest.TestCase):
 
     def testParseLoginError(self):
         p = open('./test/test-login-error.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         r = page.findAll('span', attrs={'class': 'error'})
         self.assertTrue(len(r) > 0)
         self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
 
     def testParseLoginForm(self):
         p = open('./test/test-login-form.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         r = page.findAll('form', attrs={'action': '/login.php'})
         # print(r)
         self.assertTrue(len(r) > 0)

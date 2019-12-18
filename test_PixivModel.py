@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import unittest
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from PixivModel import PixivArtist, PixivBookmark, PixivNewIllustBookmark, PixivTags, PixivGroup
 from PixivModelWhiteCube import PixivImage
@@ -21,13 +21,13 @@ class MockPixivBrowser(PixivBrowser):
     def getPixivPage(self, url, referer="http://www.pixiv.net", errorPageName=None):
         if self.mode == 1:
             p = open('./test/test-image-big-single.html', 'r')
-            page = BeautifulSoup(p.read())
+            page = BeautifulSoup(p.read(),features="html5lib")
             return page
         else:
             # fake the manga page
             pageNo = url.split("=")[-1]
             p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r')
-            page = BeautifulSoup(p.read())
+            page = BeautifulSoup(p.read(),features="html5lib")
             return page
 
 
@@ -35,7 +35,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistNoImage(self):
         # print('\nTesting member page - no image')
         p = open('./test/test-noimage.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException):
             member = PixivArtist(1233, page)
             # print(member.imageList)
@@ -45,7 +45,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistNoMember(self):
         # print('\nTesting member page - no member')
         p = open('./test/test-nouser.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException):
             PixivArtist(1, page)
         page.decompose()
@@ -54,7 +54,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistSuspended(self):
         # print('\nTesting member page - suspended member')
         p = open('./test/test-member-suspended.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException) as ex:
             PixivArtist(123, page)
         self.assertEqual(ex.exception.errorCode, 1002)
@@ -63,7 +63,7 @@ class TestPixivArtist(unittest.TestCase):
 
 ##    def testPixivArtistNotLoggedIn(self):
 ##        p = open('./test/test-member-nologin.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        with self.assertRaises(PixivException) as ex:
 ##            PixivArtist(143229, page)
 ##        self.assertEqual(ex.exception.errorCode, 100)
@@ -73,7 +73,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistServerError(self):
         # print('\nTesting member page')
         p = open('./test/test-server-error.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException) as ex:
             artist = PixivArtist(234753, page)
         self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
@@ -83,7 +83,7 @@ class TestPixivArtist(unittest.TestCase):
     def testPixivArtistManageSelf(self):
         # print('\nTesting own page ')
         p = open('./test/test-member-self.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         artist = PixivArtist(189816, page)
 
         page.decompose()
@@ -100,7 +100,7 @@ class TestPixivArtist(unittest.TestCase):
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
         p = open('./test/test-image-info.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image2 = PixivImage(32039274, page)
         page.decompose()
         del page
@@ -127,7 +127,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseInfo2(self):
         p = open('./test/test-image-manga-69287623.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image2 = PixivImage(69287623, page)
         page.decompose()
         del page
@@ -144,7 +144,7 @@ class TestPixivImage(unittest.TestCase):
 
 ##    def testPixivImageParseInfoJa(self):
 ##        p = open('./test/test-image-parse-image-40273739-ja.html', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image2 = PixivImage(40273739, page)
 ##        page.decompose()
 ##        del page
@@ -168,7 +168,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseInfoMixed(self):
         p = open('./test/test-image-info2.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image2 = PixivImage(67729319, page)
         page.decompose()
         del page
@@ -191,7 +191,7 @@ class TestPixivImage(unittest.TestCase):
 
 ##    def testPixivImageParseInfoPixivPremiumOffer(self):
 ##        p = open('./test/test-image-parse-image-38826533-pixiv-premium.html', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image2 = PixivImage(38826533, page)
 ##        page.decompose()
 ##        del page
@@ -217,7 +217,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageNoAvatar(self):
         # print('\nTesting artist page without avatar image')
         p = open('./test/test-image-noavatar.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(20496355, page)
         page.decompose()
         del page
@@ -232,7 +232,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseTags(self):
         p = open('./test/test-image-parse-tags.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(11164869, page)
         page.decompose()
         del page
@@ -248,7 +248,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseNoTags(self):
         p = open('./test/test-image-no_tags.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(9175987, page)
         page.decompose()
         del page
@@ -263,7 +263,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageUnicode(self):
         # print('\nTesting image page - big')
         p = open('./test/test-image-unicode.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(2493913, page)
         page.decompose()
         del page
@@ -278,7 +278,7 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageRateCount(self):
         p = open('./test/test-image-rate_count.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(28865189, page)
         page.decompose()
         del page
@@ -295,7 +295,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageNoImage(self):
         # print('\nTesting image page - no image')
         p = open('./test/test-image-noimage.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException):
             PixivImage(123, page)
         page.decompose()
@@ -304,7 +304,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageDeleted(self):
         # print('\nTesting image page - deleted image')
         p = open('./test/test-image-deleted.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException):
             PixivImage(123, page)
         page.decompose()
@@ -313,7 +313,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageNoImageEng(self):
         # print('\nTesting image page - no image')
         p = open('./test/test-image-noimage-eng.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException):
             PixivImage(123, page)
         page.decompose()
@@ -322,7 +322,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageModeManga(self):
         # print('\nTesting image page - manga')
         p = open('./test/test-image-manga.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(28820443, page)
         page.decompose()
         del page
@@ -335,7 +335,7 @@ class TestPixivImage(unittest.TestCase):
         # print('\nTesting parse Manga Images')
         # Issue #224
         p = open('./test/test-image-big-manga-mixed.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(iid=67487303, page=page)
         # image.PrintInfo()
 
@@ -356,7 +356,7 @@ class TestPixivImage(unittest.TestCase):
 ##    def testPixivImageParseMangaTwoPage(self):
 ##        # print('\nTesting parse Manga Images')
 ##        p = open('./test/test-image-manga-2page.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivImage()
 ##        urls = image.ParseImages(page, mode='manga')
 ##        # print(urls)
@@ -369,7 +369,7 @@ class TestPixivImage(unittest.TestCase):
 ##    def testPixivImageParseBig(self):
 ##        # print('\nTesting parse Big Image')
 ##        p = open('./test/test-image-unicode.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivImage(iid=2493913, page=page)
 ##        urls = image.imageUrls
 ##        self.assertEqual(len(urls), 1)
@@ -381,7 +381,7 @@ class TestPixivImage(unittest.TestCase):
 ##    def testPixivImageParseManga(self):
 ##        # print('\nTesting parse Manga Images')
 ##        p = open('./test/test-image-parsemanga.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivImage()
 ##        urls = image.ParseImages(page, mode='manga', _br=MockPixivBrowser(None))
 ##        # print(urls)
@@ -395,7 +395,7 @@ class TestPixivImage(unittest.TestCase):
 ##        # print('\nTesting parse Manga Images')
 ##        # Issue #224
 ##        p = open('./test/test-image-big-manga.html', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivImage(iid=62670665)
 ##        image.ParseInfo(page)
 ##        urls = image.ParseImages(page, mode=image.imageMode, _br=MockPixivBrowser(1))
@@ -409,7 +409,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageNoLogin(self):
         # print('\nTesting not logged in')
         p = open('./test/test-image-nologin.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         try:
             image = PixivImage(67089412, page)
             self.assertRaises(PixivException)
@@ -419,7 +419,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageServerError(self):
         # print('\nTesting image page')
         p = open('./test/test-server-error.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException) as ex:
             image = PixivImage(9138317, page)
         self.assertEqual(ex.exception.errorCode, PixivException.SERVER_ERROR)
@@ -429,7 +429,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageServerError2(self):
         # print('\nTesting image page')
         p = open('./test/test-image-generic-error.html', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         with self.assertRaises(PixivException) as ex:
             image = PixivImage(37882549, page)
         self.assertEqual(ex.exception.errorCode, PixivException.UNKNOWN_IMAGE_ERROR)
@@ -439,7 +439,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageUgoira(self):
         # print('\nTesting image page')
         p = open('./test/test-image-ugoira.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivImage(46281014, page)
         urls = image.ParseImages(page)
         # print(image.imageUrls)
@@ -450,7 +450,7 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfoSelf(self):
         # assuming being accessed via manage page for your own artwork.
         p = open('./test/test-image-selfimage.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image2 = PixivImage(65079382, page)
         page.decompose()
         del page
@@ -471,7 +471,7 @@ class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
         # print('\nTesting BookmarkNewIlust')
         p = open('./test/test-bookmarks_new_ilust.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         result = PixivNewIllustBookmark(page)
 
         self.assertEqual(len(result.imageList), 20)
@@ -479,7 +479,7 @@ class TestPixivBookmark(unittest.TestCase):
     def testPixivImageBookmark(self):
         # print('\nTesting PixivImageBookmark')
         p = open('./test/test-image-bookmark.htm', 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         result = PixivBookmark.parseImageBookmark(page)
 
         self.assertEqual(len(result), 20)
@@ -491,7 +491,7 @@ class TestPixivBookmark(unittest.TestCase):
 ##    def testPixivImageBookmarkMember(self):
 ##        # print('\nTesting PixivImageBookmark')
 ##        p = open('./test/test-image-bookmark-member.htm', 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        result = PixivBookmark.parseImageBookmark(page)
 ##
 ##        self.assertEqual(len(result), 20)
@@ -505,7 +505,7 @@ class TestMyPickPage(unittest.TestCase):
         try:
             path = './test/test-image-my_pick.html'
             p = open(path, 'r')
-            page = BeautifulSoup(p.read())
+            page = BeautifulSoup(p.read(),features="html5lib")
             image = PixivImage(12467674, page)
 
             self.assertRaises(PixivException)
@@ -516,7 +516,7 @@ class TestMyPickPage(unittest.TestCase):
         try:
             path = './test/test-image-guro-e.html'
             p = open(path, 'r')
-            page = BeautifulSoup(p.read())
+            page = BeautifulSoup(p.read(),features="html5lib")
             image = PixivImage(31111130, page)
 
             self.assertRaises(PixivException)
@@ -527,7 +527,7 @@ class TestMyPickPage(unittest.TestCase):
         try:
             path = './test/test-image-ero-e.html'
             p = open(path, 'r')
-            page = BeautifulSoup(p.read())
+            page = BeautifulSoup(p.read(),features="html5lib")
             image = PixivImage(31115956, page)
 
             self.assertRaises(PixivException)
@@ -539,7 +539,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchExact1(self):
         path = './test/test-tags-search-exact2.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
@@ -551,7 +551,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchExact(self):
         path = './test/test-tags-search-exact.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 ##        for img in image.itemList:
@@ -563,7 +563,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchExactLast(self):
         path = './test/test-tags-search-exact-last.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
@@ -575,7 +575,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchPartial(self):
         path = './test/test-tags-search-partial.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
@@ -585,7 +585,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchPartialLast(self):
         path = './test/test-tags-search-partial-last.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
@@ -595,7 +595,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSearchParseDetails(self):
         path = './test/test-tags-search-exact-parse_details.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
@@ -607,7 +607,7 @@ class TestPixivTags(unittest.TestCase):
 ##    def testTagsMemberSearch(self):
 ##        path = './test/test-tags-member-search.htm'
 ##        p = open(path, 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivTags()
 ##        image.parseMemberTags(page, 313631)
 ##
@@ -620,7 +620,7 @@ class TestPixivTags(unittest.TestCase):
 ##    def testTagsMemberSearchLast(self):
 ##        path = './test/test-tags-member-search-last.htm'
 ##        p = open(path, 'r')
-##        page = BeautifulSoup(p.read())
+##        page = BeautifulSoup(p.read(),features="html5lib")
 ##        image = PixivTags()
 ##        image.parseMemberTags(page, 313631)
 ##
@@ -631,7 +631,7 @@ class TestPixivTags(unittest.TestCase):
     def testTagsSkipShowcase(self):
         path = './test/test-tags-search-skip-showcase.htm'
         p = open(path, 'r')
-        page = BeautifulSoup(p.read())
+        page = BeautifulSoup(p.read(),features="html5lib")
         image = PixivTags()
         image.parseTags(page)
 
