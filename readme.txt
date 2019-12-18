@@ -5,7 +5,7 @@
   - Windows Vista or a more recent version.
 
 - Running from source code:
-  - Python 3.7+ (https://www.python.org/)
+  - Python 3.8.0+ (https://www.python.org/)
   - Additional library listed in requirements.txt
  
 - Dependent software

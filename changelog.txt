@@ -1,3 +1,10 @@
+20191218
+- Upgrade to python 3.8.0
+- Fix Issue #601: update bookmark image parser.
+- Fix Issue #593: handle memory leak, require python 3.8.0
+- Implement #597: update fanbox parser to ensure image is saved on order by amatuerCoder.
+- Update test cases.
+
 20191215
 - Fix Issue #594: download by tag.
 - Fix Issue #592: update socks proxy handler.

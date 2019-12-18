@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-PIXIVUTIL_VERSION = '20191215'
+PIXIVUTIL_VERSION = '20191218'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'
 PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
 PIXIV_URL = 'https://www.pixiv.net'
