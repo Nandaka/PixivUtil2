@@ -49,7 +49,8 @@ if os.name == 'nt':
         bytes_to_be_read = len(b)
         if not bytes_to_be_read:
             return 0
-        elif bytes_to_be_read % 2:
+        
+        if bytes_to_be_read % 2:
             raise ValueError("cannot read odd number of bytes from UTF-16-LE encoded console")
 
         buffers = get_buffer(b, writable=True)
@@ -66,8 +67,8 @@ if os.name == 'nt':
 
         if buffers[:len(EOF)] == EOF:
             return 0
-        else:
-            return 2 * code_units_read.value  # bytes read
+        
+        return 2 * code_units_read.value  # bytes read
 
     win_unicode_console.streams.WindowsConsoleRawReader.readinto = readinto_patch
     win_unicode_console.enable()
@@ -83,7 +84,7 @@ if os.name == 'nt':
         pw = ""
         while 1:
             c = msvcrt.getch()
-            if c == '\r' or c == '\n':
+            if c in ('\\r', '\\n'):
                 break
             if c == '\003':
                 raise KeyboardInterrupt
@@ -251,7 +252,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 # check the downloaded file size again
                 if file_size > 0 and downloadedSize != file_size:
                     raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
-                elif __config__.verifyImage and (filename_save.endswith(".jpg") or filename_save.endswith(".png") or filename_save.endswith(".gif")):
+                if __config__.verifyImage and (filename_save.endswith(".jpg") or filename_save.endswith(".png") or filename_save.endswith(".gif")):
                     fp = None
                     try:
                         from PIL import Image, ImageFile
@@ -466,7 +467,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     break
                 except PixivException as ex:
                     ERROR_CODE = ex.errorCode
-                    PixivHelper.print_and_log('info', 'Member ID (' + str(member_id) + '): ' + str(ex))
+                    PixivHelper.print_and_log('info', 'Member ID ({0}): {1}'.format(member_id, ex))
                     if ex.errorCode == PixivException.NO_IMAGES:
                         pass
                     else:
@@ -583,7 +584,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         print("Stuff happened, trying again after 2 second (", retry_count, ")")
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         traceback.print_exception(exc_type, exc_value, exc_traceback)
-                        __log__.exception('Error at process_member(): ' + str(sys.exc_info()) + ' Member Id: ' + str(member_id))
+                        __log__.exception('Error at process_member(): %s Member Id: %s', sys.exc_info(), member_id)
                         time.sleep(2)
 
                 no_of_images = no_of_images + 1
@@ -619,7 +620,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         print("Page limit reached (from command line =" + str(np) + ")")
                         flag = False
                 elif page > __config__.numberOfPage and __config__.numberOfPage > 0:
-                    print("Page limit reached (from config =" + str(__config__.numberOfPage) + ")")
+                    print("Page limit reached (from config = {0})".format(__config__.numberOfPage))
                     flag = False
 
             del artist
@@ -629,11 +630,11 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
 
         if image_id > 0:
             __dbManager__.updateLastDownloadedImage(member_id, image_id)
-            log_message = 'last image_id: ' + str(image_id)
+            log_message = 'last image_id: {0}'.format(image_id)
         else:
             log_message = 'no images were found'
         print('Done.\n')
-        __log__.info('Member_id: ' + str(member_id) + ' complete, ' + log_message)
+        __log__.info('Member_id: %s complete, %s', member_id, log_message)
     except KeyboardInterrupt:
         raise
     except BaseException:
@@ -857,7 +858,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
                 # Handle #451
-                if __config__.createUgoira and (result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE):
+                if __config__.createUgoira and result in (PixivConstant.PIXIVUTIL_OK, PixivConstant.PIXIVUTIL_SKIP_DUPLICATE):
                     handle_ugoira(image, filename)
 
             if __config__.writeUrlInDescription:
@@ -867,7 +868,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
-        if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
+        if result in (PixivConstant.PIXIVUTIL_OK, PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
             try:
                 __dbManager__.insertImage(image.artist.artistId, image.imageId, image.imageMode)
             except BaseException:
@@ -1043,7 +1044,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             time.sleep(2)
 
                     images = images + 1
-                    if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
+                    if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
                         updated_limit_count = updated_limit_count + 1
                         if updated_limit_count > __config__.checkUpdatedLimit:
                             if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
@@ -1058,8 +1059,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             PixivHelper.print_and_log("info", "Tags: " + tags + ", processing aborted")
                             flag = False
                             break
-                        else:
-                            continue
+                        continue
 
             __br__.clear_history()
 
@@ -1709,7 +1709,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args):
     if opisvalid:
         if len(args) > 0:
             arg = args[0].lower()
-            if arg == 'y' or arg == 'n' or arg == 'o':
+            if arg in ('y', 'n', 'o'):
                 hide = arg
             else:
                 print("Invalid args: ", args)
@@ -1718,7 +1718,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args):
     else:
         arg = input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
-        if arg == 'y' or arg == 'n' or arg == 'o':
+        if arg in ('y', 'n', 'o'):
             hide = arg
         else:
             print("Invalid args: ", arg)
@@ -1846,7 +1846,7 @@ def menu_export_online_bookmark(opisvalid, args):
         arg = input("Include Private bookmarks [y/n/o]: ") or 'n'
         arg = arg.lower()
 
-    if arg == 'y' or arg == 'n' or arg == 'o':
+    if arg in ('y', 'n', 'o'):
         hide = arg
     else:
         print("Invalid args: ", arg)
