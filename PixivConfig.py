@@ -128,7 +128,7 @@ class PixivConfig(object):
         haveError = False
         config = configparser.RawConfigParser()
         try:
-            config.readfp(PixivHelper.OpenTextFile(self.configFileLocation))
+            config.read_file(PixivHelper.OpenTextFile(self.configFileLocation))
 
             self.username = config.get('Authentication', 'username')
             self.password = config.get('Authentication', 'password')

@@ -26,7 +26,6 @@ import time
 import traceback
 import unicodedata
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
 from html.parser import HTMLParser
@@ -444,12 +443,12 @@ def dumpHtml(filename, html):
 
     if isDumpEnabled:
         try:
-            dump = file(filename, 'wb')
+            dump = open(filename, 'wb')
             dump.write(str(html))
             dump.close()
             return filename
         except Exception as ex:
-            print_and_log('error', ex.message)
+            print_and_log('error', str(ex))
         print_and_log("info", "Dump File created: {0}".format(filename))
     else:
         print_and_log('info', 'Dump not enabled.')
@@ -598,7 +597,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
     # try to save to the given filename + .pixiv extension if possible
     try:
         makeSubdirs(filename)
-        save = file(filename + '.pixiv', 'wb+', 4096)
+        save = open(filename + '.pixiv', 'wb+', 4096)
     except IOError:
         print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
 
@@ -606,7 +605,7 @@ def downloadImage(url, filename, res, file_size, overwrite):
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
         filename = sanitizeFilename(filename)
-        save = file(filename + '.pixiv', 'wb+', 4096)
+        save = open(filename + '.pixiv', 'wb+', 4096)
         print_and_log('info', u'File is saved to ' + filename)
 
     # download the file

@@ -14,8 +14,6 @@ import socket
 import sys
 import time
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 import mechanize
 from BeautifulSoup import BeautifulSoup
 
@@ -99,9 +97,7 @@ class PixivBrowser(mechanize.Browser):
 
                 socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
                 socks.wrapmodule(urllib)
-                socks.wrapmodule(urllib2)
-                socks.wrapmodule(httplib)
-
+                
                 PixivHelper.GetLogger().info("Using SOCKS Proxy: %s", config.proxyAddress)
             else:
                 self.set_proxies(config.proxy)

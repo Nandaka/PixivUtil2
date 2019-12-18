@@ -74,7 +74,7 @@ class PixivArtist(object):
 
         styles = page.findAll('style')
         for style in styles:
-            urls = re.findall('background:.*url\(\'(.*?)\'\)', str(style))
+            urls = re.findall(r'background:.*url\(\'(.*?)\'\)', str(style))
             if len(urls) > 0:
                 self.artistBackground = urls[0]
                 break
@@ -359,92 +359,7 @@ class PixivImage(object):
             if len(check2) > 0:
                 return check2[0].renderContents()
         return None
-    '''
-        def ParseInfo(self, page):
-            temp = None
-            links = page.find(attrs={'class': 'works_display'})
-            if links is not None:
-                links2 = links.findAll('a')
-                for a in links2:
-                    if re.search(r'illust_id=(\d+)', a['href']) is not None:
-                        temp = str(a['href'])
-                        break
-
-            if temp is None:
-                # changes on pixiv website to handle big image
-                self.imageMode = "bigNew"
-
-            else:
-                temp_id = int(re.search(r'illust_id=(\d+)', temp).group(1))
-                assert temp_id == self.imageId, "Invalid Id detected ==> %i != %i" % (temp_id, self.imageId)
-                self.imageMode = re.search('mode=(big|manga|ugoira_view)', temp).group(1)
-
-            # remove premium-introduction-modal so we can get caption from work-info
-            # somehow selecting section doesn't works
-            premium_introduction_modal = page.findAll('div', attrs={'id': 'premium-introduction-modal'})
-            premium_introduction_modal.extend(page.findAll('div', attrs={'id': 'popular-search-trial-end-introduction-modal'}))
-            for modal in premium_introduction_modal:
-                if modal is not None:
-                    modal.extract()
-
-            # meta_data = page.findAll('meta')
-            # for meta in meta_data:
-            #     if meta.has_key("property"):
-            #         if "og:title" == meta["property"]:
-            #             self.imageTitle = meta["content"].split("|")[0].strip()
-            #         if "og:description" in meta["property"]:
-            #             self.imageCaption = meta["content"]
-
-            # new layout on 20160319
-            temp_titles = page.findAll('h1', attrs={'class': 'title'})
-            for tempTitle in temp_titles:
-                if tempTitle is None or tempTitle.string is None:
-                    continue
-                elif len(tempTitle.string) == 0:
-                    continue
-                else:
-                    self.imageTitle = tempTitle.string
-                    break
-
-            description_para = page.findAll("p", attrs={'class': PixivImage.__re_caption})
-            for tempCaption in description_para:
-                if tempCaption is None or tempCaption.text is None:
-                    continue
-                elif len(tempCaption.text.strip()) == 0:
-                    continue
-                else:
-                    self.imageCaption = ''
-                    for line in tempCaption.contents:
-                        if str(line) == '<br />':
-                            self.imageCaption += (os.linesep)
-                        else:
-                            self.imageCaption += (unicode(line))
-
-            # stats
-            view_count = page.find(attrs={'class': 'view-count'})
-            if view_count is not None:
-                self.jd_rtv = int(view_count.string)
-            # Issue#182 fix
-            rated_count = page.find(attrs={'class': 'rated-count'})
-            if rated_count is not None:
-                self.jd_rtc = int(rated_count.string)
-            # deprecated since 11-April-2017
-            # score_count = page.find(attrs={'class': 'score-count'})
-            # if score_count is not None:
-            #    self.jd_rtt = int(score_count.string)
-
-            if description_para is not None and len(description_para) > 0:
-                for para in description_para:
-                    links = para.findAll("a")
-                    if links is not None and len(links) > 0:
-                        for link in links:
-                            link_str = link["href"]
-                            # "/jump.php?http%3A%2F%2Farsenixc.deviantart.com%2Fart%2FWatchmaker-house-567480110"
-                            if link_str.startswith("/jump.php?"):
-                                link_str = link_str[10:]
-                                link_str = urllib.unquote(link_str)
-                            self.descriptionUrlList.append(link_str)
-    '''
+        
     def ParseWorksData(self, page):
         temp = page.find(attrs={'class': 'meta'}).findAll('li')
         # 07/22/2011 03:09|512×600|RETAS STUDIO
@@ -508,24 +423,7 @@ class PixivImage(object):
         PixivHelper.safePrint('Resolution : ' + self.worksResolution)
         PixivHelper.safePrint('Tools : ' + self.worksTools)
         return ""
-    '''
-        def ParseImages(self, page, mode=None, _br=None):
-            if page is None:
-                raise PixivException('No page given', errorCode=PixivException.NO_PAGE_GIVEN)
-            if mode is None:
-                mode = self.imageMode
 
-            del self.imageUrls[:]
-            if mode == 'big' or mode == 'bigNew':
-                self.imageUrls.append(self.ParseBigImages(page, _br))
-            elif mode == 'manga':
-                self.imageUrls = self.CheckMangaType(page, _br)
-            elif mode == 'ugoira_view':
-                self.imageUrls.append(self.ParseUgoira(page))
-            if len(self.imageUrls) == 0:
-                raise PixivException('No images found for: ' + str(self.imageId), errorCode=PixivException.NO_IMAGES, htmlPage=page)
-            return self.imageUrls
-    '''
     def ParseBigImages(self, page, _br):
         self.imageCount = 1
 

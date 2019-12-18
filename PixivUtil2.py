@@ -35,14 +35,6 @@ from PixivException import PixivException
 from PixivModel import (PixivBookmark, PixivGroup, PixivImage, PixivListItem,
                         PixivNewIllustBookmark, PixivTags)
 
-try:
-    stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
-    reload(sys)
-    sys.stdin, sys.stdout, sys.stderr = stdin, stdout, stderr
-    sys.setdefaultencoding("utf-8")
-except Exception as e:
-    pass  # swallow the exception
-
 if os.name == 'nt':
     # enable unicode support on windows console.
     import win_unicode_console
@@ -175,7 +167,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
     filename_save = filename
     try:
         PixivHelper.makeSubdirs(filename_save)
-        test_utf = file(filename_save + '.test', "wb")
+        test_utf = open(filename_save + '.test', "wb")
         test_utf.close()
         os.remove(filename_save + '.test')
     except UnicodeEncodeError:
@@ -325,7 +317,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 raise
             except IOError as ioex:
                 if ioex.errno == 28:
-                    PixivHelper.print_and_log('error', ioex.message)
+                    PixivHelper.print_and_log('error', str(ioex))
                     input("Press Enter to retry.")
                     return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_IO
@@ -788,7 +780,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                             del parse_big_image
                         break
                     except Exception as ex:
-                        __errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
+                        __errorList.append(dict(type="Image", id=str(image_id), message=str(ex), exception=ex))
                         PixivHelper.print_and_log('info', 'Image ID (' + str(image_id) + '): ' + str(traceback.format_exc()))
                         try:
                             if parse_big_image is not None:
