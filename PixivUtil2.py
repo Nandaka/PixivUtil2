@@ -2409,7 +2409,7 @@ if __name__ == '__main__':
         print("Require Python 3.7++")
     else:
         gc.enable()
-        gc.set_debug(gc.DEBUG_STATS)
+        # gc.set_debug(gc.DEBUG_STATS)
         main()
         gc.collect()
         gc.collect()
