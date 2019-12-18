@@ -4,7 +4,6 @@ from __future__ import print_function
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
-from builtins import object
 import configparser
 import os
 import os.path
@@ -17,7 +16,7 @@ import PixivHelper
 script_path = PixivHelper.module_path()
 
 
-class PixivConfig(object):
+class PixivConfig():
     '''Configuration class'''
     __logger = PixivHelper.GetLogger()
     configFileLocation = "config.ini"

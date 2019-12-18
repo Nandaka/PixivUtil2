@@ -97,7 +97,7 @@ class PixivBrowser(mechanize.Browser):
 
                 socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
                 socks.wrapmodule(urllib)
-                
+
                 PixivHelper.GetLogger().info("Using SOCKS Proxy: %s", config.proxyAddress)
             else:
                 self.set_proxies(config.proxy)
@@ -207,23 +207,11 @@ class PixivBrowser(mechanize.Browser):
     def _loadCookie(self, cookie_value):
         """ Load cookie to the Browser instance """
         ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                              port_specified=False, domain='pixiv.net', domain_specified=False,
-                              domain_initial_dot=False, path='/', path_specified=True,
-                              secure=False, expires=None, discard=True, comment=None,
-                              comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+                                   port_specified=False, domain='pixiv.net', domain_specified=False,
+                                   domain_initial_dot=False, path='/', path_specified=True,
+                                   secure=False, expires=None, discard=True, comment=None,
+                                   comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
-
-#        cookies = cookie_value.split(";")
-#        for cookie in cookies:
-#            temp = cookie.split("=")
-#            name = temp[0].strip()
-#            value= temp[1] if len(temp) > 1 else ""
-#            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
-#                                  port_specified=False, domain='pixiv.net', domain_specified=False,
-#                                  domain_initial_dot=False, path='/', path_specified=True,
-#                                  secure=False, expires=None, discard=True, comment=None,
-#                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-#            self.addCookie(ck)
 
     def _getInitConfig(self, page):
         init_config = page.find('input', attrs={'id': 'init-config'})

@@ -5,7 +5,6 @@ from __future__ import print_function
 
 from builtins import input
 from builtins import str
-from builtins import object
 import codecs
 import os
 import re
@@ -20,7 +19,7 @@ from PixivModel import PixivListItem
 script_path = PixivHelper.module_path()
 
 
-class PixivDBManager(object):
+class PixivDBManager():
     """Pixiv Database Manager"""
     __config__ = None
 

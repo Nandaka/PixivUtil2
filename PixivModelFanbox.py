@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C1801, C0330
 from builtins import str
-from builtins import object
 import codecs
 import os
 
@@ -12,7 +11,7 @@ from PixivException import PixivException
 import PixivHelper
 
 
-class Fanbox(object):
+class Fanbox():
     supportedArtist = None
 
     def __init__(self, page):
@@ -33,7 +32,7 @@ class Fanbox(object):
             self.supportedArtist.append(int(creator["user"]["userId"]))
 
 
-class FanboxArtist(object):
+class FanboxArtist():
     artistId = 0
     posts = None
     nextUrl = None
@@ -77,7 +76,7 @@ class FanboxArtist(object):
             self.hasNextPage = True
 
 
-class FanboxPost(object):
+class FanboxPost():
     imageId = 0
     imageTitle = ""
     coverImageUrl = ""

@@ -1,5 +1,4 @@
 from __future__ import print_function
-from builtins import object
 import requests
 import json
 from datetime import datetime
@@ -10,7 +9,7 @@ from PixivHelper import LocalUTCOffsetTimezone
 from PixivException import PixivException
 
 
-class PixivOAuth(object):
+class PixivOAuth():
     _username = None
     _password = None
     _refresh_token = None
@@ -39,10 +38,10 @@ class PixivOAuth(object):
 
     def _get_default_values(self):
         return {'client_id': 'MOBrBDS8blbauoSck0ZfDbtuzpyT',
-              'client_secret': 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj',
-              'device_token': '416eeaafe17577e471b35d2cee7cdfdc',
-              'get_secure_url': 'true',
-              'include_policy': 'true'}
+                'client_secret': 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj',
+                'device_token': '416eeaafe17577e471b35d2cee7cdfdc',
+                'get_secure_url': 'true',
+                'include_policy': 'true'}
 
     def _get_values_for_refresh(self):
         values = self._get_default_values()
@@ -63,12 +62,12 @@ class PixivOAuth(object):
         secret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
         time_hash = md5.md5("{0}{1}".format(time, secret))
         return {'User-Agent': 'PixivAndroidApp/5.0.136 (Android 6.0; Google Pixel C - 6.0.0 - API 23 - 2560x1800)',
-                       'Accept-Language': 'en_US',
-                       'App-OS': 'android',
-                       'App-OS-Version': '4.4.2',
-                       'App-Version': '5.0.136',
-                       'X-Client-Time': time,
-                       'X-Client-Hash': time_hash.hexdigest()}
+                'Accept-Language': 'en_US',
+                'App-OS': 'android',
+                'App-OS-Version': '4.4.2',
+                'App-Version': '5.0.136',
+                'X-Client-Time': time,
+                'X-Client-Hash': time_hash.hexdigest()}
 
     def _get_headers_with_bearer(self):
         if self._access_token is None:
@@ -124,10 +123,10 @@ class PixivOAuth(object):
     def get_user_info(self, userid):
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(userid)
         user_info = requests.get(url,
-                                  None,
-                                  headers=self._get_headers_with_bearer(),
-                                  proxies=self._proxies,
-                                  verify=self._validate_ssl)
+                                 None,
+                                 headers=self._get_headers_with_bearer(),
+                                 proxies=self._proxies,
+                                 verify=self._validate_ssl)
 
         if user_info.status_code == 404:
             PixivHelper.print_and_log('error', user_info.text)

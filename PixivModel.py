@@ -6,7 +6,6 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from builtins import range
-from builtins import object
 import os
 import re
 import sys
@@ -21,7 +20,7 @@ from datetime import datetime
 import json
 
 
-class PixivArtist(object):
+class PixivArtist():
     '''Class for parsing member page.'''
     artistId = 0
     artistName = ""
@@ -230,7 +229,7 @@ class PixivArtist(object):
         PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
 
-class PixivImage(object):
+class PixivImage():
     '''Class for parsing image page, including manga page and big image.'''
     artist = None
     originalArtist = None
@@ -622,7 +621,7 @@ class PixivImage(object):
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
-        jsonInfo["Link"] = "https://www.pixiv.net/en/artworks/{0}}".format(self.imageId)
+        jsonInfo["Link"] = "https://www.pixiv.net/en/artworks/{0}".format(self.imageId)
         jsonInfo["Ugoira Data"] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
             jsonInfo["Urls"] = self.descriptionUrlList
@@ -657,7 +656,7 @@ class PixivImage(object):
             z.writestr("animation.json", jsStr)
 
 
-class PixivListItem(object):
+class PixivListItem():
     '''Class for item in list.txt'''
     memberId = ""
     path = ""
@@ -754,7 +753,7 @@ class PixivListItem(object):
         return l
 
 
-class PixivNewIllustBookmark(object):
+class PixivNewIllustBookmark():
     '''Class for parsing New Illust from Bookmarks'''
     imageList = None
     isLastPage = None
@@ -802,7 +801,7 @@ class PixivNewIllustBookmark(object):
         return self.isLastPage
 
 
-class PixivBookmark(object):
+class PixivBookmark():
     '''Class for parsing Bookmarks'''
     __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
@@ -864,7 +863,7 @@ class PixivBookmark(object):
         writer.close()
 
 
-class PixivTagsItem(object):
+class PixivTagsItem():
     imageId = 0
     bookmarkCount = 0
     imageResponse = 0
@@ -875,7 +874,7 @@ class PixivTagsItem(object):
         self.imageResponse = image_response_count
 
 
-class PixivTags(object):
+class PixivTags():
     '''Class for parsing tags search page'''
     itemList = None
     haveImage = None
@@ -1027,7 +1026,7 @@ class PixivTags(object):
         return l
 
 
-class PixivGroup(object):
+class PixivGroup():
     short_pattern = re.compile(r"https?://www.pixiv.net/member_illust.php\?mode=(.*)&illust_id=(\d+)")
     imageList = None
     externalImageList = None
@@ -1104,7 +1103,7 @@ class PixivGroup(object):
         return string
 
 
-class SharedParser(object):
+class SharedParser():
     @staticmethod
     def parseCountBadge(page):
         # parse image count from count-badge
