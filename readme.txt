@@ -158,7 +158,7 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
       your password to simple one for testing, or copy the cookie from browser:
       1. Open Firefox/Chrome.
       2. Login to your Pixiv.
-      3. Right click the page and select View Page Info -> Security tab (Firefox), or
+      3. On Pixiv page, press F12 and choose the Storage tab (Firefox), or
          Right click on the leftmost address bar/the (i) icon (Chrome)
       5. Click the View Cookies button.
       6. Look for Cookie named = PHPSESSID.
