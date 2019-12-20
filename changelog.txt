@@ -1,3 +1,6 @@
+20191220
+- Fix Issue #600: update for login detection.
+
 20191218
 - Upgrade to python 3.8.0
 - Fix Issue #601: update bookmark image parser.
