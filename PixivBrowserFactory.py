@@ -266,9 +266,9 @@ class PixivBrowser(mechanize.Browser):
             res.close()
 
             result = False
-            if "logout.php" in parsed:
+            if "logout.php" in str(parsed):
                 result = True
-            if "pixiv.user.loggedIn = false" in parsed:
+            if "pixiv.user.loggedIn = false" in str(parsed):
                 result = True
 
             if result:
@@ -318,7 +318,7 @@ class PixivBrowser(mechanize.Browser):
         except BaseException:
             traceback.print_exc()
             PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
-            PixivHelper.dump_html("login error.html", parsed)
+            PixivHelper.dump_html("login_error.html", str(parsed))
             raise
         finally:
             if parsed is not None:

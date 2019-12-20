@@ -418,6 +418,10 @@ def dump_html(filename, html_text):
         return ""
 
     if isDumpEnabled:
+        if not isinstance(html_text, str):
+            html_text = str(html_text)
+        if isinstance(html_text, str):
+            html_text = html_text.encode()
         try:
             dump = open(filename, 'wb')
             dump.write(html_text)
