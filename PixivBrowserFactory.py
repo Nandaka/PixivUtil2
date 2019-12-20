@@ -35,7 +35,7 @@ class PixivBrowser(mechanize.Browser):
     _isWhitecube = False
     _whitecubeToken = ""
     _cache = dict()
-    _max_cache = 1000  # keep 1000 item in memory
+    _max_cache = 10000  # keep 1000 item in memory
     _myId = 0
     _isPremium = False
 
@@ -52,7 +52,7 @@ class PixivBrowser(mechanize.Browser):
         oldest_expiry = expiry
         oldest_item = key
         if len(self._cache) > self._max_cache:
-            for key2 in self._cache.keys():
+            for key2 in self._cache:
                 curr_expiry = self._cache[key2][1]
                 if curr_expiry < oldest_expiry:
                     oldest_item = key2
@@ -267,6 +267,11 @@ class PixivBrowser(mechanize.Browser):
 
             result = False
             if "logout.php" in parsed:
+                result = True
+            if "pixiv.user.loggedIn = false" in parsed:
+                result = True
+
+            if result:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.get_logger().info('Logged in using cookie')
                 self.getMyId(parsed)
@@ -274,7 +279,6 @@ class PixivBrowser(mechanize.Browser):
                 if len(temp_locale) > 0:
                     self._locale = '/' + temp_locale
                 PixivHelper.get_logger().info('Locale = %s', self._locale)
-                result = True
             else:
                 PixivHelper.get_logger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
@@ -283,6 +287,7 @@ class PixivBrowser(mechanize.Browser):
         return result
 
     def login(self, username, password):
+        parsed = None
         try:
             PixivHelper.print_and_log('info', 'Logging in...')
             url = "https://accounts.pixiv.net/login"
@@ -292,8 +297,6 @@ class PixivBrowser(mechanize.Browser):
             post_key = parsed.find('input', attrs={'name': 'post_key'})
             # js_init_config = self._getInitConfig(parsed)
             res.close()
-            parsed.decompose()
-            del parsed
 
             data = {}
             data['pixiv_id'] = username
@@ -315,7 +318,12 @@ class PixivBrowser(mechanize.Browser):
         except BaseException:
             traceback.print_exc()
             PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
+            PixivHelper.dump_html("login error.html", parsed)
             raise
+        finally:
+            if parsed is not None:
+                parsed.decompose()
+                del parsed
 
     def processLoginResult(self, response, username, password):
         PixivHelper.get_logger().info('Logging in, return url: %s', response.geturl())
@@ -666,8 +674,7 @@ class PixivBrowser(mechanize.Browser):
                                 image_info_js["body"]["responseCount"])
                     print("")
                 except BaseException:
-                    PixivHelper.dump_html(
-                        "Dump for SearchTags " + tags + ".html", response_page)
+                    PixivHelper.dump_html("Dump for SearchTags " + tags + ".html", response_page)
                     raise
 
         return (result, response_page)
