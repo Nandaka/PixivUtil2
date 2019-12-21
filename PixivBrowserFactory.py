@@ -268,7 +268,7 @@ class PixivBrowser(mechanize.Browser):
             result = False
             if "logout.php" in str(parsed):
                 result = True
-            if "pixiv.user.loggedIn = false" in str(parsed):
+            if "pixiv.user.loggedIn = true" in str(parsed):
                 result = True
 
             if result:
