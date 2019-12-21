@@ -1,4 +1,4 @@
-20191220
+20191221
 - Fix Issue #600: update for login detection.
 
 20191218
