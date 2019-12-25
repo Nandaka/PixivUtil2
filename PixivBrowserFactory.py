@@ -129,6 +129,17 @@ class PixivBrowser(mechanize.Browser):
 
         socket.setdefaulttimeout(config.timeout)
 
+        if not self._config.enableSSLVerification:
+            import ssl
+            try:
+                _create_unverified_https_context = ssl._create_unverified_context
+            except AttributeError:
+                # Legacy Python that doesn't verify HTTPS certificates by default
+                pass
+            else:
+                # Handle target environment that doesn't support HTTPS verification
+                ssl._create_default_https_context = _create_unverified_https_context
+
     def _configureCookie(self, cookie_jar):
         if cookie_jar is not None:
             self.set_cookiejar(cookie_jar)
