@@ -708,7 +708,7 @@ class PixivConfig():
 
         try:
             # with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
-            with open(configlocation + '.tmp', 'w') as configfile:
+            with open(configlocation + '.tmp', 'w', encoding='utf8') as configfile:
                 config.write(configfile)
             if os.path.exists(configlocation):
                 if error:
