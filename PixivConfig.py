@@ -44,29 +44,30 @@ class PixivConfig():
 
     # generic Settings
     rootDirectory = '.'
-    overwrite = False
     useList = False
     processFromDb = True
-    dayLastUpdated = 7
-    alwaysCheckFileSize = False
-    checkUpdatedLimit = 0
     downloadAvatar = True
-    useBlacklistTags = False
-    useSuppressTags = False
-    tagsLimit = -1
     writeImageInfo = False
     writeImageJSON = False
-    dateDiff = 0
-    backupOldFile = False
-    enableInfiniteLoop = False
     verifyImage = False
     writeUrlInDescription = False
     urlBlacklistRegex = ""
     dbPath = ''
-    useBlacklistMembers = False
     setLastModified = True
-    alwaysCheckFileExists = False
     useLocalTimezone = False  # Issue #420
+
+    # download control
+    overwrite = False
+    backupOldFile = False
+    dayLastUpdated = 7
+    alwaysCheckFileSize = False
+    checkUpdatedLimit = 0
+    useBlacklistTags = False
+    dateDiff = 0
+    enableInfiniteLoop = False
+    useBlacklistMembers = False
+    maxFileSize = 0
+    minFileSize = 0
 
     # filename related
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
@@ -77,6 +78,8 @@ class PixivConfig():
     createMangaDir = False
     useTagsAsDir = False
     urlDumpFilename = "url_list_%Y%m%d"
+    useSuppressTags = False
+    tagsLimit = -1
 
     # ugoira
     writeUgoiraInfo = False
@@ -145,20 +148,6 @@ class PixivConfig():
                 haveError = True
 
             try:
-                self.dayLastUpdated = config.getint('Settings', 'daylastupdated')
-            except ValueError:
-                print("dayLastUpdated = 7")
-                self.dayLastUpdated = 7
-                haveError = True
-
-            try:
-                self.dateDiff = config.getint('Settings', 'datediff')
-            except ValueError:
-                print("dateDiff = 0")
-                self.dateDiff = 0
-                haveError = True
-
-            try:
                 self.proxyAddress = config.get('Network', 'proxyaddress')
             except ValueError:
                 print("proxyAddress = ''")
@@ -192,12 +181,10 @@ class PixivConfig():
                 self.useragent = _useragent
 
             _filenameFormat = config.get('Filename', 'filenameformat')
-            _filenameFormat = _filenameFormat
             if _filenameFormat is not None and len(_filenameFormat) > 0:
                 self.filenameFormat = _filenameFormat
 
             _filenameMangaFormat = config.get('Filename', 'filenamemangaformat')
-            _filenameMangaFormat = _filenameMangaFormat
             if _filenameMangaFormat is not None and len(_filenameMangaFormat) > 0:
                 # check if the filename format have page identifier if not using %urlFilename%
                 if _filenameMangaFormat.find('%urlFilename%') == -1:
@@ -209,7 +196,6 @@ class PixivConfig():
                 self.filenameMangaFormat = _filenameMangaFormat
 
             _filenameInfoFormat = config.get('Filename', 'filenameinfoformat')
-            _filenameInfoFormat = _filenameInfoFormat
             if _filenameInfoFormat is not None and len(_filenameInfoFormat) > 0:
                 self.filenameInfoFormat = _filenameInfoFormat
 
@@ -225,13 +211,6 @@ class PixivConfig():
             except ValueError:
                 self.useRobots = False
                 print("useRobots = False")
-                haveError = True
-
-            try:
-                self.overwrite = config.getboolean('Settings', 'overwrite')
-            except ValueError:
-                print("overwrite = False")
-                self.overwrite = False
                 haveError = True
 
             try:
@@ -291,13 +270,6 @@ class PixivConfig():
                 haveError = True
 
             try:
-                self.alwaysCheckFileSize = config.getboolean('Settings', 'alwaysCheckFileSize')
-            except ValueError:
-                self.alwaysCheckFileSize = False
-                print("alwaysCheckFileSize = False")
-                haveError = True
-
-            try:
                 self.downloadAvatar = config.getboolean('Settings', 'downloadAvatar')
             except ValueError:
                 self.downloadAvatar = False
@@ -305,24 +277,10 @@ class PixivConfig():
                 haveError = True
 
             try:
-                self.checkUpdatedLimit = config.getint('Settings', 'checkUpdatedLimit')
-            except ValueError:
-                self.checkUpdatedLimit = 0
-                print("checkUpdatedLimit = 0")
-                haveError = True
-
-            try:
                 self.useTagsAsDir = config.getboolean('Filename', 'useTagsAsDir')
             except ValueError:
                 self.useTagsAsDir = False
                 print("useTagsAsDir = False")
-                haveError = True
-
-            try:
-                self.useBlacklistTags = config.getboolean('Settings', 'useBlacklistTags')
-            except ValueError:
-                self.useBlacklistTags = False
-                print("useBlacklistTags = False")
                 haveError = True
 
             try:
@@ -344,13 +302,6 @@ class PixivConfig():
             except ValueError:
                 self.writeImageInfo = False
                 print("writeImageInfo = False")
-                haveError = True
-
-            try:
-                self.backupOldFile = config.getboolean('Settings', 'backupOldFile')
-            except ValueError:
-                self.backupOldFile = False
-                print("backupOldFile = False")
                 haveError = True
 
             try:
@@ -381,13 +332,6 @@ class PixivConfig():
             except ValueError:
                 print("dumpMediumPage = False")
                 self.dumpMediumPage = False
-                haveError = True
-
-            try:
-                self.enableInfiniteLoop = config.getboolean('Settings', 'enableInfiniteLoop')
-            except ValueError:
-                self.enableInfiniteLoop = False
-                print("enableInfiniteLoop = False")
                 haveError = True
 
             try:
@@ -437,13 +381,6 @@ class PixivConfig():
             except ValueError:
                 print("dbPath = ''")
                 self.dbPath = ''
-                haveError = True
-
-            try:
-                self.useBlacklistMembers = config.getboolean('Settings', 'useBlacklistMembers')
-            except ValueError:
-                print("useBlacklistMembers = False")
-                self.useBlacklistMembers = False
                 haveError = True
 
             try:
@@ -594,6 +531,83 @@ class PixivConfig():
                 self.enableSSLVerification = False
                 haveError = True
 
+            try:
+                self.minFileSize = config.getint('DownloadControl', 'minFileSize')
+            except ValueError:
+                print("minFileSize = 0")
+                self.minFileSize = 0
+                haveError = True
+
+            try:
+                self.maxFileSize = config.getint('DownloadControl', 'maxFileSize')
+            except ValueError:
+                print("maxFileSize = 0")
+                self.maxFileSize = 0
+                haveError = True
+
+            try:
+                self.overwrite = config.getboolean('DownloadControl', 'overwrite')
+            except ValueError:
+                print("overwrite = False")
+                self.overwrite = False
+                haveError = True
+
+            try:
+                self.backupOldFile = config.getboolean('DownloadControl', 'backupOldFile')
+            except ValueError:
+                self.backupOldFile = False
+                print("backupOldFile = False")
+                haveError = True
+
+            try:
+                self.dayLastUpdated = config.getint('DownloadControl', 'daylastupdated')
+            except ValueError:
+                print("dayLastUpdated = 7")
+                self.dayLastUpdated = 7
+                haveError = True
+
+            try:
+                self.alwaysCheckFileSize = config.getboolean('DownloadControl', 'alwaysCheckFileSize')
+            except ValueError:
+                self.alwaysCheckFileSize = False
+                print("alwaysCheckFileSize = False")
+                haveError = True
+
+            try:
+                self.checkUpdatedLimit = config.getint('DownloadControl', 'checkUpdatedLimit')
+            except ValueError:
+                self.checkUpdatedLimit = 0
+                print("checkUpdatedLimit = 0")
+                haveError = True
+
+            try:
+                self.useBlacklistTags = config.getboolean('DownloadControl', 'useBlacklistTags')
+            except ValueError:
+                self.useBlacklistTags = False
+                print("useBlacklistTags = False")
+                haveError = True
+
+            try:
+                self.dateDiff = config.getint('DownloadControl', 'datediff')
+            except ValueError:
+                print("dateDiff = 0")
+                self.dateDiff = 0
+                haveError = True
+
+            try:
+                self.enableInfiniteLoop = config.getboolean('DownloadControl', 'enableInfiniteLoop')
+            except ValueError:
+                self.enableInfiniteLoop = False
+                print("enableInfiniteLoop = False")
+                haveError = True
+
+            try:
+                self.useBlacklistMembers = config.getboolean('DownloadControl', 'useBlacklistMembers')
+            except ValueError:
+                print("useBlacklistMembers = False")
+                self.useBlacklistMembers = False
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -641,25 +655,16 @@ class PixivConfig():
         config.set('Settings', 'downloadListDirectory', self.downloadListDirectory)
         config.set('Settings', 'useList', self.useList)
         config.set('Settings', 'processFromDb', self.processFromDb)
-        config.set('Settings', 'overwrite', self.overwrite)
-        config.set('Settings', 'daylastupdated', self.dayLastUpdated)
         config.set('Settings', 'rootdirectory', self.rootDirectory)
-        config.set('Settings', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
-        config.set('Settings', 'checkUpdatedLimit', self.checkUpdatedLimit)
         config.set('Settings', 'downloadAvatar', self.downloadAvatar)
-        config.set('Settings', 'useBlacklistTags', self.useBlacklistTags)
         config.set('Settings', 'useSuppressTags', self.useSuppressTags)
         config.set('Settings', 'tagsLimit', self.tagsLimit)
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'writeImageJSON', self.writeImageJSON)
-        config.set('Settings', 'dateDiff', self.dateDiff)
-        config.set('Settings', 'backupOldFile', self.backupOldFile)
-        config.set('Settings', 'enableInfiniteLoop', self.enableInfiniteLoop)
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
         config.set('Settings', 'dbPath', self.dbPath)
-        config.set('Settings', 'useBlacklistMembers', self.useBlacklistMembers)
         config.set('Settings', 'setLastModified', self.setLastModified)
         config.set('Settings', 'useLocalTimezone', self.useLocalTimezone)
 
@@ -701,6 +706,19 @@ class PixivConfig():
         config.set('Ugoira', 'createWebm', self.createWebm)
         config.set('Ugoira', 'createWebp', self.createWebp)
 
+        config.add_section('DownloadControl')
+        config.set('DownloadControl', 'minFileSize', self.minFileSize)
+        config.set('DownloadControl', 'maxFileSize', self.maxFileSize)
+        config.set('DownloadControl', 'overwrite', self.overwrite)
+        config.set('DownloadControl', 'backupOldFile', self.backupOldFile)
+        config.set('DownloadControl', 'daylastupdated', self.dayLastUpdated)
+        config.set('DownloadControl', 'alwaysCheckFileSize', self.alwaysCheckFileSize)
+        config.set('DownloadControl', 'checkUpdatedLimit', self.checkUpdatedLimit)
+        config.set('DownloadControl', 'useBlacklistTags', self.useBlacklistTags)
+        config.set('DownloadControl', 'dateDiff', self.dateDiff)
+        config.set('DownloadControl', 'enableInfiniteLoop', self.enableInfiniteLoop)
+        config.set('DownloadControl', 'useBlacklistMembers', self.useBlacklistMembers)
+
         if path is not None:
             configlocation = path
         else:
@@ -728,72 +746,63 @@ class PixivConfig():
     def printConfig(self):
         print('Configuration: ')
         print(' [Authentication]')
-        print(' - username     =', self.username)
-        print(' - password     = ', self.password)
-        print(' - cookie       = ', self.cookie)
-        print(' - refresh token= ', self.refresh_token)
+        print(' - username      =', self.username)
+        print(' - password      = ', self.password)
+        print(' - cookie        = ', self.cookie)
+        print(' - refresh token = ', self.refresh_token)
 
         print(' [Network]')
-        print(' - useproxy         =', self.useProxy)
-        print(' - proxyaddress     =', self.proxyAddress)
-        print(' - useragent        =', self.useragent)
-        print(' - use_robots       =', self.useRobots)
-        print(' - timeout          =', self.timeout)
-        print(' - retry            =', self.retry)
-        print(' - retryWait        =', self.retryWait)
-        print(' - downloadDelay    =', self.downloadDelay)
-        print(' - checkNewVersion  =', self.checkNewVersion)
+        print(' - useproxy              =', self.useProxy)
+        print(' - proxyaddress          =', self.proxyAddress)
+        print(' - useragent             =', self.useragent)
+        print(' - use_robots            =', self.useRobots)
+        print(' - timeout               =', self.timeout)
+        print(' - retry                 =', self.retry)
+        print(' - retryWait             =', self.retryWait)
+        print(' - downloadDelay         =', self.downloadDelay)
+        print(' - checkNewVersion       =', self.checkNewVersion)
         print(' - enableSSLVerification =', self.enableSSLVerification)
 
         print(' [Debug]')
-        print(' - logLevel         =', self.logLevel)
-        print(' - enableDump       =', self.enableDump)
-        print(' - skipDumpFilter   =', self.skipDumpFilter)
-        print(' - dumpMediumPage   =', self.dumpMediumPage)
-        print(' - dumpTagSearchPage=', self.dumpTagSearchPage)
-        print(' - debug_http       =', self.debugHttp)
+        print(' - logLevel          =', self.logLevel)
+        print(' - enableDump        =', self.enableDump)
+        print(' - skipDumpFilter    =', self.skipDumpFilter)
+        print(' - dumpMediumPage    =', self.dumpMediumPage)
+        print(' - dumpTagSearchPage =', self.dumpTagSearchPage)
+        print(' - debug_http        =', self.debugHttp)
 
         print(' [IrfanView]')
-        print(' - IrfanViewPath    =', self.IrfanViewPath)
-        print(' - startIrfanView   =', self.startIrfanView)
-        print(' - startIrfanSlide  =', self.startIrfanSlide)
-        print(' - createDownloadLists   =', self.createDownloadLists)
+        print(' - IrfanViewPath       =', self.IrfanViewPath)
+        print(' - startIrfanView      =', self.startIrfanView)
+        print(' - startIrfanSlide     =', self.startIrfanSlide)
+        print(' - createDownloadLists =', self.createDownloadLists)
 
         print(' [Settings]')
         print(' - downloadListDirectory =', self.downloadListDirectory)
-        print(' - overwrite        =', self.overwrite)
-        print(' - useList          =', self.useList)
-        print(' - processFromDb    =', self.processFromDb)
-        print(' - dayLastUpdated   =', self.dayLastUpdated)
-        print(' - rootDirectory    =', self.rootDirectory)
-        print(' - alwaysCheckFileSize   =', self.alwaysCheckFileSize)
-        print(' - checkUpdatedLimit     =', self.checkUpdatedLimit)
-        print(' - downloadAvatar   =', self.downloadAvatar)
-        print(' - useBlacklistTags =', self.useBlacklistTags)
-        print(' - useSuppressTags  =', self.useSuppressTags)
-        print(' - tagsLimit        =', self.tagsLimit)
-        print(' - writeImageInfo   =', self.writeImageInfo)
-        print(' - writeImageJSON   =', self.writeImageJSON)
-        print(' - dateDiff         =', self.dateDiff)
-        print(' - backupOldFile    =', self.backupOldFile)
-        print(' - enableInfiniteLoop    =', self.enableInfiniteLoop)
-        print(' - verifyImage      =', self.verifyImage)
+        print(' - useList               =', self.useList)
+        print(' - processFromDb         =', self.processFromDb)
+        print(' - rootDirectory         =', self.rootDirectory)
+        print(' - downloadAvatar        =', self.downloadAvatar)
+        print(' - useSuppressTags       =', self.useSuppressTags)
+        print(' - tagsLimit             =', self.tagsLimit)
+        print(' - writeImageInfo        =', self.writeImageInfo)
+        print(' - writeImageJSON        =', self.writeImageJSON)
+        print(' - verifyImage           =', self.verifyImage)
         print(' - writeUrlInDescription =', self.writeUrlInDescription)
-        print(' - urlBlacklistRegex =', self.urlBlacklistRegex)
-        print(' - dbPath           =', self.dbPath)
-        print(' - useBlacklistMembers  =', self.useBlacklistMembers)
-        print(' - setLastModified  =', self.setLastModified)
-        print(' - useLocalTimezone =', self.useLocalTimezone)
+        print(' - urlBlacklistRegex     =', self.urlBlacklistRegex)
+        print(' - dbPath                =', self.dbPath)
+        print(' - setLastModified       =', self.setLastModified)
+        print(' - useLocalTimezone      =', self.useLocalTimezone)
 
         print(' [Filename]')
         print(' - filename_format       =', self.filenameFormat)
         print(' - filename_manga_format =', self.filenameMangaFormat)
         print(' - filename_info_format  =', self.filenameInfoFormat)
-        print(' - avatarNameFormat =', self.avatarNameFormat)
-        print(' - tagsSeparator    =', self.tagsSeparator)
-        print(' - createMangaDir   =', self.createMangaDir)
-        print(' - useTagsAsDir     =', self.useTagsAsDir)
-        print(' - urlDumpFilename  =', self.urlDumpFilename)
+        print(' - avatarNameFormat      =', self.avatarNameFormat)
+        print(' - tagsSeparator         =', self.tagsSeparator)
+        print(' - createMangaDir        =', self.createMangaDir)
+        print(' - useTagsAsDir          =', self.useTagsAsDir)
+        print(' - urlDumpFilename       =', self.urlDumpFilename)
 
         print(' [Pixiv]')
         print(' - numberOfPage =', self.numberOfPage)
@@ -816,4 +825,18 @@ class PixivConfig():
         print(' - deleteUgoira     =', self.deleteUgoira)
         print(' - createWebm       =', self.createWebm)
         print(' - createWebp       =', self.createWebp)
+
+        print(' [DownloadControl]')
+        print(' - minFileSize         =', self.minFileSize)
+        print(' - maxFileSize         =', self.maxFileSize)
+        print(' - overwrite           =', self.overwrite)
+        print(' - backupOldFile       =', self.backupOldFile)
+        print(' - dayLastUpdated      =', self.dayLastUpdated)
+        print(' - alwaysCheckFileSize =', self.alwaysCheckFileSize)
+        print(' - checkUpdatedLimit   =', self.checkUpdatedLimit)
+        print(' - useBlacklistTags    =', self.useBlacklistTags)
+        print(' - dateDiff            =', self.dateDiff)
+        print(' - enableInfiniteLoop  =', self.enableInfiniteLoop)
+        print(' - useBlacklistMembers =', self.useBlacklistMembers)
+
         print('')

@@ -941,7 +941,6 @@ def decode_tags(tags):
     except UnicodeDecodeError:
         # From command prompt
         search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
-        search_tags = search_tags
     return search_tags
 
 

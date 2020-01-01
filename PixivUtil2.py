@@ -212,6 +212,15 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
                             return (check_result, db_filename)
 
+                # 576
+                if file_size > 0:
+                    if __config__.minFileSize != 0 and file_size <= __config__.minFileSize:
+                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_SMALLER
+                        return (result, filename_save)
+                    if __config__.maxFileSize != 0 and file_size >= __config__.maxFileSize:
+                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_LARGER
+                        return (result, filename_save)
+
                 # actual download
                 (downloadedSize, filename_save) = perform_download(url, file_size, filename_save, overwrite, referer)
                 # set last-modified and last-accessed timestamp
@@ -648,10 +657,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
         exists = False
         in_db = False
         if r is not None:
-            exists = True
-            in_db = True
-        if r is not None and __config__.alwaysCheckFileExists:
             exists = __dbManager__.cleanupFileExists(r[0])
+            in_db = True
 
         if r is not None and not __config__.alwaysCheckFileSize and exists:
             if not __config__.overwrite and exists:
