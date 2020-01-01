@@ -1,3 +1,21 @@
+20200101 - Happy New Year!
+- Fix Issue #607: fix db path for parseBookmark call.
+- Fix Issue #608: handle user suspended for Fanbox.
+- Implement #567: add minFileSize and maxFileSize in config.ini, set 0 to disable.
+- Reorder some settings in config.ini to new section [DownloadControl]
+  - overwrite = False
+  - backupOldFile = False
+  - dayLastUpdated = 7
+  - alwaysCheckFileSize = False
+  - checkUpdatedLimit = 0
+  - useBlacklistTags = False
+  - dateDiff = 0
+  - enableInfiniteLoop = False
+  - useBlacklistMembers = False
+- Implement #609: separate 'checkUpdatedLimit' and 'alwaysCheckFileSize' validation.
+- Fix Issue #606: set encoding to utf8.
+- Implement #595: implement SSL bypass for most connection.
+
 20191221
 - Fix Issue #600: update for login detection.
 
