@@ -479,11 +479,9 @@ class PixivBrowser(mechanize.Browser):
                     info = json.loads(infoStr)
                     self._put_to_cache(url, info)
             else:
-                PixivHelper.print_and_log(
-                    'info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
+                PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
                 if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
-                    raise PixivException(
-                        "Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
+                    raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
                 if self._oauth_manager is None:
                     proxy = None
@@ -542,14 +540,11 @@ class PixivBrowser(mechanize.Browser):
                 msgs.append(payload["error"]["reason"])
                 msg = ",".join(msgs)
             if errorCode == 401:
-                raise PixivException(
-                    msg, errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.NOT_LOGGED_IN, htmlPage=errorMessage)
             elif errorCode == 403:
-                raise PixivException(
-                    msg, errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.USER_ID_SUSPENDED, htmlPage=errorMessage)
             else:
-                raise PixivException(
-                    msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
+                raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
     def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
         artist = None

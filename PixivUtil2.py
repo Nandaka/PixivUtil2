@@ -1898,7 +1898,11 @@ def processFanboxArtist(artist_id, end_page):
     image_count = 1
     while(True):
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist_id, current_page))
-        result_artist = __br__.fanboxGetPostsFromArtist(artist_id, next_url)
+        try:
+            result_artist = __br__.fanboxGetPostsFromArtist(artist_id, next_url)
+        except PixivException as pex:
+            print(pex)
+            break
 
         for post in result_artist.posts:
             print("#{0}".format(image_count))
