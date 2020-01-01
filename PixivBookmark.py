@@ -56,7 +56,7 @@ class PixivBookmark(object):
     def exportList(l, filename):
         if not filename.endswith('.txt'):
             filename = filename + '.txt'
-        writer = codecs.open(filename, 'wb', encoding='utf-8')
+        writer = codecs.open(filename, 'w', encoding='utf-8')
         writer.write(u'###Export date: ' + str(datetime.today()) + '###\n')
         for item in l:
             data = str(item.memberId)

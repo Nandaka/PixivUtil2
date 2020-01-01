@@ -506,21 +506,21 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
                 print('#' + str(no_of_images))
-                if not __config__.overwrite:
-                    r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
-                    if r is not None and not __config__.alwaysCheckFileSize:
-                        print('Already downloaded:', image_id)
-                        updated_limit_count = updated_limit_count + 1
-                        if updated_limit_count > __config__.checkUpdatedLimit:
-                            if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
-                                print('Skipping member:', member_id)
-                                __dbManager__.updateLastDownloadedImage(member_id, image_id)
+                # if not __config__.overwrite:
+                #     r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
+                #     if r is not None and not __config__.alwaysCheckFileSize:
+                #         print('Already downloaded:', image_id)
+                #         updated_limit_count = updated_limit_count + 1
+                #         if updated_limit_count > __config__.checkUpdatedLimit:
+                #             if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
+                #                 print('Skipping member:', member_id)
+                #                 __dbManager__.updateLastDownloadedImage(member_id, image_id)
 
-                                del list_page
-                                __br__.clear_history()
-                                return
-                        gc.collect()
-                        continue
+                #                 del list_page
+                #                 __br__.clear_history()
+                #                 return
+                #         gc.collect()
+                #         continue
 
                 retry_count = 0
                 while True:
@@ -559,8 +559,14 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         __log__.exception('Error at process_member(): %s Member Id: %d', str(sys.exc_info()), member_id)
                         time.sleep(2)
 
-                no_of_images = no_of_images + 1
-
+                if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
+                    updated_limit_count = updated_limit_count + 1
+                    if __config__.checkUpdatedLimit != 0 and updated_limit_count > __config__.checkUpdatedLimit:
+                        PixivHelper.safePrint("Skipping tags: {0}".format(tags))
+                        __br__.clear_history()
+                        return
+                    gc.collect()
+                    continue
                 if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                     choice = input("Keyboard Interrupt detected, continue to next image (Y/N)").rstrip("\r")
                     if choice.upper() == 'N':
@@ -569,12 +575,13 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         break
                     else:
                         continue
-
                 # return code from process image
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
                     PixivHelper.print_and_log("info", "Reached older images, skippin to next member.")
                     flag = False
                     break
+
+                no_of_images = no_of_images + 1
 
             if artist.isLastPage:
                 print("Last Page")
@@ -1004,13 +1011,12 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             time.sleep(2)
 
                     images = images + 1
-                    if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
+                    if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
                         updated_limit_count = updated_limit_count + 1
-                        if updated_limit_count > __config__.checkUpdatedLimit:
-                            if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
-                                PixivHelper.safePrint("Skipping tags: {0}".format(tags))
-                                __br__.clear_history()
-                                return
+                        if __config__.checkUpdatedLimit != 0 and updated_limit_count > __config__.checkUpdatedLimit:
+                            PixivHelper.safePrint("Skipping tags: {0}".format(tags))
+                            __br__.clear_history()
+                            return
                         gc.collect()
                         continue
                     elif result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
