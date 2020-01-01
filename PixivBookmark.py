@@ -13,11 +13,11 @@ class PixivBookmark(object):
     __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
     @staticmethod
-    def parseBookmark(page, root_directory):
+    def parseBookmark(page, root_directory, db_path):
         '''Parse favorite artist page'''
-        import PixivDBManager
+        from PixivDBManager import PixivDBManager
         bookmarks = list()
-        db = PixivDBManager.PixivDBManager(root_directory)
+        db = PixivDBManager(root_directory=root_directory, target=db_path)
         __re_member = re.compile(r'member\.php\?id=(\d*)')
         result = page.find(attrs={'class': 'members'}).findAll('a')
 

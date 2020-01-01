@@ -9,7 +9,6 @@ import sys
 from datetime import datetime
 
 import PixivHelper
-from PixivException import PixivException
 from PixivListItem import PixivListItem
 
 script_path = PixivHelper.module_path()
@@ -873,8 +872,3 @@ class PixivDBManager(object):
         except BaseException:
             print('Error: ', sys.exc_info())
             self.main()
-
-
-if __name__ == '__main__':
-    apps = PixivDBManager(root_directory=".")
-    apps.main()

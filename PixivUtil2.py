@@ -23,7 +23,7 @@ import datetime_z
 import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
-import PixivDBManager
+from PixivDBManager import PixivDBManager
 import PixivHelper
 import PixivModelFanbox
 from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
@@ -1194,7 +1194,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         page = __br__.open_with_retry(url)
 
         parse_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
-        bookmarks = PixivBookmark.parseBookmark(parse_page, root_directory=__config__.rootDirectory)
+        bookmarks = PixivBookmark.parseBookmark(parse_page, root_directory=__config__.rootDirectory, db_path=__config__.dbPath)
         if len(bookmarks) == 0:
             print('No more data')
             break
@@ -2307,7 +2307,7 @@ def main():
         start_irfan_slide = False
 
     try:
-        __dbManager__ = PixivDBManager.PixivDBManager(root_directory=__config__.rootDirectory, target=__config__.dbPath)
+        __dbManager__ = PixivDBManager(root_directory=__config__.rootDirectory, target=__config__.dbPath)
         __dbManager__.createDatabase()
 
         if __config__.useList:
