@@ -711,8 +711,7 @@ class PixivBrowser(mechanize.Browser):
     def fanboxGetPostsFromArtist(self, artist_id, next_url=""):
         ''' get all posts from the supported user from https://www.pixiv.net/ajax/fanbox/creator?userId=15521131 '''
         if next_url is None or next_url == "":
-            url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(
-                artist_id)
+            url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
         elif next_url.startswith("https://"):
             url = next_url
         else:
@@ -729,6 +728,7 @@ class PixivBrowser(mechanize.Browser):
 
         res = self.open_with_retry(req)
         response = res.read()
+        PixivHelper.get_logger().log("debug", response)
         res.close()
         # Issue #420
         _tzInfo = None
@@ -740,6 +740,24 @@ class PixivBrowser(mechanize.Browser):
         self.getMemberInfoWhitecube(artist_id, pixivArtist)
         result.artistName = pixivArtist.artistName
         result.artistToken = pixivArtist.artistToken
+
+        for post in result.posts:
+            # https://fanbox.pixiv.net/api/post.info?postId=279561
+            # https://www.pixiv.net/fanbox/creator/104409/post/279561
+            p_url = "https://fanbox.pixiv.net/api/post.info?postId={1}".format(post.imageId)
+            p_referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.imageId)
+            p_req = mechanize.Request(p_url)
+            p_req.add_header('Accept', 'application/json, text/plain, */*')
+            p_req.add_header('Referer', p_referer)
+            p_req.add_header('Origin', 'https://www.pixiv.net')
+            p_req.add_header('User-Agent', self._config.useragent)
+
+            p_res = self.open_with_retry(p_req)
+            p_response = p_res.read()
+            PixivHelper.get_logger().log("debug", p_response)
+            p_res.close()
+            js = demjson.decode(p_response)
+            post.parsePost(js["body"])
 
         return result
 

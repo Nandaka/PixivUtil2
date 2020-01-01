@@ -6,6 +6,8 @@ import os
 import demjson
 import datetime_z
 
+from bs4 import BeautifulSoup
+
 from PixivException import PixivException
 import PixivHelper
 
@@ -131,9 +133,11 @@ class FanboxPost(object):
 
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
+
         self.coverImageUrl = jsPost["coverImageUrl"]
         if self.coverImageUrl is not None:
             self.embeddedFiles.append(jsPost["coverImageUrl"])
+
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
         # Issue #420
@@ -160,7 +164,24 @@ class FanboxPost(object):
         # Issue #544
         elif "html" in jsPost["body"]:
             self.body_text = jsPost["body"]["html"]
+            # Issue #611: try to parse all images in the html body for compatibility
+            parsed = BeautifulSoup(self.body_text, features="html5lib")
+            links = parsed.findAll('a')
+            for link in links:
+                if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0:
+                    self.embeddedFiles.append(link["href"])
+            images = parsed.findAll('img')
+            for image in images:
+                if "data-src-original" in image.attrs and image["data-src-original"] not in self.embeddedFiles:
+                    self.embeddedFiles.append(image["data-src-original"])
+            parsed.decompose()
+            del parsed
+
         if "thumbnailUrl" in jsPost["body"] and jsPost["body"]["thumbnailUrl"] is not None:
+            # set the thumbnail as the cover image is not exists.
+            if self.coverImageUrl is None:
+                PixivHelper.get_logger().log("debug", "Missing coverImageUrl, using thumbnailUrl instead as cover.")
+                self.coverImageUrl = jsPost["body"]["thumbnailUrl"]
             self.embeddedFiles.append(jsPost["body"]["thumbnailUrl"])
 
         if "embedMap" in jsPost["body"] and jsPost["body"]["embedMap"] is not None and len(jsPost["body"]["embedMap"]) > 0:
