@@ -97,15 +97,12 @@ class PixivListItem(object):
                 line_no = line_no + 1
                 original_line = ""
         except UnicodeDecodeError:
-            PixivHelper.get_logger().exception(
-                "PixivListItem.parseList(): Invalid value when parsing list")
+            PixivHelper.get_logger().exception("PixivListItem.parseList(): Invalid value when parsing list")
             PixivHelper.print_and_log('error', 'Invalid value: {0} at line {1}, try to save the list.txt in UTF-8.'.format(
                                       original_line, line_no))
         except BaseException:
-            PixivHelper.get_logger().exception(
-                "PixivListItem.parseList(): Invalid value when parsing list")
-            PixivHelper.print_and_log(
-                'error', 'Invalid value: {0} at line {1}'.format(original_line, line_no))
+            PixivHelper.get_logger().exception("PixivListItem.parseList(): Invalid value when parsing list")
+            PixivHelper.print_and_log('error', 'Invalid value: {0} at line {1}'.format(original_line, line_no))
 
         reader.close()
         return members

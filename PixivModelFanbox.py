@@ -278,8 +278,7 @@ class FanboxPost(object):
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt",
                                'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception(
-                "Error when saving image info: %s, file is saved to: %s.txt", filename, self.imageId)
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename, self.imageId)
 
         info.write(u"ArtistID      = {0}\r\n".format(self.parent.artistId))
         info.write(u"ArtistName    = {0}\r\n".format(self.parent.artistName))

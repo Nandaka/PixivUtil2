@@ -728,7 +728,7 @@ class PixivBrowser(mechanize.Browser):
 
         res = self.open_with_retry(req)
         response = res.read()
-        PixivHelper.get_logger().log("debug", response)
+        PixivHelper.get_logger().debug(response)
         res.close()
         # Issue #420
         _tzInfo = None
@@ -754,7 +754,7 @@ class PixivBrowser(mechanize.Browser):
 
             p_res = self.open_with_retry(p_req)
             p_response = p_res.read()
-            PixivHelper.get_logger().log("debug", p_response)
+            PixivHelper.get_logger().debug(p_response)
             p_res.close()
             js = demjson.decode(p_response)
             post.parsePost(js["body"])
