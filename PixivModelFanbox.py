@@ -179,7 +179,7 @@ class FanboxPost(object):
         if "thumbnailUrl" in jsPost["body"] and jsPost["body"]["thumbnailUrl"] is not None:
             # set the thumbnail as the cover image is not exists.
             if self.coverImageUrl is None:
-                PixivHelper.get_logger().log("debug", "Missing coverImageUrl, using thumbnailUrl instead as cover.")
+                PixivHelper.get_logger().debug("Missing coverImageUrl, using thumbnailUrl instead as cover.")
                 self.coverImageUrl = jsPost["body"]["thumbnailUrl"]
             self.embeddedFiles.append(jsPost["body"]["thumbnailUrl"])
 
