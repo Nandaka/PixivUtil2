@@ -590,7 +590,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     break
 
                 no_of_images = no_of_images + 1
-                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
                     wait()
 
             if artist.isLastPage:
@@ -1009,7 +1009,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             result = PixivConstant.PIXIVUTIL_OK
                             if not DEBUG_SKIP_PROCESS_IMAGE:
                                 result = process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
-                                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
                                     wait()
                             break
                         except KeyboardInterrupt:
@@ -1124,9 +1124,10 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=N
         PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
             print("Image #" + str(image_count))
-            process_image(artist=None, image_id=item)
+            result = process_image(artist=None, image_id=item)
             image_count = image_count + 1
-            wait()
+            if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                wait()
 
         print("Done.\n")
     except KeyboardInterrupt:
@@ -1283,7 +1284,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
                     flag = False
                     break
 
-                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
                     wait()
             i = i + 1
 
@@ -1332,7 +1333,7 @@ def process_from_group(group_id, limit=0, process_external=True):
                     print("ImageId: {0}".format(image))
                     result = process_image(image_id=image)
                     image_count = image_count + 1
-                    if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                    if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
                         wait()
 
             if process_external and group_data.externalImageList is not None and len(group_data.externalImageList) > 0:

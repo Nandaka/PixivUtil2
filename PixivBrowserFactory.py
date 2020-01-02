@@ -172,7 +172,7 @@ class PixivBrowser(mechanize.Browser):
             except urllib.error.HTTPError:
                 raise
             except BaseException:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
+                exc_value = sys.exc_info()[1]
                 if retry_count < retry:
                     print(exc_value, end=' ')
                     for t in range(1, self._config.retryWait):
