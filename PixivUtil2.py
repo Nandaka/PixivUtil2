@@ -551,7 +551,6 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                                                                                                    total_image_page_count)
                         if not DEBUG_SKIP_PROCESS_IMAGE:
                             result = process_image(artist, image_id, user_dir, bookmark, title_prefix=title_prefix_img)
-                            wait()
 
                         break
                     except KeyboardInterrupt:
@@ -591,6 +590,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     break
 
                 no_of_images = no_of_images + 1
+                wait()
 
             if artist.isLastPage:
                 print("Last Page")

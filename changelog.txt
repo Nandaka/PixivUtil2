@@ -1,3 +1,8 @@
+20200102 - beta1
+- Fix Issue #611: updated FANBOX post parser to support old post.
+- Fix Issue #612: moved wait statement due to #609 changes.
+- Fix Issue #613: updated logic check due to #609 changes
+
 20200101 - Happy New Year!
 - Fix Issue #607: fix db path for parseBookmark call.
 - Fix Issue #608: handle user suspended for Fanbox.
