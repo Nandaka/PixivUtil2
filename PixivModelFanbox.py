@@ -4,12 +4,11 @@ import codecs
 import os
 
 import demjson
-import datetime_z
-
 from bs4 import BeautifulSoup
 
-from PixivException import PixivException
+import datetime_z
 import PixivHelper
+from PixivException import PixivException
 
 
 class Fanbox(object):

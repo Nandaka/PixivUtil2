@@ -728,7 +728,7 @@ class PixivBrowser(mechanize.Browser):
 
         res = self.open_with_retry(req)
         response = res.read()
-        PixivHelper.get_logger().debug(response)
+        PixivHelper.get_logger().debug(response.decode('utf8'))
         res.close()
         # Issue #420
         _tzInfo = None
@@ -744,8 +744,9 @@ class PixivBrowser(mechanize.Browser):
         for post in result.posts:
             # https://fanbox.pixiv.net/api/post.info?postId=279561
             # https://www.pixiv.net/fanbox/creator/104409/post/279561
-            p_url = "https://fanbox.pixiv.net/api/post.info?postId={1}".format(post.imageId)
+            p_url = "https://fanbox.pixiv.net/api/post.info?postId={0}".format(post.imageId)
             p_referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.imageId)
+            PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
             p_req = mechanize.Request(p_url)
             p_req.add_header('Accept', 'application/json, text/plain, */*')
             p_req.add_header('Referer', p_referer)
@@ -754,7 +755,7 @@ class PixivBrowser(mechanize.Browser):
 
             p_res = self.open_with_retry(p_req)
             p_response = p_res.read()
-            PixivHelper.get_logger().debug(p_response)
+            PixivHelper.get_logger().debug(p_response.decode('utf8'))
             p_res.close()
             js = demjson.decode(p_response)
             post.parsePost(js["body"])
