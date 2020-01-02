@@ -1009,7 +1009,8 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             result = PixivConstant.PIXIVUTIL_OK
                             if not DEBUG_SKIP_PROCESS_IMAGE:
                                 result = process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
-                                wait()
+                                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                                    wait()
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -1282,7 +1283,8 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
                     flag = False
                     break
 
-                wait()
+                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                    wait()
             i = i + 1
 
             page.close()
@@ -1328,9 +1330,10 @@ def process_from_group(group_id, limit=0, process_external=True):
                         break
                     print("Image #{0}".format(image_count))
                     print("ImageId: {0}".format(image))
-                    process_image(image_id=image)
+                    result = process_image(image_id=image)
                     image_count = image_count + 1
-                    wait()
+                    if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                        wait()
 
             if process_external and group_data.externalImageList is not None and len(group_data.externalImageList) > 0:
                 for image_data in group_data.externalImageList:
