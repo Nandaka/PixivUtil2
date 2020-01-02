@@ -620,6 +620,7 @@ class PixivDBManager(object):
         return False
 
     def cleanupFileExists(self, filename):
+        ''' check if file or converted file exists '''
         anim_ext = ['.zip', '.gif', '.apng', '.ugoira', '.webm']
         fileExists = False
         if filename is not None or len(filename) > 0:
@@ -686,7 +687,7 @@ class PixivDBManager(object):
                     items.append(row)
                     print("Missing: {0} at \n{1}".format(row[0], row[1]))
 
-            while not len(items) == 0:
+            while len(items) != 0:
                 # End scan
                 print(items)
                 regex = input(

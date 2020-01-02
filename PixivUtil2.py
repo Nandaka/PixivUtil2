@@ -660,11 +660,11 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             exists = __dbManager__.cleanupFileExists(r[0])
             in_db = True
 
-        if r is not None and not __config__.alwaysCheckFileSize and exists:
-            if not __config__.overwrite and exists:
-                print('Already downloaded:', image_id)
-                gc.collect()
-                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+        # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
+        if in_db and not __config__.alwaysCheckFileSize and not __config__.overwrite:
+            print('Already downloaded:', image_id)
+            gc.collect()
+            return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
         # get the medium page
         try:
