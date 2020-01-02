@@ -567,7 +567,9 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                         __log__.exception('Error at process_member(): %s Member Id: %d', str(sys.exc_info()), member_id)
                         time.sleep(2)
 
-                if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
+                if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
+                              PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
+                              PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
                     updated_limit_count = updated_limit_count + 1
                     if __config__.checkUpdatedLimit != 0 and updated_limit_count > __config__.checkUpdatedLimit:
                         PixivHelper.safePrint("Skipping tags: {0}".format(tags))
@@ -590,8 +592,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     break
 
                 no_of_images = no_of_images + 1
-                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
-                    wait()
+                wait(result)
 
             if artist.isLastPage:
                 print("Last Page")
@@ -663,9 +664,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
         # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
         if in_db and not __config__.alwaysCheckFileSize and not __config__.overwrite:
-            print('Already downloaded:', image_id)
+            print(f'Already downloaded in DB: {image_id}')
             gc.collect()
-            return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+            return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
 
         # get the medium page
         try:
@@ -824,7 +825,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 if __config__.writeUgoiraInfo:
                     image.WriteUgoiraData(filename + ".js")
                 # Handle #451
-                if __config__.createUgoira and (result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE):
+                if __config__.createUgoira and (result in (PixivConstant.PIXIVUTIL_OK, PixivConstant.PIXIVUTIL_SKIP_DUPLICATE)):
                     handle_ugoira(image, filename)
 
             if __config__.writeUrlInDescription:
@@ -834,7 +835,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
-        if result == PixivConstant.PIXIVUTIL_OK or result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE or result == PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER:
+        if result in (PixivConstant.PIXIVUTIL_OK,
+                      PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
+                      PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
             try:
                 __dbManager__.insertImage(image.artist.artistId, image.imageId, image.imageMode)
             except BaseException:
@@ -1009,8 +1012,7 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             result = PixivConstant.PIXIVUTIL_OK
                             if not DEBUG_SKIP_PROCESS_IMAGE:
                                 result = process_image(None, item.imageId, search_tags=search_tags, title_prefix=title_prefix, bookmark_count=item.bookmarkCount, image_response_count=item.imageResponse)
-                                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
-                                    wait()
+                                wait(result)
                             break
                         except KeyboardInterrupt:
                             result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -1020,7 +1022,9 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                             time.sleep(2)
 
                     images = images + 1
-                    if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
+                    if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
+                                  PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
+                                  PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
                         updated_limit_count = updated_limit_count + 1
                         if __config__.checkUpdatedLimit != 0 and updated_limit_count > __config__.checkUpdatedLimit:
                             PixivHelper.safePrint("Skipping tags: {0}".format(tags))
@@ -1126,8 +1130,7 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=N
             print("Image #" + str(image_count))
             result = process_image(artist=None, image_id=item)
             image_count = image_count + 1
-            if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
-                wait()
+            wait(result)
 
         print("Done.\n")
     except KeyboardInterrupt:
@@ -1284,8 +1287,7 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
                     flag = False
                     break
 
-                if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
-                    wait()
+                wait(result)
             i = i + 1
 
             page.close()
@@ -1333,8 +1335,7 @@ def process_from_group(group_id, limit=0, process_external=True):
                     print("ImageId: {0}".format(image))
                     result = process_image(image_id=image)
                     image_count = image_count + 1
-                    if result != PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
-                        wait()
+                    wait(result)
 
             if process_external and group_data.externalImageList is not None and len(group_data.externalImageList) > 0:
                 for image_data in group_data.externalImageList:
@@ -2204,7 +2205,9 @@ def doLogin(password, username):
     return result
 
 
-def wait():
+def wait(result=None):
+    if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT:
+        return
     # Issue#276: add random delay for each post.
     if __config__.downloadDelay > 0:
         delay = random.random() * __config__.downloadDelay
