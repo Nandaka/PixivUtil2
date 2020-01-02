@@ -172,6 +172,30 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertTrue(result.posts[0].is_restricted)
         self.assertFalse(result.posts[1].is_restricted)
 
+    def testFanboxOldApi(self):
+        p = open('./test/fanbox-posts-old-api.json', 'r').read()
+        result = FanboxArtist(104409, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(len(result.posts), 2)
+        self.assertEqual(result.posts[0].imageId, 916)
+        self.assertEqual(len(result.posts[0].images), 8)
+        print(result.posts[0].images)
+        self.assertEqual(result.posts[1].imageId, 915)
+        self.assertEqual(len(result.posts[1].images), 1)
+        print(result.posts[1].images)
+
+    def testFanboxNewApi(self):
+        p = open('./test/fanbox-posts-new-api.json', 'r').read()
+        result = FanboxArtist(104409, p)
+        self.assertIsNotNone(result)
+
+        self.assertEqual(len(result.posts), 10)
+        self.assertEqual(result.posts[0].imageId, 577968)
+        self.assertEqual(len(result.posts[0].images), 2)
+        self.assertEqual(result.posts[1].imageId, 535518)
+        self.assertEqual(len(result.posts[1].images), 2)
+
     def testFanboxFilename(self):
         p = open('./test/Fanbox_artist_posts.json', 'r').read()
         result = FanboxArtist(15521131, p)

@@ -62,9 +62,11 @@ class FanboxArtist(object):
             self.artistName = js_body["creator"]["user"]["name"]
 
         if "post" in js_body:
+            # new api
             post_root = js_body["post"]
         else:
             # https://www.pixiv.net/ajax/fanbox/post?postId={0}
+            # or old api
             post_root = js_body
 
         for jsPost in post_root["items"]:
@@ -169,10 +171,12 @@ class FanboxPost(object):
             for link in links:
                 if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0:
                     self.embeddedFiles.append(link["href"])
+                    self.images.append(link["href"])
             images = parsed.findAll('img')
             for image in images:
-                if "data-src-original" in image.attrs and image["data-src-original"] not in self.embeddedFiles:
+                if "data-src-original" in image.attrs and image["data-src-original"] not in self.images:
                     self.embeddedFiles.append(image["data-src-original"])
+                    self.images.append(image["data-src-original"])
             parsed.decompose()
             del parsed
 
