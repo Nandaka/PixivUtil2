@@ -590,7 +590,8 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                     break
 
                 no_of_images = no_of_images + 1
-                wait()
+                if not PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD:
+                    wait()
 
             if artist.isLastPage:
                 print("Last Page")
