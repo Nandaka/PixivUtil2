@@ -131,7 +131,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
     # test once and set the result
     if UTF8_FS is None:
-        filename_test = filename_save + "あいうえお"
+        filename_test = os.path.dirname(filename_save) + os.sep + "あいうえお"
         try:
             PixivHelper.makeSubdirs(filename_test)
             test_utf = open(filename_test + '.test', "wb")
