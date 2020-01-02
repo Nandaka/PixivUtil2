@@ -1,7 +1,8 @@
 20200103 - beta2
 - Fix Issue #611: updated FANBOX post parser to support old post.
 - Fix Issue #612: moved wait statement due to #609 changes.
-- Fix Issue #613: updated logic check due to #609 changes
+- Fix Issue #613: updated logic check due to #609 changes.
+- Merge #615 and #617: updated utf8 supported FS check on linux.
 
 20200101 - Happy New Year!
 - Fix Issue #607: fix db path for parseBookmark call.
