@@ -7,6 +7,7 @@ import json
 import logging
 import logging.handlers
 import os
+import platform
 import re
 import shlex
 import shutil
@@ -108,10 +109,20 @@ def sanitize_filename(s, rootDir=None):
     while name.find(os.sep + os.sep) >= 0:
         name = name.replace(os.sep + os.sep, os.sep)
 
-    # cut to 255 char
-    if len(name) > 255:
-        newLen = 250
-        name = name[:newLen]
+    if platform.system() == 'Linux':
+        # Linux: cut filename to <= 249 bytes
+        dirname, basename = os.path.split(name)
+        while len(basename.encode('utf-8')) > 249:
+            filename, extname = os.path.splitext(basename)
+            filename = filename[:len(filename) - 1]
+            basename = filename + extname
+
+        name = dirname + os.sep + basename
+    else:
+        # cut path to 255 char
+        if len(name) > 255:
+            newLen = 250
+            name = name[:newLen]
 
     # Remove unicode control character
     tempName = ""
