@@ -152,7 +152,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 if not overwrite and not __config__.alwaysCheckFileSize:
                     print('\rChecking local filename...', end=' ')
                     if os.path.exists(filename_save) and os.path.isfile(filename_save):
-                        PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename.encode('utf-8')))
+                        PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename))
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 file_size = get_remote_filesize(url, referer)
@@ -398,9 +398,9 @@ def process_list(list_file_name=None, tags=None):
 
             __br__.clear_history()
             print('done.')
-    except KeyboardInterrupt:
-        raise
     except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         PixivHelper.print_and_log('error', 'Error at process_list(): {0}'.format(sys.exc_info()))
         print('Failed')
@@ -860,9 +860,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
         print('\n')
 
         return result
-    except KeyboardInterrupt:
-        raise
     except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -1100,9 +1100,9 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
             process_tags(tag, page=page, end_page=end_page, wild_card=wild_card,
                          use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first,
                          bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
-    except KeyboardInterrupt:
-        raise
     except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
         ERROR_CODE = getattr(ex, 'errorCode', -1)
         PixivHelper.print_and_log('error', 'Error at process_tags_list(): {0}'.format(sys.exc_info()))
         raise
