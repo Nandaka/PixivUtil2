@@ -18,7 +18,7 @@ class PixivBookmark(object):
         from PixivDBManager import PixivDBManager
         bookmarks = list()
         db = PixivDBManager(root_directory=root_directory, target=db_path)
-        __re_member = re.compile(r'member\.php\?id=(\d*)')
+        __re_member = re.compile(r'en/users/(\d*)')
         result = page.find(attrs={'class': 'members'}).findAll('a')
 
         # filter duplicated member_id
