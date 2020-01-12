@@ -1,8 +1,10 @@
-20200103 - beta2
+20200112
 - Fix Issue #611: updated FANBOX post parser to support old post.
 - Fix Issue #612: moved wait statement due to #609 changes.
 - Fix Issue #613: updated logic check due to #609 changes.
 - Merge #615 and #617: updated utf8 supported FS check on linux.
+- Fix Issue #618: update requirements.txt, replace socksipy-branch to PySocks.
+- Fix Issue #622, #623, and Merge #624: update bookmark and image bookmark handler.
 
 20200101 - Happy New Year!
 - Fix Issue #607: fix db path for parseBookmark call.
