@@ -25,6 +25,8 @@ class PixivBookmark(object):
         if is_json:
             parsed = json.loads(page)
             for member in parsed["body"]["users"]:
+                if "isAdContainer" in member and member["isAdContainer"]:
+                    continue
                 result2.append(member["userId"])
         else:
             # old method
@@ -55,16 +57,22 @@ class PixivBookmark(object):
     def parseImageBookmark(page):
         imageList = list()
 
-        temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
-        temp = temp.findAll('a')
-        if temp is None or len(temp) == 0:
-            return imageList
-        for item in temp:
-            href = re.search(r'/artworks/(\d+)', str(item))
-            if href is not None:
-                href = href.group(1)
-                if not int(href) in imageList:
-                    imageList.append(int(href))
+        image_bookmark = json.loads(page)
+        for work in image_bookmark["body"]["works"]:
+            if "isAdContainer" in work and work["isAdContainer"]:
+                continue
+            imageList.append(work["illustId"])
+
+        # temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
+        # temp = temp.findAll('a')
+        # if temp is None or len(temp) == 0:
+        #     return imageList
+        # for item in temp:
+        #     href = re.search(r'/artworks/(\d+)', str(item))
+        #     if href is not None:
+        #         href = href.group(1)
+        #         if not int(href) in imageList:
+        #             imageList.append(int(href))
 
         return imageList
 

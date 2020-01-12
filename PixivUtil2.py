@@ -1144,25 +1144,38 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
     """Get user's image bookmark"""
     total_list = list()
     i = start_page
+    offset = 0
+    limit = 48
+    member_id = __br__._myId
+
     while True:
         if end_page != 0 and i > end_page:
             print("Page Limit reached: " + str(end_page))
             break
 
-        url = 'https://www.pixiv.net/bookmark.php?p=' + str(i)
+        # https://www.pixiv.net/ajax/user/189816/illusts/bookmarks?tag=&offset=0&limit=48&rest=show
+        show = "show"
         if hide:
-            url = url + "&rest=hide"
-        # Implement #468 default is desc, only for your own bookmark.
-        if sorting in ('asc', 'date_d', 'date'):
-            url = url + "&order=" + sorting
+            show = "hide"
+
+        # # Implement #468 default is desc, only for your own bookmark.
+        # not available in current api
+        # if sorting in ('asc', 'date_d', 'date'):
+        #     url = url + "&order=" + sorting
+
         if tag is not None and len(tag) > 0:
-            url = url + '&tag=' + PixivHelper.encode_tags(tag)
-        PixivHelper.print_and_log('info', "Importing user's bookmarked image from page " + str(i))
-        PixivHelper.print_and_log('info', "Source URL: " + url)
+            tag = PixivHelper.encode_tags(tag)
+        offset = limit * (i - 1)
+        url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tag}&offset={offset}&limit={limit}&rest={show}"
+
+        PixivHelper.print_and_log('info', f"Importing user's bookmarked image from page {i}")
+        PixivHelper.print_and_log('info', f"Source URL: {url}")
 
         page = __br__.open(url)
-        parse_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
-        bookmarks = PixivBookmark.parseImageBookmark(parse_page)
+        page_str = page.read().decode('utf8')
+        page.close()
+
+        bookmarks = PixivBookmark.parseImageBookmark(page_str)
         total_list.extend(bookmarks)
         if len(bookmarks) == 0:
             print("No more images.")
@@ -1172,9 +1185,6 @@ def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
 
         i = i + 1
 
-        page.close()
-        parse_page.decompose()
-        del parse_page
         # Issue#569
         wait()
 
@@ -1196,7 +1206,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         PixivHelper.print_and_log('info', f'Exporting page {i}')
         if member_id:
             is_json = True
-            offset = 24 * (i - 1)
+            offset = limit * (i - 1)
             url = f'https://www.pixiv.net/ajax/user/{member_id}/following?offset={offset}&limit={limit}'
         else:
             url = f'https://www.pixiv.net/bookmark.php?type=user&p={i}'
@@ -1763,11 +1773,11 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
             return
         tag = input("Tag (default=All Images): ").rstrip("\r") or ''
         (start_page, end_page) = get_start_and_end_number()
-        sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
-        sorting = sorting.lower()
-        if sorting not in ('asc', 'desc', 'date', 'date_d'):
-            print("Invalid sorting order: ", sorting)
-            return
+        # sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
+        # sorting = sorting.lower()
+        # if sorting not in ('asc', 'desc', 'date', 'date_d'):
+        #     print("Invalid sorting order: ", sorting)
+        #     return
 
     process_image_bookmark(hide, start_page, end_page, tag, sorting)
 
