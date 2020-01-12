@@ -114,7 +114,7 @@ def main():
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=37882549x', './test/test-image-generic-error.html')
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=123', './test/test-image-deleted.htm')
 
-        downloadPage('https://www.pixiv.net/bookmark.php', './test/test-image-bookmark.htm')
+        downloadPage('https://www.pixiv.net/ajax/user/189816/illusts/bookmarks?tag=&offset=0&limit=48&rest=show', './test/bookmarks.json')
         downloadPage('https://www.pixiv.net/bookmark.php?id=283027', './test/test-image-bookmark-member.htm')
 
         downloadPage('https://www.pixiv.net/member_illust.php?id=313631&p=7', './test/test-tags-member-search-last.htm')
@@ -141,7 +141,7 @@ def main():
         downloadPage('https://www.pixiv.net/ajax/user/26357/profile/all', './test/all-26357.json')
         downloadMemberIdUsingOauth(26357, './test/userdetail-26357.json')
         downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48', './test/tag-R-18-14095911.json')
-        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=48&limit=48', './test/tag-R-18-14095911-lastpage.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=96&limit=48', './test/tag-R-18-14095911-lastpage.json')
         downloadPage('https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show', './test/bookmarks-1039353.json')
         downloadMemberIdUsingOauth(1039353, './test/userdetail-1039353.json')
 

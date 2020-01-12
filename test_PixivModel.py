@@ -444,11 +444,11 @@ class TestPixivBookmark(unittest.TestCase):
 
     def testPixivImageBookmark(self):
         # print('\nTesting PixivImageBookmark')
-        p = open('./test/test-image-bookmark.htm', 'r', encoding="utf-8")
-        page = BeautifulSoup(p.read(), features="html5lib")
+        p = open('./test/bookmarks.json', 'r', encoding="utf-8")
+        page = p.read()
         result = PixivBookmark.parseImageBookmark(page)
 
-        self.assertEqual(len(result), 20)
+        self.assertEqual(len(result), 18)
         self.assertTrue(35303260 in result)
         self.assertTrue(28629066 in result)
         self.assertTrue(27249307 in result)
@@ -514,7 +514,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 60)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2271)
+        self.assertEqual(image.availableImages, 2269)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
