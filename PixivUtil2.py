@@ -1224,6 +1224,7 @@ def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
         bookmarks = PixivBookmark.parseBookmark(page_str,
                                                 root_directory=__config__.rootDirectory,
                                                 db_path=__config__.dbPath,
+                                                locale=__br__._locale,
                                                 is_json=is_json)
 
         if len(bookmarks) == 0:
