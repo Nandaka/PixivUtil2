@@ -1,3 +1,7 @@
+20200120-beta1
+- Update #623: pass the current locale.
+- update test cases.
+
 20200112
 - Fix Issue #611: updated FANBOX post parser to support old post.
 - Fix Issue #612: moved wait statement due to #609 changes.
