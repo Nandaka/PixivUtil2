@@ -42,7 +42,7 @@ class PixivBrowser(mechanize.Browser):
     _username = None
     _password = None
     _oauth_manager = None
-    _locale = "/en"
+    _locale = ""
 
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration

@@ -15,7 +15,7 @@ class PixivBookmark(object):
     __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
     @staticmethod
-    def parseBookmark(page, root_directory, db_path, locale='en', is_json=False):
+    def parseBookmark(page, root_directory, db_path, locale='', is_json=False):
         '''Parse favorite artist page'''
         from PixivDBManager import PixivDBManager
         bookmarks = list()
