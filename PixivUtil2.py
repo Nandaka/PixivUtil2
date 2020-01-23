@@ -1711,10 +1711,10 @@ def menu_download_from_list(opisvalid, args):
         if len(test_tags) > 0:
             tags = test_tags
 
-    if tags is not None and len(tags) > 0:
-        PixivHelper.safePrint(u"Processing member id from {0} for tags: {1}".format(list_file_name, tags))
-    else:
-        PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
+    # if tags is not None and len(tags) > 0:
+    #     PixivHelper.safePrint(u"Processing member id from {0} for tags: {1}".format(list_file_name, tags))
+    # else:
+    #     PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
 
     process_list(list_file_name, tags)
 
