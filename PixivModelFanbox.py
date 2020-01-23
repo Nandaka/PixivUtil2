@@ -170,13 +170,13 @@ class FanboxPost(object):
             links = parsed.findAll('a')
             for link in links:
                 if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0:
-                    self.embeddedFiles.append(link["href"])
-                    self.images.append(link["href"])
+                    self.try_add(link["href"], self.embeddedFiles)
+                    self.try_add(link["href"], self.images)
             images = parsed.findAll('img')
             for image in images:
-                if "data-src-original" in image.attrs and image["data-src-original"] not in self.images:
-                    self.embeddedFiles.append(image["data-src-original"])
-                    self.images.append(image["data-src-original"])
+                if "data-src-original" in image.attrs:
+                    self.try_add(image["data-src-original"], self.embeddedFiles)
+                    self.try_add(image["data-src-original"], self.images)
             parsed.decompose()
             del parsed
 
@@ -203,16 +203,16 @@ class FanboxPost(object):
                                      self.body_text,
                                      jsPost["body"]["imageMap"][imageId]["originalUrl"],
                                      jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
-                    self.images.append(jsPost["body"]["imageMap"][imageId]["originalUrl"])
-                    self.embeddedFiles.append(jsPost["body"]["imageMap"][imageId]["originalUrl"])
+                    self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.images)
+                    self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.embeddedFiles)
                 elif block["type"] == "file":
                     fileId = block["fileId"]
                     self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
                                      self.body_text,
                                      jsPost["body"]["fileMap"][fileId]["url"],
                                      jsPost["body"]["fileMap"][fileId]["name"])
-                    self.images.append(jsPost["body"]["fileMap"][fileId]["url"])
-                    self.embeddedFiles.append(jsPost["body"]["fileMap"][fileId]["url"])
+                    self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.images)
+                    self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     self.body_text = u"{0}<br />{1}".format(
@@ -261,15 +261,19 @@ class FanboxPost(object):
 
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:
-            self.images.append(image["originalUrl"])
-            if image["originalUrl"] not in self.embeddedFiles:
-                self.embeddedFiles.append(image["originalUrl"])
+            self.try_add(image["originalUrl"], self.images)
+            self.try_add(image["originalUrl"], self.embeddedFiles)
 
     def parseFiles(self, jsPost):
         for image in jsPost["body"]["files"]:
-            self.images.append(image["url"])
-            if image["url"] not in self.embeddedFiles:
-                self.embeddedFiles.append(image["url"])
+            self.try_add(image["url"], self.images)
+            self.try_add(image["url"], self.embeddedFiles)
+
+    def try_add(self, item, list_data):
+        if self.coverImageUrl == item:
+            return
+        if item not in list_data:
+            list_data.append(item)
 
     def WriteInfo(self, filename):
         info = None
