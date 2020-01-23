@@ -102,6 +102,13 @@ def sanitize_filename(s, rootDir=None):
         temp2.append(item.strip())
     name = os.sep.join(temp2)
 
+    # Issue #627: remove trailing '.'
+    name_split = name.split(os.sep)
+    for item in range(0, len(name_split)):
+        if name_split[item].endswith("."):
+            name_split[item] = name_split[item][:-1] + "_"
+    name = os.sep.join(name_split)
+
     if rootDir is not None:
         name = rootDir + os.sep + name
 

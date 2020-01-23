@@ -335,7 +335,7 @@ class PixivImage (object):
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %d.txt", filename, self.imageId)
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename, str(self.imageId))
 
         info.write("ArtistID      = " + str(self.artist.artistId) + "\r\n")
         info.write("ArtistName    = " + self.artist.artistName + "\r\n")
