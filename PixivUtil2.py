@@ -155,7 +155,16 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                         PixivHelper.print_and_log('info', "\rLocal file exists: {0}".format(filename))
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
-                file_size = get_remote_filesize(url, referer)
+                remote_file_size = get_remote_filesize(url, referer)
+
+                # 576
+                if remote_file_size > 0:
+                    if __config__.minFileSize != 0 and remote_file_size <= __config__.minFileSize:
+                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_SMALLER
+                        return (result, filename_save)
+                    if __config__.maxFileSize != 0 and remote_file_size >= __config__.maxFileSize:
+                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_LARGER
+                        return (result, filename_save)
 
                 # check if existing ugoira file exists
                 if filename.endswith(".zip"):
@@ -163,7 +172,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     if os.path.exists(filename_save) and os.path.isfile(filename_save):
                         old_size = os.path.getsize(filename_save)
                         # update for #451, always return identical?
-                        check_result = PixivHelper.check_file_exists(overwrite, filename_save, file_size, old_size, backup_old_file)
+                        check_result = PixivHelper.check_file_exists(overwrite, filename_save, remote_file_size, old_size, backup_old_file)
                         if __config__.createUgoira:
                             handle_ugoira(image, filename_save)
                         return (check_result, filename)
@@ -171,7 +180,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                     ugo_name = filename[:-4] + ".ugoira"
                     if os.path.exists(ugo_name) and os.path.isfile(ugo_name):
                         old_size = PixivHelper.get_ugoira_size(ugo_name)
-                        check_result = PixivHelper.check_file_exists(overwrite, ugo_name, file_size, old_size, backup_old_file)
+                        check_result = PixivHelper.check_file_exists(overwrite, ugo_name, remote_file_size, old_size, backup_old_file)
                         if check_result != PixivConstant.PIXIVUTIL_OK:
                             # try to convert existing file.
                             handle_ugoira(image, filename_save)
@@ -180,7 +189,7 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                 elif os.path.exists(filename_save) and os.path.isfile(filename_save):
                     # other image? files
                     old_size = os.path.getsize(filename_save)
-                    check_result = PixivHelper.check_file_exists(overwrite, filename, file_size, old_size, backup_old_file)
+                    check_result = PixivHelper.check_file_exists(overwrite, filename, remote_file_size, old_size, backup_old_file)
                     if check_result != PixivConstant.PIXIVUTIL_OK:
                         return (check_result, filename)
 
@@ -197,9 +206,9 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
                             db_filename = row[3]
                     if db_filename is not None and os.path.exists(db_filename) and os.path.isfile(db_filename):
                         old_size = os.path.getsize(db_filename)
-                        if file_size < 0:
-                            file_size = get_remote_filesize(url, referer)
-                        check_result = PixivHelper.check_file_exists(overwrite, db_filename, file_size, old_size, backup_old_file)
+                        # if file_size < 0:
+                        #     file_size = get_remote_filesize(url, referer)
+                        check_result = PixivHelper.check_file_exists(overwrite, db_filename, remote_file_size, old_size, backup_old_file)
                         if check_result != PixivConstant.PIXIVUTIL_OK:
                             ugo_name = None
                             if db_filename.endswith(".zip"):
@@ -212,24 +221,15 @@ def download_image(url, filename, referer, overwrite, max_retry, backup_old_file
 
                             return (check_result, db_filename)
 
-                # 576
-                if file_size > 0:
-                    if __config__.minFileSize != 0 and file_size <= __config__.minFileSize:
-                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_SMALLER
-                        return (result, filename_save)
-                    if __config__.maxFileSize != 0 and file_size >= __config__.maxFileSize:
-                        result = PixivConstant.PIXIVUTIL_SIZE_LIMIT_LARGER
-                        return (result, filename_save)
-
                 # actual download
-                (downloadedSize, filename_save) = perform_download(url, file_size, filename_save, overwrite, referer)
+                (downloadedSize, filename_save) = perform_download(url, remote_file_size, filename_save, overwrite, referer)
                 # set last-modified and last-accessed timestamp
                 if image is not None and __config__.setLastModified and filename_save is not None and os.path.isfile(filename_save):
                     ts = time.mktime(image.worksDateDateTime.timetuple())
                     os.utime(filename_save, (ts, ts))
 
                 # check the downloaded file size again
-                if file_size > 0 and downloadedSize != file_size:
+                if remote_file_size > 0 and downloadedSize != remote_file_size:
                     raise PixivException("Incomplete Downloaded for {0}".format(url), PixivException.DOWNLOAD_FAILED_OTHER)
                 elif __config__.verifyImage and (filename_save.endswith(".jpg") or filename_save.endswith(".png") or filename_save.endswith(".gif")):
                     fp = None
