@@ -1,6 +1,15 @@
-20200120-beta1
-- Update #623: pass the current locale.
-- update test cases.
+20200125 - Happy CNY 2020!
+- Update #623: change default local to '', if exists then use the current locale.
+- Update test cases.
+- Implement #625: Add option to automatically add downloaded member to DB.
+                  Set 'autoaddmember = True' in config.ini to enable.
+- Implement #526: Add menu to import list.txt on demand.
+- Implement #575: Add option for filename format for manga's info.
+                  Configure 'filenamemangainfoformat' in config.ini to enable.
+- Update #622: use new API endpoint for option 5.
+- Fix Issue #627: sanizite trailing '.' in the filename.
+- Fix Issue #626: remove redundant message for option 4.
+- Update #611: avoid duplicate file for Pixiv FANBOX.
 
 20200112
 - Fix Issue #611: updated FANBOX post parser to support old post.
