@@ -1523,6 +1523,7 @@ def menu():
     print('d. Manage database')
     print('e. Export online bookmark')
     print('m. Export online user bookmark')
+    print('i. Import list file')
     print('r. Reload config.ini')
     print('p. Print config.ini')
     print('x. Exit')
@@ -2180,6 +2181,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_reload_config()
             elif selection == 'p':
                 menu_print_config()
+            elif selection == 'i':
+                menu_import_list()
             # PIXIV FANBOX
             elif selection == 'f1':
                 menu_fanbox_download_supported_artist(op_is_valid, args)
@@ -2244,6 +2247,25 @@ def wait(result=None):
         delay = random.random() * __config__.downloadDelay
         print("Wait for {0:.3}s".format(delay))
         time.sleep(delay)
+
+
+def import_list(list_name='list.txt'):
+    list_path = __config__.downloadListDirectory + os.sep + list_name
+    if(os.path.exists(list_path)):
+        list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
+        __dbManager__.importList(list_txt)
+        print("Updated " + str(len(list_txt)) + " items.")
+    else:
+        msg = "List file not found: {0}".format(list_path)
+        PixivHelper.print_and_log('warn', msg)
+
+
+def menu_import_list():
+    __log__.info('Import List mode.')
+    list_name = input("List filename = ").rstrip("\r")
+    if len(list_name) == 0:
+        list_name = "list.txt"
+    import_list(list_name)
 
 
 def main():
@@ -2350,14 +2372,7 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList:
-            list_path = __config__.downloadListDirectory + os.sep + 'list.txt'
-            if(os.path.exists(list_path)):
-                list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
-                __dbManager__.importList(list_txt)
-                print("Updated " + str(len(list_txt)) + " items.")
-            else:
-                msg = "List file not found: {0}".format(list_path)
-                PixivHelper.print_and_log('warn', msg)
+            import_list('list.txt')
 
         if __config__.overwrite:
             msg = 'Overwrite enabled.'
