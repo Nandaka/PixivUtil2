@@ -73,6 +73,7 @@ class PixivConfig():
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
     filenameMangaFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
     filenameInfoFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
+    filenameMangaInfoFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
     avatarNameFormat = ""
     tagsSeparator = ', '
     createMangaDir = False
@@ -608,6 +609,10 @@ class PixivConfig():
                 self.useBlacklistMembers = False
                 haveError = True
 
+            _filenameMangaInfoFormat = config.get('Filename', 'filenameMangaInfoFormat')
+            if _filenameMangaInfoFormat is not None and len(_filenameMangaInfoFormat) > 0:
+                self.filenameMangaInfoFormat = _filenameMangaInfoFormat
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -672,6 +677,7 @@ class PixivConfig():
         config.set('Filename', 'filenameFormat', self.filenameFormat)
         config.set('Filename', 'filenameMangaFormat', self.filenameMangaFormat)
         config.set('Filename', 'filenameInfoFormat', self.filenameInfoFormat)
+        config.set('Filename', 'filenameMangaInfoFormat', self.filenameMangaInfoFormat)
         config.set('Filename', 'avatarNameFormat', self.avatarNameFormat)
         config.set('Filename', 'tagsSeparator', self.tagsSeparator)
         config.set('Filename', 'createMangaDir', self.createMangaDir)
@@ -795,14 +801,15 @@ class PixivConfig():
         print(' - useLocalTimezone      =', self.useLocalTimezone)
 
         print(' [Filename]')
-        print(' - filename_format       =', self.filenameFormat)
-        print(' - filename_manga_format =', self.filenameMangaFormat)
-        print(' - filename_info_format  =', self.filenameInfoFormat)
-        print(' - avatarNameFormat      =', self.avatarNameFormat)
-        print(' - tagsSeparator         =', self.tagsSeparator)
-        print(' - createMangaDir        =', self.createMangaDir)
-        print(' - useTagsAsDir          =', self.useTagsAsDir)
-        print(' - urlDumpFilename       =', self.urlDumpFilename)
+        print(' - filename_format         =', self.filenameFormat)
+        print(' - filename_manga_format   =', self.filenameMangaFormat)
+        print(' - filename_info_format    =', self.filenameInfoFormat)
+        print(' - filenameMangaInfoFormat =', self.filenameMangaInfoFormat)
+        print(' - avatarNameFormat        =', self.avatarNameFormat)
+        print(' - tagsSeparator           =', self.tagsSeparator)
+        print(' - createMangaDir          =', self.createMangaDir)
+        print(' - useTagsAsDir            =', self.useTagsAsDir)
+        print(' - urlDumpFilename         =', self.urlDumpFilename)
 
         print(' [Pixiv]')
         print(' - numberOfPage =', self.numberOfPage)

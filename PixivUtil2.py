@@ -810,6 +810,9 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
             if __config__.writeImageInfo or __config__.writeImageJSON:
                 filename_info_format = __config__.filenameInfoFormat or __config__.filenameFormat
+                # Issue #575
+                if image.imageMode == 'manga':
+                    filename_info_format = __config__.filenameMangaInfoFormat or __config__.filenameMangaFormat or filename_info_format
                 info_filename = PixivHelper.make_filename(filename_info_format, image, tagsSeparator=__config__.tagsSeparator,
                                                     tagsLimit=__config__.tagsLimit, fileUrl=url, appendExtension=False, bookmark=bookmark,
                                                     searchTags=search_tags)
