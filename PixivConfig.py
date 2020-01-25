@@ -41,6 +41,7 @@ class PixivConfig():
     numberOfPage = 0
     r18mode = False
     dateFormat = ''
+    autoAddMember = False
 
     # generic Settings
     rootDirectory = '.'
@@ -613,6 +614,13 @@ class PixivConfig():
             if _filenameMangaInfoFormat is not None and len(_filenameMangaInfoFormat) > 0:
                 self.filenameMangaInfoFormat = _filenameMangaInfoFormat
 
+            try:
+                self.autoAddMember = config.getboolean('Pixiv', 'autoAddMember')
+            except ValueError:
+                print("autoAddMember = False")
+                self.autoAddMember = False
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -694,6 +702,7 @@ class PixivConfig():
         config.set('Pixiv', 'numberOfPage', self.numberOfPage)
         config.set('Pixiv', 'R18Mode', self.r18mode)
         config.set('Pixiv', 'DateFormat', self.dateFormat)
+        config.set('Pixiv', 'autoAddMember', self.autoAddMember)
 
         config.add_section('FFmpeg')
         config.set('FFmpeg', 'ffmpeg', self.ffmpeg)
@@ -812,9 +821,10 @@ class PixivConfig():
         print(' - urlDumpFilename         =', self.urlDumpFilename)
 
         print(' [Pixiv]')
-        print(' - numberOfPage =', self.numberOfPage)
-        print(' - R18Mode      =', self.r18mode)
-        print(' - DateFormat   =', self.dateFormat)
+        print(' - numberOfPage  =', self.numberOfPage)
+        print(' - R18Mode       =', self.r18mode)
+        print(' - DateFormat    =', self.dateFormat)
+        print(' - autoAddMember =', self.autoAddMember)
 
         print(' [FFmpeg]')
         print(' - ffmpeg       =', self.ffmpeg)

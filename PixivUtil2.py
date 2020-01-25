@@ -515,21 +515,6 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
                 print('#' + str(no_of_images))
-                # if not __config__.overwrite:
-                #     r = __dbManager__.selectImageByMemberIdAndImageId(member_id, image_id)
-                #     if r is not None and not __config__.alwaysCheckFileSize:
-                #         print('Already downloaded:', image_id)
-                #         updated_limit_count = updated_limit_count + 1
-                #         if updated_limit_count > __config__.checkUpdatedLimit:
-                #             if __config__.checkUpdatedLimit != 0 and not __config__.alwaysCheckFileExists:
-                #                 print('Skipping member:', member_id)
-                #                 __dbManager__.updateLastDownloadedImage(member_id, image_id)
-
-                #                 del list_page
-                #                 __br__.clear_history()
-                #                 return
-                #         gc.collect()
-                #         continue
 
                 retry_count = 0
                 while True:
@@ -623,6 +608,10 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             log_message = 'last image_id: ' + str(image_id)
         else:
             log_message = 'no images were found'
+
+        if __config__.autoAddMember:
+            __dbManager__.insertNewMember(int(member_id))
+
         print('Done.\n')
         __log__.info('Member_id: %d complete, %s', member_id, log_message)
     except KeyboardInterrupt:

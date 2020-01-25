@@ -292,18 +292,18 @@ class PixivDBManager(object):
 ##########################################
 # IV. CRUD Member Table                  #
 ##########################################
-    def insertNewMember(self):
+    def insertNewMember(self, member_id=0):
         try:
             c = self.conn.cursor()
-            member_id = 0
-            while True:
-                temp = input('Member ID: ').rstrip("\r")
-                try:
-                    member_id = int(temp)
-                except BaseException:
-                    pass
-                if member_id > 0:
-                    break
+            if member_id == 0:
+                while True:
+                    temp = input('Member ID: ').rstrip("\r")
+                    try:
+                        member_id = int(temp)
+                    except BaseException:
+                        pass
+                    if member_id > 0:
+                        break
 
             c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
                       (member_id, str(member_id), r'N\A'))
