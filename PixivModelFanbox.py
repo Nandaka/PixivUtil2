@@ -136,7 +136,7 @@ class FanboxPost(object):
         self.imageTitle = jsPost["title"]
 
         self.coverImageUrl = jsPost["coverImageUrl"]
-        if self.coverImageUrl is not None:
+        if self.coverImageUrl is not None and self.coverImageUrl not in self.embeddedFiles:
             self.embeddedFiles.append(jsPost["coverImageUrl"])
 
         self.worksDate = jsPost["publishedDatetime"]
