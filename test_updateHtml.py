@@ -121,7 +121,7 @@ def main():
 
         # tag search
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact.htm')
-        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p=48&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.htm')
+
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag_full&order=date_d&p=12&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/XXXXXX?s_mode=s_tag_full&word=XXXXXX', './test/test-tags-search-exact-parse_details.htm')
         downloadPage('https://www.pixiv.net/ajax/search/artworks/%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!?s_mode=s_tag&word=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!', './test/test-tags-search-partial.htm')
@@ -140,8 +140,8 @@ def main():
         downloadMemberIdUsingOauth(14095911, './test/userdetail-14095911.json')
         downloadPage('https://www.pixiv.net/ajax/user/26357/profile/all', './test/all-26357.json')
         downloadMemberIdUsingOauth(26357, './test/userdetail-26357.json')
-        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48', './test/tag-R-18-14095911.json')
-        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=96&limit=48', './test/tag-R-18-14095911-lastpage.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=49', './test/tag-R-18-14095911.json')
+
         downloadPage('https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show', './test/bookmarks-1039353.json')
         downloadMemberIdUsingOauth(1039353, './test/userdetail-1039353.json')
 
@@ -149,6 +149,10 @@ def main():
         # ./test/test-login-error.htm
         # ./test/test-member-suspended.htm
         # ./test/test-member-nologin.htm
+
+        # last page related
+        downloadPage('https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p=48&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.json')
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=96&limit=48', './test/tag-R-18-14095911-lastpage.json')
 
         print("Completed")
 

@@ -80,10 +80,10 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         member.ParseInfo(info, False, False)
 
         member.PrintInfo()
-        self.assertEqual(member.artistId, 14095911)
-        self.assertEqual(member.totalImages, 193)
-        self.assertTrue(member.haveImages)
+        self.assertEqual(member.totalImages, 200)
         self.assertTrue(member.isLastPage)
+        self.assertEqual(member.artistId, 14095911)
+        self.assertTrue(member.haveImages)
 
     # /ajax/user/14095911/illustmanga/tag?tag=R-18&offset=0&limit=48
     def testParseMemberImagesByTags(self):
@@ -109,10 +109,10 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
         member.ParseInfo(info, False, False)
 
         member.PrintInfo()
-        self.assertEqual(member.artistId, 14095911)
-        self.assertEqual(member.totalImages, 98)
-        self.assertTrue(member.haveImages)
+        self.assertEqual(member.totalImages, 105)
         self.assertTrue(member.isLastPage)
+        self.assertEqual(member.artistId, 14095911)
+        self.assertTrue(member.haveImages)
 
     def testParseMemberBookmarksByTags(self):
         p = open('./test/bookmarks-1039353.json', 'r')
