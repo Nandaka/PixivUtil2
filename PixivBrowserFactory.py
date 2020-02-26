@@ -695,10 +695,9 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.toUnicode(response)))
 
     def fanboxGetSupportedUsers(self):
-        ''' get all supported users from the list from https://www.pixiv.net/ajax/fanbox/index'''
-        url = 'https://www.pixiv.net/ajax/fanbox/index'
-        PixivHelper.print_and_log(
-            'info', 'Getting supported artists from ' + url)
+        ''' get all supported users from the list from https://fanbox.pixiv.net/api/plan.listSupporting'''
+        url = 'https://fanbox.pixiv.net/api/plan.listSupporting'
+        PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
         # read the json response
         res = self.open_with_retry(url)
         response = res.read()
@@ -707,9 +706,10 @@ class PixivBrowser(mechanize.Browser):
         return result
 
     def fanboxGetPostsFromArtist(self, artist_id, next_url=""):
-        ''' get all posts from the supported user from https://www.pixiv.net/ajax/fanbox/creator?userId=15521131 '''
+        ''' get all posts from the supported user from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
+        # Issue #641
         if next_url is None or next_url == "":
-            url = "https://www.pixiv.net/ajax/fanbox/creator?userId={0}".format(artist_id)
+            url = f"https://fanbox.pixiv.net/api/post.listCreator?userId={artist_id}&limit=10"
         elif next_url.startswith("https://"):
             url = next_url
         else:
@@ -717,7 +717,7 @@ class PixivBrowser(mechanize.Browser):
 
         # Fix #494
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
-        referer = "https://www.pixiv.net/fanbox/creator/{0}".format(artist_id)
+        referer = f"https://www.pixiv.net/fanbox/creator/{artist_id}"
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
@@ -742,8 +742,8 @@ class PixivBrowser(mechanize.Browser):
         for post in result.posts:
             # https://fanbox.pixiv.net/api/post.info?postId=279561
             # https://www.pixiv.net/fanbox/creator/104409/post/279561
-            p_url = "https://fanbox.pixiv.net/api/post.info?postId={0}".format(post.imageId)
-            p_referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.imageId)
+            p_url = f"https://fanbox.pixiv.net/api/post.info?postId={post.imageId}"
+            p_referer = f"https://www.pixiv.net/fanbox/creator/{artist_id}/post/{post.imageId}"
             PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
             p_req = mechanize.Request(p_url)
             p_req.add_header('Accept', 'application/json, text/plain, */*')

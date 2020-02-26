@@ -376,7 +376,7 @@ def process_list(list_file_name=None, tags=None):
                         result.remove(item)
                         break
 
-        print("Found " + str(len(result)) + " items.")
+        PixivHelper.print_and_log('info', f"Found {len(result)} items.")
         current_member = 1
         for item in result:
             retry_count = 0
