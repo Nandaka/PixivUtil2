@@ -1,5 +1,7 @@
 20200226-beta1
 - Fix Issue #641: update API endpoints for Pixiv FANBOX.
+- Implement #639: add option to download the resized image, rather than original size.
+                  set `downloadResized = True` at `[DownloadControl]` section in config.ini to enable.
 
 20200125 - Happy CNY 2020!
 - Update #623: change default local to '', if exists then use the current locale.

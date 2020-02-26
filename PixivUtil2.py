@@ -759,7 +759,13 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             result = PixivConstant.PIXIVUTIL_OK
             manga_files = dict()
             page = 0
-            for img in image.imageUrls:
+
+            # Issue #639
+            source_urls = image.imageUrls
+            if __config__.downloadResized:
+                source_urls = image.imageResizedUrls
+
+            for img in source_urls:
                 print('Image URL :', img)
                 url = os.path.basename(img)
                 split_url = url.split('.')

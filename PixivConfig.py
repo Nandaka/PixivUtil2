@@ -69,6 +69,7 @@ class PixivConfig():
     useBlacklistMembers = False
     maxFileSize = 0
     minFileSize = 0
+    downloadResized = False
 
     # filename related
     filenameFormat = '%artist% (%member_id%)' + os.sep + '%urlFilename% - %title%'
@@ -621,6 +622,13 @@ class PixivConfig():
                 self.autoAddMember = False
                 haveError = True
 
+            try:
+                self.downloadResized = config.getboolean('DownloadControl', 'downloadResized')
+            except ValueError:
+                print("downloadResized = False")
+                self.downloadResized = False
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -733,6 +741,7 @@ class PixivConfig():
         config.set('DownloadControl', 'dateDiff', self.dateDiff)
         config.set('DownloadControl', 'enableInfiniteLoop', self.enableInfiniteLoop)
         config.set('DownloadControl', 'useBlacklistMembers', self.useBlacklistMembers)
+        config.set('DownloadControl', 'downloadResized', self.downloadResized)
 
         if path is not None:
             configlocation = path
@@ -855,5 +864,6 @@ class PixivConfig():
         print(' - dateDiff            =', self.dateDiff)
         print(' - enableInfiniteLoop  =', self.enableInfiniteLoop)
         print(' - useBlacklistMembers =', self.useBlacklistMembers)
+        print(' - downloadResized     =', self.downloadResized)
 
         print('')

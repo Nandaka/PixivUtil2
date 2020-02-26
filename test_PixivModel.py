@@ -115,10 +115,9 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image2.imageMode, "big")
         self.assertEqual(image2.worksDate, '12/10/12 15:23')
         self.assertEqual(image2.worksResolution, '642x900')
-        # self.assertEqual(image2.worksTools, 'Photoshop SAI')
-        # self.assertEqual(image2.jd_rtv, 88190)
-        # self.assertEqual(image2.jd_rtc, 6711)
-        # self.assertEqual(image2.jd_rtt, 66470)
+        self.assertEqual(len(image2.imageUrls), 1)
+        self.assertEqual(len(image2.imageResizedUrls), 1)
+
         self.assertEqual(image2.artist.artistToken, 'nardack')
 
     # def testPixivImageParseInfo2(self):
@@ -306,6 +305,9 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(image.imageId, 28820443)
         self.assertEqual(image.imageMode, 'manga')
 
+        self.assertEqual(len(image.imageUrls), 2)
+        self.assertEqual(len(image.imageResizedUrls), 2)
+
     def testPixivImageParseMangaInfoMixed(self):
         # print('\nTesting parse Manga Images')
         # Issue #224
@@ -414,6 +416,7 @@ class TestPixivImage(unittest.TestCase):
         image = PixivImage(46281014, page)
         # print(image.imageUrls)
         self.assertTrue(image.imageUrls[0].find(".zip") > -1)
+        self.assertTrue(image.imageResizedUrls[0].find(".zip") > -1)
 
     def testPixivImageParseInfoSelf(self):
         # assuming being accessed via manage page for your own artwork.

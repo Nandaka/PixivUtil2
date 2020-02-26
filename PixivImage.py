@@ -31,6 +31,7 @@ class PixivImage (object):
     imageTags = []
     imageMode = ""
     imageUrls = []
+    imageResizedUrls = []
     worksDate = ""
     worksResolution = ""
     worksTools = ""
@@ -55,6 +56,7 @@ class PixivImage (object):
         self.bookmark_count = bookmark_count
         self.imageId = iid
         self.imageUrls = []
+        self.imageResizedUrls = []
         self.dateFormat = dateFormat
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
@@ -112,11 +114,14 @@ class PixivImage (object):
         root = page["illust"][key]
 
         self.imageUrls = list()
+        self.imageResizedUrls = list()
 
         self.imageCount = int(root["pageCount"])
         temp_url = root["urls"]["original"]
+        temp_resized_url = root["urls"]["regular"]
         if self.imageCount == 1:
             if temp_url.find("ugoira") > 0:
+                # ugoira mode
                 self.imageMode = "ugoira_view"
                 # https://i.pximg.net/img-zip-ugoira/img/2018/04/22/00/01/06/68339821_ugoira600x600.zip 1920x1080
                 # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
@@ -126,15 +131,24 @@ class PixivImage (object):
                 temp_url = temp_url.split("_ugoira0")[0]
                 temp_url = temp_url + "_ugoira1920x1080.zip"
                 self.imageUrls.append(temp_url)
-                # self.ParseUgoira(page)
+
+                temp_resized_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
+                temp_resized_url = temp_resized_url.split("_ugoira0")[0]
+                temp_resized_url = temp_resized_url + "_ugoira600x600.zip"
+                self.imageResizedUrls.append(temp_resized_url)
             else:
+                # single page image
                 self.imageMode = "big"
                 self.imageUrls.append(temp_url)
+                self.imageResizedUrls.append(temp_resized_url)
         elif self.imageCount > 1:
+            # multi-page images
             self.imageMode = "manga"
             for i in range(0, self.imageCount):
                 url = temp_url.replace("_p0", "_p{0}".format(i))
                 self.imageUrls.append(url)
+                resized_url = temp_resized_url.replace("_p0", "_p{0}".format(i))
+                self.imageResizedUrls.append(resized_url)
 
         # title/caption
         self.imageTitle = root["illustTitle"]
