@@ -17,10 +17,10 @@ class Fanbox(object):
     def __init__(self, page):
         js = demjson.decode(page)
 
-        if js["error"]:
+        if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox", 9999, page)
 
-        if js["body"] is not None:
+        if "body" in js and js["body"] is not None:
             self.parseSupportedArtists(js["body"])
 
     def parseSupportedArtists(self, js_body):
@@ -73,6 +73,8 @@ class FanboxArtist(object):
             post_id = int(jsPost["id"])
             post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
             self.posts.append(post)
+            # sanity check
+            assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
 
         self.nextUrl = post_root["nextUrl"]
         if self.nextUrl is not None and len(self.nextUrl) > 0:
@@ -116,8 +118,9 @@ class FanboxPost(object):
         self.embeddedFiles = list()
         self.imageId = int(post_id)
         self.parent = parent
-        self.parsePost(page)
         self._tzInfo = tzInfo
+
+        self.parsePost(page)
 
         if not self.is_restricted:
             self.parseBody(page)

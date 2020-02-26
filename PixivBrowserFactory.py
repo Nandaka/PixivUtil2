@@ -698,8 +698,15 @@ class PixivBrowser(mechanize.Browser):
         ''' get all supported users from the list from https://fanbox.pixiv.net/api/plan.listSupporting'''
         url = 'https://fanbox.pixiv.net/api/plan.listSupporting'
         PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+        referer = "https://www.pixiv.net/fanbox/support/creators"
+        req = mechanize.Request(url)
+        req.add_header('Accept', 'application/json, text/plain, */*')
+        req.add_header('Referer', referer)
+        req.add_header('Origin', 'https://www.pixiv.net')
+        req.add_header('User-Agent', self._config.useragent)
+
+        res = self.open_with_retry(req)
         # read the json response
-        res = self.open_with_retry(url)
         response = res.read()
         res.close()
         result = Fanbox(response)
