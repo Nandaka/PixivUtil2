@@ -1,4 +1,4 @@
-20200226-beta1
+20200228
 - Fix Issue #641: update API endpoints for Pixiv FANBOX.
 - Implement #639: add option to download the resized image, rather than original size.
                   set `downloadResized = True` at `[DownloadControl]` section in config.ini to enable.
