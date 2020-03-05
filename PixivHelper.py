@@ -68,17 +68,17 @@ else:
 __re_manga_index = re.compile(r'_p(\d+)')
 
 
-def sanitize_filename(s, rootDir=None):
+def sanitize_filename(name, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
     if rootDir is not None:
         rootDir = Path(rootDir).resolve()
 
     # Unescape '&amp;', '&lt;', and '&gt;'
-    s = html.unescape(s)
+    name = html.unescape(name)
 
     # Replace badchars and badnames with _
-    name = __badchars__.sub('_', s)
+    name = __badchars__.sub('_', name)
     if Path(name).is_reserved():
         name = '_' + name
 
