@@ -87,10 +87,6 @@ def sanitize_filename(name, rootDir=None):
     if rootDir is not None:
         name = rootDir / name
 
-    # replace double os.sep
-    while name.find(os.sep + os.sep) >= 0:
-        name = name.replace(os.sep + os.sep, os.sep)
-
     if platform.system() == 'Linux':
         # Linux: cut filename to <= 249 bytes
         dirname, basename = os.path.split(name)
