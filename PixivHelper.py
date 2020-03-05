@@ -79,11 +79,10 @@ def sanitize_filename(name, rootDir=None):
 
     # Strip leading/trailing space for each directory
     # Issue #627: remove trailing '.'
-    temp = name.split(os.sep)
-    temp2 = list()
-    for item in temp:
-        temp2.append(item.strip(" ."))
-    name = os.sep.join(temp2)
+    stripped_name = list()
+    for item in name.split(os.sep):
+        stripped_name.append(item.strip(" ."))
+    name = os.sep.join(stripped_name)
 
     if rootDir is not None:
         name = rootDir / name
