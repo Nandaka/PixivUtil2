@@ -74,12 +74,8 @@ def sanitize_filename(name, rootDir=None):
     if Path(name).is_reserved():
         name = '_' + name
 
-    # Replace new line with space
-    name = name.replace("\r", '')
-    name = name.replace("\n", ' ')
-
-    # Replace tab character with space
-    name = name.replace('\t', ' ')
+    # Replace new lines and tabs with spaces, remove carriage returns (\r)
+    name = name.translate(str.maketrans("\n\t", "  ", "\r"))
 
     # Strip leading/trailing space for each directory
     temp = name.split(os.sep)
