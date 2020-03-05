@@ -99,17 +99,12 @@ def sanitize_filename(name, rootDir=None):
             newLen = 250
             name = name[:newLen]
 
-    # Remove unicode control character
-    tempName = ""
-    for c in name:
-        if unicodedata.category(c) == 'Cc':
-            tempName = tempName + '_'
-        else:
-            tempName = tempName + c
+    # Remove unicode control characters
+    name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
-    get_logger().debug("Sanitized Filename: %s", tempName.strip())
+    get_logger().debug("Sanitized Filename: %s", name.strip())
 
-    return tempName.strip()
+    return name.strip()
 
 
 # Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
