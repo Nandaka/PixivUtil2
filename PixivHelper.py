@@ -74,13 +74,6 @@ def sanitize_filename(name, rootDir=None):
     if Path(name).is_reserved():
         name = '_' + name
 
-    # Strip leading/trailing space for each directory
-    # Issue #627: remove trailing '.'
-    stripped_name = list()
-    for item in name.split(os.sep):
-        stripped_name.append(item.strip(" ."))
-    name = os.sep.join(stripped_name)
-
     if rootDir is not None:
         name = (rootDir / name).resolve()
 
@@ -102,9 +95,16 @@ def sanitize_filename(name, rootDir=None):
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
-    get_logger().debug("Sanitized Filename: %s", name.strip())
+    # Strip leading/trailing space for each directory
+    # Issue #627: remove trailing '.'
+    stripped_name = list()
+    for item in name.split(os.sep):
+        stripped_name.append(item.strip(" ."))
+    name = os.sep.join(stripped_name)
 
-    return name.strip()
+    get_logger().debug("Sanitized Filename: %s", name)
+
+    return name
 
 
 # Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
