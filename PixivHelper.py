@@ -74,6 +74,9 @@ def sanitize_filename(name, rootDir=None):
     if Path(name).is_reserved():
         name = '_' + name
 
+    # Remove unicode control characters
+    name = "".join(c for c in name if unicodedata.category(c) != "Cc")
+
     if rootDir is not None:
         name = (rootDir / name).resolve()
 
@@ -91,9 +94,6 @@ def sanitize_filename(name, rootDir=None):
         if len(name) > 255:
             newLen = 250
             name = name[:newLen]
-
-    # Remove unicode control characters
-    name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
     # Strip leading/trailing space for each directory
     # Issue #627: remove trailing '.'
