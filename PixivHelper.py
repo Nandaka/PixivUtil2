@@ -86,10 +86,6 @@ def sanitize_filename(name, rootDir=None):
     name = name.replace("\r", '')
     name = name.replace("\n", ' ')
 
-    # Yavos: when foldername ends with "." PixivUtil won't find it
-    while name.find('.\\') != -1:
-        name = name.replace('.\\', '\\')
-
     name = name.replace('\\', os.sep)
 
     # Replace tab character with space
