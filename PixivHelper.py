@@ -78,8 +78,6 @@ def sanitize_filename(name, rootDir=None):
     name = name.replace("\r", '')
     name = name.replace("\n", ' ')
 
-    name = name.replace('\\', os.sep)
-
     # Replace tab character with space
     name = name.replace('\t', ' ')
 
