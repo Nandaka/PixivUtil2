@@ -20,6 +20,7 @@ import unicodedata
 import urllib
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
+from pathlib import Path
 
 import imageio
 import mechanize
@@ -72,7 +73,7 @@ def sanitize_filename(s, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
     if rootDir is not None:
-        rootDir = os.path.abspath(rootDir)
+        rootDir = Path(rootDir).resolve()
 
     # Unescape '&amp;', '&lt;', and '&gt;'
     s = html.unescape(s)
@@ -110,7 +111,7 @@ def sanitize_filename(s, rootDir=None):
     name = os.sep.join(name_split)
 
     if rootDir is not None:
-        name = rootDir + os.sep + name
+        name = rootDir / name
 
     # replace double os.sep
     while name.find(os.sep + os.sep) >= 0:
