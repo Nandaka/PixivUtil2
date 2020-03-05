@@ -64,7 +64,6 @@ if os.sep == '/':
     __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')
 else:
     __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
-__badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
 
 __re_manga_index = re.compile(r'_p(\d+)')
 
@@ -80,7 +79,7 @@ def sanitize_filename(s, rootDir=None):
 
     # Replace badchars and badnames with _
     name = __badchars__.sub('_', s)
-    if __badnames__.match(name.lower()):
+    if Path(name).is_reserved():
         name = '_' + name
 
     # Replace new line with space
