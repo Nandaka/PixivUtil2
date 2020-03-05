@@ -60,14 +60,6 @@ def set_log_level(level):
     get_logger(level).setLevel(level)
 
 
-if os.sep == '/':
-    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')
-else:
-    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
-
-__re_manga_index = re.compile(r'_p(\d+)')
-
-
 def sanitize_filename(name, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
@@ -77,8 +69,8 @@ def sanitize_filename(name, rootDir=None):
     # Unescape '&amp;', '&lt;', and '&gt;'
     name = html.unescape(name)
 
-    # Replace badchars and badnames with _
-    name = __badchars__.sub('_', name)
+    # Replace badchars and reserved Windows file names with _
+    name = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"').sub('_', name)
     if Path(name).is_reserved():
         name = '_' + name
 
@@ -197,7 +189,7 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
     page_number = ''
     page_big = ''
     if imageInfo.imageMode == 'manga':
-        idx = __re_manga_index.findall(fileUrl)
+        idx = re.compile(r'_p(\d+)').findall(fileUrl)
         if len(idx) > 0:
             page_index = idx[0]
             page_number = str(int(page_index) + 1)
