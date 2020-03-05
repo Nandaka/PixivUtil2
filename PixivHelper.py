@@ -109,7 +109,7 @@ def sanitize_filename(name, rootDir=None):
 
 # Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
 def replace_path_separator(s, replacement='_'):
-    return s.replace(os.sep, replacement).replace('/', replacement).replace('\\', replacement)
+    return s.replace('/', replacement).replace('\\', replacement)
 
 
 def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
