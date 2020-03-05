@@ -78,18 +78,12 @@ def sanitize_filename(name, rootDir=None):
     name = name.translate(str.maketrans("\n\t", "  ", "\r"))
 
     # Strip leading/trailing space for each directory
+    # Issue #627: remove trailing '.'
     temp = name.split(os.sep)
     temp2 = list()
     for item in temp:
-        temp2.append(item.strip())
+        temp2.append(item.strip(" ."))
     name = os.sep.join(temp2)
-
-    # Issue #627: remove trailing '.'
-    name_split = name.split(os.sep)
-    for item in range(0, len(name_split)):
-        if name_split[item].endswith("."):
-            name_split[item] = name_split[item][:-1] + "_"
-    name = os.sep.join(name_split)
 
     if rootDir is not None:
         name = rootDir / name
