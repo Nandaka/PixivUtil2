@@ -82,7 +82,7 @@ def sanitize_filename(name, rootDir=None):
     name = os.sep.join(stripped_name)
 
     if rootDir is not None:
-        name = rootDir / name
+        name = (rootDir / name).resolve()
 
     if platform.system() == 'Linux':
         # Linux: cut filename to <= 249 bytes
