@@ -37,8 +37,6 @@ __re_manga_index = re.compile(r'_p(\d+)')
 __badchars__ = re.compile(r'''
 ^\.
 |\.$
-|^\ 
-|\ $
 |^$
 |\?
 |:
