@@ -73,8 +73,8 @@ def sanitize_filename(name, rootDir=None):
     regex_replacement = r'''
     ^\.
     |\.$
-    |^ 
-    | $
+    |^\ 
+    |\ $
     |^$
     |\?
     |:
