@@ -70,7 +70,21 @@ def sanitize_filename(name, rootDir=None):
     name = html.unescape(name)
 
     # Replace badchars and reserved Windows file names with _
-    name = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\*|\"').sub("_", name)
+    regex_replacement = r'''
+    ^\.
+    |\.$
+    |^ 
+    | $
+    |^$
+    |\?
+    |:
+    |<
+    |>
+    |\|
+    |\*
+    |\"
+    '''
+    name = re.compile(regex_replacement, re.VERBOSE).sub("_", name)
     if Path(name).is_reserved():
         name = '_' + name
 
