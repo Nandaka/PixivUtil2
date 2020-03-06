@@ -20,6 +20,7 @@ import unicodedata
 import urllib
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
+from pathlib import Path
 
 import imageio
 import mechanize
