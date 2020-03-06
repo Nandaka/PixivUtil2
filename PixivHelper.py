@@ -20,7 +20,6 @@ import unicodedata
 import urllib
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
-from pathlib import Path
 
 import imageio
 import mechanize
@@ -64,7 +63,7 @@ def sanitize_filename(name, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
     if rootDir is not None:
-        rootDir = Path(rootDir).resolve()
+        rootDir = os.path.abspath(rootDir)
 
     # Unescape '&amp;', '&lt;', and '&gt;'
     name = html.unescape(name)
@@ -88,9 +87,9 @@ def sanitize_filename(name, rootDir=None):
         # cut whole path to 255 char
         # TODO: check for Windows long path extensions being enabled
         if rootDir is not None:
-            full_name = (rootDir / name).resolve()
+            full_name = os.path.abspath(os.path.join(rootDir, name))
         else:
-            full_name = Path(name).resolve()
+            full_name = os.path.abspath(name)
         if len(full_name) > 255:
             filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
             # don't trim the extension
@@ -105,7 +104,7 @@ def sanitize_filename(name, rootDir=None):
             name = filename[:len(filename) - 1] + extname
 
     if rootDir is not None:
-        name = (rootDir / name).resolve()
+        name = os.path.abspath(os.path.join(rootDir, name))
 
     get_logger().debug("Sanitized Filename: %s", name)
 
