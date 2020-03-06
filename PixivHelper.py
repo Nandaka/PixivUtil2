@@ -95,6 +95,8 @@ def sanitize_filename(name, rootDir=None):
             filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
             # don't trim the extension
             name = filename[:255-len(extname)] + extname
+            if name == extname:  # we have no file name left
+                raise OSError(None, "Path name too long", full_name, 0x000000A1)  # 0xA1 is "invalid path"
     else:
         # Unix: cut filename to <= 249 bytes
         # TODO: allow macOS higher limits, HFS+ allows 255 UTF-16 chars, and APFS 255 UTF-8 chars
