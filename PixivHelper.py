@@ -77,30 +77,33 @@ def sanitize_filename(name, rootDir=None):
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
-    if rootDir is not None:
-        name = (rootDir / name).resolve()
-
-    if platform.system() == 'Linux':
-        # Linux: cut filename to <= 249 bytes
-        dirname, basename = os.path.split(name)
-        while len(basename.encode('utf-8')) > 249:
-            filename, extname = os.path.splitext(basename)
-            filename = filename[:len(filename) - 1]
-            basename = filename + extname
-
-        name = dirname + os.sep + basename
-    else:
-        # cut path to 255 char
-        if len(name) > 255:
-            newLen = 250
-            name = name[:newLen]
-
     # Strip leading/trailing space for each directory
     # Issue #627: remove trailing '.'
     stripped_name = list()
     for item in name.split(os.sep):
         stripped_name.append(item.strip(" ."))
     name = os.sep.join(stripped_name)
+
+    if platform.system() == 'Windows':
+        # cut whole path to 255 char
+        # TODO: check for Windows long path extensions being enabled
+        if rootDir is not None:
+            full_name = (rootDir / name).resolve()
+        else:
+            full_name = Path(name).resolve()
+        if len(full_name) > 255:
+            filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
+            # don't trim the extension
+            name = filename[:255-len(extname)] + extname
+    else:
+        # Unix: cut filename to <= 249 bytes
+        # TODO: allow macOS higher limits, HFS+ allows 255 UTF-16 chars, and APFS 255 UTF-8 chars
+        while len(name.encode('utf-8')) > 249:
+            filename, extname = os.path.splitext(name)
+            name = filename[:len(filename) - 1] + extname
+
+    if rootDir is not None:
+        name = (rootDir / name).resolve()
 
     get_logger().debug("Sanitized Filename: %s", name)
 
