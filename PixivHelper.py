@@ -31,7 +31,23 @@ from PixivImage import PixivImage
 
 logger = None
 _config = None
+__re_manga_index = re.compile(r'_p(\d+)')
 
+
+__badchars__ = re.compile(r'''
+^\.
+|\.$
+|^\ 
+|\ $
+|^$
+|\?
+|:
+|<
+|>
+|\|
+|\*
+|\"
+''', re.VERBOSE)
 
 def set_config(config):
     global _config
@@ -70,21 +86,7 @@ def sanitize_filename(name, rootDir=None):
     name = html.unescape(name)
 
     # Replace badchars and reserved Windows file names with _
-    regex_replacement = r'''
-    ^\.
-    |\.$
-    |^\ 
-    |\ $
-    |^$
-    |\?
-    |:
-    |<
-    |>
-    |\|
-    |\*
-    |\"
-    '''
-    name = re.compile(regex_replacement, re.VERBOSE).sub("_", name)
+    name = __badchars__.sub("_", name)
     if Path(name).is_reserved():
         name = '_' + name
 
@@ -183,7 +185,7 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
     page_number = ''
     page_big = ''
     if imageInfo.imageMode == 'manga':
-        idx = re.compile(r'_p(\d+)').findall(fileUrl)
+        idx = __re_manga_index.findall(fileUrl)
         if len(idx) > 0:
             page_index = idx[0]
             page_number = str(int(page_index) + 1)
