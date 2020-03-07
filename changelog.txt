@@ -1,3 +1,6 @@
+20200307
+- Fix Issue #648: Can't download Ugoiras when "downloadresized" is active.
+
 20200228
 - Fix Issue #641: update API endpoints for Pixiv FANBOX.
 - Implement #639: add option to download the resized image, rather than original size.
