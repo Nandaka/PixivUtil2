@@ -108,9 +108,9 @@ def sanitize_filename(name, rootDir=None):
             if name == extname:  # we have no file name left
                 raise OSError(None, "Path name too long", full_name, 0x000000A1)  # 0xA1 is "invalid path"
     else:
-        # Unix: cut filename to <= 255 bytes
+        # Unix: cut filename to <= 249 bytes
         # TODO: allow macOS higher limits, HFS+ allows 255 UTF-16 chars, and APFS 255 UTF-8 chars
-        while len(name.encode('utf-8')) > 255:
+        while len(name.encode('utf-8')) > 249:
             filename, extname = os.path.splitext(name)
             name = filename[:len(filename) - 1] + extname
 
