@@ -91,7 +91,7 @@ def sanitize_filename(name, rootDir=None):
     # Issue #627: remove trailing '.'
     stripped_name = list()
     for item in name.split(os.sep):
-        stripped_name.append(item.strip(" ."))
+        stripped_name.append(item.strip(" .\t\r\n"))
     name = os.sep.join(stripped_name)
 
     if platform.system() == 'Windows':
