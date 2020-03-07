@@ -127,10 +127,10 @@ class PixivImage (object):
                 # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.jpg
                 # https://i.pximg.net/img-original/img/2018/04/22/00/01/06/68339821_ugoira0.png
                 # Fix Issue #372
-                temp_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
-                temp_url = temp_url.split("_ugoira0")[0]
-                temp_url = temp_url + "_ugoira1920x1080.zip"
-                self.imageUrls.append(temp_url)
+                temp_url_ori = temp_url.replace("/img-original/", "/img-zip-ugoira/")
+                temp_url_ori = temp_url_ori.split("_ugoira0")[0]
+                temp_url_ori = temp_url_ori + "_ugoira1920x1080.zip"
+                self.imageUrls.append(temp_url_ori)
 
                 temp_resized_url = temp_url.replace("/img-original/", "/img-zip-ugoira/")
                 temp_resized_url = temp_resized_url.split("_ugoira0")[0]
