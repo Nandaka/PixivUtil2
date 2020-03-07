@@ -79,18 +79,18 @@ def sanitize_filename(name, rootDir=None):
     # Unescape '&amp;', '&lt;', and '&gt;'
     name = html.unescape(name)
 
-    # Replace badchars and reserved Windows file names with _
     name = __badchars__.sub("_", name)
-    if Path(name).is_reserved():
-        name = '_' + name
 
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
     # Strip leading/trailing space for each directory
     # Issue #627: remove trailing '.'
+    # Ensure Windows reserved filenames are prefixed with _
     stripped_name = list()
     for item in name.split(os.sep):
+        if Path(item).is_reserved():
+            item = '_' + item
         stripped_name.append(item.strip(" .\t\r\n"))
     name = os.sep.join(stripped_name)
 
