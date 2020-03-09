@@ -20,6 +20,7 @@ import unicodedata
 import urllib
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
+from pathlib import Path
 
 import imageio
 import mechanize
@@ -30,7 +31,17 @@ from PixivImage import PixivImage
 
 logger = None
 _config = None
-
+__re_manga_index = re.compile(r'_p(\d+)')
+__badchars__ = re.compile(r'''
+^$
+|\?
+|:
+|<
+|>
+|\|
+|\*
+|\"
+''', re.VERBOSE)
 
 def set_config(config):
     global _config
@@ -59,94 +70,61 @@ def set_log_level(level):
     get_logger(level).setLevel(level)
 
 
-if os.sep == '/':
-    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|\||\*|\"')
-else:
-    __badchars__ = re.compile(r'^\.|\.$|^ | $|^$|\?|:|<|>|/|\||\*|\"')
-__badnames__ = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
-
-__re_manga_index = re.compile(r'_p(\d+)')
-
-
-def sanitize_filename(s, rootDir=None):
+def sanitize_filename(name, rootDir=None):
     '''Replace reserved character/name with underscore (windows), rootDir is not sanitized.'''
     # get the absolute rootdir
     if rootDir is not None:
         rootDir = os.path.abspath(rootDir)
 
     # Unescape '&amp;', '&lt;', and '&gt;'
-    s = html.unescape(s)
+    name = html.unescape(name)
 
-    # Replace badchars and badnames with _
-    name = __badchars__.sub('_', s)
-    if __badnames__.match(name.lower()):
-        name = '_' + name
+    name = __badchars__.sub("_", name)
 
-    # Replace new line with space
-    name = name.replace("\r", '')
-    name = name.replace("\n", ' ')
-
-    # Yavos: when foldername ends with "." PixivUtil won't find it
-    while name.find('.\\') != -1:
-        name = name.replace('.\\', '\\')
-
-    name = name.replace('\\', os.sep)
-
-    # Replace tab character with space
-    name = name.replace('\t', ' ')
+    # Remove unicode control characters
+    name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
     # Strip leading/trailing space for each directory
-    temp = name.split(os.sep)
-    temp2 = list()
-    for item in temp:
-        temp2.append(item.strip())
-    name = os.sep.join(temp2)
-
     # Issue #627: remove trailing '.'
-    name_split = name.split(os.sep)
-    for item in range(0, len(name_split)):
-        if name_split[item].endswith("."):
-            name_split[item] = name_split[item][:-1] + "_"
-    name = os.sep.join(name_split)
+    # Ensure Windows reserved filenames are prefixed with _
+    stripped_name = list()
+    for item in name.split(os.sep):
+        if Path(item).is_reserved():
+            item = '_' + item
+        stripped_name.append(item.strip(" .\t\r\n"))
+    name = os.sep.join(stripped_name)
+
+    if platform.system() == 'Windows':
+        # cut whole path to 255 char
+        # TODO: check for Windows long path extensions being enabled
+        if rootDir is not None:
+            full_name = os.path.abspath(os.path.join(rootDir, name))
+        else:
+            full_name = os.path.abspath(name)
+        if len(full_name) > 255:
+            filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
+            # don't trim the extension
+            name = filename[:255-len(extname)] + extname
+            if name == extname:  # we have no file name left
+                raise OSError(None, "Path name too long", full_name, 0x000000A1)  # 0xA1 is "invalid path"
+    else:
+        # Unix: cut filename to <= 249 bytes
+        # TODO: allow macOS higher limits, HFS+ allows 255 UTF-16 chars, and APFS 255 UTF-8 chars
+        while len(name.encode('utf-8')) > 249:
+            filename, extname = os.path.splitext(name)
+            name = filename[:len(filename) - 1] + extname
 
     if rootDir is not None:
-        name = rootDir + os.sep + name
+        name = os.path.abspath(os.path.join(rootDir, name))
 
-    # replace double os.sep
-    while name.find(os.sep + os.sep) >= 0:
-        name = name.replace(os.sep + os.sep, os.sep)
+    get_logger().debug("Sanitized Filename: %s", name)
 
-    if platform.system() == 'Linux':
-        # Linux: cut filename to <= 249 bytes
-        dirname, basename = os.path.split(name)
-        while len(basename.encode('utf-8')) > 249:
-            filename, extname = os.path.splitext(basename)
-            filename = filename[:len(filename) - 1]
-            basename = filename + extname
-
-        name = dirname + os.sep + basename
-    else:
-        # cut path to 255 char
-        if len(name) > 255:
-            newLen = 250
-            name = name[:newLen]
-
-    # Remove unicode control character
-    tempName = ""
-    for c in name:
-        if unicodedata.category(c) == 'Cc':
-            tempName = tempName + '_'
-        else:
-            tempName = tempName + c
-
-    get_logger().debug("Sanitized Filename: %s", tempName.strip())
-
-    return tempName.strip()
+    return name
 
 
 # Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, %works_tools%, and %original_artist%.
 def replace_path_separator(s, replacement='_'):
-    return s.replace(os.sep, replacement).replace('/', replacement).replace('\\', replacement)
+    return s.replace('/', replacement).replace('\\', replacement)
 
 
 def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
