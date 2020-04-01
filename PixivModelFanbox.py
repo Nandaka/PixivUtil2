@@ -102,6 +102,8 @@ class FanboxPost(object):
     imageCount = 0
     _tzInfo = None
 
+    linkToFile = None
+    
     # not implemented
     worksResolution = ""
     worksTools = ""
@@ -119,7 +121,9 @@ class FanboxPost(object):
         self.imageId = int(post_id)
         self.parent = parent
         self._tzInfo = tzInfo
-
+        
+        self.linkToFile = dict()
+        
         self.parsePost(page)
 
         if not self.is_restricted:
@@ -314,4 +318,39 @@ class FanboxPost(object):
             info.write("Urls          =\r\n")
             for link in self.embeddedFiles:
                 info.write(" - {0}\r\n".format(link))
+        info.close()
+
+    def WriteHtml(self, filename):
+        info = None
+        try:
+            PixivHelper.makeSubdirs(filename)
+            info = codecs.open(filename, 'wb', encoding='utf-8')
+        except IOError:
+            info = codecs.open(str(self.imageId) + ".txt",
+                               'wb', encoding='utf-8')
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename,
+                                               self.imageId)
+
+        global htmlPattern
+        if "htmlPattern" not in dir() or htmlPattern == None:
+            with PixivHelper.open_text_file("pattern.html", "r+", encoding="utf-8") as reader:
+                    htmlPattern = reader.read()
+        page = htmlPattern
+        page = page.replace("%coverImageUrl%", self.coverImageUrl)
+        page = page.replace("%artistName%", self.parent.artistName)
+        page = page.replace("%imageTitle%", self.imageTitle)
+        page = page.replace("%worksDate%", self.worksDate)
+        page = page.replace("%body_text%", self.body_text)
+
+        page = BeautifulSoup(page, features="html5lib")
+        imageATags = page.find_all("a", attrs={"href":True})
+        for imageATag in imageATags:
+            tag = imageATag.img
+            if tag:
+                tag["src"] = imageATag["href"]
+        page = page.prettify()
+        for k,v in self.linkToFile.items():
+            page = page.replace(k, "file://" + v )
+
+        info.write(page)
         info.close()
