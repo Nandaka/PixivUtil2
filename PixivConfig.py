@@ -50,6 +50,7 @@ class PixivConfig():
     downloadAvatar = True
     writeImageInfo = False
     writeImageJSON = False
+    writeHtml = False
     verifyImage = False
     writeUrlInDescription = False
     urlBlacklistRegex = ""
@@ -305,6 +306,13 @@ class PixivConfig():
             except ValueError:
                 self.writeImageInfo = False
                 print("writeImageInfo = False")
+                haveError = True
+           
+            try:
+                self.writeHtml = config.getboolean('Settings', 'writeHtml')
+            except ValueError:
+                self.writeHtml = False
+                print("writeHtml = False")
                 haveError = True
 
             try:
@@ -682,6 +690,7 @@ class PixivConfig():
         config.set('Settings', 'tagsLimit', self.tagsLimit)
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'writeImageJSON', self.writeImageJSON)
+        config.set('Settings', 'writeHtml', self.writeHtml)
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
@@ -811,6 +820,7 @@ class PixivConfig():
         print(' - tagsLimit             =', self.tagsLimit)
         print(' - writeImageInfo        =', self.writeImageInfo)
         print(' - writeImageJSON        =', self.writeImageJSON)
+        print(' - writeHtml             =', self.writeHtml)
         print(' - verifyImage           =', self.verifyImage)
         print(' - writeUrlInDescription =', self.writeUrlInDescription)
         print(' - urlBlacklistRegex     =', self.urlBlacklistRegex)
