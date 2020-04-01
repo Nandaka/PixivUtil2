@@ -326,9 +326,9 @@ class FanboxPost(object):
             PixivHelper.makeSubdirs(filename)
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
-            info = codecs.open(str(self.imageId) + ".txt",
+            info = codecs.open(str(self.imageId) + ".html",
                                'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename,
+            PixivHelper.get_logger().exception("Error when saving image html: %s, file is saved to: %s.html", filename,
                                                self.imageId)
 
         global htmlPattern
