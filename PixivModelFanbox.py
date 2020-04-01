@@ -336,11 +336,11 @@ class FanboxPost(object):
             with PixivHelper.open_text_file("pattern.html", "r+", encoding="utf-8") as reader:
                     htmlPattern = reader.read()
         page = htmlPattern
-        page = page.replace("%coverImageUrl%", self.coverImageUrl)
+        page = page.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
         page = page.replace("%imageTitle%", self.imageTitle)
         page = page.replace("%worksDate%", self.worksDate)
-        page = page.replace("%body_text%", self.body_text)
+        page = page.replace("%body_text%", self.body_text or "")
 
         page = BeautifulSoup(page, features="html5lib")
         imageATags = page.find_all("a", attrs={"href":True})
@@ -348,6 +348,8 @@ class FanboxPost(object):
             tag = imageATag.img
             if tag:
                 tag["src"] = imageATag["href"]
+        if self.coverImageUrl == None:
+            page.find("div", attrs={"class":"cover"}).decompose()
         page = page.prettify()
         for k,v in self.linkToFile.items():
             page = page.replace(k, "file://" + v )
