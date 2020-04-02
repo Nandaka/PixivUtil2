@@ -642,19 +642,20 @@ def download_image(url, filename, res, file_size, overwrite):
 def print_progress(curr, total):
     # [12345678901234567890]
     # [||||||||------------]
-
+    animBarLen = 20
+    
     if total > 0:
-        complete = int((curr * 20) / total)
-        print('\r', end=' ')
-        msg = '[{0:20}] {1} of {2}'.format('|' * complete, size_in_str(curr), size_in_str(total))
-        print('{0}'.format(msg), end=' ')
+        complete = int((curr * animBarLen) / total)
+        print(f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}", end='\r')
     else:
         # indeterminite
-        pos = curr % 20
-        anim = "{0}{1}".format('.' * pos, '|||' + '.' * (20 - pos))
-        print('\r', end=' ')
-        print('[{0:20}] {1}'.format(anim, size_in_str(curr)), end=' ')
-
+        pos = curr % (animBarLen + 3) # 3 corresponds to the length of the '|||' below
+        anim = '.' * animBarLen + '|||' + '.' * animBarLen
+        # Use nested replacement field to specify the precision value. This limits the maximum print
+        # length of the progress bar. As pos changes, the starting print position of the anim string
+        # also changes, thus producing the scrolling effect. 
+        print(f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}', end='\r')
+    
 
 def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
                             start_date=None, end_date=None, member_id=None,
