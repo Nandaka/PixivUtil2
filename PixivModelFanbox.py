@@ -320,7 +320,7 @@ class FanboxPost(object):
                 info.write(" - {0}\r\n".format(link))
         info.close()
 
-    def WriteHtml(self, filename):
+    def WriteHtml(self, html_pattern, filename):
         info = None
         try:
             PixivHelper.makeSubdirs(filename)
@@ -328,15 +328,10 @@ class FanboxPost(object):
         except IOError:
             info = codecs.open(str(self.imageId) + ".html",
                                'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving image html: %s, file is saved to: %s.html", filename,
+            PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html", filename,
                                                self.imageId)
 
-        global htmlPattern
-        if "htmlPattern" not in dir() or htmlPattern == None:
-            with PixivHelper.open_text_file("pattern.html", "r+", encoding="utf-8") as reader:
-                    htmlPattern = reader.read()
-        page = htmlPattern
-        page = page.replace("%coverImageUrl%", self.coverImageUrl or "")
+        page = html_pattern.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
         page = page.replace("%imageTitle%", self.imageTitle)
         page = page.replace("%worksDate%", self.worksDate)
@@ -349,7 +344,9 @@ class FanboxPost(object):
             if tag:
                 tag["src"] = imageATag["href"]
         if self.coverImageUrl == None:
-            page.find("div", attrs={"class":"cover"}).decompose()
+            cover_div = page.find("div", attrs={"class":"cover"})
+            if cover_div:
+                cover_div.decompose()
         page = page.prettify()
         for k,v in self.linkToFile.items():
             page = page.replace(k, "file://" + v )
