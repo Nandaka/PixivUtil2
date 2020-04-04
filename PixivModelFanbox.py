@@ -198,8 +198,26 @@ class FanboxPost(object):
         if "blocks" in jsPost["body"] and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
                 if block["type"] == "p":
-                    self.body_text = u"{0}<p>{1}</p>".format(
-                        self.body_text, block["text"])
+                    if "links" in block:
+                        pointer = 0
+                        block_text = ""
+                        for i in range(0, len(block["links"])):
+                            link = block["links"][i]
+                            link_offset = link["offset"]
+                            if pointer < link_offset:
+                                block_text += block["text"][pointer:offset+1]
+                            pointer = link_offset + link["length"] + 1
+                            link_url = link["url"]
+                            block_text += "<a href='{0}'>{1}</a>".format(
+                                link_url,
+                                block["text"][link_offset:pointer])
+                            if i == len(block["links"]) - 1:
+                                block_text += block["text"][pointer:]
+                        self.body_text = u"{0}<p>{1}</p>".format(
+                        self.body_text, block_text)
+                    else:
+                        self.body_text = u"{0}<p>{1}</p>".format(
+                            self.body_text, block["text"])
                 elif block["type"] == "image":
                     imageId = block["imageId"]
                     self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
