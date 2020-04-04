@@ -289,6 +289,29 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
             self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
         cover_more_format()
+        
+    def test_links_in_p_tags(self):
+        with open('./test/test_for_links_in_p_tags.json', 'r', encoding="utf-8") as reader:
+            p = reader.read()
+        js = demjson.decode(p)
+        result = FanboxPost(6544246, None, js["body"])
+        self.assertIsNotNone(result)
+
+        test_string1 = "<a href='https://www.pixiv.net/fanbox/creator/6544246/post/407551'>{0}</a>".format(
+            u"Bleach: S\u014dsuke\u0027s Revenge Ch.2 "[0:29])
+        self.assertTrue(test_string1 in result.body_text)
+
+        temp_string = "H x H: The Plan to Wipe Out the Strongests "
+        test_string2 = "{0}<a href='{1}'>{2}</a>{3}<a href='{4}'>{5}</a>{6}".format(
+            temp_string[:5],
+            "https://www.pixiv.net/fanbox/creator/6544246/post/407881",
+            temp_string[5:15],
+            temp_string[15:20],
+            "#modified_for_test",
+            temp_string[20:30],
+            temp_string[30:])
+        print(test_string2)
+        self.assertTrue(test_string2 in result.body_text)
 
 
 if __name__ == '__main__':
