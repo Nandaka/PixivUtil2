@@ -926,7 +926,7 @@ def handle_ugoira(image, filename):
 
 def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
-               bookmark_count=None, oldest_first=False):
+               bookmark_count=None, oldest_first=False, type_mode=None):
 
     search_page = None
     _last_search_result = None
@@ -966,7 +966,9 @@ def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
                                                   member_id,
                                                   oldest_first,
                                                   page,
-                                                  use_bookmark_data)
+                                                  use_bookmark_data,
+                                                  bookmark_count,
+                                                  type_mode)
             if len(t.itemList) == 0:
                 print('No more images')
                 flag = False
@@ -1621,6 +1623,8 @@ def menu_download_by_tags(opisvalid, args):
     bookmark_count = None
     oldest_first = False
     wildcard = True
+    type_mode = "a"
+
     if opisvalid and len(args) > 0:
         wildcard = args[0]
         if wildcard.lower() == 'y':
@@ -1645,12 +1649,21 @@ def menu_download_by_tags(opisvalid, args):
 
         (page, end_page) = get_start_and_end_number()
         (start_date, end_date) = get_start_and_end_date()
+
+        while True:
+            type_mode = input("Search type [a-all|i-Illustration and Ugoira|m-manga: ").rstrip("\r") or "a"
+            if type_mode in {'a', 'i', 'm'}:
+                break
+            else:
+                print("Valid values are 'a', 'i', or 'm'.")
+
     if bookmark_count is not None:
         bookmark_count = bookmark_count.strip()
         if len(bookmark_count) > 0:
             bookmark_count = int(bookmark_count)
+
     process_tags(tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
-                use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first)
+                use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first, type_mode=type_mode)
 
 
 def menu_download_by_title_caption(opisvalid, args):
@@ -1959,7 +1972,7 @@ def processFanboxArtist(artist_id, end_page):
                 filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
 
                 post.linkToFile[post.coverImageUrl] = filename
-                
+
                 print("Downloading cover from {0}".format(post.coverImageUrl))
                 print("Saved to {0}".format(filename))
 
@@ -2017,7 +2030,7 @@ def processFanboxImages(post, result_artist):
                                                 searchTags='')
 
             filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-            
+
             post.linkToFile[image_url] = filename
 
             referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
@@ -2054,14 +2067,12 @@ def processFanboxImages(post, result_artist):
     if __config__.writeImageInfo:
         post.WriteInfo(filename + ".txt")
     if __config__.writeHtml and post.type == "article":
-        global html_pattern
-        if "html_pattern" not in dir() or html_pattern == None:
-            if os.path.isfile("pattern.html"):
-                reader = PixivHelper.open_text_file("pattern.html")
-                html_pattern = reader.read()
-                reader.close()
-            else:
-                html_pattern = PixivConstant.HTML_PATTERN
+        html_pattern = PixivConstant.HTML_PATTERN
+        if os.path.isfile("pattern.html"):
+            reader = PixivHelper.open_text_file("pattern.html")
+            html_pattern = reader.read()
+            reader.close()
+
         post.WriteHtml(html_pattern, filename + ".html")
 
 

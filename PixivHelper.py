@@ -43,6 +43,7 @@ __badchars__ = re.compile(r'''
 |\"
 ''', re.VERBOSE)
 
+
 def set_config(config):
     global _config
     _config = config
@@ -104,7 +105,7 @@ def sanitize_filename(name, rootDir=None):
         if len(full_name) > 255:
             filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
             # don't trim the extension
-            name = filename[:255-len(extname)] + extname
+            name = filename[:255 - len(extname)] + extname
             if name == extname:  # we have no file name left
                 raise OSError(None, "Path name too long", full_name, 0x000000A1)  # 0xA1 is "invalid path"
     else:
@@ -643,23 +644,23 @@ def print_progress(curr, total):
     # [12345678901234567890]
     # [||||||||------------]
     animBarLen = 20
-    
+
     if total > 0:
         complete = int((curr * animBarLen) / total)
         print(f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}", end='\r')
     else:
         # indeterminite
-        pos = curr % (animBarLen + 3) # 3 corresponds to the length of the '|||' below
+        pos = curr % (animBarLen + 3)  # 3 corresponds to the length of the '|||' below
         anim = '.' * animBarLen + '|||' + '.' * animBarLen
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
-        # also changes, thus producing the scrolling effect. 
+        # also changes, thus producing the scrolling effect.
         print(f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}', end='\r')
-    
+
 
 def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
                             start_date=None, end_date=None, member_id=None,
-                            r18mode=False):
+                            r18mode=False, blt=0, type_data="a"):
     url = ""
     date_param = ""
     page_param = ""
@@ -686,7 +687,19 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
             search_mode = '&s_mode=s_tag_full'
             print(u"Using Full Match (s_tag_full)")
 
-        url = root_url + '/{0}?word={0}{1}{2}{3}'.format(tags, date_param, page_param, search_mode)
+        bookmark_limit_premium = ""
+        if blt > 0:
+            bookmark_limit_premium = f'&blt={blt}'
+
+        if type_data == "i":
+            type_data = "illust_and_ugoira"
+        elif type_data == "m":
+            type_data = "manga"
+        else:
+            type_data = "all"
+        type_mode = f"&type={type_data}"
+
+        url = f"{root_url}/{tags}?word={tags}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}"
 
     if r18mode:
         url = url + '&mode=r18'

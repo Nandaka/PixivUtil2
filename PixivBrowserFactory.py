@@ -608,20 +608,25 @@ class PixivBrowser(mechanize.Browser):
                          member_id=None,
                          oldest_first=False,
                          start_page=1,
-                         include_bookmark_data=False):
+                         include_bookmark_data=False,
+                         bookmark_count=0,
+                         type_mode="a"):
         response_page = None
         result = None
         url = ''
 
         if member_id is not None:
             # from member id search by tags
-            (artist, response_page) = self.getMemberPage(
-                member_id, current_page, False, tags)
+            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags)
 
             # convert to PixivTags
             result = PixivTags()
             result.parseMemberTags(artist, member_id, tags)
         else:
+            # only premium support server-side filtering for bookmark count
+            if not self._isPremium:
+                bookmark_count = 0
+
             # search by tags
             url = PixivHelper.generate_search_tag_url(tags, current_page,
                                                       title_caption,
@@ -630,7 +635,9 @@ class PixivBrowser(mechanize.Browser):
                                                       start_date,
                                                       end_date,
                                                       member_id,
-                                                      self._config.r18mode)
+                                                      self._config.r18mode,
+                                                      bookmark_count,
+                                                      type_mode)
 
             PixivHelper.print_and_log('info', 'Looping... for {0}'.format(url))
             response_page = self.getPixivPage(url, returnParsed=False)
