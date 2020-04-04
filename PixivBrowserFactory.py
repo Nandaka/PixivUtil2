@@ -279,6 +279,10 @@ class PixivBrowser(mechanize.Browser):
                 result = True
             if "pixiv.user.loggedIn = true" in str(parsed):
                 result = True
+            if "_gaq.push(['_setCustomVar', 1, 'login', 'yes'" in str(parsed):
+                result = True
+            if "var dataLayer = [{ login: 'yes'," in str(parsed):
+                result = True
 
             if result:
                 PixivHelper.print_and_log('info', 'Login successful.')
