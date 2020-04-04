@@ -1958,6 +1958,8 @@ def processFanboxArtist(artist_id, end_page):
                                                     searchTags='')
                 filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
 
+                post.linkToFile[post.coverImageUrl] = filename
+                
                 print("Downloading cover from {0}".format(post.coverImageUrl))
                 print("Saved to {0}".format(filename))
 
@@ -2015,6 +2017,9 @@ def processFanboxImages(post, result_artist):
                                                 searchTags='')
 
             filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
+            
+            post.linkToFile[image_url] = filename
+
             referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
 
             print("Downloading image {0} from {1}".format(current_page, image_url))
@@ -2036,8 +2041,7 @@ def processFanboxImages(post, result_artist):
             current_page = current_page + 1
 
     # Implement #447
-    if __config__.writeImageInfo:
-        filename = PixivHelper.make_filename(__config__.filenameInfoFormat,
+    filename = PixivHelper.make_filename(__config__.filenameInfoFormat,
                                             post,
                                             artistInfo=result_artist,
                                             tagsSeparator=__config__.tagsSeparator,
@@ -2046,8 +2050,19 @@ def processFanboxImages(post, result_artist):
                                             bookmark=None,
                                             searchTags='')
 
-        filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
+    filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
+    if __config__.writeImageInfo:
         post.WriteInfo(filename + ".txt")
+    if __config__.writeHtml and post.type == "article":
+        global html_pattern
+        if "html_pattern" not in dir() or html_pattern == None:
+            if os.path.isfile("pattern.html"):
+                reader = PixivHelper.open_text_file("pattern.html")
+                html_pattern = reader.read()
+                reader.close()
+            else:
+                html_pattern = PixivConstant.HTML_PATTERN
+        post.WriteHtml(html_pattern, filename + ".html")
 
 
 def menu_fanbox_download_by_artist_id(op_is_valid, args):
