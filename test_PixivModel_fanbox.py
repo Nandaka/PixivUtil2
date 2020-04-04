@@ -18,7 +18,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
     def testFanboxSupportedArtist(self):
         # https://fanbox.pixiv.net/api/plan.listSupporting
-        p = open('./test/Fanbox_supported_artist.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_supported_artist.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = Fanbox(p)
         self.assertIsNotNone(result)
 
@@ -28,7 +30,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertTrue(226267 in result.supportedArtist)
 
     def testFanboxArtistPosts(self):
-        p = open('./test/Fanbox_artist_posts.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
@@ -62,7 +66,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts[3].images), 4)
 
     def testFanboxArtistArticle(self):
-        p = open('./test/Fanbox_artist_posts_article.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts_article.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(190026, p)
         self.assertIsNotNone(result)
 
@@ -81,7 +87,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # result.posts[0].WriteInfo("./201946.txt")
 
     def testFanboxArtistArticleFileMap(self):
-        p = open('./test/creator_with_filemap.json', 'r', encoding="utf-8").read()
+        reader = open('./test/creator_with_filemap.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(190026, p)
         self.assertIsNotNone(result)
 
@@ -101,7 +109,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # result.posts[0].WriteInfo("./210980.txt")
 
     def testFanboxArtistVideo(self):
-        p = open('./test/creator_posts_with_video.json', 'r', encoding="utf-8").read()
+        reader = open('./test/creator_posts_with_video.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(711048, p)
         self.assertIsNotNone(result)
 
@@ -121,7 +131,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # result.posts[0].WriteInfo("./210980.txt")
 
     def testFanboxArtistArticleEmbedTwitter(self):
-        p = open('./test/creator_embedMap.json', 'r', encoding="utf-8").read()
+        reader = open('./test/creator_embedMap.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(68813, p)
         self.assertIsNotNone(result)
 
@@ -135,13 +147,15 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result.posts[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
         self.assertEqual(result.posts[0].type, "article")
         self.assertEqual(len(result.posts[0].images), 7)
-        self.assertEqual(len(result.posts[0].body_text), 3095)
+        self.assertEqual(len(result.posts[0].body_text), 3164)
 
         # result.posts[0].WriteInfo("./285502.txt")
 
     def testFanboxArtistPostsNextPage(self):
         # https://fanbox.pixiv.net/api/post.listCreator?userId=91029&maxPublishedDatetime=2019-07-25%2004%3A27%3A54&maxId=481268&limit=10
-        p2 = open('./test/Fanbox_artist_posts_nextpage.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts_nextpage.json', 'r', encoding="utf-8")
+        p2 = reader.read()
+        reader.close()
         result = FanboxArtist(91029, p2)
         self.assertIsNotNone(result)
 
@@ -151,7 +165,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts), 10)
 
     def testFanboxArtistPostsRestricted(self):
-        p = open('./test/Fanbox_artist_posts_restricted.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts_restricted.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
@@ -164,7 +180,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
             self.assertTrue(post.is_restricted)
 
     def testFanboxArtistPostsRestrictedNextPage(self):
-        p = open('./test/Fanbox_artist_posts_next_page_restricted.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts_next_page_restricted.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
 
@@ -177,7 +195,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertFalse(result.posts[1].is_restricted)
 
     def testFanboxOldApi(self):
-        p = open('./test/fanbox-posts-old-api.json', 'r', encoding="utf-8").read()
+        reader = open('./test/fanbox-posts-old-api.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(104409, p)
         self.assertIsNotNone(result)
 
@@ -190,7 +210,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         print(result.posts[1].images)
 
     def testFanboxNewApi(self):
-        p = open('./test/fanbox-posts-new-api.json', 'r', encoding="utf-8").read()
+        reader = open('./test/fanbox-posts-new-api.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(104409, p)
         self.assertIsNotNone(result)
 
@@ -201,7 +223,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(result.posts[1].images), 2)
 
     def testFanboxNewApi2_MultiImages(self):
-        p = open('./test/Fanbox_post_with_multi_images.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_post_with_multi_images.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         js = demjson.decode(p)
         result = FanboxPost(855025, None, js["body"])
         self.assertIsNotNone(result)
@@ -213,7 +237,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertFalse(result.coverImageUrl in result.images)
 
     def testFanboxNewApi2_Files(self):
-        p = open('./test/Fanbox_post_with_files.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_post_with_files.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         js = demjson.decode(p)
         result = FanboxPost(685832, None, js["body"])
         self.assertIsNotNone(result)
@@ -225,7 +251,9 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertFalse(result.coverImageUrl in result.images)
 
     def testFanboxFilename(self):
-        p = open('./test/Fanbox_artist_posts.json', 'r', encoding="utf-8").read()
+        reader = open('./test/Fanbox_artist_posts.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
         result = FanboxArtist(15521131, p)
         self.assertIsNotNone(result)
         root_dir = os.path.abspath(os.path.curdir)
@@ -289,7 +317,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
             self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
         cover_more_format()
-        
+
     def test_links_in_p_tags(self):
         with open('./test/test_for_links_in_p_tags.json', 'r', encoding="utf-8") as reader:
             p = reader.read()
@@ -310,9 +338,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
             "#modified_for_test",
             temp_string[20:30],
             temp_string[30:])
-        print(test_string2)
         self.assertTrue(test_string2 in result.body_text)
-
 
 if __name__ == '__main__':
     # unittest.main()
