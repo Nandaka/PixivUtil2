@@ -307,7 +307,7 @@ class PixivConfig():
                 self.writeImageInfo = False
                 print("writeImageInfo = False")
                 haveError = True
-           
+
             try:
                 self.writeHtml = config.getboolean('Settings', 'writeHtml')
             except ValueError:
@@ -761,6 +761,8 @@ class PixivConfig():
             # with codecs.open('config.ini.bak', encoding = 'utf-8', mode = 'wb') as configfile:
             with open(configlocation + '.tmp', 'w', encoding='utf8') as configfile:
                 config.write(configfile)
+                configfile.close()
+
             if os.path.exists(configlocation):
                 if error:
                     backupName = configlocation + '.error-' + str(int(time.time()))
@@ -769,6 +771,7 @@ class PixivConfig():
                 else:
                     print("Backing up old config to config.ini.bak")
                     shutil.move(configlocation, configlocation + '.bak')
+            self.__logger.debug(f"renaming {configlocation}.tmp to {configlocation}")
             os.rename(configlocation + '.tmp', configlocation)
         except BaseException:
             self.__logger.exception('Error at writeConfig()')
