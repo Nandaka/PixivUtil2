@@ -1,5 +1,5 @@
-202000404-beta1
-- Try to fix #658: login detection.
+202000404-beta2
+- Try to fix #658, #662: login detection.
 - Try to fix #654: explicitly call close() when writing config.ini.tmp
 - Implement #652: Enable filter by bookmark count for Pixiv Premium.
 - Merged #656 (#659) by amatuerCoder: Download fanbox articles in HTML.

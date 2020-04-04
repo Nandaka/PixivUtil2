@@ -377,27 +377,46 @@ class PixivBrowser(mechanize.Browser):
                     print(
                         "Please follow the method described in https://github.com/Nandaka/PixivUtil2/issues/505")
             else:
-                PixivHelper.print_and_log(
-                    'info', 'Unknown login issue, please use cookie login method.')
+                PixivHelper.print_and_log('info', 'Unknown login issue, please use cookie login method.')
             return False
 
     def getMyId(self, parsed):
         ''' Assume from main page '''
+        temp = None
         # pixiv.user.id = "189816";
         temp = re.findall(r"pixiv.user.id = \"(\d+)\";", parsed)
-        if temp is not None:
+        if temp is not None and len(temp) > 0:
             self._myId = int(temp[0])
-            PixivHelper.print_and_log(
-                'info', 'My User Id: {0}.'.format(self._myId))
+            PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
         else:
+            # _gaq.push(['_setCustomVar', 6, 'user_id', "3145410", 1]);
+            temp = re.findall(r"_gaq.push\(\['_setCustomVar', 6, 'user_id', \"(\d+)\", 1\]\);", parsed)
+            if self._myId == 0 and temp is not None and len(temp) > 0:
+                self._myId = int(temp[0])
+                PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
+            else:
+                # var dataLayer = [{ login: 'yes', gender: "male", user_id: "3145410", lang: "en", illustup_flg: 'not_uploaded', premium: 'no', }];
+                temp = re.findall(r"var dataLayer = .*user_id: \"(\d+)\"", parsed)
+                if self._myId == 0 and temp is not None and len(temp) > 0:
+                    self._myId = int(temp[0])
+                    PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
+
+        if self._myId == 0:
             PixivHelper.print_and_log('info', 'Unable to get User Id')
 
         self._isPremium = False
         temp = re.findall(r"pixiv.user.premium = (\w+);", parsed)
-        if temp is not None:
+        if temp is not None and len(temp) > 0:
             self._isPremium = True if temp[0] == "true" else False
-        PixivHelper.print_and_log(
-            'info', 'Premium User: {0}.'.format(self._isPremium))
+        else:
+            temp = re.findall(r"_gaq.push\(\['_setCustomVar', 3, 'plan', '(\w+)', 1\]\)", parsed)
+            if temp is not None and len(temp) > 0:
+                self._isPremium = True if temp[0] == "premium" else False
+            else:
+                temp = re.findall(r"var dataLayer = .*premium: '(\w+)'", parsed)
+                if temp is not None and len(temp) > 0:
+                    self._isPremium = True if temp[0] == "yes" else False
+        PixivHelper.print_and_log('info', 'Premium User: {0}.'.format(self._isPremium))
 
     def parseLoginError(self, res):
         page = BeautifulSoup(res, features="html5lib")
