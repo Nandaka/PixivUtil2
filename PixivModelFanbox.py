@@ -207,17 +207,14 @@ class FanboxPost(object):
                             if pointer < link_offset:
                                 block_text += block["text"][pointer:offset+1]
                             pointer = link_offset + link["length"] + 1
-                            link_url = link["url"]
                             block_text += "<a href='{0}'>{1}</a>".format(
-                                link_url,
+                                link["url"],
                                 block["text"][link_offset:pointer])
-                            if i == len(block["links"]) - 1:
-                                block_text += block["text"][pointer:]
-                        self.body_text = u"{0}<p>{1}</p>".format(
-                        self.body_text, block_text)
+                        block_text += block["text"][pointer:]
                     else:
-                        self.body_text = u"{0}<p>{1}</p>".format(
-                            self.body_text, block["text"])
+                        block_text = block["text"]
+                    self.body_text = u"{0}<p>{1}</p>".format(
+                    self.body_text, block_text)
                 elif block["type"] == "image":
                     imageId = block["imageId"]
                     self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
