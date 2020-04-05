@@ -118,7 +118,7 @@ class PixivConfig():
     debugHttp = False
 
     def loadConfig(self, path=None):
-        ''' new settings must be added on the last'''
+        ''' New settings must be added on the last part.'''
 
         if path is not None:
             self.configFileLocation = path
@@ -306,13 +306,6 @@ class PixivConfig():
             except ValueError:
                 self.writeImageInfo = False
                 print("writeImageInfo = False")
-                haveError = True
-
-            try:
-                self.writeHtml = config.getboolean('Settings', 'writeHtml')
-            except ValueError:
-                self.writeHtml = False
-                print("writeHtml = False")
                 haveError = True
 
             try:
@@ -635,6 +628,13 @@ class PixivConfig():
             except ValueError:
                 print("downloadResized = False")
                 self.downloadResized = False
+                haveError = True
+
+            try:
+                self.writeHtml = config.getboolean('Settings', 'writeHtml')
+            except ValueError:
+                self.writeHtml = False
+                print("writeHtml = False")
                 haveError = True
 
         except BaseException:
