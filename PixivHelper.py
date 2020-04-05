@@ -644,10 +644,10 @@ def print_progress(curr, total):
     # [12345678901234567890]
     # [||||||||------------]
     animBarLen = 20
-
+    print('\r', end=' ')
     if total > 0:
         complete = int((curr * animBarLen) / total)
-        print(f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}", end='\r')
+        print(f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}", end=' ')
     else:
         # indeterminite
         pos = curr % (animBarLen + 3)  # 3 corresponds to the length of the '|||' below
@@ -655,7 +655,7 @@ def print_progress(curr, total):
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
-        print(f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}', end='\r')
+        print(f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}', end=' ')
 
 
 def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
