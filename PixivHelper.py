@@ -594,21 +594,24 @@ def download_image(url, filename, res, file_size, overwrite):
     # download the file
     prev = 0
     curr = 0
-    print('{0:22} Bytes'.format(curr), end=' ')
+    msg_len = 80
+    # print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
             curr = save.tell()
-            print_progress(curr, file_size)
+            msg_len = print_progress(curr, file_size, msg_len)
 
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
+                print("")
                 print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(file_size, total_time)))
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
+                print("")
                 print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(curr, total_time)))
                 break
 
@@ -644,14 +647,15 @@ def download_image(url, filename, res, file_size, overwrite):
     return (curr, filename)
 
 
-def print_progress(curr, total):
+def print_progress(curr, total, max_msg_length=80):
     # [12345678901234567890]
     # [||||||||------------]
     animBarLen = 20
 
     if total > 0:
         complete = int((curr * animBarLen) / total)
-        print(f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}", end='\r')
+        msg = f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+
     else:
         # indeterminite
         pos = curr % (animBarLen + 3)  # 3 corresponds to the length of the '|||' below
@@ -659,7 +663,12 @@ def print_progress(curr, total):
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
-        print(f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}', end='\r')
+        msg = f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
+
+    curr_msg_length = len(msg)
+    print(msg.ljust(max_msg_length, " "), end='\r')
+
+    return curr_msg_length if curr_msg_length > max_msg_length else max_msg_length
 
 
 def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
