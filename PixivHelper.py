@@ -99,9 +99,12 @@ def sanitize_filename(name, rootDir=None):
         # cut whole path to 255 char
         # TODO: check for Windows long path extensions being enabled
         if rootDir is not None:
-            full_name = os.path.abspath(os.path.join(rootDir, name))
+            # need to remove \\ from name prefix
+            tname = name[1:] if name[0] == "\\" else name
+            full_name = os.path.abspath(os.path.join(rootDir, tname))
         else:
             full_name = os.path.abspath(name)
+
         if len(full_name) > 255:
             filename, extname = os.path.splitext(name)  # NOT full_name, to avoid clobbering paths
             # don't trim the extension
@@ -116,6 +119,7 @@ def sanitize_filename(name, rootDir=None):
             name = filename[:len(filename) - 1] + extname
 
     if rootDir is not None:
+        name = name[1:] if name[0] == "\\" else name
         name = os.path.abspath(os.path.join(rootDir, name))
 
     get_logger().debug("Sanitized Filename: %s", name)
