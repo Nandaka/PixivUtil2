@@ -594,7 +594,7 @@ def download_image(url, filename, res, file_size, overwrite):
     # download the file
     prev = 0
     curr = 0
-    msg_len = 80
+    msg_len = 0
     # print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
