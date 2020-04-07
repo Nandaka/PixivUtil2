@@ -120,7 +120,9 @@ def sanitize_filename(name, rootDir=None):
 
     if rootDir is not None:
         name = name[1:] if name[0] == "\\" else name
-        name = os.path.abspath(os.path.join(rootDir, name))
+        # name = os.path.abspath(os.path.join(rootDir, name))
+        # compatibility...
+        name = rootDir + os.sep + name
 
     get_logger().debug("Sanitized Filename: %s", name)
 
