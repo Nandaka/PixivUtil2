@@ -37,6 +37,21 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
 
+    def testSanitizeFilename3(self):
+        rootDir = 'D:\\Temp\\Pixiv2\\'
+        nameformat = '%searchTags%\\%member_id% %member_token%\\%R-18% %urlFilename% - %title%'
+        p = open('./test/test-image-unicode.htm', 'r', encoding="utf-8")
+        page = p.read()
+        image = PixivImage(2493913, page)
+        self.assertEqual(image.imageUrls[0], "https://i-f.pximg.net/img-original/img/2008/12/23/21/01/21/2493913_p0.jpg")
+        filename = PixivHelper.make_filename(nameformat, image, fileUrl="2493913_p0.jpg")
+
+        expected = "D:\\Temp\\Pixiv2\\267014 balzehn\\R-18 2493913_p0 - アラクネのいる日常２.jpg"
+        result = PixivHelper.sanitize_filename(filename, rootDir)
+
+        self.assertEqual(result, expected)
+        self.assertTrue(len(result) < 255)
+
     def testCreateMangaFilename(self):
         p = open(r'./test/test-image-manga.htm', 'r', encoding='utf-8')
         page = p.read()

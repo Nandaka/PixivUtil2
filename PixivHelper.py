@@ -100,7 +100,7 @@ def sanitize_filename(name, rootDir=None):
         # TODO: check for Windows long path extensions being enabled
         if rootDir is not None:
             # need to remove \\ from name prefix
-            tname = name[1:] if name[0] == "\\" else name
+            tname = name[1:] if name[0] == os.sep else name
             full_name = os.path.abspath(os.path.join(rootDir, tname))
         else:
             full_name = os.path.abspath(name)
@@ -119,10 +119,8 @@ def sanitize_filename(name, rootDir=None):
             name = filename[:len(filename) - 1] + extname
 
     if rootDir is not None:
-        name = name[1:] if name[0] == "\\" else name
-        # name = os.path.abspath(os.path.join(rootDir, name))
-        # compatibility...
-        name = rootDir + os.sep + name
+        name = name[1:] if name[0] == os.sep else name
+        name = os.path.abspath(os.path.join(rootDir, name))
 
     get_logger().debug("Sanitized Filename: %s", name)
 
