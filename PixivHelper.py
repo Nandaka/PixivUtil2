@@ -117,6 +117,7 @@ def sanitize_filename(name, rootDir=None):
         while len(name.encode('utf-8')) > 249:
             filename, extname = os.path.splitext(name)
             name = filename[:len(filename) - 1] + extname
+        name = name.replace('\\', '/')
 
     if rootDir is not None:
         name = name[1:] if name[0] == os.sep else name

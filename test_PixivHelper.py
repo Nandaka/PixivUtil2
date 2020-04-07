@@ -3,6 +3,7 @@
 
 import json
 import os
+import platform
 import unittest
 
 from bs4 import BeautifulSoup
@@ -39,6 +40,9 @@ class TestPixivHelper(unittest.TestCase):
 
     def testSanitizeFilename3(self):
         rootDir = 'D:\\Temp\\Pixiv2\\'
+        if platform.system() != 'Windows':
+            rootDir = '/home/travis/build/Nandaka/PixivUtil2/'
+
         nameformat = '%searchTags%\\%member_id% %member_token%\\%R-18% %urlFilename% - %title%'
         p = open('./test/test-image-unicode.htm', 'r', encoding="utf-8")
         page = p.read()
@@ -47,6 +51,9 @@ class TestPixivHelper(unittest.TestCase):
         filename = PixivHelper.make_filename(nameformat, image, fileUrl="2493913_p0.jpg")
 
         expected = "D:\\Temp\\Pixiv2\\267014 balzehn\\R-18 2493913_p0 - アラクネのいる日常２.jpg"
+        if platform.system() != 'Windows':
+            expected = "/home/travis/build/Nandaka/PixivUtil2/267014 balzehn/R-18 2493913_p0 - アラクネのいる日常２.jpg"
+
         result = PixivHelper.sanitize_filename(filename, rootDir)
 
         self.assertEqual(result, expected)
