@@ -505,6 +505,9 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
                                        __config__.backupOldFile)
                 is_avatar_downloaded = True
 
+            if __config__.autoAddMember:
+                __dbManager__.insertNewMember(int(member_id))
+
             __dbManager__.updateMemberName(member_id, artist.artistName)
 
             if not artist.haveImages:
@@ -608,9 +611,6 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
             log_message = 'last image_id: ' + str(image_id)
         else:
             log_message = 'no images were found'
-
-        if __config__.autoAddMember:
-            __dbManager__.insertNewMember(int(member_id))
 
         print('Done.\n')
         __log__.info('Member_id: %d complete, %s', member_id, log_message)
