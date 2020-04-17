@@ -334,7 +334,6 @@ class FanboxPost(object):
                 info.write(" - {0}\r\n".format(link))
         info.close()
 
-
     def WriteHtml(self, html_template, useAbsolutePaths, filename):
         info = None
         try:
@@ -368,10 +367,11 @@ class FanboxPost(object):
             if not useAbsolutePaths:
                 try:
                     v = os.path.relpath(v, html_dir)
-                except ValueError as e:
+                except ValueError:
                     PixivHelper.get_logger() \
                         .exception("Error when converting local paths to relative ones, absolute paths are used",
                                    filename, self.imageId)
+                    v = "file://" + v
             else:
                 v = "file://" + v
             page = page.replace(k, v)
