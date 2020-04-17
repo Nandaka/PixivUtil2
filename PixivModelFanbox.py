@@ -334,7 +334,8 @@ class FanboxPost(object):
                 info.write(" - {0}\r\n".format(link))
         info.close()
 
-    def WriteHtml(self, html_pattern, filename):
+
+    def WriteHtml(self, html_template, useAbsolutePaths, filename):
         info = None
         try:
             PixivHelper.makeSubdirs(filename)
@@ -342,28 +343,37 @@ class FanboxPost(object):
         except IOError:
             info = codecs.open(str(self.imageId) + ".html",
                                'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html", filename,
-                                               self.imageId)
+            PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html",
+                                               filename, self.imageId)
 
-        page = html_pattern.replace("%coverImageUrl%", self.coverImageUrl or "")
+        page = html_template.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
         page = page.replace("%imageTitle%", self.imageTitle)
         page = page.replace("%worksDate%", self.worksDate)
         page = page.replace("%body_text%", self.body_text or "")
 
         page = BeautifulSoup(page, features="html5lib")
-        imageATags = page.find_all("a", attrs={"href":True})
+        imageATags = page.find_all("a", attrs={"href": True})
         for imageATag in imageATags:
             tag = imageATag.img
             if tag:
                 tag["src"] = imageATag["href"]
         if self.coverImageUrl == None:
-            cover_div = page.find("div", attrs={"class":"cover"})
+            cover_div = page.find("div", attrs={"class": "cover"})
             if cover_div:
                 cover_div.decompose()
         page = page.prettify()
-        for k,v in self.linkToFile.items():
-            page = page.replace(k, "file://" + v )
-
+        html_dir = os.path.dirname(filename)
+        for k, v in self.linkToFile.items():
+            if not useAbsolutePaths:
+                try:
+                    v = os.path.relpath(v, html_dir)
+                except ValueError as e:
+                    PixivHelper.get_logger() \
+                        .exception("Error when converting local paths to relative ones, absolute paths are used",
+                                   filename, self.imageId)
+            else:
+                v = "file://" + v
+            page = page.replace(k, v)
         info.write(page)
         info.close()
