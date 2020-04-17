@@ -51,6 +51,7 @@ class PixivConfig():
     writeImageInfo = False
     writeImageJSON = False
     writeHtml = False
+    useAbsolutePathsInHtml = False
     verifyImage = False
     writeUrlInDescription = False
     urlBlacklistRegex = ""
@@ -637,6 +638,13 @@ class PixivConfig():
                 print("writeHtml = False")
                 haveError = True
 
+            try:
+                self.useAbsolutePathsInHtml = config.getboolean('Settings', 'useAbsolutePathsInHtml')
+            except ValueError:
+                self.useAbsolutePathsInHtml = False
+                print("useAbsolutePathsInHtml = False")
+                haveError = True
+
         except BaseException:
             print('Error at loadConfig():', sys.exc_info())
             self.__logger.exception('Error at loadConfig()')
@@ -691,6 +699,7 @@ class PixivConfig():
         config.set('Settings', 'writeImageInfo', self.writeImageInfo)
         config.set('Settings', 'writeImageJSON', self.writeImageJSON)
         config.set('Settings', 'writeHtml', self.writeHtml)
+        config.set('Settings', 'useAbsolutePathsInHtml', self.useAbsolutePathsInHtml)
         config.set('Settings', 'verifyImage', self.verifyImage)
         config.set('Settings', 'writeUrlInDescription', self.writeUrlInDescription)
         config.set('Settings', 'urlBlacklistRegex', self.urlBlacklistRegex)
@@ -824,6 +833,7 @@ class PixivConfig():
         print(' - writeImageInfo        =', self.writeImageInfo)
         print(' - writeImageJSON        =', self.writeImageJSON)
         print(' - writeHtml             =', self.writeHtml)
+        print(' - useAbsolutePathsInHtml=', self.useAbsolutePathsInHtml)
         print(' - verifyImage           =', self.verifyImage)
         print(' - writeUrlInDescription =', self.writeUrlInDescription)
         print(' - urlBlacklistRegex     =', self.urlBlacklistRegex)
