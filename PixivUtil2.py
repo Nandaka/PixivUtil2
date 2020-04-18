@@ -2067,13 +2067,12 @@ def processFanboxImages(post, result_artist):
     if __config__.writeImageInfo:
         post.WriteInfo(filename + ".txt")
     if __config__.writeHtml and post.type == "article":
-        html_pattern = PixivConstant.HTML_PATTERN
-        if os.path.isfile("pattern.html"):
-            reader = PixivHelper.open_text_file("pattern.html")
-            html_pattern = reader.read()
+        html_template = PixivConstant.HTML_TEMPLATE
+        if os.path.isfile("template.html"):
+            reader = PixivHelper.open_text_file("template.html")
+            html_template = reader.read()
             reader.close()
-
-        post.WriteHtml(html_pattern, filename + ".html")
+        post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
 
 
 def menu_fanbox_download_by_artist_id(op_is_valid, args):
