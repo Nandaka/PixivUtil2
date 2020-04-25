@@ -58,7 +58,9 @@ class PixivConfig():
         ConfigItem("Network", "enableSSLVerification", True),
 
         ConfigItem("Debug", "logLevel", "DEBUG",
-                   restriction=lambda x: x in ['CRITICAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']),
+                   followup=lambda x: x.upper(),
+                   restriction=lambda x: x.upper() in ['CRITICAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG',
+                                                       'NOTSET']),
         ConfigItem("Debug", "enableDump", True),
         ConfigItem("Debug", "skipDumpFilter", ""),
         ConfigItem("Debug", "dumpMediumPage", False),
@@ -151,7 +153,6 @@ class PixivConfig():
 
     def loadConfig(self, path=None):
         ''' New settings must be added on the last part.'''
-
         if path is not None:
             self.configFileLocation = path
         else:
@@ -159,36 +160,38 @@ class PixivConfig():
 
         print('Reading', self.configFileLocation, '...')
         haveError = False
+        content = ""
         config = configparser.RawConfigParser()
         try:
             with PixivHelper.open_text_file(self.configFileLocation) as reader:
-                config.read_file(reader)
-
-                for item in PixivConfig.__items:
-                    option_type = type(item.default)
-
-                    method = config.get
-                    if option_type == int:
-                        method = config.getint
-                    elif option_type == bool:
-                        method = config.getboolean
-
-                    try:
-                        value = method(item.section, item.option)
-                        value = item.process_value(value)
-                    except:
-                        print(item.option, "=", item.default)
-                        value = item.default
-                        haveError = True
-
-                    self.__setattr__(item.option, value)
-
-            self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
-
-        except BaseException:
-            print('Error at loadConfig():', sys.exc_info())
-            self.__logger.exception('Error at loadConfig()')
+                content = reader.read()
+        except BaseException as e:
+            print('Error at loadConfig() reading from file:', self.configFileLocation, "\n", sys.exc_info())
+            self.__logger.exception('Error at loadConfig() reading from file: ' + self.configFileLocation)
             haveError = True
+
+        config.read_string(content)
+
+        for item in PixivConfig.__items:
+            option_type = type(item.default)
+
+            method = config.get
+            if option_type == int:
+                method = config.getint
+            elif option_type == bool:
+                method = config.getboolean
+
+            try:
+                value = method(item.section, item.option)
+                value = item.process_value(value)
+            except:
+                print(item.option, "=", item.default)
+                value = item.default
+                haveError = True
+
+            self.__setattr__(item.option, value)
+
+        self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
         if haveError:
             print('Some configuration have invalid value, replacing with the default value.')
