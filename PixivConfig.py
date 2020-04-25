@@ -42,8 +42,6 @@ class PixivConfig():
     __logger = PixivHelper.get_logger()
     configFileLocation = "config.ini"
 
-    # initialize default value
-
     __items = [
         ConfigItem("Network", "useProxy", False),
         ConfigItem("Network", "proxyAddress", ""),
@@ -151,25 +149,29 @@ class PixivConfig():
 
     proxy = {"http": "", "https": "", }
 
+    def __init__(self):
+        for item in self.__items:
+            setattr(self, item.option, item.default)
+
     def loadConfig(self, path=None):
-        ''' New settings must be added on the last part.'''
         if path is not None:
             self.configFileLocation = path
         else:
             self.configFileLocation = script_path + os.sep + 'config.ini'
 
         print('Reading', self.configFileLocation, '...')
-        haveError = False
-        content = ""
         config = configparser.RawConfigParser()
+
         try:
             with PixivHelper.open_text_file(self.configFileLocation) as reader:
                 content = reader.read()
         except BaseException as e:
-            print('Error at loadConfig() reading from file:', self.configFileLocation, "\n", sys.exc_info())
-            self.__logger.exception('Error at loadConfig() reading from file: ' + self.configFileLocation)
-            haveError = True
+            print('Error at loadConfig() reading file:', self.configFileLocation, "\n", sys.exc_info())
+            self.__logger.exception('Error at loadConfig() reading file: ' + self.configFileLocation)
+            self.writeConfig(error=True, path=self.configFileLocation)
+            return
 
+        haveError = False
         config.read_string(content)
 
         for item in PixivConfig.__items:
@@ -194,7 +196,7 @@ class PixivConfig():
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
         if haveError:
-            print('Some configuration have invalid value, replacing with the default value.')
+            print('Configurations with invalid value are set to default value.')
             self.writeConfig(error=True, path=self.configFileLocation)
 
         print('done.')
