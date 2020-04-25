@@ -161,26 +161,27 @@ class PixivConfig():
         haveError = False
         config = configparser.RawConfigParser()
         try:
-            config.read_file(PixivHelper.open_text_file(self.configFileLocation))
+            with PixivHelper.open_text_file(self.configFileLocation) as reader:
+                config.read_file(reader)
 
-            for item in PixivConfig.__items:
-                option_type = type(item.default)
+                for item in PixivConfig.__items:
+                    option_type = type(item.default)
 
-                method = config.get
-                if option_type == int:
-                    method = config.getint
-                elif option_type == bool:
-                    method = config.getboolean
+                    method = config.get
+                    if option_type == int:
+                        method = config.getint
+                    elif option_type == bool:
+                        method = config.getboolean
 
-                try:
-                    value = method(item.section, item.option)
-                    value = item.process_value(value)
-                except:
-                    print(item.option, "=", item.default)
-                    value = item.default
-                    haveError = True
+                    try:
+                        value = method(item.section, item.option)
+                        value = item.process_value(value)
+                    except:
+                        print(item.option, "=", item.default)
+                        value = item.default
+                        haveError = True
 
-                self.__setattr__(item.option, value)
+                    self.__setattr__(item.option, value)
 
             self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
