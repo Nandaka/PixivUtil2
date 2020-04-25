@@ -248,6 +248,5 @@ class PixivConfig():
         for k, g in groups:
             print(f" [{k}]")
             for item in g:
-                print(f" - {item.option:.{30}} = {self.__getattribute__(item.option)}")
-
+                print(f" - {item.option:{25}} = {self.__getattribute__(item.option)}")
         print('')
