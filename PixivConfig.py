@@ -152,6 +152,7 @@ class PixivConfig():
     def __init__(self):
         for item in self.__items:
             setattr(self, item.option, item.default)
+        self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
     def loadConfig(self, path=None):
         if path is not None:
@@ -243,10 +244,14 @@ class PixivConfig():
 
     def printConfig(self):
         print('Configuration: ')
-
-        groups = itertools.groupby(PixivConfig.__items, lambda x: x.section)
-        for k, g in groups:
-            print(f" [{k}]")
-            for item in g:
-                print(f" - {item.option:{25}} = {self.__getattribute__(item.option)}")
+        groups = {k: list(g) for k, g in itertools.groupby(PixivConfig.__items, lambda x: x.section)}
+        sections = ["Authentication", "Network", "Debug", "IrfanView", "Settings", "Filename", "Pixiv", "FFmpeg",
+                    "Ugoira", "DownloadControl"]
+        sections.extend([k for k in groups if k not in sections])
+        for section in sections:
+            g = groups.get(section)
+            if g:
+                print(f" [{section}]")
+                for item in g:
+                    print(f" - {item.option:{25}} = {self.__getattribute__(item.option)}")
         print('')
