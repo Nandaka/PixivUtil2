@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
 
 import http.client
@@ -20,7 +20,7 @@ import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
 from PixivImage import PixivImage
-from PixivModelFanbox import Fanbox, FanboxArtist
+from PixivModelFanbox import Fanbox, FanboxArtist, FanboxPost
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
 
@@ -777,25 +777,40 @@ class PixivBrowser(mechanize.Browser):
         result.artistToken = pixivArtist.artistToken
 
         for post in result.posts:
-            # https://fanbox.pixiv.net/api/post.info?postId=279561
-            # https://www.pixiv.net/fanbox/creator/104409/post/279561
-            p_url = f"https://fanbox.pixiv.net/api/post.info?postId={post.imageId}"
-            p_referer = f"https://www.pixiv.net/fanbox/creator/{artist_id}/post/{post.imageId}"
-            PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
-            p_req = mechanize.Request(p_url)
-            p_req.add_header('Accept', 'application/json, text/plain, */*')
-            p_req.add_header('Referer', p_referer)
-            p_req.add_header('Origin', 'https://www.pixiv.net')
-            p_req.add_header('User-Agent', self._config.useragent)
-
-            p_res = self.open_with_retry(p_req)
-            p_response = p_res.read()
-            PixivHelper.get_logger().debug(p_response.decode('utf8'))
-            p_res.close()
-            js = demjson.decode(p_response)
+            js = self.fanboxGetPost(post.imageId, artist_id)
             post.parsePost(js["body"])
 
         return result
+
+    def fanboxGetPost(self, post_id, member_id=0):
+        # https://fanbox.pixiv.net/api/post.info?postId=279561
+        # https://www.pixiv.net/fanbox/creator/104409/post/279561
+        p_url = f"https://fanbox.pixiv.net/api/post.info?postId={post_id}"
+        # referer doesn't seeem to be essential
+        p_referer = f"https://www.pixiv.net/fanbox/creator/{member_id}/post/{post_id}"
+        PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
+        p_req = mechanize.Request(p_url)
+        p_req.add_header('Accept', 'application/json, text/plain, */*')
+        p_req.add_header('Referer', p_referer)
+        p_req.add_header('Origin', 'https://www.pixiv.net')
+        p_req.add_header('User-Agent', self._config.useragent)
+
+        p_res = self.open_with_retry(p_req)
+        p_response = p_res.read()
+        PixivHelper.get_logger().debug(p_response.decode('utf8'))
+        p_res.close()
+        js = demjson.decode(p_response)
+        if member_id:
+            return js
+        else:
+            _tzInfo = None
+            if self._config.useLocalTimezone:
+                _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+            user = object().__new__(FanboxArtist)
+            user.artistId = js["body"]["user"]["userId"]
+            user.name = js["body"]["user"]["name"]
+            post = FanboxPost(post_id, user, js["body"], _tzInfo)
+            return post
 
 
 def getBrowser(config=None, cookieJar=None):
