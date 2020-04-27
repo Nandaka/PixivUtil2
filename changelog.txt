@@ -1,12 +1,17 @@
-202000404-beta2
+202000424
 - Try to fix #658, #662: login detection.
 - Try to fix #654: explicitly call close() when writing config.ini.tmp
 - Implement #652: Enable filter by bookmark count for Pixiv Premium.
 - Merged #656 (#659) by amatuerCoder: Download fanbox articles in HTML.
   - set writeHtml = True to enable.
   - modifieable template based on pattern.html
-- Merged #660 by wmjdgla: Simplified print_progress and fixed jerky progress bar for indeterminate case
-- Merged #647 by Alex: Refactor sanitize_filename in PixivHelper
+- Merged #660 by wmjdgla: Simplified print_progress and fixed jerky progress bar for indeterminate case.
+- Merged #647 by Alex: Refactor sanitize_filename in PixivHelper.
+- Merged #671 by amatuerCoder: Html improvements for Fanbox.
+- Merged #670 by Jared Shields: Update autoAddMember.
+- Fix Issue #663: handle directory name for filename formats.
+- Merged #661 by amatuerCoder: Added logic for links if links token was in p blocks
+- Update test cases and other small fixes (see the commit history for more details).
 
 20200307
 - Fix Issue #648: Can't download Ugoiras when "downloadresized" is active.
