@@ -571,11 +571,11 @@ class PixivDBManager(object):
             c = self.conn.cursor()
             post_id = int(post_id)
             c.execute(
-                '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id, last_update_date)
-                VALUES(?, ?, datetime('now'))''', (member_id, post_id))
+                '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id) VALUES(?, ?)''',
+                (member_id, post_id))
             c.execute(
-                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, post_type = ?
-                WHERE post_id = ?''',
+                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, 
+                post_type = ?, last_update_date = datetime('now') WHERE post_id = ?''',
                 (title, fee_required, published_date, post_type, post_id))
             self.conn.commit()
         except BaseException:
