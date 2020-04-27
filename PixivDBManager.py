@@ -231,7 +231,7 @@ class PixivDBManager(object):
             c.close()
         print('done.')
 
-   def exportFanboxPostList(self, filename):
+    def exportFanboxPostList(self, filename):
         print('Exporting FANBOX post list...', end=' ')
         try:
             c = self.conn.cursor()
@@ -566,7 +566,7 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-def insertPost(self, member_id, post_id, title, fee_required, published_date, post_type):
+    def insertPost(self, member_id, post_id, title, fee_required, published_date, post_type):
         try:
             c = self.conn.cursor()
             post_id = int(post_id)
