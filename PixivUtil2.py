@@ -1515,6 +1515,7 @@ def menu():
     print('------------------------')
     print('f1. Download from supported artists (FANBOX)')
     print('f2. Download by artist id (FANBOX)')
+    print('f3. Download by post id (FANBOX)')
     print('------------------------')
     print('d. Manage database')
     print('e. Export online bookmark')
@@ -1937,6 +1938,24 @@ def menu_fanbox_download_supported_artist(op_is_valid, args):
             PixivHelper.print_and_log("error", "Error processing FANBOX Artist: {0} ==> {1}".format(artist_id, pex.message))
 
 
+def menu_fanbox_download_by_post_id(op_is_valid, args):
+    __log__.info('Download FANBOX by post id mode.')
+    if op_is_valid and len(args) > 0:
+        post_ids = args
+    else:
+        post_ids = input("Post ids = ").rstrip("\r") or 0
+
+    post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
+    for post_id in post_ids:
+        post_id = int(post_id)
+        post = __br__.fanboxGetPost(post_id)
+        try:
+            processFanboxImages(post, post.parent)
+        except PixivException as pex:
+            PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
+        del post
+
+
 def processFanboxArtist(artist_id, end_page):
     current_page = 1
     next_url = None
@@ -1951,43 +1970,8 @@ def processFanboxArtist(artist_id, end_page):
 
         for post in result_artist.posts:
             print("#{0}".format(image_count))
-            print("Post  = {0}".format(post.imageId))
-            print("Title = {0}".format(post.imageTitle))
-            print("Type  = {0}".format(post.type))
-            print("Created Date  = {0}".format(post.worksDate))
-            print("Is Restricted = {0}".format(post.is_restricted))
-            # cover image
-            if post.coverImageUrl is not None:
-                # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId), "{0}_".format(post.imageId))
-                filename = PixivHelper.make_filename(__config__.filenameFormat,
-                                                    post,
-                                                    artistInfo=result_artist,
-                                                    tagsSeparator=__config__.tagsSeparator,
-                                                    tagsLimit=__config__.tagsLimit,
-                                                    fileUrl=fake_image_url,
-                                                    bookmark=None,
-                                                    searchTags='')
-                filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-
-                post.linkToFile[post.coverImageUrl] = filename
-
-                print("Downloading cover from {0}".format(post.coverImageUrl))
-                print("Saved to {0}".format(filename))
-
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist_id, post.imageId)
-                # don't pass the post id and page number to skip db check
-                (result, filename) = download_image(post.coverImageUrl,
-                                                    filename,
-                                                    referer,
-                                                    __config__.overwrite,
-                                                    __config__.retry,
-                                                    __config__.backupOldFile)
-                PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-
-            else:
-                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
-
+            post.printPost()
+            
             # images
             if post.type in PixivModelFanbox.FanboxPost._supportedType:
                 processFanboxImages(post, result_artist)
@@ -2007,9 +1991,51 @@ def processFanboxArtist(artist_id, end_page):
 
 
 def processFanboxImages(post, result_artist):
+    __dbManager__.insertPost(result_artist.artistId, post.imageId, post.imageTitle,
+                             post.feeRequired, post.worksDate, post.type)
     if post.is_restricted:
         PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
         return
+    
+    result = __dbManager__.selectPostByPostId(post.imageId)
+    if result:
+        updated_date = result[5]
+        if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
+            PixivHelper.print_and_log("info", "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
+            return
+
+    # cover image
+    if post.coverImageUrl is not None:
+        # fake the image_url for filename compatibility, add post id and pagenum
+        fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId),
+                                                    "{0}_".format(post.imageId))
+        filename = PixivHelper.make_filename(__config__.filenameFormat,
+                                             post,
+                                             artistInfo=result_artist,
+                                             tagsSeparator=__config__.tagsSeparator,
+                                             tagsLimit=__config__.tagsLimit,
+                                             fileUrl=fake_image_url,
+                                             bookmark=None,
+                                             searchTags='')
+        filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
+
+        post.linkToFile[post.coverImageUrl] = filename
+
+        print("Downloading cover from {0}".format(post.coverImageUrl))
+        print("Saved to {0}".format(filename))
+
+        referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(result_artist.artistId, post.imageId)
+        # don't pass the post id and page number to skip db check
+        (result, filename) = download_image(post.coverImageUrl,
+                                            filename,
+                                            referer,
+                                            __config__.overwrite,
+                                            __config__.retry,
+                                            __config__.backupOldFile)
+        PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
+    else:
+        PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
+    
     if post.images is None or len(post.images) == 0:
         PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
         # return
@@ -2073,6 +2099,8 @@ def processFanboxImages(post, result_artist):
             reader.close()
         post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
 
+    __dbManager__.updatePostLastUpdateDate(post.imageId, post.updatedDate)
+
 
 def menu_fanbox_download_by_artist_id(op_is_valid, args):
     __log__.info('Download FANBOX by Artist ID mode.')
@@ -2109,7 +2137,7 @@ def set_console_title(title=''):
 
 def setup_option_parser():
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'd', 'e', 'm')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'd', 'e', 'm')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
                       help='''Action you want to load your program with:
@@ -2127,6 +2155,7 @@ def setup_option_parser():
 12 - Download images by Group Id
 f1 - Download from supported artists (FANBOX)
 f2 - Download by artist id (FANBOX)
+f3 - Download by post id (FANBOX)
  e - Export online bookmark
  m - Export online user bookmark
  d - Manage database''')
@@ -2207,6 +2236,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_fanbox_download_supported_artist(op_is_valid, args)
             elif selection == 'f2':
                 menu_fanbox_download_by_artist_id(op_is_valid, args)
+            elif selection == 'f3':
+                menu_fanbox_download_by_post_id(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid_local:
