@@ -725,14 +725,30 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.toUnicode(response)))
 
     def fanboxGetSupportedUsers(self):
-        ''' get all supported users from the list from https://fanbox.pixiv.net/api/plan.listSupporting'''
-        url = 'https://fanbox.pixiv.net/api/plan.listSupporting'
+        url = 'https://api.fanbox.cc/plan.listSupporting'
         PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
-        referer = "https://www.pixiv.net/fanbox/support/creators"
+        referer = "https://www.fanbox.cc/creators/supporting"
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
-        req.add_header('Origin', 'https://www.pixiv.net')
+        req.add_header('Origin', 'https://www.fanbox.cc')
+        req.add_header('User-Agent', self._config.useragent)
+
+        res = self.open_with_retry(req)
+        # read the json response
+        response = res.read()
+        res.close()
+        result = Fanbox(response)
+        return result
+
+    def fanboxGetFollowedUsers(self):
+        url = 'https://api.fanbox.cc/creator.listFollowing'
+        PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+        referer = "https://www.fanbox.cc/creators/following"
+        req = mechanize.Request(url)
+        req.add_header('Accept', 'application/json, text/plain, */*')
+        req.add_header('Referer', referer)
+        req.add_header('Origin', 'https://www.fanbox.cc')
         req.add_header('User-Agent', self._config.useragent)
 
         res = self.open_with_retry(req)
@@ -778,21 +794,6 @@ class PixivBrowser(mechanize.Browser):
 
         for post in result.posts:
             js = self.fanboxGetPost(post.imageId, artist_id)
-                                                                     
-                                                                                   
-                                                                                               
-                                                                                
-                                            
-                                                                           
-                                                  
-                                                               
-                                                                  
-
-                                               
-                                     
-                                                                     
-                         
-                                           
             post.parsePost(js["body"])
 
         return result
