@@ -151,6 +151,10 @@ class FanboxPost(object):
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
         self.updatedDate = jsPost["updatedDatetime"]
         self.updatedDateDatetime = datetime_z.parse_datetime(self.updatedDate)
+
+        if "feeRequired" in jsPost:
+            self.feeRequired = jsPost["feeRequired"]
+            
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(
@@ -248,9 +252,6 @@ class FanboxPost(object):
             self.body_text = u"{0}<br />{1}".format(
                              self.body_text,
                              self.getEmbedData(jsPost["body"]["video"], jsPost))
-
-        if "feeRequired" in jsPost:
-            self.feeRequired = jsPost["feeRequired"]
 
     def getEmbedData(self, embedData, jsPost):
         if not os.path.exists("content_provider.json"):
