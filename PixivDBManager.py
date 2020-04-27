@@ -97,10 +97,10 @@ class PixivDBManager(object):
     def dropDatabase(self):
         try:
             c = self.conn.cursor()
-            c.execute('''DROP IF EXISTS TABLE pixiv_master_member''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_master_member''')
             self.conn.commit()
 
-            c.execute('''DROP IF EXISTS TABLE pixiv_master_image''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_master_image''')
             self.conn.commit()
         except BaseException:
             print('Error at dropDatabase():', str(sys.exc_info()))
