@@ -506,12 +506,11 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def insertMangaImage(self, imageId, page, filename):
+    def insertMangaImages(self, manga_files):
         try:
             c = self.conn.cursor()
-            c.execute('''INSERT OR IGNORE INTO pixiv_manga_image
-                      VALUES(?, ?, ?, datetime('now'), datetime('now'))''',
-                      (imageId, page, filename))
+            c.executemany('''INSERT OR IGNORE INTO pixiv_manga_image
+                          VALUES(?, ?, ?, datetime('now'), datetime('now'))''', manga_files)
             self.conn.commit()
         except BaseException:
             print('Error at insertMangaImage():', str(sys.exc_info()))
