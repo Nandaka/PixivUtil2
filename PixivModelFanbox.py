@@ -87,7 +87,8 @@ class FanboxPost(object):
     coverImageUrl = ""
     worksDate = ""
     worksDateDateTime = None
-    updatedDatetime = ""
+    updatedDate = ""
+    updatedDateDatetime = None
     # image|text|file|article|video|entry
     _supportedType = ["image", "text", "file", "article", "video", "entry"]
     type = ""
@@ -96,14 +97,14 @@ class FanboxPost(object):
     likeCount = 0
     parent = None
     is_restricted = False
-
+    feeRequired = 0
     # compatibility
     imageMode = ""
     imageCount = 0
     _tzInfo = None
 
     linkToFile = None
-    
+
     # not implemented
     worksResolution = ""
     worksTools = ""
@@ -121,9 +122,9 @@ class FanboxPost(object):
         self.imageId = int(post_id)
         self.parent = parent
         self._tzInfo = tzInfo
-        
+
         self.linkToFile = dict()
-        
+
         self.parsePost(page)
 
         if not self.is_restricted:
@@ -148,12 +149,13 @@ class FanboxPost(object):
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
+        self.updatedDate = jsPost["updatedDatetime"]
+        self.updatedDateDatetime = datetime_z.parse_datetime(self.updatedDate)
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(
                 self._tzInfo)
 
-        self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
         if self.type not in FanboxPost._supportedType:
             raise PixivException("Unsupported post type = {0} for post = {1}".format(
@@ -246,6 +248,9 @@ class FanboxPost(object):
                              self.body_text,
                              self.getEmbedData(jsPost["body"]["video"], jsPost))
 
+        if "feeRequired" in jsPost:
+            self.feeRequired = jsPost["feeRequired"]
+
     def getEmbedData(self, embedData, jsPost):
         if not os.path.exists("content_provider.json"):
             raise PixivException("Missing content_provider.json, please redownload application!",
@@ -295,6 +300,13 @@ class FanboxPost(object):
             return
         if item not in list_data:
             list_data.append(item)
+
+    def printPost(self):
+        print("Post  = {0}".format(self.imageId))
+        print("Title = {0}".format(self.imageTitle))
+        print("Type  = {0}".format(self.type))
+        print("Created Date  = {0}".format(self.worksDate))
+        print("Is Restricted = {0}".format(self.is_restricted))
 
     def WriteInfo(self, filename):
         info = None
