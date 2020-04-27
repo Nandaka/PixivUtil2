@@ -231,7 +231,7 @@ class PixivDBManager(object):
             c.close()
         print('done.')
 
-    def exportFanboxPostList(self, filename):
+    def exportFanboxPostList(self, filename, sep=","):
         print('Exporting FANBOX post list...', end=' ')
         try:
             c = self.conn.cursor()
@@ -239,14 +239,15 @@ class PixivDBManager(object):
                             ORDER BY member_id, post_id''')
             filename = filename + '.csv'
             writer = codecs.open(filename, 'wb', encoding='utf-8')
-            writer.write(
-                'member_id,post_id,title,fee_required,published_date,update_date,post_type,last_update_date\r\n')
+            columns = ['member_id','post_id','title','fee_required','published_date','update_date','post_type','last_update_date']
+            writer.write(sep.join(columns))
+            writer.write('\r\n')
             for row in c:
                 for string in row:
                     # Unicode write!!
                     data = str(string)
                     writer.write(data)
-                    writer.write(',')
+                    writer.write(sep)
                 writer.write('\r\n')
             writer.write('###END-OF-FILE###')
             writer.close()
@@ -979,7 +980,9 @@ class PixivDBManager(object):
                     self.printMemberList(isDeleted=True)
                 elif selection == 'f1':
                     filename = input('Filename? ').rstrip("\r")
-                    self.exportFanboxPostList(filename)
+                    sep = input('Separator? (1(default)=",", 2="\\t") ').rstrip("\r")
+                    sep = "\t" if sep=="2" else ","
+                    self.exportFanboxPostList(filename, sep)
                 elif selection == 'f2':
                     member_id = input('member_id? ').rstrip("\r")
                     self.deleteFanboxPost(member_id, "post_id")
