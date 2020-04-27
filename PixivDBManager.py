@@ -85,7 +85,20 @@ class PixivDBManager(object):
                             PRIMARY KEY (image_id, page)
                             )''')
             self.conn.commit()
-
+            
+            # just to keep track of posts, not to record the details, so no columns like saved_to or caption or whatsoever
+            c.execute('''CREATE TABLE IF NOT EXISTS fanbox_master_post (
+                            member_id INTEGER,
+                            post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
+                            title TEXT,
+                            fee_required INTEGER,
+                            published_date DATE,
+                            updated_date DATE,
+                            post_type TEXT,
+                            last_update_date DATE
+                            )''')
+            self.conn.commit()
+            
             print('done.')
         except BaseException:
             print('Error at createDatabase():', str(sys.exc_info()))
@@ -102,6 +115,13 @@ class PixivDBManager(object):
 
             c.execute('''DROP TABLE IF EXISTS pixiv_master_image''')
             self.conn.commit()
+            
+            c.execute('''DROP TABLE IF EXISTS pixiv_manga_image''')
+            self.conn.commit()
+
+            c.execute('''DROP TABLE IF EXISTS fanbox_master_post''')
+            self.conn.commit()
+            
         except BaseException:
             print('Error at dropDatabase():', str(sys.exc_info()))
             print('failed.')
@@ -211,6 +231,33 @@ class PixivDBManager(object):
             c.close()
         print('done.')
 
+   def exportFanboxPostList(self, filename):
+        print('Exporting FANBOX post list...', end=' ')
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT * FROM fanbox_master_post
+                            ORDER BY member_id, post_id''')
+            filename = filename + '.csv'
+            writer = codecs.open(filename, 'wb', encoding='utf-8')
+            writer.write(
+                'member_id,post_id,title,fee_required,published_date,update_date,post_type,last_update_date\r\n')
+            for row in c:
+                for string in row:
+                    # Unicode write!!
+                    data = str(string)
+                    writer.write(data)
+                    writer.write(',')
+                writer.write('\r\n')
+            writer.write('###END-OF-FILE###')
+            writer.close()
+        except BaseException:
+            print('Error at exportFanboxPostList(): ' + str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+        print('done.')
+        
 ##########################################
 # III. Print DB                          #
 ##########################################
@@ -519,6 +566,73 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+def insertPost(self, member_id, post_id, title, fee_required, published_date, post_type):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id, last_update_date)
+                VALUES(?, ?, datetime('now'))''', (member_id, post_id))
+            c.execute(
+                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, post_type = ?
+                WHERE post_id = ?''',
+                (title, fee_required, published_date, post_type, post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectPostByPostId(self, post_id):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''SELECT * FROM fanbox_master_post WHERE post_id = ?''',
+                (post_id,))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectPostByPostId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def updatePostLastUpdateDate(self, post_id, updated_date):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''UPDATE fanbox_master_post SET updated_date = ?
+                WHERE post_id = ?''',
+                (updated_date, post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at updatePostLastUpdateDate():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def deleteFanboxPost(self, id, by):
+        id = int(id)
+        if by not in ["member_id", "post_id"]:
+            return
+        sql = f'''DELETE FROM fanbox_master_post WHERE {by} = ?'''
+
+        try:
+            c = self.conn.cursor()
+            c.execute(sql, (id,))
+            self.conn.commit()
+        except BaseException:
+            print('Error at deleteFanboxPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
     def blacklistImage(self, memberId, ImageId):
         try:
             c = self.conn.cursor()
@@ -775,12 +889,16 @@ class PixivDBManager(object):
         print('12. Blacklist image by image_id')
         print('13. Show all deleted member')
         print('===============================================')
+        print('f1. Export FANBOX post list')
+        print('f2. Delete FANBOX download history by post_id')
+        print('f3. Delete FANBOX download history by member_id')
+        print('===============================================')
         print('c. Clean Up Database')
         print('i. Interactive Clean Up Database')
         print('p. Compact Database')
         print('r. Replace Root Path')
         print('x. Exit')
-        selection = input('Select one?').rstrip("\r")
+        selection = input('Select one? ').rstrip("\r")
         return selection
 
     def main(self):
@@ -859,6 +977,15 @@ class PixivDBManager(object):
                     self.blacklistImage(member_id, image_id)
                 elif selection == '13':
                     self.printMemberList(isDeleted=True)
+                elif selection == 'f1':
+                    filename = input('Filename? ').rstrip("\r")
+                    self.exportFanboxPostList(filename)
+                elif selection == 'f2':
+                    member_id = input('member_id? ').rstrip("\r")
+                    self.deleteFanboxPost(member_id, "post_id")
+                elif selection == 'f3':
+                    post_id = input('post_id? ').rstrip("\r")
+                    self.deleteFanboxPost(post_id, "member_id")
                 elif selection == 'c':
                     self.cleanUp()
                 elif selection == 'i':
