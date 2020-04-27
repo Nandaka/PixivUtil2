@@ -757,7 +757,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                 target_dir = user_dir
 
             result = PixivConstant.PIXIVUTIL_OK
-            manga_files = dict()
+            manga_files = list()
             page = 0
 
             # Issue #639
@@ -796,7 +796,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
                         elif result == PixivConstant.PIXIVUTIL_ABORTED:
                             raise KeyboardInterrupt()
 
-                        manga_files[page] = filename
+                        manga_files.append((image_id, page, filename))
                         page = page + 1
 
                     except urllib.error.URLError:
@@ -844,8 +844,7 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
             __dbManager__.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
             if len(manga_files) > 0:
-                for page in manga_files:
-                    __dbManager__.insertMangaImage(image_id, page, manga_files[page])
+                __dbManager__.insertMangaImages(manga_files)
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
