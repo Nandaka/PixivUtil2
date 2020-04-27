@@ -1938,6 +1938,31 @@ def menu_fanbox_download_supported_artist(op_is_valid, args):
             PixivHelper.print_and_log("error", "Error processing FANBOX Artist: {0} ==> {1}".format(artist_id, pex.message))
 
 
+def menu_fanbox_download_followed_artists(op_is_valid, args):
+    __log__.info('Download FANBOX Followed Artists mode.')
+    end_page = 0
+
+    if op_is_valid and len(args) > 0:
+        end_page = int(args[0])
+    else:
+        end_page = input("Max Page = ").rstrip("\r") or 0
+        end_page = int(end_page)
+
+    result = __br__.fanboxGetFollowedUsers()
+    if len(result.supportedArtist) == 0:
+        PixivHelper.print_and_log("info", "No following artist!")
+        return
+    PixivHelper.print_and_log("info", "Found {0} followed artist(s)".format(len(result.supportedArtist)))
+    print(result.supportedArtist)
+
+    for artist_id in result.supportedArtist:
+        # Issue #567
+        try:
+            processFanboxArtist(artist_id, end_page)
+        except PixivException as pex:
+            PixivHelper.print_and_log("error", "Error processing FANBOX Artist: {0} ==> {1}".format(artist_id, pex.message))
+
+
 def menu_fanbox_download_by_post_id(op_is_valid, args):
     __log__.info('Download FANBOX by post id mode.')
     if op_is_valid and len(args) > 0:
@@ -2137,7 +2162,7 @@ def set_console_title(title=''):
 
 def setup_option_parser():
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'd', 'e', 'm')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'd', 'e', 'm')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
                       help='''Action you want to load your program with:
@@ -2156,6 +2181,7 @@ def setup_option_parser():
 f1 - Download from supported artists (FANBOX)
 f2 - Download by artist id (FANBOX)
 f3 - Download by post id (FANBOX)
+f4 - Download from following artists (FANBOX)
  e - Export online bookmark
  m - Export online user bookmark
  d - Manage database''')
@@ -2238,6 +2264,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_fanbox_download_by_artist_id(op_is_valid, args)
             elif selection == 'f3':
                 menu_fanbox_download_by_post_id(op_is_valid, args)
+            elif selection == 'f4':
+                menu_fanbox_download_followed_artists(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid_local:
