@@ -1516,7 +1516,7 @@ def menu():
     print('f1. Download from supported artists (FANBOX)')
     print('f2. Download by artist id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
-    print('f3. Download from followed artists (FANBOX)')
+    print('f4. Download from followed artists (FANBOX)')
     print('------------------------')
     print('d. Manage database')
     print('e. Export online bookmark')
