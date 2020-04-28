@@ -268,6 +268,7 @@ class PixivBrowser(mechanize.Browser):
 
     def loginUsingCookie(self, login_cookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
+        result = False
 
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookie
@@ -281,7 +282,6 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
             res.close()
 
-            result = False
             if "logout.php" in str(parsed):
                 result = True
             if "pixiv.user.loggedIn = true" in str(parsed):
@@ -303,11 +303,12 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
 
-        del parsed
+            del parsed
         return result
 
     def fanboxLoginUsingCookie(self, login_cookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
+        result = False
 
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookieFanbox
@@ -324,14 +325,13 @@ class PixivBrowser(mechanize.Browser):
             try:
                 res = self.open_with_retry(req)
                 parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
-                PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
+                PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
                 res.close()
             except BaseException as e:
                 PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: '
                                                + format(sys.exc_info()))
                 return False
 
-            result = False
             if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
 
@@ -342,7 +342,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
 
-        del parsed
+            del parsed
         return result
 
     def login(self, username, password):
