@@ -2123,7 +2123,7 @@ def menu_fanbox_download_by_artist_or_creator_id(op_is_valid, args):
     id = ''
 
     if op_is_valid and len(args) > 0:
-        id = str(int(args[0]))
+        id = args[0]
         if len(args) > 1:
             end_page = args[1]
     else:
