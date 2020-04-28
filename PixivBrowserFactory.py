@@ -313,7 +313,7 @@ class PixivBrowser(mechanize.Browser):
             login_cookie = self._config.cookieFanbox
 
         if len(login_cookie) > 0:
-            PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
+            PixivHelper.print_and_log('info', 'Trying to log in FANBOX with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie, "fanbox.cc")
 
@@ -321,10 +321,15 @@ class PixivBrowser(mechanize.Browser):
             req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
             req.add_header('Origin', 'https://www.fanbox.cc')
             req.add_header('User-Agent', self._config.useragent)
-            res = self.open_with_retry(req)
-            parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
-            PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
-            res.close()
+            try:
+                res = self.open_with_retry(req)
+                parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
+                PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
+                res.close()
+            except BaseException as e:
+                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: '
+                                               + format(sys.exc_info()))
+                return False
 
             result = False
             if '"user":{"isLoggedIn":true' in str(parsed):
