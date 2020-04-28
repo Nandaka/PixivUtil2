@@ -567,13 +567,37 @@ http://www.pixiv.net/member_illust.php?id=123456
 - similar like list.txt, but without custom folder.
 
 =================================================================================
-= Credits                                                                       =
+= Credits/Contributor                                                           =
 =================================================================================
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
 - Yavos (Contributor)
 - Joe (Contributor)
+- Hamuko <hamuko@burakku.com>
+- Kwang Ketcham <prototype27+github@prototype27.com>
+- woky <nechtom@gmail.com>
+- a.evseev <nmbr213@gmail.com>
+- pixtrix
+- Abram Wiebe <awiebe@burningthumb.com>
+- Masaki Takano
+- hi117
+- Wildfoot
+- J.Gocke
+- Magnus Boman
+- Abdulah Jasim
+- Yifei Fu
+- nixxquality
+- DukeValentine
+- NHOrus
+- whinette
+- yzaoui
+- Kieri Suizahn
+- amatuerCoder
+- Alex
+- wmjdgla
+- fireattack
+- Jared Shields
 
-*If I forget someone, please leave me a comment in my Blog.
+*If I forget someone, please send me a pull request with the commit/merge id.
 
 =================================================================================
 = License Agreement                                                             =
