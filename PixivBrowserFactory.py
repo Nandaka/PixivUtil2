@@ -878,7 +878,7 @@ class PixivBrowser(mechanize.Browser):
         # https://www.pixiv.net/fanbox/creator/104409/post/279561
         p_url = f"https://api.fanbox.cc/post.info?postId={post_id}"
         # referer doesn't seeem to be essential
-        p_referer = f"https://www.fanbox.cc/@{artist.creatorId}/posts/{post_id}"
+        p_referer = f"https://www.fanbox.cc/@{artist.creatorId if artist else ''}/posts/{post_id}"
         PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
         p_req = mechanize.Request(p_url)
         p_req.add_header('Accept', 'application/json, text/plain, */*')
