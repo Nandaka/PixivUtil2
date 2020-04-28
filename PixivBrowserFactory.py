@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
 
 import http.client
@@ -20,7 +20,7 @@ import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
 from PixivImage import PixivImage
-from PixivModelFanbox import Fanbox, FanboxArtist
+from PixivModelFanbox import FanboxArtist, FanboxPost
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
 
@@ -233,26 +233,33 @@ class PixivBrowser(mechanize.Browser):
                 return "http://www.pixiv.net" + url
         return url
 
-    def _loadCookie(self, cookie_value):
+    def _loadCookie(self, cookie_value, domain):
         """ Load cookie to the Browser instance """
-        ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                                   port_specified=False, domain='pixiv.net', domain_specified=False,
-                                   domain_initial_dot=False, path='/', path_specified=True,
-                                   secure=False, expires=None, discard=True, comment=None,
-                                   comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        if "pixiv.net" in domain:
+            ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
+                                       port_specified=False, domain='pixiv.net', domain_specified=False,
+                                       domain_initial_dot=False, path='/', path_specified=True,
+                                       secure=False, expires=None, discard=True, comment=None,
+                                       comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        elif "fanbox.cc" in domain:
+            ck = http.cookiejar.Cookie(version=0, name='FANBOXSESSID', value=cookie_value, port=None,
+                                       port_specified=False, domain='fanbox.cc', domain_specified=False,
+                                       domain_initial_dot=False, path='/', path_specified=True,
+                                       secure=False, expires=None, discard=True, comment=None,
+                                       comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
         self.addCookie(ck)
 
-#        cookies = cookie_value.split(";")
-#        for cookie in cookies:
-#            temp = cookie.split("=")
-#            name = temp[0].strip()
-#            value= temp[1] if len(temp) > 1 else ""
-#            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
-#                                  port_specified=False, domain='pixiv.net', domain_specified=False,
-#                                  domain_initial_dot=False, path='/', path_specified=True,
-#                                  secure=False, expires=None, discard=True, comment=None,
-#                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-#            self.addCookie(ck)
+    #        cookies = cookie_value.split(";")
+    #        for cookie in cookies:
+    #            temp = cookie.split("=")
+    #            name = temp[0].strip()
+    #            value= temp[1] if len(temp) > 1 else ""
+    #            ck = cookielib.Cookie(version=0, name=name, value=value, port=None,
+    #                                  port_specified=False, domain='pixiv.net', domain_specified=False,
+    #                                  domain_initial_dot=False, path='/', path_specified=True,
+    #                                  secure=False, expires=None, discard=True, comment=None,
+    #                                  comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+    #            self.addCookie(ck)
 
     def _getInitConfig(self, page):
         init_config = page.find('input', attrs={'id': 'init-config'})
@@ -261,6 +268,7 @@ class PixivBrowser(mechanize.Browser):
 
     def loginUsingCookie(self, login_cookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
+        result = False
 
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookie
@@ -268,13 +276,12 @@ class PixivBrowser(mechanize.Browser):
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
-            self._loadCookie(login_cookie)
+            self._loadCookie(login_cookie, "pixiv.net")
             res = self.open_with_retry('https://www.pixiv.net/')
             parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
             PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
             res.close()
 
-            result = False
             if "logout.php" in str(parsed):
                 result = True
             if "pixiv.user.loggedIn = true" in str(parsed):
@@ -296,7 +303,46 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
 
-        del parsed
+            del parsed
+        return result
+
+    def fanboxLoginUsingCookie(self, login_cookie=None):
+        """  Log in to Pixiv using saved cookie, return True if success """
+        result = False
+
+        if login_cookie is None or len(login_cookie) == 0:
+            login_cookie = self._config.cookieFanbox
+
+        if len(login_cookie) > 0:
+            PixivHelper.print_and_log('info', 'Trying to log in FANBOX with saved cookie')
+            self.clearCookie()
+            self._loadCookie(login_cookie, "fanbox.cc")
+
+            req = mechanize.Request("https://www.fanbox.cc")
+            req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+            req.add_header('Origin', 'https://www.fanbox.cc')
+            req.add_header('User-Agent', self._config.useragent)
+            try:
+                res = self.open_with_retry(req)
+                parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
+                PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
+                res.close()
+            except BaseException as e:
+                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: '
+                                               + format(sys.exc_info()))
+                return False
+
+            if '"user":{"isLoggedIn":true' in str(parsed):
+                result = True
+
+            if result:
+                PixivHelper.print_and_log('info', 'Login successful.')
+                PixivHelper.get_logger().info('Logged in using cookie')
+            else:
+                PixivHelper.get_logger().info('Failed to log in using cookie')
+                PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
+
+            del parsed
         return result
 
     def login(self, username, password):
@@ -501,7 +547,8 @@ class PixivBrowser(mechanize.Browser):
                     self._put_to_cache(url, info)
             else:
                 PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
-                if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
+                if self._username is None or self._password is None or len(self._username) < 0 or len(
+                        self._password) < 0:
                     raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
                 if self._oauth_manager is None:
@@ -724,78 +771,136 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(
                     PixivHelper.toUnicode(response)))
 
-    def fanboxGetSupportedUsers(self):
-        ''' get all supported users from the list from https://fanbox.pixiv.net/api/plan.listSupporting'''
-        url = 'https://fanbox.pixiv.net/api/plan.listSupporting'
-        PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
-        referer = "https://www.pixiv.net/fanbox/support/creators"
+    def fanboxGetUsers(self, via):
+        if via == FanboxArtist.SUPPORTED:
+            url = 'https://api.fanbox.cc/plan.listSupporting'
+            PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+            referer = "https://www.fanbox.cc/creators/supporting"
+        elif via == FanboxArtist.FOLLOWED:
+            url = 'https://api.fanbox.cc/creator.listFollowing'
+            PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+            referer = "https://www.fanbox.cc/creators/following"
+
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
-        req.add_header('Origin', 'https://www.pixiv.net')
+        req.add_header('Origin', 'https://www.fanbox.cc')
         req.add_header('User-Agent', self._config.useragent)
 
         res = self.open_with_retry(req)
         # read the json response
         response = res.read()
         res.close()
-        result = Fanbox(response)
-        return result
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        artists = FanboxArtist.parseArtists(page=response, tzInfo=_tzInfo)
+        return artists
 
-    def fanboxGetPostsFromArtist(self, artist_id, next_url=""):
-        ''' get all posts from the supported user from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
-        # Issue #641
-        if next_url is None or next_url == "":
-            url = f"https://fanbox.pixiv.net/api/post.listCreator?userId={artist_id}&limit=10"
-        elif next_url.startswith("https://"):
-            url = next_url
+    def fanboxUpdateArtistToken(self, artist):
+        pixivArtist = PixivArtist(artist.artistId)
+        self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+        artist.artistName = pixivArtist.artistName
+        artist.artistToken = pixivArtist.artistToken
+
+    def fanboxGetArtistById(self, id):
+        if re.match(r"^\d+$", id):
+            id_type = "userId"
         else:
-            url = "https://www.pixiv.net" + next_url
+            id_type = "creatorId"
 
-        # Fix #494
-        PixivHelper.print_and_log('info', 'Getting posts from ' + url)
-        referer = f"https://www.pixiv.net/fanbox/creator/{artist_id}"
+        url = f'https://api.fanbox.cc/creator.get?{id_type}={id}'
+        PixivHelper.print_and_log('info', f'Getting artist information from {url}')
+        referer = "https://www.fanbox.cc"
+        if id_type == "creatorId":
+            referer += f"/@{id}"
+
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
-        req.add_header('Origin', 'https://www.pixiv.net')
+        req.add_header('Origin', 'https://www.fanbox.cc')
+        req.add_header('User-Agent', self._config.useragent)
+
+        res = self.open_with_retry(req)
+        # read the json response
+        response = res.read()
+        res.close()
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+
+        js = demjson.decode(response)
+        if "error" in js and js["error"]:
+            raise PixivException("Error when requesting Fanbox", 9999, page)
+
+        if "body" in js and js["body"] is not None:
+            js_body = js["body"]
+            artist = FanboxArtist(js_body["user"]["userId"],
+                                  js_body["user"]["name"],
+                                  js_body["creatorId"],
+                                  tzInfo=_tzInfo)
+            self.fanboxUpdateArtistToken(artist)
+            return artist
+
+    def fanboxGetPostsFromArtist(self, artist, next_url=""):
+        ''' get all posts from the supported user from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
+        # Issue #641
+        if next_url is None or next_url == "":
+            url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
+        elif next_url.startswith("https://"):
+            url = next_url
+        else:
+            url = "https://www.fanbox.cc" + next_url
+
+        # Fix #494
+        PixivHelper.print_and_log('info', 'Getting posts from ' + url)
+        referer = f"https://www.fanbox.cc/@{artist.creatorId}"
+        req = mechanize.Request(url)
+        req.add_header('Accept', 'application/json, text/plain, */*')
+        req.add_header('Referer', referer)
+        req.add_header('Origin', 'https://www.fanbox.cc')
         req.add_header('User-Agent', self._config.useragent)
 
         res = self.open_with_retry(req)
         response = res.read()
         PixivHelper.get_logger().debug(response.decode('utf8'))
         res.close()
-        # Issue #420
-        _tzInfo = None
-        if self._config.useLocalTimezone:
-            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-        result = FanboxArtist(artist_id, response, tzInfo=_tzInfo)
+        posts = artist.parsePosts(response)
 
-        pixivArtist = PixivArtist(artist_id)
-        self.getMemberInfoWhitecube(artist_id, pixivArtist)
-        result.artistName = pixivArtist.artistName
-        result.artistToken = pixivArtist.artistToken
-
-        for post in result.posts:
-            # https://fanbox.pixiv.net/api/post.info?postId=279561
-            # https://www.pixiv.net/fanbox/creator/104409/post/279561
-            p_url = f"https://fanbox.pixiv.net/api/post.info?postId={post.imageId}"
-            p_referer = f"https://www.pixiv.net/fanbox/creator/{artist_id}/post/{post.imageId}"
-            PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
-            p_req = mechanize.Request(p_url)
-            p_req.add_header('Accept', 'application/json, text/plain, */*')
-            p_req.add_header('Referer', p_referer)
-            p_req.add_header('Origin', 'https://www.pixiv.net')
-            p_req.add_header('User-Agent', self._config.useragent)
-
-            p_res = self.open_with_retry(p_req)
-            p_response = p_res.read()
-            PixivHelper.get_logger().debug(p_response.decode('utf8'))
-            p_res.close()
-            js = demjson.decode(p_response)
+        for post in posts:
+            js = self.fanboxGetPost(post.imageId, artist)
             post.parsePost(js["body"])
 
-        return result
+        return posts
+
+    def fanboxGetPost(self, post_id, artist=None):
+        # https://fanbox.pixiv.net/api/post.info?postId=279561
+        # https://www.pixiv.net/fanbox/creator/104409/post/279561
+        p_url = f"https://api.fanbox.cc/post.info?postId={post_id}"
+        # referer doesn't seeem to be essential
+        p_referer = f"https://www.fanbox.cc/@{artist.creatorId}/posts/{post_id}"
+        PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
+        p_req = mechanize.Request(p_url)
+        p_req.add_header('Accept', 'application/json, text/plain, */*')
+        p_req.add_header('Referer', p_referer)
+        p_req.add_header('Origin', 'https://www.fanbox.cc')
+        p_req.add_header('User-Agent', self._config.useragent)
+
+        p_res = self.open_with_retry(p_req)
+        p_response = p_res.read()
+        PixivHelper.get_logger().debug(p_response.decode('utf8'))
+        p_res.close()
+        js = demjson.decode(p_response)
+        if artist:
+            return js
+        else:
+            _tzInfo = None
+            if self._config.useLocalTimezone:
+                _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+            artist = FanboxArtist(js["body"]["user"]["userId"], js["body"]["creatorId"], js["body"]["user"]["name"])
+            self.fanboxUpdateArtistToken(artist)
+            post = FanboxPost(post_id, artist, js["body"], _tzInfo)
+            return post
 
 
 def getBrowser(config=None, cookieJar=None):
@@ -877,34 +982,34 @@ def test():
                                                  oldest_first,
                                                  start_page)
             resultS.PrintInfo()
-            assert(len(resultS.itemList) > 0)
+            assert (len(resultS.itemList) > 0)
 
         def testImage():
             print("test image mode")
             print(">>")
             (result, page) = b.getImagePage(60040975)
             print(result.PrintInfo())
-            assert(len(result.imageTitle) > 0)
+            assert (len(result.imageTitle) > 0)
             print(result.artist.PrintInfo())
-            assert(len(result.artist.artistToken) > 0)
-            assert("R-18" not in result.imageTags)
+            assert (len(result.artist.artistToken) > 0)
+            assert ("R-18" not in result.imageTags)
 
             print(">>")
             (result2, page2) = b.getImagePage(59628358)
             print(result2.PrintInfo())
-            assert(len(result2.imageTitle) > 0)
+            assert (len(result2.imageTitle) > 0)
             print(result2.artist.PrintInfo())
-            assert(len(result2.artist.artistToken) > 0)
-            assert("R-18" in result2.imageTags)
+            assert (len(result2.artist.artistToken) > 0)
+            assert ("R-18" in result2.imageTags)
 
             print(">> ugoira")
             (result3, page3) = b.getImagePage(60070169)
             print(result3.PrintInfo())
-            assert(len(result3.imageTitle) > 0)
+            assert (len(result3.imageTitle) > 0)
             print(result3.artist.PrintInfo())
             print(result3.ugoira_data)
-            assert(len(result3.artist.artistToken) > 0)
-            assert(result3.imageMode == 'ugoira_view')
+            assert (len(result3.artist.artistToken) > 0)
+            assert (result3.imageMode == 'ugoira_view')
 
         def testMember():
             print("Test member mode")
@@ -912,26 +1017,26 @@ def test():
             (result3, page3) = b.getMemberPage(
                 1227869, page=1, bookmark=False, tags=None)
             print(result3.PrintInfo())
-            assert(len(result3.artistToken) > 0)
-            assert(len(result3.imageList) > 0)
+            assert (len(result3.artistToken) > 0)
+            assert (len(result3.imageList) > 0)
             print(">>")
             (result4, page4) = b.getMemberPage(
                 1227869, page=2, bookmark=False, tags=None)
             print(result4.PrintInfo())
-            assert(len(result4.artistToken) > 0)
-            assert(len(result4.imageList) > 0)
+            assert (len(result4.artistToken) > 0)
+            assert (len(result4.imageList) > 0)
             print(">>")
             (result5, page5) = b.getMemberPage(
                 4894, page=1, bookmark=False, tags=None)
             print(result5.PrintInfo())
-            assert(len(result5.artistToken) > 0)
-            assert(len(result5.imageList) > 0)
+            assert (len(result5.artistToken) > 0)
+            assert (len(result5.imageList) > 0)
             print(">>")
             (result6, page6) = b.getMemberPage(
                 4894, page=3, bookmark=False, tags=None)
             print(result6.PrintInfo())
-            assert(len(result6.artistToken) > 0)
-            assert(len(result6.imageList) > 0)
+            assert (len(result6.artistToken) > 0)
+            assert (len(result6.imageList) > 0)
 
         def testMemberBookmark():
             print("Test member bookmarks mode")
@@ -939,14 +1044,14 @@ def test():
             (result5, page5) = b.getMemberPage(
                 1227869, page=1, bookmark=True, tags=None)
             print(result5.PrintInfo())
-            assert(len(result5.artistToken) > 0)
-            assert(len(result5.imageList) > 0)
+            assert (len(result5.artistToken) > 0)
+            assert (len(result5.imageList) > 0)
             print(">>")
             (result6, page6) = b.getMemberPage(
                 1227869, page=2, bookmark=True, tags=None)
             print(result6.PrintInfo())
-            assert(len(result6.artistToken) > 0)
-            assert(len(result6.imageList) > 0)
+            assert (len(result6.artistToken) > 0)
+            assert (len(result6.imageList) > 0)
             print(">>")
             (result6, page6) = b.getMemberPage(
                 1227869, page=10, bookmark=True, tags=None)
@@ -956,8 +1061,8 @@ def test():
                 1227869, page=12, bookmark=True, tags=None)
             if result6 is not None:
                 print(result6.PrintInfo())
-                assert(len(result6.artistToken) > 0)
-                assert(len(result6.imageList) == 0)
+                assert (len(result6.artistToken) > 0)
+                assert (len(result6.imageList) == 0)
 
         # testSearchTags()
         testImage()

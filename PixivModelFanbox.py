@@ -6,46 +6,55 @@ import os
 import demjson
 from bs4 import BeautifulSoup
 
-import datetime_z
 import PixivHelper
+import datetime_z
 from PixivException import PixivException
 
 
-class Fanbox(object):
-    supportedArtist = None
+class FanboxArtist(object):
+    artistId = 0
+    creatorId = ""
+    nextUrl = None
+    hasNextPage = False
+    _tzInfo = None
+    # require additional API call
+    artistName = ""
+    artistToken = ""
 
-    def __init__(self, page):
+    SUPPORTED = 0
+    FOLLOWED = 1
+
+    @classmethod
+    def parseArtists(cls, page, tzInfo=None):
+        artists = list()
         js = demjson.decode(page)
 
         if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox", 9999, page)
 
         if "body" in js and js["body"] is not None:
-            self.parseSupportedArtists(js["body"])
+            js_body = js["body"]
+            if "supportingPlans" in js["body"]:
+                js_body = js_body["supportingPlans"]
+            for creator in js_body:
+                artists.append(
+                    FanboxArtist(creator["user"]["userId"],
+                                 creator["user"]["name"],
+                                 creator["creatorId"],
+                                 tzInfo=tzInfo
+                                 ))
+        return artists
 
-    def parseSupportedArtists(self, js_body):
-        self.supportedArtist = list()
-        # Fix #495
-        if "supportingPlans" in js_body:
-            js_body = js_body["supportingPlans"]
-        for creator in js_body:
-            self.supportedArtist.append(int(creator["user"]["userId"]))
-
-
-class FanboxArtist(object):
-    artistId = 0
-    posts = None
-    nextUrl = None
-    hasNextPage = False
-    _tzInfo = None
-
-    # require additional API call
-    artistName = ""
-    artistToken = ""
-
-    def __init__(self, artist_id, page, tzInfo=None):
+    def __init__(self, artist_id, artist_name, creator_id, tzInfo=None):
         self.artistId = int(artist_id)
+        self.artistName = artist_name
+        self.creatorId = creator_id
         self._tzInfo = tzInfo
+
+    def __str__(self):
+        return f"({self.artistId}, {self.creatorId}, {self.artistName})"
+
+    def parsePosts(self, page):
         js = demjson.decode(page)
 
         if "error" in js and js["error"]:
@@ -53,32 +62,33 @@ class FanboxArtist(object):
                 "Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
 
         if js["body"] is not None:
-            self.parsePosts(js["body"])
+            js_body = js["body"]
 
-    def parsePosts(self, js_body):
-        self.posts = list()
+            posts = list()
 
-        if "creator" in js_body:
-            self.artistName = js_body["creator"]["user"]["name"]
+            if "creator" in js_body:
+                self.artistName = js_body["creator"]["user"]["name"]
 
-        if "post" in js_body:
-            # new api
-            post_root = js_body["post"]
-        else:
-            # https://www.pixiv.net/ajax/fanbox/post?postId={0}
-            # or old api
-            post_root = js_body
+            if "post" in js_body:
+                # new api
+                post_root = js_body["post"]
+            else:
+                # https://www.pixiv.net/ajax/fanbox/post?postId={0}
+                # or old api
+                post_root = js_body
 
-        for jsPost in post_root["items"]:
-            post_id = int(jsPost["id"])
-            post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
-            self.posts.append(post)
-            # sanity check
-            assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
+            for jsPost in post_root["items"]:
+                post_id = int(jsPost["id"])
+                post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
+                posts.append(post)
+                # sanity check
+                assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
 
-        self.nextUrl = post_root["nextUrl"]
-        if self.nextUrl is not None and len(self.nextUrl) > 0:
-            self.hasNextPage = True
+            self.nextUrl = post_root["nextUrl"]
+            if self.nextUrl is not None and len(self.nextUrl) > 0:
+                self.hasNextPage = True
+
+            return posts
 
 
 class FanboxPost(object):
@@ -87,7 +97,8 @@ class FanboxPost(object):
     coverImageUrl = ""
     worksDate = ""
     worksDateDateTime = None
-    updatedDatetime = ""
+    updatedDate = ""
+    updatedDateDatetime = None
     # image|text|file|article|video|entry
     _supportedType = ["image", "text", "file", "article", "video", "entry"]
     type = ""
@@ -96,14 +107,14 @@ class FanboxPost(object):
     likeCount = 0
     parent = None
     is_restricted = False
-
+    feeRequired = 0
     # compatibility
     imageMode = ""
     imageCount = 0
     _tzInfo = None
 
     linkToFile = None
-    
+
     # not implemented
     worksResolution = ""
     worksTools = ""
@@ -121,9 +132,9 @@ class FanboxPost(object):
         self.imageId = int(post_id)
         self.parent = parent
         self._tzInfo = tzInfo
-        
+
         self.linkToFile = dict()
-        
+
         self.parsePost(page)
 
         if not self.is_restricted:
@@ -148,12 +159,17 @@ class FanboxPost(object):
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
+        self.updatedDate = jsPost["updatedDatetime"]
+        self.updatedDateDatetime = datetime_z.parse_datetime(self.updatedDate)
+
+        if "feeRequired" in jsPost:
+            self.feeRequired = jsPost["feeRequired"]
+
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(
                 self._tzInfo)
 
-        self.updatedDatetime = jsPost["updatedDatetime"]
         self.type = jsPost["type"]
         if self.type not in FanboxPost._supportedType:
             raise PixivException("Unsupported post type = {0} for post = {1}".format(
@@ -221,30 +237,30 @@ class FanboxPost(object):
                 elif block["type"] == "image":
                     imageId = block["imageId"]
                     self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
-                                     self.body_text,
-                                     jsPost["body"]["imageMap"][imageId]["originalUrl"],
-                                     jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
+                        self.body_text,
+                        jsPost["body"]["imageMap"][imageId]["originalUrl"],
+                        jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
                     self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.images)
                     self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.embeddedFiles)
                 elif block["type"] == "file":
                     fileId = block["fileId"]
                     self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
-                                     self.body_text,
-                                     jsPost["body"]["fileMap"][fileId]["url"],
-                                     jsPost["body"]["fileMap"][fileId]["name"])
+                        self.body_text,
+                        jsPost["body"]["fileMap"][fileId]["url"],
+                        jsPost["body"]["fileMap"][fileId]["name"])
                     self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.images)
                     self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     self.body_text = u"{0}<br />{1}".format(
-                                     self.body_text,
-                                     self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
+                        self.body_text,
+                        self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
 
         # Issue #476
         if "video" in jsPost["body"]:
             self.body_text = u"{0}<br />{1}".format(
-                             self.body_text,
-                             self.getEmbedData(jsPost["body"]["video"], jsPost))
+                self.body_text,
+                self.getEmbedData(jsPost["body"]["video"], jsPost))
 
     def getEmbedData(self, embedData, jsPost):
         if not os.path.exists("content_provider.json"):
@@ -295,6 +311,13 @@ class FanboxPost(object):
             return
         if item not in list_data:
             list_data.append(item)
+
+    def printPost(self):
+        print("Post  = {0}".format(self.imageId))
+        print("Title = {0}".format(self.imageTitle))
+        print("Type  = {0}".format(self.type))
+        print("Created Date  = {0}".format(self.worksDate))
+        print("Is Restricted = {0}".format(self.is_restricted))
 
     def WriteInfo(self, filename):
         info = None

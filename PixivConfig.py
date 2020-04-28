@@ -111,6 +111,7 @@ class PixivConfig():
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),
         ConfigItem("Authentication", "cookie", ""),
+        ConfigItem("Authentication", "cookieFanbox", ""),
         ConfigItem("Authentication", "refresh_token", ""),
 
         ConfigItem("Pixiv", "numberOfPage", 0),
