@@ -315,7 +315,7 @@ class PixivBrowser(mechanize.Browser):
 
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in FANBOX with saved cookie')
-            self.clearCookie()
+            # self.clearCookie()
             self._loadCookie(login_cookie, "fanbox.cc")
 
             req = mechanize.Request("https://www.fanbox.cc")
@@ -327,20 +327,19 @@ class PixivBrowser(mechanize.Browser):
                 parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
                 PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
                 res.close()
-            except BaseException as e:
-                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: '
-                                               + format(sys.exc_info()))
+            except BaseException:
+                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: %s', sys.exc_info())
                 return False
 
             if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
 
             if result:
-                PixivHelper.print_and_log('info', 'Login successful.')
-                PixivHelper.get_logger().info('Logged in using cookie')
+                PixivHelper.print_and_log('info', 'Fanbox Login successful.')
+                PixivHelper.get_logger().info('Fanbox Logged in using cookie')
             else:
-                PixivHelper.get_logger().info('Failed to log in using cookie')
-                PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
+                PixivHelper.get_logger().info('Fanbox Failed to log in using cookie')
+                PixivHelper.print_and_log('info', 'Fanbox Cookie already expired/invalid.')
 
             del parsed
         return result
@@ -831,7 +830,7 @@ class PixivBrowser(mechanize.Browser):
 
         js = demjson.decode(response)
         if "error" in js and js["error"]:
-            raise PixivException("Error when requesting Fanbox", 9999, page)
+            raise PixivException("Error when requesting Fanbox", 9999, js)
 
         if "body" in js and js["body"] is not None:
             js_body = js["body"]
