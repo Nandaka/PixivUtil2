@@ -804,7 +804,6 @@ class PixivBrowser(mechanize.Browser):
         return artists
 
     def fanboxUpdateArtistToken(self, artist):
-        self.fanbox_is_logged_in()
         pixivArtist = PixivArtist(artist.artistId)
         self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
         artist.artistName = pixivArtist.artistName
@@ -850,8 +849,9 @@ class PixivBrowser(mechanize.Browser):
             self.fanboxUpdateArtistToken(artist)
             return artist
 
-    def fanboxGetPostsFromArtist(self, artist, next_url=""):
-        ''' get all posts from the supported user from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
+    def fanboxGetPostsFromArtist(self, artist=None, next_url=""):
+        ''' get all posts from the supported user
+        from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
         self.fanbox_is_logged_in()
 
         # Issue #641
