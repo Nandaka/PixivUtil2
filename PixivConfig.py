@@ -94,8 +94,7 @@ class PixivConfig():
         ConfigItem("Filename", "filenameMangaFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x:
-                   x is not None and len(x) > 0 and
-                   (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
+                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
         ConfigItem("Filename", "filenameInfoFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
@@ -167,9 +166,9 @@ class PixivConfig():
         try:
             with PixivHelper.open_text_file(self.configFileLocation) as reader:
                 content = reader.read()
-        except BaseException as e:
+        except BaseException:
             print('Error at loadConfig() reading file:', self.configFileLocation, "\n", sys.exc_info())
-            self.__logger.exception('Error at loadConfig() reading file: ' + self.configFileLocation)
+            self.__logger.exception('Error at loadConfig() reading file: %s', self.configFileLocation)
             self.writeConfig(error=True, path=self.configFileLocation)
             return
 
@@ -188,7 +187,7 @@ class PixivConfig():
             try:
                 value = method(item.section, item.option)
                 value = item.process_value(value)
-            except:
+            except BaseException:
                 print(item.option, "=", item.default)
                 value = item.default
                 haveError = True
