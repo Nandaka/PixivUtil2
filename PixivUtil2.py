@@ -2516,9 +2516,6 @@ def main():
             __log__.info(msg)
 
         result = doLogin(password, username)
-        fanbox_login = __br__.fanboxLoginUsingCookie()
-        if not (fanbox_login):
-            __log__.info("FANBOX login cookie string invalid, please update in config.ini")
 
         if result:
             np_is_valid, op_is_valid, selection = main_loop(ewd, op_is_valid, selection, np_is_valid, args)

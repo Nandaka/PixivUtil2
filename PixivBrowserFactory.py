@@ -44,6 +44,8 @@ class PixivBrowser(mechanize.Browser):
     _oauth_manager = None
     _locale = ""
 
+    _is_logged_in_to_FANBOX = False
+
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
         self._cache[key] = (item, expiry)
@@ -333,16 +335,20 @@ class PixivBrowser(mechanize.Browser):
 
             if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
+                self._is_logged_in_to_FANBOX = True
 
             if result:
-                PixivHelper.print_and_log('info', 'Fanbox Login successful.')
-                PixivHelper.get_logger().info('Fanbox Logged in using cookie')
+                PixivHelper.print_and_log('info', 'FANBOX Login successful.')
             else:
-                PixivHelper.get_logger().info('Fanbox Failed to log in using cookie')
-                PixivHelper.print_and_log('info', 'Fanbox Cookie already expired/invalid.')
+                PixivHelper.print_and_log('info', 'FANBOX login cookie string invalid, please update in config.ini.')
 
             del parsed
         return result
+
+    def fanbox_is_logged_in(self):
+        if not self._is_logged_in_to_FANBOX:
+            if not self.fanboxLoginUsingCookie(self._config.cookieFanbox):
+                raise Exception("Not logged in to FANBOX")
 
     def login(self, username, password):
         parsed = None
@@ -771,6 +777,7 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.toUnicode(response)))
 
     def fanboxGetUsers(self, via):
+        self.fanbox_is_logged_in()
         if via == FanboxArtist.SUPPORTED:
             url = 'https://api.fanbox.cc/plan.listSupporting'
             PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
@@ -797,12 +804,14 @@ class PixivBrowser(mechanize.Browser):
         return artists
 
     def fanboxUpdateArtistToken(self, artist):
+        self.fanbox_is_logged_in()
         pixivArtist = PixivArtist(artist.artistId)
         self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
         artist.artistName = pixivArtist.artistName
         artist.artistToken = pixivArtist.artistToken
 
     def fanboxGetArtistById(self, id):
+        self.fanbox_is_logged_in()
         if re.match(r"^\d+$", id):
             id_type = "userId"
         else:
@@ -843,6 +852,8 @@ class PixivBrowser(mechanize.Browser):
 
     def fanboxGetPostsFromArtist(self, artist, next_url=""):
         ''' get all posts from the supported user from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
+        self.fanbox_is_logged_in()
+
         # Issue #641
         if next_url is None or next_url == "":
             url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
@@ -873,6 +884,7 @@ class PixivBrowser(mechanize.Browser):
         return posts
 
     def fanboxGetPost(self, post_id, artist=None):
+        self.fanbox_is_logged_in()
         # https://fanbox.pixiv.net/api/post.info?postId=279561
         # https://www.pixiv.net/fanbox/creator/104409/post/279561
         p_url = f"https://api.fanbox.cc/post.info?postId={post_id}"
