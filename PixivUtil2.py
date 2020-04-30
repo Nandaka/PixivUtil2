@@ -1933,11 +1933,6 @@ def menu_fanbox_download_from_artist(op_is_valid, via, args):
         end_page = input("Max Page = ").rstrip("\r") or 0
         end_page = int(end_page)
 
-    fanbox_login = __br__.fanboxLoginUsingCookie()
-    if not(fanbox_login):
-        __log__.info("FANBOX login cookie string invalid, please update in config.ini")
-        return
-
     artists = __br__.fanboxGetUsers(via)
     if len(artists) == 0:
         PixivHelper.print_and_log("info", f"No {via_type} artist!")
