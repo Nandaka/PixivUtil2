@@ -59,8 +59,27 @@ def handle_members(caller, job, job_name, job_option):
         print(f"No member_id or member_ids found in {job_name}!")
         return
 
+    start_page = 1
+    if "start_page" in job:
+        start_page = int(job["start_page"])
+    end_page = 0
+    if "end_page" in job:
+        end_page = int(job["end_page"])
+    from_bookmark = False
+    if "from_bookmark" in job:
+        from_bookmark = bool(job["from_bookmark"])
+    tags = None
+    if "tags" in job and len(job["tags"]) > 0:
+        from_bookmark = job["tags"]
+
     for member_id in member_ids:
-        print(f"Member ID: {member_id}")
+        caller.process_member(member_id=member_id,
+                              user_dir=job_option.rootDirectory,
+                              page=start_page,
+                              end_page=end_page,
+                              bookmark=from_bookmark,
+                              tags=tags,
+                              title_prefix=job_name)
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
@@ -76,7 +95,6 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
         return
 
     for image_id in image_ids:
-        print(f"Processing {image_id}")
         caller.process_image(image_id=image_id, user_dir=job_option.rootDirectory, title_prefix=job_name)
 
 
