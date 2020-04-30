@@ -380,7 +380,7 @@ class FanboxPost(object):
             tag = imageATag.img
             if tag:
                 tag["src"] = imageATag["href"]
-        if self.coverImageUrl == None:
+        if self.coverImageUrl is None:
             cover_div = page.find("div", attrs={"class": "cover"})
             if cover_div:
                 cover_div.decompose()

@@ -31,6 +31,7 @@ from PixivException import PixivException
 from PixivGroup import PixivGroup
 from PixivListItem import PixivListItem
 from PixivTags import PixivTags
+import PixivBatchHandler
 
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
@@ -2235,6 +2236,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_download_by_member_bookmark(op_is_valid, args)
             elif selection == '12':
                 menu_download_by_group_id(op_is_valid, args)
+            elif selection == 'b':
+                PixivBatchHandler.process_batch_job(sys.modules[__name__])
             elif selection == 'e':
                 menu_export_online_bookmark(op_is_valid, args)
             elif selection == 'm':
