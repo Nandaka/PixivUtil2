@@ -891,8 +891,8 @@ class PixivDBManager(object):
         print('13. Show all deleted member')
         print('===============================================')
         print('f1. Export FANBOX post list')
-        print('f2. Delete FANBOX download history by post_id')
-        print('f3. Delete FANBOX download history by member_id')
+        print('f2. Delete FANBOX download history by member_id')
+        print('f3. Delete FANBOX download history by post_id')
         print('===============================================')
         print('c. Clean Up Database')
         print('i. Interactive Clean Up Database')
@@ -985,10 +985,10 @@ class PixivDBManager(object):
                     self.exportFanboxPostList(filename, sep)
                 elif selection == 'f2':
                     member_id = input('member_id? ').rstrip("\r")
-                    self.deleteFanboxPost(member_id, "post_id")
+                    self.deleteFanboxPost(member_id, "member_id")
                 elif selection == 'f3':
                     post_id = input('post_id? ').rstrip("\r")
-                    self.deleteFanboxPost(post_id, "member_id")
+                    self.deleteFanboxPost(post_id, "post_id")
                 elif selection == 'c':
                     self.cleanUp()
                 elif selection == 'i':
