@@ -437,7 +437,7 @@ def dump_html(filename, html_text):
     return ""
 
 
-def print_and_log(level, msg):
+def print_and_log(level, msg, exception=None):
     if level == 'debug':
         get_logger().debug(msg)
     else:
@@ -447,8 +447,13 @@ def print_and_log(level, msg):
         elif level == 'warn':
             get_logger().warning(msg)
         elif level == 'error':
-            get_logger().error(msg)
+            if exception is None:
+                get_logger().error(msg)
+            else:
+                get_logger().error(msg, exception)
             get_logger().error(traceback.format_exc())
+        elif level is None:
+            pass
 
 
 def have_strings(page, strings):
