@@ -70,7 +70,7 @@ def handle_members(caller, job, job_name, job_option):
         from_bookmark = bool(job["from_bookmark"])
     tags = None
     if "tags" in job and len(job["tags"]) > 0:
-        from_bookmark = job["tags"]
+        tags = job["tags"]
 
     for member_id in member_ids:
         caller.process_member(member_id=member_id,
@@ -95,15 +95,65 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
         return
 
     for image_id in image_ids:
-        caller.process_image(image_id=image_id, user_dir=job_option.rootDirectory, title_prefix=job_name)
+        caller.process_image(image_id=image_id,
+                             user_dir=job_option.rootDirectory,
+                             title_prefix=job_name)
 
 
 def handle_tags(caller, job, job_name, job_option):
-    if "tags" in job:
+    if "tags" in job and len(job["tags"]) > 0:
         tags = job["tags"]
-        print(f"Processing {tags}")
     else:
-        print(f"No tags found in {job_name}!")
+        print(f"No tags found or empty tags in {job_name}!")
+
+    start_page = 1
+    if "start_page" in job:
+        start_page = int(job["start_page"])
+    end_page = 0
+    if "end_page" in job:
+        end_page = int(job["end_page"])
+    wild_card = True
+    if "wild_card" in job:
+        wild_card = bool(job["wild_card"])
+    title_caption = False
+    if "title_caption" in job:
+        title_caption = bool(job["title_caption"])
+    start_date = None
+    if "start_date" in job and len(job["start_date"]) == 10:
+        try:
+            start_date = caller.check_date_time(start_date)
+        except BaseException:
+            raise Exception(f"Invalid start_date: {job['start_date']} in {job_name}.")
+    end_date = None
+    if "end_date" in job and len(job["end_date"]) == 10:
+        try:
+            end_date = caller.check_date_time(end_date)
+        except BaseException:
+            raise Exception(f"Invalid end_date: {job['end_date']} in {job_name}.")
+    bookmark_count = None
+    if "bookmark_count" in job:
+        bookmark_count = int(job["bookmark_count"])
+    oldest_first = False
+    if "oldest_first" in job:
+        oldest_first = bool(job["oldest_first"])
+    type_mode = "a"
+    if "type_mode" in job:
+        if job["type_mode"] in {'a', 'i', 'm'}:
+            type_mode = job["type_mode"]
+        else:
+            raise Exception(f"Invalid type_mode: {job['type_mode']} in {job_name}.")
+
+    caller.process_tags(tags,
+                        page=start_page,
+                        end_page=end_page,
+                        wild_card=wild_card,
+                        title_caption=title_caption,
+                        start_date=start_date,
+                        end_date=end_date,
+                        use_tags_as_dir=job_option.useTagsAsDir,
+                        bookmark_count=bookmark_count,
+                        oldest_first=oldest_first,
+                        type_mode=type_mode)
 
 
 def process_batch_job(caller: PixivUtil2):
