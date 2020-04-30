@@ -1519,6 +1519,8 @@ def menu():
     print('f3. Download by post id (FANBOX)')
     print('f4. Download from followed artists (FANBOX)')
     print('------------------------')
+    print('b. Batch Download from batch_job.json (experimental)')
+    print('------------------------')
     print('d. Manage database')
     print('e. Export online bookmark')
     print('m. Export online user bookmark')
@@ -2153,7 +2155,7 @@ def set_console_title(title=''):
 
 def setup_option_parser():
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'd', 'e', 'm')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'd', 'e', 'm', 'b')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
                       help='''Action you want to load your program with:
@@ -2173,6 +2175,7 @@ f1 - Download from supported artists (FANBOX)
 f2 - Download by artist/creator id (FANBOX)
 f3 - Download by post id (FANBOX)
 f4 - Download from followed artists (FANBOX)
+ b - Batch Download from batch_job.json (experimental)
  e - Export online bookmark
  m - Export online user bookmark
  d - Manage database''')
