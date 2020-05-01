@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 import demjson
+
 import PixivUtil2
+import PixivHelper
 
 _default_batch_filename = "./batch_job.json"
 
@@ -121,13 +124,13 @@ def handle_tags(caller, job, job_name, job_option):
     start_date = None
     if "start_date" in job and len(job["start_date"]) == 10:
         try:
-            start_date = caller.check_date_time(start_date)
+            start_date = PixivHelper.check_date_time(start_date)
         except BaseException:
             raise Exception(f"Invalid start_date: {job['start_date']} in {job_name}.")
     end_date = None
     if "end_date" in job and len(job["end_date"]) == 10:
         try:
-            end_date = caller.check_date_time(end_date)
+            end_date = PixivHelper.check_date_time(end_date)
         except BaseException:
             raise Exception(f"Invalid end_date: {job['end_date']} in {job_name}.")
     bookmark_count = None
@@ -164,6 +167,10 @@ def process_batch_job(caller: PixivUtil2):
         for job_name in jobs["jobs"]:
             print(f"Processing {job_name}")
             curr_job = jobs["jobs"][job_name]
+
+            if "enabled" not in curr_job or not bool(curr_job["enabled"]):
+                print(f"Skipping {job_name} because not enabled.")
+                continue
 
             if "job_type" not in curr_job:
                 print(f"Cannot find job_type in {job_name}")

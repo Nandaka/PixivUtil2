@@ -12,6 +12,7 @@ import PixivBrowserFactory
 import PixivConstant
 import PixivException
 import PixivHelper
+import PixivDownloadHandler
 
 
 def process_image(caller,
@@ -25,10 +26,9 @@ def process_image(caller,
                   image_response_count=-1,
                   notification_handler=None):
     # caller function/method
+    # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
     config = caller.__config__
-    download_image = caller.download_image
-    handle_ugoira = caller.handle_ugoira
 
     if notification_handler is None:
         notification_handler = PixivHelper.print_and_log
@@ -196,14 +196,16 @@ def process_image(caller,
 
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
-                        (result, filename) = download_image(img,
-                                                            filename,
-                                                            referer,
-                                                            config.overwrite,
-                                                            config.retry,
-                                                            config.backupOldFile,
-                                                            image,
-                                                            page)
+                        (result, filename) = PixivDownloadHandler.download_image(caller,
+                                                                                 img,
+                                                                                 filename,
+                                                                                 referer,
+                                                                                 config.overwrite,
+                                                                                 config.retry,
+                                                                                 config.backupOldFile,
+                                                                                 image,
+                                                                                 page,
+                                                                                 notification_handler)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             notification_handler('error', f'Image url not found/failed to download: {image.imageId}')
@@ -243,7 +245,7 @@ def process_image(caller,
                     image.WriteUgoiraData(filename + ".js")
                 # Handle #451
                 if config.createUgoira and (result in (PixivConstant.PIXIVUTIL_OK, PixivConstant.PIXIVUTIL_SKIP_DUPLICATE)):
-                    handle_ugoira(image, filename)
+                    PixivDownloadHandler.handle_ugoira(image, filename, config, notification_handler)
 
             if config.writeUrlInDescription:
                 PixivHelper.write_url_in_description(image, config.urlBlacklistRegex, config.urlDumpFilename)

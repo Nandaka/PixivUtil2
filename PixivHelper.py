@@ -437,11 +437,11 @@ def dump_html(filename, html_text):
     return ""
 
 
-def print_and_log(level, msg, exception=None):
+def print_and_log(level, msg, exception=None, newline=True):
     if level == 'debug':
         get_logger().debug(msg)
     else:
-        safePrint(msg)
+        safePrint(msg, newline)
         if level == 'info':
             get_logger().info(msg)
         elif level == 'warn':
@@ -547,12 +547,18 @@ def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file)
         return PixivConstant.PIXIVUTIL_OK
 
 
-def print_delay(retryWait):
+def print_delay(retryWait, notification_handler=None):
     repeat = range(1, retryWait)
     for t in repeat:
-        print(t, end=' ')
+        if notification_handler is None:
+            print(t, end=' ')
+        else:
+            notification_handler(None, t, newline=False)
         time.sleep(1)
-    print('')
+    if notification_handler is None:
+        print('')
+    else:
+        notification_handler(None, '')
 
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
@@ -971,6 +977,64 @@ def decode_tags(tags):
         # From command prompt
         search_tags = tags.decode(sys.stdout.encoding).encode("utf8")
     return search_tags
+
+
+def check_date_time(input_date):
+    split = input_date.split("-")
+    return datetime.date(int(split[0]), int(split[1]), int(split[2])).isoformat()
+
+
+def get_start_and_end_date():
+    start_date = None
+    end_date = None
+    while True:
+        try:
+            start_date = input('Start Date [YYYY-MM-DD]: ').rstrip("\r") or None
+            if start_date is not None and len(start_date) == 10:
+                start_date = check_date_time(start_date)
+            break
+        except Exception as e:
+            print(str(e))
+
+    while True:
+        try:
+            end_date = input('End Date [YYYY-MM-DD]: ').rstrip("\r") or None
+            if end_date is not None and len(end_date) == 10:
+                end_date = check_date_time(end_date)
+            break
+        except Exception as e:
+            print(str(e))
+
+    return start_date, end_date
+
+
+def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
+    page_num = input('Start Page (default=1): ').rstrip("\r") or 1
+    try:
+        page_num = int(page_num)
+    except BaseException:
+        print("Invalid page number:", page_num)
+        raise
+
+    end_page_num = 0
+    if np_is_valid:
+        end_page_num = np
+    else:
+        end_page_num = _config.numberOfPage
+
+    if not start_only:
+        end_page_num = input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ').rstrip("\r") or end_page_num
+        if end_page_num is not None:
+            try:
+                end_page_num = int(end_page_num)
+                if page_num > end_page_num and end_page_num != 0:
+                    print("page_num is bigger than end_page_num, assuming as page count.")
+                    end_page_num = page_num + end_page_num
+            except BaseException:
+                print("Invalid end page number:", end_page_num)
+                raise
+
+    return page_num, end_page_num
 
 
 # Issue 420
