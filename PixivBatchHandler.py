@@ -93,8 +93,8 @@ def handle_members(caller, job, job_name, job_option):
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
     image_ids = list()
     if "image_ids" in job:
-        print("Multi Image IDs")
         image_ids = job["image_ids"]
+        print(f"Found multiple images: {len(image_ids)}")
     elif "member_id" in job:
         image_id = job["image_id"]
         image_ids.append(image_id)
@@ -107,7 +107,8 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
                                         image_id=image_id,
                                         user_dir=job_option.rootDirectory,
                                         title_prefix=job_name,
-                                        job_option=job_option)
+                                        job_option=job_option)   # , notification_handler=notification_handler)
+    print("done.")
 
 
 def handle_tags(caller, job, job_name, job_option):
@@ -169,6 +170,10 @@ def handle_tags(caller, job, job_name, job_option):
 
 
 def process_batch_job(caller: PixivUtil2):
+    # # replace existing print_and_log
+    # temp_printer = PixivHelper.print_and_log
+    # PixivHelper.print_and_log = notification_handler
+
     caller.set_console_title("Batch Menu")
     if os.path.exists(_default_batch_filename):
         jobs_file = open(_default_batch_filename, encoding="utf-8")
@@ -196,6 +201,20 @@ def process_batch_job(caller: PixivUtil2):
                 print(f"Unsupported job_type {curr_job['job_type']} in {job_name}")
     else:
         print(f"Cannot found {_default_batch_filename} in the application folder, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
+
+    # restore original method
+    # PixivHelper.print_and_log = temp_printer
+
+
+def notification_handler(level, msg, exception=None, newline=True, end=None):
+    if level is None:
+        level = ""
+    if level == "debug":
+        return
+    msg = msg.replace("\n", "")
+    msg = "{0:5} - {1}".format(level, msg)
+    msg = msg.ljust(150)
+    print(msg, end='\r')
 
 
 if __name__ == '__main__':

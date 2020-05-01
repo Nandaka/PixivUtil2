@@ -8,6 +8,7 @@ import logging
 import logging.handlers
 import os
 import platform
+import random
 import re
 import shlex
 import shutil
@@ -19,7 +20,6 @@ import traceback
 import unicodedata
 import urllib
 import zipfile
-import random
 from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
 
@@ -248,14 +248,16 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
     return nameFormat.strip()
 
 
-def safePrint(msg, newline=True):
+def safePrint(msg, newline=True, end=None):
     """Print empty string if UnicodeError raised."""
     for msgToken in msg.split(' '):
         try:
             print(msgToken, end=' ')
         except UnicodeError:
             print(('?' * len(msgToken)), end=' ')
-    if newline:
+    if end is not None:
+        print("", end=end)
+    elif newline:
         print("")
 
 
@@ -438,11 +440,11 @@ def dump_html(filename, html_text):
     return ""
 
 
-def print_and_log(level, msg, exception=None, newline=True):
+def print_and_log(level, msg, exception=None, newline=True, end=None):
     if level == 'debug':
         get_logger().debug(msg)
     else:
-        safePrint(msg, newline)
+        safePrint(msg, newline, end)
         if level == 'info':
             get_logger().info(msg)
         elif level == 'warn':
@@ -552,12 +554,12 @@ def print_delay(retryWait, notification_handler=None):
     repeat = range(1, retryWait)
     for t in repeat:
         if notification_handler is None:
-            print(t, end=' ')
+            print_and_log(None, t, newline=False)
         else:
             notification_handler(None, t, newline=False)
         time.sleep(1)
     if notification_handler is None:
-        print('')
+        print_and_log(None, "")
     else:
         notification_handler(None, '')
 
@@ -569,7 +571,8 @@ def create_custom_request(url, config, referer='https://www.pixiv.net', head=Fal
         urllib.request.install_opener(opener)
     req = mechanize.Request(url)
     req.add_header('Referer', referer)
-    print_and_log('info', u"Using Referer: " + str(referer))
+    # print_and_log('info', u"Using Referer: " + str(referer))
+    get_logger().info(f"Using Referer: {referer}")
 
     if head:
         req.get_method = lambda: 'HEAD'
@@ -608,7 +611,6 @@ def download_image(url, filename, res, file_size, overwrite):
     prev = 0
     curr = 0
     msg_len = 0
-    # print('{0:22} Bytes'.format(curr), end=' ')
     try:
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
@@ -618,14 +620,14 @@ def download_image(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print("")
-                print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(file_size, total_time)))
+                print_and_log(None, "")
+                print_and_log(None, f' Completed in {total_time}s ({speed_in_str(file_size, total_time)})')
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print("")
-                print(u' Completed in {0}s ({1})'.format(total_time, speed_in_str(curr, total_time)))
+                print_and_log(None, "")
+                print_and_log(None, f' Completed in {total_time}s ({speed_in_str(curr, total_time)})')
                 break
 
             prev = curr
@@ -679,7 +681,7 @@ def print_progress(curr, total, max_msg_length=80):
         msg = f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
 
     curr_msg_length = len(msg)
-    print(msg.ljust(max_msg_length, " "), end='\r')
+    print_and_log(None, msg.ljust(max_msg_length, " "), end='\r')
 
     return curr_msg_length if curr_msg_length > max_msg_length else max_msg_length
 
@@ -705,13 +707,13 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
         search_mode = ""
         if title_caption:
             search_mode = '&s_mode=s_tc'
-            print(u"Using Title Match (s_tc)")
+            print_and_log(None, "Using Title Match (s_tc)")
         elif wild_card:
             # partial match
-            print(u"Using Partial Match (s_tag)")
+            print_and_log(None, "Using Partial Match (s_tag)")
         else:
             search_mode = '&s_mode=s_tag_full'
-            print(u"Using Full Match (s_tag_full)")
+            print_and_log(None, "Using Full Match (s_tag_full)")
 
         bookmark_limit_premium = ""
         if blt > 0:
@@ -888,7 +890,7 @@ def ugoira2webm(ugoira_file,
             chatter += buff
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
-                    print(chatter.strip(), os.linesep, end=' ')
+                    print_and_log(None, chatter.strip(), os.linesep, end=' ')
                 chatter = ""
             if len(buff) == 0:
                 break
@@ -901,7 +903,7 @@ def ugoira2webm(ugoira_file,
             os.remove(ugoira_file)
 
         if ret is not None:
-            print("done with status= {0}".format(ret))
+            print_and_log(None, "done with status= {0}".format(ret))
         # set last-modified and last-accessed timestamp
         if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
             ts = time.mktime(image.worksDateDateTime.timetuple())
@@ -995,7 +997,7 @@ def get_start_and_end_date():
                 start_date = check_date_time(start_date)
             break
         except Exception as e:
-            print(str(e))
+            print_and_log(None, str(e))
 
     while True:
         try:
@@ -1004,7 +1006,7 @@ def get_start_and_end_date():
                 end_date = check_date_time(end_date)
             break
         except Exception as e:
-            print(str(e))
+            print_and_log(None, str(e))
 
     return start_date, end_date
 
@@ -1014,7 +1016,7 @@ def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
     try:
         page_num = int(page_num)
     except BaseException:
-        print("Invalid page number:", page_num)
+        print_and_log(None, f"Invalid page number: {page_num}")
         raise
 
     end_page_num = 0
@@ -1029,10 +1031,10 @@ def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
             try:
                 end_page_num = int(end_page_num)
                 if page_num > end_page_num and end_page_num != 0:
-                    print("page_num is bigger than end_page_num, assuming as page count.")
+                    print_and_log(None, "page_num is bigger than end_page_num, assuming as page count.")
                     end_page_num = page_num + end_page_num
             except BaseException:
-                print("Invalid end page number:", end_page_num)
+                print_and_log(None, f"Invalid end page number: {end_page_num}")
                 raise
 
     return page_num, end_page_num
@@ -1046,7 +1048,7 @@ def wait(result=None, config=None, notification_handler=None):
         delay = random.random() * config.downloadDelay
         message = "Wait for {0:.3}s".format(delay)
         if notification_handler is None:
-            print(message)
+            print_and_log(None, message)
         else:
             notification_handler(None, message)
         time.sleep(delay)
