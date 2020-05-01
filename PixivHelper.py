@@ -19,6 +19,7 @@ import traceback
 import unicodedata
 import urllib
 import zipfile
+import random
 from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
 
@@ -1035,6 +1036,20 @@ def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
                 raise
 
     return page_num, end_page_num
+
+
+def wait(result=None, config=None, notification_handler=None):
+    if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT:
+        return
+    # Issue#276: add random delay for each post.
+    if config is not None and config.downloadDelay > 0:
+        delay = random.random() * config.downloadDelay
+        message = "Wait for {0:.3}s".format(delay)
+        if notification_handler is None:
+            print(message)
+        else:
+            notification_handler(None, message)
+        time.sleep(delay)
 
 
 # Issue 420
