@@ -24,7 +24,8 @@ def process_image(caller,
                   title_prefix="",
                   bookmark_count=-1,
                   image_response_count=-1,
-                  notification_handler=None):
+                  notification_handler=None,
+                  job_option=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
@@ -33,6 +34,11 @@ def process_image(caller,
     if notification_handler is None:
         notification_handler = PixivHelper.print_and_log
 
+    # override the config source if job_option is give for filename formats
+    format_src = config
+    if job_option is not None:
+        format_src = job_option
+
     parse_medium_page = None
     image = None
     result = None
@@ -40,7 +46,7 @@ def process_image(caller,
     filename = f'no-filename-{image_id}.tmp'
 
     try:
-        notification_handler(None, 'Processing Image Id:', image_id)
+        notification_handler(None, f'Processing Image Id: {image_id}')
 
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
         r = db.selectImageByImageId(image_id, cols='save_name')
@@ -132,7 +138,7 @@ def process_image(caller,
             notification_handler(None, f"Mode : {image.imageMode}")
 
             # get bookmark count
-            if ("%bookmark_count%" in config.filenameFormat or "%image_response_count%" in config.filenameFormat) and image.bookmark_count == -1:
+            if ("%bookmark_count%" in format_src.filenameFormat or "%image_response_count%" in format_src.filenameFormat) and image.bookmark_count == -1:
                 notification_handler(None, "Parsing bookmark page", end=' ')
                 bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
@@ -152,7 +158,7 @@ def process_image(caller,
                 notification_handler(None, f"Page Count : {image.imageCount}")
 
             if user_dir == '':  # Yavos: use config-options
-                target_dir = config.rootDirectory
+                target_dir = format_src.rootDirectory
             else:  # Yavos: use filename from list
                 target_dir = user_dir
 
@@ -170,10 +176,10 @@ def process_image(caller,
                 url = os.path.basename(img)
                 split_url = url.split('.')
                 if split_url[0].startswith(str(image_id)):
-                    # Yavos: filename will be added here if given in list
-                    filename_format = config.filenameFormat
+
+                    filename_format = format_src.filenameFormat
                     if image.imageMode == 'manga':
-                        filename_format = config.filenameMangaFormat
+                        filename_format = format_src.filenameMangaFormat
 
                     filename = PixivHelper.make_filename(filename_format,
                                                          image,
@@ -220,10 +226,10 @@ def process_image(caller,
                     notification_handler(None, '')
 
             if config.writeImageInfo or config.writeImageJSON:
-                filename_info_format = config.filenameInfoFormat or config.filenameFormat
+                filename_info_format = format_src.filenameInfoFormat or format_src.filenameFormat
                 # Issue #575
                 if image.imageMode == 'manga':
-                    filename_info_format = config.filenameMangaInfoFormat or config.filenameMangaFormat or filename_info_format
+                    filename_info_format = format_src.filenameMangaInfoFormat or format_src.filenameMangaFormat or filename_info_format
                 info_filename = PixivHelper.make_filename(filename_info_format,
                                                           image,
                                                           tagsSeparator=config.tagsSeparator,

@@ -20,7 +20,8 @@ def process_member(caller,
                    bookmark=False,
                    tags=None,
                    title_prefix="",
-                   notification_handler=None):
+                   notification_handler=None,
+                   job_option=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
@@ -31,6 +32,11 @@ def process_member(caller,
 
     if notification_handler is None:
         notification_handler = PixivHelper.print_and_log
+
+    # override the config source if job_option is give for filename formats
+    format_src = config
+    if job_option is not None:
+        format_src = job_option
 
     list_page = None
 
@@ -102,11 +108,11 @@ def process_member(caller,
 
             if not is_avatar_downloaded and config.downloadAvatar:
                 if user_dir == '':
-                    target_dir = config.rootDirectory
+                    target_dir = format_src.rootDirectory
                 else:
                     target_dir = user_dir
 
-                avatar_filename = PixivHelper.create_avatar_filename(artist, target_dir)
+                avatar_filename = PixivHelper.create_avatar_filename(artist, target_dir, format_src)
                 if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                     if artist.artistAvatar.find('no_profile') == -1:
                         PixivDownloadHandler.download_image(caller,
@@ -164,7 +170,8 @@ def process_member(caller,
                                                                      user_dir,
                                                                      bookmark,
                                                                      title_prefix=title_prefix_img,
-                                                                     notification_handler=notification_handler)
+                                                                     notification_handler=notification_handler,
+                                                                     job_option=job_option)
 
                         break
                     except KeyboardInterrupt:

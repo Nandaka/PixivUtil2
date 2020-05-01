@@ -4,8 +4,11 @@ import os
 
 import demjson
 
-import PixivUtil2
+import PixivArtistHandler
 import PixivHelper
+import PixivImageHandler
+import PixivTagsHandler
+import PixivUtil2
 
 _default_batch_filename = "./batch_job.json"
 
@@ -76,13 +79,15 @@ def handle_members(caller, job, job_name, job_option):
         tags = job["tags"]
 
     for member_id in member_ids:
-        caller.process_member(member_id=member_id,
-                              user_dir=job_option.rootDirectory,
-                              page=start_page,
-                              end_page=end_page,
-                              bookmark=from_bookmark,
-                              tags=tags,
-                              title_prefix=job_name)
+        PixivArtistHandler.process_member(caller,
+                                          member_id=member_id,
+                                          user_dir=job_option.rootDirectory,
+                                          page=start_page,
+                                          end_page=end_page,
+                                          bookmark=from_bookmark,
+                                          tags=tags,
+                                          title_prefix=job_name,
+                                          job_option=job_option)
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
@@ -98,9 +103,11 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
         return
 
     for image_id in image_ids:
-        caller.process_image(image_id=image_id,
-                             user_dir=job_option.rootDirectory,
-                             title_prefix=job_name)
+        PixivImageHandler.process_image(caller,
+                                        image_id=image_id,
+                                        user_dir=job_option.rootDirectory,
+                                        title_prefix=job_name,
+                                        job_option=job_option)
 
 
 def handle_tags(caller, job, job_name, job_option):
@@ -124,13 +131,13 @@ def handle_tags(caller, job, job_name, job_option):
     start_date = None
     if "start_date" in job and len(job["start_date"]) == 10:
         try:
-            start_date = PixivHelper.check_date_time(start_date)
+            start_date = PixivHelper.check_date_time(job["start_date"])
         except BaseException:
             raise Exception(f"Invalid start_date: {job['start_date']} in {job_name}.")
     end_date = None
     if "end_date" in job and len(job["end_date"]) == 10:
         try:
-            end_date = PixivHelper.check_date_time(end_date)
+            end_date = PixivHelper.check_date_time(job["end_date"])
         except BaseException:
             raise Exception(f"Invalid end_date: {job['end_date']} in {job_name}.")
     bookmark_count = None
@@ -146,17 +153,19 @@ def handle_tags(caller, job, job_name, job_option):
         else:
             raise Exception(f"Invalid type_mode: {job['type_mode']} in {job_name}.")
 
-    caller.process_tags(tags,
-                        page=start_page,
-                        end_page=end_page,
-                        wild_card=wild_card,
-                        title_caption=title_caption,
-                        start_date=start_date,
-                        end_date=end_date,
-                        use_tags_as_dir=job_option.useTagsAsDir,
-                        bookmark_count=bookmark_count,
-                        oldest_first=oldest_first,
-                        type_mode=type_mode)
+    PixivTagsHandler.process_tags(caller,
+                                  tags,
+                                  page=start_page,
+                                  end_page=end_page,
+                                  wild_card=wild_card,
+                                  title_caption=title_caption,
+                                  start_date=start_date,
+                                  end_date=end_date,
+                                  use_tags_as_dir=job_option.useTagsAsDir,
+                                  bookmark_count=bookmark_count,
+                                  oldest_first=oldest_first,
+                                  type_mode=type_mode,
+                                  job_option=job_option)
 
 
 def process_batch_job(caller: PixivUtil2):
@@ -185,6 +194,8 @@ def process_batch_job(caller: PixivUtil2):
                 handle_tags(caller, curr_job, job_name, job_option)
             else:
                 print(f"Unsupported job_type {curr_job['job_type']} in {job_name}")
+    else:
+        print(f"Cannot found {_default_batch_filename} in the application folder, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
 
 
 if __name__ == '__main__':

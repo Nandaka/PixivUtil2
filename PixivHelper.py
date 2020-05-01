@@ -321,12 +321,12 @@ def open_text_file(filename, mode='r', encoding='utf-8'):
     return f
 
 
-def create_avatar_filename(artistPage, targetDir):
+def create_avatar_filename(artistPage, targetDir, format_src):
     filename = ''
     image = PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
-    if len(_config.avatarNameFormat) > 0:
-        filenameFormat = _config.avatarNameFormat
+    if len(format_src.avatarNameFormat) > 0:
+        filenameFormat = format_src.avatarNameFormat
         filename = make_filename(filenameFormat, image,
                                  tagsSeparator=_config.tagsSeparator,
                                  tagsLimit=_config.tagsLimit,
@@ -335,7 +335,7 @@ def create_avatar_filename(artistPage, targetDir):
         filename = sanitize_filename(filename, targetDir)
     else:
         # or as folder.jpg
-        filenameFormat = _config.filenameFormat
+        filenameFormat = format_src.filenameFormat
         if filenameFormat.find(os.sep) == -1:
             filenameFormat = os.sep + filenameFormat
         filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
@@ -982,7 +982,7 @@ def decode_tags(tags):
 
 def check_date_time(input_date):
     split = input_date.split("-")
-    return datetime.date(int(split[0]), int(split[1]), int(split[2])).isoformat()
+    return date(int(split[0]), int(split[1]), int(split[2])).isoformat()
 
 
 def get_start_and_end_date():
