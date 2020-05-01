@@ -330,25 +330,60 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
                 res.close()
             except BaseException:
-                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie, please check cookieFanbox: %s', sys.exc_info())
+                PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie(): %s', sys.exc_info())
                 return False
 
             if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
                 self._is_logged_in_to_FANBOX = True
-
-            if result:
-                PixivHelper.print_and_log('info', 'FANBOX Login successful.')
-            else:
-                PixivHelper.print_and_log('info', 'FANBOX login cookie string invalid, please update in config.ini.')
-
             del parsed
+
+        if result:
+            PixivHelper.print_and_log('info', 'FANBOX Login successful.')
+        else:
+            PixivHelper.print_and_log('info', 'Not logged in to FANBOX, trying to update FANBOX cookie...')
+            result = self.updateFanboxCookie()
+            self._is_logged_in_to_FANBOX = result
+
         return result
 
     def fanbox_is_logged_in(self):
         if not self._is_logged_in_to_FANBOX:
             if not self.fanboxLoginUsingCookie(self._config.cookieFanbox):
                 raise Exception("Not logged in to FANBOX")
+
+    def updateFanboxCookie(self):
+        p_req = mechanize.Request("https://www.pixiv.net/fanbox")
+        p_req.add_header('Accept', 'application/json, text/plain, */*')
+        p_req.add_header('Origin', 'https://www.pixiv.net')
+        p_req.add_header('User-Agent', self._config.useragent)
+
+        try:
+            p_res = self.open_with_retry(p_req)
+            parsed = BeautifulSoup(p_res, features="html5lib").decode('utf-8')
+            p_res.close()
+        except BaseException:
+            PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
+            return False
+        
+        result = False
+        if '"user":{"isLoggedIn":true' in str(parsed):
+            result = True
+            self._is_logged_in_to_FANBOX = True
+        del parsed
+
+        if result:
+            for cookie in self._ua_handlers['_cookies'].cookiejar:
+                if cookie.name == 'FANBOXSESSID':
+                    PixivHelper.print_and_log(
+                        'info', 'New FANBOX cookie value: ' + str(cookie.value))
+                    self._config.cookieFanbox = cookie.value
+                    self._config.writeConfig(
+                        path=self._config.configFileLocation)
+                    break
+        else:
+            PixivHelper.print_and_log('info', 'Could not update FANBOX cookie string.')
+        return result
 
     def login(self, username, password):
         parsed = None
