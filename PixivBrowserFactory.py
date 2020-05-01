@@ -380,6 +380,7 @@ class PixivBrowser(mechanize.Browser):
                     self._config.cookieFanbox = cookie.value
                     self._config.writeConfig(
                         path=self._config.configFileLocation)
+                    break
         else:
             PixivHelper.print_and_log('info', 'Could not update FANBOX cookie string.')
         return result
