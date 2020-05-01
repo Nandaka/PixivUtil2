@@ -49,7 +49,7 @@ class JobOption(object):
                 self.avatarNameFormat = option_data["avatarNameFormat"]
             if "rootDirectory" in option_data:
                 self.rootDirectory = option_data["rootDirectory"]
-            if "use_tags_as_dir" in option_data:
+            if "useTagsAsDir" in option_data:
                 self.useTagsAsDir = option_data["useTagsAsDir"]
 
 
