@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-PIXIVUTIL_VERSION = '202000501-beta3'
+PIXIVUTIL_VERSION = '202000502'
 PIXIVUTIL_LINK = 'https://github.com/Nandaka/PixivUtil2/releases'
 PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
 

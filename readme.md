@@ -1,6 +1,4 @@
-================================================================================
-= Requirements:                                                                =
-================================================================================
+= Requirements:
 - Running from Windows binary:
   - Windows Vista or a more recent version.
 
@@ -12,9 +10,7 @@
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
 
-================================================================================
-= Capabilities:                                                                =
-================================================================================
+= Capabilities:
 - Download by member_id
 - Download by image_id
 - Download by tags
@@ -51,14 +47,10 @@
   - Clean Up Database (remove db entry if downloaded file is missing)
 - Export user bookmark (member_id) to a text files.
 
-================================================================================
-= WARNING                                                                      =
-================================================================================
+= WARNING
 Overusage can lead to Pixiv blocking your IP for a few hours.
 
-================================================================================
-= FAQs:                                                                        =
-================================================================================
+FAQs:
 A.Usage:
 Q1. How to paste Japanese tags to the console window?
     - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
@@ -193,9 +185,8 @@ Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
 Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
     - Set userobots = False in config.ini
 
-================================================================================
-= Command Line Option                                                          =
-================================================================================
+= Command Line Option
+```
   -h, --help            show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
                         Action you want to load your program with:
@@ -250,10 +241,9 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
   -n NUMBEROFPAGES, --numberofpages=NUMBEROFPAGES
                         temporarily overwrites numberOfPage set in config.ini
   -c [PATH], --config [PATH] provide different config.ini
+```
 
-=================================================================================
-= error codes                                                                   =
-=================================================================================
+= Error Codes
 - 100  = Not Logged in.
 - 1001 = User ID not exist/deleted.
 - 1002 = User Account is Suspended.
@@ -271,10 +261,8 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 - 9002 = Download Failed: Network related.
 - 9005 = Server Error.
 
-=================================================================================
-= config.ini                                                                    =
-=================================================================================
-[Authentication]
+= config.ini
+==[Authentication]
 username ==> Your pixiv username.
 password ==> Your pixiv password, in clear text!
 cookie   ==> Your cookies for pixiv login, will be automatically updated in the
@@ -283,7 +271,7 @@ cookieFanbox  ==> Cookie for fanbox.cc
 refresh_token ==> Used for OAuth refresh token to avoid relogin too many time.
                   Automatically generated upon succesful OAuth login.
 
-[Pixiv]
+==[Pixiv]
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
 r18mode      ==> Only list images tagged R18, for member, member's bookmark,
                  and search by tag. Set to 'True' to apply.
@@ -294,7 +282,7 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 		 %M = Minute, %S = Seconds
 autoAddMember
 
-[Network]
+==[Network]
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
 proxyaddress   ==> Proxy server address, use this format:
 		   http://<username>:<password>@<proxy_server>:<port> or
@@ -311,7 +299,7 @@ checkNewVersion==> Set to 'True' to check new releases in github.
 enableSSLVerification ==> enable SSL verication, only set to 'False' if you 
                           always encounter SSL Error (this disable the security)
 
-[Debug]
+==[Debug]
 logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING,
                     INFO, DEBUG, and NOTSET
 enableDump      ==> Enable HTML Dump. Set to False to disable.
@@ -322,7 +310,7 @@ dumpTagSearchPage ==> Dump tags search page for debugging.
 debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
                    
-[IrfanView]
+==[IrfanView]
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start
                     IrfanView)
 startIrfanView  ==> set to <True> to start IrfanView with downloaded images when
@@ -339,7 +327,7 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
                     before!
 createDownloadLists   ==> set to <True> to automatically create download-lists.
 
-[Settings]
+==[Settings]
 downloadlistdirectory ==> list.txt path, also used for download-lists needed for
                           createDownloadLists and IrfanView-Handling
 	                      If leaved blank it will create download-lists in
@@ -371,7 +359,7 @@ dbPath		        ==> use different database.
 setLastModified
 useLocalTimezone
 
-[DownloadControl]
+==[DownloadControl]
 minFileSize
 maxFileSize
 overwrite      ==> Overwrite old files, set 'False' to disable.
@@ -400,7 +388,7 @@ useBlacklistMembers ==> Skip image by member id.
 downloadResized
 
 
-[FFmpeg]
+==[FFmpeg]
 ffmpeg      ==> path to ffmpeg executable
 ffmpegcodec ==> codec to be used for encoding webm, default is using 'libvpx-vp9'.
 ffmpegparam ==> parameter to be used to encode webm.
@@ -409,7 +397,7 @@ webpcodec   ==> codec to be used for encoding webm, default is using 'libwebp'.
 webpparam   ==> parameter to be used to encode webm.
                 default is 'lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999'
 
-[Ugoira]
+==[Ugoira]
 writeugoirainfo ==> If set to True, it will dump the .js to external file.
 createugoira    ==> If set to True, it will create .ugoira file.
                     This is Pixiv own format for animated images.
@@ -426,7 +414,7 @@ createwebm      ==> set to True to create webm file (video format).
 createwebp      ==> set to True to create webp file (image format).
                     Required createUgoira = True.
 
-[Filename]
+==[Filename]
 filenameformat  ==> The format for the filename, reserved/illegal character
                    will be replaced with underscore '_', repeated space will
                    be trimmed to single space.
@@ -446,9 +434,7 @@ usetagsasdir    ==> Append the query tags in tagslist.txt to the root directory
 urlDumpFilename ==> Define the dump filename, use python strftime() format.
                    Default value is 'url_list_%Y%m%d'
 
-===============================================================================
-= Filename Format Syntax                                                      =
-===============================================================================
+= Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
 -> %member_token%
    Member token, might change.
@@ -508,17 +494,15 @@ Available for filenameFormat and filenameMangaFormat:
 -> %image_response_count%
    Image respose count, will have overhead except on download by tags.
 
-===============================================================================
-= list.txt Format                                                             =
-===============================================================================
+= list.txt Format
 - This file should be build in the following way, white space will be trimmed,
   see example:
-
+```
 member_id1 directory1
 member_id2 directory2
   ...
 #comment - lines starting with # will be ignored
-
+```
 - member_id = in number only
 - directory = path to download-directory for member_id
   - %root%\directory will save directory in rootFolder specified in config.ini
@@ -529,6 +513,7 @@ member_id2 directory2
   - directory-path can end with \ or not
 
 - Examples for list:
+```
 ### START EXAMPLE LIST####
 # this is a comment line, lines starting with # will be ignored
 # here is the first member:
@@ -565,39 +550,31 @@ http://www.pixiv.net/member.php?id=123456
 http://www.pixiv.net/member_illust.php?id=123456
 # also support url format.
 ### END EXAMPLE LIST####
+```
 
-=================================================================================
-= tags.txt Format                                                               =
-=================================================================================
+= tags.txt Format 
 - This file will be used as source for Download from tags list (7)
 - Separate tags with space, ensure to set Use Wildcard to 'y'.
 - Each line will be treated as one search.
 - Save the files with UTF-8 encoding.
 
-=================================================================================
-= suppress_tags.txt Format                                                      =
-=================================================================================
+= suppress_tags.txt Format
 - This file is used for suppressing the tags from being used in %tags%.
 - If matches, the tags will be removed from filename.
 - Each line is one tag only.
 - Save the files with UTF-8 encoding
 
-=================================================================================
-= blacklist_tags.txt Format                                                     =
-=================================================================================
+
+= blacklist_tags.txt Format
 - This file is used for tag blacklist checking for downloading image.
 - If matches, the image will be skipped.
 - Each line is one tag only.
 - Save the files with UTF-8 encoding
 
-=================================================================================
-= blacklist_members.txt Format                                                  =
-=================================================================================
+= blacklist_members.txt Format
 - similar like list.txt, but without custom folder.
 
-=================================================================================
-= Credits/Contributor                                                           =
-=================================================================================
+= Credits/Contributor 
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
 - Yavos (Contributor)
 - Joe (Contributor)
@@ -628,7 +605,5 @@ http://www.pixiv.net/member_illust.php?id=123456
 
 *If I forget someone, please send me a pull request with the commit/merge id.
 
-=================================================================================
-= License Agreement                                                             =
-=================================================================================
+= License Agreement
 See LICENSE.

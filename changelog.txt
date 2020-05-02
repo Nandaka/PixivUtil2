@@ -1,4 +1,4 @@
-20200501-beta3
+20200502
 - Merged FANBOX download enhancement (#680) by amatuerCoder.
 - Merged Optimize Query `insertMangaImage` & Typo Fix (#678) by Jared Shields.
 - Merged Simplify(?) codes with reflection(?) thoughts (#676) by amatuerCoder.
@@ -8,6 +8,8 @@
 - Implement #197: new option 'b' to download from batch_job.json
   See https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for the sample template.
 - Refactor out codes for handling batch job.
+- Fix Issue #696: wrong import for PixivException
+- Merged FANBOX database patch (#695) by amatuerCoder.
 
 202000424
 - Try to fix #658, #662: login detection.
