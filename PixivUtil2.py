@@ -1172,7 +1172,8 @@ def processFanboxImages(post, artist):
             reader.close()
         post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
 
-    __dbManager__.insertPostImages(post_files)
+    if len(post_files) > 0:
+        __dbManager__.insertPostImages(post_files)
     __dbManager__.updatePostUpdateDate(post.imageId, post.updatedDate)
 
 
