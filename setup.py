@@ -28,6 +28,22 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def get_version():
+    main_ns = {}
+    ver_path = convert_path('PixivConstant.py')
+    with open(ver_path) as ver_file:
+        exec(ver_file.read(), main_ns)
+    version = main_ns['PIXIVUTIL_VERSION']
+    v_parts = version.split('-', 1)
+    # 20201231
+    main_version = '{0}.{1}.{2}'.format(v_parts[0][0:4], int(v_parts[0][4:6]), int(v_parts[0][6:8]))
+    if '-' in version:
+        version = main_version + '.{}'.format(v_parts[1])
+    else:
+        version = main_version
+    return version
+
+
 if not isWindows:
     if ranWithPy3:
         print("After installing, run with command:\n")
@@ -72,26 +88,15 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'requirements.txt')) as f:
     install_requires = f.read().split('\n')
 install_requires = [x.strip() for x in install_requires]
-# get program version
-main_ns = {}
-ver_path = convert_path('PixivConstant.py')
-with open(ver_path) as ver_file:
-    exec(ver_file.read(), main_ns)
-version = main_ns['PIXIVUTIL_VERSION']
-v_parts = version.split('-', 1)
-main_version = '{0}.{1}.{2}'.format(v_parts[0][0:4], int(v_parts[0][4:6]), int(v_parts[0][6:7]))
-if '-' in version:
-    version = main_version + '.{}'.format(v_parts[1])
-else:
-    version = main_version
+
 # get long_description
-readme_path = convert_path('readme.txt')
+readme_path = convert_path('readme.md')
 with open(readme_path) as readme_file:
     long_description = readme_file.read()
 
 setup(
     name='PixivUtil2',  # Required
-    version=version,
+    version=get_version(),
     description='Download images from Pixiv and more',
     long_description=long_description,
     url='https://github.com/Nandaka/PixivUtil2',
@@ -105,7 +110,7 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     keywords='pixiv downloader',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
