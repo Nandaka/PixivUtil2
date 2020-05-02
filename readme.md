@@ -1,4 +1,4 @@
-= Requirements:
+# Requirements:
 - Running from Windows binary:
   - Windows Vista or a more recent version.
 
@@ -10,15 +10,15 @@
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
 
-= Capabilities:
+# Capabilities:
 - Download by member_id
 - Download by image_id
 - Download by tags
 - Download from list (list.txt)
-- Download from bookmarked artists (/bookmark.php?type=user),
+- Download from bookmarked artists (/bookmark.php?type=user)
   including private/hidden bookmarks.
-- Download from bookmarked images (/bookmark.php), including
-  private/hidden bookmarks.
+- Download from bookmarked images (/bookmark.php)
+  including private/hidden bookmarks.
 - Download from tags list (tags.txt)
 - Download new illustrations from bookmarked artist (/bookmark_new_illust.php)
 - Download by Title/Caption
@@ -47,11 +47,13 @@
   - Clean Up Database (remove db entry if downloaded file is missing)
 - Export user bookmark (member_id) to a text files.
 
-= WARNING
+# WARNING
 Overusage can lead to Pixiv blocking your IP for a few hours.
 
-FAQs:
-A.Usage:
+# FAQs
+
+## A. Usage
+```
 Q1. How to paste Japanese tags to the console window?
     - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
       it show up as question mark -> Change the Language for non-Unicode
@@ -60,9 +62,11 @@ Q1. How to paste Japanese tags to the console window?
       and paste the encoded tag back to the console.
     - or paste it to tags.txt and select download by tags list. Separate each
       tags with space, and separate with new line for new query.
+      
 Q2. My password doesn't show up in the console!
     - This is normal. The program still reads it.
     - or you can put in the config.ini if not sure.
+    
 Q3. I cannot login to Pixiv!
     - Check your password.
     - Try to login to the Pixiv Website.
@@ -80,12 +84,14 @@ Q3. I cannot login to Pixiv!
       7. Copy the content value.
       8. Open config.ini, go to [Authentication] section, paste the value
           to cookie, set keepsignedin = 1.
+          
 Q4. PixivUtil working from local terminal on Linux box but not working when I
     used SSH with PuTTY!
     - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are
       not set, python does not know what to write (Thanks to nho!)
     - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate
       it properly (Thanks to Mailia!)
+      
 Q5. How to delete member id from Database?
     - Open the application and choose Manage Database (d) then select delete
       Member by Member Id.
@@ -93,6 +99,7 @@ Q5. How to delete member id from Database?
       command to delete it.
     - If you are downloading using Download from List.txt (3), you can create
       ignore_list.txt to skip the member id.
+      
 Q6. The app doesn't download all the images!
     - Pixiv only allow to search up to 1000 pages if you don't have Pixiv 
       Premium.
@@ -100,11 +107,13 @@ Q6. The app doesn't download all the images!
       then delete the cookie value in config.ini and retry.
     - Check the value of r18mode in config.ini. Setting it to True will only
       download R-18 images.
+      
 Q7. The apps show square/question mark texts in the console output!
     - This is because your Windows is not set to Japanese for the Regional Settings
       in control panel.
     - Since 20161114+ version, you need to set the console font properties to
       use font with unicode support (e.g. Arial Unicode, MS Gothic).
+      
 Q8. Where to get FFmpeg software? How to enable `createwebm`?
     - Download the stable version of FFmpeg from https://www.ffmpeg.org/download.html.
     - For Windows:
@@ -113,33 +122,40 @@ Q8. Where to get FFmpeg software? How to enable `createwebm`?
       - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
     - For Linux:
       - Install the package using your favorite package manager.
+      
 Q9. The downloaded images are corrupted, how to redownload it again?
     - You can delete the download history in databases by manually delete the image id 
       from databases (enter d, followed by 10).
     - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini 
       and retry the download.
-	
-B.Bugs/Source Code/Supports:
+```
+## B.Bugs/Source Code/Supports
+```
 Q1. Where I can report bugs?
     - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
+    
 Q2. Where I can support/donate to you?
     - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
     - or visit https://bit.ly/PixivUtilDonation.
+    
 Q3. I want to use/modify the source code!
     - Feel free to use/modify the source code as long you give credit to me
       and make the modificated source code open.
     - if you want to add feature/bug fix, you can do fork the repository in
       https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
+      
 Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
     - Please modify _html.py from mechanize library, search for
       'def unescape_charref(data, encoding):' and replace with patch in
       https://pastebin.com/5bT5HFkb.
+      
 Q5. I got '<library_name> module no found error'
     - Download the library from the source (see links from the Requirements
       section) and copy the file into your Lib\site-packages directory.
     - Or use pip install (google on how to use).
-
-C.Log Messages:
+```
+## C.Log Messages
+```
 Q1: HTTPError: HTTP Error 404: Not Found
     - This is because the file doesn't exist in the pixiv server, usually
        because there is no big images version for the manga mode (currently the
@@ -184,8 +200,9 @@ Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
 
 Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
     - Set userobots = False in config.ini
+```
 
-= Command Line Option
+# Command Line Option
 ```
   -h, --help            show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
@@ -243,7 +260,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
   -c [PATH], --config [PATH] provide different config.ini
 ```
 
-= Error Codes
+# Error Codes
 - 100  = Not Logged in.
 - 1001 = User ID not exist/deleted.
 - 1002 = User Account is Suspended.
@@ -261,8 +278,9 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 - 9002 = Download Failed: Network related.
 - 9005 = Server Error.
 
-= config.ini
-==[Authentication]
+# config.ini
+## [Authentication]
+```
 username ==> Your pixiv username.
 password ==> Your pixiv password, in clear text!
 cookie   ==> Your cookies for pixiv login, will be automatically updated in the
@@ -270,8 +288,9 @@ cookie   ==> Your cookies for pixiv login, will be automatically updated in the
 cookieFanbox  ==> Cookie for fanbox.cc
 refresh_token ==> Used for OAuth refresh token to avoid relogin too many time.
                   Automatically generated upon succesful OAuth login.
-
-==[Pixiv]
+```
+## [Pixiv]
+```
 numberofpage ==> Number of page to be processed, put '0' to process all pages.
 r18mode      ==> Only list images tagged R18, for member, member's bookmark,
                  and search by tag. Set to 'True' to apply.
@@ -280,9 +299,10 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 		 Quick Reference:
 		 %d = Day, %m = Month, %Y = Year (4 digit), %H = Hour (24h)
 		 %M = Minute, %S = Seconds
-autoAddMember
-
-==[Network]
+autoAddMember ==> automatically save member id to db for all download.
+```
+## [Network]
+```
 useproxy       ==> Set 'True' to use proxy server, 'False' to disable it.
 proxyaddress   ==> Proxy server address, use this format:
 		   http://<username>:<password>@<proxy_server>:<port> or
@@ -298,8 +318,9 @@ downloadDelay  ==> Set random delay up to n seconds for each image post.
 checkNewVersion==> Set to 'True' to check new releases in github.
 enableSSLVerification ==> enable SSL verication, only set to 'False' if you 
                           always encounter SSL Error (this disable the security)
-
-==[Debug]
+```
+## [Debug]
+```
 logLevel        ==> Set log level, valid values are CRITICAL, ERROR, WARNING,
                     INFO, DEBUG, and NOTSET
 enableDump      ==> Enable HTML Dump. Set to False to disable.
@@ -309,8 +330,9 @@ dumpMediumPage  ==> Dump all medium page for debugging. Set to True to enable.
 dumpTagSearchPage ==> Dump tags search page for debugging.
 debughttp      ==> Print http header, useful for debuggin. Set 'False' to
                    disable.
-                   
-==[IrfanView]
+```
+## [IrfanView]
+```
 IrfanViewPath   ==> set directory where IrfanView is installed (needed to start
                     IrfanView)
 startIrfanView  ==> set to <True> to start IrfanView with downloaded images when
@@ -326,8 +348,9 @@ startIrfanSlide ==> set to <True> to start IrfanView-Slideshow with downloaded
 	         -> Slideshow-options will be same as you have set in IrfanView
                     before!
 createDownloadLists   ==> set to <True> to automatically create download-lists.
-
-==[Settings]
+```
+## [Settings]
+```
 downloadlistdirectory ==> list.txt path, also used for download-lists needed for
                           createDownloadLists and IrfanView-Handling
 	                      If leaved blank it will create download-lists in
@@ -356,12 +379,13 @@ writeUrlInDescription ==> Write all url found in the image description to a text
 urlBlacklistRegex   ==> Used to filter out the url in the description using
                           regular expression.
 dbPath		        ==> use different database.
-setLastModified
-useLocalTimezone
-
-==[DownloadControl]
-minFileSize
-maxFileSize
+setLastModified     ==> Set last modified timestamp based on pixiv upload timestamp.
+useLocalTimezone    ==> Use local timezone when setting last modified timestamp.
+```
+## [DownloadControl]
+```
+minFileSize  ==> skip if file size is less than minFileSize, set 0 to disable.
+maxFileSize  ==> skip if file size is more than minFileSize, set 0 to disable.
 overwrite      ==> Overwrite old files, set 'False' to disable.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
@@ -385,10 +409,10 @@ enableInfiniteLoop ==> Enable infinite loop for download by tags.
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
-downloadResized
-
-
-==[FFmpeg]
+downloadResized  ==> Download the medium size, rather than the original size.
+```
+## [FFmpeg]
+```
 ffmpeg      ==> path to ffmpeg executable
 ffmpegcodec ==> codec to be used for encoding webm, default is using 'libvpx-vp9'.
 ffmpegparam ==> parameter to be used to encode webm.
@@ -396,8 +420,9 @@ ffmpegparam ==> parameter to be used to encode webm.
 webpcodec   ==> codec to be used for encoding webm, default is using 'libwebp'.
 webpparam   ==> parameter to be used to encode webm.
                 default is 'lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999'
-
-==[Ugoira]
+```
+## [Ugoira]
+```
 writeugoirainfo ==> If set to True, it will dump the .js to external file.
 createugoira    ==> If set to True, it will create .ugoira file.
                     This is Pixiv own format for animated images.
@@ -413,8 +438,9 @@ createwebm      ==> set to True to create webm file (video format).
                     Required createUgoira = True.
 createwebp      ==> set to True to create webp file (image format).
                     Required createUgoira = True.
-
-==[Filename]
+```
+## [Filename]
+```
 filenameformat  ==> The format for the filename, reserved/illegal character
                    will be replaced with underscore '_', repeated space will
                    be trimmed to single space.
@@ -433,9 +459,10 @@ usetagsasdir    ==> Append the query tags in tagslist.txt to the root directory
                    as save folder.
 urlDumpFilename ==> Define the dump filename, use python strftime() format.
                    Default value is 'url_list_%Y%m%d'
-
-= Filename Format Syntax
+```
+# Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
+```
 -> %member_token%
    Member token, might change.
 -> %member_id%
@@ -450,8 +477,9 @@ Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
    Current date using custom format.
    Use Python string format notation, refer: https://goo.gl/3UiMAb
    e.g. %date_fmt{%Y-%m-%d}%
-
+```
 Available for filenameFormat and filenameMangaFormat:
+```
 -> %image_id%
    Image id, in number.
 -> %title%
@@ -493,8 +521,8 @@ Available for filenameFormat and filenameMangaFormat:
    Bookmark count, will have overhead except on download by tags.
 -> %image_response_count%
    Image respose count, will have overhead except on download by tags.
-
-= list.txt Format
+```
+# list.txt Format
 - This file should be build in the following way, white space will be trimmed,
   see example:
 ```
@@ -552,29 +580,29 @@ http://www.pixiv.net/member_illust.php?id=123456
 ### END EXAMPLE LIST####
 ```
 
-= tags.txt Format 
+# tags.txt Format 
 - This file will be used as source for Download from tags list (7)
 - Separate tags with space, ensure to set Use Wildcard to 'y'.
 - Each line will be treated as one search.
 - Save the files with UTF-8 encoding.
 
-= suppress_tags.txt Format
+# suppress_tags.txt Format
 - This file is used for suppressing the tags from being used in %tags%.
 - If matches, the tags will be removed from filename.
 - Each line is one tag only.
 - Save the files with UTF-8 encoding
 
 
-= blacklist_tags.txt Format
+# blacklist_tags.txt Format
 - This file is used for tag blacklist checking for downloading image.
 - If matches, the image will be skipped.
 - Each line is one tag only.
 - Save the files with UTF-8 encoding
 
-= blacklist_members.txt Format
+# blacklist_members.txt Format
 - similar like list.txt, but without custom folder.
 
-= Credits/Contributor 
+# Credits/Contributor 
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
 - Yavos (Contributor)
 - Joe (Contributor)
@@ -603,7 +631,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - fireattack
 - Jared Shields
 
-*If I forget someone, please send me a pull request with the commit/merge id.
+** If I forget someone, please send me a pull request with the commit/merge id.
 
-= License Agreement
+# License Agreement
 See LICENSE.
