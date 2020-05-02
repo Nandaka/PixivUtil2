@@ -7,7 +7,7 @@ import traceback
 import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
-import PixivException
+from PixivException import PixivException
 import PixivHelper
 import PixivImageHandler
 
@@ -94,7 +94,7 @@ def process_member(caller,
                 except AttributeError:
                     # Possible layout changes, try to dump the file below
                     raise
-                except Exception:
+                except BaseException:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     traceback.print_exception(exc_type, exc_value, exc_traceback)
                     notification_handler('error', f'Error at processing Artist Info: {sys.exc_info()}')
@@ -249,7 +249,7 @@ def process_member(caller,
         notification_handler("info", f"Member_id: {member_id} completed: {log_message}")
     except KeyboardInterrupt:
         raise
-    except BaseException:
+    except Exception:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         notification_handler('error', f'Error at process_member(): {sys.exc_info()}')

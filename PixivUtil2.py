@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302, W0602, W0603, W0703, R0102, R1702, R0912, R0915
+# flake8: noqa:E501,E128,E127
 import codecs
 import datetime
 import gc
@@ -16,22 +16,22 @@ from optparse import OptionParser
 from bs4 import BeautifulSoup
 
 import datetime_z
+import PixivArtistHandler
+import PixivBatchHandler
 import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
-from PixivDBManager import PixivDBManager
+import PixivDownloadHandler
 import PixivHelper
+import PixivImageHandler
 import PixivModelFanbox
+import PixivTagsHandler
 from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
+from PixivDBManager import PixivDBManager
 from PixivException import PixivException
 from PixivGroup import PixivGroup
 from PixivListItem import PixivListItem
 from PixivTags import PixivTags
-import PixivBatchHandler
-import PixivImageHandler
-import PixivDownloadHandler
-import PixivArtistHandler
-import PixivTagsHandler
 
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
@@ -612,9 +612,12 @@ def menu_download_by_member_id(opisvalid, args):
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
         for member_id in member_ids:
-            prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
-            process_member(member_id, page=page, end_page=end_page, title_prefix=prefix)
-            current_member = current_member + 1
+            try:
+                prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                process_member(member_id, page=page, end_page=end_page, title_prefix=prefix)
+                current_member = current_member + 1
+            except PixivException as ex:
+                print(ex)
 
 
 def menu_download_by_member_bookmark(opisvalid, args):

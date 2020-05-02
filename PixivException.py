@@ -35,12 +35,12 @@ class PixivException(Exception):
     errorCode = -1
     htmlPage = None
 
-    def __init__(self, message, errorCode=0, htmlPage=None):
-        super(PixivException, self).__init__(message)
+    def __init__(self, message, *args, errorCode=0, htmlPage=None):
         self.value = message
         self.message = message
         self.errorCode = errorCode
         self.htmlPage = htmlPage
+        super(PixivException, self).__init__(message)
 
     def __str__(self):
         # return str(self.errorCode) + " " + repr(self.value)

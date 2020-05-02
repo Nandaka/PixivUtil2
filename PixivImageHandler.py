@@ -10,7 +10,7 @@ import urllib
 import datetime_z
 import PixivBrowserFactory
 import PixivConstant
-import PixivException
+from PixivException import PixivException
 import PixivHelper
 import PixivDownloadHandler
 
