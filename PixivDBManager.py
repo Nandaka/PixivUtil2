@@ -86,7 +86,7 @@ class PixivDBManager(object):
                             )''')
             self.conn.commit()
             
-            # just to keep track of posts, not to record the details, so no columns like saved_to or caption or whatsoever
+                                                                                                                                                                                       
             c.execute('''CREATE TABLE IF NOT EXISTS fanbox_master_post (
                             member_id INTEGER,
                             post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
@@ -96,6 +96,16 @@ class PixivDBManager(object):
                             updated_date DATE,
                             post_type TEXT,
                             last_update_date DATE
+                            )''')
+            self.conn.commit()
+
+            c.execute('''CREATE TABLE IF NOT EXISTS fanbox_post_image (
+                            post_id INTEGER,
+                            page INTEGER,
+                            save_name TEXT,
+                            created_date DATE,
+                            last_update_date DATE,
+                            PRIMARY KEY (post_id, page)
                             )''')
             self.conn.commit()
             
@@ -567,72 +577,72 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def insertPost(self, member_id, post_id, title, fee_required, published_date, post_type):
-        try:
-            c = self.conn.cursor()
-            post_id = int(post_id)
-            c.execute(
-                '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id) VALUES(?, ?)''',
-                (member_id, post_id))
-            c.execute(
-                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, 
-                post_type = ?, last_update_date = datetime('now') WHERE post_id = ?''',
-                (title, fee_required, published_date, post_type, post_id))
-            self.conn.commit()
-        except BaseException:
-            print('Error at insertPost():', str(sys.exc_info()))
-            print('failed')
-            raise
-        finally:
-            c.close()
+                                                                                             
+            
+                                  
+                                  
+                      
+                                                                                                                                                 
+                                     
+                      
+                                                                                                  
+                                                                                       
+                                                                          
+                              
+                             
+                                                                
+                           
+                 
+                
+                     
 
-    def selectPostByPostId(self, post_id):
-        try:
-            c = self.conn.cursor()
-            post_id = int(post_id)
-            c.execute(
-                '''SELECT * FROM fanbox_master_post WHERE post_id = ?''',
-                (post_id,))
-            return c.fetchone()
-        except BaseException:
-            print('Error at selectPostByPostId():', str(sys.exc_info()))
-            print('failed')
-            raise
-        finally:
-            c.close()
+                                          
+            
+                                  
+                                  
+                      
+                                                                         
+                           
+                               
+                             
+                                                                        
+                           
+                 
+                
+                     
 
-    def updatePostLastUpdateDate(self, post_id, updated_date):
-        try:
-            c = self.conn.cursor()
-            post_id = int(post_id)
-            c.execute(
-                '''UPDATE fanbox_master_post SET updated_date = ?
-                WHERE post_id = ?''',
-                (updated_date, post_id))
-            self.conn.commit()
-        except BaseException:
-            print('Error at updatePostLastUpdateDate():', str(sys.exc_info()))
-            print('failed')
-            raise
-        finally:
-            c.close()
+                                                              
+            
+                                  
+                                  
+                      
+                                                                 
+                                     
+                                        
+                              
+                             
+                                                                              
+                           
+                 
+                
+                     
 
-    def deleteFanboxPost(self, id, by):
-        id = int(id)
-        if by not in ["member_id", "post_id"]:
-            return
-        sql = f'''DELETE FROM fanbox_master_post WHERE {by} = ?'''
+                                       
+                    
+                                              
+                  
+                                                                  
 
-        try:
-            c = self.conn.cursor()
-            c.execute(sql, (id,))
-            self.conn.commit()
-        except BaseException:
-            print('Error at deleteFanboxPost():', str(sys.exc_info()))
-            print('failed')
-            raise
-        finally:
-            c.close()
+            
+                                  
+                                 
+                              
+                             
+                                                                      
+                           
+                 
+                
+                     
 
     def blacklistImage(self, memberId, ImageId):
         try:
@@ -861,6 +871,14 @@ class PixivDBManager(object):
                          WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
             print("Updated manga image:", c.rowcount)
 
+            print("Updating FANBOX post images, this may take some times.")
+
+            c = self.conn.cursor()
+            c.execute('''UPDATE fanbox_post_image
+                         SET save_name = replace(save_name, ?, ?)
+                         WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
+            print("Updated FANBOX post image:", c.rowcount)
+
             print("Done")
 
         except BaseException:
@@ -871,7 +889,170 @@ class PixivDBManager(object):
             c.close()
 
 ##########################################
-# VI. Utilities                          #
+# VI. CRUD FANBOX post/image table       #
+##########################################
+
+    def insertPost(self, member_id, post_id, title, fee_required, published_date, post_type):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id) VALUES(?, ?)''',
+                (member_id, post_id))
+            c.execute(
+                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, 
+                post_type = ?, last_update_date = datetime('now') WHERE post_id = ?''',
+                (title, fee_required, published_date, post_type, post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertPostImages(self, post_files):
+        try:
+            c = self.conn.cursor()
+            c.executemany('''INSERT OR REPLACE INTO fanbox_post_image
+                          VALUES(?, ?, ?, datetime('now'), datetime('now'))''', post_files)
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertPostImages():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectPostByPostId(self, post_id):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''SELECT * FROM fanbox_master_post WHERE post_id = ?''',
+                (post_id,))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectPostByPostId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def updatePostUpdateDate(self, post_id, updated_date):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''UPDATE fanbox_master_post SET updated_date = ?
+                WHERE post_id = ?''',
+                (updated_date, post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at updatePostUpdateDate():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def deleteFanboxPost(self, id, by):
+        id = int(id)
+        if by not in ["member_id", "post_id"]:
+            return
+
+        try:
+            c = self.conn.cursor()
+            c.execute(f'''DELETE FROM fanbox_post_image WHERE post_id in 
+                          (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (id,))
+            c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (id,))
+            self.conn.commit()
+        except BaseException:
+            print('Error at deleteFanboxPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+
+    def cleanUpFanbox(self):
+        print("Start FANBOX clean-up operation.")
+        print("Selecting all FANBOX images, this may take some times.")
+        items = []
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT post_id, page, save_name from fanbox_post_image''')
+            print("Checking images.")
+            for row in c:
+                filename = row[2]
+
+                if filename is not None and len(filename) > 0:
+                    if os.path.exists(filename):
+                        continue
+
+                print("Missing: {0} at {1}".format(row[0], row[2]))
+                items.append(row)
+
+            for item in items:
+                c.execute('''DELETE FROM fanbox_post_image WHERE post_id = ? and page = ?''', (item[0], item[1]))
+                c.execute('''DELETE FROM fanbox_master_post WHERE post_id = ?''', (item[0],))
+            self.conn.commit()
+        except BaseException:
+            print('Error at cleanUpFanbox():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def interactiveCleanUpFanbox(self):
+        items = []
+        print("Start FANBOX clean-up operation.")
+        print("Selecting all FANBOX images, this may take some times.")
+        try:
+            c = self.conn.cursor()
+            print("Collecting missing images.")
+            c.execute('''SELECT post_id, page, save_name from fanbox_post_image''')
+            for row in c:
+                # Issue 340
+                filename = row[2]
+                if filename is not None and len(filename) > 0:
+                    if os.path.exists(filename):
+                        continue
+                items.append(row)
+                print("Missing: {0} at \n{1}".format(row[0], row[1]))
+
+            while len(items) != 0:
+                # End scan
+                print(items)
+                regex = input(
+                    "Please provide a search regex, use empty string to skip(Empty to stop now):").rstrip("\r")
+                if regex == "":
+                    break
+                repl = input("Replace regex with what?").rstrip("\r")
+                regex = re.compile(regex)
+
+                # Replace any paths where replacement results in a correct path
+                ll = []
+                for row in items:
+                    new_name = regex.sub(repl, row[2])
+                    if new_name is not None and len(new_name) > 0:
+                        if os.path.exists(new_name):
+                            c.execute('''UPDATE fanbox_post_image
+                                SET save_name = ?
+                                WHERE post_id = ? and page = ?''', (new_name, row[0], row[1]))
+                            continue
+                    ll.append(items)
+                items = ll
+            c.close()
+            self.conn.commit()
+        except BaseException:
+            print('Error at interactiveCleanUpFanbox():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+##########################################
+# VII. Utilities                         #
 ##########################################
 
     def menu(self):
@@ -991,8 +1172,10 @@ class PixivDBManager(object):
                     self.deleteFanboxPost(post_id, "post_id")
                 elif selection == 'c':
                     self.cleanUp()
+                    self.cleanUpFanbox()
                 elif selection == 'i':
                     self.interactiveCleanUp()
+                    self.interactiveCleanUpFanbox()
                 elif selection == 'p':
                     self.compactDatabase()
                 elif selection == 'r':
