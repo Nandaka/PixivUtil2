@@ -1070,6 +1070,8 @@ def processFanboxImages(post, artist):
                                       "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
             return
 
+    post_files = []
+
     # cover image
     if post.coverImageUrl is not None:
         # fake the image_url for filename compatibility, add post id and pagenum
@@ -1098,6 +1100,8 @@ def processFanboxImages(post, artist):
                                             __config__.overwrite,
                                             __config__.retry,
                                             __config__.backupOldFile)
+
+        post_files.append((post.imageId, -1, filename))
         PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
     else:
         PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
@@ -1140,6 +1144,8 @@ def processFanboxImages(post, artist):
                                                 False,  # __config__.overwrite somehow unable to get remote filesize
                                                 __config__.retry,
                                                 __config__.backupOldFile)
+            post_files.append((post.imageId, current_page, filename))
+
             PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
 
             __config__.alwaysCheckFileSize = _oldvalue
@@ -1166,7 +1172,9 @@ def processFanboxImages(post, artist):
             reader.close()
         post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
 
-    __dbManager__.updatePostLastUpdateDate(post.imageId, post.updatedDate)
+    if len(post_files) > 0:
+        __dbManager__.insertPostImages(post_files)
+    __dbManager__.updatePostUpdateDate(post.imageId, post.updatedDate)
 
 
 def menu_fanbox_download_by_artist_or_creator_id(op_is_valid, args):
