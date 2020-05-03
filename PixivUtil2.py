@@ -1064,8 +1064,18 @@ def processFanboxImages(post, artist):
 
     post_files = []
 
+    flag_processed = False
+    if __config__.checkDBProcessHistory:
+        result = __dbManager__.selectPostByPostId(post.imageId)
+        if result:
+            updated_date = result[5]
+            if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
+                flag_processed = True
+    flag_download_cover = ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed)
+
+
     try:
-        if (not post.is_restricted) or __config__.downloadCoverWhenRestricted:
+        if flag_download_cover:
             # cover image
             if post.coverImageUrl is not None:
                 # fake the image_url for filename compatibility, add post id and pagenum
@@ -1102,14 +1112,9 @@ def processFanboxImages(post, artist):
             PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
             return
 
-        if __config__.checkDBProcessHistory:
-            result = __dbManager__.selectPostByPostId(post.imageId)
-            if result:
-                updated_date = result[5]
-                if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
-                    PixivHelper.print_and_log("info",
-                                              "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
-                    return
+        if flag_processed:
+            PixivHelper.print_and_log("info", "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
+            return
 
         if post.images is None or len(post.images) == 0:
             PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
