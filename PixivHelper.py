@@ -716,7 +716,7 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
             print_and_log(None, "Using Full Match (s_tag_full)")
 
         bookmark_limit_premium = ""
-        if blt > 0:
+        if blt is not None and blt > 0:
             bookmark_limit_premium = f'&blt={blt}'
 
         if type_data == "i":
