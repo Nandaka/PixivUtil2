@@ -385,7 +385,7 @@ class FanboxPost(object):
         else:
             token_images = '<div class="non-article images">{0}</div>'.format(
                 "".join(['<a href="{0}">{1}</a>'.format(x,
-                f'<img scr="{0}"/>' if x[x.rindex(".")+1:].lower() in ["jpg", "jpeg", "png", "bmp"] else os.path.basename(x))for x in self.images]))
+                f'<img scr="{0}"/>' if x[x.rindex(".")+1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
             token_text = '<div class="non-article text">{0}</div>'.format(
                 "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
 
