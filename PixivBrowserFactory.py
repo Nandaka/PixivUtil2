@@ -311,7 +311,7 @@ class PixivBrowser(mechanize.Browser):
     def fanboxLoginUsingCookie(self, login_cookie=None):
         """  Log in to Pixiv using saved cookie, return True if success """
         result = False
-
+        parsed = ""
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookieFanbox
 
@@ -331,7 +331,7 @@ class PixivBrowser(mechanize.Browser):
                 res.close()
             except BaseException:
                 PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie(): %s', sys.exc_info())
-                return False
+                self.cookiejar.clear("fanbox.cc")
 
             if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
