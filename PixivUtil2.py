@@ -1071,11 +1071,9 @@ def processFanboxImages(post, artist):
             updated_date = result[5]
             if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
                 flag_processed = True
-    flag_download_cover = ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed)
-
 
     try:
-        if flag_download_cover:
+        if ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed):
             # cover image
             if post.coverImageUrl is not None:
                 # fake the image_url for filename compatibility, add post id and pagenum
