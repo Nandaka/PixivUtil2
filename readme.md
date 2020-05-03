@@ -306,28 +306,28 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 autoAddMember ==> automatically save member id to db for all download.
 
 ## [FANBOX]
-filenameformatfanboxcover  ==> Similar like filename format, but for FANBOX post over images
-filenameformatfanboxcontent  ==> Similar like filename format, but for files inside FANBOX posts.
-filenameformatfanboxinfo  ==> Similar like filename format, but for info dumps.
-writehtml ==> set to `True` to write FANBOX post into HTMLs. Uses `filenameformatfanboxinfo` for filename.
-                        Article type FANBOX posts will certainly be written into HTMLs, non-article type posts
-                        uses `mintextlengthfornonarticle` and `minimagecountfornonarticle` to control.
-                        set to `False` to not write any post into HTMLs, whichever type.
-mintextlengthfornonarticle ==> Works with `minimagecountfornonarticle`. 
-                                                  When `writehtml` is set to `True`, a non-article post should contain
-                                                  text longer than this value to be written into HTML.
-minimagecountfornonarticle ==> Works with `minimagecountfornonarticle`.
-                                                     When `writehtml` is set to `True`, a non-article post should contain at
-                                                     least this many files/images to be written into HTML.
-useabsolutepathsinhtml ==> set to `True` to use absolute paths in HTMLs, 
-downloadcoverwhenrestricted ==> set to `True` to still download FANBOX post cover images
-                                                       when you don't have access to them
-checkdbprocesshistory ==> Each FANBOX post has a `updated date`, which will be recorded in database
-                                            after each post is processed. Set to `True` to check this recorded value in
-                                            database. If record does not exist or it's no earlier than the newly retrieved
-                                            date, which indicates that the post has not been changed since last time,
-                                            this post would be skipped, otherwise it will be processed, and update the 
-                                            record with new `updated date`.
+filenameFormatFanboxCover  ==> Similar like filename format, but for FANBOX post over images
+filenameFormatFanboxContent  ==> Similar like filename format, but for files inside FANBOX posts.
+filenameFormatFanboxInfo  ==> Similar like filename format, but for info dumps.
+writeHtml ==> set to `True` to write FANBOX post into HTMLs, `False` to not to, whichever type post. 
+	      Uses `filenameformatfanboxinfo` for filename.
+	      Article type FANBOX posts will certainly be written into HTMLs, non-article type
+	      posts use `mintextlengthfornonarticle` and `minimagecountfornonarticle` to control.
+minTextLengthForNonArticle ==> Works with `minimagecountfornonarticle`. 
+			       When `writehtml` is set to `True`, a non-article post should contain
+			       text longer than this value to be written into HTML. 
+minImageCountForNonArticle ==> Works with `minimagecountfornonarticle`.
+			       When `writehtml` is set to `True`, a non-article post should contain
+			       at least this many files/images to be written into HTML.
+useAbsolutePathsInHtml ==> set to `True` to use absolute paths in HTMLs, `False` to use relative paths.
+downloadCoverWhenRestricted ==> set to `True` to still download FANBOX post cover images
+			        when you don't have access to them
+checkDBProcessHistory ==> Each FANBOX post has a `updated date`, which will be recorded in database
+		          after each post is processed. Set to `True` to check this recorded value in
+		          database. If record does not exist or it's no earlier than the newly retrieved
+		          date, which indicates that the post has not been changed since last time,
+		          this post would be skipped, otherwise it will be processed, and update the 
+		          record with new `updated date`.
 ```
 ## [Network]
 ```
