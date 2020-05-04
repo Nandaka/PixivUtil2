@@ -11,7 +11,7 @@ import mechanize
 
 import PixivBrowserFactory
 import PixivConstant
-import PixivException
+from PixivException import PixivException
 import PixivHelper
 
 
