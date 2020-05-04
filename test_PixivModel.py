@@ -112,6 +112,14 @@ class TestPixivImage(unittest.TestCase):
         self.assertTrue(u'なにこれかわいい' in image2.imageTags)
         self.assertTrue(u'やはり存在する斧' in image2.imageTags)
 
+        self.assertTrue(len(image2.tags) > 0)
+        self.assertEqual(image2.tags[0].tag, "MAYU")
+        self.assertEqual(image2.tags[0].romaji, "mayu")
+        self.assertEqual(image2.tags[0].get_translation(locale="en"), "MAYU")
+        self.assertEqual(image2.tags[3].tag, "なにこれかわいい")
+        self.assertEqual(image2.tags[3].romaji, "nanikorekawaii")
+        self.assertEqual(image2.tags[3].get_translation(locale="en"), "incredibly cute")
+
         self.assertEqual(image2.imageMode, "big")
         self.assertEqual(image2.worksDate, '12/10/12 15:23')
         self.assertEqual(image2.worksResolution, '642x900')

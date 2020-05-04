@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011, C, C0302
-
 import codecs
 import collections
 import json
@@ -19,6 +17,28 @@ import datetime_z
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
+
+
+class PixivTagData(object):
+    tag = ""
+    romaji = None
+    translation_data = None
+
+    def __init__(self, tag, tag_node):
+        super().__init__()
+        self.tag = tag
+        if "romaji" in tag_node:
+            self.romaji = tag_node["romaji"]
+        else:
+            self.romaji = tag.lower()
+        if "translation" in tag_node:
+            self.translation_data = tag_node["translation"]
+
+    def get_translation(self, locale="en"):
+        if self.translation_data is not None:
+            if locale in self.translation_data:
+                return self.translation_data[locale]
+        return self.tag
 
 
 class PixivImage (object):
@@ -48,6 +68,7 @@ class PixivImage (object):
     descriptionUrlList = []
     __re_caption = re.compile("caption")
     _tzInfo = None
+    tags = list()
 
     def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
                  bookmark_count=-1, image_response_count=-1, dateFormat=None, tzInfo=None):
@@ -60,6 +81,7 @@ class PixivImage (object):
         self.dateFormat = dateFormat
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
+        self.tags = list()
 
         if page is not None:
 
@@ -169,6 +191,9 @@ class PixivImage (object):
             for tag in tags:
                 self.imageTags.append(tag["tag"])
 
+                # 701
+                self.tags.append(PixivTagData(tag["tag"], tag))
+
         # datetime, in utc
         # "createDate" : "2018-06-08T15:00:04+00:00",
         self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
@@ -274,35 +299,6 @@ class PixivImage (object):
             if len(check2) > 0:
                 return check2[0].renderContents()
         return None
-
-    def ParseTags(self, page):
-        del self.imageTags[:]
-        temp = page.find(attrs={'class': 'tags'})
-        if temp is not None and len(temp) > 0:
-            temp2 = temp.findAll('a')
-            if temp2 is not None and len(temp2) > 0:
-                for tag in temp2:
-                    if 'class' in tag:
-                        if tag['class'] == 'portal':
-                            pass
-                        elif tag['class'] == 'text' and tag.string is not None:
-                            self.imageTags.append(tag.string)
-                        elif tag['class'].startswith('text js-click-trackable-later'):
-                            # Issue#343
-                            # no translation for tags
-                            if tag.string is not None:
-                                self.imageTags.append(tag.string)
-                            else:
-                                # with translation
-                                # print(tag.contents)
-                                # print(unicode(tag.contents[0]))
-                                self.imageTags.append(tag.contents[0])
-                        elif tag['class'] == 'text js-click-trackable':
-                            # issue #200 fix
-                            # need to split the tag 'incrediblycute <> なにこれかわいい'
-                            # and take the 2nd tags
-                            temp_tag = tag['data-click-action'].split('<>', 1)[1].strip()
-                            self.imageTags.append(temp_tag)
 
     def PrintInfo(self):
         PixivHelper.safePrint('Image Info')
