@@ -44,6 +44,10 @@
   - Delete image by image_id
   - Delete member and image (cascade deletion)
   - Blacklist image by image_id
+  - Show all deleted member
+  - Export FANBOX post list
+  - Delete FANBOX download history by member_id
+  - Delete FANBOX download history by post_id
   - Clean Up Database (remove db entry if downloaded file is missing)
 - Export user bookmark (member_id) to a text files.
 
@@ -240,7 +244,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
                         f1 - Download from supported artists (FANBOX)
                             (required: Max Page)
                         f2 - Download by artist/creator id (FANBOX)
-                            (required: artist id, followed with Max Page)
+                            (required: artist(digits only)/creator id, followed with Max Page)
                         f3 - Download by post id (FANBOX)
                             (required: post ids, separated with space)
                         f4 - Download from followed artists (FANBOX)
@@ -300,6 +304,30 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 		 %d = Day, %m = Month, %Y = Year (4 digit), %H = Hour (24h)
 		 %M = Minute, %S = Seconds
 autoAddMember ==> automatically save member id to db for all download.
+
+## [FANBOX]
+filenameFormatFanboxCover  ==> Similar like filename format, but for FANBOX post over images
+filenameFormatFanboxContent  ==> Similar like filename format, but for files inside FANBOX posts.
+filenameFormatFanboxInfo  ==> Similar like filename format, but for info dumps.
+writeHtml ==> set to `True` to write FANBOX post into HTMLs, `False` to not to, whichever type post. 
+	      Uses `filenameformatfanboxinfo` for filename.
+	      Article type FANBOX posts will certainly be written into HTMLs, non-article type
+	      posts use `mintextlengthfornonarticle` and `minimagecountfornonarticle` to control.
+minTextLengthForNonArticle ==> Works with `minimagecountfornonarticle`. 
+			       When `writehtml` is set to `True`, a non-article post should contain
+			       text longer than this value to be written into HTML. 
+minImageCountForNonArticle ==> Works with `minimagecountfornonarticle`.
+			       When `writehtml` is set to `True`, a non-article post should contain
+			       at least this many files/images to be written into HTML.
+useAbsolutePathsInHtml ==> set to `True` to use absolute paths in HTMLs, `False` to use relative paths.
+downloadCoverWhenRestricted ==> set to `True` to still download FANBOX post cover images
+			        when you don't have access to them
+checkDBProcessHistory ==> Each FANBOX post has a `updated date`, which will be recorded in database
+		          after each post is processed. Set to `True` to check this recorded value in
+		          database. If record does not exist or it's no earlier than the newly retrieved
+		          date, which indicates that the post has not been changed since last time,
+		          this post would be skipped, otherwise it will be processed, and update the 
+		          record with new `updated date`.
 ```
 ## [Network]
 ```
@@ -369,8 +397,6 @@ tagsLimit	==> Number of tags to be used for %tags% meta in filename.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
 writeImageJSON
-writeHtml
-useAbsolutePathsInHtml
 verifyimage     ==> Do image and zip checking after download. Set the value to
                     True to enable.
 writeUrlInDescription ==> Write all url found in the image description to a text
@@ -485,7 +511,7 @@ Available for filenameFormat and filenameMangaFormat:
 -> %title%
    Image title, usually in japanese character.
 -> %tags%
-   Image tags, usually in japanese character.
+   Image tags, usually in japanese character. (not implemented for FANBOX yet)
 -> %works_date%
    Works date, complete with time.
 -> %works_date_only%

@@ -253,11 +253,7 @@ class PixivDBManager(object):
             writer.write(sep.join(columns))
             writer.write('\r\n')
             for row in c:
-                for string in row:
-                    # Unicode write!!
-                    data = str(string)
-                    writer.write(data)
-                    writer.write(sep)
+                writer.write(sep.join([str(x) for x in row]))
                 writer.write('\r\n')
             writer.write('###END-OF-FILE###')
             writer.close()

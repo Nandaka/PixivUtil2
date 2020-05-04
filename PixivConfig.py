@@ -79,8 +79,6 @@ class PixivConfig():
         ConfigItem("Settings", "tagsLimit", -1),
         ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
-        ConfigItem("Settings", "writeHtml", False),
-        ConfigItem("Settings", "useAbsolutePathsInHtml", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),
         ConfigItem("Settings", "urlBlacklistRegex", ""),
@@ -94,7 +92,8 @@ class PixivConfig():
         ConfigItem("Filename", "filenameMangaFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x:
-                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
+                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
+                               x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
         ConfigItem("Filename", "filenameInfoFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
@@ -117,6 +116,24 @@ class PixivConfig():
         ConfigItem("Pixiv", "r18mode", False),
         ConfigItem("Pixiv", "dateFormat", ""),
         ConfigItem("Pixiv", "autoAddMember", False),
+
+        ConfigItem("FANBOX", "filenameFormatFanboxCover",
+                   "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
+                   restriction=lambda x: x is not None and len(x) > 0),
+        ConfigItem("FANBOX", "filenameFormatFanboxContent",
+                   "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
+                   restriction=lambda x:
+                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
+                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
+        ConfigItem("FANBOX", "filenameFormatFanboxInfo",
+                   "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
+                   restriction=lambda x: x is not None and len(x) > 0),
+        ConfigItem("FANBOX", "writeHtml", False),
+        ConfigItem("FANBOX", "minTextLengthForNonArticle", 45),
+        ConfigItem("FANBOX", "minImageCountForNonArticle", 3),
+        ConfigItem("FANBOX", "useAbsolutePathsInHtml", False),
+        ConfigItem("FANBOX", "downloadCoverWhenRestricted", False),
+        ConfigItem("FANBOX", "checkDBProcessHistory", False),
 
         ConfigItem("FFmpeg", "ffmpeg", "ffmpeg"),
         ConfigItem("FFmpeg", "ffmpegCodec", "libvpx-vp9"),
@@ -184,14 +201,25 @@ class PixivConfig():
             elif option_type == bool:
                 method = config.getboolean
 
+            value = None
             try:
-                value = method(item.section, item.option)
-                value = item.process_value(value)
+                try:
+                    value = method(item.section, item.option)
+                except (configparser.NoSectionError, configparser.NoOptionError):
+                    haveError = True
+                    for section in config.sections():
+                        try:
+                            value = method(section, item.option)
+                            break
+                        except (configparser.NoSectionError, configparser.NoOptionError):
+                            continue
+                    if value is None:
+                        raise
             except BaseException:
                 print(item.option, "=", item.default)
                 value = item.default
                 haveError = True
-
+            value = item.process_value(value)
             self.__setattr__(item.option, value)
 
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
@@ -245,8 +273,8 @@ class PixivConfig():
     def printConfig(self):
         print('Configuration: ')
         groups = {k: list(g) for k, g in itertools.groupby(PixivConfig.__items, lambda x: x.section)}
-        sections = ["Authentication", "Network", "Debug", "IrfanView", "Settings", "Filename", "Pixiv", "FFmpeg",
-                    "Ugoira", "DownloadControl"]
+        sections = ["Authentication", "Network", "Debug", "IrfanView", "Settings", "Filename", "Pixiv", "FANBOX",
+                    "FFmpeg", "Ugoira", "DownloadControl"]
         sections.extend([k for k in groups if k not in sections])
         for section in sections:
             g = groups.get(section)

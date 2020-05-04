@@ -368,11 +368,30 @@ class FanboxPost(object):
             PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html",
                                                filename, self.imageId)
 
-        page = html_template.replace("%coverImageUrl%", self.coverImageUrl or "")
+        cover_image = ""
+        if self.coverImageUrl:
+            cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
+        page = html_template.replace("%coverImage%", cover_image)
+        page = page.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
         page = page.replace("%imageTitle%", self.imageTitle)
         page = page.replace("%worksDate%", self.worksDate)
-        page = page.replace("%body_text%", self.body_text or "")
+
+        token_body_text = ""
+        token_images = ""
+        token_text = ""
+        if self.type == "article":
+            token_body_text = f'<div class="article">{self.body_text}</div>'
+        else:
+            token_images = '<div class="non-article images">{0}</div>'.format(
+                "".join(['<a href="{0}">{1}</a>'.format(x,
+                f'<img scr="{0}"/>' if x[x.rindex(".")+1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
+            token_text = '<div class="non-article text">{0}</div>'.format(
+                "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
+
+        page = page.replace("%body_text(article)%", token_body_text)
+        page = page.replace("%images(non-article)%", token_images)
+        page = page.replace("%text(non-article)%", token_text)
 
         page = BeautifulSoup(page, features="html5lib")
         imageATags = page.find_all("a", attrs={"href": True})
@@ -380,10 +399,9 @@ class FanboxPost(object):
             tag = imageATag.img
             if tag:
                 tag["src"] = imageATag["href"]
-        if self.coverImageUrl is None:
-            cover_div = page.find("div", attrs={"class": "cover"})
-            if cover_div:
-                cover_div.decompose()
+        root = page.find("div", attrs={"class": "root"})
+        if root:
+            root["class"].append("non-article" if self.type!="article" else "article")
         page = page.prettify()
         html_dir = os.path.dirname(filename)
         for k, v in self.linkToFile.items():
