@@ -368,6 +368,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
             temp_string[30:])
         self.assertTrue(test_string2 in result.body_text)
 
+
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPixivModel_Fanbox)

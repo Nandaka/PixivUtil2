@@ -187,7 +187,9 @@ def process_image(caller,
                                                          tagsLimit=config.tagsLimit,
                                                          fileUrl=url,
                                                          bookmark=bookmark,
-                                                         searchTags=search_tags)
+                                                         searchTags=search_tags,
+                                                         useTranslatedTag=config.useTranslatedTag,
+                                                         tagTranslationLocale=config.tagTranslationLocale)
                     filename = PixivHelper.sanitize_filename(filename, target_dir)
 
                     if image.imageMode == 'manga' and config.createMangaDir:
@@ -237,7 +239,9 @@ def process_image(caller,
                                                           fileUrl=url,
                                                           appendExtension=False,
                                                           bookmark=bookmark,
-                                                          searchTags=search_tags)
+                                                          searchTags=search_tags,
+                                                          useTranslatedTag=config.useTranslatedTag,
+                                                          tagTranslationLocale=config.tagTranslationLocale)
                 info_filename = PixivHelper.sanitize_filename(info_filename, target_dir)
                 # trim _pXXX
                 info_filename = re.sub(r'_p?\d+$', '', info_filename)

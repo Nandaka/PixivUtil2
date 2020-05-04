@@ -135,7 +135,8 @@ def replace_path_separator(s, replacement='_'):
 
 
 def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
-                  appendExtension=True, bookmark=False, searchTags=''):
+                  appendExtension=True, bookmark=False, searchTags='',
+                  useTranslatedTag=False, tagTranslationLocale="en"):
     '''Build the filename from given info to the given format.'''
     if artistInfo is None:
         artistInfo = imageInfo.artist
@@ -204,10 +205,21 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
     if tagsSeparator == '%ideo_space%':
         tagsSeparator = u'\u3000'
 
+    image_tags = imageInfo.imageTags
     if tagsLimit != -1:
         tagsLimit = tagsLimit if tagsLimit < len(imageInfo.imageTags) else len(imageInfo.imageTags)
-        imageInfo.imageTags = imageInfo.imageTags[0:tagsLimit]
-    tags = tagsSeparator.join(imageInfo.imageTags)
+        image_tags = image_tags[0:tagsLimit]
+
+    # 701
+    if useTranslatedTag:
+        for idx, tag in enumerate(image_tags):
+            for translated_tags in imageInfo.tags:
+                if translated_tags.tag == tag:
+                    image_tags[idx] = translated_tags.get_translation(tagTranslationLocale)
+                    break
+
+    tags = tagsSeparator.join(image_tags)
+
     r18Dir = ""
     if "R-18G" in imageInfo.imageTags:
         r18Dir = "R-18G"

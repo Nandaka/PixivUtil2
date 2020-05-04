@@ -86,14 +86,14 @@ class PixivConfig():
         ConfigItem("Settings", "setLastModified", True),
         ConfigItem("Settings", "useLocalTimezone", False),
 
-        ConfigItem("Filename", "filenameFormat",
+        ConfigItem("Filename",
+                   "filenameFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
-        ConfigItem("Filename", "filenameMangaFormat",
+        ConfigItem("Filename",
+                   "filenameMangaFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x:
-                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
-                               x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
+                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
         ConfigItem("Filename", "filenameInfoFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
@@ -105,6 +105,8 @@ class PixivConfig():
         ConfigItem("Filename", "createMangaDir", False),
         ConfigItem("Filename", "useTagsAsDir", False),
         ConfigItem("Filename", "urlDumpFilename", "url_list_%Y%m%d"),
+        ConfigItem("Filename", "useTranslatedTag", False),
+        ConfigItem("Filename", "tagTranslationLocale", "en"),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),
@@ -122,9 +124,7 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("FANBOX", "filenameFormatFanboxContent",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x:
-                   x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
-                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
+                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0))),
         ConfigItem("FANBOX", "filenameFormatFanboxInfo",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),

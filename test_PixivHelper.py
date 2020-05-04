@@ -125,6 +125,32 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
+    def testCreateFilenameTranslatedTag(self):
+        p = open('./test/test-image-unicode.htm', 'r', encoding='utf-8')
+        page = p.read()
+        imageInfo = PixivImage(2493913, page)
+
+        # cross check with json value for artist info
+        js_file = open('./test/detail-267014.json', 'r', encoding='utf-8')
+        js = json.load(js_file)
+
+        self.assertEqual(imageInfo.artist.artistId, str(js["user"]["id"]))
+        self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
+        self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
+
+        nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title% %tags%'
+        expected = 'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２ arachne monster girl モン娘のいる日常シリーズ non-human monster girl R-18 tsundere spider woman.jpg'
+
+        result = PixivHelper.make_filename(nameFormat,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg',
+                                           useTranslatedTag=True,
+                                           tagTranslationLocale="en")
+        # print(result)
+        self.assertEqual(result, expected)
+
 #    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
 #        p = open('./test/test-helper-avatar-name.htm', 'r')
 #        page = BeautifulSoup(p.read())

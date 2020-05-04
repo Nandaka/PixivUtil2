@@ -491,9 +491,13 @@ def process_from_group(group_id, limit=0, process_external=True):
                     print("Member Token : {0}".format(image_data.artist.artistToken))
                     print("Image Url   : {0}".format(image_data.imageUrls[0]))
 
-                    filename = PixivHelper.make_filename(__config__.filenameFormat, imageInfo=image_data,
+                    filename = PixivHelper.make_filename(__config__.filenameFormat,
+                                                        imageInfo=image_data,
                                                         tagsSeparator=__config__.tagsSeparator,
-                                                        tagsLimit=__config__.tagsLimit, fileUrl=image_data.imageUrls[0])
+                                                        tagsLimit=__config__.tagsLimit,
+                                                        fileUrl=image_data.imageUrls[0],
+                                                        useTranslatedTag=__config__.useTranslatedTag,
+                                                        tagTranslationLocale=__config__.tagTranslationLocale)
                     filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
@@ -1086,7 +1090,9 @@ def processFanboxImages(post, artist):
                                                      tagsLimit=__config__.tagsLimit,
                                                      fileUrl=fake_image_url,
                                                      bookmark=None,
-                                                     searchTags='')
+                                                     searchTags='',
+                                                     useTranslatedTag=__config__.useTranslatedTag,
+                                                     tagTranslationLocale=__config__.tagTranslationLocale)
                 filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
                 post.linkToFile[post.coverImageUrl] = filename
 
@@ -1130,7 +1136,9 @@ def processFanboxImages(post, artist):
                                                      tagsLimit=__config__.tagsLimit,
                                                      fileUrl=fake_image_url,
                                                      bookmark=None,
-                                                     searchTags='')
+                                                     searchTags='',
+                                                     useTranslatedTag=__config__.useTranslatedTag,
+                                                     tagTranslationLocale=__config__.tagTranslationLocale)
 
                 filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
 
@@ -1166,14 +1174,15 @@ def processFanboxImages(post, artist):
                                              tagsLimit=__config__.tagsLimit,
                                              fileUrl="{0}".format(post.imageId),
                                              bookmark=None,
-                                             searchTags='')
+                                             searchTags='',
+                                             useTranslatedTag=__config__.useTranslatedTag,
+                                             tagTranslationLocale=__config__.tagTranslationLocale)
 
         filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
         if __config__.writeImageInfo:
             post.WriteInfo(filename + ".txt")
         if __config__.writeHtml:
-            if post.type == "article" or (len(post.images) >= __config__.minImageCountForNonArticle
-                                          and len(post.body_text) > __config__.minTextLengthForNonArticle):
+            if post.type == "article" or (len(post.images) >= __config__.minImageCountForNonArticle and len(post.body_text) > __config__.minTextLengthForNonArticle):
                 html_template = PixivConstant.HTML_TEMPLATE
                 if os.path.isfile("template.html"):
                     reader = PixivHelper.open_text_file("template.html")
