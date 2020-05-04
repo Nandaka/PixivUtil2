@@ -250,11 +250,14 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
 
 def safePrint(msg, newline=True, end=None):
     """Print empty string if UnicodeError raised."""
+    if not isinstance(msg, str):
+        print(f"msg", end=' ')
     for msgToken in msg.split(' '):
         try:
             print(msgToken, end=' ')
         except UnicodeError:
             print(('?' * len(msgToken)), end=' ')
+
     if end is not None:
         print("", end=end)
     elif newline:
@@ -554,9 +557,9 @@ def print_delay(retryWait, notification_handler=None):
     repeat = range(1, retryWait)
     for t in repeat:
         if notification_handler is None:
-            print_and_log(None, t, newline=False)
+            print_and_log(None, f"{t}", newline=False)
         else:
-            notification_handler(None, t, newline=False)
+            notification_handler(None, f"{t}", newline=False)
         time.sleep(1)
     if notification_handler is None:
         print_and_log(None, "")
