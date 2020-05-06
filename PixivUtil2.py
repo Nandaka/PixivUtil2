@@ -1048,6 +1048,7 @@ def processFanboxArtist(artist, end_page):
             if post.type in PixivModelFanbox.FanboxPost._supportedType:
                 processFanboxImages(post, artist)
             image_count = image_count + 1
+            PixivHelper.wait(result, __config__)
 
         if not artist.hasNextPage:
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
