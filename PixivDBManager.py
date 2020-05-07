@@ -131,7 +131,10 @@ class PixivDBManager(object):
 
             c.execute('''DROP TABLE IF EXISTS fanbox_master_post''')
             self.conn.commit()
-            
+
+            c.execute('''DROP TABLE IF EXISTS fanbox_post_image''')
+            self.conn.commit()
+
         except BaseException:
             print('Error at dropDatabase():', str(sys.exc_info()))
             print('failed.')
