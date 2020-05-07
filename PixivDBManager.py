@@ -85,8 +85,7 @@ class PixivDBManager(object):
                             PRIMARY KEY (image_id, page)
                             )''')
             self.conn.commit()
-            
-                                                                                                                                                                                       
+
             c.execute('''CREATE TABLE IF NOT EXISTS fanbox_master_post (
                             member_id INTEGER,
                             post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
@@ -108,7 +107,7 @@ class PixivDBManager(object):
                             PRIMARY KEY (post_id, page)
                             )''')
             self.conn.commit()
-            
+
             print('done.')
         except BaseException:
             print('Error at createDatabase():', str(sys.exc_info()))
@@ -125,13 +124,16 @@ class PixivDBManager(object):
 
             c.execute('''DROP TABLE IF EXISTS pixiv_master_image''')
             self.conn.commit()
-            
+
             c.execute('''DROP TABLE IF EXISTS pixiv_manga_image''')
             self.conn.commit()
 
             c.execute('''DROP TABLE IF EXISTS fanbox_master_post''')
             self.conn.commit()
-            
+
+            c.execute('''DROP TABLE IF EXISTS fanbox_post_image''')
+            self.conn.commit()
+
         except BaseException:
             print('Error at dropDatabase():', str(sys.exc_info()))
             print('failed.')
@@ -249,7 +251,7 @@ class PixivDBManager(object):
                             ORDER BY member_id, post_id''')
             filename = filename + '.csv'
             writer = codecs.open(filename, 'wb', encoding='utf-8')
-            columns = ['member_id','post_id','title','fee_required','published_date','update_date','post_type','last_update_date']
+            columns = ['member_id', 'post_id', 'title', 'fee_required', 'published_date', 'update_date', 'post_type', 'last_update_date']
             writer.write(sep.join(columns))
             writer.write('\r\n')
             for row in c:
@@ -264,7 +266,7 @@ class PixivDBManager(object):
         finally:
             c.close()
         print('done.')
-        
+
 ##########################################
 # III. Print DB                          #
 ##########################################
@@ -573,73 +575,6 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-                                                                                             
-            
-                                  
-                                  
-                      
-                                                                                                                                                 
-                                     
-                      
-                                                                                                  
-                                                                                       
-                                                                          
-                              
-                             
-                                                                
-                           
-                 
-                
-                     
-
-                                          
-            
-                                  
-                                  
-                      
-                                                                         
-                           
-                               
-                             
-                                                                        
-                           
-                 
-                
-                     
-
-                                                              
-            
-                                  
-                                  
-                      
-                                                                 
-                                     
-                                        
-                              
-                             
-                                                                              
-                           
-                 
-                
-                     
-
-                                       
-                    
-                                              
-                  
-                                                                  
-
-            
-                                  
-                                 
-                              
-                             
-                                                                      
-                           
-                 
-                
-                     
-
     def blacklistImage(self, memberId, ImageId):
         try:
             c = self.conn.cursor()
@@ -896,7 +831,7 @@ class PixivDBManager(object):
                 '''INSERT OR IGNORE INTO fanbox_master_post (member_id, post_id) VALUES(?, ?)''',
                 (member_id, post_id))
             c.execute(
-                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?, 
+                '''UPDATE fanbox_master_post SET title = ?, fee_required = ?, published_date = ?,
                 post_type = ?, last_update_date = datetime('now') WHERE post_id = ?''',
                 (title, fee_required, published_date, post_type, post_id))
             self.conn.commit()
@@ -958,7 +893,7 @@ class PixivDBManager(object):
 
         try:
             c = self.conn.cursor()
-            c.execute(f'''DELETE FROM fanbox_post_image WHERE post_id in 
+            c.execute(f'''DELETE FROM fanbox_post_image WHERE post_id in
                           (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (id,))
             c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (id,))
             self.conn.commit()
@@ -968,7 +903,6 @@ class PixivDBManager(object):
             raise
         finally:
             c.close()
-
 
     def cleanUpFanbox(self):
         print("Start FANBOX clean-up operation.")
@@ -1158,7 +1092,7 @@ class PixivDBManager(object):
                 elif selection == 'f1':
                     filename = input('Filename? ').rstrip("\r")
                     sep = input('Separator? (1(default)=",", 2="\\t") ').rstrip("\r")
-                    sep = "\t" if sep=="2" else ","
+                    sep = "\t" if sep == "2" else ","
                     self.exportFanboxPostList(filename, sep)
                 elif selection == 'f2':
                     member_id = input('member_id? ').rstrip("\r")

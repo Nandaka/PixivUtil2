@@ -62,7 +62,7 @@ def download_image(caller,
             try:
                 if not overwrite and not config.alwaysCheckFileSize:
                     PixivHelper.print_and_log(None, '\rChecking local filename...', newline=False)
-                    if os.path.exists(filename_save) and os.path.isfile(filename_save):
+                    if os.path.isfile(filename_save):
                         PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
@@ -80,7 +80,7 @@ def download_image(caller,
                 # check if existing ugoira file exists
                 if filename.endswith(".zip"):
                     # non-converted zip (no animation.json)
-                    if os.path.exists(filename_save) and os.path.isfile(filename_save):
+                    if os.path.isfile(filename_save):
                         old_size = os.path.getsize(filename_save)
                         # update for #451, always return identical?
                         check_result = PixivHelper.check_file_exists(overwrite, filename_save, remote_file_size, old_size, backup_old_file)
@@ -89,7 +89,7 @@ def download_image(caller,
                         return (check_result, filename)
                     # converted to ugoira (has animation.json)
                     ugo_name = filename[:-4] + ".ugoira"
-                    if os.path.exists(ugo_name) and os.path.isfile(ugo_name):
+                    if os.path.isfile(ugo_name):
                         old_size = PixivHelper.get_ugoira_size(ugo_name)
                         check_result = PixivHelper.check_file_exists(overwrite, ugo_name, remote_file_size, old_size, backup_old_file)
                         if check_result != PixivConstant.PIXIVUTIL_OK:
@@ -97,7 +97,7 @@ def download_image(caller,
                             handle_ugoira(image, filename_save, config, notifier)
 
                             return (check_result, filename)
-                elif os.path.exists(filename_save) and os.path.isfile(filename_save):
+                elif os.path.isfile(filename_save):
                     # other image? files
                     old_size = os.path.getsize(filename_save)
                     check_result = PixivHelper.check_file_exists(overwrite, filename, remote_file_size, old_size, backup_old_file)
@@ -115,7 +115,7 @@ def download_image(caller,
                         row = db.selectImageByImageId(image.imageId)
                         if row is not None:
                             db_filename = row[3]
-                    if db_filename is not None and os.path.exists(db_filename) and os.path.isfile(db_filename):
+                    if db_filename is not None and os.path.isfile(db_filename):
                         old_size = os.path.getsize(db_filename)
                         # if file_size < 0:
                         #     file_size = get_remote_filesize(url, referer)
@@ -143,7 +143,7 @@ def download_image(caller,
                 # check the downloaded file size again
                 if remote_file_size > 0 and downloadedSize != remote_file_size:
                     raise PixivException(f"Incomplete Downloaded for {url}", PixivException.DOWNLOAD_FAILED_OTHER)
-                elif config.verifyImage and (filename_save.endswith(".jpg") or filename_save.endswith(".png") or filename_save.endswith(".gif")):
+                elif config.verifyImage and filename_save.endswith((".jpg", ".png", ".gif")):
                     fp = None
                     try:
                         from PIL import Image, ImageFile
@@ -160,7 +160,7 @@ def download_image(caller,
                         PixivHelper.print_and_log('info', ' Image invalid, deleting...')
                         os.remove(filename_save)
                         raise
-                elif config.verifyImage and (filename_save.endswith(".ugoira") or filename_save.endswith(".zip")):
+                elif config.verifyImage and filename_save.endswith((".ugoira", ".zip")):
                     fp = None
                     try:
                         import zipfile
