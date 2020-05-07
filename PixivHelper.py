@@ -565,18 +565,12 @@ def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file)
         return PixivConstant.PIXIVUTIL_OK
 
 
-def print_delay(retryWait, notification_handler=None):
+def print_delay(retryWait):
     repeat = range(1, retryWait)
     for t in repeat:
-        if notification_handler is None:
-            print_and_log(None, f"{t}", newline=False)
-        else:
-            notification_handler(None, f"{t}", newline=False)
+        print_and_log(None, f"{t}", newline=False)
         time.sleep(1)
-    if notification_handler is None:
-        print_and_log(None, "")
-    else:
-        notification_handler(None, '')
+    print_and_log(None, "")
 
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
@@ -1055,18 +1049,19 @@ def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
     return page_num, end_page_num
 
 
-def wait(result=None, config=None, notification_handler=None):
+def wait(result=None, config=None):
     if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT:
         return
     # Issue#276: add random delay for each post.
     if config is not None and config.downloadDelay > 0:
         delay = random.random() * config.downloadDelay
         message = "Wait for {0:.3}s".format(delay)
-        if notification_handler is None:
-            print_and_log(None, message)
-        else:
-            notification_handler(None, message)
+        print_and_log(None, message)
         time.sleep(delay)
+
+
+def dummy_notifier(type=None, message=None, **kwargs):
+    pass
 
 
 # Issue 420

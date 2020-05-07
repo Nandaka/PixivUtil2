@@ -107,7 +107,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
                                         image_id=image_id,
                                         user_dir=job_option.rootDirectory,
                                         title_prefix=job_name,
-                                        job_option=job_option)   # , notification_handler=notification_handler)
+                                        job_option=job_option)
     print("done.")
 
 
@@ -170,10 +170,6 @@ def handle_tags(caller, job, job_name, job_option):
 
 
 def process_batch_job(caller: PixivUtil2):
-    # # replace existing print_and_log
-    # temp_printer = PixivHelper.print_and_log
-    # PixivHelper.print_and_log = notification_handler
-
     caller.set_console_title("Batch Menu")
     if os.path.exists(_default_batch_filename):
         jobs_file = open(_default_batch_filename, encoding="utf-8")
@@ -206,7 +202,7 @@ def process_batch_job(caller: PixivUtil2):
     # PixivHelper.print_and_log = temp_printer
 
 
-def notification_handler(level, msg, exception=None, newline=True, end=None):
+def notifier(level, msg, exception=None, newline=True, end=None):
     if level is None:
         level = ""
     if level == "debug":

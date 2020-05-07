@@ -24,15 +24,15 @@ def download_image(caller,
                    backup_old_file=False,
                    image=None,
                    page=None,
-                   notification_handler=None):
+                   notifier=None):
     '''return download result and filename if ok'''
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
     config = caller.__config__
 
-    if notification_handler is None:
-        notification_handler = PixivHelper.print_and_log
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
 
     temp_error_code = None
     retry_count = 0
@@ -61,12 +61,12 @@ def download_image(caller,
         try:
             try:
                 if not overwrite and not config.alwaysCheckFileSize:
-                    notification_handler(None, '\rChecking local filename...', newline=False)
+                    PixivHelper.print_and_log(None, '\rChecking local filename...', newline=False)
                     if os.path.exists(filename_save) and os.path.isfile(filename_save):
-                        notification_handler('info', f"\rLocal file exists: {filename}")
+                        PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
-                remote_file_size = get_remote_filesize(url, referer, config, notification_handler)
+                remote_file_size = get_remote_filesize(url, referer, config, notifier)
 
                 # 576
                 if remote_file_size > 0:
@@ -85,7 +85,7 @@ def download_image(caller,
                         # update for #451, always return identical?
                         check_result = PixivHelper.check_file_exists(overwrite, filename_save, remote_file_size, old_size, backup_old_file)
                         if config.createUgoira:
-                            handle_ugoira(image, filename_save, config, notification_handler)
+                            handle_ugoira(image, filename_save, config, notifier)
                         return (check_result, filename)
                     # converted to ugoira (has animation.json)
                     ugo_name = filename[:-4] + ".ugoira"
@@ -94,7 +94,7 @@ def download_image(caller,
                         check_result = PixivHelper.check_file_exists(overwrite, ugo_name, remote_file_size, old_size, backup_old_file)
                         if check_result != PixivConstant.PIXIVUTIL_OK:
                             # try to convert existing file.
-                            handle_ugoira(image, filename_save, config, notification_handler)
+                            handle_ugoira(image, filename_save, config, notifier)
 
                             return (check_result, filename)
                 elif os.path.exists(filename_save) and os.path.isfile(filename_save):
@@ -125,14 +125,15 @@ def download_image(caller,
                             if db_filename.endswith(".zip"):
                                 ugo_name = filename[:-4] + ".ugoira"
                                 if config.createUgoira:
-                                    handle_ugoira(image, db_filename, config, notification_handler)
+                                    handle_ugoira(image, db_filename, config, notifier)
                             if db_filename.endswith(".ugoira"):
                                 ugo_name = db_filename
-                                handle_ugoira(image, db_filename, config, notification_handler)
+                                handle_ugoira(image, db_filename, config, notifier)
 
                             return (check_result, db_filename)
 
                 # actual download
+                notifier(type="DOWNLOAD", message=f"Start downloading {url} to {filename_save}")
                 (downloadedSize, filename_save) = perform_download(url, remote_file_size, filename_save, overwrite, config, referer)
                 # set last-modified and last-accessed timestamp
                 if image is not None and config.setLastModified and filename_save is not None and os.path.isfile(filename_save):
@@ -152,11 +153,11 @@ def download_image(caller,
                         img = Image.open(fp)
                         img.load()
                         fp.close()
-                        notification_handler('info', ' Image verified.')
+                        PixivHelper.print_and_log('info', ' Image verified.')
                     except BaseException:
                         if fp is not None:
                             fp.close()
-                        notification_handler('info', ' Image invalid, deleting...')
+                        PixivHelper.print_and_log('info', ' Image invalid, deleting...')
                         os.remove(filename_save)
                         raise
                 elif config.verifyImage and (filename_save.endswith(".ugoira") or filename_save.endswith(".zip")):
@@ -170,23 +171,23 @@ def download_image(caller,
                             check_result = zf.testzip()
                         except RuntimeError as e:
                             if 'encrypted' in str(e):
-                                notification_handler('info', ' archive is encrypted, cannot verify.')
+                                PixivHelper.print_and_log('info', ' archive is encrypted, cannot verify.')
                             else:
                                 raise
                         fp.close()
                         if check_result is None:
-                            notification_handler('info', ' Image verified.')
+                            PixivHelper.print_and_log('info', ' Image verified.')
                         else:
-                            notification_handler('info', f' Corrupted file in archive: {check_result}.')
+                            PixivHelper.print_and_log('info', f' Corrupted file in archive: {check_result}.')
                             raise PixivException(f"Incomplete Downloaded for {url}", PixivException.DOWNLOAD_FAILED_OTHER)
                     except BaseException:
                         if fp is not None:
                             fp.close()
-                        notification_handler('info', ' Image invalid, deleting...')
+                        PixivHelper.print_and_log('info', ' Image invalid, deleting...')
                         os.remove(filename_save)
                         raise
                 else:
-                    notification_handler('info', ' done.')
+                    PixivHelper.print_and_log('info', ' done.')
 
                 # write to downloaded lists
                 if caller.start_iv or config.createDownloadLists:
@@ -197,24 +198,24 @@ def download_image(caller,
                 return (PixivConstant.PIXIVUTIL_OK, filename)
 
             except urllib.error.HTTPError as httpError:
-                notification_handler('error', f'[download_image()] HTTP Error: {httpError} at {url}')
+                PixivHelper.print_and_log('error', f'[download_image()] HTTP Error: {httpError} at {url}')
                 if httpError.code == 404 or httpError.code == 502 or httpError.code == 500:
                     return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
             except urllib.error.URLError as urlError:
-                notification_handler('error', f'[download_image()] URL Error: {urlError} at {url}')
+                PixivHelper.print_and_log('error', f'[download_image()] URL Error: {urlError} at {url}')
                 temp_error_code = PixivException.DOWNLOAD_FAILED_NETWORK
                 raise
             except IOError as ioex:
                 if ioex.errno == 28:
-                    notification_handler('error', str(ioex))
+                    PixivHelper.print_and_log('error', str(ioex))
                     input("Press Enter to retry.")
                     return (PixivConstant.PIXIVUTIL_NOT_OK, None)
                 temp_error_code = PixivException.DOWNLOAD_FAILED_IO
                 raise
             except KeyboardInterrupt:
-                notification_handler('info', 'Aborted by user request => Ctrl-C')
+                PixivHelper.print_and_log('info', 'Aborted by user request => Ctrl-C')
                 return (PixivConstant.PIXIVUTIL_ABORTED, None)
             finally:
                 if res is not None:
@@ -228,24 +229,24 @@ def download_image(caller,
             caller.ERROR_CODE = temp_error_code
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
-            notification_handler('error', f'Error at download_image(): {sys.exc_info()} at {url} ({caller.ERROR_CODE})')
+            PixivHelper.print_and_log('error', f'Error at download_image(): {sys.exc_info()} at {url} ({caller.ERROR_CODE})')
 
             if retry_count < max_retry:
                 retry_count = retry_count + 1
-                notification_handler(None, f"\rRetrying [{retry_count}]...", newline=False)
-                PixivHelper.print_delay(config.retryWait, notification_handler)
+                PixivHelper.print_and_log(None, f"\rRetrying [{retry_count}]...", newline=False)
+                PixivHelper.print_delay(config.retryWait)
             else:
                 raise
 
 
-def perform_download(url, file_size, filename, overwrite, config, referer=None, notification_handler=None):
-    if notification_handler is None:
-        notification_handler = PixivHelper.print_and_log
+def perform_download(url, file_size, filename, overwrite, config, referer=None, notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
 
     if referer is None:
         referer = config.referer
     # actual download
-    notification_handler(None, '\rStart downloading...', newline=False)
+    PixivHelper.print_and_log(None, '\rStart downloading...', newline=False)
     # fetch filesize
     req = PixivHelper.create_custom_request(url, config, referer)
     br = PixivBrowserFactory.getBrowser(config=config)
@@ -257,7 +258,7 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
                 file_size = int(content_length)
         except KeyError:
             file_size = -1
-            notification_handler('info', "\tNo file size information!")
+            PixivHelper.print_and_log('info', "\tNo file size information!")
     (downloadedSize, filename) = PixivHelper.download_image(url, filename, res, file_size, overwrite)
     res.close()
     gc.collect()
@@ -265,11 +266,11 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
 
 
 # issue #299
-def get_remote_filesize(url, referer, config, notification_handler=None):
-    if notification_handler is None:
-        notification_handler = PixivHelper.print_and_log
+def get_remote_filesize(url, referer, config, notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
 
-    notification_handler(None, 'Getting remote filesize...')
+    PixivHelper.print_and_log(None, 'Getting remote filesize...')
     # open with HEAD method, might be expensive
     req = PixivHelper.create_custom_request(url, config, referer, head=True)
     file_size = -1
@@ -281,32 +282,32 @@ def get_remote_filesize(url, referer, config, notification_handler=None):
         if content_length is not None:
             file_size = int(content_length)
         else:
-            notification_handler('info', "\tNo file size information!")
+            PixivHelper.print_and_log('info', "\tNo file size information!")
         res.close()
     except KeyError:
-        notification_handler('info', "\tNo file size information!")
+        PixivHelper.print_and_log('info', "\tNo file size information!")
     except mechanize.HTTPError as e:
         # fix Issue #503
         # handle http errors explicit by code
         if int(e.code) in (404, 500):
-            notification_handler('info', "\tNo file size information!")
+            PixivHelper.print_and_log('info', "\tNo file size information!")
         else:
             raise
 
-    notification_handler(None, f"Remote filesize = {PixivHelper.size_in_str(file_size)} ({file_size} Bytes)")
+    PixivHelper.print_and_log(None, f"Remote filesize = {PixivHelper.size_in_str(file_size)} ({file_size} Bytes)")
     return file_size
 
 
-def handle_ugoira(image, filename, config, notification_handler):
-    if notification_handler is None:
-        notification_handler = PixivHelper.print_and_log
+def handle_ugoira(image, filename, config, notifier):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
 
     if filename.endswith(".zip"):
         ugo_name = filename[:-4] + ".ugoira"
     else:
         ugo_name = filename
     if not os.path.exists(ugo_name):
-        notification_handler('info', "Creating ugoira archive => " + ugo_name)
+        PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
         image.CreateUgoira(filename)
         # set last-modified and last-accessed timestamp
         if config.setLastModified and ugo_name is not None and os.path.isfile(ugo_name):
@@ -314,7 +315,7 @@ def handle_ugoira(image, filename, config, notification_handler):
             os.utime(ugo_name, (ts, ts))
 
     if config.deleteZipFile and os.path.exists(filename):
-        notification_handler('info', "Deleting zip file => " + filename)
+        PixivHelper.print_and_log('info', "Deleting zip file => " + filename)
         os.remove(filename)
 
     if config.createGif:

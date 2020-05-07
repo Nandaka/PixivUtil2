@@ -24,15 +24,15 @@ def process_image(caller,
                   title_prefix="",
                   bookmark_count=-1,
                   image_response_count=-1,
-                  notification_handler=None,
+                  notifier=None,
                   job_option=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
     config = caller.__config__
 
-    if notification_handler is None:
-        notification_handler = PixivHelper.print_and_log
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
 
     # override the config source if job_option is give for filename formats
     format_src = config
@@ -46,7 +46,9 @@ def process_image(caller,
     filename = f'no-filename-{image_id}.tmp'
 
     try:
-        notification_handler(None, f'Processing Image Id: {image_id}')
+        msg = f'Processing Image Id: {image_id}'
+        PixivHelper.print_and_log(None, msg)
+        notifier(type="IMAGE", message=msg)
 
         # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
         r = db.selectImageByImageId(image_id, cols='save_name')
@@ -58,7 +60,7 @@ def process_image(caller,
 
         # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
         if in_db and not config.alwaysCheckFileSize and not config.overwrite:
-            notification_handler(None, f'Already downloaded in DB: {image_id}')
+            PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
             gc.collect()
             return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
 
@@ -77,26 +79,26 @@ def process_image(caller,
             caller.ERROR_CODE = ex.errorCode
             caller.__errorList.append(dict(type="Image", id=str(image_id), message=ex.message, exception=ex))
             if ex.errorCode == PixivException.UNKNOWN_IMAGE_ERROR:
-                notification_handler('error', ex.message)
+                PixivHelper.print_and_log('error', ex.message)
             elif ex.errorCode == PixivException.SERVER_ERROR:
-                notification_handler('error', f'Giving up image_id (medium): {image_id}')
+                PixivHelper.print_and_log('error', f'Giving up image_id (medium): {image_id}')
             elif ex.errorCode > 2000:
-                notification_handler('error', f'Image Error for {image_id}: {ex.message}')
+                PixivHelper.print_and_log('error', f'Image Error for {image_id}: {ex.message}')
             if parse_medium_page is not None:
                 dump_filename = f'Error medium page for image {image_id}.html'
                 PixivHelper.dump_html(dump_filename, parse_medium_page)
-                notification_handler('error', f'Dumping html to: {dump_filename}')
+                PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')
             else:
-                notification_handler('error', f'Image ID ({image_id}): {ex}')
-            notification_handler('error', f'Stack Trace: {sys.exc_info()}')
+                PixivHelper.print_and_log('error', f'Image ID ({image_id}): {ex}')
+            PixivHelper.print_and_log('error', f'Stack Trace: {sys.exc_info()}')
             return PixivConstant.PIXIVUTIL_NOT_OK
         except Exception as ex:
-            notification_handler('error', f'Image ID ({image_id}): {ex}')
+            PixivHelper.print_and_log('error', f'Image ID ({image_id}): {ex}')
             if parse_medium_page is not None:
                 dump_filename = f'Error medium page for image {image_id}.html'
                 PixivHelper.dump_html(dump_filename, parse_medium_page)
-                notification_handler('error', f'Dumping html to: {dump_filename}')
-            notification_handler('error', f'Stack Trace: {sys.exc_info()}')
+                PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')
+            PixivHelper.print_and_log('error', f'Stack Trace: {sys.exc_info()}')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
             return PixivConstant.PIXIVUTIL_NOT_OK
@@ -107,45 +109,45 @@ def process_image(caller,
         if config.dateDiff > 0:
             if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
                 if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
-                    notification_handler('info', f'Skipping image_id: {image_id} because contains older than: {config.dateDiff} day(s).')
+                    PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains older than: {config.dateDiff} day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
         if config.useBlacklistTags:
             for item in caller.__blacklistTags:
                 if item in image.imageTags:
-                    notification_handler('info', f'Skipping image_id: {image_id} because contains blacklisted tags: {item}')
+                    PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted tags: {item}')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
 
         if config.useBlacklistMembers:
             if str(image.originalArtist.artistId) in caller.__blacklistMembers:
-                notification_handler('info', f'Skipping image_id: {image_id} because contains blacklisted member id: {image.originalArtist.artistId}')
+                PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted member id: {image.originalArtist.artistId}')
                 download_image_flag = False
                 result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
-                notification_handler(None, f'Member Name  : {image.artist.artistName}')
-                notification_handler(None, f'Member Avatar: {image.artist.artistAvatar}')
-                notification_handler(None, f'Member Token : {image.artist.artistToken}')
-                notification_handler(None, f'Member Background : {image.artist.artistBackground}')
-            notification_handler(None, f"Title: {image.imageTitle}")
+                PixivHelper.print_and_log(None, f'Member Name  : {image.artist.artistName}')
+                PixivHelper.print_and_log(None, f'Member Avatar: {image.artist.artistAvatar}')
+                PixivHelper.print_and_log(None, f'Member Token : {image.artist.artistToken}')
+                PixivHelper.print_and_log(None, f'Member Background : {image.artist.artistBackground}')
+            PixivHelper.print_and_log(None, f"Title: {image.imageTitle}")
             tags_str = ', '.join(image.imageTags)
-            notification_handler(None, f"Tags : {tags_str}")
-            notification_handler(None, f"Date : {image.worksDateDateTime}")
-            notification_handler(None, f"Mode : {image.imageMode}")
+            PixivHelper.print_and_log(None, f"Tags : {tags_str}")
+            PixivHelper.print_and_log(None, f"Date : {image.worksDateDateTime}")
+            PixivHelper.print_and_log(None, f"Mode : {image.imageMode}")
 
             # get bookmark count
             if ("%bookmark_count%" in format_src.filenameFormat or "%image_response_count%" in format_src.filenameFormat) and image.bookmark_count == -1:
-                notification_handler(None, "Parsing bookmark page", end=' ')
+                PixivHelper.print_and_log(None, "Parsing bookmark page", end=' ')
                 bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
                 image.ParseBookmarkDetails(parse_bookmark_page)
                 parse_bookmark_page.decompose()
                 del parse_bookmark_page
-                notification_handler(None, f"Bookmark Count : {image.bookmark_count}")
+                PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
                 caller.__br__.back()
 
             if config.useSuppressTags:
@@ -155,7 +157,7 @@ def process_image(caller,
 
             # get manga page
             if image.imageMode == 'manga':
-                notification_handler(None, f"Page Count : {image.imageCount}")
+                PixivHelper.print_and_log(None, f"Page Count : {image.imageCount}")
 
             if user_dir == '':  # Yavos: use config-options
                 target_dir = format_src.rootDirectory
@@ -172,7 +174,7 @@ def process_image(caller,
                 source_urls = image.imageResizedUrls
 
             for img in source_urls:
-                notification_handler(None, f'Image URL : {img}')
+                PixivHelper.print_and_log(None, f'Image URL : {img}')
                 url = os.path.basename(img)
                 split_url = url.split('.')
                 if split_url[0].startswith(str(image_id)):
@@ -200,7 +202,7 @@ def process_image(caller,
                             # filename = splitted_filename[0] + splitted_manga_page[0] + os.sep + "_p" + splitted_manga_page[1] + splitted_filename[1]
                             filename = f"{splitted_filename[0]}{splitted_manga_page[0]}{os.sep}_p{splitted_manga_page[1]}{splitted_filename[1]}"
 
-                    notification_handler('info', f'Filename  : {filename}')
+                    PixivHelper.print_and_log('info', f'Filename  : {filename}')
 
                     result = PixivConstant.PIXIVUTIL_NOT_OK
                     try:
@@ -213,10 +215,10 @@ def process_image(caller,
                                                                                  config.backupOldFile,
                                                                                  image,
                                                                                  page,
-                                                                                 notification_handler)
+                                                                                 notifier)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
-                            notification_handler('error', f'Image url not found/failed to download: {image.imageId}')
+                            PixivHelper.print_and_log('error', f'Image url not found/failed to download: {image.imageId}')
                         elif result == PixivConstant.PIXIVUTIL_ABORTED:
                             raise KeyboardInterrupt()
 
@@ -224,8 +226,8 @@ def process_image(caller,
                         page = page + 1
 
                     except urllib.error.URLError:
-                        notification_handler('error', f'Error when download_image(), giving up url: {img}')
-                    notification_handler(None, '')
+                        PixivHelper.print_and_log('error', f'Error when download_image(), giving up url: {img}')
+                    PixivHelper.print_and_log(None, '')
 
             if config.writeImageInfo or config.writeImageJSON:
                 filename_info_format = format_src.filenameInfoFormat or format_src.filenameFormat
@@ -255,7 +257,7 @@ def process_image(caller,
                     image.WriteUgoiraData(filename + ".js")
                 # Handle #451
                 if config.createUgoira and (result in (PixivConstant.PIXIVUTIL_OK, PixivConstant.PIXIVUTIL_SKIP_DUPLICATE)):
-                    PixivDownloadHandler.handle_ugoira(image, filename, config, notification_handler)
+                    PixivDownloadHandler.handle_ugoira(image, filename, config, notifier)
 
             if config.writeUrlInDescription:
                 PixivHelper.write_url_in_description(image, config.urlBlacklistRegex, config.urlDumpFilename)
@@ -270,7 +272,7 @@ def process_image(caller,
             try:
                 db.insertImage(image.artist.artistId, image.imageId, image.imageMode)
             except BaseException:
-                notification_handler('error', f'Failed to insert image id:{image.imageId} to DB')
+                PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
 
             db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
@@ -285,7 +287,7 @@ def process_image(caller,
         if parse_medium_page is not None:
             del parse_medium_page
         gc.collect()
-        notification_handler(None, '\n')
+        PixivHelper.print_and_log(None, '\n')
 
         return result
     except Exception as ex:
@@ -294,12 +296,12 @@ def process_image(caller,
         caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
-        notification_handler('error', f'Error at process_image(): {image_id}')
-        notification_handler('error', f'Exception: {sys.exc_info()}')
+        PixivHelper.print_and_log('error', f'Error at process_image(): {image_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
 
         if parse_medium_page is not None:
             dump_filename = f'Error medium page for image {image_id}.html'
             PixivHelper.dump_html(dump_filename, parse_medium_page)
-            notification_handler('error', f'Dumping html to: {dump_filename}')
+            PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')
 
         raise
