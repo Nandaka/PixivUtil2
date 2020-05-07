@@ -4,6 +4,7 @@ build/*
 dist/*
 old/*
 config.ini
+config.ini.error*
 list.txt
 *.log
 *.bat
