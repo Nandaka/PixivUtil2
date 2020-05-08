@@ -20,3 +20,4 @@
 ### Versions
 
 You can get this information from executing `PixivUtil2.py --help`.
+Latest version available in https://github.com/Nandaka/PixivUtil2/releases
