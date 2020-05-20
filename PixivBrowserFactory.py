@@ -365,7 +365,7 @@ class PixivBrowser(mechanize.Browser):
         except BaseException:
             PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
             return False
-        
+
         result = False
         if '"user":{"isLoggedIn":true' in str(parsed):
             result = True

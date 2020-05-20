@@ -95,7 +95,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
     if "image_ids" in job:
         image_ids = job["image_ids"]
         print(f"Found multiple images: {len(image_ids)}")
-    elif "member_id" in job:
+    elif "image_id" in job:
         image_id = job["image_id"]
         image_ids.append(image_id)
     else:
@@ -141,6 +141,9 @@ def handle_tags(caller, job, job_name, job_option):
             end_date = PixivHelper.check_date_time(job["end_date"])
         except BaseException:
             raise Exception(f"Invalid end_date: {job['end_date']} in {job_name}.")
+    member_id = None
+    if "member_id" in job:
+        member_id = bool(job["member_id"])
     bookmark_count = None
     if "bookmark_count" in job:
         bookmark_count = int(job["bookmark_count"])
@@ -163,6 +166,7 @@ def handle_tags(caller, job, job_name, job_option):
                                   start_date=start_date,
                                   end_date=end_date,
                                   use_tags_as_dir=job_option.useTagsAsDir,
+                                  member_id=member_id,
                                   bookmark_count=bookmark_count,
                                   oldest_first=oldest_first,
                                   type_mode=type_mode,

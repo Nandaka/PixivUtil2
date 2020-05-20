@@ -212,9 +212,15 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
         print("Reading:", filename)
         tags = PixivTags.parseTagsList(filename)
         for tag in tags:
-            process_tags(tag, page=page, end_page=end_page, wild_card=wild_card,
-                         use_tags_as_dir=__config__.useTagsAsDir, oldest_first=oldest_first,
-                         bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
+            process_tags(tag,
+                         page=page,
+                         end_page=end_page,
+                         wild_card=wild_card,
+                         use_tags_as_dir=__config__.useTagsAsDir,
+                         oldest_first=oldest_first,
+                         bookmark_count=bookmark_count,
+                         start_date=start_date,
+                         end_date=end_date)
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
@@ -223,7 +229,7 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
         raise
 
 
-def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=None):
+def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=None, sorting=None):
     global np_is_valid
     global np
     try:
@@ -243,7 +249,7 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=N
         PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
             print("Image #" + str(image_count))
-            result = process_image(artist=None, image_id=item)
+            result = process_image(artist=None, image_id=item, search_tags=tag)
             image_count = image_count + 1
             PixivHelper.wait(result, __config__)
 
@@ -255,7 +261,7 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag='', sorting=N
         raise
 
 
-def get_image_bookmark(hide, start_page=1, end_page=0, tag='', sorting=None):
+def get_image_bookmark(hide, start_page=1, end_page=0, tag=None, sorting=None):
     """Get user's image bookmark"""
     total_list = list()
     i = start_page
@@ -727,8 +733,15 @@ def menu_download_by_tags(opisvalid, args):
         if len(bookmark_count) > 0:
             bookmark_count = int(bookmark_count)
 
-    process_tags(tags.strip(), page, end_page, wildcard, start_date=start_date, end_date=end_date,
-                use_tags_as_dir=__config__.useTagsAsDir, bookmark_count=bookmark_count, oldest_first=oldest_first, type_mode=type_mode)
+    process_tags(tags.strip(),
+                 page, end_page,
+                 wildcard,
+                 start_date=start_date,
+                 end_date=end_date,
+                 use_tags_as_dir=__config__.useTagsAsDir,
+                 bookmark_count=bookmark_count,
+                 oldest_first=oldest_first,
+                 type_mode=type_mode)
 
 
 def menu_download_by_title_caption(opisvalid, args):
@@ -745,7 +758,14 @@ def menu_download_by_title_caption(opisvalid, args):
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
-    process_tags(tags.strip(), page, end_page, wild_card=False, title_caption=True, start_date=start_date, end_date=end_date, use_tags_as_dir=__config__.useTagsAsDir)
+    process_tags(tags.strip(),
+                 page,
+                 end_page,
+                 wild_card=False,
+                 title_caption=True,
+                 start_date=start_date,
+                 end_date=end_date,
+                 use_tags_as_dir=__config__.useTagsAsDir)
 
 
 def menu_download_by_tag_and_member_id(opisvalid, args):
@@ -772,7 +792,11 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
         tags = input('Tag      : ')
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
 
-    process_tags(tags.strip(), page, end_page, member_id=int(member_id), use_tags_as_dir=__config__.useTagsAsDir)
+    process_tags(tags.strip(),
+                 page,
+                 end_page,
+                 member_id=int(member_id),
+                 use_tags_as_dir=__config__.useTagsAsDir)
 
 
 def menu_download_from_list(opisvalid, args):

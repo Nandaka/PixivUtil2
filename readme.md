@@ -542,7 +542,7 @@ Available for filenameFormat and filenameMangaFormat:
 -> %original_artist%
    for bookmark mode, put original artist name.
 -> %searchTags%
-   for download by tags, put searched tags.
+   for download by tags and bookmarked images, put searched tags.
 -> %bookmark_count%
    Bookmark count, will have overhead except on download by tags.
 -> %image_response_count%
