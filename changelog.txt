@@ -1,5 +1,7 @@
-20200503-beta1
+20200524
 - Fix #697 bookmark filtering for premium user
+- Fix #713 allow %search_tag% format in option 6
+- Merged HTML style adjustment for FANBOX (#711) by amatuerCoder.
 
 20200502
 - Merged FANBOX download enhancement (#680) by amatuerCoder.
