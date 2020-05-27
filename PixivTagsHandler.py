@@ -78,7 +78,8 @@ def process_tags(caller,
                                                                                 page,
                                                                                 use_bookmark_data,
                                                                                 bookmark_count,
-                                                                                type_mode)
+                                                                                type_mode,
+                                                                                r18mode=format_src.r18mode)
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log(None, 'No more images')
                 flag = False

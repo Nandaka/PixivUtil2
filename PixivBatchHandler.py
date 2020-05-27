@@ -21,6 +21,7 @@ class JobOption(object):
     avatarNameFormat = ""
     rootDirectory = ""
     useTagsAsDir = False
+    r18mode = False
 
     def __init__(self, job, _config):
         if _config is None:
@@ -33,6 +34,7 @@ class JobOption(object):
         self.avatarNameFormat = _config.avatarNameFormat
         self.rootDirectory = _config.rootDirectory
         self.useTagsAsDir = _config.useTagsAsDir
+        self.r18mode = _config.r18mode
 
         if "option" in job and job["option"] is not None:
             # need to check if the job option exists for each option
@@ -51,6 +53,8 @@ class JobOption(object):
                 self.rootDirectory = option_data["rootDirectory"]
             if "useTagsAsDir" in option_data:
                 self.useTagsAsDir = option_data["useTagsAsDir"]
+            if "r18mode" in option_data:
+                self.r18mode = option_data["r18mode"]
 
 
 def handle_members(caller, job, job_name, job_option):

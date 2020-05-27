@@ -654,7 +654,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False):
         artist = None
         response = None
         if tags is None:
@@ -673,10 +673,10 @@ class PixivBrowser(mechanize.Browser):
             # https://www.pixiv.net/ajax/user/5238/illustmanga/tag?tag=R-18&offset=0&limit=48
             # https://www.pixiv.net/ajax/user/1813972/profile/all
             url = None
-            if len(tags) > 0:
+            if len(tags) > 0:  # called from Download by tags
                 url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag?tag={1}&offset={2}&limit={3}'
                 url = url.format(member_id, tags, offset, limit)
-            elif self._config.r18mode:
+            elif r18mode:
                 url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag?tag={1}&offset={2}&limit={3}'
                 url = url.format(member_id, 'R-18', offset, limit)
             else:
@@ -720,14 +720,15 @@ class PixivBrowser(mechanize.Browser):
                          start_page=1,
                          include_bookmark_data=False,
                          bookmark_count=0,
-                         type_mode="a"):
+                         type_mode="a",
+                         r18mode=False):
         response_page = None
         result = None
         url = ''
 
         if member_id is not None:
             # from member id search by tags
-            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags)
+            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)
 
             # convert to PixivTags
             result = PixivTags()
@@ -745,7 +746,7 @@ class PixivBrowser(mechanize.Browser):
                                                       start_date,
                                                       end_date,
                                                       member_id,
-                                                      self._config.r18mode,
+                                                      r18mode,
                                                       bookmark_count,
                                                       type_mode)
 
