@@ -29,6 +29,12 @@
 			"keys": ["contentId"],
 			"format": "<a href='https://docs.google.com/forms/d/e/{0}/viewform?usp=sf_link'>Google Form: {0}</a>",
             "ignore": false
+		},
+		"soundcloud": {
+			"serviceProvider": "soundcloud",
+			"keys": ["videoId"],
+			"format": "https://soundcloud.com/{0}'>soundcloud post: {0}</a>",
+			"ignore": false
 		}
 	}
 }
