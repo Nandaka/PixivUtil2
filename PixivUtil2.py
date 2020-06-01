@@ -878,7 +878,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
         if hide not in ('y', 'n', 'o'):
             print("Invalid args: ", hide)
             return
-        tag = input("Tag (default=All Images): ").rstrip("\r") or ''
+        tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
         (start_page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
         # sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
         # sorting = sorting.lower()
