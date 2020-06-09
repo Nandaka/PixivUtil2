@@ -236,6 +236,8 @@ class FanboxPost(object):
                         self.body_text, block_text)
                 elif block["type"] == "image":
                     imageId = block["imageId"]
+                    if imageId not in jsPost["body"]["imageMap"]:
+                        continue
                     self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
                         self.body_text,
                         jsPost["body"]["imageMap"][imageId]["originalUrl"],
@@ -244,6 +246,8 @@ class FanboxPost(object):
                     self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.embeddedFiles)
                 elif block["type"] == "file":
                     fileId = block["fileId"]
+                    if fileId not in jsPost["body"]["fileMap"]:
+                        continue
                     self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
                         self.body_text,
                         jsPost["body"]["fileMap"][fileId]["url"],
