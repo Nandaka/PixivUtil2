@@ -1,6 +1,6 @@
 # Requirements:
 - Running from Windows binary:
-  - Windows Vista or a more recent version.
+  - minimum Windows 7 SP1 with latest updates installed.
 
 - Running from source code:
   - Python 3.8.0+ (https://www.python.org/)
