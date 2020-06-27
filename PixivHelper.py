@@ -678,7 +678,7 @@ def print_progress(curr, total, max_msg_length=80):
 
     if total > 0:
         complete = int((curr * animBarLen) / total)
-        msg = f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+        msg = f" [{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
 
     else:
         # indeterminite
@@ -687,7 +687,7 @@ def print_progress(curr, total, max_msg_length=80):
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
-        msg = f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
+        msg = f' [{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
 
     curr_msg_length = len(msg)
     print_and_log(None, msg.ljust(max_msg_length, " "), end='\r')
