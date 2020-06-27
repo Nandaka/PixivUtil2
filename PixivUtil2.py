@@ -1023,9 +1023,9 @@ def menu_fanbox_download_from_artist(op_is_valid, via, args):
         PixivHelper.print_and_log("info", f"No {via_type} artist!")
         return
     PixivHelper.print_and_log("info", f"Found {len(artists)} {via_type} artist(s)")
-    print(", ".join(str(artists)))
 
     for artist in artists:
+        __config__.loadConfig(path=configfile)
         __br__.fanboxUpdateArtistToken(artist)
         # Issue #567
         try:
