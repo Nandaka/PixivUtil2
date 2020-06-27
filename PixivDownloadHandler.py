@@ -246,7 +246,7 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
     if referer is None:
         referer = config.referer
     # actual download
-    PixivHelper.print_and_log(None, '\rStart downloading...', newline=False)
+    PixivHelper.print_and_log(None, 'Start downloading...\r', newline=False)
     # fetch filesize
     req = PixivHelper.create_custom_request(url, config, referer)
     br = PixivBrowserFactory.getBrowser(config=config)
