@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 # flake8: noqa:E501,E128,E127
 import codecs
@@ -1025,10 +1025,10 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     PixivHelper.print_and_log("info", f"Found {len(ids)} {via_type} artist(s)")
     PixivHelper.print_and_log(None, ids)
 
-    for id in ids:
+    for index, id in enumerate(ids, start=1):
         # Issue #567
         try:
-            processFanboxArtistById(id, end_page)
+            processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
             PixivHelper.print_and_log("error", f"Error processing {via_type} FANBOX Artist: {artist.artistId} ==> {pex.message}")
 
@@ -1051,7 +1051,7 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
         del post
 
 
-def processFanboxArtistById(id, end_page):
+def processFanboxArtistById(id, end_page, title_prefix=""):
     __config__.loadConfig(path=configfile)
     artist = __br__.fanboxGetArtistById(id)
     current_page = 1
@@ -1059,6 +1059,7 @@ def processFanboxArtistById(id, end_page):
     image_count = 1
     while (True):
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
+        set_console_title(f"{title_prefix}Artist {artist}, page {current_page}")
         try:
             posts = __br__.fanboxGetPostsFromArtist(artist, next_url)
         except PixivException as pex:
