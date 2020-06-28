@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 # flake8: noqa:E501,E128,E127
 import codecs
@@ -578,10 +578,10 @@ def menu():
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('------------------------')
-    print('f1. Download from supported artists (FANBOX)')
+    print('f1. Download from supporting artists (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
-    print('f4. Download from followed artists (FANBOX)')
+    print('f4. Download from following artists (FANBOX)')
     print('------------------------')
     print('b. Batch Download from batch_job.json (experimental)')
     print('------------------------')
@@ -1002,12 +1002,12 @@ def menu_export_online_user_bookmark(opisvalid, args):
     export_bookmark(filename, 'n', 1, 0, member_id)
 
 
-def menu_fanbox_download_from_artist(op_is_valid, via, args):
+def menu_fanbox_download_from_list(op_is_valid, via, args):
     via_type = ""
-    if via == PixivModelFanbox.FanboxArtist.SUPPORTED:
-        via_type = "supported"
-    elif via == PixivModelFanbox.FanboxArtist.FOLLOWED:
-        via_type = "followed"
+    if via == PixivModelFanbox.FanboxArtist.SUPPORTING:
+        via_type = "supporting"
+    elif via == PixivModelFanbox.FanboxArtist.FOLLOWING:
+        via_type = "following"
 
     __log__.info(f'Download FANBOX {via_type.capitalize()} Artists mode.')
     end_page = 0
@@ -1018,18 +1018,17 @@ def menu_fanbox_download_from_artist(op_is_valid, via, args):
         end_page = input("Max Page = ").rstrip("\r") or 0
         end_page = int(end_page)
 
-    artists = __br__.fanboxGetUsers(via)
-    if len(artists) == 0:
+    ids = __br__.fanboxGetArtistList(via)
+    if len(ids) == 0:
         PixivHelper.print_and_log("info", f"No {via_type} artist!")
         return
-    PixivHelper.print_and_log("info", f"Found {len(artists)} {via_type} artist(s)")
-    print(", ".join(str(artists)))
+    PixivHelper.print_and_log("info", f"Found {len(ids)} {via_type} artist(s)")
+    PixivHelper.print_and_log(None, f"{ids}")
 
-    for artist in artists:
-        __br__.fanboxUpdateArtistToken(artist)
+    for index, id in enumerate(ids, start=1):
         # Issue #567
         try:
-            processFanboxArtist(artist, end_page)
+            processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
             PixivHelper.print_and_log("error", f"Error processing {via_type} FANBOX Artist: {artist.artistId} ==> {pex.message}")
 
@@ -1044,20 +1043,23 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
     post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
     for post_id in post_ids:
         post_id = int(post_id)
-        post = __br__.fanboxGetPost(post_id)
+        post = __br__.fanboxGetPostById(post_id)
         try:
-            processFanboxImages(post, post.parent)
+            processFanboxPost(post, post.parent)
         except PixivException as pex:
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
         del post
 
 
-def processFanboxArtist(artist, end_page):
+def processFanboxArtistById(id, end_page, title_prefix=""):
+    __config__.loadConfig(path=configfile)
+    artist = __br__.fanboxGetArtistById(id)
     current_page = 1
     next_url = None
     image_count = 1
     while (True):
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
+        set_console_title(f"{title_prefix}Artist {artist}, page {current_page}")
         try:
             posts = __br__.fanboxGetPostsFromArtist(artist, next_url)
         except PixivException as pex:
@@ -1070,7 +1072,7 @@ def processFanboxArtist(artist, end_page):
 
             # images
             if post.type in PixivModelFanbox.FanboxPost._supportedType:
-                processFanboxImages(post, artist)
+                processFanboxPost(post, artist)
             image_count = image_count + 1
             PixivHelper.wait(__config__)
 
@@ -1087,7 +1089,7 @@ def processFanboxArtist(artist, end_page):
             break
 
 
-def processFanboxImages(post, artist):
+def processFanboxPost(post, artist):
     __dbManager__.insertPost(artist.artistId, post.imageId, post.imageTitle,
                              post.feeRequired, post.worksDate, post.type)
 
@@ -1102,6 +1104,9 @@ def processFanboxImages(post, artist):
                 flag_processed = True
 
     try:
+        if not post.is_restricted and not flag_processed:
+            __br__.fanboxUpdatePost(post)
+
         if ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed):
             # cover image
             if post.coverImageUrl is not None:
@@ -1221,7 +1226,7 @@ def processFanboxImages(post, artist):
     __dbManager__.updatePostUpdateDate(post.imageId, post.updatedDate)
 
 
-def menu_fanbox_download_by_artist_or_creator_id(op_is_valid, args):
+def menu_fanbox_download_by_id(op_is_valid, args):
     __log__.info('Download FANBOX by Artist or Creator ID mode.')
     end_page = 0
     id = ''
@@ -1235,8 +1240,7 @@ def menu_fanbox_download_by_artist_or_creator_id(op_is_valid, args):
         end_page = input("Max Page = ").rstrip("\r") or 0
 
     end_page = int(end_page)
-    artist = __br__.fanboxGetArtistById(id)
-    processFanboxArtist(artist, end_page)
+    processFanboxArtistById(id, end_page)
 
 
 def menu_reload_config():
@@ -1272,10 +1276,10 @@ def setup_option_parser():
 10 - Download by Tag and Member Id
 11 - Download images from Member Bookmark
 12 - Download images by Group Id
-f1 - Download from supported artists (FANBOX)
+f1 - Download from supporting artists (FANBOX)
 f2 - Download by artist/creator id (FANBOX)
 f3 - Download by post id (FANBOX)
-f4 - Download from followed artists (FANBOX)
+f4 - Download from following artists (FANBOX)
  b - Batch Download from batch_job.json (experimental)
  e - Export online bookmark
  m - Export online user bookmark
@@ -1356,13 +1360,13 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_import_list()
             # PIXIV FANBOX
             elif selection == 'f1':
-                menu_fanbox_download_from_artist(op_is_valid, PixivModelFanbox.FanboxArtist.SUPPORTED, args)
+                menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.SUPPORTING, args)
             elif selection == 'f2':
-                menu_fanbox_download_by_artist_or_creator_id(op_is_valid, args)
+                menu_fanbox_download_by_id(op_is_valid, args)
             elif selection == 'f3':
                 menu_fanbox_download_by_post_id(op_is_valid, args)
             elif selection == 'f4':
-                menu_fanbox_download_from_artist(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWED, args)
+                menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWING, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid_local:

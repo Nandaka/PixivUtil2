@@ -21,12 +21,12 @@ class FanboxArtist(object):
     artistName = ""
     artistToken = ""
 
-    SUPPORTED = 0
-    FOLLOWED = 1
+    SUPPORTING = 0
+    FOLLOWING = 1
 
     @classmethod
-    def parseArtists(cls, page, tzInfo=None):
-        artists = list()
+    def parseArtistIds(cls, page):
+        ids = list()
         js = demjson.decode(page)
 
         if "error" in js and js["error"]:
@@ -37,13 +37,8 @@ class FanboxArtist(object):
             if "supportingPlans" in js["body"]:
                 js_body = js_body["supportingPlans"]
             for creator in js_body:
-                artists.append(
-                    FanboxArtist(creator["user"]["userId"],
-                                 creator["user"]["name"],
-                                 creator["creatorId"],
-                                 tzInfo=tzInfo
-                                 ))
-        return artists
+                ids.append(creator["user"]["userId"])
+        return ids
 
     def __init__(self, artist_id, artist_name, creator_id, tzInfo=None):
         self.artistId = int(artist_id)

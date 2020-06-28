@@ -21,13 +21,13 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         reader = open('./test/Fanbox_supported_artist.json', 'r', encoding="utf-8")
         p = reader.read()
         reader.close()
-        result = FanboxArtist.parseArtists(p)
+        result = FanboxArtist.parseArtistIds(p)
         self.assertIsNotNone(result)
 
         self.assertEqual(len(result), 52)
-        self.assertTrue(4820 in [x.artistId for x in result])
-        self.assertTrue(11443 in [x.artistId for x in result])
-        self.assertTrue(226267 in [x.artistId for x in result])
+        self.assertTrue('4820' in result)
+        self.assertTrue('11443' in result)
+        self.assertTrue('226267' in result)
 
     def testFanboxArtistPosts(self):
         reader = open('./test/Fanbox_artist_posts.json', 'r', encoding="utf-8")

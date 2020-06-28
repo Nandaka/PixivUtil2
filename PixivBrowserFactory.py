@@ -812,15 +812,15 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.safePrint(u"reply: {0}".format(
                     PixivHelper.toUnicode(response)))
 
-    def fanboxGetUsers(self, via):
+    def fanboxGetArtistList(self, via):
         self.fanbox_is_logged_in()
-        if via == FanboxArtist.SUPPORTED:
+        if via == FanboxArtist.SUPPORTING:
             url = 'https://api.fanbox.cc/plan.listSupporting'
-            PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+            PixivHelper.print_and_log('info', f'Getting supporting artists from {url}')
             referer = "https://www.fanbox.cc/creators/supporting"
-        elif via == FanboxArtist.FOLLOWED:
+        elif via == FanboxArtist.FOLLOWING:
             url = 'https://api.fanbox.cc/creator.listFollowing'
-            PixivHelper.print_and_log('info', f'Getting supported artists from {url}')
+            PixivHelper.print_and_log('info', f'Getting following artists from {url}')
             referer = "https://www.fanbox.cc/creators/following"
 
         req = mechanize.Request(url)
@@ -836,14 +836,8 @@ class PixivBrowser(mechanize.Browser):
         _tzInfo = None
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-        artists = FanboxArtist.parseArtists(page=response, tzInfo=_tzInfo)
-        return artists
-
-    def fanboxUpdateArtistToken(self, artist):
-        pixivArtist = PixivArtist(artist.artistId)
-        self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
-        artist.artistName = pixivArtist.artistName
-        artist.artistToken = pixivArtist.artistToken
+        ids = FanboxArtist.parseArtistIds(page=response)
+        return ids
 
     def fanboxGetArtistById(self, id):
         self.fanbox_is_logged_in()
@@ -882,7 +876,10 @@ class PixivBrowser(mechanize.Browser):
                                   js_body["user"]["name"],
                                   js_body["creatorId"],
                                   tzInfo=_tzInfo)
-            self.fanboxUpdateArtistToken(artist)
+            pixivArtist = PixivArtist(artist.artistId)
+            self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+            artist.artistName = pixivArtist.artistName
+            artist.artistToken = pixivArtist.artistToken
             return artist
 
     def fanboxGetPostsFromArtist(self, artist=None, next_url=""):
@@ -912,14 +909,22 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.get_logger().debug(response.decode('utf8'))
         res.close()
         posts = artist.parsePosts(response)
-
-        for post in posts:
-            js = self.fanboxGetPost(post.imageId, artist)
-            post.parsePost(js["body"])
-
         return posts
 
-    def fanboxGetPost(self, post_id, artist=None):
+    def fanboxUpdatePost(self, post):
+        js = self.fanboxGetPostJsonById(post.imageId,  post.parent)
+        post.parsePost(js["body"])
+
+    def fanboxGetPostById(self, post_id):
+        js = self.fanboxGetPostJsonById(post_id)
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        artist = self.fanboxGetArtistById(js["body"]["user"]["userId"])
+        post = FanboxPost(post_id, artist, js["body"], _tzInfo)
+        return post
+
+    def fanboxGetPostJsonById(self, post_id, artist=None):
         self.fanbox_is_logged_in()
         # https://fanbox.pixiv.net/api/post.info?postId=279561
         # https://www.pixiv.net/fanbox/creator/104409/post/279561
@@ -938,16 +943,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.get_logger().debug(p_response.decode('utf8'))
         p_res.close()
         js = demjson.decode(p_response)
-        if artist:
-            return js
-        else:
-            _tzInfo = None
-            if self._config.useLocalTimezone:
-                _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-            artist = FanboxArtist(js["body"]["user"]["userId"], js["body"]["creatorId"], js["body"]["user"]["name"])
-            self.fanboxUpdateArtistToken(artist)
-            post = FanboxPost(post_id, artist, js["body"], _tzInfo)
-            return post
+        return js
 
 
 def getBrowser(config=None, cookieJar=None):
