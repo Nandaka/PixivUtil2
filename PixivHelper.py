@@ -629,13 +629,11 @@ def download_image(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print_and_log(None, "")
                 print_and_log(None, f' Completed in {total_time}s ({speed_in_str(file_size, total_time)})')
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print_and_log(None, "")
                 print_and_log(None, f' Completed in {total_time}s ({speed_in_str(curr, total_time)})')
                 break
 
@@ -678,7 +676,7 @@ def print_progress(curr, total, max_msg_length=80):
 
     if total > 0:
         complete = int((curr * animBarLen) / total)
-        msg = f"[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+        msg = f"\r[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
 
     else:
         # indeterminite
@@ -687,10 +685,10 @@ def print_progress(curr, total, max_msg_length=80):
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
-        msg = f'[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
+        msg = f'\r[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
 
     curr_msg_length = len(msg)
-    print_and_log(None, msg.ljust(max_msg_length, " "), end='\r')
+    print_and_log(None, msg.ljust(max_msg_length, " "), newline=False)
 
     return curr_msg_length if curr_msg_length > max_msg_length else max_msg_length
 
