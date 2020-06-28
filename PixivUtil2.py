@@ -578,10 +578,10 @@ def menu():
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('------------------------')
-    print('f1. Download from supported artists (FANBOX)')
+    print('f1. Download from supporting artists (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
-    print('f4. Download from followed artists (FANBOX)')
+    print('f4. Download from following artists (FANBOX)')
     print('------------------------')
     print('b. Batch Download from batch_job.json (experimental)')
     print('------------------------')
@@ -1276,10 +1276,10 @@ def setup_option_parser():
 10 - Download by Tag and Member Id
 11 - Download images from Member Bookmark
 12 - Download images by Group Id
-f1 - Download from supported artists (FANBOX)
+f1 - Download from supporting artists (FANBOX)
 f2 - Download by artist/creator id (FANBOX)
 f3 - Download by post id (FANBOX)
-f4 - Download from followed artists (FANBOX)
+f4 - Download from following artists (FANBOX)
  b - Batch Download from batch_job.json (experimental)
  e - Export online bookmark
  m - Export online user bookmark
