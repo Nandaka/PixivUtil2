@@ -1023,7 +1023,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
         PixivHelper.print_and_log("info", f"No {via_type} artist!")
         return
     PixivHelper.print_and_log("info", f"Found {len(ids)} {via_type} artist(s)")
-    PixivHelper.print_and_log(None, ids)
+    PixivHelper.print_and_log(None, f"{ids}")
 
     for index, id in enumerate(ids, start=1):
         # Issue #567
