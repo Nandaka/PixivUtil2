@@ -578,10 +578,10 @@ def menu():
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('------------------------')
-    print('f1. Download from supporting artists (FANBOX)')
+    print('f1. Download from supporting list (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
-    print('f4. Download from following artists (FANBOX)')
+    print('f4. Download from following list (FANBOX)')
     print('------------------------')
     print('b. Batch Download from batch_job.json (experimental)')
     print('------------------------')
@@ -1009,7 +1009,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     elif via == PixivModelFanbox.FanboxArtist.FOLLOWING:
         via_type = "following"
 
-    __log__.info(f'Download FANBOX {via_type.capitalize()} Artists mode.')
+    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode.')
     end_page = 0
 
     if op_is_valid and len(args) > 0:
@@ -1020,9 +1020,9 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
 
     ids = __br__.fanboxGetArtistList(via)
     if len(ids) == 0:
-        PixivHelper.print_and_log("info", f"No {via_type} artist!")
+        PixivHelper.print_and_log("info", f"No artist in {via_type} list!")
         return
-    PixivHelper.print_and_log("info", f"Found {len(ids)} {via_type} artist(s)")
+    PixivHelper.print_and_log("info", f"Found {len(ids)} artist(s) in {via_type} list")
     PixivHelper.print_and_log(None, f"{ids}")
 
     for index, id in enumerate(ids, start=1):
@@ -1030,7 +1030,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
         try:
             processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing {via_type} FANBOX Artist: {artist.artistId} ==> {pex.message}")
+            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist.artistId} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_post_id(op_is_valid, args):
@@ -1276,10 +1276,10 @@ def setup_option_parser():
 10 - Download by Tag and Member Id
 11 - Download images from Member Bookmark
 12 - Download images by Group Id
-f1 - Download from supporting artists (FANBOX)
+f1 - Download from supporting list (FANBOX)
 f2 - Download by artist/creator id (FANBOX)
 f3 - Download by post id (FANBOX)
-f4 - Download from following artists (FANBOX)
+f4 - Download from following list (FANBOX)
  b - Batch Download from batch_job.json (experimental)
  e - Export online bookmark
  m - Export online user bookmark
