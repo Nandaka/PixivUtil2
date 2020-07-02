@@ -41,8 +41,6 @@ class PixivConfig():
     '''Configuration class'''
     __logger = PixivHelper.get_logger()
     configFileLocation = "config.ini"
-    __initialized = False
-    __modified = False
 
     __items = [
         ConfigItem("Network", "useProxy", False),
@@ -168,23 +166,10 @@ class PixivConfig():
 
     proxy = {"http": "", "https": "", }
 
-    __props = [x.option for x in __items]
-
     def __init__(self):
         for item in self.__items:
             setattr(self, item.option, item.default)
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
-        self.__initialized = True
-        self.__modified = False
-
-    def __setattr__(self, key, value):
-        if self.__initialized:
-            if key in PixivConfig.__props:
-                if self.__getattribute__(key) != value:
-                    self.__modified = True
-                else:
-                    return
-        super(PixivConfig, self).__setattr__(key, value)
 
     def loadConfig(self, path=None):
         if path is not None:
@@ -242,13 +227,11 @@ class PixivConfig():
         if haveError:
             print('Configurations with invalid value are set to default value.')
             self.writeConfig(error=True, path=self.configFileLocation)
-        self.__modified = False
+
         print('done.')
 
     # -UI01B------write config
     def writeConfig(self, error=False, path=None):
-        if not self.__modified:
-            return
         '''Backup old config if exist and write updated config.ini'''
         print('Writing config file...', end=' ')
         config = configparser.RawConfigParser()
@@ -284,7 +267,7 @@ class PixivConfig():
         except BaseException:
             self.__logger.exception('Error at writeConfig()')
             raise
-        self.__modified = False
+
         print('done.')
 
     def printConfig(self):
