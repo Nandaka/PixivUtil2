@@ -113,7 +113,13 @@ def process_image(caller,
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
-        if config.useBlacklistTags:
+        if config.useBlacklistMembers and download_image_flag:
+            if str(image.originalArtist.artistId) in caller.__blacklistMembers:
+                PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted member id: {image.originalArtist.artistId}')
+                download_image_flag = False
+                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+
+        if config.useBlacklistTags and download_image_flag:
             for item in caller.__blacklistTags:
                 if item in image.imageTags:
                     PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted tags: {item}')
@@ -121,11 +127,14 @@ def process_image(caller,
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
 
-        if config.useBlacklistMembers:
-            if str(image.originalArtist.artistId) in caller.__blacklistMembers:
-                PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted member id: {image.originalArtist.artistId}')
-                download_image_flag = False
-                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+        if config.useBlacklistTitles and download_image_flag:
+            for item in caller.__blacklistTitles:
+                if item in image.imageTitle:
+                    PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted Title: {item}')
+                    download_image_flag = False
+                    result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+                    break
+
 
         if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
