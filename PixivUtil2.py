@@ -81,6 +81,7 @@ __suppressTags = list()
 __log__ = PixivHelper.get_logger()
 __errorList = list()
 __blacklistMembers = list()
+__blacklistTitles = list()
 __valid_options = ()
 
 start_iv = False
@@ -1563,6 +1564,11 @@ def main():
             global __blacklistMembers
             __blacklistMembers = PixivTags.parseTagsList("blacklist_members.txt")
             PixivHelper.print_and_log('info', 'Using Blacklist Members: ' + str(len(__blacklistMembers)) + " members.")
+
+        if __config__.useBlacklistTitles:
+            global __blacklistTitles
+            __blacklistTitles = PixivTags.parseTagsList("blacklist_titles.txt")
+            PixivHelper.print_and_log('info', 'Using Blacklist Titles: ' + str(len(__blacklistTitles)) + " items.")
 
         if __config__.useSuppressTags:
             global __suppressTags
