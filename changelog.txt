@@ -1,3 +1,11 @@
+20200712
+- Merge Added a filter for Titles and added a condition to prevent unnecessary blacklist checks (#737) by byjtje.
+- Implement #716: include soundcloud provider support.
+- Implement : add joboption for r18mode for batch.
+- Implement #719: update message for menu_download_from_online_image_bookmark().
+- Fanbox related fixes by amatuerCoder.
+- update readme.md.
+
 20200524
 - Fix #697 bookmark filtering for premium user
 - Fix #713 allow %search_tag% format in option 6
