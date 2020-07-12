@@ -1499,7 +1499,7 @@ def main():
         __br__ = PixivBrowserFactory.getBrowser(config=__config__)
 
     if __config__.checkNewVersion:
-        PixivHelper.check_version()
+        PixivHelper.check_version(__br__)
 
     selection = None
 
