@@ -1031,7 +1031,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
         try:
             processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist.artistId} ==> {pex.message}")
+            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {id} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_post_id(op_is_valid, args):

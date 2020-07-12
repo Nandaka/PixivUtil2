@@ -121,6 +121,10 @@ class PixivBrowser(mechanize.Browser):
                 # https://stackoverflow.com/a/14512227
                 socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
                 socket.socket = socks.socksocket
+
+                def getaddrinfo(*args):
+                    return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+                socket.getaddrinfo = getaddrinfo
             else:
                 self.set_proxies(config.proxy)
                 PixivHelper.get_logger().info("Using Proxy: %s", config.proxyAddress)
