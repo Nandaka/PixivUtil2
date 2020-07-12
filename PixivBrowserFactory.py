@@ -41,10 +41,24 @@ class PixivBrowser(mechanize.Browser):
 
     _username = None
     _password = None
-    _oauth_manager = None
+
     _locale = ""
 
     _is_logged_in_to_FANBOX = False
+
+    __oauth_manager = None
+    @property
+    def _oauth_manager(self):
+        if self.__oauth_manager is None:
+            proxy = None
+            if self._config.useProxy:
+                proxy = self._config.proxy
+            self.__oauth_manager = PixivOAuth(self._username,
+                                             self._password,
+                                             proxies=proxy,
+                                             refresh_token=self._config.refresh_token,
+                                             validate_ssl=self._config.enableSSLVerification)
+        return self.__oauth_manager
 
     def _put_to_cache(self, key, item, expiration=3600):
         expiry = time.time() + expiration
@@ -591,16 +605,6 @@ class PixivBrowser(mechanize.Browser):
                         self._password) < 0:
                     raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
-                if self._oauth_manager is None:
-                    proxy = None
-                    if self._config.useProxy:
-                        proxy = self._config.proxy
-                    self._oauth_manager = PixivOAuth(self._username,
-                                                     self._password,
-                                                     proxies=proxy,
-                                                     refresh_token=self._config.refresh_token,
-                                                     validate_ssl=self._config.enableSSLVerification)
-
                 url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(
                     member_id)
                 info = self._get_from_cache(url)
@@ -833,9 +837,7 @@ class PixivBrowser(mechanize.Browser):
         # read the json response
         response = res.read()
         res.close()
-        _tzInfo = None
-        if self._config.useLocalTimezone:
-            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+
         ids = FanboxArtist.parseArtistIds(page=response)
         return ids
 
@@ -912,7 +914,7 @@ class PixivBrowser(mechanize.Browser):
         return posts
 
     def fanboxUpdatePost(self, post):
-        js = self.fanboxGetPostJsonById(post.imageId,  post.parent)
+        js = self.fanboxGetPostJsonById(post.imageId, post.parent)
         post.parsePost(js["body"])
 
     def fanboxGetPostById(self, post_id):
@@ -995,14 +997,17 @@ def get_br():
 
 def test():
     (b, success) = get_br()
-    # b.get_oauth_token()
+    b._oauth_manager.login()
 
-    # refresh_token = b._oauth_reply['response']['refresh_token']
-    # auth_token = b._oauth_reply['response']['access_token']
-    # print("Reply = {0}".format(b._oauth_reply))
-    # print("Auth Token = " + auth_token)
-    # print("Refr Token = " + refresh_token)
-    # b.get_oauth_token(refresh_token, auth_token)
+    refresh_token = b._oauth_manager._refresh_token
+    auth_token = b._oauth_manager._access_token
+    print("Access Token = " + auth_token)
+    print("Refresh Token = " + refresh_token)
+    b._oauth_manager.login()
+    member_id = 2864095
+    response = b._oauth_manager.get_user_info(member_id)
+    info = json.loads(response.text)
+    print(info)
 
     if success:
         def testSearchTags():
@@ -1107,8 +1112,19 @@ def test():
                 assert (len(result6.artistToken) > 0)
                 assert (len(result6.imageList) == 0)
 
+        def testFanbox():
+            result = b.fanboxGetArtistList(FanboxArtist.SUPPORTING)
+            print(result)
+            creatorId = "powzin"
+            artist = b.fanboxGetArtistById(creatorId)
+            print("artist: ", artist)
+            posts = b.fanboxGetPostsFromArtist(artist)
+            for post in posts:
+                print(post)
+
+        testFanbox()
         # testSearchTags()
-        testImage()
+        # testImage()
         # testMember()
         # testMemberBookmark()
 

@@ -47,7 +47,7 @@ class FanboxArtist(object):
         self._tzInfo = tzInfo
 
     def __str__(self):
-        return f"({self.artistId}, {self.creatorId}, {self.artistName})"
+        return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"
 
     def parsePosts(self, page):
         js = demjson.decode(page)
@@ -144,6 +144,12 @@ class FanboxPost(object):
         self.imageCount = len(self.images)
         if self.imageCount > 0:
             self.imageMode = "manga"
+
+    def __str__(self):
+        if self.parent is not None:
+            return f"FanboxPost({self.parent}: {self.imageId}, {self.imageTitle}, {self.type}, {self.feeRequired})"
+        else:
+            return f"FanboxPost({self.imageId}, {self.imageTitle}, {self.type}, {self.feeRequired})"
 
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
@@ -384,7 +390,7 @@ class FanboxPost(object):
         else:
             token_images = '<div class="non-article images">{0}</div>'.format(
                 "".join(['<a href="{0}">{1}</a>'.format(x,
-                f'<img scr="{0}"/>' if x[x.rindex(".")+1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
+                f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
             token_text = '<div class="non-article text">{0}</div>'.format(
                 "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
 
@@ -400,7 +406,7 @@ class FanboxPost(object):
                 tag["src"] = imageATag["href"]
         root = page.find("div", attrs={"class": "root"})
         if root:
-            root["class"].append("non-article" if self.type!="article" else "article")
+            root["class"].append("non-article" if self.type != "article" else "article")
         page = page.prettify()
         html_dir = os.path.dirname(filename)
         for k, v in self.linkToFile.items():
