@@ -959,10 +959,10 @@ def encode_tags(tags):
     return tags
 
 
-def check_version(br):
+def check_version(br, config=None):
     if br is None:
         import PixivBrowserFactory
-        br = PixivBrowserFactory.getBrowser()
+        br = PixivBrowserFactory.getBrowser(config=config)
     result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
     page = result.read().decode('utf-8')
     result.close()
