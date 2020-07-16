@@ -54,12 +54,11 @@
 # Docker
 
 ```sh
-$ docker build -t denden047/pixivutil2 .
+$ docker build -t pixivutil2 .
 $ docker run -it --rm \
-  -v ROOT_DATA_DIR:/data \
   -v $(pwd):/workdir \
   -w /workdir \
-  denden047/pixivutil2 \
+  pixivutil2 \
   /bin/bash -c "python PixivUtil2.py"
 ```
 
