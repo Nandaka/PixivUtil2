@@ -6,7 +6,7 @@
   - Python 3.8.0+ (https://www.python.org/)
   - Additional library listed in requirements.txt
   - IDE Environment: see https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
- 
+
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
 
@@ -51,6 +51,18 @@
   - Clean Up Database (remove db entry if downloaded file is missing)
 - Export user bookmark (member_id) to a text files.
 
+# Docker
+
+```sh
+$ docker build -t denden047/pixivutil2 .
+$ docker run -it --rm \
+  -v ROOT_DATA_DIR:/data \
+  -v $(pwd):/workdir \
+  -w /workdir \
+  denden047/pixivutil2 \
+  /bin/bash -c "python PixivUtil2.py"
+```
+
 # WARNING
 Overusage can lead to Pixiv blocking your IP for a few hours.
 
@@ -66,11 +78,11 @@ Q1. How to paste Japanese tags to the console window?
       and paste the encoded tag back to the console.
     - or paste it to tags.txt and select download by tags list. Separate each
       tags with space, and separate with new line for new query.
-      
+
 Q2. My password doesn't show up in the console!
     - This is normal. The program still reads it.
     - or you can put in the config.ini if not sure.
-    
+
 Q3. I cannot login to Pixiv!
     - Check your password.
     - Try to login to the Pixiv Website.
@@ -88,14 +100,14 @@ Q3. I cannot login to Pixiv!
       7. Copy the content value.
       8. Open config.ini, go to [Authentication] section, paste the value
           to cookie, set keepsignedin = 1.
-          
+
 Q4. PixivUtil working from local terminal on Linux box but not working when I
     used SSH with PuTTY!
     - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are
       not set, python does not know what to write (Thanks to nho!)
     - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate
       it properly (Thanks to Mailia!)
-      
+
 Q5. How to delete member id from Database?
     - Open the application and choose Manage Database (d) then select delete
       Member by Member Id.
@@ -103,21 +115,21 @@ Q5. How to delete member id from Database?
       command to delete it.
     - If you are downloading using Download from List.txt (3), you can create
       ignore_list.txt to skip the member id.
-      
+
 Q6. The app doesn't download all the images!
-    - Pixiv only allow to search up to 1000 pages if you don't have Pixiv 
+    - Pixiv only allow to search up to 1000 pages if you don't have Pixiv
       Premium.
     - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
       then delete the cookie value in config.ini and retry.
     - Check the value of r18mode in config.ini. Setting it to True will only
       download R-18 images.
-      
+
 Q7. The apps show square/question mark texts in the console output!
     - This is because your Windows is not set to Japanese for the Regional Settings
       in control panel.
     - Since 20161114+ version, you need to set the console font properties to
       use font with unicode support (e.g. Arial Unicode, MS Gothic).
-      
+
 Q8. Where to get FFmpeg software? How to enable `createwebm`?
     - Download the stable version of FFmpeg from https://www.ffmpeg.org/download.html.
     - For Windows:
@@ -126,33 +138,33 @@ Q8. Where to get FFmpeg software? How to enable `createwebm`?
       - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
     - For Linux:
       - Install the package using your favorite package manager.
-      
+
 Q9. The downloaded images are corrupted, how to redownload it again?
-    - You can delete the download history in databases by manually delete the image id 
+    - You can delete the download history in databases by manually delete the image id
       from databases (enter d, followed by 10).
-    - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini 
+    - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini
       and retry the download.
 ```
 ## B.Bugs/Source Code/Supports
 ```
 Q1. Where I can report bugs?
     - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
-    
+
 Q2. Where I can support/donate to you?
     - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
     - or visit https://bit.ly/PixivUtilDonation.
-    
+
 Q3. I want to use/modify the source code!
     - Feel free to use/modify the source code as long you give credit to me
       and make the modificated source code open.
     - if you want to add feature/bug fix, you can do fork the repository in
       https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
-      
+
 Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
     - Please modify _html.py from mechanize library, search for
       'def unescape_charref(data, encoding):' and replace with patch in
       https://pastebin.com/5bT5HFkb.
-      
+
 Q5. I got '<library_name> module no found error'
     - Download the library from the source (see links from the Requirements
       section) and copy the file into your Lib\site-packages directory.
@@ -309,13 +321,13 @@ autoAddMember ==> automatically save member id to db for all download.
 filenameFormatFanboxCover  ==> Similar like filename format, but for FANBOX post over images
 filenameFormatFanboxContent  ==> Similar like filename format, but for files inside FANBOX posts.
 filenameFormatFanboxInfo  ==> Similar like filename format, but for info dumps.
-writeHtml ==> set to `True` to write FANBOX post into HTMLs, `False` to not to, whichever type post. 
+writeHtml ==> set to `True` to write FANBOX post into HTMLs, `False` to not to, whichever type post.
 	      Uses `filenameformatfanboxinfo` for filename.
 	      Article type FANBOX posts will certainly be written into HTMLs, non-article type
 	      posts use `mintextlengthfornonarticle` and `minimagecountfornonarticle` to control.
-minTextLengthForNonArticle ==> Works with `minimagecountfornonarticle`. 
+minTextLengthForNonArticle ==> Works with `minimagecountfornonarticle`.
 			       When `writehtml` is set to `True`, a non-article post should contain
-			       text longer than this value to be written into HTML. 
+			       text longer than this value to be written into HTML.
 minImageCountForNonArticle ==> Works with `minimagecountfornonarticle`.
 			       When `writehtml` is set to `True`, a non-article post should contain
 			       at least this many files/images to be written into HTML.
@@ -326,7 +338,7 @@ checkDBProcessHistory ==> Each FANBOX post has a `updated date`, which will be r
 		          after each post is processed. Set to `True` to check this recorded value in
 		          database. If record does not exist or it's no earlier than the newly retrieved
 		          date, which indicates that the post has not been changed since last time,
-		          this post would be skipped, otherwise it will be processed, and update the 
+		          this post would be skipped, otherwise it will be processed, and update the
 		          record with new `updated date`.
 ```
 ## [Network]
@@ -344,7 +356,7 @@ retrywait      ==> Waiting time for each retry, in seconds.
 downloadDelay  ==> Set random delay up to n seconds for each image post.
                    Set to 0 to disable.
 checkNewVersion==> Set to 'True' to check new releases in github.
-enableSSLVerification ==> enable SSL verication, only set to 'False' if you 
+enableSSLVerification ==> enable SSL verication, only set to 'False' if you
                           always encounter SSL Error (this disable the security)
 ```
 ## [Debug]
@@ -606,7 +618,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 ### END EXAMPLE LIST####
 ```
 
-# tags.txt Format 
+# tags.txt Format
 - This file will be used as source for Download from tags list (7)
 - Separate tags with space, ensure to set Use Wildcard to 'y'.
 - Each line will be treated as one search.
@@ -628,7 +640,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 # blacklist_members.txt Format
 - similar like list.txt, but without custom folder.
 
-# Credits/Contributor 
+# Credits/Contributor
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
 - Yavos (Contributor)
 - Joe (Contributor)
@@ -656,6 +668,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - wmjdgla
 - fireattack
 - Jared Shields
+- DenDen047
 
 ** If I forget someone, please send me a pull request with the commit/merge id.
 
