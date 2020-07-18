@@ -147,7 +147,7 @@ def handle_tags(caller, job, job_name, job_option):
             raise Exception(f"Invalid end_date: {job['end_date']} in {job_name}.")
     member_id = None
     if "member_id" in job:
-        member_id = bool(job["member_id"])
+        member_id = job["member_id"]
     bookmark_count = None
     if "bookmark_count" in job:
         bookmark_count = int(job["bookmark_count"])
