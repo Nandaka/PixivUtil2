@@ -1047,9 +1047,16 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
     post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
     for post_id in post_ids:
         post_id = int(post_id)
-        post = __br__.fanboxGetPostById(post_id)
         try:
+            post = __br__.fanboxGetPostById(post_id)
             processFanboxPost(post, post.parent)
+        except KeyboardInterrupt:
+            choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
+            if choice.upper() == 'N':
+                PixivHelper.print_and_log("info", f"Post id: {post_id}, processing aborted")
+                break
+            else:
+                continue
         except PixivException as pex:
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
         del post
@@ -1057,7 +1064,12 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
 
 def processFanboxArtistById(id, end_page, title_prefix=""):
     __config__.loadConfig(path=configfile)
-    artist = __br__.fanboxGetArtistById(id)
+    set_console_title(title_prefix)
+    try:
+        artist = __br__.fanboxGetArtistById(id)
+    except PixivException as pex:
+        PixivHelper.print_and_log("error", "Error gettting FANBOX artist by id: {0} ==> {1}".format(id, pex.message))
+        return
     current_page = 1
     next_url = None
     image_count = 1
@@ -1067,7 +1079,7 @@ def processFanboxArtistById(id, end_page, title_prefix=""):
         try:
             posts = __br__.fanboxGetPostsFromArtist(artist, next_url)
         except PixivException as pex:
-            print(pex)
+            PixivHelper.print_and_log("error", "Error getting FANBOX posts of artist: {0} ==> {1}".format(artist, pex.message))
             break
 
         for post in posts:
@@ -1076,14 +1088,22 @@ def processFanboxArtistById(id, end_page, title_prefix=""):
 
             # images
             if post.type in PixivModelFanbox.FanboxPost._supportedType:
-                processFanboxPost(post, artist)
-            image_count = image_count + 1
+                try:
+                    processFanboxPost(post, artist)
+                except KeyboardInterrupt:
+                    choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
+                    if choice.upper() == 'N':
+                        PixivHelper.print_and_log("info", f"FANBOX artist: {artist}, processing aborted")
+                        break
+                    else:
+                        continue
+            image_count += 1
             PixivHelper.wait(__config__)
 
         if not artist.hasNextPage:
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
             break
-        current_page = current_page + 1
+        current_page += 1
         if end_page > 0 and current_page > end_page:
             PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist, end_page))
             break
@@ -1193,6 +1213,8 @@ def processFanboxPost(post, artist):
                                                     False,  # __config__.overwrite somehow unable to get remote filesize
                                                     __config__.retry,
                                                     __config__.backupOldFile)
+                if result == PixivConstant.PIXIVUTIL_ABORTED:
+                    raise KeyboardInterrupt()
                 post_files.append((post.imageId, current_page, filename))
 
                 PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
