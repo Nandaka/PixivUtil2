@@ -45,6 +45,7 @@ class PixivBrowser(mechanize.Browser):
     _locale = ""
 
     _is_logged_in_to_FANBOX = False
+    _orig_getaddrinfo = None
 
     __oauth_manager = None
     @property
@@ -102,6 +103,12 @@ class PixivBrowser(mechanize.Browser):
         mechanize.Browser.back(self)
         return
 
+    def getaddrinfo(self, *args):
+        try:
+            return self._orig_getaddrinfo(*args)
+        except socket.gaierror:
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+
     def _configureBrowser(self, config):
         if config is None:
             PixivHelper.get_logger().info("No config given")
@@ -124,14 +131,9 @@ class PixivBrowser(mechanize.Browser):
                 socket.socket = socks.socksocket
 
                 # https://github.com/Nandaka/PixivUtil2/issues/592#issuecomment-659516296
-                orig_getaddrinfo = socket.getaddrinfo
-
-                def getaddrinfo(*args):
-                    try:
-                        return orig_getaddrinfo(*args)
-                    except socket.gaierror:
-                        return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
-                socket.getaddrinfo = getaddrinfo
+                if self._orig_getaddrinfo is None:
+                    self._orig_getaddrinfo = socket.getaddrinfo
+                socket.getaddrinfo = self._orig_getaddrinfo
 
             else:
                 self.set_proxies(config.proxy)
