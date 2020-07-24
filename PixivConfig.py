@@ -235,7 +235,7 @@ class PixivConfig():
             try:
                 value = item.process_value(value)
             except ValueError:
-                print(Fore.RED + Style.BRIGHT + sys.exc_info() + Style.RESET_ALL)
+                print(Fore.RED + Style.BRIGHT + f"{sys.exc_info()}" + Style.RESET_ALL)
                 self.__logger.exception('Error at process_value() of : %s', item.option)
                 print(Fore.YELLOW + Style.BRIGHT + f"{item.option} = {item.default}" + Style.RESET_ALL)
                 value = item.default
@@ -247,7 +247,7 @@ class PixivConfig():
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
         if haveError:
-            print(Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.')
+            print(Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.' + Style.RESET_ALL)
             self.writeConfig(error=True, path=self.configFileLocation)
 
         print('Configuration loaded.')

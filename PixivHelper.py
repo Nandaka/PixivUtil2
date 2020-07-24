@@ -464,10 +464,10 @@ def print_and_log(level, msg, exception=None, newline=True, end=None):
             safePrint(msg, newline, end)
             get_logger().info(msg)
         elif level == 'warn':
-            safePrint(Fore.YELLOW + msg + Style.RESET_ALL, newline, end)
+            safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
             get_logger().warning(msg)
         elif level == 'error':
-            safePrint(Fore.RED + msg + Style.RESET_ALL, newline, end)
+            safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
             if exception is None:
                 get_logger().error(msg)
             else:
