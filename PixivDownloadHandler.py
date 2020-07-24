@@ -327,7 +327,7 @@ def handle_ugoira(image, filename, config, notifier):
         if not os.path.exists(gif_filename):
             PixivHelper.ugoira2apng(ugo_name, gif_filename, config.deleteUgoira, image=image)
     if config.createWebm:
-        gif_filename = ugo_name[:-7] + ".webm"
+        gif_filename = ugo_name[:-7] + "." + config.ffmpegExt
         if not os.path.exists(gif_filename):
             PixivHelper.ugoira2webm(ugo_name,
                                 gif_filename,
@@ -335,7 +335,7 @@ def handle_ugoira(image, filename, config, notifier):
                                 config.ffmpeg,
                                 config.ffmpegCodec,
                                 config.ffmpegParam,
-                                "webm",
+                                config.ffmpegExt,
                                 image)
     if config.createWebp:
         gif_filename = ugo_name[:-7] + ".webp"
