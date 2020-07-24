@@ -4,6 +4,8 @@ import sys
 import time
 import traceback
 
+from colorama import Fore, Style
+
 import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
@@ -40,7 +42,7 @@ def process_member(caller,
 
     list_page = None
 
-    msg = f'Processing Member Id: {member_id}'
+    msg = Fore.YELLOW + Style.BRIGHT + f'Processing Member Id: {member_id}' + Style.RESET_ALL
     PixivHelper.print_and_log('info', msg)
     notifier(type="MEMBER", message=msg)
     if page != 1:

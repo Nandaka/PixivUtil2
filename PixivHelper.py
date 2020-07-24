@@ -26,6 +26,7 @@ from pathlib import Path
 import imageio
 import mechanize
 from apng import APNG
+from colorama import Fore, Style
 
 import PixivConstant
 from PixivImage import PixivImage
@@ -459,19 +460,21 @@ def print_and_log(level, msg, exception=None, newline=True, end=None):
     if level == 'debug':
         get_logger().debug(msg)
     else:
-        safePrint(msg, newline, end)
         if level == 'info':
+            safePrint(msg, newline, end)
             get_logger().info(msg)
         elif level == 'warn':
+            safePrint(Fore.YELLOW + msg + Style.RESET_ALL, newline, end)
             get_logger().warning(msg)
         elif level == 'error':
+            safePrint(Fore.RED + msg + Style.RESET_ALL, newline, end)
             if exception is None:
                 get_logger().error(msg)
             else:
                 get_logger().error(msg, exception)
             get_logger().error(traceback.format_exc())
         elif level is None:
-            pass
+            safePrint(msg, newline, end)
 
 
 def have_strings(page, strings):

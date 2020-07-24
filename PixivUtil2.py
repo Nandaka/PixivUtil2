@@ -14,6 +14,8 @@ import traceback
 from optparse import OptionParser
 
 from bs4 import BeautifulSoup
+import colorama
+from colorama import Fore, Back, Style
 
 import datetime_z
 import PixivArtistHandler
@@ -33,6 +35,7 @@ from PixivGroup import PixivGroup
 from PixivListItem import PixivListItem
 from PixivTags import PixivTags
 
+colorama.init()
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
 
@@ -526,9 +529,9 @@ def process_from_group(group_id, limit=0, process_external=True):
 
 
 def header():
-    print('PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION)
-    print(PixivConstant.PIXIVUTIL_LINK)
-    print('Donate at', PixivConstant.PIXIVUTIL_DONATE)
+    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"PixivDownloader2 version {PixivConstant.PIXIVUTIL_VERSION}" + Style.RESET_ALL)
+    print(Fore.CYAN + Back.BLACK + Style.BRIGHT + PixivConstant.PIXIVUTIL_LINK + Style.RESET_ALL)
+    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"Donate at {Fore.CYAN}{Style.BRIGHT}{PixivConstant.PIXIVUTIL_DONATE}" + Style.RESET_ALL)
 
 
 def get_start_and_end_number_from_args(args, offset=0, start_only=False):
