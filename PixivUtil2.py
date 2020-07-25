@@ -24,6 +24,7 @@ import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
 import PixivDownloadHandler
+import PixivFanboxHandler
 import PixivHelper
 import PixivImageHandler
 import PixivModelFanbox
@@ -1063,193 +1064,15 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
 
 
 def processFanboxArtistById(id, end_page, title_prefix=""):
-    __config__.loadConfig(path=configfile)
-    set_console_title(title_prefix)
-    try:
-        artist = __br__.fanboxGetArtistById(id)
-    except PixivException as pex:
-        PixivHelper.print_and_log("error", "Error gettting FANBOX artist by id: {0} ==> {1}".format(id, pex.message))
-        return
-    current_page = 1
-    next_url = None
-    image_count = 1
-    while (True):
-        PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
-        set_console_title(f"{title_prefix}Artist {artist}, page {current_page}")
-        try:
-            posts = __br__.fanboxGetPostsFromArtist(artist, next_url)
-        except PixivException as pex:
-            PixivHelper.print_and_log("error", "Error getting FANBOX posts of artist: {0} ==> {1}".format(artist, pex.message))
-            break
-
-        for post in posts:
-            print("#{0}".format(image_count))
-            post.printPost()
-
-            # images
-            if post.type in PixivModelFanbox.FanboxPost._supportedType:
-                try:
-                    processFanboxPost(post, artist)
-                except KeyboardInterrupt:
-                    choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
-                    if choice.upper() == 'N':
-                        PixivHelper.print_and_log("info", f"FANBOX artist: {artist}, processing aborted")
-                        break
-                    else:
-                        continue
-            image_count += 1
-            PixivHelper.wait(__config__)
-
-        if not artist.hasNextPage:
-            PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
-            break
-        current_page += 1
-        if end_page > 0 and current_page > end_page:
-            PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist, end_page))
-            break
-        next_url = artist.nextUrl
-        if next_url is None:
-            PixivHelper.print_and_log("info", "No more next page for {0}".format(artist))
-            break
+    PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                   __config__,
+                                                   id,
+                                                   end_page,
+                                                   title_prefix=title_prefix)
 
 
 def processFanboxPost(post, artist):
-    __dbManager__.insertPost(artist.artistId, post.imageId, post.imageTitle,
-                             post.feeRequired, post.worksDate, post.type)
-
-    post_files = []
-
-    flag_processed = False
-    if __config__.checkDBProcessHistory:
-        result = __dbManager__.selectPostByPostId(post.imageId)
-        if result:
-            updated_date = result[5]
-            if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
-                flag_processed = True
-
-    try:
-        if not post.is_restricted and not flag_processed:
-            __br__.fanboxUpdatePost(post)
-
-        if ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed):
-            # cover image
-            if post.coverImageUrl is not None:
-                # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId),
-                                                            "{0}_".format(post.imageId))
-                filename = PixivHelper.make_filename(__config__.filenameFormatFanboxCover,
-                                                     post,
-                                                     artistInfo=artist,
-                                                     tagsSeparator=__config__.tagsSeparator,
-                                                     tagsLimit=__config__.tagsLimit,
-                                                     fileUrl=fake_image_url,
-                                                     bookmark=None,
-                                                     searchTags='',
-                                                     useTranslatedTag=__config__.useTranslatedTag,
-                                                     tagTranslationLocale=__config__.tagTranslationLocale)
-                filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-                post.linkToFile[post.coverImageUrl] = filename
-
-                print("Downloading cover from {0}".format(post.coverImageUrl))
-                print("Saved to {0}".format(filename))
-
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist.artistId, post.imageId)
-                # don't pass the post id and page number to skip db check
-                (result, filename) = download_image(post.coverImageUrl,
-                                                    filename,
-                                                    referer,
-                                                    __config__.overwrite,
-                                                    __config__.retry,
-                                                    __config__.backupOldFile)
-                post_files.append((post.imageId, -1, filename))
-                PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-            else:
-                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
-
-        if post.is_restricted:
-            PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
-            return
-
-        if flag_processed:
-            PixivHelper.print_and_log("info", "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
-            return
-
-        if post.images is None or len(post.images) == 0:
-            PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
-        else:
-            current_page = 0
-            print("Image Count = {0}".format(len(post.images)))
-            for image_url in post.images:
-                # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = image_url.replace("{0}/".format(post.imageId),
-                                                   "{0}_p{1}_".format(post.imageId, current_page))
-                filename = PixivHelper.make_filename(__config__.filenameFormatFanboxContent,
-                                                     post,
-                                                     artistInfo=artist,
-                                                     tagsSeparator=__config__.tagsSeparator,
-                                                     tagsLimit=__config__.tagsLimit,
-                                                     fileUrl=fake_image_url,
-                                                     bookmark=None,
-                                                     searchTags='',
-                                                     useTranslatedTag=__config__.useTranslatedTag,
-                                                     tagTranslationLocale=__config__.tagTranslationLocale)
-
-                filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-
-                post.linkToFile[image_url] = filename
-
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist.artistId, post.imageId)
-
-                print("Downloading image {0} from {1}".format(current_page, image_url))
-                print("Saved to {0}".format(filename))
-
-                # filesize detection and overwrite issue
-                _oldvalue = __config__.alwaysCheckFileSize
-                __config__.alwaysCheckFileSize = False
-                # don't pass the post id and page number to skip db check
-                (result, filename) = download_image(image_url,
-                                                    filename,
-                                                    referer,
-                                                    False,  # __config__.overwrite somehow unable to get remote filesize
-                                                    __config__.retry,
-                                                    __config__.backupOldFile)
-                if result == PixivConstant.PIXIVUTIL_ABORTED:
-                    raise KeyboardInterrupt()
-                post_files.append((post.imageId, current_page, filename))
-
-                PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-
-                __config__.alwaysCheckFileSize = _oldvalue
-                current_page = current_page + 1
-
-        # Implement #447
-        filename = PixivHelper.make_filename(__config__.filenameFormatFanboxInfo,
-                                             post,
-                                             artistInfo=artist,
-                                             tagsSeparator=__config__.tagsSeparator,
-                                             tagsLimit=__config__.tagsLimit,
-                                             fileUrl="{0}".format(post.imageId),
-                                             bookmark=None,
-                                             searchTags='',
-                                             useTranslatedTag=__config__.useTranslatedTag,
-                                             tagTranslationLocale=__config__.tagTranslationLocale)
-
-        filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-        if __config__.writeImageInfo:
-            post.WriteInfo(filename + ".txt")
-        if __config__.writeHtml:
-            if post.type == "article" or (len(post.images) >= __config__.minImageCountForNonArticle and len(post.body_text) > __config__.minTextLengthForNonArticle):
-                html_template = PixivConstant.HTML_TEMPLATE
-                if os.path.isfile("template.html"):
-                    reader = PixivHelper.open_text_file("template.html")
-                    html_template = reader.read()
-                    reader.close()
-                post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
-    finally:
-        if len(post_files) > 0:
-            __dbManager__.insertPostImages(post_files)
-
-    __dbManager__.updatePostUpdateDate(post.imageId, post.updatedDate)
+    PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, artist)
 
 
 def menu_fanbox_download_by_id(op_is_valid, args):

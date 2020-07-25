@@ -8,8 +8,8 @@ import re
 import socket
 import sys
 import time
-import urllib
 import traceback
+import urllib
 
 import demjson
 import mechanize
@@ -614,22 +614,21 @@ class PixivBrowser(mechanize.Browser):
                     info = json.loads(infoStr)
                     self._put_to_cache(url, info)
             else:
-                PixivHelper.print_and_log('info', 'Using OAuth to retrieve member info for: {0}'.format(member_id))
-                if self._username is None or self._password is None or len(self._username) < 0 or len(
-                        self._password) < 0:
+                PixivHelper.print_and_log('info', f'Using OAuth to retrieve member info for: {member_id}')
+                if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
-                url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(
-                    member_id)
+                url = f'https://app-api.pixiv.net/v1/user/detail?user_id={member_id}'
                 info = self._get_from_cache(url)
                 if info is None:
                     PixivHelper.get_logger().debug("Getting member information: %s", member_id)
                     login_response = self._oauth_manager.login()
                     if login_response.status_code == 200:
                         info = json.loads(login_response.text)
-                        self._config.refresh_token = info["response"]["refresh_token"]
-                        self._config.writeConfig(
-                            path=self._config.configFileLocation)
+                        if self._config.refresh_token != info["response"]["refresh_token"]:
+                            PixivHelper.print_and_log('info', 'OAuth Refresh Token is updated, updating config.ini')
+                            self._config.refresh_token = info["response"]["refresh_token"]
+                            self._config.writeConfig(path=self._config.configFileLocation)
 
                     response = self._oauth_manager.get_user_info(member_id)
                     info = json.loads(response.text)

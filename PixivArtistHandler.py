@@ -9,9 +9,9 @@ from colorama import Fore, Style
 import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
-from PixivException import PixivException
 import PixivHelper
 import PixivImageHandler
+from PixivException import PixivException
 
 
 def process_member(caller,
