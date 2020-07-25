@@ -118,7 +118,8 @@ def process_fanbox_post(caller, config, post, artist):
                                                                          referer,
                                                                          config.overwrite,
                                                                          config.retry,
-                                                                         config.backupOldFile)
+                                                                         config.backupOldFile,
+                                                                         image=post)
                 post_files.append((post.imageId, -1, filename))
                 PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
             else:
@@ -129,7 +130,7 @@ def process_fanbox_post(caller, config, post, artist):
             return
 
         if flag_processed:
-            PixivHelper.print_and_log("info", "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
+            PixivHelper.print_and_log("info", "Skipping post: {0} because it was downloaded before.".format(post.imageId))
             return
 
         if post.images is None or len(post.images) == 0:
@@ -171,7 +172,8 @@ def process_fanbox_post(caller, config, post, artist):
                                                                          referer,
                                                                          False,  # config.overwrite somehow unable to get remote filesize
                                                                          config.retry,
-                                                                         config.backupOldFile)
+                                                                         config.backupOldFile,
+                                                                         image=post)
                 if result == PixivConstant.PIXIVUTIL_ABORTED:
                     raise KeyboardInterrupt()
                 post_files.append((post.imageId, current_page, filename))
