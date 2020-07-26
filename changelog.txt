@@ -1,3 +1,15 @@
+20200726
+- Update #592: dns over socks proxy handling.
+- Merge: Fix shebang of PixivUtil2.py (#739) by RoestVrijStaal
+- Merge: Dockerfile (#740) by DenDen047
+- Merge: Fixed handle tags (#741) by byjtje
+- Fix Issue #743: add error message in config item, add colorama.
+- Implement #718: add ffmpegExt in config.ini to control the file extension.
+- Merge: Update Fanbox Handling (#746) by amatuerCoder
+- Refactor process FANBOX to PixivFanboxHandler
+- Add update check for refresh_token for writing config.ini 
+- Merge: Update PixivFanboxHandler.py (#747) by amatuerCoder
+
 20200712
 - Merge Added a filter for Titles and added a condition to prevent unnecessary blacklist checks (#737) by byjtje.
 - Implement #716: include soundcloud provider support.
