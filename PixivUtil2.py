@@ -17,7 +17,6 @@ from bs4 import BeautifulSoup
 import colorama
 from colorama import Fore, Back, Style
 
-import datetime_z
 import PixivArtistHandler
 import PixivBatchHandler
 import PixivBrowserFactory
@@ -169,6 +168,7 @@ def process_list(list_file_name=None, tags=None):
 
 def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None, title_prefix=""):
     PixivArtistHandler.process_member(sys.modules[__name__],
+                                      __config__,
                                       member_id,
                                       user_dir=user_dir,
                                       page=page,
@@ -180,6 +180,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
 
 def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix="", bookmark_count=-1, image_response_count=-1):
     return PixivImageHandler.process_image(sys.modules[__name__],
+                                           __config__,
                                            artist=artist,
                                            image_id=image_id,
                                            user_dir=user_dir,
@@ -191,8 +192,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
 
 def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
-               start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
-               bookmark_count=None, oldest_first=False, type_mode=None):
+                 start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
+                 bookmark_count=None, oldest_first=False, type_mode=None):
     PixivTagsHandler.process_tags(sys.modules[__name__],
                                   tags,
                                   page=page,
@@ -503,12 +504,12 @@ def process_from_group(group_id, limit=0, process_external=True):
                     print("Image Url   : {0}".format(image_data.imageUrls[0]))
 
                     filename = PixivHelper.make_filename(__config__.filenameFormat,
-                                                        imageInfo=image_data,
-                                                        tagsSeparator=__config__.tagsSeparator,
-                                                        tagsLimit=__config__.tagsLimit,
-                                                        fileUrl=image_data.imageUrls[0],
-                                                        useTranslatedTag=__config__.useTranslatedTag,
-                                                        tagTranslationLocale=__config__.tagTranslationLocale)
+                                                         imageInfo=image_data,
+                                                         tagsSeparator=__config__.tagsSeparator,
+                                                         tagsLimit=__config__.tagsLimit,
+                                                         fileUrl=image_data.imageUrls[0],
+                                                         useTranslatedTag=__config__.useTranslatedTag,
+                                                         tagTranslationLocale=__config__.tagTranslationLocale)
                     filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
@@ -1030,12 +1031,12 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     PixivHelper.print_and_log("info", f"Found {len(ids)} artist(s) in {via_type} list")
     PixivHelper.print_and_log(None, f"{ids}")
 
-    for index, id in enumerate(ids, start=1):
+    for index, artist_id in enumerate(ids, start=1):
         # Issue #567
         try:
-            processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
+            processFanboxArtistById(artist_id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {id} ==> {pex.message}")
+            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist_id} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_post_id(op_is_valid, args):
@@ -1063,10 +1064,10 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
         del post
 
 
-def processFanboxArtistById(id, end_page, title_prefix=""):
+def processFanboxArtistById(artist_id, end_page, title_prefix=""):
     PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
                                                    __config__,
-                                                   id,
+                                                   artist_id,
                                                    end_page,
                                                    title_prefix=title_prefix)
 
@@ -1078,18 +1079,18 @@ def processFanboxPost(post, artist):
 def menu_fanbox_download_by_id(op_is_valid, args):
     __log__.info('Download FANBOX by Artist or Creator ID mode.')
     end_page = 0
-    id = ''
+    artist_id = ''
 
     if op_is_valid and len(args) > 0:
-        id = args[0]
+        artist_id = args[0]
         if len(args) > 1:
             end_page = args[1]
     else:
-        id = input("Artist/Creator ID = ").rstrip("\r")
+        artist_id = input("Artist/Creator ID = ").rstrip("\r")
         end_page = input("Max Page = ").rstrip("\r") or 0
 
     end_page = int(end_page)
-    processFanboxArtistById(id, end_page)
+    processFanboxArtistById(artist_id, end_page)
 
 
 def menu_reload_config():
@@ -1269,7 +1270,7 @@ def doLogin(password, username):
 
 def import_list(list_name='list.txt'):
     list_path = __config__.downloadListDirectory + os.sep + list_name
-    if(os.path.exists(list_path)):
+    if os.path.exists(list_path):
         list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
         __dbManager__.importList(list_txt)
         print("Updated " + str(len(list_txt)) + " items.")
@@ -1397,8 +1398,7 @@ def main():
             PixivHelper.print_and_log('info', msg)
 
         if __config__.dayLastUpdated != 0 and __config__.processFromDb:
-            PixivHelper.print_and_log('info',
-                                    'Only process members where the last update is >= ' + str(__config__.dayLastUpdated) + ' days ago')
+            PixivHelper.print_and_log('info', 'Only process members where the last update is >= ' + str(__config__.dayLastUpdated) + ' days ago')
 
         if __config__.dateDiff > 0:
             PixivHelper.print_and_log('info', 'Only process image where day last updated >= ' + str(__config__.dateDiff))

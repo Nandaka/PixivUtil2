@@ -18,6 +18,7 @@ import PixivDownloadHandler
 
 
 def process_image(caller,
+                  config,
                   artist=None,
                   image_id=None,
                   user_dir='',
@@ -31,7 +32,6 @@ def process_image(caller,
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config = caller.__config__
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier

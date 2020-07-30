@@ -886,16 +886,16 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def deleteFanboxPost(self, id, by):
-        id = int(id)
+    def deleteFanboxPost(self, post_id, by):
+        post_id = int(post_id)
         if by not in ["member_id", "post_id"]:
             return
 
         try:
             c = self.conn.cursor()
             c.execute(f'''DELETE FROM fanbox_post_image WHERE post_id in
-                          (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (id,))
-            c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (id,))
+                          (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (post_id,))
+            c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (post_id,))
             self.conn.commit()
         except BaseException:
             print('Error at deleteFanboxPost():', str(sys.exc_info()))

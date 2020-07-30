@@ -55,10 +55,10 @@ class PixivBrowser(mechanize.Browser):
             if self._config.useProxy:
                 proxy = self._config.proxy
             self.__oauth_manager = PixivOAuth(self._username,
-                                             self._password,
-                                             proxies=proxy,
-                                             refresh_token=self._config.refresh_token,
-                                             validate_ssl=self._config.enableSSLVerification)
+                                              self._password,
+                                              proxies=proxy,
+                                              refresh_token=self._config.refresh_token,
+                                              validate_ssl=self._config.enableSSLVerification)
         return self.__oauth_manager
 
     def _put_to_cache(self, key, item, expiration=3600):
@@ -854,18 +854,18 @@ class PixivBrowser(mechanize.Browser):
         ids = FanboxArtist.parseArtistIds(page=response)
         return ids
 
-    def fanboxGetArtistById(self, id):
+    def fanboxGetArtistById(self, artist_id):
         self.fanbox_is_logged_in()
-        if re.match(r"^\d+$", id):
+        if re.match(r"^\d+$", artist_id):
             id_type = "userId"
         else:
             id_type = "creatorId"
 
-        url = f'https://api.fanbox.cc/creator.get?{id_type}={id}'
+        url = f'https://api.fanbox.cc/creator.get?{id_type}={artist_id}'
         PixivHelper.print_and_log('info', f'Getting artist information from {url}')
         referer = "https://www.fanbox.cc"
         if id_type == "creatorId":
-            referer += f"/@{id}"
+            referer += f"/@{artist_id}"
 
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')

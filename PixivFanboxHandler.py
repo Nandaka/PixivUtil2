@@ -10,21 +10,21 @@ import PixivModelFanbox
 from PixivException import PixivException
 
 
-def process_fanbox_artist_by_id(caller, config, id, end_page, title_prefix=""):
+def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefix=""):
     config.loadConfig(path=caller.configfile)
     br = PixivBrowserFactory.getBrowser()
 
     caller.set_console_title(title_prefix)
     try:
-        artist = br.fanboxGetArtistById(id)
+        artist = br.fanboxGetArtistById(artist_id)
     except PixivException as pex:
-        PixivHelper.print_and_log("error", "Error gettting FANBOX artist by id: {0} ==> {1}".format(id, pex.message))
+        PixivHelper.print_and_log("error", "Error gettting FANBOX artist by id: {0} ==> {1}".format(artist_id, pex.message))
         return
 
     current_page = 1
     next_url = None
     image_count = 1
-    while (True):
+    while True:
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
         caller.set_console_title(f"{title_prefix} FANBOX Artist {artist}, page {current_page}")
         try:
@@ -71,8 +71,7 @@ def process_fanbox_post(caller, config, post, artist):
     config.loadConfig(path=caller.configfile)
     br = PixivBrowserFactory.getBrowser()
 
-    db.insertPost(artist.artistId, post.imageId, post.imageTitle,
-                             post.feeRequired, post.worksDate, post.type)
+    db.insertPost(artist.artistId, post.imageId, post.imageTitle, post.feeRequired, post.worksDate, post.type)
 
     post_files = []
 
