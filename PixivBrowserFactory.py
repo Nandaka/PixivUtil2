@@ -963,7 +963,7 @@ class PixivBrowser(mechanize.Browser):
 
     def sketch_get_post_by_post_id(self, post_id, artist=None):
         # https://sketch.pixiv.net/api/replies/1213195054130835383.json
-        url = f"https://sketch.pixiv.net/api/replies/{post_id}"
+        url = f"https://sketch.pixiv.net/api/replies/{post_id}.json"
         referer = f"https://sketch.pixiv.net/items/{post_id}"
         PixivHelper.get_logger().debug('Getting sketch post detail from %s', url)
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True, referer=referer)

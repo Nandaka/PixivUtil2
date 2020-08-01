@@ -66,9 +66,12 @@ class SketchPost(object):
     tags = None
     imageUrls = []
     imageResizedUrls = []
+    # so far only photo is supported
     imageMode = ""
     worksDate = ""
     worksDateDateTime = None
+    worksUpdateDate = ""
+    worksUpdateDateTime = None
 
     artist = None
     dateFormat = None
@@ -116,12 +119,16 @@ class SketchPost(object):
             self.imageUrls.append(media["photo"]["original"]["url"])
             self.imageResizedUrls.append(media["photo"]["w540"]["url"])
 
-        self.worksDateDateTime = datetime_z.parse_datetime(str(page["updated_at"]))
+        self.worksDateDateTime = datetime_z.parse_datetime(str(page["published_at"]))
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+        self.worksUpdateDateTime = datetime_z.parse_datetime(str(page["updated_at"]))
+        if self._tzInfo is not None:
+            self.worksUpdateDateTime = self.worksUpdateDateTime.astimezone(self._tzInfo)
 
         tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
+        self.worksUpdateDate = self.worksUpdateDateTime.strftime(tempDateFormat)
 
     def __str__(self):
         if self.artist is not None:
