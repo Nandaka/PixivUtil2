@@ -21,6 +21,7 @@ from PixivArtist import PixivArtist
 from PixivException import PixivException
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
+from PixivModelSketch import SketchPost, SketchArtist
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
 
@@ -960,6 +961,50 @@ class PixivBrowser(mechanize.Browser):
         js = demjson.decode(p_response)
         return js
 
+    def sketch_get_post_by_post_id(self, post_id, artist=None):
+        # https://sketch.pixiv.net/api/replies/1213195054130835383.json
+        url = f"https://sketch.pixiv.net/api/replies/{post_id}"
+        referer = f"https://sketch.pixiv.net/items/{post_id}"
+        PixivHelper.get_logger().debug('Getting sketch post detail from %s', url)
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True, referer=referer)
+        self.handleDebugMediumPage(response, post_id)
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        post = SketchPost(post_id, artist, response, _tzInfo, self._config.dateFormat)
+        return post
+
+    def sketch_get_posts_by_artist_id(self, artist_id, max_page=0):
+        # get artist info
+        # https://sketch.pixiv.net/api/users/@camori.json
+        url = f"https://sketch.pixiv.net/api/users/@{artist_id}"
+        referer = f"https://sketch.pixiv.net/@{artist_id}"
+        PixivHelper.get_logger().debug('Getting sketch artist detail from %s', url)
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True, referer=referer)
+        self.handleDebugMediumPage(response, artist_id)
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        artist = SketchArtist(artist_id, response, _tzInfo, self._config.dateFormat)
+
+        # get artists posts
+        current_page = 1
+        while True:
+            # https://sketch.pixiv.net/api/walls/@camori/posts/public.json
+            url_posts = f"https://sketch.pixiv.net/api/walls/@{artist_id}/posts/public.json"
+            if artist.next_page is not None:
+                url_posts = f"https://sketch.pixiv.net{artist.next_page}"
+            PixivHelper.print_and_log("info", f"Getting page {current_page} from {url_posts}")
+            response_post = self.getPixivPage(url_posts, returnParsed=False, enable_cache=True, referer=referer)
+            self.handleDebugMediumPage(response, artist_id)
+            artist.parse_posts(response_post)
+
+            current_page = current_page + 1
+            if max_page != 0 and current_page > max_page:
+                break
+            if artist.next_page is None:
+                break
+
+        return artist
+
 
 def getBrowser(config=None, cookieJar=None):
     global defaultCookieJar
@@ -1135,7 +1180,16 @@ def test():
             for post in posts:
                 print(post)
 
-        testFanbox()
+        def testSketch():
+            # result = b.sketch_get_post_by_post_id("1213195054130835383")
+            # print(result)
+            result2 = b.sketch_get_posts_by_artist_id("camori")
+            print(result2)
+            for post in result2.posts:
+                print(post)
+
+        # testFanbox()
+        testSketch()
         # testSearchTags()
         # testImage()
         # testMember()
