@@ -27,6 +27,7 @@ import PixivFanboxHandler
 import PixivHelper
 import PixivImageHandler
 import PixivModelFanbox
+import PixivSketchHandler
 import PixivTagsHandler
 from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from PixivDBManager import PixivDBManager
@@ -569,8 +570,10 @@ def get_start_and_end_number_from_args(args, offset=0, start_only=False):
 
 
 def menu():
+    PADDING = 40
     set_console_title()
     header()
+    print('--Pixiv'.ljust(PADDING, "-"))
     print('1. Download by member_id')
     print('2. Download by image_id')
     print('3. Download by tags')
@@ -583,14 +586,17 @@ def menu():
     print('10. Download by Tag and Member Id')
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
-    print('------------------------')
+    print('--FANBOX'.ljust(PADDING, "-"))
     print('f1. Download from supporting list (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
     print('f4. Download from following list (FANBOX)')
-    print('------------------------')
+    print('--Sketch'.ljust(PADDING, "-"))
+    print('s1. Download by creator id (Sketch)')
+    print('s2. Download by post id (Sketch)')
+    print('--Batch Download'.ljust(PADDING, "-"))
     print('b. Batch Download from batch_job.json (experimental)')
-    print('------------------------')
+    print('--Others'.ljust(PADDING, "-"))
     print('d. Manage database')
     print('e. Export online bookmark')
     print('m. Export online user bookmark')
@@ -1093,6 +1099,67 @@ def menu_fanbox_download_by_id(op_is_valid, args):
     processFanboxArtistById(artist_id, end_page)
 
 
+def menu_sketch_download_by_artist_id(opisvalid, args):
+    __log__.info('Download Sketch by Artist ID mode.')
+    current_member = 1
+    page = 1
+    end_page = 0
+
+    if opisvalid and len(args) > 0:
+        for member_id in args:
+            try:
+                prefix = "[{0} of {1}] ".format(current_member, len(args))
+                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                         __config__,
+                                                         member_id,
+                                                         page,
+                                                         end_page)
+                current_member = current_member + 1
+            except PixivException as ex:
+                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
+                continue
+    else:
+        member_ids = input('Artist ids: ').rstrip("\r")
+        (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
+
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
+        PixivHelper.print_and_log('info', "Artist IDs: {0}".format(member_ids))
+        for member_id in member_ids:
+            try:
+                prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                         __config__,
+                                                         member_id,
+                                                         page,
+                                                         end_page)
+                current_member = current_member + 1
+            except PixivException as ex:
+                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
+
+
+def menu_sketch_download_by_post_id(opisvalid, args):
+    __log__.info('Download Sketch by Post ID mode.')
+    if opisvalid and len(args) > 0:
+        for image_id in args:
+            try:
+                test_id = int(image_id)
+                PixivSketchHandler.process_sketch_post(sys.modules[__name__],
+                                                        __config__,
+                                                        image_id)
+            except BaseException:
+                PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
+                global ERROR_CODE
+                ERROR_CODE = -1
+                continue
+    else:
+        image_ids = input('Post ids: ').rstrip("\r")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids, sep=" ")
+        for image_id in image_ids:
+            PixivSketchHandler.process_sketch_post(sys.modules[__name__],
+                                                   __config__,
+                                                   image_id)
+
+
 def menu_reload_config():
     __log__.info('Manual Reload Config.')
     __config__.loadConfig(path=configfile)
@@ -1217,6 +1284,10 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_fanbox_download_by_post_id(op_is_valid, args)
             elif selection == 'f4':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWING, args)
+            elif selection == 's1':
+                menu_sketch_download_by_artist_id(op_is_valid, args)
+            elif selection == 's2':
+                menu_sketch_download_by_post_id(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid_local:

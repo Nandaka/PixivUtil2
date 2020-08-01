@@ -27,12 +27,15 @@ class PixivTagData(object):
     def __init__(self, tag, tag_node):
         super().__init__()
         self.tag = tag
-        if "romaji" in tag_node:
-            self.romaji = tag_node["romaji"]
+        if tag_node is not None:
+            if "romaji" in tag_node:
+                self.romaji = tag_node["romaji"]
+            else:
+                self.romaji = tag.lower()
+            if "translation" in tag_node:
+                self.translation_data = tag_node["translation"]
         else:
             self.romaji = tag.lower()
-        if "translation" in tag_node:
-            self.translation_data = tag_node["translation"]
 
     def get_translation(self, locale="en"):
         if self.translation_data is not None:

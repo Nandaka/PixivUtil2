@@ -3,6 +3,7 @@
 import demjson
 
 import datetime_z
+from PixivImage import PixivTagData
 
 
 class SketchArtist(object):
@@ -17,7 +18,6 @@ class SketchArtist(object):
     next_page = None
 
     def __init__(self, artist_id, page, tzInfo=None, dateFormat=None):
-        self.artistId = artist_id
         self.posts = list()
         self.dateFormat = dateFormat
         self._tzInfo = tzInfo
@@ -33,6 +33,7 @@ class SketchArtist(object):
             # from https://sketch.pixiv.net/api/replies/3192562692181961341.json
             root = page["item"]["user"]
 
+        self.artistId = root["id"]
         self.artistName = root["name"]
         self.artistToken = root["unique_name"]
         self.artistAvatar = root["icon"]["photo"]["original"]["url"]
@@ -48,8 +49,9 @@ class SketchArtist(object):
 
         for item in post_json["data"]["items"]:
             post_id = item["id"]
-            post = SketchPost(post_id, self, None, self._tzInfo, self.dateFormat)
+            post = SketchPost(post_id, None, None, self._tzInfo, self.dateFormat)
             post.parse_post(item)
+            post.artist = self
             self.posts.append(post)
 
     def __str__(self):
@@ -60,17 +62,30 @@ class SketchPost(object):
     imageId = 0
     imageTitle = ""
     imageCaption = ""
+    imageTags = None
+    tags = None
     imageUrls = []
     imageResizedUrls = []
     imageMode = ""
     worksDate = ""
     worksDateDateTime = None
 
-    parent = None
+    artist = None
     dateFormat = None
     _tzInfo = None
 
-    def __init__(self, post_id, parent, page, tzInfo=None, dateFormat=None):
+    # not supported
+    originalArtist = None
+    worksResolution = ""
+    worksTools = ""
+    jd_rtv = 0
+    jd_rtc = 0
+    imageCount = 0
+    fromBookmark = False
+    bookmark_count = -1
+    image_response_count = -1
+
+    def __init__(self, post_id, artist, page, tzInfo=None, dateFormat=None):
         self.imageUrls = list()
         self.imageResizedUrls = list()
         self.imageId = int(post_id)
@@ -79,11 +94,11 @@ class SketchPost(object):
 
         if page is not None:
             post_json = demjson.decode(page)
-            if parent is None:
+            if artist is None:
                 artist_id = post_json["data"]["item"]["user"]["id"]
-                self.parent = SketchArtist(artist_id, page, tzInfo, dateFormat)
+                self.artist = SketchArtist(artist_id, page, tzInfo, dateFormat)
             else:
-                self.parent = parent
+                self.artist = artist
             self.parse_post(post_json["data"]["item"])
 
     def parse_post(self, page):
@@ -91,8 +106,10 @@ class SketchPost(object):
         self.imageTitle = page["user"]["name"]
         self.imageCaption = page["text"]
         self.imageTags = list()
+        self.tags = list()
         for tag in page["tags"]:
             self.imageTags.append(tag)
+            self.tags.append(PixivTagData(tag, None))
 
         for media in page["media"]:
             self.imageMode = media["type"]
@@ -107,7 +124,7 @@ class SketchPost(object):
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
     def __str__(self):
-        if self.parent is not None:
-            return f"SketchPost({self.parent}: {self.imageId}, {self.imageTitle}, {self.imageMode}, {self.imageUrls[0]})"
+        if self.artist is not None:
+            return f"SketchPost({self.artist}: {self.imageId}, {self.imageTitle}, {self.imageMode}, {self.imageUrls[0]})"
         else:
             return f"SketchPost({self.imageId}, {self.imageTitle}, {self.imageMode}, {self.imageUrls[0]})"

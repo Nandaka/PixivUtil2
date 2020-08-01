@@ -487,14 +487,16 @@ def have_strings(page, strings):
     return False
 
 
-def get_ids_from_csv(ids_str, sep=','):
+def get_ids_from_csv(ids_str, sep=',', is_string=False):
     ids = list()
     ids_str = str(ids_str).split(sep)
     for id_str in ids_str:
         temp = id_str.strip()
         if len(temp) > 0:
             try:
-                _id = int(temp)
+                _id = temp
+                if not is_string:
+                    _id = int(temp)
                 ids.append(_id)
             except ValueError:
                 print_and_log('error', u"ID: {0} is not valid".format(id_str))
