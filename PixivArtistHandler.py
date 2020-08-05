@@ -4,15 +4,18 @@ import sys
 import time
 import traceback
 
+from colorama import Fore, Style
+
 import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
-from PixivException import PixivException
 import PixivHelper
 import PixivImageHandler
+from PixivException import PixivException
 
 
 def process_member(caller,
+                   config,
                    member_id,
                    user_dir='',
                    page=1,
@@ -25,7 +28,6 @@ def process_member(caller,
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config = caller.__config__
     config.loadConfig(path=caller.configfile)
     np = caller.np
     np_is_valid = caller.np_is_valid
@@ -40,7 +42,7 @@ def process_member(caller,
 
     list_page = None
 
-    msg = f'Processing Member Id: {member_id}'
+    msg = Fore.YELLOW + Style.BRIGHT + f'Processing Member Id: {member_id}' + Style.RESET_ALL
     PixivHelper.print_and_log('info', msg)
     notifier(type="MEMBER", message=msg)
     if page != 1:
@@ -167,6 +169,7 @@ def process_member(caller,
                         title_prefix_img = f"{title_prefix}MemberId: {member_id} Page: {page} Post {no_of_images}+{updated_limit_count} of {total_image_page_count}"
                         if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                             result = PixivImageHandler.process_image(caller,
+                                                                     config,
                                                                      artist,
                                                                      image_id,
                                                                      user_dir,

@@ -25,6 +25,7 @@ pixivutil.log*
 __pycache__/*
 .vscode/*
 .idea/*
+.vs/*
 blacklist_members.txt
 blacklist_tags.txt
 ffmpeg.exe

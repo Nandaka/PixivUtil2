@@ -1,0 +1,128 @@
+{
+    "data": {
+        "id": 711569,
+        "pixiv_user_id": 711569,
+        "unique_name": "camori",
+        "name": "鴨見カモミ@バーチャルアーティスト",
+        "description": "お絵かき楽しす！しながら暮らしているバーチャル世界の絵描きです。がさがさした描線や筆跡が好き。萌黄色が好き。創作/オリジナル好き。よろしくね！\n【🦆YouTubeのカモミチャンネルはこちら🦆】\nhttps://t.co/wcT3HFRhMp",
+        "description_fragments": [{
+                "type": "plain",
+                "body": "お絵かき楽しす！しながら暮らしているバーチャル世界の絵描きです。がさがさした描線や筆跡が好き。萌黄色が好き。創作/オリジナル好き。よろしくね！\n【🦆YouTubeのカモミチャンネルはこちら🦆】\n",
+                "normalized_body": "お絵かき楽しす！しながら暮らしているバーチャル世界の絵描きです。がさがさした描線や筆跡が好き。萌黄色が好き。創作/オリジナル好き。よろしくね！\n【🦆YouTubeのカモミチャンネルはこちら🦆】\n"
+            }, {
+                "type": "url",
+                "body": "https://t.co/wcT3HFRhMp",
+                "normalized_body": "t.co/wcT3HFRhMp"
+            }
+        ],
+        "icon": {
+            "id": 5109135,
+            "type": "photo",
+            "color": {
+                "hex": "ffffff",
+                "r": 255,
+                "g": 255,
+                "b": 255
+            },
+            "photo": {
+                "original": {
+                    "width": 690,
+                    "height": 690,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg"
+                },
+                "sq180": {
+                    "width": 180,
+                    "height": 180,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "pxsq180": {
+                    "width": 180,
+                    "height": 180,
+                    "url": "https://img-sketch.pximg.net/c!/w=180,h=180,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pximg.net/c!/w=360,h=360,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "w540": {
+                    "width": 540,
+                    "height": 540,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg"
+                },
+                "pxw540": {
+                    "width": 540,
+                    "height": 540,
+                    "url": "https://img-sketch.pximg.net/c!/w=540,f=webp:jpeg/uploads/user_icon/file/5109135/6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pximg.net/c!/w=1080,f=webp:jpeg/uploads/user_icon/file/5109135/6527037368216082744.jpg"
+                },
+                "sq60": {
+                    "width": 60,
+                    "height": 60,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "pxsq60": {
+                    "width": 60,
+                    "height": 60,
+                    "url": "https://img-sketch.pximg.net/c!/w=60,h=60,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pximg.net/c!/w=120,h=120,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "sq120": {
+                    "width": 120,
+                    "height": 120,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "pxsq120": {
+                    "width": 120,
+                    "height": 120,
+                    "url": "https://img-sketch.pximg.net/c!/w=120,h=120,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pximg.net/c!/w=240,h=240,f=webp:jpeg/uploads/user_icon/file/5109135/sq240_6527037368216082744.jpg"
+                },
+                "w240": {
+                    "width": 240,
+                    "height": 240,
+                    "url": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pixiv.net/uploads/user_icon/file/5109135/6527037368216082744.jpg"
+                },
+                "pxw240": {
+                    "width": 240,
+                    "height": 240,
+                    "url": "https://img-sketch.pximg.net/c!/w=240,f=webp:jpeg/uploads/user_icon/file/5109135/6527037368216082744.jpg",
+                    "url2x": "https://img-sketch.pximg.net/c!/w=480,f=webp:jpeg/uploads/user_icon/file/5109135/6527037368216082744.jpg"
+                }
+            }
+        },
+        "following": false,
+        "followed": false,
+        "blocking": false,
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "/api/users/711569"
+            }
+        },
+        "social_accounts": {
+            "twitter": {
+                "unique_name": "camomi_camomi",
+                "expired": false,
+                "is_public": true
+            },
+            "pixiv": {
+                "unique_name": "camori",
+                "expired": true,
+                "show_on_pixiv": true
+            }
+        },
+        "stats": {
+            "follower_count": 3943,
+            "following_count": 597,
+            "heart_count": 3257,
+            "resnap_count": 592,
+            "public_post_count": 152
+        }
+    },
+    "errors": [],
+    "_links": {},
+    "rand": "602a3908c030a4f156a45828ca81ab1b"
+}

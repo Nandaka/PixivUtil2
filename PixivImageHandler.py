@@ -7,6 +7,8 @@ import sys
 import traceback
 import urllib
 
+from colorama import Fore, Style
+
 import datetime_z
 import PixivBrowserFactory
 import PixivConstant
@@ -16,6 +18,7 @@ import PixivDownloadHandler
 
 
 def process_image(caller,
+                  config,
                   artist=None,
                   image_id=None,
                   user_dir='',
@@ -29,7 +32,6 @@ def process_image(caller,
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config = caller.__config__
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
@@ -46,7 +48,7 @@ def process_image(caller,
     filename = f'no-filename-{image_id}.tmp'
 
     try:
-        msg = f'Processing Image Id: {image_id}'
+        msg = Fore.YELLOW + Style.NORMAL + f'Processing Image Id: {image_id}' + Style.RESET_ALL
         PixivHelper.print_and_log(None, msg)
         notifier(type="IMAGE", message=msg)
 
@@ -134,7 +136,6 @@ def process_image(caller,
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                     break
-
 
         if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
