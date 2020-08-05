@@ -84,6 +84,7 @@ def handle_members(caller, job, job_name, job_option):
 
     for member_id in member_ids:
         PixivArtistHandler.process_member(caller,
+                                          caller.__config__,
                                           member_id=member_id,
                                           user_dir=job_option.rootDirectory,
                                           page=start_page,
@@ -108,6 +109,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
 
     for image_id in image_ids:
         PixivImageHandler.process_image(caller,
+                                        caller.__config__,
                                         image_id=image_id,
                                         user_dir=job_option.rootDirectory,
                                         title_prefix=job_name,
@@ -219,8 +221,3 @@ def notifier(level, msg, exception=None, newline=True, end=None):
     msg = "{0:5} - {1}".format(level, msg)
     msg = msg.ljust(150)
     print(msg, end='\r')
-
-
-if __name__ == '__main__':
-    import PixivUtil2
-    process_batch_job(PixivUtil2)

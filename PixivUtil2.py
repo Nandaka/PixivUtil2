@@ -14,17 +14,20 @@ import traceback
 from optparse import OptionParser
 
 from bs4 import BeautifulSoup
+import colorama
+from colorama import Fore, Back, Style
 
-import datetime_z
 import PixivArtistHandler
 import PixivBatchHandler
 import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
 import PixivDownloadHandler
+import PixivFanboxHandler
 import PixivHelper
 import PixivImageHandler
 import PixivModelFanbox
+import PixivSketchHandler
 import PixivTagsHandler
 from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from PixivDBManager import PixivDBManager
@@ -33,6 +36,7 @@ from PixivGroup import PixivGroup
 from PixivListItem import PixivListItem
 from PixivTags import PixivTags
 
+colorama.init()
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
 
@@ -165,6 +169,7 @@ def process_list(list_file_name=None, tags=None):
 
 def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None, title_prefix=""):
     PixivArtistHandler.process_member(sys.modules[__name__],
+                                      __config__,
                                       member_id,
                                       user_dir=user_dir,
                                       page=page,
@@ -176,6 +181,7 @@ def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, t
 
 def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix="", bookmark_count=-1, image_response_count=-1):
     return PixivImageHandler.process_image(sys.modules[__name__],
+                                           __config__,
                                            artist=artist,
                                            image_id=image_id,
                                            user_dir=user_dir,
@@ -187,8 +193,8 @@ def process_image(artist=None, image_id=None, user_dir='', bookmark=False, searc
 
 
 def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
-               start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
-               bookmark_count=None, oldest_first=False, type_mode=None):
+                 start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
+                 bookmark_count=None, oldest_first=False, type_mode=None):
     PixivTagsHandler.process_tags(sys.modules[__name__],
                                   tags,
                                   page=page,
@@ -499,12 +505,12 @@ def process_from_group(group_id, limit=0, process_external=True):
                     print("Image Url   : {0}".format(image_data.imageUrls[0]))
 
                     filename = PixivHelper.make_filename(__config__.filenameFormat,
-                                                        imageInfo=image_data,
-                                                        tagsSeparator=__config__.tagsSeparator,
-                                                        tagsLimit=__config__.tagsLimit,
-                                                        fileUrl=image_data.imageUrls[0],
-                                                        useTranslatedTag=__config__.useTranslatedTag,
-                                                        tagTranslationLocale=__config__.tagTranslationLocale)
+                                                         imageInfo=image_data,
+                                                         tagsSeparator=__config__.tagsSeparator,
+                                                         tagsLimit=__config__.tagsLimit,
+                                                         fileUrl=image_data.imageUrls[0],
+                                                         useTranslatedTag=__config__.useTranslatedTag,
+                                                         tagTranslationLocale=__config__.tagTranslationLocale)
                     filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
@@ -526,9 +532,9 @@ def process_from_group(group_id, limit=0, process_external=True):
 
 
 def header():
-    print('PixivDownloader2 version', PixivConstant.PIXIVUTIL_VERSION)
-    print(PixivConstant.PIXIVUTIL_LINK)
-    print('Donate at', PixivConstant.PIXIVUTIL_DONATE)
+    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"PixivDownloader2 version {PixivConstant.PIXIVUTIL_VERSION}" + Style.RESET_ALL)
+    print(Fore.CYAN + Back.BLACK + Style.BRIGHT + PixivConstant.PIXIVUTIL_LINK + Style.RESET_ALL)
+    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"Donate at {Fore.CYAN}{Style.BRIGHT}{PixivConstant.PIXIVUTIL_DONATE}" + Style.RESET_ALL)
 
 
 def get_start_and_end_number_from_args(args, offset=0, start_only=False):
@@ -564,8 +570,10 @@ def get_start_and_end_number_from_args(args, offset=0, start_only=False):
 
 
 def menu():
+    PADDING = 40
     set_console_title()
     header()
+    print('--Pixiv'.ljust(PADDING, "-"))
     print('1. Download by member_id')
     print('2. Download by image_id')
     print('3. Download by tags')
@@ -578,14 +586,17 @@ def menu():
     print('10. Download by Tag and Member Id')
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
-    print('------------------------')
+    print('--FANBOX'.ljust(PADDING, "-"))
     print('f1. Download from supporting list (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
     print('f4. Download from following list (FANBOX)')
-    print('------------------------')
+    print('--Sketch'.ljust(PADDING, "-"))
+    print('s1. Download by creator id (Sketch)')
+    print('s2. Download by post id (Sketch)')
+    print('--Batch Download'.ljust(PADDING, "-"))
     print('b. Batch Download from batch_job.json (experimental)')
-    print('------------------------')
+    print('--Others'.ljust(PADDING, "-"))
     print('d. Manage database')
     print('e. Export online bookmark')
     print('m. Export online user bookmark')
@@ -1026,12 +1037,12 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     PixivHelper.print_and_log("info", f"Found {len(ids)} artist(s) in {via_type} list")
     PixivHelper.print_and_log(None, f"{ids}")
 
-    for index, id in enumerate(ids, start=1):
+    for index, artist_id in enumerate(ids, start=1):
         # Issue #567
         try:
-            processFanboxArtistById(id, end_page, f"{index} of {len(ids)}")
+            processFanboxArtistById(artist_id, end_page, f"{index} of {len(ids)}")
         except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {id} ==> {pex.message}")
+            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist_id} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_post_id(op_is_valid, args):
@@ -1044,204 +1055,109 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
     post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
     for post_id in post_ids:
         post_id = int(post_id)
-        post = __br__.fanboxGetPostById(post_id)
         try:
+            post = __br__.fanboxGetPostById(post_id)
             processFanboxPost(post, post.parent)
+        except KeyboardInterrupt:
+            choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
+            if choice.upper() == 'N':
+                PixivHelper.print_and_log("info", f"Post id: {post_id}, processing aborted")
+                break
+            else:
+                continue
         except PixivException as pex:
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
         del post
 
 
-def processFanboxArtistById(id, end_page, title_prefix=""):
-    __config__.loadConfig(path=configfile)
-    artist = __br__.fanboxGetArtistById(id)
-    current_page = 1
-    next_url = None
-    image_count = 1
-    while (True):
-        PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
-        set_console_title(f"{title_prefix}Artist {artist}, page {current_page}")
-        try:
-            posts = __br__.fanboxGetPostsFromArtist(artist, next_url)
-        except PixivException as pex:
-            print(pex)
-            break
-
-        for post in posts:
-            print("#{0}".format(image_count))
-            post.printPost()
-
-            # images
-            if post.type in PixivModelFanbox.FanboxPost._supportedType:
-                processFanboxPost(post, artist)
-            image_count = image_count + 1
-            PixivHelper.wait(__config__)
-
-        if not artist.hasNextPage:
-            PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
-            break
-        current_page = current_page + 1
-        if end_page > 0 and current_page > end_page:
-            PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist, end_page))
-            break
-        next_url = artist.nextUrl
-        if next_url is None:
-            PixivHelper.print_and_log("info", "No more next page for {0}".format(artist))
-            break
+def processFanboxArtistById(artist_id, end_page, title_prefix=""):
+    PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                   __config__,
+                                                   artist_id,
+                                                   end_page,
+                                                   title_prefix=title_prefix)
 
 
 def processFanboxPost(post, artist):
-    __dbManager__.insertPost(artist.artistId, post.imageId, post.imageTitle,
-                             post.feeRequired, post.worksDate, post.type)
-
-    post_files = []
-
-    flag_processed = False
-    if __config__.checkDBProcessHistory:
-        result = __dbManager__.selectPostByPostId(post.imageId)
-        if result:
-            updated_date = result[5]
-            if updated_date is not None and post.updatedDateDatetime <= datetime_z.parse_datetime(updated_date):
-                flag_processed = True
-
-    try:
-        if not post.is_restricted and not flag_processed:
-            __br__.fanboxUpdatePost(post)
-
-        if ((not post.is_restricted) or __config__.downloadCoverWhenRestricted) and (not flag_processed):
-            # cover image
-            if post.coverImageUrl is not None:
-                # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId),
-                                                            "{0}_".format(post.imageId))
-                filename = PixivHelper.make_filename(__config__.filenameFormatFanboxCover,
-                                                     post,
-                                                     artistInfo=artist,
-                                                     tagsSeparator=__config__.tagsSeparator,
-                                                     tagsLimit=__config__.tagsLimit,
-                                                     fileUrl=fake_image_url,
-                                                     bookmark=None,
-                                                     searchTags='',
-                                                     useTranslatedTag=__config__.useTranslatedTag,
-                                                     tagTranslationLocale=__config__.tagTranslationLocale)
-                filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-                post.linkToFile[post.coverImageUrl] = filename
-
-                print("Downloading cover from {0}".format(post.coverImageUrl))
-                print("Saved to {0}".format(filename))
-
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist.artistId, post.imageId)
-                # don't pass the post id and page number to skip db check
-                (result, filename) = download_image(post.coverImageUrl,
-                                                    filename,
-                                                    referer,
-                                                    __config__.overwrite,
-                                                    __config__.retry,
-                                                    __config__.backupOldFile)
-                post_files.append((post.imageId, -1, filename))
-                PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-            else:
-                PixivHelper.print_and_log("info", "No Cover Image for post: {0}.".format(post.imageId))
-
-        if post.is_restricted:
-            PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
-            return
-
-        if flag_processed:
-            PixivHelper.print_and_log("info", "Skipping post: {0} bacause it was downloaded before.".format(post.imageId))
-            return
-
-        if post.images is None or len(post.images) == 0:
-            PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
-        else:
-            current_page = 0
-            print("Image Count = {0}".format(len(post.images)))
-            for image_url in post.images:
-                # fake the image_url for filename compatibility, add post id and pagenum
-                fake_image_url = image_url.replace("{0}/".format(post.imageId),
-                                                   "{0}_p{1}_".format(post.imageId, current_page))
-                filename = PixivHelper.make_filename(__config__.filenameFormatFanboxContent,
-                                                     post,
-                                                     artistInfo=artist,
-                                                     tagsSeparator=__config__.tagsSeparator,
-                                                     tagsLimit=__config__.tagsLimit,
-                                                     fileUrl=fake_image_url,
-                                                     bookmark=None,
-                                                     searchTags='',
-                                                     useTranslatedTag=__config__.useTranslatedTag,
-                                                     tagTranslationLocale=__config__.tagTranslationLocale)
-
-                filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-
-                post.linkToFile[image_url] = filename
-
-                referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist.artistId, post.imageId)
-
-                print("Downloading image {0} from {1}".format(current_page, image_url))
-                print("Saved to {0}".format(filename))
-
-                # filesize detection and overwrite issue
-                _oldvalue = __config__.alwaysCheckFileSize
-                __config__.alwaysCheckFileSize = False
-                # don't pass the post id and page number to skip db check
-                (result, filename) = download_image(image_url,
-                                                    filename,
-                                                    referer,
-                                                    False,  # __config__.overwrite somehow unable to get remote filesize
-                                                    __config__.retry,
-                                                    __config__.backupOldFile)
-                post_files.append((post.imageId, current_page, filename))
-
-                PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-
-                __config__.alwaysCheckFileSize = _oldvalue
-                current_page = current_page + 1
-
-        # Implement #447
-        filename = PixivHelper.make_filename(__config__.filenameFormatFanboxInfo,
-                                             post,
-                                             artistInfo=artist,
-                                             tagsSeparator=__config__.tagsSeparator,
-                                             tagsLimit=__config__.tagsLimit,
-                                             fileUrl="{0}".format(post.imageId),
-                                             bookmark=None,
-                                             searchTags='',
-                                             useTranslatedTag=__config__.useTranslatedTag,
-                                             tagTranslationLocale=__config__.tagTranslationLocale)
-
-        filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-        if __config__.writeImageInfo:
-            post.WriteInfo(filename + ".txt")
-        if __config__.writeHtml:
-            if post.type == "article" or (len(post.images) >= __config__.minImageCountForNonArticle and len(post.body_text) > __config__.minTextLengthForNonArticle):
-                html_template = PixivConstant.HTML_TEMPLATE
-                if os.path.isfile("template.html"):
-                    reader = PixivHelper.open_text_file("template.html")
-                    html_template = reader.read()
-                    reader.close()
-                post.WriteHtml(html_template, __config__.useAbsolutePathsInHtml, filename + ".html")
-    finally:
-        if len(post_files) > 0:
-            __dbManager__.insertPostImages(post_files)
-
-    __dbManager__.updatePostUpdateDate(post.imageId, post.updatedDate)
+    PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, artist)
 
 
 def menu_fanbox_download_by_id(op_is_valid, args):
     __log__.info('Download FANBOX by Artist or Creator ID mode.')
     end_page = 0
-    id = ''
+    artist_id = ''
 
     if op_is_valid and len(args) > 0:
-        id = args[0]
+        artist_id = args[0]
         if len(args) > 1:
             end_page = args[1]
     else:
-        id = input("Artist/Creator ID = ").rstrip("\r")
+        artist_id = input("Artist/Creator ID = ").rstrip("\r")
         end_page = input("Max Page = ").rstrip("\r") or 0
 
     end_page = int(end_page)
-    processFanboxArtistById(id, end_page)
+    processFanboxArtistById(artist_id, end_page)
+
+
+def menu_sketch_download_by_artist_id(opisvalid, args):
+    __log__.info('Download Sketch by Artist ID mode.')
+    current_member = 1
+    page = 1
+    end_page = 0
+
+    if opisvalid and len(args) > 0:
+        for member_id in args:
+            try:
+                prefix = "[{0} of {1}] ".format(current_member, len(args))
+                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                         __config__,
+                                                         member_id,
+                                                         page,
+                                                         end_page)
+                current_member = current_member + 1
+            except PixivException as ex:
+                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
+                continue
+    else:
+        member_ids = input('Artist ids: ').rstrip("\r")
+        (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
+
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
+        PixivHelper.print_and_log('info', "Artist IDs: {0}".format(member_ids))
+        for member_id in member_ids:
+            try:
+                prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                         __config__,
+                                                         member_id,
+                                                         page,
+                                                         end_page)
+                current_member = current_member + 1
+            except PixivException as ex:
+                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
+
+
+def menu_sketch_download_by_post_id(opisvalid, args):
+    __log__.info('Download Sketch by Post ID mode.')
+    if opisvalid and len(args) > 0:
+        for image_id in args:
+            try:
+                test_id = int(image_id)
+                PixivSketchHandler.process_sketch_post(sys.modules[__name__],
+                                                        __config__,
+                                                        image_id)
+            except BaseException:
+                PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
+                global ERROR_CODE
+                ERROR_CODE = -1
+                continue
+    else:
+        image_ids = input('Post ids: ').rstrip("\r")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids, sep=" ")
+        for image_id in image_ids:
+            PixivSketchHandler.process_sketch_post(sys.modules[__name__],
+                                                   __config__,
+                                                   image_id)
 
 
 def menu_reload_config():
@@ -1368,6 +1284,10 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_fanbox_download_by_post_id(op_is_valid, args)
             elif selection == 'f4':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWING, args)
+            elif selection == 's1':
+                menu_sketch_download_by_artist_id(op_is_valid, args)
+            elif selection == 's2':
+                menu_sketch_download_by_post_id(op_is_valid, args)
             # END PIXIV FANBOX
             elif selection == '-all':
                 if not np_is_valid_local:
@@ -1421,7 +1341,7 @@ def doLogin(password, username):
 
 def import_list(list_name='list.txt'):
     list_path = __config__.downloadListDirectory + os.sep + list_name
-    if(os.path.exists(list_path)):
+    if os.path.exists(list_path):
         list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
         __dbManager__.importList(list_txt)
         print("Updated " + str(len(list_txt)) + " items.")
@@ -1549,8 +1469,7 @@ def main():
             PixivHelper.print_and_log('info', msg)
 
         if __config__.dayLastUpdated != 0 and __config__.processFromDb:
-            PixivHelper.print_and_log('info',
-                                    'Only process members where the last update is >= ' + str(__config__.dayLastUpdated) + ' days ago')
+            PixivHelper.print_and_log('info', 'Only process members where the last update is >= ' + str(__config__.dayLastUpdated) + ' days ago')
 
         if __config__.dateDiff > 0:
             PixivHelper.print_and_log('info', 'Only process image where day last updated >= ' + str(__config__.dateDiff))

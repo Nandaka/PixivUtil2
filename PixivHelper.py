@@ -26,6 +26,7 @@ from pathlib import Path
 import imageio
 import mechanize
 from apng import APNG
+from colorama import Fore, Style
 
 import PixivConstant
 from PixivImage import PixivImage
@@ -459,19 +460,21 @@ def print_and_log(level, msg, exception=None, newline=True, end=None):
     if level == 'debug':
         get_logger().debug(msg)
     else:
-        safePrint(msg, newline, end)
         if level == 'info':
+            safePrint(msg, newline, end)
             get_logger().info(msg)
         elif level == 'warn':
+            safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
             get_logger().warning(msg)
         elif level == 'error':
+            safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
             if exception is None:
                 get_logger().error(msg)
             else:
                 get_logger().error(msg, exception)
             get_logger().error(traceback.format_exc())
         elif level is None:
-            pass
+            safePrint(msg, newline, end)
 
 
 def have_strings(page, strings):
@@ -484,14 +487,16 @@ def have_strings(page, strings):
     return False
 
 
-def get_ids_from_csv(ids_str, sep=','):
+def get_ids_from_csv(ids_str, sep=',', is_string=False):
     ids = list()
     ids_str = str(ids_str).split(sep)
     for id_str in ids_str:
         temp = id_str.strip()
         if len(temp) > 0:
             try:
-                _id = int(temp)
+                _id = temp
+                if not is_string:
+                    _id = int(temp)
                 ids.append(_id)
             except ValueError:
                 print_and_log('error', u"ID: {0} is not valid".format(id_str))

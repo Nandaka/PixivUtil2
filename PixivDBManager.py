@@ -96,9 +96,27 @@ class PixivDBManager(object):
                             post_type TEXT,
                             last_update_date DATE
                             )''')
-            self.conn.commit()
 
             c.execute('''CREATE TABLE IF NOT EXISTS fanbox_post_image (
+                            post_id INTEGER,
+                            page INTEGER,
+                            save_name TEXT,
+                            created_date DATE,
+                            last_update_date DATE,
+                            PRIMARY KEY (post_id, page)
+                            )''')
+            self.conn.commit()
+
+            c.execute('''CREATE TABLE IF NOT EXISTS sketch_master_post (
+                            member_id INTEGER,
+                            post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
+                            title TEXT,
+                            published_date DATE,
+                            updated_date DATE,
+                            post_type TEXT,
+                            last_update_date DATE
+                            )''')
+            c.execute('''CREATE TABLE IF NOT EXISTS sketch_post_image (
                             post_id INTEGER,
                             page INTEGER,
                             save_name TEXT,
@@ -129,9 +147,11 @@ class PixivDBManager(object):
             self.conn.commit()
 
             c.execute('''DROP TABLE IF EXISTS fanbox_master_post''')
+            c.execute('''DROP TABLE IF EXISTS fanbox_post_image''')
             self.conn.commit()
 
-            c.execute('''DROP TABLE IF EXISTS fanbox_post_image''')
+            c.execute('''DROP TABLE IF EXISTS sketch_master_post''')
+            c.execute('''DROP TABLE IF EXISTS sketch_post_image''')
             self.conn.commit()
 
         except BaseException:
@@ -886,16 +906,16 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def deleteFanboxPost(self, id, by):
-        id = int(id)
+    def deleteFanboxPost(self, post_id, by):
+        post_id = int(post_id)
         if by not in ["member_id", "post_id"]:
             return
 
         try:
             c = self.conn.cursor()
             c.execute(f'''DELETE FROM fanbox_post_image WHERE post_id in
-                          (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (id,))
-            c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (id,))
+                          (SELECT post_id FROM fanbox_master_post WHERE {by} = ?)''', (post_id,))
+            c.execute(f'''DELETE FROM fanbox_master_post WHERE {by} = ?''', (post_id,))
             self.conn.commit()
         except BaseException:
             print('Error at deleteFanboxPost():', str(sys.exc_info()))
@@ -982,7 +1002,61 @@ class PixivDBManager(object):
             c.close()
 
 ##########################################
-# VII. Utilities                         #
+# VII. CRUD Sketch post/image table      #
+##########################################
+
+    def insertSketchPost(self, post):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post.imageId)
+            c.execute('''INSERT OR IGNORE INTO sketch_master_post (member_id, post_id) VALUES(?, ?)''',
+                      (post.artist.artistId, post_id))
+            c.execute('''UPDATE sketch_master_post
+                            SET title = ?,
+                                published_date = ?,
+                                post_type = ?,
+                                last_update_date = ?
+                            WHERE post_id = ?''',
+                      (post.imageTitle, post.worksDateDateTime, post.imageMode, post.worksUpdateDateTime, post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertSketchPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertSketchPostImages(self, post_id, page, save_name, created_date, last_update_date):
+        try:
+            c = self.conn.cursor()
+            c.execute('''INSERT OR REPLACE INTO sketch_post_image
+                             VALUES(?, ?, ?, ?, ?)''',
+                      (post_id, page, save_name, created_date, last_update_date))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertSketchPostImages():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectSketchPostByPostId(self, post_id):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''SELECT * FROM sketch_master_post WHERE post_id = ?''',
+                (post_id,))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectSketchPostByPostId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+##########################################
+# VIII. Utilities                        #
 ##########################################
 
     def menu(self):

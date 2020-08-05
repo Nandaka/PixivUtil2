@@ -68,18 +68,18 @@ def process_tags(caller,
         flag = True
         while flag:
             (t, search_page) = PixivBrowserFactory.getBrowser().getSearchTagPage(tags,
-                                                                                i,
-                                                                                wild_card,
-                                                                                title_caption,
-                                                                                start_date,
-                                                                                end_date,
-                                                                                member_id,
-                                                                                oldest_first,
-                                                                                page,
-                                                                                use_bookmark_data,
-                                                                                bookmark_count,
-                                                                                type_mode,
-                                                                                r18mode=format_src.r18mode)
+                                                                                 i,
+                                                                                 wild_card,
+                                                                                 title_caption,
+                                                                                 start_date,
+                                                                                 end_date,
+                                                                                 member_id,
+                                                                                 oldest_first,
+                                                                                 page,
+                                                                                 use_bookmark_data,
+                                                                                 bookmark_count,
+                                                                                 type_mode,
+                                                                                 r18mode=format_src.r18mode)
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log(None, 'No more images')
                 flag = False
@@ -125,6 +125,7 @@ def process_tags(caller,
                             result = PixivConstant.PIXIVUTIL_OK
                             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                                 result = PixivImageHandler.process_image(caller,
+                                                                         config,
                                                                          None,
                                                                          item.imageId,
                                                                          user_dir=format_src.rootDirectory,
