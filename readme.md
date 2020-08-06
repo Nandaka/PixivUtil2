@@ -315,30 +315,36 @@ dateformat   ==> Pixiv DateTime format, leave blank to use default format for
 		 %d = Day, %m = Month, %Y = Year (4 digit), %H = Hour (24h)
 		 %M = Minute, %S = Seconds
 autoAddMember ==> automatically save member id to db for all download.
-
+```
 ## [FANBOX]
-filenameFormatFanboxCover  ==> Similar like filename format, but for FANBOX post over images
-filenameFormatFanboxContent  ==> Similar like filename format, but for files inside FANBOX posts.
-filenameFormatFanboxInfo  ==> Similar like filename format, but for info dumps.
-writeHtml ==> set to `True` to write FANBOX post into HTMLs, `False` to not to, whichever type post.
-	      Uses `filenameformatfanboxinfo` for filename.
-	      Article type FANBOX posts will certainly be written into HTMLs, non-article type
-	      posts use `mintextlengthfornonarticle` and `minimagecountfornonarticle` to control.
-minTextLengthForNonArticle ==> Works with `minimagecountfornonarticle`.
-			       When `writehtml` is set to `True`, a non-article post should contain
-			       text longer than this value to be written into HTML.
-minImageCountForNonArticle ==> Works with `minimagecountfornonarticle`.
-			       When `writehtml` is set to `True`, a non-article post should contain
-			       at least this many files/images to be written into HTML.
-useAbsolutePathsInHtml ==> set to `True` to use absolute paths in HTMLs, `False` to use relative paths.
-downloadCoverWhenRestricted ==> set to `True` to still download FANBOX post cover images
-			        when you don't have access to them
-checkDBProcessHistory ==> Each FANBOX post has a `updated date`, which will be recorded in database
-		          after each post is processed. Set to `True` to check this recorded value in
-		          database. If record does not exist or it's no earlier than the newly retrieved
-		          date, which indicates that the post has not been changed since last time,
-		          this post would be skipped, otherwise it will be processed, and update the
-		          record with new `updated date`.
+```
+filenameFormatFanboxCover   ==> Similar to filename format, but for FANBOX post cover images
+filenameFormatFanboxContent ==> Similar to filename format, but for files inside FANBOX posts.
+filenameFormatFanboxInfo    ==> Similar to filename format, but for info dumps.
+writeHtml                   ==> A switch to decide whether to write FANBOX posts into HTMLs or not.
+                            --> If set to 'True', article type posts will for sure be written
+			        into HTMLs, while non-article type posts are controlled with
+				'minTextLengthForNonArticle' and 'minImageCountForNonArticle'.
+                            --> If set to 'False', no post will be written into HTMLs.
+                            --> 'filenameFormatFanboxInfo' will be used for filename.
+                            --> For HTML format, please refer to 'HTML Format' section
+minTextLengthForNonArticle  ==> Works with 'minImageCountForNonArticle'.
+			        When 'writeHtml' is True, a non-article post should contain
+			        text longer than this value to be written into HTML.
+minImageCountForNonArticle  ==> Works with 'minTextLengthForNonArticle'.
+			        When 'writeHtml' is True, a non-article post should contain
+			        at least this many files/images to be written into HTML.
+useAbsolutePathsInHtml      ==> Set to 'True' to use absolute paths in HTMLs.
+                                Set to 'False' to use relative paths.
+downloadCoverWhenRestricted ==> Set to 'True' to download FANBOX post cover images even if
+                                they are restricted.
+checkDBProcessHistory       ==> Each FANBOX post has a updated_date value, which will be 
+                                recorded/updated in database after it is processed.
+                            --> When set to 'True', the values in database would be checked when
+			        processing each post. If record is no earlier than the newly
+				retrieved date, which means that the post has not been processed 
+				at all or changed since last time, the post would be skipped.
+                            --> When set to 'False', posts will be processed anyways.
 ```
 ## [Network]
 ```
@@ -484,9 +490,9 @@ filenameformat  ==> The format for the filename, reserved/illegal character
                    The filename (+full path) will be trimmed to the first 250
                    character (Windows limitation).
                    Refer to Filename Format Syntax for available format.
-filenamemangaformat ==> Similar like filename format, but for manga pages.
-filenameinfoformat  ==> Similar like filename format, but for info dumps.
-avatarNameFormat    ==> Similar like filename format, but for avatar image.
+filenamemangaformat ==> Similar to filename format, but for manga pages.
+filenameinfoformat  ==> Similar to filename format, but for info dumps.
+avatarNameFormat    ==> Similar to filename format, but for avatar image.
                         Not all format available.
 tagsseparator   ==> Separator for each tag in filename, put %space% for space.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
@@ -498,7 +504,8 @@ urlDumpFilename ==> Define the dump filename, use python strftime() format.
                    Default value is 'url_list_%Y%m%d'
 ```
 # Filename Format Syntax
-Available for filenameFormat, filenameMangaFormat, and avatarNameFormat:
+Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
+filenameFormatFanboxCover, filenameFormatFanboxContent and filenameFormatFanboxInfo:
 ```
 -> %member_token%
    Member token, might change.
@@ -637,7 +644,43 @@ http://www.pixiv.net/member_illust.php?id=123456
 - Save the files with UTF-8 encoding
 
 # blacklist_members.txt Format
-- similar like list.txt, but without custom folder.
+- similar to list.txt, but without custom folder.
+
+# HTML Format
+- A simple default format will be used when no 'template.html' is provided.
+- Urls originally in the post will be overwritten with local paths.
+- Currently available syntaxes are:
+```
+-> %coverImage%
+   A 'div' token with its 'class' set to 'cover', and a child 'img' token with 
+   the url to the cover image as its 'src' attribute.
+-> %coverImageUrl%
+   Simply the url to the cover image in clear text.
+-> %artistName%
+   Same as %artist% in 'Filename Format Syntax' in clear text.
+-> %imageTitle%"
+   Title of the post in clear text.
+-> "%worksDate%"
+   Published date of the post in clear text.
+-> %body_text(article)%
+   This only works if the post is an article type post.
+   A 'div' token with its 'class' set to 'article', and the post's content,
+   which is already formatted HTML if the post is article, as its inner text.
+-> %images(non-article)%
+   This only works if the posts is a none-article type post.
+   A 'div' token with its 'class' set to 'non-article images', and 'a' tokens
+   of all files in the post as its children tokens.
+   For each 'a' token, its 'href' would be url to the file, and the inner text
+   would be an 'img' token with its 'src' set to the url to the file if the
+   file's extension is 'jpg', 'jpeg', 'png' or 'bmp'. Otherwise the inner text
+   would simply be the url to the file.
+-> %text(non-article)%
+   This only works if the posts is a none-article type post.
+   A 'div' token with its 'class' set to 'non-article text' and all paragraphs
+   of text put in 'p' tokens as its children tokens.
+```
+- If there is a 'div' token with 'root' in its 'class' in the template, 'article' or 
+  'non-article' would be appended to its 'class' depending on the type of the post.
 
 # Credits/Contributor
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
