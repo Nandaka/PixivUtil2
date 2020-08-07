@@ -516,7 +516,21 @@ class PixivDBManager(object):
                          WHERE member_id = ?''', (imageId, memberId))
             self.conn.commit()
         except BaseException:
-            print('Error at updateMemberId():', str(sys.exc_info()))
+            print('Error at updateLastDownloadedImage:', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def updateLastDownloadDate(self, memberId):
+        try:
+            c = self.conn.cursor()
+            c.execute("""UPDATE pixiv_master_member
+                         SET last_update_date = datetime('now')
+                         WHERE member_id = :Id""", {"Id":memberId})
+            self.conn.commit()
+        except BaseException:
+            print('Error at updateLastDownloadDate():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
