@@ -197,7 +197,7 @@ def process_member(caller,
                               PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
                               PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
                     updated_limit_count = updated_limit_count + 1
-                    if config.checkUpdatedLimit != 0 and updated_limit_count > config.checkUpdatedLimit:
+                    if config.checkUpdatedLimit != 0 and updated_limit_count >= config.checkUpdatedLimit:
                         PixivHelper.safePrint(f"Skipping tags: {tags}")
                         PixivBrowserFactory.getBrowser(config=config).clear_history()
                         return
