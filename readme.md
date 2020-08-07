@@ -443,6 +443,10 @@ checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
 useblacklisttags==> Skip image if containing blacklisted tags.
                     The list is taken from blacklist_tags.txt, each tags is
                     separated by new line.
+useblacklisttitles==> Skip image if the title contains a blacklisted character sequence.
+                    The list is taken from blacklist_titles.txt, each sequence is
+                    separated by new line.
+useblacklisttitlesregex==> Make the title blacklist check interpret each sequence as a regular expression.
 dateDiff        ==> Process only new images within the given date difference.
                     Set 0 to disable. Skip to next member id if in 'Download
                     by Member', stop processing if in 'Download New Illust' mode.

@@ -1489,6 +1489,10 @@ def main():
             __blacklistTitles = PixivTags.parseTagsList("blacklist_titles.txt")
             PixivHelper.print_and_log('info', 'Using Blacklist Titles: ' + str(len(__blacklistTitles)) + " items.")
 
+        if __config__.useBlacklistTitlesRegex:
+            global __blacklistTitlesRegex
+            __blacklistTitlesRegex = True
+
         if __config__.useSuppressTags:
             global __suppressTags
             __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
