@@ -28,6 +28,9 @@ __pycache__/*
 .vs/*
 blacklist_members.txt
 blacklist_tags.txt
+blacklist_titles.txt
+batch_job.json
+Dump*
 ffmpeg.exe
 ignore_list.txt
 numpy-atlas.dll

@@ -130,12 +130,21 @@ def process_image(caller,
                     break
 
         if config.useBlacklistTitles and download_image_flag:
-            for item in caller.__blacklistTitles:
-                if item in image.imageTitle:
-                    PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted Title: {item}')
-                    download_image_flag = False
-                    result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
-                    break
+            if config.useBlacklistTitlesRegex:
+                for item in caller.__blacklistTitles:
+                    if re.search(rf"{item}", image.imageTitle):
+                        PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because Title matched: {item}')
+                        download_image_flag = False
+                        result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+                        break
+            else:
+                for item in caller.__blacklistTitles:
+                    if item in image.imageTitle:
+                        PixivHelper.print_and_log('info', f'Skipping image_id: {image_id} because contains blacklisted Title: {item}')
+                        download_image_flag = False
+                        result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+                        break
+
 
         if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
