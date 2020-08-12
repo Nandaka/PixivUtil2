@@ -317,7 +317,7 @@ class PixivDBManager(object):
                             'member_id\tname\tsave_folder\tcreated_date\tlast_update_date\tlast_image')
                         i = 0
         except BaseException:
-            print('Error at printList():', str(sys.exc_info()))
+            print('Error at printMemberList():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -463,7 +463,7 @@ class PixivDBManager(object):
             else:
                 return PixivListItem(int(member_id), '')
         except BaseException:
-            print('Error at selectMemberByMemberId():', str(sys.exc_info()))
+            print('Error at selectMemberByMemberId2():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -487,7 +487,7 @@ class PixivDBManager(object):
                             ''', (memberName, memberId))
             self.conn.commit()
         except BaseException:
-            print('Error at updateMemberId():', str(sys.exc_info()))
+            print('Error at updateMemberName():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -516,7 +516,21 @@ class PixivDBManager(object):
                          WHERE member_id = ?''', (imageId, memberId))
             self.conn.commit()
         except BaseException:
-            print('Error at updateMemberId():', str(sys.exc_info()))
+            print('Error at updateLastDownloadedImage:', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def updateLastDownloadDate(self, memberId):
+        try:
+            c = self.conn.cursor()
+            c.execute("""UPDATE pixiv_master_member
+                         SET last_update_date = datetime('now')
+                         WHERE member_id = ?""", (memberId,))
+            self.conn.commit()
+        except BaseException:
+            print('Error at updateLastDownloadDate():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -558,7 +572,7 @@ class PixivDBManager(object):
                          WHERE member_id = ?''', (memberId,))
             self.conn.commit()
         except BaseException:
-            print('Error at setIsDeletedMemberId():', str(sys.exc_info()))
+            print('Error at setIsDeletedFlagForMemberId():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -589,7 +603,7 @@ class PixivDBManager(object):
                           VALUES(?, ?, ?, datetime('now'), datetime('now'))''', manga_files)
             self.conn.commit()
         except BaseException:
-            print('Error at insertMangaImage():', str(sys.exc_info()))
+            print('Error at insertMangaImages():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -603,7 +617,7 @@ class PixivDBManager(object):
                       (ImageId, memberId))
             self.conn.commit()
         except BaseException:
-            print('Error at insertImage():', str(sys.exc_info()))
+            print('Error at blacklistImage():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -616,7 +630,7 @@ class PixivDBManager(object):
                 '''SELECT * FROM pixiv_master_image WHERE member_id = ? ''', (member_id,))
             return c.fetchall()
         except BaseException:
-            print('Error at selectImageByImageId():', str(sys.exc_info()))
+            print('Error at selectImageByMemberId():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -629,7 +643,7 @@ class PixivDBManager(object):
                       WHERE image_id = ? AND save_name != 'N/A' AND member_id = ?''', (image_id, member_id))
             return c.fetchone()
         except BaseException:
-            print('Error at selectImageByImageId():', str(sys.exc_info()))
+            print('Error at selectImageByMemberIdAndImageId():', str(sys.exc_info()))
             print('failed')
             raise
         finally:

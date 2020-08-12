@@ -198,7 +198,8 @@ def process_member(caller,
                               PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
                     updated_limit_count = updated_limit_count + 1
                     if config.checkUpdatedLimit != 0 and updated_limit_count >= config.checkUpdatedLimit:
-                        PixivHelper.safePrint(f"Skipping tags: {tags}")
+                        PixivHelper.safePrint(f"Skipping member: {member_id}")
+                        db.updateLastDownloadDate(member_id)
                         PixivBrowserFactory.getBrowser(config=config).clear_history()
                         return
                     gc.collect()
@@ -214,6 +215,7 @@ def process_member(caller,
                 # return code from process image
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
                     PixivHelper.print_and_log("info", "Reached older images, skippin to next member.")
+                    db.updateLastDownloadDate(member_id)
                     flag = False
                     break
 
@@ -221,6 +223,7 @@ def process_member(caller,
                 PixivHelper.wait(result, config)
 
             if artist.isLastPage:
+                db.updateLastDownloadDate(member_id)
                 PixivHelper.print_and_log(None, "Last Page")
                 flag = False
 
@@ -229,6 +232,7 @@ def process_member(caller,
             # page limit checking
             if end_page > 0 and page > end_page:
                 PixivHelper.print_and_log(None, f"Page limit reached (from endPage limit ={end_page})")
+                db.updateLastDownloadDate(member_id)
                 flag = False
             else:
                 if np_is_valid:  # Yavos: overwriting config-data
