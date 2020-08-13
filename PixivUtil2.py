@@ -1058,6 +1058,7 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
         try:
             post = __br__.fanboxGetPostById(post_id)
             processFanboxPost(post, post.parent)
+            del post
         except KeyboardInterrupt:
             choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
             if choice.upper() == 'N':
@@ -1067,7 +1068,6 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
                 continue
         except PixivException as pex:
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
-        del post
 
 
 def processFanboxArtistById(artist_id, end_page, title_prefix=""):
