@@ -423,7 +423,7 @@ class PixivDBManager(object):
 
             c.execute('''SELECT member_id, save_folder,  (julianday(Date('now')) - julianday(last_update_date)) as diff
                          FROM pixiv_master_member
-                         WHERE is_deleted <> 1 AND ( last_image == -1 OR diff > ? ) ORDER BY member_id''', (int_diff, ))
+                         WHERE is_deleted <> 1 AND ( last_update_date == '1-1-1' OR diff > ? ) ORDER BY member_id''', (int_diff, ))
             result = c.fetchall()
             for row in result:
                 item = PixivListItem(row[0], row[1])
