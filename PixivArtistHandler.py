@@ -147,6 +147,7 @@ def process_member(caller,
 
             if not artist.haveImages:
                 PixivHelper.print_and_log('info', f"No image found for: {member_id}")
+                db.updateLastDownloadDate(member_id)
                 flag = False
                 continue
 
