@@ -340,11 +340,11 @@ downloadCoverWhenRestricted ==> Set to 'True' to download FANBOX post cover imag
                                 they are restricted.
 checkDBProcessHistory       ==> Each FANBOX post has a updated_date value, which will be 
                                 recorded/updated in database after it is processed.
-                            --> When set to 'True', the values in database would be checked when
+                            --> When this is 'True', the values in database would be checked when
 			        processing each post. If record is no earlier than the newly
 				retrieved date, which means that the post has not been processed 
 				at all or changed since last time, the post would be skipped.
-                            --> When set to 'False', posts will be processed anyways.
+                            --> When this is 'False', posts will be processed anyways.
 ```
 ## [Network]
 ```
@@ -667,11 +667,11 @@ http://www.pixiv.net/member_illust.php?id=123456
 -> "%worksDate%"
    Published date of the post in clear text.
 -> %body_text(article)%
-   This only works if the post is an article type post.
+   This works for article type posts only.
    A 'div' token with its 'class' set to 'article', and the post's content,
    which is already formatted HTML if the post is article, as its inner text.
 -> %images(non-article)%
-   This only works if the posts is a none-article type post.
+   This works for none-article type posts only.
    A 'div' token with its 'class' set to 'non-article images', and 'a' tokens
    of all files in the post as its children tokens.
    For each 'a' token, its 'href' would be url to the file, and the inner text
@@ -679,7 +679,7 @@ http://www.pixiv.net/member_illust.php?id=123456
    file's extension is 'jpg', 'jpeg', 'png' or 'bmp'. Otherwise the inner text
    would simply be the url to the file.
 -> %text(non-article)%
-   This only works if the posts is a none-article type post.
+   This works for none-article type posts only.
    A 'div' token with its 'class' set to 'non-article text' and all paragraphs
    of text put in 'p' tokens as its children tokens.
 ```

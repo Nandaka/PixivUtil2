@@ -68,7 +68,7 @@ def process_fanbox_post(caller, config, post, artist):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config.loadConfig(path=caller.configfile)
+    # config.loadConfig(path=caller.configfile)
     br = PixivBrowserFactory.getBrowser()
 
     db.insertPost(artist.artistId, post.imageId, post.imageTitle, post.feeRequired, post.worksDate, post.type)
