@@ -180,6 +180,7 @@ def handle_tags(caller, job, job_name, job_option):
 
 
 def process_batch_job(caller: PixivUtil2):
+    PixivHelper.get_logger().info('Batch Mode from json (b).')
     caller.set_console_title("Batch Menu")
     if os.path.exists(_default_batch_filename):
         jobs_file = open(_default_batch_filename, encoding="utf-8")

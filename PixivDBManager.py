@@ -1102,6 +1102,7 @@ class PixivDBManager(object):
         return selection
 
     def main(self):
+        PixivHelper.get_logger().info('DB Manager (d).')
         try:
             while True:
                 selection = self.menu()

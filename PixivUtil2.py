@@ -143,7 +143,12 @@ def process_list(list_file_name=None, tags=None):
             while True:
                 try:
                     prefix = "[{0} of {1}] ".format(current_member, len(result))
-                    process_member(item.memberId, item.path, tags=tags, title_prefix=prefix)
+                    PixivArtistHandler.process_member(sys.modules[__name__],
+                                                      __config__,
+                                                      item.memberId,
+                                                      user_dir=item.path,
+                                                      tags=tags,
+                                                      title_prefix=prefix)
                     current_member = current_member + 1
                     break
                 except KeyboardInterrupt:
@@ -167,49 +172,6 @@ def process_list(list_file_name=None, tags=None):
         raise
 
 
-def process_member(member_id, user_dir='', page=1, end_page=0, bookmark=False, tags=None, title_prefix=""):
-    PixivArtistHandler.process_member(sys.modules[__name__],
-                                      __config__,
-                                      member_id,
-                                      user_dir=user_dir,
-                                      page=page,
-                                      end_page=end_page,
-                                      bookmark=bookmark,
-                                      tags=tags,
-                                      title_prefix=title_prefix)
-
-
-def process_image(artist=None, image_id=None, user_dir='', bookmark=False, search_tags='', title_prefix="", bookmark_count=-1, image_response_count=-1):
-    return PixivImageHandler.process_image(sys.modules[__name__],
-                                           __config__,
-                                           artist=artist,
-                                           image_id=image_id,
-                                           user_dir=user_dir,
-                                           bookmark=bookmark,
-                                           search_tags=search_tags,
-                                           title_prefix=title_prefix,
-                                           bookmark_count=bookmark_count,
-                                           image_response_count=image_response_count)
-
-
-def process_tags(tags, page=1, end_page=0, wild_card=True, title_caption=False,
-                 start_date=None, end_date=None, use_tags_as_dir=False, member_id=None,
-                 bookmark_count=None, oldest_first=False, type_mode=None):
-    PixivTagsHandler.process_tags(sys.modules[__name__],
-                                  tags,
-                                  page=page,
-                                  end_page=end_page,
-                                  wild_card=wild_card,
-                                  title_caption=title_caption,
-                                  start_date=start_date,
-                                  end_date=end_date,
-                                  use_tags_as_dir=use_tags_as_dir,
-                                  member_id=member_id,
-                                  bookmark_count=bookmark_count,
-                                  oldest_first=oldest_first,
-                                  type_mode=type_mode)
-
-
 def process_tags_list(filename, page=1, end_page=0, wild_card=True,
                       oldest_first=False, bookmark_count=None,
                       start_date=None, end_date=None):
@@ -219,15 +181,16 @@ def process_tags_list(filename, page=1, end_page=0, wild_card=True,
         print("Reading:", filename)
         tags = PixivTags.parseTagsList(filename)
         for tag in tags:
-            process_tags(tag,
-                         page=page,
-                         end_page=end_page,
-                         wild_card=wild_card,
-                         use_tags_as_dir=__config__.useTagsAsDir,
-                         oldest_first=oldest_first,
-                         bookmark_count=bookmark_count,
-                         start_date=start_date,
-                         end_date=end_date)
+            PixivTagsHandler.process_tags(sys.modules[__name__],
+                                          tags,
+                                          page=page,
+                                          end_page=end_page,
+                                          wild_card=wild_card,
+                                          start_date=start_date,
+                                          end_date=end_date,
+                                          use_tags_as_dir=__config__.useTagsAsDir,
+                                          bookmark_count=bookmark_count,
+                                          oldest_first=oldest_first)
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
@@ -256,7 +219,11 @@ def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=None, sorting
         PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
         for item in totalList:
             print("Image #" + str(image_count))
-            result = process_image(artist=None, image_id=item, search_tags=tag)
+            result = PixivImageHandler.process_image(sys.modules[__name__],
+                                                     __config__,
+                                                     artist=None,
+                                                     image_id=item,
+                                                     search_tags=tag)
             image_count = image_count + 1
             PixivHelper.wait(result, __config__)
 
@@ -382,7 +349,11 @@ def process_bookmark(hide='n', start_page=1, end_page=0):
             print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
             i += 1
             prefix = "[{0} of {1}]".format(current_member, len(total_list))
-            process_member(item.memberId, item.path, title_prefix=prefix)
+            PixivArtistHandler.process_member(sys.modules[__name__],
+                                              __config__,
+                                              item.memberId,
+                                              user_dir=item.path,
+                                              title_prefix=prefix)
             current_member = current_member + 1
 
         if len(total_list) > 0:
@@ -436,7 +407,10 @@ def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
 
             for image_id in pb.imageList:
                 print("Image #" + str(image_count))
-                result = process_image(artist=None, image_id=int(image_id))
+                result = PixivImageHandler.process_image(sys.modules[__name__],
+                                                         __config__,
+                                                         artist=None,
+                                                         image_id=int(image_id))
                 image_count = image_count + 1
 
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
@@ -489,7 +463,9 @@ def process_from_group(group_id, limit=0, process_external=True):
                         break
                     print("Image #{0}".format(image_count))
                     print("ImageId: {0}".format(image))
-                    result = process_image(image_id=image)
+                    result = PixivImageHandler.process_image(sys.modules[__name__],
+                                                             __config__,
+                                                             image_id=image)
                     image_count = image_count + 1
                     PixivHelper.wait(result, __config__)
 
@@ -610,7 +586,7 @@ def menu():
 
 
 def menu_download_by_member_id(opisvalid, args):
-    __log__.info('Member id mode.')
+    __log__.info('Member id mode (1).')
     current_member = 1
     page = 1
     end_page = 0
@@ -620,7 +596,10 @@ def menu_download_by_member_id(opisvalid, args):
             try:
                 prefix = "[{0} of {1}] ".format(current_member, len(args))
                 test_id = int(member_id)
-                process_member(test_id, title_prefix=prefix)
+                PixivArtistHandler.process_member(sys.modules[__name__],
+                                                  __config__,
+                                                  test_id,
+                                                  title_prefix=prefix)
                 current_member = current_member + 1
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
@@ -636,14 +615,19 @@ def menu_download_by_member_id(opisvalid, args):
         for member_id in member_ids:
             try:
                 prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
-                process_member(member_id, page=page, end_page=end_page, title_prefix=prefix)
+                PixivArtistHandler.process_member(sys.modules[__name__],
+                                                  __config__,
+                                                  member_id,
+                                                  page=page,
+                                                  end_page=end_page,
+                                                  title_prefix=prefix)
                 current_member = current_member + 1
             except PixivException as ex:
                 print(ex)
 
 
 def menu_download_by_member_bookmark(opisvalid, args):
-    __log__.info('Member Bookmark mode.')
+    __log__.info('Member Bookmark mode (11).')
     page = 1
     end_page = 0
     i = 0
@@ -665,7 +649,14 @@ def menu_download_by_member_bookmark(opisvalid, args):
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
         for mid in valid_ids:
             prefix = "[{0} of {1}] ".format(current_member, len(valid_ids))
-            process_member(mid, bookmark=True, tags=None, title_prefix=prefix)
+            PixivArtistHandler.process_member(sys.modules[__name__],
+                                              __config__,
+                                              mid,
+                                              page=page,
+                                              end_page=end_page,
+                                              bookmark=True,
+                                              tags=None,
+                                              title_prefix=prefix)
             current_member = current_member + 1
 
     else:
@@ -675,16 +666,25 @@ def menu_download_by_member_bookmark(opisvalid, args):
         if __br__._myId == int(member_id):
             PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(member_id))
         else:
-            process_member(member_id.strip(), page=page, end_page=end_page, bookmark=True, tags=tags)
+            PixivArtistHandler.process_member(sys.modules[__name__],
+                                              __config__,
+                                              member_id.strip(),
+                                              page=page,
+                                              end_page=end_page,
+                                              bookmark=True,
+                                              tags=tags)
 
 
 def menu_download_by_image_id(opisvalid, args):
-    __log__.info('Image id mode.')
+    __log__.info('Image id mode (2).')
     if opisvalid and len(args) > 0:
         for image_id in args:
             try:
                 test_id = int(image_id)
-                process_image(None, test_id)
+                PixivImageHandler.process_image(sys.modules[__name__],
+                                                __config__,
+                                                artist=None,
+                                                image_id=test_id)
             except BaseException:
                 PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
                 global ERROR_CODE
@@ -694,11 +694,14 @@ def menu_download_by_image_id(opisvalid, args):
         image_ids = input('Image ids: ').rstrip("\r")
         image_ids = PixivHelper.get_ids_from_csv(image_ids, sep=" ")
         for image_id in image_ids:
-            process_image(None, int(image_id))
+            PixivImageHandler.process_image(sys.modules[__name__],
+                                            __config__,
+                                            artist=None,
+                                            image_id=int(image_id))
 
 
 def menu_download_by_tags(opisvalid, args):
-    __log__.info('tags mode.')
+    __log__.info('Tags mode (3).')
     page = 1
     end_page = 0
     start_date = None
@@ -745,19 +748,21 @@ def menu_download_by_tags(opisvalid, args):
         if len(bookmark_count) > 0:
             bookmark_count = int(bookmark_count)
 
-    process_tags(tags.strip(),
-                 page, end_page,
-                 wildcard,
-                 start_date=start_date,
-                 end_date=end_date,
-                 use_tags_as_dir=__config__.useTagsAsDir,
-                 bookmark_count=bookmark_count,
-                 oldest_first=oldest_first,
-                 type_mode=type_mode)
+    PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  tags.strip(),
+                                  page=page,
+                                  end_page=end_page,
+                                  wild_card=wildcard,
+                                  start_date=start_date,
+                                  end_date=end_date,
+                                  use_tags_as_dir=__config__.useTagsAsDir,
+                                  bookmark_count=bookmark_count,
+                                  oldest_first=oldest_first,
+                                  type_mode=type_mode)
 
 
 def menu_download_by_title_caption(opisvalid, args):
-    __log__.info('Title/Caption mode.')
+    __log__.info('Title/Caption mode (9).')
     page = 1
     end_page = 0
     start_date = None
@@ -770,18 +775,19 @@ def menu_download_by_title_caption(opisvalid, args):
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
-    process_tags(tags.strip(),
-                 page,
-                 end_page,
-                 wild_card=False,
-                 title_caption=True,
-                 start_date=start_date,
-                 end_date=end_date,
-                 use_tags_as_dir=__config__.useTagsAsDir)
+    PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  tags.strip(),
+                                  page=page,
+                                  end_page=end_page,
+                                  wild_card=False,
+                                  title_caption=True,
+                                  start_date=start_date,
+                                  end_date=end_date,
+                                  use_tags_as_dir=__config__.useTagsAsDir)
 
 
 def menu_download_by_tag_and_member_id(opisvalid, args):
-    __log__.info('Tag and MemberId mode.')
+    __log__.info('Tag and MemberId mode (10).')
     member_id = 0
     tags = None
     page = 1
@@ -804,15 +810,16 @@ def menu_download_by_tag_and_member_id(opisvalid, args):
         tags = input('Tag      : ')
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
 
-    process_tags(tags.strip(),
-                 page,
-                 end_page,
-                 member_id=int(member_id),
-                 use_tags_as_dir=__config__.useTagsAsDir)
+    PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  tags.strip(),
+                                  page=page,
+                                  end_page=end_page,
+                                  use_tags_as_dir=__config__.useTagsAsDir,
+                                  member_id=int(member_id))
 
 
 def menu_download_from_list(opisvalid, args):
-    __log__.info('Batch mode.')
+    __log__.info('Batch mode from list (4).')
     global op
     global __config__
 
@@ -838,7 +845,7 @@ def menu_download_from_list(opisvalid, args):
 
 
 def menu_download_from_online_user_bookmark(opisvalid, args):
-    __log__.info('User Bookmarked Artist mode.')
+    __log__.info('User Bookmarked Artist mode (5).')
     start_page = 1
     end_page = 0
     hide = 'n'
@@ -864,7 +871,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args):
 
 
 def menu_download_from_online_image_bookmark(opisvalid, args):
-    __log__.info("User's Image Bookmark mode.")
+    __log__.info("User's Image Bookmark mode (6).")
     start_page = 1
     end_page = 0
     hide = 'n'
@@ -902,7 +909,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
 
 
 def menu_download_from_tags_list(opisvalid, args):
-    __log__.info('Taglist mode.')
+    __log__.info('Taglist mode (7).')
     page = 1
     end_page = 0
     oldest_first = False
@@ -937,7 +944,7 @@ def menu_download_from_tags_list(opisvalid, args):
 
 
 def menu_download_new_illust_from_bookmark(opisvalid, args):
-    __log__.info('New Illust from Bookmark mode.')
+    __log__.info('New Illust from Bookmark mode (8).')
 
     if opisvalid:
         (page_num, end_page_num) = get_start_and_end_number_from_args(args, offset=0)
@@ -948,7 +955,7 @@ def menu_download_new_illust_from_bookmark(opisvalid, args):
 
 
 def menu_download_by_group_id(opisvalid, args):
-    __log__.info('Group mode.')
+    __log__.info('Group mode (12).')
     process_external = False
     limit = 0
 
@@ -969,7 +976,7 @@ def menu_download_by_group_id(opisvalid, args):
 
 
 def menu_export_online_bookmark(opisvalid, args):
-    __log__.info('Export Bookmark mode.')
+    __log__.info('Export Bookmark mode (e).')
     hide = "y"  # y|n|o
     filename = "export.txt"
 
@@ -991,7 +998,7 @@ def menu_export_online_bookmark(opisvalid, args):
 
 
 def menu_export_online_user_bookmark(opisvalid, args):
-    __log__.info('Export Bookmark mode.')
+    __log__.info('Export Bookmark mode (m).')
     member_id = ''
     filename = "export-user.txt"
 
@@ -1021,7 +1028,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     elif via == PixivModelFanbox.FanboxArtist.FOLLOWING:
         via_type = "following"
 
-    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode.')
+    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode (f1/f4).')
     end_page = 0
 
     if op_is_valid and len(args) > 0:
@@ -1040,13 +1047,17 @@ def menu_fanbox_download_from_list(op_is_valid, via, args):
     for index, artist_id in enumerate(ids, start=1):
         # Issue #567
         try:
-            processFanboxArtistById(artist_id, end_page, f"{index} of {len(ids)}")
+            PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                           __config__,
+                                                           artist_id,
+                                                           end_page,
+                                                           title_prefix=f"{index} of {len(ids)}")
         except PixivException as pex:
             PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist_id} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_post_id(op_is_valid, args):
-    __log__.info('Download FANBOX by post id mode.')
+    __log__.info('Download FANBOX by post id mode (f3).')
     if op_is_valid and len(args) > 0:
         post_ids = args
     else:
@@ -1070,20 +1081,12 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
 
 
-def processFanboxArtistById(artist_id, end_page, title_prefix=""):
-    PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
-                                                   __config__,
-                                                   artist_id,
-                                                   end_page,
-                                                   title_prefix=title_prefix)
-
-
 def processFanboxPost(post, artist):
     PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, artist)
 
 
 def menu_fanbox_download_by_id(op_is_valid, args):
-    __log__.info('Download FANBOX by Artist or Creator ID mode.')
+    __log__.info('Download FANBOX by Artist or Creator ID mode (f2).')
     end_page = 0
     artist_id = ''
 
@@ -1096,11 +1099,14 @@ def menu_fanbox_download_by_id(op_is_valid, args):
         end_page = input("Max Page = ").rstrip("\r") or 0
 
     end_page = int(end_page)
-    processFanboxArtistById(artist_id, end_page)
+    PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                   __config__,
+                                                   artist_id,
+                                                   end_page)
 
 
 def menu_sketch_download_by_artist_id(opisvalid, args):
-    __log__.info('Download Sketch by Artist ID mode.')
+    __log__.info('Download Sketch by Artist ID mode (s1).')
     current_member = 1
     page = 1
     end_page = 0
@@ -1138,7 +1144,7 @@ def menu_sketch_download_by_artist_id(opisvalid, args):
 
 
 def menu_sketch_download_by_post_id(opisvalid, args):
-    __log__.info('Download Sketch by Post ID mode.')
+    __log__.info('Download Sketch by Post ID mode (s2).')
     if opisvalid and len(args) > 0:
         for image_id in args:
             try:
@@ -1161,12 +1167,12 @@ def menu_sketch_download_by_post_id(opisvalid, args):
 
 
 def menu_reload_config():
-    __log__.info('Manual Reload Config.')
+    __log__.info('Manual Reload Config (r).')
     __config__.loadConfig(path=configfile)
 
 
 def menu_print_config():
-    __log__.info('Manual Reload Config.')
+    __log__.info('Print Current Config (p).')
     __config__.printConfig()
 
 
@@ -1284,11 +1290,13 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args):
                 menu_fanbox_download_by_post_id(op_is_valid, args)
             elif selection == 'f4':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWING, args)
+            # END PIXIV FANBOX
+            # PIXIV Sketch
             elif selection == 's1':
                 menu_sketch_download_by_artist_id(op_is_valid, args)
             elif selection == 's2':
                 menu_sketch_download_by_post_id(op_is_valid, args)
-            # END PIXIV FANBOX
+            # END PIXIV Sketch
             elif selection == '-all':
                 if not np_is_valid_local:
                     np_is_valid_local = True
@@ -1351,7 +1359,7 @@ def import_list(list_name='list.txt'):
 
 
 def menu_import_list():
-    __log__.info('Import List mode.')
+    __log__.info('Import List mode (i).')
     list_name = input("List filename = ").rstrip("\r")
     if len(list_name) == 0:
         list_name = "list.txt"
