@@ -13,12 +13,12 @@ import time
 import traceback
 from optparse import OptionParser
 
-from bs4 import BeautifulSoup
 import colorama
-from colorama import Fore, Back, Style
+from colorama import Back, Fore, Style
 
 import PixivArtistHandler
 import PixivBatchHandler
+import PixivBookmarkHandler
 import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
@@ -26,14 +26,12 @@ import PixivDownloadHandler
 import PixivFanboxHandler
 import PixivHelper
 import PixivImageHandler
+import PixivListHandler
 import PixivModelFanbox
 import PixivSketchHandler
 import PixivTagsHandler
-from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from PixivDBManager import PixivDBManager
 from PixivException import PixivException
-from PixivGroup import PixivGroup
-from PixivListItem import PixivListItem
 from PixivTags import PixivTags
 
 colorama.init()
@@ -90,421 +88,6 @@ __valid_options = ()
 
 start_iv = False
 dfilename = ""
-
-# http://www.pixiv.net/member_illust.php?mode=medium&illust_id=18830248
-__re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-__re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
-
-
-# -T04------For download file
-def download_image(url, filename, referer, overwrite, max_retry, backup_old_file=False, image=None, page=None):
-    return PixivDownloadHandler.download_image(sys.modules[__name__],
-                                               url,
-                                               filename,
-                                               referer,
-                                               overwrite,
-                                               max_retry,
-                                               backup_old_file=backup_old_file,
-                                               image=image,
-                                               page=page)
-
-
-#  Start of main processing logic
-def process_list(list_file_name=None, tags=None):
-    global ERROR_CODE
-
-    result = None
-    try:
-        # Getting the list
-        if __config__.processFromDb:
-            PixivHelper.print_and_log('info', 'Processing from database.')
-            if __config__.dayLastUpdated == 0:
-                result = __dbManager__.selectAllMember()
-            else:
-                print('Select only last', __config__.dayLastUpdated, 'days.')
-                result = __dbManager__.selectMembersByLastDownloadDate(__config__.dayLastUpdated)
-        else:
-            PixivHelper.print_and_log('info', 'Processing from list file: {0}'.format(list_file_name))
-            result = PixivListItem.parseList(list_file_name, __config__.rootDirectory)
-
-        if os.path.exists("ignore_list.txt"):
-            PixivHelper.print_and_log('info', 'Processing ignore list for member: {0}'.format("ignore_list.txt"))
-            ignore_list = PixivListItem.parseList("ignore_list.txt", __config__.rootDirectory)
-            for ignore in ignore_list:
-                for item in result:
-                    if item.memberId == ignore.memberId:
-                        result.remove(item)
-                        break
-
-        PixivHelper.print_and_log('info', f"Found {len(result)} items.")
-        current_member = 1
-        for item in result:
-            retry_count = 0
-            while True:
-                try:
-                    prefix = "[{0} of {1}] ".format(current_member, len(result))
-                    PixivArtistHandler.process_member(sys.modules[__name__],
-                                                      __config__,
-                                                      item.memberId,
-                                                      user_dir=item.path,
-                                                      tags=tags,
-                                                      title_prefix=prefix)
-                    current_member = current_member + 1
-                    break
-                except KeyboardInterrupt:
-                    raise
-                except BaseException:
-                    if retry_count > __config__.retry:
-                        PixivHelper.print_and_log('error', 'Giving up member_id: ' + str(item.memberId))
-                        break
-                    retry_count = retry_count + 1
-                    print('Something wrong, retrying after 2 second (', retry_count, ')')
-                    time.sleep(2)
-
-            __br__.clear_history()
-            print('done.')
-    except Exception as ex:
-        if isinstance(ex, KeyboardInterrupt):
-            raise
-        ERROR_CODE = getattr(ex, 'errorCode', -1)
-        PixivHelper.print_and_log('error', 'Error at process_list(): {0}'.format(sys.exc_info()))
-        print('Failed')
-        raise
-
-
-def process_tags_list(filename, page=1, end_page=0, wild_card=True,
-                      oldest_first=False, bookmark_count=None,
-                      start_date=None, end_date=None):
-    global ERROR_CODE
-
-    try:
-        print("Reading:", filename)
-        tags = PixivTags.parseTagsList(filename)
-        for tag in tags:
-            PixivTagsHandler.process_tags(sys.modules[__name__],
-                                          tags,
-                                          page=page,
-                                          end_page=end_page,
-                                          wild_card=wild_card,
-                                          start_date=start_date,
-                                          end_date=end_date,
-                                          use_tags_as_dir=__config__.useTagsAsDir,
-                                          bookmark_count=bookmark_count,
-                                          oldest_first=oldest_first)
-    except Exception as ex:
-        if isinstance(ex, KeyboardInterrupt):
-            raise
-        ERROR_CODE = getattr(ex, 'errorCode', -1)
-        PixivHelper.print_and_log('error', 'Error at process_tags_list(): {0}'.format(sys.exc_info()))
-        raise
-
-
-def process_image_bookmark(hide='n', start_page=1, end_page=0, tag=None, sorting=None):
-    global np_is_valid
-    global np
-    try:
-        print("Importing image bookmarks...")
-        totalList = list()
-        image_count = 1
-
-        if hide == 'n':
-            totalList.extend(get_image_bookmark(False, start_page, end_page, tag, sorting))
-        elif hide == 'y':
-            # public and private image bookmarks
-            totalList.extend(get_image_bookmark(False, start_page, end_page, tag, sorting))
-            totalList.extend(get_image_bookmark(True, start_page, end_page, tag, sorting))
-        else:
-            totalList.extend(get_image_bookmark(True, start_page, end_page, tag, sorting))
-
-        PixivHelper.print_and_log('info', "Found " + str(len(totalList)) + " image(s).")
-        for item in totalList:
-            print("Image #" + str(image_count))
-            result = PixivImageHandler.process_image(sys.modules[__name__],
-                                                     __config__,
-                                                     artist=None,
-                                                     image_id=item,
-                                                     search_tags=tag)
-            image_count = image_count + 1
-            PixivHelper.wait(result, __config__)
-
-        print("Done.\n")
-    except KeyboardInterrupt:
-        raise
-    except BaseException:
-        PixivHelper.print_and_log('error', 'Error at process_image_bookmark(): {0}'.format(sys.exc_info()))
-        raise
-
-
-def get_image_bookmark(hide, start_page=1, end_page=0, tag=None, sorting=None):
-    """Get user's image bookmark"""
-    total_list = list()
-    i = start_page
-    offset = 0
-    limit = 48
-    member_id = __br__._myId
-
-    while True:
-        if end_page != 0 and i > end_page:
-            print("Page Limit reached: " + str(end_page))
-            break
-
-        # https://www.pixiv.net/ajax/user/189816/illusts/bookmarks?tag=&offset=0&limit=48&rest=show
-        show = "show"
-        if hide:
-            show = "hide"
-
-        # # Implement #468 default is desc, only for your own bookmark.
-        # not available in current api
-        # if sorting in ('asc', 'date_d', 'date'):
-        #     url = url + "&order=" + sorting
-
-        if tag is not None and len(tag) > 0:
-            tag = PixivHelper.encode_tags(tag)
-        offset = limit * (i - 1)
-        url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tag}&offset={offset}&limit={limit}&rest={show}"
-
-        PixivHelper.print_and_log('info', f"Importing user's bookmarked image from page {i}")
-        PixivHelper.print_and_log('info', f"Source URL: {url}")
-
-        page = __br__.open(url)
-        page_str = page.read().decode('utf8')
-        page.close()
-
-        bookmarks = PixivBookmark.parseImageBookmark(page_str)
-        total_list.extend(bookmarks)
-        if len(bookmarks) == 0:
-            print("No more images.")
-            break
-        else:
-            print(" found " + str(len(bookmarks)) + " images.")
-
-        i = i + 1
-
-        # Issue#569
-        PixivHelper.wait(config=__config__)
-
-    return total_list
-
-
-def get_bookmarks(hide, start_page=1, end_page=0, member_id=None):
-    """Get User's bookmarked artists """
-    total_list = list()
-    i = start_page
-    limit = 24
-    offset = 0
-    is_json = False
-
-    while True:
-        if end_page != 0 and i > end_page:
-            print('Limit reached')
-            break
-        PixivHelper.print_and_log('info', f'Exporting page {i}')
-        if member_id:
-            is_json = True
-            offset = limit * (i - 1)
-            url = f'https://www.pixiv.net/ajax/user/{member_id}/following?offset={offset}&limit={limit}'
-        else:
-            url = f'https://www.pixiv.net/bookmark.php?type=user&p={i}'
-        if hide:
-            url = url + "&rest=hide"
-        else:
-            url = url + "&rest=show"
-
-        PixivHelper.print_and_log('info', f"Source URL: {url}")
-
-        page = __br__.open_with_retry(url)
-        page_str = page.read().decode('utf8')
-        page.close()
-
-        bookmarks = PixivBookmark.parseBookmark(page_str,
-                                                root_directory=__config__.rootDirectory,
-                                                db_path=__config__.dbPath,
-                                                locale=__br__._locale,
-                                                is_json=is_json)
-
-        if len(bookmarks) == 0:
-            print('No more data')
-            break
-        total_list.extend(bookmarks)
-        i = i + 1
-        print(str(len(bookmarks)), 'items')
-        PixivHelper.wait(config=__config__)
-    return total_list
-
-
-def process_bookmark(hide='n', start_page=1, end_page=0):
-    try:
-        total_list = list()
-        print(f"My Member Id = {__br__._myId}")
-        if hide != 'o':
-            print("Importing Bookmarks...")
-            total_list.extend(get_bookmarks(False, start_page, end_page, __br__._myId))
-        if hide != 'n':
-            print("Importing Private Bookmarks...")
-            total_list.extend(get_bookmarks(True, start_page, end_page, __br__._myId))
-        print(f"Result: {str(len(total_list))} items.")
-        i = 0
-        current_member = 1
-        for item in total_list:
-            print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
-            i += 1
-            prefix = "[{0} of {1}]".format(current_member, len(total_list))
-            PixivArtistHandler.process_member(sys.modules[__name__],
-                                              __config__,
-                                              item.memberId,
-                                              user_dir=item.path,
-                                              title_prefix=prefix)
-            current_member = current_member + 1
-
-        if len(total_list) > 0:
-            print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
-        else:
-            print("Cannot find any followed member.")
-    except KeyboardInterrupt:
-        raise
-    except BaseException:
-        PixivHelper.print_and_log('error', 'Error at process_bookmark(): {0}'.format(sys.exc_info()))
-        raise
-
-
-def export_bookmark(filename, hide='n', start_page=1, end_page=0, member_id=None):
-    try:
-        total_list = list()
-        if hide != 'o':
-            print("Importing Bookmarks...")
-            total_list.extend(get_bookmarks(False, start_page, end_page, member_id))
-        if hide != 'n':
-            print("Importing Private Bookmarks...")
-            total_list.extend(get_bookmarks(True, start_page, end_page, member_id))
-        print("Result: ", str(len(total_list)), "items.")
-        PixivBookmark.exportList(total_list, filename)
-    except KeyboardInterrupt:
-        raise
-    except BaseException:
-        PixivHelper.print_and_log('error', 'Error at export_bookmark(): {0}'.format(sys.exc_info()))
-        raise
-
-
-def process_new_illust_from_bookmark(page_num=1, end_page_num=0):
-    try:
-        print("Processing New Illust from bookmark")
-        i = page_num
-        image_count = 1
-        flag = True
-        while flag:
-            print("Page #" + str(i))
-            url = 'https://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
-            if __config__.r18mode:
-                url = 'https://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
-
-            PixivHelper.print_and_log('info', "Source URL: " + url)
-            page = __br__.open(url)
-            parsed_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
-            pb = PixivNewIllustBookmark(parsed_page)
-            if not pb.haveImages:
-                print("No images!")
-                break
-
-            for image_id in pb.imageList:
-                print("Image #" + str(image_count))
-                result = PixivImageHandler.process_image(sys.modules[__name__],
-                                                         __config__,
-                                                         artist=None,
-                                                         image_id=int(image_id))
-                image_count = image_count + 1
-
-                if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
-                    flag = False
-                    break
-
-                PixivHelper.wait(result, __config__)
-            i = i + 1
-
-            page.close()
-            parsed_page.decompose()
-            del parsed_page
-
-            # Non premium is only limited to 100 page
-            # Premium user might be limited to 5000, refer to issue #112
-            if (end_page_num != 0 and i > end_page_num) or i > 5000 or pb.isLastPage:
-                print("Limit or last page reached.")
-                flag = False
-
-        print("Done.")
-    except KeyboardInterrupt:
-        raise
-    except BaseException:
-        PixivHelper.print_and_log('error', 'Error at process_new_illust_from_bookmark(): {0}'.format(sys.exc_info()))
-        raise
-
-
-def process_from_group(group_id, limit=0, process_external=True):
-    try:
-        print("Download by Group Id")
-        if limit != 0:
-            print("Limit: {0}".format(limit))
-        if process_external:
-            print("Include External Image: {0}".format(process_external))
-
-        max_id = 0
-        image_count = 0
-        flag = True
-        while flag:
-            url = "https://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
-            PixivHelper.print_and_log('info', "Getting images from: {0}".format(url))
-            json_response = __br__.open(url)
-            group_data = PixivGroup(json_response)
-            json_response.close()
-            max_id = group_data.maxId
-            if group_data.imageList is not None and len(group_data.imageList) > 0:
-                for image in group_data.imageList:
-                    if image_count > limit and limit != 0:
-                        flag = False
-                        break
-                    print("Image #{0}".format(image_count))
-                    print("ImageId: {0}".format(image))
-                    result = PixivImageHandler.process_image(sys.modules[__name__],
-                                                             __config__,
-                                                             image_id=image)
-                    image_count = image_count + 1
-                    PixivHelper.wait(result, __config__)
-
-            if process_external and group_data.externalImageList is not None and len(group_data.externalImageList) > 0:
-                for image_data in group_data.externalImageList:
-                    if image_count > limit and limit != 0:
-                        flag = False
-                        break
-                    print("Image #{0}".format(image_count))
-                    print("Member Id   : {0}".format(image_data.artist.artistId))
-                    PixivHelper.safePrint("Member Name  : " + image_data.artist.artistName)
-                    print("Member Token : {0}".format(image_data.artist.artistToken))
-                    print("Image Url   : {0}".format(image_data.imageUrls[0]))
-
-                    filename = PixivHelper.make_filename(__config__.filenameFormat,
-                                                         imageInfo=image_data,
-                                                         tagsSeparator=__config__.tagsSeparator,
-                                                         tagsLimit=__config__.tagsLimit,
-                                                         fileUrl=image_data.imageUrls[0],
-                                                         useTranslatedTag=__config__.useTranslatedTag,
-                                                         tagTranslationLocale=__config__.tagTranslationLocale)
-                    filename = PixivHelper.sanitize_filename(filename, __config__.rootDirectory)
-                    PixivHelper.safePrint("Filename  : " + filename)
-                    (result, filename) = download_image(image_data.imageUrls[0], filename, url, __config__.overwrite, __config__.retry, __config__.backupOldFile)
-                    PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
-                    if __config__.setLastModified and filename is not None and os.path.isfile(filename):
-                        ts = time.mktime(image_data.worksDateDateTime.timetuple())
-                        os.utime(filename, (ts, ts))
-
-                    image_count = image_count + 1
-
-            if (group_data.imageList is None or len(group_data.imageList) == 0) and \
-               (group_data.externalImageList is None or len(group_data.externalImageList) == 0):
-                flag = False
-            print("")
-
-    except BaseException:
-        PixivHelper.print_and_log('error', 'Error at process_from_group(): {0}'.format(sys.exc_info()))
-        raise
 
 
 def header():
@@ -836,12 +419,10 @@ def menu_download_from_list(opisvalid, args):
         if len(test_tags) > 0:
             tags = test_tags
 
-    # if tags is not None and len(tags) > 0:
-    #     PixivHelper.safePrint(u"Processing member id from {0} for tags: {1}".format(list_file_name, tags))
-    # else:
-    #     PixivHelper.safePrint("Processing member id from {0}".format(list_file_name))
-
-    process_list(list_file_name, tags)
+    PixivListHandler.process_list(sys.modules[__name__],
+                                  __config__,
+                                  list_file_name,
+                                  tags)
 
 
 def menu_download_from_online_user_bookmark(opisvalid, args):
@@ -867,7 +448,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args):
             print("Invalid args: ", arg)
             return
         (start_page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
-    process_bookmark(hide, start_page, end_page)
+    PixivBookmarkHandler. process_bookmark(sys.modules[__name__], __config__, hide, start_page, end_page)
 
 
 def menu_download_from_online_image_bookmark(opisvalid, args):
@@ -905,7 +486,13 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
         #     print("Invalid sorting order: ", sorting)
         #     return
 
-    process_image_bookmark(hide, start_page, end_page, tag, sorting)
+    PixivBookmarkHandler.process_image_bookmark(sys.modules[__name__],
+                                                __config__,
+                                                hide=hide,
+                                                start_page=start_page,
+                                                end_page=end_page,
+                                                tag=tag,
+                                                sorting=sorting)
 
 
 def menu_download_from_tags_list(opisvalid, args):
@@ -939,8 +526,16 @@ def menu_download_from_tags_list(opisvalid, args):
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
 
-    process_tags_list(filename, page, end_page, wild_card=wildcard, oldest_first=oldest_first,
-                      bookmark_count=bookmark_count, start_date=start_date, end_date=end_date)
+    PixivListHandler.process_tags_list(sys.modules[__name__],
+                                       __config__,
+                                       filename,
+                                       page,
+                                       end_page,
+                                       wild_card=wildcard,
+                                       oldest_first=oldest_first,
+                                       bookmark_count=bookmark_count,
+                                       start_date=start_date,
+                                       end_date=end_date)
 
 
 def menu_download_new_illust_from_bookmark(opisvalid, args):
@@ -951,7 +546,10 @@ def menu_download_new_illust_from_bookmark(opisvalid, args):
     else:
         (page_num, end_page_num) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
 
-    process_new_illust_from_bookmark(page_num, end_page_num)
+    PixivBookmarkHandler.process_new_illust_from_bookmark(sys.modules[__name__],
+                                                          __config__,
+                                                          page_num=page_num,
+                                                          end_page_num=end_page_num)
 
 
 def menu_download_by_group_id(opisvalid, args):
@@ -972,7 +570,11 @@ def menu_download_by_group_id(opisvalid, args):
         if arg == 'y':
             process_external = True
 
-    process_from_group(group_id, limit, process_external)
+    PixivBookmarkHandler.process_from_group(sys.modules[__name__],
+                                            __config__,
+                                            group_id,
+                                            limit=limit,
+                                            process_external=process_external)
 
 
 def menu_export_online_bookmark(opisvalid, args):
@@ -994,7 +596,7 @@ def menu_export_online_bookmark(opisvalid, args):
     else:
         print("Invalid args: ", arg)
 
-    export_bookmark(filename, hide)
+    PixivBookmarkHandler.export_bookmark(sys.modules[__name__], __config__, filename, hide)
 
 
 def menu_export_online_user_bookmark(opisvalid, args):
@@ -1018,7 +620,7 @@ def menu_export_online_user_bookmark(opisvalid, args):
     else:
         print("Invalid args: ", arg)
 
-    export_bookmark(filename, 'n', 1, 0, member_id)
+    PixivBookmarkHandler.export_bookmark(sys.modules[__name__], __config__, filename, 'n', 1, 0, member_id)
 
 
 def menu_fanbox_download_from_list(op_is_valid, via, args):
@@ -1068,7 +670,7 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
         post_id = int(post_id)
         try:
             post = __br__.fanboxGetPostById(post_id)
-            processFanboxPost(post, post.parent)
+            PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, post.parent)
             del post
         except KeyboardInterrupt:
             choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
@@ -1079,10 +681,6 @@ def menu_fanbox_download_by_post_id(op_is_valid, args):
                 continue
         except PixivException as pex:
             PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
-
-
-def processFanboxPost(post, artist):
-    PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, artist)
 
 
 def menu_fanbox_download_by_id(op_is_valid, args):
@@ -1183,7 +781,7 @@ def set_console_title(title=''):
 
 def setup_option_parser():
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'd', 'e', 'm', 'b')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 's1', 's2', 'd', 'e', 'm', 'b')
     parser = OptionParser()
     parser.add_option('-s', '--startaction', dest='startaction',
                       help='''Action you want to load your program with:
@@ -1203,6 +801,8 @@ f1 - Download from supporting list (FANBOX)
 f2 - Download by artist/creator id (FANBOX)
 f3 - Download by post id (FANBOX)
 f4 - Download from following list (FANBOX)
+s1 - Download by creator id (Sketch)')
+s2 - Download by post id (Sketch)')
  b - Batch Download from batch_job.json (experimental)
  e - Export online bookmark
  m - Export online user bookmark
@@ -1347,23 +947,12 @@ def doLogin(password, username):
     return result
 
 
-def import_list(list_name='list.txt'):
-    list_path = __config__.downloadListDirectory + os.sep + list_name
-    if os.path.exists(list_path):
-        list_txt = PixivListItem.parseList(list_path, __config__.rootDirectory)
-        __dbManager__.importList(list_txt)
-        print("Updated " + str(len(list_txt)) + " items.")
-    else:
-        msg = "List file not found: {0}".format(list_path)
-        PixivHelper.print_and_log('warn', msg)
-
-
 def menu_import_list():
     __log__.info('Import List mode (i).')
     list_name = input("List filename = ").rstrip("\r")
     if len(list_name) == 0:
         list_name = "list.txt"
-    import_list(list_name)
+    PixivListHandler.import_list(sys.modules[__name__], __config__, list_name)
 
 
 def main():
@@ -1470,7 +1059,7 @@ def main():
         __dbManager__.createDatabase()
 
         if __config__.useList:
-            import_list('list.txt')
+            PixivListHandler.import_list(sys.modules[__name__], __config__, 'list.txt')
 
         if __config__.overwrite:
             msg = 'Overwrite enabled.'

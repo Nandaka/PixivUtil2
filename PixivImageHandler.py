@@ -12,9 +12,11 @@ from colorama import Fore, Style
 import datetime_z
 import PixivBrowserFactory
 import PixivConstant
-from PixivException import PixivException
-import PixivHelper
 import PixivDownloadHandler
+import PixivHelper
+from PixivException import PixivException
+
+__re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
 
 
 def process_image(caller,
@@ -145,7 +147,6 @@ def process_image(caller,
                         result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                         break
 
-
         if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
             if artist is None:
                 PixivHelper.print_and_log(None, f'Member Name  : {image.artist.artistName}')
@@ -214,7 +215,7 @@ def process_image(caller,
                     filename = PixivHelper.sanitize_filename(filename, target_dir)
 
                     if image.imageMode == 'manga' and config.createMangaDir:
-                        manga_page = caller.__re_manga_page.findall(filename)
+                        manga_page = __re_manga_page.findall(filename)
                         if len(manga_page) > 0:
                             splitted_filename = filename.split(manga_page[0][0], 1)
                             splitted_manga_page = manga_page[0][0].split("_p", 1)
