@@ -19,6 +19,7 @@ import time
 import traceback
 import unicodedata
 import urllib
+import webbrowser
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
@@ -976,10 +977,13 @@ def check_version(br, config=None):
     latest_version_int = int(latest_version_full[0][0])
     curr_version_int = int(re.findall(r"(\d+)", PixivConstant.PIXIVUTIL_VERSION)[0])
     is_beta = True if latest_version_full[0][1].find("beta") >= 0 else False
+    url = "https://github.com/Nandaka/PixivUtil2/releases"
     if latest_version_int > curr_version_int and is_beta:
         print_and_log("info", "New beta version available: {0}".format(latest_version_full[0]))
+        webbrowser.open_new(url)
     elif latest_version_int > curr_version_int:
         print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
+        webbrowser.open_new(url)
 
 
 def decode_tags(tags):
