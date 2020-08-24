@@ -1,3 +1,14 @@
+20200824
+- Implement #650: open default browser to release page if checkNewVersion=True in config.ini
+- Merge: Add run on repl.it badge to README (#770) by cyleja1234
+- Merge: Added date update for artists with no pictures (#766) by byjtje
+- Merge: Switched the check from last image to last downloaded to avoid always checking when it doesn't download any images (#764) by byjtje
+- Merge: Minor changes to PixivFanboxHandler, PixivUtil2, readme (#763) by amatuerCoder
+- Merge: Regex Title Filtering + Date updates and a few minor changes (#759) by byjtje
+- Merge: Update readme.md (#754) by amatuerCoder
+- Merge: proper checkUpdatedLimit check  (#753) by byjtje
+- Implement #749: Pixiv Sketch support.
+
 20200726
 - Update #592: dns over socks proxy handling.
 - Merge: Fix shebang of PixivUtil2.py (#739) by RoestVrijStaal
