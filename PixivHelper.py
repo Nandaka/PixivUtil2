@@ -1072,6 +1072,12 @@ def dummy_notifier(type=None, message=None, **kwargs):
     pass
 
 
+def get_extension_from_url(url):
+    o = urllib.urlparse(url, scheme='', allow_fragments=True)
+    ext = os.path.splitext(o.path)
+    return ext[1]
+
+
 # Issue 420
 class LocalUTCOffsetTimezone(tzinfo):
     def __init__(self, offset=0, name=None):

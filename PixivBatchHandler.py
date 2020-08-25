@@ -22,6 +22,7 @@ class JobOption(object):
     rootDirectory = ""
     useTagsAsDir = False
     r18mode = False
+    extensionFilter = None
 
     def __init__(self, job, _config):
         if _config is None:
@@ -55,6 +56,8 @@ class JobOption(object):
                 self.useTagsAsDir = option_data["useTagsAsDir"]
             if "r18mode" in option_data:
                 self.r18mode = option_data["r18mode"]
+            if "extensionFilter" in option_data:
+                self.extensionFilter = option_data["extensionFilter"]
 
 
 def handle_members(caller, job, job_name, job_option):
