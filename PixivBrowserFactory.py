@@ -517,7 +517,7 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
 
         if self._myId == 0:
-            PixivHelper.print_and_log('error', 'Unable to get User Id.')
+            PixivHelper.print_and_log('error', 'Unable to get User Id, please check your cookie.')
 
         self._isPremium = False
         temp = re.findall(r"pixiv.user.premium = (\w+);", parsed)
