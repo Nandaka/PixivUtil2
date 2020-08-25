@@ -968,6 +968,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.get_logger().debug('Getting sketch post detail from %s', url)
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True, referer=referer)
         self.handleDebugMediumPage(response, post_id)
+        _tzInfo = None
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         post = SketchPost(post_id, artist, response, _tzInfo, self._config.dateFormat)
@@ -981,6 +982,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.get_logger().debug('Getting sketch artist detail from %s', url)
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True, referer=referer)
         self.handleDebugMediumPage(response, artist_id)
+        _tzInfo = None
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         artist = SketchArtist(artist_id, response, _tzInfo, self._config.dateFormat)
