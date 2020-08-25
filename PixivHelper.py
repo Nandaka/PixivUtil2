@@ -677,17 +677,23 @@ def download_image(url, filename, res, file_size, overwrite):
 
 def print_progress(curr, total, max_msg_length=80):
     # [12345678901234567890]
-    # [||||||||------------]
+    # [████████------------]
     animBarLen = 20
 
     if total > 0:
         complete = int((curr * animBarLen) / total)
-        msg = f"\r[{'|' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+        remainder = (((curr * animBarLen) % total) / total)
+        use_half_block = (remainder <= 0.5) and remainder > 0.1
+        if use_half_block:
+            with_half_block = f"{'█' * (complete - 1)}▌"
+            msg = f"\r[{with_half_block:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+        else:
+            msg = f"\r[{'█' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
 
     else:
         # indeterminite
-        pos = curr % (animBarLen + 3)  # 3 corresponds to the length of the '|||' below
-        anim = '.' * animBarLen + '|||' + '.' * animBarLen
+        pos = curr % (animBarLen + 3)  # 3 corresponds to the length of the '███' below
+        anim = '.' * animBarLen + '███' + '.' * animBarLen
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
