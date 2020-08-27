@@ -1,3 +1,10 @@
+20200827-beta1
+- Fix Issue #778: "'list' object has no attribute 'startswith'" process_tags_list().
+- Update #777: add s_tag and date_d param value
+- Fix Issue #772: Pixiv Sketch tz_info
+- Update #768: enhance the error message
+- Implement #726: file extension filter for batch job
+
 20200824
 - Implement #650: open default browser to release page if checkNewVersion=True in config.ini
 - Merge: Add run on repl.it badge to README (#770) by cyleja1234
