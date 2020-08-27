@@ -729,6 +729,7 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
             print_and_log(None, "Using Title Match (s_tc)")
         elif wild_card:
             # partial match
+            search_mode = '&s_mode=s_tag'
             print_and_log(None, "Using Partial Match (s_tag)")
         else:
             search_mode = '&s_mode=s_tag_full'
@@ -746,6 +747,7 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
             type_data = "all"
         type_mode = f"&type={type_data}"
 
+        # https://www.pixiv.net/ajax/search/artworks/k-on?word=k-on&order=date_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=en
         url = f"{root_url}/{tags}?word={tags}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}"
 
     if r18mode:
@@ -753,8 +755,8 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
 
     if oldest_first:
         url = url + '&order=date'
-    # else:
-    #    url = url + '&order=date_d'
+    else:
+        url = url + '&order=date_d'
 
     # encode to ascii
     # url = url.encode('iso_8859_1')
