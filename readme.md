@@ -361,6 +361,7 @@ retrywait      ==> Waiting time for each retry, in seconds.
 downloadDelay  ==> Set random delay up to n seconds for each image post.
                    Set to 0 to disable.
 checkNewVersion==> Set to 'True' to check new releases in github.
+openNewVersion==> Set to 'False' to disable opening new releases in browser.
 enableSSLVerification ==> enable SSL verication, only set to 'False' if you
                           always encounter SSL Error (this disable the security)
 ```
