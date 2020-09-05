@@ -551,22 +551,18 @@ def get_ugoira_size(ugoName):
 
 def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file):
     if not overwrite and int(file_size) == old_size:
-        print_and_log('info', u"\tFile exist! (Identical Size)")
+        print_and_log('warn', f"\tFile exist! (Identical Size) ==> {filename}.")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
-    # elif int(file_size) < old_size:
-    #    printAndLog('info', "\tFile exist! (Local is larger)")
-    #    return PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER
     else:
         if backup_old_file:
             split_name = filename.rsplit(".", 1)
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:
                 new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
-            print_and_log('info', u"\t Found file with different file size, backing up to: " + new_name)
+            print_and_log('warn', f"\t Found file with different file size ==> {filename}, backing up to: {new_name}.")
             os.rename(filename, new_name)
         else:
-            print_and_log('info', u"\tFound file with different file size, removing old file (old: {0} vs new: {1})"
-                          .format(old_size, file_size))
+            print_and_log('warn', f"\tFound file with different file size ==> {filename}, removing old file (old: {old_size} vs new: {file_size})")
             os.remove(filename)
         return PixivConstant.PIXIVUTIL_OK
 
@@ -993,6 +989,7 @@ def check_version(br, config=None):
             print_and_log("info", "New version available: {0}".format(latest_version_full[0]))
         if config.openNewVersion:
             webbrowser.open_new(url)
+
 
 def decode_tags(tags):
     # decode tags.
