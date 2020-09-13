@@ -116,12 +116,12 @@ def process_member(caller,
                 else:
                     target_dir = user_dir
 
-                avatar_filename = PixivHelper.create_avatar_filename(artist, target_dir, format_src)
+                filename = PixivHelper.create_filename(artist, target_dir, format_src)
                 if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                     if artist.artistAvatar.find('no_profile') == -1:
                         PixivDownloadHandler.download_image(caller,
                                                             artist.artistAvatar,
-                                                            avatar_filename,
+                                                            filename[0],
                                                             "https://www.pixiv.net/",
                                                             config.overwrite,
                                                             config.retry,
@@ -129,10 +129,9 @@ def process_member(caller,
                                                             notifier=notifier)
                     # Issue #508
                     if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
-                        bg_name = PixivHelper.create_bg_filename_from_avatar_filename(avatar_filename)
                         PixivDownloadHandler.download_image(caller,
                                                             artist.artistBackground,
-                                                            bg_name,
+                                                            filename[1],
                                                             "https://www.pixiv.net/",
                                                             config.overwrite,
                                                             config.retry,

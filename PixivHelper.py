@@ -340,37 +340,57 @@ def open_text_file(filename, mode='r', encoding='utf-8'):
     return f
 
 
-def create_avatar_filename(artistPage, targetDir, format_src):
-    filename = ''
+def create_filename(artistPage, targetDir, format_src):
+    filename = []
     image = PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
-    if len(format_src.avatarNameFormat) > 0:
-        filenameFormat = format_src.avatarNameFormat
-        filename = make_filename(filenameFormat, image,
+    if format_src.avatarNameFormat != "":
+        tmpfilename = make_filename(format_src.avatarNameFormat, image,
                                  tagsSeparator=_config.tagsSeparator,
                                  tagsLimit=_config.tagsLimit,
                                  fileUrl=artistPage.artistAvatar,
                                  appendExtension=True)
-        filename = sanitize_filename(filename, targetDir)
+        filename.append(sanitize_filename(tmpfilename, targetDir))
     else:
-        # or as folder.jpg
         filenameFormat = format_src.filenameFormat
         if filenameFormat.find(os.sep) == -1:
             filenameFormat = os.sep + filenameFormat
         filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
-        filename = make_filename(filenameFormat, image,
+        tmpfilename = make_filename(filenameFormat, image,
                                  tagsSeparator=_config.tagsSeparator,
                                  tagsLimit=_config.tagsLimit,
                                  fileUrl=artistPage.artistAvatar,
                                  appendExtension=False)
-        filename = sanitize_filename(filename + os.sep + 'folder.jpg', targetDir)
-    return filename
+        filename.append(sanitize_filename(tmpfilename + os.sep + 'folder.' + artistPage.artistAvatar.rsplit(".",1)[1], targetDir))
+    if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
+        tmpfilename = make_filename(format_src.backgroundNameFormat, image,
+                                     tagsSeparator=_config.tagsSeparator,
+                                     tagsLimit=_config.tagsLimit,
+                                     fileUrl=artistPage.artistBackground,
+                                     appendExtension=True)
+        filename.append(sanitize_filename(tmpfilename, targetDir))
 
-
-def create_bg_filename_from_avatar_filename(avatarFilename):
-    filenames = avatarFilename.split(os.sep)
-    filenames[-1] = "bg_" + filenames[-1]
-    filename = os.sep.join(filenames)
+    else:
+        if format_src.avatarNameFormat != "":
+            tmpfilename = make_filename(format_src.avatarNameFormat, image,
+                                        tagsSeparator=_config.tagsSeparator,
+                                        tagsLimit=_config.tagsLimit,
+                                        fileUrl=artistPage.artistBackground,
+                                        appendExtension=True)
+            tmpfilename = tmpfilename.split(os.sep)
+            tmpfilename[-1] = "bg_" + tmpfilename[-1]
+            filename.append(sanitize_filename(os.sep.join(tmpfilename), targetDir))
+        else:
+            filenameFormat = format_src.filenameFormat
+            if filenameFormat.find(os.sep) == -1:
+                filenameFormat = os.sep + filenameFormat
+            filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
+            tmpfilename = make_filename(filenameFormat, image,
+                                        tagsSeparator=_config.tagsSeparator,
+                                        tagsLimit=_config.tagsLimit,
+                                        fileUrl=artistPage.artistBackground,
+                                        appendExtension=False)
+            filename.append(sanitize_filename(tmpfilename + os.sep + 'bg_folder.' + artistPage.artistBackground.rsplit(".",1)[1], targetDir))
     return filename
 
 

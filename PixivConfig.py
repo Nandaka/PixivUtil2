@@ -110,6 +110,7 @@ class PixivConfig():
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "avatarNameFormat", ""),
+        ConfigItem("Filename", "backgroundNameFormat", ""),
         ConfigItem("Filename", "tagsSeparator", ", "),
         ConfigItem("Filename", "createMangaDir", False),
         ConfigItem("Filename", "useTagsAsDir", False),

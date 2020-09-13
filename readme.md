@@ -497,8 +497,10 @@ filenameformat  ==> The format for the filename, reserved/illegal character
                    Refer to Filename Format Syntax for available format.
 filenamemangaformat ==> Similar to filename format, but for manga pages.
 filenameinfoformat  ==> Similar to filename format, but for info dumps.
-avatarNameFormat    ==> Similar to filename format, but for avatar image.
-                        Not all format available.
+avatarNameFormat    ==> Similar to filename format, but for the avatar image.
+                        Not all formats are available.
+backgroundNameFormat    ==> Similar to filename format, but for the background image.
+                        Not all formats are available.
 tagsseparator   ==> Separator for each tag in filename, put %space% for space.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
                    is created by splitting the image_id by '_pxx' pattern.
