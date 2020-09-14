@@ -382,7 +382,7 @@ class PixivBrowser(mechanize.Browser):
                 raise Exception("Not logged in to FANBOX")
 
     def updateFanboxCookie(self):
-        p_req = mechanize.Request("https://www.pixiv.net/fanbox")
+        p_req = mechanize.Request("https://www.fanbox.cc/auth/start")
         p_req.add_header('Accept', 'application/json, text/plain, */*')
         p_req.add_header('Origin', 'https://www.pixiv.net')
         p_req.add_header('User-Agent', self._config.useragent)
