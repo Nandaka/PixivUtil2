@@ -116,7 +116,7 @@ def process_member(caller,
                 else:
                     target_dir = user_dir
 
-                filename = PixivHelper.create_filename(artist, target_dir, format_src)
+                filename = PixivHelper.create_avabg_filename(artist, target_dir, format_src)
                 if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                     if artist.artistAvatar.find('no_profile') == -1:
                         PixivDownloadHandler.download_image(caller,

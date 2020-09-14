@@ -340,7 +340,7 @@ def open_text_file(filename, mode='r', encoding='utf-8'):
     return f
 
 
-def create_filename(artistPage, targetDir, format_src):
+def create_avabg_filename(artistPage, targetDir, format_src):
     filename = []
     image = PixivImage(parent=artistPage)
     # Download avatar using custom name, refer issue #174
