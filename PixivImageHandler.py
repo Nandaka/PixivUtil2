@@ -30,7 +30,8 @@ def process_image(caller,
                   bookmark_count=-1,
                   image_response_count=-1,
                   notifier=None,
-                  job_option=None):
+                  job_option=None,
+                  useblacklist=True):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
@@ -119,35 +120,36 @@ def process_image(caller,
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
-        if config.useBlacklistMembers and download_image_flag:
-            if str(image.originalArtist.artistId) in caller.__blacklistMembers:
-                PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
-                download_image_flag = False
-                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
-
-        if config.useBlacklistTags and download_image_flag:
-            for item in caller.__blacklistTags:
-                if item in image.imageTags:
-                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted tag: {item}')
+        if useblacklist:
+            if config.useBlacklistMembers and download_image_flag:
+                if str(image.originalArtist.artistId) in caller.__blacklistMembers:
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
-                    break
 
-        if config.useBlacklistTitles and download_image_flag:
-            if config.useBlacklistTitlesRegex:
-                for item in caller.__blacklistTitles:
-                    if re.search(rf"{item}", image.imageTitle):
-                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – Title matched: {item}')
+            if config.useBlacklistTags and download_image_flag:
+                for item in caller.__blacklistTags:
+                    if item in image.imageTags:
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted tag: {item}')
                         download_image_flag = False
                         result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                         break
-            else:
-                for item in caller.__blacklistTitles:
-                    if item in image.imageTitle:
-                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – Title contained: {item}')
-                        download_image_flag = False
-                        result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
-                        break
+
+            if config.useBlacklistTitles and download_image_flag:
+                if config.useBlacklistTitlesRegex:
+                    for item in caller.__blacklistTitles:
+                        if re.search(rf"{item}", image.imageTitle):
+                            PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – Title matched: {item}')
+                            download_image_flag = False
+                            result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+                            break
+                else:
+                    for item in caller.__blacklistTitles:
+                        if item in image.imageTitle:
+                            PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – Title contained: {item}')
+                            download_image_flag = False
+                            result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+                            break
 
         # Issue #726
         if extension_filter is not None and len(extension_filter) > 0:
