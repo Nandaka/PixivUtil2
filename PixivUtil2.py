@@ -267,7 +267,8 @@ def menu_download_by_image_id(opisvalid, args):
                 PixivImageHandler.process_image(sys.modules[__name__],
                                                 __config__,
                                                 artist=None,
-                                                image_id=test_id)
+                                                image_id=test_id,
+                                                useblacklist=False)
             except BaseException:
                 PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
                 global ERROR_CODE
@@ -280,7 +281,8 @@ def menu_download_by_image_id(opisvalid, args):
             PixivImageHandler.process_image(sys.modules[__name__],
                                             __config__,
                                             artist=None,
-                                            image_id=int(image_id))
+                                            image_id=int(image_id),
+                                            useblacklist=False)
 
 
 def menu_download_by_tags(opisvalid, args):
