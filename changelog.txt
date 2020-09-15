@@ -1,9 +1,14 @@
-20200827-beta1
+20200915
 - Fix Issue #778: "'list' object has no attribute 'startswith'" process_tags_list().
 - Update #777: add s_tag and date_d param value
 - Fix Issue #772: Pixiv Sketch tz_info
 - Update #768: enhance the error message
 - Implement #726: file extension filter for batch job
+- Merge: Disable blacklist for the download by image id option (#791) by byjtje.
+- Merge: Update PixivBrowserFactory.py (#790) by amatuerCoder.
+- Merge: Fixed avatar/background default file extension and background urlfilename (#789) by byjtje.
+- Implement #782: add filename in the warning message.
+- Merge: Removed unneccessary check from check_version and made the browser opening opt-in (#779) by byjtje.
 
 20200824
 - Implement #650: open default browser to release page if checkNewVersion=True in config.ini
