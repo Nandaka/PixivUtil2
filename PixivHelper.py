@@ -346,7 +346,7 @@ def create_avabg_filename(artistModel, targetDir, format_src):
 
     image = PixivImage(parent=artistModel)
 
-    # Issue #793
+    # Issue #795
     if artistModel.artistAvatar.find('no_profile') == -1:
         # Download avatar using custom name, refer issue #174
         if format_src.avatarNameFormat != "":
