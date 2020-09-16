@@ -116,12 +116,12 @@ def process_member(caller,
                 else:
                     target_dir = user_dir
 
-                filename = PixivHelper.create_avabg_filename(artist, target_dir, format_src)
+                (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, format_src)
                 if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                     if artist.artistAvatar.find('no_profile') == -1:
                         PixivDownloadHandler.download_image(caller,
                                                             artist.artistAvatar,
-                                                            filename[0],
+                                                            filename_avatar,
                                                             "https://www.pixiv.net/",
                                                             config.overwrite,
                                                             config.retry,
@@ -131,13 +131,13 @@ def process_member(caller,
                     if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
                         PixivDownloadHandler.download_image(caller,
                                                             artist.artistBackground,
-                                                            filename[1],
+                                                            filename_bg,
                                                             "https://www.pixiv.net/",
                                                             config.overwrite,
                                                             config.retry,
                                                             config.backupOldFile,
                                                             notifier=notifier)
-                        is_avatar_downloaded = True
+                    is_avatar_downloaded = True
 
             if config.autoAddMember:
                 db.insertNewMember(int(member_id))

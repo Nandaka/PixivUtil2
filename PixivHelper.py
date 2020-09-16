@@ -340,58 +340,70 @@ def open_text_file(filename, mode='r', encoding='utf-8'):
     return f
 
 
-def create_avabg_filename(artistPage, targetDir, format_src):
-    filename = []
-    image = PixivImage(parent=artistPage)
-    # Download avatar using custom name, refer issue #174
-    if format_src.avatarNameFormat != "":
-        tmpfilename = make_filename(format_src.avatarNameFormat, image,
-                                 tagsSeparator=_config.tagsSeparator,
-                                 tagsLimit=_config.tagsLimit,
-                                 fileUrl=artistPage.artistAvatar,
-                                 appendExtension=True)
-        filename.append(sanitize_filename(tmpfilename, targetDir))
-    else:
-        filenameFormat = format_src.filenameFormat
-        if filenameFormat.find(os.sep) == -1:
-            filenameFormat = os.sep + filenameFormat
-        filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
-        tmpfilename = make_filename(filenameFormat, image,
-                                 tagsSeparator=_config.tagsSeparator,
-                                 tagsLimit=_config.tagsLimit,
-                                 fileUrl=artistPage.artistAvatar,
-                                 appendExtension=False)
-        filename.append(sanitize_filename(tmpfilename + os.sep + 'folder.' + artistPage.artistAvatar.rsplit(".",1)[1], targetDir))
-    if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
-        tmpfilename = make_filename(format_src.backgroundNameFormat, image,
-                                     tagsSeparator=_config.tagsSeparator,
-                                     tagsLimit=_config.tagsLimit,
-                                     fileUrl=artistPage.artistBackground,
-                                     appendExtension=True)
-        filename.append(sanitize_filename(tmpfilename, targetDir))
+def create_avabg_filename(artistModel, targetDir, format_src):
+    filename_avatar = ""
+    filename_bg = ""
 
-    else:
+    image = PixivImage(parent=artistModel)
+
+    # Issue #793
+    if artistModel.artistAvatar.find('no_profile') == -1:
+        # Download avatar using custom name, refer issue #174
         if format_src.avatarNameFormat != "":
-            tmpfilename = make_filename(format_src.avatarNameFormat, image,
+            tmpfilename = make_filename(format_src.avatarNameFormat,
+                                        image,
                                         tagsSeparator=_config.tagsSeparator,
                                         tagsLimit=_config.tagsLimit,
-                                        fileUrl=artistPage.artistBackground,
+                                        fileUrl=artistModel.artistAvatar,
                                         appendExtension=True)
-            tmpfilename = tmpfilename.split(os.sep)
-            tmpfilename[-1] = "bg_" + tmpfilename[-1]
-            filename.append(sanitize_filename(os.sep.join(tmpfilename), targetDir))
+            filename_avatar = sanitize_filename(tmpfilename, targetDir)
         else:
             filenameFormat = format_src.filenameFormat
             if filenameFormat.find(os.sep) == -1:
                 filenameFormat = os.sep + filenameFormat
             filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
-            tmpfilename = make_filename(filenameFormat, image,
+            tmpfilename = make_filename(filenameFormat,
+                                        image,
                                         tagsSeparator=_config.tagsSeparator,
                                         tagsLimit=_config.tagsLimit,
-                                        fileUrl=artistPage.artistBackground,
+                                        fileUrl=artistModel.artistAvatar,
                                         appendExtension=False)
-            filename.append(sanitize_filename(tmpfilename + os.sep + 'bg_folder.' + artistPage.artistBackground.rsplit(".",1)[1], targetDir))
-    return filename
+            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
+
+    if artistModel.artistBackground is not None and artistModel.artistBackground.startswith("http"):
+        if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
+            tmpfilename = make_filename(format_src.backgroundNameFormat,
+                                        image,
+                                        tagsSeparator=_config.tagsSeparator,
+                                        tagsLimit=_config.tagsLimit,
+                                        fileUrl=artistModel.artistBackground,
+                                        appendExtension=True)
+            filename_bg = sanitize_filename(tmpfilename, targetDir)
+        else:
+            if format_src.avatarNameFormat != "":
+                tmpfilename = make_filename(format_src.avatarNameFormat,
+                                            image,
+                                            tagsSeparator=_config.tagsSeparator,
+                                            tagsLimit=_config.tagsLimit,
+                                            fileUrl=artistModel.artistBackground,
+                                            appendExtension=True)
+                tmpfilename = tmpfilename.split(os.sep)
+                tmpfilename[-1] = "bg_" + tmpfilename[-1]
+                filename_bg = sanitize_filename(os.sep.join(tmpfilename), targetDir)
+            else:
+                filenameFormat = format_src.filenameFormat
+                if filenameFormat.find(os.sep) == -1:
+                    filenameFormat = os.sep + filenameFormat
+                filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
+                tmpfilename = make_filename(filenameFormat,
+                                            image,
+                                            tagsSeparator=_config.tagsSeparator,
+                                            tagsLimit=_config.tagsLimit,
+                                            fileUrl=artistModel.artistBackground,
+                                            appendExtension=False)
+                filename_bg = sanitize_filename(tmpfilename + os.sep + 'bg_folder.' + artistModel.artistBackground.rsplit(".", 1)[1], targetDir)
+
+    return (filename_avatar, filename_bg)
 
 
 def we_are_frozen():
