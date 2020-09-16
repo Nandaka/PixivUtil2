@@ -55,6 +55,11 @@ class PixivBrowser(mechanize.Browser):
             proxy = None
             if self._config.useProxy:
                 proxy = self._config.proxy
+            if self._config is not None:
+                if self._username is None:
+                    self._username = self._config.username
+                if self._password is None:
+                    self._password = self._config.password
             self.__oauth_manager = PixivOAuth(self._username,
                                               self._password,
                                               proxies=proxy,
@@ -718,8 +723,7 @@ class PixivBrowser(mechanize.Browser):
 
             PixivHelper.get_logger().debug(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
-            artist.reference_image_id = artist.imageList[0] if len(
-                artist.imageList) > 0 else 0
+            artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
             if artist.haveImages and need_to_slice:

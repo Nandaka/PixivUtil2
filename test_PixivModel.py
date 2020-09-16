@@ -525,7 +525,7 @@ class TestPixivTags(unittest.TestCase):
 
         self.assertEqual(len(image.itemList), 60)
         self.assertEqual(image.isLastPage, False)
-        self.assertEqual(image.availableImages, 2269)
+        self.assertEqual(image.availableImages, 2292)
 
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
@@ -547,14 +547,14 @@ class TestPixivTags(unittest.TestCase):
         p = open(path, 'r', encoding="utf-8")
         response = p.read()
         tags = ''
-        current_page = 49
+        current_page = 51
 
         image = PixivTags()
         image.parseTags(response, tags, current_page)
 
         print(image.itemList[-1])
         self.assertEqual(image.isLastPage, True)
-        self.assertEqual(image.itemList[-1].imageId, 544700)
+        self.assertEqual(image.itemList[-1].imageId, 740933)
 
     # search.php?s_mode=s_tag&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9
     def testTagsSearchPartial(self):
