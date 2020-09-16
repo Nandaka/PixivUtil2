@@ -26,7 +26,7 @@ from pathlib import Path
 
 import imageio
 import mechanize
-from apng import APNG
+# from apng import APNG
 from colorama import Fore, Style
 
 import PixivConstant
@@ -854,38 +854,47 @@ def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif', image=None):
 
 def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
     print_and_log('info', 'processing ugoira to apng...')
-    temp_folder = tempfile.mkdtemp()
-    temp_name = temp_folder + os.sep + "temp.png"
+    # fix #796 convert apng using ffmpeg
+    ugoira2webm(ugoira_file,
+                exportname,
+                delete_ugoira,
+                ffmpeg=_config.ffmpeg,
+                codec="apng",
+                param="-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0",
+                extension="apng",
+                image=image)
+    # temp_folder = tempfile.mkdtemp()
+    # temp_name = temp_folder + os.sep + "temp.png"
 
-    with zipfile.ZipFile(ugoira_file) as f:
-        f.extractall(temp_folder)
+    # with zipfile.ZipFile(ugoira_file) as f:
+    #     f.extractall(temp_folder)
 
-    filenames = os.listdir(temp_folder)
-    filenames.remove('animation.json')
-    anim_info = json.load(open(temp_folder + '/animation.json'))
+    # filenames = os.listdir(temp_folder)
+    # filenames.remove('animation.json')
+    # anim_info = json.load(open(temp_folder + '/animation.json'))
 
-    files = []
-    for info in anim_info["frames"]:
-        fImage = temp_folder + os.sep + info["file"]
-        delay = info["delay"]
-        files.append((fImage, delay))
+    # files = []
+    # for info in anim_info["frames"]:
+    #     fImage = temp_folder + os.sep + info["file"]
+    #     delay = info["delay"]
+    #     files.append((fImage, delay))
 
-    im = APNG()
-    for fImage, delay in files:
-        im.append_file(fImage, delay=delay)
-    im.save(temp_name)
-    shutil.move(temp_name, exportname)
-    print_and_log('info', 'ugoira exported to: ' + exportname)
+    # im = APNG()
+    # for fImage, delay in files:
+    #     im.append_file(fImage, delay=delay)
+    # im.save(temp_name)
+    # shutil.move(temp_name, exportname)
+    # print_and_log('info', 'ugoira exported to: ' + exportname)
 
-    shutil.rmtree(temp_folder)
-    if delete_ugoira:
-        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
-        os.remove(ugoira_file)
+    # shutil.rmtree(temp_folder)
+    # if delete_ugoira:
+    #     print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+    #     os.remove(ugoira_file)
 
-    # set last-modified and last-accessed timestamp
-    if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
-        ts = time.mktime(image.worksDateDateTime.timetuple())
-        os.utime(exportname, (ts, ts))
+    # # set last-modified and last-accessed timestamp
+    # if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
+    #     ts = time.mktime(image.worksDateDateTime.timetuple())
+    #     os.utime(exportname, (ts, ts))
 
 
 def ugoira2webm(ugoira_file,
