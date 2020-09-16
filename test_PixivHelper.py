@@ -172,6 +172,7 @@ class TestPixivHelper(unittest.TestCase):
 
         filename = PixivHelper.create_avabg_filename(artist, targetDir, _config)
         self.assertEqual(filename[0], self.currPath + os.sep + u'folder.png')
+        self.assertEqual(filename[1], self.currPath + os.sep + u'bg_folder.jpg')
 
     def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
         p = open('./test/all-14095911.json', 'r')

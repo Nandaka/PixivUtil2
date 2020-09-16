@@ -91,11 +91,14 @@ class PixivArtist:
                     if avatar_data is not None and "medium" in avatar_data:
                         self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
-                if "profile" in page and self.totalImages == 0:
-                    if bookmark:
-                        self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
-                    else:
-                        self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+                if "profile" in page:
+                    if self.totalImages == 0:
+                        if bookmark:
+                            self.totalImages = int(page["profile"]["total_illust_bookmarks_public"])
+                        else:
+                            self.totalImages = int(page["profile"]["total_illusts"]) + int(page["profile"]["total_manga"])
+                    if "background_image_url" in page["profile"] and page["profile"]["background_image_url"] is not None and page["profile"]["background_image_url"].startswith("http"):
+                        self.artistBackground = page["profile"]["background_image_url"]
 
     def ParseInfoFromImage(self, page):
         key = list(page["user"].keys())[0]
@@ -116,7 +119,7 @@ class PixivArtist:
                 break
 
     def ParseBackground(self, payload):
-        self.artistBackground = "no_background"
+        # self.artistBackground = "no_background"
 
         # https://www.pixiv.net/ajax/user/8021957
         if "body" in payload:

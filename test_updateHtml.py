@@ -70,6 +70,9 @@ def main():
     result = prepare()
     print(result)
     if result:
+        downloadPage('https://www.pixiv.net/ajax/user/14095911/profile/all', './test/all-14095911.json')
+        downloadMemberIdUsingOauth(14095911, './test/userdetail-14095911.json')
+
         # ./test/test-image-manga.htm
         # https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443
         downloadPage('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=28820443', './test/test-image-manga.htm')
