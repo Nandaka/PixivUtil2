@@ -173,8 +173,15 @@ def menu_download_by_member_id(opisvalid, args):
     current_member = 1
     page = 1
     end_page = 0
+    include_sketch = False
 
     if opisvalid and len(args) > 0:
+        # first argument is either y/n followed by member ids.
+        include_sketch = args[0].lower()
+        if include_sketch == 'y' or include_sketch == 'n':
+            include_sketch = True if include_sketch == 'y' else False
+            args = args[1:]
+
         for member_id in args:
             try:
                 prefix = "[{0} of {1}] ".format(current_member, len(args))
@@ -192,6 +199,9 @@ def menu_download_by_member_id(opisvalid, args):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
+        include_sketch = input('Include Pixiv Sketch [y/n]?') or 'n'
+        if include_sketch.lower() == 'y':
+            include_sketch = True
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
@@ -204,6 +214,15 @@ def menu_download_by_member_id(opisvalid, args):
                                                   page=page,
                                                   end_page=end_page,
                                                   title_prefix=prefix)
+                # Issue #793
+                if include_sketch:
+                    prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                    PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                              __config__,
+                                                              member_id,
+                                                              page,
+                                                              end_page)
+
                 current_member = current_member + 1
             except PixivException as ex:
                 print(ex)
