@@ -190,6 +190,18 @@ def menu_download_by_member_id(opisvalid, args):
                                                   __config__,
                                                   test_id,
                                                   title_prefix=prefix)
+
+                # Issue #793
+                if include_sketch:
+                    # fecth artist token...
+                    (artist_model, _) = __br__.getMemberPage(member_id)
+                    prefix = f"[{current_member} ({artist_model.artistToken}) of {len(args)}] "
+                    PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                              __config__,
+                                                              artist_model.artistToken,
+                                                              page,
+                                                              end_page)
+
                 current_member = current_member + 1
             except BaseException:
                 PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
@@ -199,7 +211,7 @@ def menu_download_by_member_id(opisvalid, args):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
-        include_sketch = input('Include Pixiv Sketch [y/n]?') or 'n'
+        include_sketch = input('Include Pixiv Sketch [y/n]? ') or 'n'
         if include_sketch.lower() == 'y':
             include_sketch = True
 
@@ -216,10 +228,12 @@ def menu_download_by_member_id(opisvalid, args):
                                                   title_prefix=prefix)
                 # Issue #793
                 if include_sketch:
-                    prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                    # fecth artist token...
+                    (artist_model, _) = __br__.getMemberPage(member_id)
+                    prefix = f"[{current_member} ({artist_model.artistToken}) of {len(member_ids)}] "
                     PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
                                                               __config__,
-                                                              member_id,
+                                                              artist_model.artistToken,
                                                               page,
                                                               end_page)
 
