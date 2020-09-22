@@ -164,6 +164,8 @@ def menu():
     print('p. Print config.ini')
     print('x. Exit')
 
+    read_lists()
+
     sel = input('Input: ').rstrip("\r")
     return sel
 
@@ -515,11 +517,11 @@ def menu_download_from_online_image_bookmark(opisvalid, args):
             return
         tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
         (start_page, end_page) = PixivHelper.get_start_and_end_number(np_is_valid=np_is_valid, np=np)
-        # sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
-        # sorting = sorting.lower()
-        # if sorting not in ('asc', 'desc', 'date', 'date_d'):
-        #     print("Invalid sorting order: ", sorting)
-        #     return
+        sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
+        sorting = sorting.lower()
+        if sorting not in ('asc', 'desc', 'date', 'date_d'):
+            print("Invalid sorting order: ", sorting)
+            return
 
     PixivBookmarkHandler.process_image_bookmark(sys.modules[__name__],
                                                 __config__,
@@ -990,6 +992,29 @@ def menu_import_list():
     PixivListHandler.import_list(sys.modules[__name__], __config__, list_name)
 
 
+def read_lists():
+    # Implement #797
+    if __config__.useBlacklistTags:
+        global __blacklistTags
+        __blacklistTags = PixivTags.parseTagsList("blacklist_tags.txt")
+        PixivHelper.print_and_log('info', 'Using Blacklist Tags: ' + str(len(__blacklistTags)) + " items.")
+
+    if __config__.useBlacklistMembers:
+        global __blacklistMembers
+        __blacklistMembers = PixivTags.parseTagsList("blacklist_members.txt")
+        PixivHelper.print_and_log('info', 'Using Blacklist Members: ' + str(len(__blacklistMembers)) + " members.")
+
+    if __config__.useBlacklistTitles:
+        global __blacklistTitles
+        __blacklistTitles = PixivTags.parseTagsList("blacklist_titles.txt")
+        PixivHelper.print_and_log('info', 'Using Blacklist Titles: ' + str(len(__blacklistTitles)) + " items.")
+
+    if __config__.useSuppressTags:
+        global __suppressTags
+        __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
+        PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
+
+
 def main():
     set_console_title()
     header()
@@ -1106,25 +1131,7 @@ def main():
         if __config__.dateDiff > 0:
             PixivHelper.print_and_log('info', 'Only process image where day last updated >= ' + str(__config__.dateDiff))
 
-        if __config__.useBlacklistTags:
-            global __blacklistTags
-            __blacklistTags = PixivTags.parseTagsList("blacklist_tags.txt")
-            PixivHelper.print_and_log('info', 'Using Blacklist Tags: ' + str(len(__blacklistTags)) + " items.")
-
-        if __config__.useBlacklistMembers:
-            global __blacklistMembers
-            __blacklistMembers = PixivTags.parseTagsList("blacklist_members.txt")
-            PixivHelper.print_and_log('info', 'Using Blacklist Members: ' + str(len(__blacklistMembers)) + " members.")
-
-        if __config__.useBlacklistTitles:
-            global __blacklistTitles
-            __blacklistTitles = PixivTags.parseTagsList("blacklist_titles.txt")
-            PixivHelper.print_and_log('info', 'Using Blacklist Titles: ' + str(len(__blacklistTitles)) + " items.")
-
-        if __config__.useSuppressTags:
-            global __suppressTags
-            __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
-            PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
+        read_lists()
 
         if __config__.createWebm:
             import shlex
