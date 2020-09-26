@@ -1,3 +1,9 @@
+20200926-beta1
+- Implement #797: reload blacklist on after reloading main menu.
+- Implement #793: allow to download sketch when using option 1.
+- Update #796: change apng converter to use ffmpeg.
+- Fix Issue #795: handle no avatar/bg.
+
 20200915
 - Fix Issue #778: "'list' object has no attribute 'startswith'" process_tags_list().
 - Update #777: add s_tag and date_d param value
