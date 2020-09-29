@@ -223,7 +223,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
   -s STARTACTION, --startaction=STARTACTION
                         Action you want to load your program with:
                         1 - Download by member_id
-                            (required: followed by member_ids separated by space)
+                            (required: followed [y/n] to download pixiv sketch and list of member_ids separated by space)
                         2 - Download by image_id
                             (required: followed by image_ids separated by space)
                         3 - Download by tags
