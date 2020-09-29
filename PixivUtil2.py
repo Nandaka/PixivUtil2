@@ -125,6 +125,22 @@ def get_start_and_end_page_from_options(options):
     return page_num, end_page_num
 
 
+def get_list_file_from_options(options, default_list_file):
+    list_file_name = default_list_file
+    if options.list_file is not None:
+        if os.path.isabs(options.list_file):
+            test_file_name = options.list_file
+        else:
+            test_file_name = __config__.downloadListDirectory + os.sep + options.list_file
+    test_file_name = os.path.abspath(test_file_name)
+    if os.path.exists(test_file_name):
+        list_file_name = test_file_name
+    else:
+        PixivHelper.print_and_log("warn", f"The given list file [{test_file_name}] doesn't exists, using default list file [{list_file_name}].")
+
+    return list_file_name
+
+
 def menu():
     PADDING = 40
     set_console_title()
@@ -176,11 +192,6 @@ def menu_download_by_member_id(opisvalid, args, options):
     member_ids = list()
 
     if opisvalid and len(args) > 0:
-        # # first argument is either y/n followed by member ids.
-        # include_sketch = args[0].lower()
-        # if include_sketch == 'y' or include_sketch == 'n':
-        #     include_sketch = True if include_sketch == 'y' else False
-        #     args = args[1:]
         include_sketch = options.include_sketch
         if include_sketch:
             print("Including Pixiv Sketch.")
@@ -192,30 +203,6 @@ def menu_download_by_member_id(opisvalid, args, options):
                 member_ids.append(int(member_id))
             else:
                 print(f"Possible invalid member id = {member_id}")
-
-            # try:
-            #     prefix = "[{0} of {1}] ".format(current_member, len(args))
-            #     test_id = int(member_id)
-            #     PixivArtistHandler.process_member(sys.modules[__name__],
-            #                                       __config__,
-            #                                       test_id,
-            #                                       page=page,
-            #                                       end_page=end_page,
-            #                                       title_prefix=prefix)
-
-            #     # Issue #793
-            #     if include_sketch:
-            #         # fecth artist token...
-            #         (artist_model, _) = __br__.getMemberPage(member_id)
-            #         prefix = f"[{current_member} ({artist_model.artistToken}) of {len(args)}] "
-            #         PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-            #                                                   __config__,
-            #                                                   artist_model.artistToken,
-            #                                                   page,
-            #                                                   end_page)
-
-            #     current_member = current_member + 1
-            # except BaseException:
 
     else:
         member_ids = input('Member ids: ').rstrip("\r")
@@ -339,17 +326,13 @@ def menu_download_by_tags(opisvalid, args, options):
     end_date = None
     bookmark_count = None
     oldest_first = False
-    wildcard = True
+    wildcard = False
     type_mode = "a"
 
     if opisvalid and len(args) > 0:
-        wildcard = args[0]
-        if wildcard.lower() == 'y':
-            wildcard = True
-        else:
-            wildcard = False
+        wildcard = options.use_wildcard_tag
         (page, end_page) = get_start_and_end_page_from_options(options)
-        tags = " ".join(args[3:])
+        tags = " ".join(args)
     else:
         tags = input('Tags: ')
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
@@ -400,7 +383,7 @@ def menu_download_by_title_caption(opisvalid, args, options):
     end_date = None
     if opisvalid and len(args) > 0:
         (page, end_page) = get_start_and_end_page_from_options(options)
-        tags = " ".join(args[2:])
+        tags = " ".join(args)
     else:
         tags = input('Title/Caption: ')
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
@@ -425,17 +408,17 @@ def menu_download_by_tag_and_member_id(opisvalid, args, options):
     end_page = 0
 
     if opisvalid and len(args) >= 2:
+        (page, end_page) = get_start_and_end_page_from_options(options)
         try:
             member_id = int(args[0])
         except BaseException:
-            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+            PixivHelper.print_and_log('error', f"Member ID: {member_id} is not valid")
             global ERROR_CODE
             ERROR_CODE = -1
             return
 
-        (page, end_page) = get_start_and_end_page_from_options(options)
-        tags = " ".join(args[3:])
-        PixivHelper.safePrint("Looking tags: " + tags + " from memberId: " + str(member_id))
+        tags = " ".join(args[1:])
+        PixivHelper.safePrint(f"Looking tags: {tags} from memberId: {member_id}")
     else:
         member_id = input('Member Id: ').rstrip("\r")
         tags = input('Tag      : ')
@@ -456,12 +439,11 @@ def menu_download_from_list(opisvalid, args, options):
 
     list_file_name = __config__.downloadListDirectory + os.sep + 'list.txt'
     tags = None
-    if opisvalid and op == '4' and len(args) > 0:
-        test_file_name = __config__.downloadListDirectory + os.sep + args[0]
-        if os.path.exists(test_file_name):
-            list_file_name = test_file_name
-        if len(args) > 1:
-            tags = args[1]
+    if opisvalid:
+        list_file_name = get_list_file_from_options(options, list_file_name)
+        # get one tag from input parameter
+        if len(args) > 0:
+            tags = args[0]
     else:
         test_tags = input('Tag : ')
         if len(test_tags) > 0:
@@ -479,12 +461,10 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
     end_page = 0
     hide = 'n'
     if opisvalid:
-        if len(args) > 0:
-            arg = args[0].lower()
-            if arg == 'y' or arg == 'n' or arg == 'o':
-                hide = arg
-            else:
-                print("Invalid args: ", args)
+        if options.bookmark_flag is not None:
+            hide = options.bookmark_flag.lower()
+            if hide not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {args}, valid values are [y/n/o].")
                 return
             (start_page, end_page) = get_start_and_end_page_from_options(options)
     else:
@@ -508,17 +488,19 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
     sorting = 'desc'
 
     if opisvalid and len(args) > 0:
-        hide = args[0].lower()
-        if hide not in ('y', 'n', 'o'):
-            print("Invalid args: ", args)
-            return
+        if len(args) > 0:
+            tag = args[1]
+
         (start_page, end_page) = get_start_and_end_page_from_options(options)
-        if len(args) > 3:
-            tag = args[3]
-        if len(args) > 4:
-            sorting = args[4].lower()
+        if options.bookmark_flag is not None:
+            hide = options.bookmark_flag.lower()
+            if hide not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {args}, valid values are [y/n/o].")
+                return
+        if options.sort_order is not None:
+            sorting = options.sort_order.lower()
             if sorting not in ('asc', 'desc', 'date', 'date_d'):
-                print("Invalid sorting order: ", sorting)
+                PixivHelper.print_and_log("error", f"Invalid sorting order: {sorting}.")
                 return
     else:
         hide = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
@@ -548,13 +530,14 @@ def menu_download_from_tags_list(opisvalid, args, options):
     page = 1
     end_page = 0
     oldest_first = False
-    wildcard = True
+    wildcard = False
     bookmark_count = None
     start_date = None
     end_date = None
 
-    if opisvalid and len(args) > 0:
-        filename = args[0]
+    if opisvalid:
+        filename = get_list_file_from_options(options=options, default_list_file='./tags.txt')
+        wildcard = options.use_wildcard_tag
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
         filename = input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
@@ -828,20 +811,23 @@ def set_console_title(title=''):
 
 
 def setup_option_parser():
+
     global __valid_options
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 's1', 's2', 'd', 'e', 'm', 'b')
     parser = OptionParser()
+
+    # need to keep the whitespace to adjust the output for --help
     parser.add_option('-s', '--start_action', dest='start_action',
                       help='''Action you want to load your program with:          \n
- 1 - Download by member_id                          \n
- 2 - Download by image_id                           \n
- 3 - Download by tags                               \n
- 4 - Download from list                             \n
- 5 - Download from user bookmark                    \n
- 6 - Download from user's image bookmark            \n
- 7 - Download from tags list                        \n
- 8 - Download new illust from bookmark              \n
- 9 - Download by Title/Caption                      \n
+1  - Download by member_id                          \n
+2  - Download by image_id                           \n
+3  - Download by tags                               \n
+4  - Download from list                             \n
+5  - Download from user bookmark                    \n
+6  - Download from user's image bookmark            \n
+7  - Download from tags list                        \n
+8  - Download new illust from bookmark              \n
+9  - Download by Title/Caption                      \n
 10 - Download by Tag and Member Id                  \n
 11 - Download images from Member Bookmark           \n
 12 - Download images by Group Id                    \n
@@ -851,10 +837,10 @@ f3 - Download by post id (FANBOX)                   \n
 f4 - Download from following list (FANBOX)          \n
 s1 - Download by creator id (Sketch)')              \n
 s2 - Download by post id (Sketch)')                 \n
- b - Batch Download from batch_job.json             \n
- e - Export online bookmark                         \n
- m - Export online user bookmark                    \n
- d - Manage database''')
+b  - Batch Download from batch_job.json             \n
+e  - Export online bookmark                         \n
+m  - Export online user bookmark                    \n
+d  - Manage database''')
     parser.add_option('-x', '--exit_when_done',
                       dest='exit_when_done',
                       default=False,
@@ -874,24 +860,51 @@ s2 - Download by post id (Sketch)')                 \n
     parser.add_option('--bf', '--batch_file',
                       dest='batch_file',
                       default=None,
-                      help='Json file for batch job.')
+                      help='Json file for batch job (b).')
     parser.add_option('--sp', '--start_page',
                       dest='start_page',
                       default=None,
-                      help='Starting page in integer.')
+                      help='''Starting page in integer.                             \n
+Used in option 1, 3, 5, 6, 7, 8, 9, and 10.''')
     parser.add_option('--ep', '--end_page',
                       dest='end_page',
                       default=None,
-                      help='''End page in integer.                                \n
-If start page is given and it is larger than end page,
-It will be assumed as number of page instead (start page + end page).
+                      help='''End page in integer.                                  \n
+If start page is given and it is larger than end page, it will be assumed as
+number of page instead (start page + end page).
 This take priority from '-n', '--number_of_pages' for calculation.
+Used in option 1, 3, 5, 6, 7, 8, 9, and 10.
 See get_start_and_end_page_from_options()''')
     parser.add_option('--is', '--include_sketch',
                       dest='include_sketch',
                       default=False,
                       action='store_true',
-                      help='''Include Pixiv Sketch when processing member id. Default is false.''')
+                      help='''Include Pixiv Sketch when processing member id (1). Default is False.''')
+    parser.add_option('--wt', '--use_wildcard_tag',
+                      dest='use_wildcard_tag',
+                      default=False,
+                      help='Use wildcard when downloading by tag (3) or tag list (7). Default is False.',
+                      action='store_true')
+    parser.add_option('-f', '--list_file',
+                      dest='list_file',
+                      default=None,
+                      help='''List file for download by list (4) or tag list (7).   \n
+If using relative path, it will be prefixed with [downloadlistdirectory] in config.ini.''')
+    parser.add_option('-p', '--bookmark_flag',
+                      dest='bookmark_flag',
+                      default=None,
+                      help='''Include private bookmark flag for option 5 and 6.     \n
+ y - include private bookmark.                      \n
+ n - don't include private bookmark.                \n
+ o - only get from private bookmark.''')
+    parser.add_option('-o', '--sort_order',
+                      dest='sort_order',
+                      default=None,
+                      help='''Sorting order for option 6.                           \n
+ asc - sort by bookmark.                            \n
+ desc - sort by bookmark in descending order.       \n
+ date - sort by date.                               \n
+ date_d - sort by date in descending order.''')
 
     return parser
 
