@@ -173,44 +173,50 @@ def menu_download_by_member_id(opisvalid, args, options):
     page = 1
     end_page = 0
     include_sketch = False
+    member_ids = list()
 
     if opisvalid and len(args) > 0:
-        # first argument is either y/n followed by member ids.
-        include_sketch = args[0].lower()
-        if include_sketch == 'y' or include_sketch == 'n':
-            include_sketch = True if include_sketch == 'y' else False
-            args = args[1:]
+        # # first argument is either y/n followed by member ids.
+        # include_sketch = args[0].lower()
+        # if include_sketch == 'y' or include_sketch == 'n':
+        #     include_sketch = True if include_sketch == 'y' else False
+        #     args = args[1:]
+        include_sketch = options.include_sketch
+        if include_sketch:
+            print("Including Pixiv Sketch.")
 
         (page, end_page) = get_start_and_end_page_from_options(options)
 
         for member_id in args:
-            try:
-                prefix = "[{0} of {1}] ".format(current_member, len(args))
-                test_id = int(member_id)
-                PixivArtistHandler.process_member(sys.modules[__name__],
-                                                  __config__,
-                                                  test_id,
-                                                  page=page,
-                                                  end_page=end_page,
-                                                  title_prefix=prefix)
+            if member_id.isdigit():
+                member_ids.append(int(member_id))
+            else:
+                print(f"Possible invalid member id = {member_id}")
 
-                # Issue #793
-                if include_sketch:
-                    # fecth artist token...
-                    (artist_model, _) = __br__.getMemberPage(member_id)
-                    prefix = f"[{current_member} ({artist_model.artistToken}) of {len(args)}] "
-                    PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                              __config__,
-                                                              artist_model.artistToken,
-                                                              page,
-                                                              end_page)
+            # try:
+            #     prefix = "[{0} of {1}] ".format(current_member, len(args))
+            #     test_id = int(member_id)
+            #     PixivArtistHandler.process_member(sys.modules[__name__],
+            #                                       __config__,
+            #                                       test_id,
+            #                                       page=page,
+            #                                       end_page=end_page,
+            #                                       title_prefix=prefix)
 
-                current_member = current_member + 1
-            except BaseException:
-                PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
-                global ERROR_CODE
-                ERROR_CODE = -1
-                continue
+            #     # Issue #793
+            #     if include_sketch:
+            #         # fecth artist token...
+            #         (artist_model, _) = __br__.getMemberPage(member_id)
+            #         prefix = f"[{current_member} ({artist_model.artistToken}) of {len(args)}] "
+            #         PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+            #                                                   __config__,
+            #                                                   artist_model.artistToken,
+            #                                                   page,
+            #                                                   end_page)
+
+            #     current_member = current_member + 1
+            # except BaseException:
+
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
@@ -220,29 +226,33 @@ def menu_download_by_member_id(opisvalid, args, options):
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
-        for member_id in member_ids:
-            try:
-                prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
-                PixivArtistHandler.process_member(sys.modules[__name__],
-                                                  __config__,
-                                                  member_id,
-                                                  page=page,
-                                                  end_page=end_page,
-                                                  title_prefix=prefix)
-                # Issue #793
-                if include_sketch:
-                    # fecth artist token...
-                    (artist_model, _) = __br__.getMemberPage(member_id)
-                    prefix = f"[{current_member} ({artist_model.artistToken}) of {len(member_ids)}] "
-                    PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                              __config__,
-                                                              artist_model.artistToken,
-                                                              page,
-                                                              end_page)
 
-                current_member = current_member + 1
-            except PixivException as ex:
-                print(ex)
+    for member_id in member_ids:
+        try:
+            prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+            PixivArtistHandler.process_member(sys.modules[__name__],
+                                                __config__,
+                                                member_id,
+                                                page=page,
+                                                end_page=end_page,
+                                                title_prefix=prefix)
+            # Issue #793
+            if include_sketch:
+                # fecth artist token...
+                (artist_model, _) = __br__.getMemberPage(member_id)
+                prefix = f"[{current_member} ({artist_model.artistToken}) of {len(member_ids)}] "
+                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
+                                                            __config__,
+                                                            artist_model.artistToken,
+                                                            page,
+                                                            end_page)
+
+            current_member = current_member + 1
+        except PixivException as ex:
+            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+            global ERROR_CODE
+            ERROR_CODE = -1
+            continue
 
 
 def menu_download_by_member_bookmark(opisvalid, args, options):
@@ -822,53 +832,66 @@ def setup_option_parser():
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 's1', 's2', 'd', 'e', 'm', 'b')
     parser = OptionParser()
     parser.add_option('-s', '--start_action', dest='start_action',
-                      help='''Action you want to load your program with:
- 1 - Download by member_id
- 2 - Download by image_id
- 3 - Download by tags
- 4 - Download from list
- 5 - Download from user bookmark
- 6 - Download from user's image bookmark
- 7 - Download from tags list
- 8 - Download new illust from bookmark
- 9 - Download by Title/Caption
-10 - Download by Tag and Member Id
-11 - Download images from Member Bookmark
-12 - Download images by Group Id
-f1 - Download from supporting list (FANBOX)
-f2 - Download by artist/creator id (FANBOX)
-f3 - Download by post id (FANBOX)
-f4 - Download from following list (FANBOX)
-s1 - Download by creator id (Sketch)')
-s2 - Download by post id (Sketch)')
- b - Batch Download from batch_job.json (experimental)
- e - Export online bookmark
- m - Export online user bookmark
+                      help='''Action you want to load your program with:          \n
+ 1 - Download by member_id                          \n
+ 2 - Download by image_id                           \n
+ 3 - Download by tags                               \n
+ 4 - Download from list                             \n
+ 5 - Download from user bookmark                    \n
+ 6 - Download from user's image bookmark            \n
+ 7 - Download from tags list                        \n
+ 8 - Download new illust from bookmark              \n
+ 9 - Download by Title/Caption                      \n
+10 - Download by Tag and Member Id                  \n
+11 - Download images from Member Bookmark           \n
+12 - Download images by Group Id                    \n
+f1 - Download from supporting list (FANBOX)         \n
+f2 - Download by artist/creator id (FANBOX)         \n
+f3 - Download by post id (FANBOX)                   \n
+f4 - Download from following list (FANBOX)          \n
+s1 - Download by creator id (Sketch)')              \n
+s2 - Download by post id (Sketch)')                 \n
+ b - Batch Download from batch_job.json             \n
+ e - Export online bookmark                         \n
+ m - Export online user bookmark                    \n
  d - Manage database''')
-    parser.add_option('-x', '--exit_when_done', dest='exit_when_done',
-                      help='Exit programm when done. (only useful when not using DB-Manager)',
-                      action='store_true', default=False)
-    parser.add_option('-i', '--irfanview', dest='start_iv',
-                      help='start IrfanView after downloading images using downloaded_on_%date%.txt',
-                      action='store_true', default=False)
-    parser.add_option('-n', '--number_of_pages', dest='number_of_pages',
-                      help='temporarily overwrites numberOfPage set in config.ini')
+    parser.add_option('-x', '--exit_when_done',
+                      dest='exit_when_done',
+                      default=False,
+                      help='Exit program when done. (only useful when not using DB-Manager)',
+                      action='store_true')
+    parser.add_option('-i', '--irfanview',
+                      dest='start_iv',
+                      default=False,
+                      help='Start IrfanView after downloading images using downloaded_on_%date%.txt',
+                      action='store_true')
+    parser.add_option('-n', '--number_of_pages',
+                      dest='number_of_pages',
+                      help='Temporarily overwrites numberOfPage set in config.ini')
     parser.add_option('-c', '--config', dest='configlocation',
-                      help='load the config file from a custom location',
-                      default=None)
-    parser.add_option('--bf', '--batch_file', dest='batch_file',
-                      help='json file for batch job.',
-                      default=None)
-    parser.add_option('--sp', '--start_page', dest='start_page',
-                      help='starting page in integer, default is 0.',
-                      default=None)
-    parser.add_option('--ep', '--end_page', dest='end_page',
-                      help='''end page in integer, default is 0.
+                      default=None,
+                      help='Load the config file from a custom location')
+    parser.add_option('--bf', '--batch_file',
+                      dest='batch_file',
+                      default=None,
+                      help='Json file for batch job.')
+    parser.add_option('--sp', '--start_page',
+                      dest='start_page',
+                      default=None,
+                      help='Starting page in integer.')
+    parser.add_option('--ep', '--end_page',
+                      dest='end_page',
+                      default=None,
+                      help='''End page in integer.                                \n
 If start page is given and it is larger than end page,
 It will be assumed as number of page instead (start page + end page).
 This take priority from '-n', '--number_of_pages' for calculation.
-See get_start_and_end_page_from_options()''',
-                      default=None)
+See get_start_and_end_page_from_options()''')
+    parser.add_option('--is', '--include_sketch',
+                      dest='include_sketch',
+                      default=False,
+                      action='store_true',
+                      help='''Include Pixiv Sketch when processing member id. Default is false.''')
 
     return parser
 
