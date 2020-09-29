@@ -218,6 +218,7 @@ Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
 ```
 
 # Command Line Option
+Please refer run with `--help` for latest information.
 ```
   -h, --help            show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
