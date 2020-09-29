@@ -182,10 +182,16 @@ def handle_tags(caller, job, job_name, job_option):
                                   job_option=job_option)
 
 
-def process_batch_job(caller: PixivUtil2):
+def process_batch_job(caller: PixivUtil2, batch_file=None):
     PixivHelper.get_logger().info('Batch Mode from json (b).')
     caller.set_console_title("Batch Menu")
-    if os.path.exists(_default_batch_filename):
+
+    if batch_file is None:
+        batch_file = _default_batch_filename
+
+    batch_file = os.path.abspath(batch_file)
+
+    if os.path.exists(batch_file):
         jobs_file = open(_default_batch_filename, encoding="utf-8")
         jobs = demjson.decode(jobs_file.read())
         for job_name in jobs["jobs"]:
@@ -210,7 +216,7 @@ def process_batch_job(caller: PixivUtil2):
             else:
                 print(f"Unsupported job_type {curr_job['job_type']} in {job_name}")
     else:
-        print(f"Cannot found {_default_batch_filename} in the application folder, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
+        print(f"Cannot found {batch_file}, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
 
     # restore original method
     # PixivHelper.print_and_log = temp_printer

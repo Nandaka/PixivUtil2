@@ -1074,7 +1074,7 @@ def get_start_and_end_date():
     return start_date, end_date
 
 
-def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
+def get_start_and_end_number(start_only=False, total_number_of_page=0):
     page_num = input('Start Page (default=1): ').rstrip("\r") or 1
     try:
         page_num = int(page_num)
@@ -1083,13 +1083,13 @@ def get_start_and_end_number(start_only=False, np_is_valid=False, np=0):
         raise
 
     end_page_num = 0
-    if np_is_valid:
-        end_page_num = np
+    if total_number_of_page is not None:
+        end_page_num = int(total_number_of_page)
     else:
         end_page_num = _config.numberOfPage
 
     if not start_only:
-        end_page_num = input('End Page (default=' + str(end_page_num) + ', 0 for no limit): ').rstrip("\r") or end_page_num
+        end_page_num = input(f'End Page (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
                 end_page_num = int(end_page_num)
