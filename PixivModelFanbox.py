@@ -23,6 +23,7 @@ class FanboxArtist(object):
 
     SUPPORTING = 0
     FOLLOWING = 1
+    CUSTOM = 2
 
     @classmethod
     def parseArtistIds(cls, page):
