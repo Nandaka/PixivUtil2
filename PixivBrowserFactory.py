@@ -901,6 +901,8 @@ class PixivBrowser(mechanize.Browser):
             artist.artistName = pixivArtist.artistName
             artist.artistToken = pixivArtist.artistToken
             return artist
+        else:
+            raise PixivException("Id does not exist", errorCode=PixivException.USER_ID_NOT_EXISTS)
 
     def fanboxGetPostsFromArtist(self, artist=None, next_url=""):
         ''' get all posts from the supported user
