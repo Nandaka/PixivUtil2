@@ -254,13 +254,16 @@ Please refer run with `--help` for latest information.
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
                         f1 - Download from supported artists (FANBOX)
-                            (required: Max Page)
+                            (optional: End Page)
                         f2 - Download by artist/creator id (FANBOX)
-                            (required: artist(digits only)/creator id, followed with Max Page)
+                            (required: artist(digits only)/creator ids separated by space,
+                             optional: end page)
                         f3 - Download by post id (FANBOX)
                             (required: post ids, separated with space)
                         f4 - Download from followed artists (FANBOX)
-                            (required: Max Page)
+                            (optional: End Page)
+                        f5 - Download from custom artist list (FANBOX)
+                            (optional: End page, path to list)
                         b - Batch Download from batch_job.json (experimental)
                         e - Export online bookmark
 			    (optional: Include Private Bookmark [y|n|o], filename)
@@ -297,11 +300,15 @@ Please refer run with `--help` for latest information.
 # config.ini
 ## [Authentication]
 ```
-username ==> Your pixiv username.
-password ==> Your pixiv password, in clear text!
+username ==> Your pixiv username. Needed for OAuth. Please make sure the combination
+             of username and password is valid in case of OAuth error.
+             If you get error 103, please try changing username from pixiv ID to email
+             address or the other way around.
+password ==> Your pixiv password, in clear text! Needed for OAuth. Please make sure 
+             the combination of username and password is valid in case of OAuth error.
 cookie   ==> Your cookies for pixiv login, will be automatically updated in the
              login.
-cookieFanbox  ==> Cookie for fanbox.cc
+cookieFanbox  ==> Cookie for fanbox.cc, normally no need to fill in.
 refresh_token ==> Used for OAuth refresh token to avoid relogin too many time.
                   Automatically generated upon succesful OAuth login.
 ```
