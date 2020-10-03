@@ -132,11 +132,11 @@ def get_list_file_from_options(options, default_list_file):
             test_file_name = options.list_file
         else:
             test_file_name = __config__.downloadListDirectory + os.sep + options.list_file
-    test_file_name = os.path.abspath(test_file_name)
-    if os.path.exists(test_file_name):
-        list_file_name = test_file_name
-    else:
-        PixivHelper.print_and_log("warn", f"The given list file [{test_file_name}] doesn't exists, using default list file [{list_file_name}].")
+        test_file_name = os.path.abspath(test_file_name)
+        if os.path.exists(test_file_name):
+            list_file_name = test_file_name
+        else:
+            PixivHelper.print_and_log("warn", f"The given list file [{test_file_name}] doesn't exists, using default list file [{list_file_name}].")
 
     return list_file_name
 
@@ -163,6 +163,7 @@ def menu():
     print('f2. Download by artist/creator id (FANBOX)')
     print('f3. Download by post id (FANBOX)')
     print('f4. Download from following list (FANBOX)')
+    print('f5. Download from custom list (FANBOX)')
     print('--Sketch'.ljust(PADDING, "-"))
     print('s1. Download by creator id (Sketch)')
     print('s2. Download by post id (Sketch)')
@@ -660,18 +661,35 @@ def menu_fanbox_download_from_list(op_is_valid, via, args, options):
         via_type = "supporting"
     elif via == PixivModelFanbox.FanboxArtist.FOLLOWING:
         via_type = "following"
+    elif via == PixivModelFanbox.FanboxArtist.CUSTOM:
+        via_type = "custom"
 
-    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode (f1/f4).')
-    end_page = 0
+    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode (f1/f4/f5).')
 
-    if op_is_valid and len(args) > 0:
-        end_page = int(args[0])
+    if op_is_valid:
+        (page, end_page) = get_start_and_end_page_from_options(options)
     else:
-        end_page = input("Max Page = ").rstrip("\r") or 0
-        end_page = int(end_page)
+        end_page = int(input("End Page = ").rstrip("\r")) or 0
 
-    ids = __br__.fanboxGetArtistList(via)
-    if len(ids) == 0:
+    ids = list()
+    if via in [PixivModelFanbox.FanboxArtist.SUPPORTING, PixivModelFanbox.FanboxArtist.FOLLOWING]:
+        ids = __br__.fanboxGetArtistList(via)
+    elif via == PixivModelFanbox.FanboxArtist.CUSTOM:
+        list_file_name = __config__.listPathFanbox
+        if op_is_valid:
+            list_file_name = get_list_file_from_options(options, list_file_name)
+        if os.path.isfile(list_file_name):
+            with PixivHelper.open_text_file(list_file_name) as reader:
+                while True:
+                    line = reader.readline()
+                    if not line:
+                        break
+                    line = line.strip()
+                    if line.startswith("#"):
+                        continue
+                    ids.append(line)
+
+    if not ids:
         PixivHelper.print_and_log("info", f"No artist in {via_type} list!")
         return
     PixivHelper.print_and_log("info", f"Found {len(ids)} artist(s) in {via_type} list")
@@ -716,22 +734,24 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
 
 def menu_fanbox_download_by_id(op_is_valid, args, options):
     __log__.info('Download FANBOX by Artist or Creator ID mode (f2).')
-    end_page = 0
-    artist_id = ''
 
     if op_is_valid and len(args) > 0:
-        artist_id = args[0]
-        if len(args) > 1:
-            end_page = args[1]
-    else:
-        artist_id = input("Artist/Creator ID = ").rstrip("\r")
-        end_page = input("Max Page = ").rstrip("\r") or 0
+        (page, end_page) = get_start_and_end_page_from_options(options)
+        member_ids = args
 
-    end_page = int(end_page)
-    PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
-                                                   __config__,
-                                                   artist_id,
-                                                   end_page)
+    else:
+        member_ids = input("Artist/Creator IDs = ").rstrip("\r")
+        end_page = int(input("End page = ").rstrip("\r")) or 0
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
+
+        PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
+
+    for member_id, index in enumerate(member_ids, start=1):
+        PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                       __config__,
+                                                       member_id,
+                                                       end_page,
+                                                       title_prefix=f"{index} of {len(member_ids)}")
 
 
 def menu_sketch_download_by_artist_id(opisvalid, args, options):
@@ -813,7 +833,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 's1', 's2', 'd', 'e', 'm', 'b')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'f5', 's1', 's2', 'd', 'e', 'm', 'b')
     parser = OptionParser()
 
     # need to keep the whitespace to adjust the output for --help
@@ -835,6 +855,7 @@ f1 - Download from supporting list (FANBOX)         \n
 f2 - Download by artist/creator id (FANBOX)         \n
 f3 - Download by post id (FANBOX)                   \n
 f4 - Download from following list (FANBOX)          \n
+f5 - Download from custom list (FANBOX)             \n
 s1 - Download by creator id (Sketch)')              \n
 s2 - Download by post id (Sketch)')                 \n
 b  - Batch Download from batch_job.json             \n
@@ -976,6 +997,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_fanbox_download_by_post_id(op_is_valid, args, options)
             elif selection == 'f4':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.FOLLOWING, args, options)
+            elif selection == 'f5':
+                menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.CUSTOM, args, options)
             # END PIXIV FANBOX
             # PIXIV Sketch
             elif selection == 's1':
