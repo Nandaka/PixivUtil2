@@ -145,6 +145,7 @@ class PixivConfig():
         ConfigItem("FANBOX", "useAbsolutePathsInHtml", False),
         ConfigItem("FANBOX", "downloadCoverWhenRestricted", False),
         ConfigItem("FANBOX", "checkDBProcessHistory", False),
+        ConfigItem("FANBOX", "listPathFanbox", "listfanbox.txt"),
 
         ConfigItem("FFmpeg", "ffmpeg", "ffmpeg"),
         ConfigItem("FFmpeg", "ffmpegCodec", "libvpx-vp9"),
