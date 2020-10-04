@@ -746,7 +746,7 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
 
         PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
 
-    for member_id, index in enumerate(member_ids, start=1):
+    for index, member_id in enumerate(member_ids, start=1):
         PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
                                                        __config__,
                                                        member_id,
