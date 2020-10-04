@@ -353,6 +353,8 @@ checkDBProcessHistory       ==> Each FANBOX post has a updated_date value, which
 				retrieved date, which means that the post has not been processed 
 				at all or changed since last time, the post would be skipped.
                             --> When this is 'False', posts will be processed anyways.
+listPathFanbox		    ==> The list file for fanbox creators. One creator per line.
+				Doesn't support custom path.
 ```
 ## [Network]
 ```
