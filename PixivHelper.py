@@ -24,9 +24,7 @@ import zipfile
 from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
 
-import imageio
 import mechanize
-# from apng import APNG
 from colorama import Fore, Style
 
 import PixivConstant
@@ -828,37 +826,6 @@ def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif', image=None):
             param="-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\"",
             extension="gif",
             image=image)
-    # temp_folder = tempfile.mkdtemp()
-    # # imageio cannot handle utf-8 filename
-    # temp_name = temp_folder + os.sep + "temp.gif"
-
-    # with zipfile.ZipFile(ugoira_file) as f:
-    #     f.extractall(temp_folder)
-
-    # filenames = os.listdir(temp_folder)
-    # filenames.remove('animation.json')
-    # anim_info = json.load(open(temp_folder + '/animation.json'))
-
-    # durations = []
-    # images = []
-    # for info in anim_info["frames"]:
-    #     images.append(imageio.imread(temp_folder + os.sep + info["file"]))
-    #     durations.append(float(info["delay"]) / 1000)
-
-    # kargs = {'duration': durations}
-    # imageio.mimsave(temp_name, images, fmt, **kargs)
-    # shutil.move(temp_name, exportname)
-    # print_and_log('info', 'ugoira exported to: ' + exportname)
-
-    # shutil.rmtree(temp_folder)
-    # if delete_ugoira:
-    #     print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
-    #     os.remove(ugoira_file)
-
-    # # set last-modified and last-accessed timestamp
-    # if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
-    #     ts = time.mktime(image.worksDateDateTime.timetuple())
-    #     os.utime(exportname, (ts, ts))
 
 
 def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
