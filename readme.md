@@ -224,31 +224,31 @@ Please refer run with `--help` for latest information.
   -s STARTACTION, --startaction=STARTACTION
                         Action you want to load your program with:
                         1 - Download by member_id
-                            (required: followed [y/n] to download pixiv sketch and list of member_ids separated by space)
+                            (required: list of member_ids separated by space
+                             optional: --include_sketch to also download Pixiv Sketch)
                         2 - Download by image_id
                             (required: followed by image_ids separated by space)
                         3 - Download by tags
-                            (required: [y/n] for wildcard, start page, end page,
-                             followed by tags)
+                            (required: tags
+                             optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE)
                         4 - Download from list
-                            (required: followed by path to list and optional tag)
+                            (required: -f LIST_FILE and followed with optional tag)
                         5 - Download from user bookmark
-                            (optional: followed by [y/n/o] for private bookmark, start page, end page, sorting order)
+                            (optional: -p BOOKMARK_FLAG [y/n/o] for private bookmark, --sp=START_PAGE, and --ep=END_PAGE)
                         6 - Download from image bookmark
-                            (required: followed by [y/n] for private bookmark
-                             optional: starting page number, end page number, and tag)
+                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
+                             optional: --sp=START_PAGE, and --ep=END_PAGE, and followed with tag)
                         7 - Download from tags list
-                            (required: followed by path to the tags list,
-                             start page, and end page)
+                            (required: -f LIST_FILE,
+                             optional: --sp=START_PAGE, and --ep=END_PAGE)
                         8 - Download new illust from bookmark
-                            (optional: followed by starting page number and end
-                             page number)
+                            (optional: --sp=START_PAGE, and --ep=END_PAGE)
                         9 - Download by Title/Caption
-                            (required: start page, end page, followed by
-                             title/caption)
+                            (required: title/caption
+                             optional: --sp=START_PAGE, and --ep=END_PAGE)
                         10 - Download by Tag and Member Id
-                            (required: member_id, start page, end page, followed
-                             by tags)
+                            (required: member_id, followed by tags
+                             optional: --sp=START_PAGE, and --ep=END_PAGE)
                         11 - Download Member's Bookmarked Images
                             (required: followed by member_ids separated by space)
                         12 - Download by Group ID
@@ -265,8 +265,9 @@ Please refer run with `--help` for latest information.
                         f5 - Download from custom artist list (FANBOX)
                             (optional: End page, path to list)
                         b - Batch Download from batch_job.json (experimental)
+                            (optional: --bf=BATCH_FILE)
                         e - Export online bookmark
-			    (optional: Include Private Bookmark [y|n|o], filename)
+                            (optional: Include Private Bookmark [y|n|o], filename)
                         m - Export online user bookmark
                             (required: member_id, optional: followed by filename)
                         d - Manage database

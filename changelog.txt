@@ -1,8 +1,13 @@
-20200926-beta1
+20201006
 - Implement #797: reload blacklist on after reloading main menu.
 - Implement #793: allow to download sketch when using option 1.
 - Update #796: change apng converter to use ffmpeg.
 - Fix Issue #795: handle no avatar/bg.
+- Implement #802: use ffmpeg for converting to gif.
+- Merge Implemented #804 download FANBOX from list file (#805) by amatuerCoder
+  - Added new option `listPathFanbox`
+- IMPORTANT: changes the command line parameters, run with --help for more details
+- Update readme.md
 
 20200915
 - Fix Issue #778: "'list' object has no attribute 'startswith'" process_tags_list().
