@@ -819,37 +819,46 @@ def write_url_in_description(image, blacklistRegex, filenamePattern):
 
 def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif', image=None):
     print_and_log('info', 'processing ugoira to animated gif...')
-    temp_folder = tempfile.mkdtemp()
-    # imageio cannot handle utf-8 filename
-    temp_name = temp_folder + os.sep + "temp.gif"
+    # Issue #802 use ffmpeg to convert to gif
+    ugoira2webm(ugoira_file,
+            exportname,
+            delete_ugoira,
+            ffmpeg=_config.ffmpeg,
+            codec=None,
+            param="-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\"",
+            extension="gif",
+            image=image)
+    # temp_folder = tempfile.mkdtemp()
+    # # imageio cannot handle utf-8 filename
+    # temp_name = temp_folder + os.sep + "temp.gif"
 
-    with zipfile.ZipFile(ugoira_file) as f:
-        f.extractall(temp_folder)
+    # with zipfile.ZipFile(ugoira_file) as f:
+    #     f.extractall(temp_folder)
 
-    filenames = os.listdir(temp_folder)
-    filenames.remove('animation.json')
-    anim_info = json.load(open(temp_folder + '/animation.json'))
+    # filenames = os.listdir(temp_folder)
+    # filenames.remove('animation.json')
+    # anim_info = json.load(open(temp_folder + '/animation.json'))
 
-    durations = []
-    images = []
-    for info in anim_info["frames"]:
-        images.append(imageio.imread(temp_folder + os.sep + info["file"]))
-        durations.append(float(info["delay"]) / 1000)
+    # durations = []
+    # images = []
+    # for info in anim_info["frames"]:
+    #     images.append(imageio.imread(temp_folder + os.sep + info["file"]))
+    #     durations.append(float(info["delay"]) / 1000)
 
-    kargs = {'duration': durations}
-    imageio.mimsave(temp_name, images, fmt, **kargs)
-    shutil.move(temp_name, exportname)
-    print_and_log('info', 'ugoira exported to: ' + exportname)
+    # kargs = {'duration': durations}
+    # imageio.mimsave(temp_name, images, fmt, **kargs)
+    # shutil.move(temp_name, exportname)
+    # print_and_log('info', 'ugoira exported to: ' + exportname)
 
-    shutil.rmtree(temp_folder)
-    if delete_ugoira:
-        print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
-        os.remove(ugoira_file)
+    # shutil.rmtree(temp_folder)
+    # if delete_ugoira:
+    #     print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+    #     os.remove(ugoira_file)
 
-    # set last-modified and last-accessed timestamp
-    if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
-        ts = time.mktime(image.worksDateDateTime.timetuple())
-        os.utime(exportname, (ts, ts))
+    # # set last-modified and last-accessed timestamp
+    # if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
+    #     ts = time.mktime(image.worksDateDateTime.timetuple())
+    #     os.utime(exportname, (ts, ts))
 
 
 def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
@@ -863,38 +872,6 @@ def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
                 param="-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0",
                 extension="apng",
                 image=image)
-    # temp_folder = tempfile.mkdtemp()
-    # temp_name = temp_folder + os.sep + "temp.png"
-
-    # with zipfile.ZipFile(ugoira_file) as f:
-    #     f.extractall(temp_folder)
-
-    # filenames = os.listdir(temp_folder)
-    # filenames.remove('animation.json')
-    # anim_info = json.load(open(temp_folder + '/animation.json'))
-
-    # files = []
-    # for info in anim_info["frames"]:
-    #     fImage = temp_folder + os.sep + info["file"]
-    #     delay = info["delay"]
-    #     files.append((fImage, delay))
-
-    # im = APNG()
-    # for fImage, delay in files:
-    #     im.append_file(fImage, delay=delay)
-    # im.save(temp_name)
-    # shutil.move(temp_name, exportname)
-    # print_and_log('info', 'ugoira exported to: ' + exportname)
-
-    # shutil.rmtree(temp_folder)
-    # if delete_ugoira:
-    #     print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
-    #     os.remove(ugoira_file)
-
-    # # set last-modified and last-accessed timestamp
-    # if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
-    #     ts = time.mktime(image.worksDateDateTime.timetuple())
-    #     os.utime(exportname, (ts, ts))
 
 
 def ugoira2webm(ugoira_file,
@@ -915,7 +892,7 @@ def ugoira2webm(ugoira_file,
 
         if exportname is None or len(exportname) == 0:
             name = '.'.join(ugoira_file.split('.')[:-1])
-            exportname = u"{0}.{1}".format(os.path.basename(name), extension)
+            exportname = f"{os.path.basename(name)}.{extension}"
 
         tempname = d + "/temp." + extension
 
@@ -935,14 +912,16 @@ def ugoira2webm(ugoira_file,
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
 
-        cmd = u"{0} -y -i \"{1}/i.ffconcat\" -c:v {2} {3} \"{4}\""
-        cmd = cmd.format(ffmpeg, d, codec, param, tempname)
+        cmd = f"{ffmpeg} -y -i \"{d}/i.ffconcat\" -c:v {codec} {param} \"{tempname}\""
+        if codec is None:
+            cmd = f"{ffmpeg} -y -i \"{d}/i.ffconcat\" {param} \"{tempname}\""
+
         ffmpeg_args = shlex.split(cmd)
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
         chatter = ""
-        print_and_log('info', u"Start encoding {0}".format(exportname))
+        print_and_log('info', f"Start encoding {exportname}")
         while p.stderr:
             buff = p.stderr.readline().decode('utf-8').rstrip('\n')
             chatter += buff
@@ -957,11 +936,12 @@ def ugoira2webm(ugoira_file,
         shutil.move(tempname, exportname)
 
         if delete_ugoira:
-            print_and_log('info', 'deleting ugoira {0}'.format(ugoira_file))
+            print_and_log('info', f'- Deleting ugoira {ugoira_file}')
             os.remove(ugoira_file)
 
         if ret is not None:
-            print_and_log(None, "done with status= {0}".format(ret))
+            print_and_log(None, f"- Done with status = {ret}")
+
         # set last-modified and last-accessed timestamp
         if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
             ts = time.mktime(image.worksDateDateTime.timetuple())
