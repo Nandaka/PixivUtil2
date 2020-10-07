@@ -669,7 +669,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args, options):
     if op_is_valid:
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
-        end_page = int(input("End Page = ").rstrip("\r")) or 0
+        end_page = int(input("End Page = ").rstrip("\r") or 0)
 
     ids = list()
     if via in [PixivModelFanbox.FanboxArtist.SUPPORTING, PixivModelFanbox.FanboxArtist.FOLLOWING]:
@@ -712,11 +712,10 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
     if op_is_valid and len(args) > 0:
         post_ids = args
     else:
-        post_ids = input("Post ids = ").rstrip("\r") or 0
+        post_ids = input("Post ids = ").rstrip("\r")
 
     post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
     for post_id in post_ids:
-        post_id = int(post_id)
         try:
             post = __br__.fanboxGetPostById(post_id)
             PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, post.parent)
@@ -741,10 +740,10 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
 
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        end_page = int(input("End page = ").rstrip("\r")) or 0
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
+        end_page = int(input("End page = ").rstrip("\r") or 0)
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
 
-        PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
+    PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
 
     for index, member_id in enumerate(member_ids, start=1):
         PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
