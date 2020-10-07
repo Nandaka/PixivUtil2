@@ -158,6 +158,7 @@ def menu():
     print('10. Download by Tag and Member Id')
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
+    print('13. Download by Manga Series Id')
     print('--FANBOX'.ljust(PADDING, "-"))
     print('f1. Download from supporting list (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
@@ -584,6 +585,33 @@ def menu_download_new_illust_from_bookmark(opisvalid, args, options):
                                                           end_page_num=end_page_num)
 
 
+def menu_download_by_manga_series_id(opisvalid, args, options):
+    __log__.info('Manga Series mode (13).')
+    manga_series_ids = []
+    start_page = 1
+    end_page = 0
+
+    if opisvalid:
+        (start_page, end_page) = get_start_and_end_page_from_options(options)
+        for manga_series_id in args:
+            if manga_series_id.isdigit():
+                manga_series_ids.append(int(manga_series_id))
+            else:
+                print(f"Possible invalid manga series id = {manga_series_id}")
+    else:
+        manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
+        (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
+        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids, sep=" ")
+        PixivHelper.print_and_log('info', "Manga Series IDs: {0}".format(manga_series_ids))
+
+    for manga_series_id in manga_series_ids:
+        PixivImageHandler.process_manga_series(sys.modules[__name__],
+                                               __config__,
+                                               manga_series_id=manga_series_id,
+                                               start_page=start_page,
+                                               end_page=end_page)
+
+
 def menu_download_by_group_id(opisvalid, args, options):
     __log__.info('Group mode (12).')
     process_external = False
@@ -832,7 +860,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'f1', 'f2', 'f3', 'f4', 'f5', 's1', 's2', 'd', 'e', 'm', 'b')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', 'f1', 'f2', 'f3', 'f4', 'f5', 's1', 's2', 'd', 'e', 'm', 'b')
     parser = OptionParser()
 
     # need to keep the whitespace to adjust the output for --help
@@ -973,6 +1001,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_member_bookmark(op_is_valid, args, options)
             elif selection == '12':
                 menu_download_by_group_id(op_is_valid, args, options)
+            elif selection == '13':
+                menu_download_by_manga_series_id(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':

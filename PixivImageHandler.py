@@ -31,7 +31,9 @@ def process_image(caller,
                   image_response_count=-1,
                   notifier=None,
                   job_option=None,
-                  useblacklist=True):
+                  useblacklist=True,
+                  manga_series_order=-1,
+                  manga_series_parent=None) -> int:
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
@@ -76,7 +78,9 @@ def process_image(caller,
             (image, parse_medium_page) = PixivBrowserFactory.getBrowser().getImagePage(image_id=image_id,
                                                                                        parent=artist,
                                                                                        from_bookmark=bookmark,
-                                                                                       bookmark_count=bookmark_count)
+                                                                                       bookmark_count=bookmark_count,
+                                                                                       manga_series_order=manga_series_order,
+                                                                                       manga_series_parent=manga_series_parent)
             if len(title_prefix) > 0:
                 caller.set_console_title(f"{title_prefix} ImageId: {image.imageId}")
             else:
@@ -342,4 +346,66 @@ def process_image(caller,
             PixivHelper.dump_html(dump_filename, parse_medium_page)
             PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')
 
+        raise
+
+
+def process_manga_series(caller,
+                         config,
+                         manga_series_id: int,
+                         start_page: int = 1,
+                         end_page: int = 0,
+                         notifier=None,
+                         job_option=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    try:
+        msg = Fore.YELLOW + Style.NORMAL + f'Processing Manga Series Id: {manga_series_id}' + Style.RESET_ALL
+        PixivHelper.print_and_log(None, msg)
+        notifier(type="MANGA_SERIES", message=msg)
+
+        if start_page != 1:
+            PixivHelper.print_and_log('info', 'Start Page: ' + str(start_page))
+        if end_page != 0:
+            PixivHelper.print_and_log('info', 'End Page: ' + str(end_page))
+
+        flag = True
+        current_page = start_page
+        while flag:
+            manga_series = PixivBrowserFactory.getBrowser().getMangaSeries(manga_series_id, current_page)
+            for (image_id, order) in manga_series.pages_with_order:
+                result = process_image(caller,
+                                       config,
+                                       artist=manga_series.artist,
+                                       image_id=image_id,
+                                       user_dir='',
+                                       bookmark=False,
+                                       search_tags='',
+                                       title_prefix="",
+                                       bookmark_count=-1,
+                                       image_response_count=-1,
+                                       notifier=notifier,
+                                       job_option=job_option,
+                                       useblacklist=True,
+                                       manga_series_order=order,
+                                       manga_series_parent=manga_series)
+                PixivHelper.wait(result, config)
+            current_page += 1
+            if manga_series.is_last_page:
+                PixivHelper.print_and_log('info', f'Last Page {manga_series.current_page}')
+                flag = False
+            if current_page > end_page and end_page != 0:
+                PixivHelper.print_and_log('info', f'End Page reached {end_page}')
+                flag = False
+            if manga_series.pages_with_order is None or len(manga_series.pages_with_order) == 0:
+                PixivHelper.print_and_log('info', f'No more works.')
+                flag = False
+
+    except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
+        caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at process_manga_series(): {manga_series_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
         raise

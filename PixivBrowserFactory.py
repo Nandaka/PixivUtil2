@@ -552,7 +552,8 @@ class PixivBrowser(mechanize.Browser):
                      from_bookmark=False,
                      bookmark_count=-1,
                      image_response_count=-1,
-                     manga_series_order=-1) -> (PixivImage, str):
+                     manga_series_order=-1,
+                     manga_series_parent=None) -> (PixivImage, str):
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
@@ -580,7 +581,8 @@ class PixivBrowser(mechanize.Browser):
                                    image_response_count,
                                    dateFormat=self._config.dateFormat,
                                    tzInfo=_tzInfo,
-                                   manga_series_order=manga_series_order)
+                                   manga_series_order=manga_series_order,
+                                   manga_series_parent=manga_series_parent)
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
@@ -1036,11 +1038,11 @@ class PixivBrowser(mechanize.Browser):
         (artist, _) = self.getMemberPage(manga_series.member_id)
         manga_series.artist = artist
 
-        # get the image details from work list
-        for (image_id, order) in manga_series.pages_with_order:
-            PixivHelper.print_and_log("info", f" - Fetching image details {image_id}")
-            (image, _) = self.getImagePage(image_id, parent=manga_series.artist, manga_series_order=order)
-            manga_series.images.append(image)
+        # # get the image details from work list
+        # for (image_id, order) in manga_series.pages_with_order:
+        #     PixivHelper.print_and_log("info", f" - Fetching image details {image_id}")
+        #     (image, _) = self.getImagePage(image_id, parent=manga_series.artist, manga_series_order=order)
+        #     manga_series.images.append(image)
 
         return manga_series
 

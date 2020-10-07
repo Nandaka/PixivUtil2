@@ -253,6 +253,9 @@ Please refer run with `--help` for latest information.
                             (required: followed by member_ids separated by space)
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
+                        13 - Download by Manga Series ID
+                            (required: Manga Series ID separated by space
+                             optional: --sp=START_PAGE, and --ep=END_PAGE))
                         f1 - Download from supported artists (FANBOX)
                             (optional: End Page)
                         f2 - Download by artist/creator id (FANBOX)
@@ -584,6 +587,18 @@ Available for filenameFormat and filenameMangaFormat:
 -> %image_response_count%
    Image respose count, will have overhead except on download by tags.
 ```
+Specific for filenameMangaFormat in Manga Series mode (option 13):
+```
+-> %manga_series_order%
+   the order in the manga series.
+-> %manga_series_id%
+   original manga series id.
+-> %manga_series_title%
+   original manga series title, different from work title.
+-> %manga_series_desc%
+   original manga series description, different from work description.
+```
+
 # list.txt Format
 - This file should be build in the following way, white space will be trimmed,
   see example:

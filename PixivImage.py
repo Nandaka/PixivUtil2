@@ -76,6 +76,7 @@ class PixivImage (object):
 
     # only applicable for manga series
     manga_series_order: int = -1
+    manga_series_parent = None
 
     def __init__(self,
                  iid=0,
@@ -86,7 +87,8 @@ class PixivImage (object):
                  image_response_count=-1,
                  dateFormat=None,
                  tzInfo=None,
-                 manga_series_order=-1):
+                 manga_series_order=-1,
+                 manga_series_parent=None):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
@@ -97,7 +99,9 @@ class PixivImage (object):
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
         self.tags = list()
+        # only for manga series
         self.manga_series_order = manga_series_order
+        self.manga_series_parent = manga_series_parent
 
         if page is not None:
 
@@ -464,6 +468,7 @@ class PixivMangaSeries:
     total_works: int = 0
     title: str = ""
     description: str = ""
+    is_last_page = False
 
     # object data
     artist: PixivArtist = None
@@ -493,6 +498,8 @@ class PixivMangaSeries:
 
         for work_id in payload["page"]["series"]:
             self.pages_with_order.append((work_id["workId"], work_id["order"]))
+            if int(work_id["order"]) == 1:
+                self.is_last_page = True
 
     def print_info(self):
         works_per_page = 12

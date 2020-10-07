@@ -23,12 +23,15 @@ import webbrowser
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
+from typing import Union
 
 import mechanize
 from colorama import Fore, Style
 
 import PixivConstant
-from PixivImage import PixivImage
+from PixivArtist import PixivArtist
+from PixivImage import PixivImage, PixivMangaSeries
+from PixivModelFanbox import FanboxArtist, FanboxPost
 
 logger = None
 _config = None
@@ -134,9 +137,17 @@ def replace_path_separator(s, replacement='_'):
     return s.replace('/', replacement).replace('\\', replacement)
 
 
-def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tagsLimit=-1, fileUrl='',
-                  appendExtension=True, bookmark=False, searchTags='',
-                  useTranslatedTag=False, tagTranslationLocale="en"):
+def make_filename(nameFormat: str,
+                  imageInfo: Union[PixivImage, FanboxPost],
+                  artistInfo: Union[PixivArtist, FanboxArtist] = None,
+                  tagsSeparator=' ',
+                  tagsLimit=-1,
+                  fileUrl='',
+                  appendExtension=True,
+                  bookmark=False,
+                  searchTags='',
+                  useTranslatedTag=False,
+                  tagTranslationLocale="en") -> str:
     '''Build the filename from given info to the given format.'''
     if artistInfo is None:
         artistInfo = imageInfo.artist
@@ -199,6 +210,19 @@ def make_filename(nameFormat, imageInfo, artistInfo=None, tagsSeparator=' ', tag
     nameFormat = nameFormat.replace('%page_big%', page_big)
     nameFormat = nameFormat.replace('%page_index%', page_index)
     nameFormat = nameFormat.replace('%page_number%', page_number)
+
+    # Manga Series related
+    if hasattr(imageInfo, "manga_series_parent") and imageInfo.manga_series_parent is not None:
+        ms: PixivMangaSeries = imageInfo.manga_series_parent
+        nameFormat = nameFormat.replace('%manga_series_order%', str(imageInfo.manga_series_order))
+        nameFormat = nameFormat.replace('%manga_series_id%', str(ms.manga_series_id))
+        nameFormat = nameFormat.replace('%manga_series_title%', ms.title)
+        nameFormat = nameFormat.replace('%manga_series_desc%', ms.description)
+    else:
+        nameFormat = nameFormat.replace('%manga_series_order%', '')
+        nameFormat = nameFormat.replace('%manga_series_id%', '')
+        nameFormat = nameFormat.replace('%manga_series_title%', '')
+        nameFormat = nameFormat.replace('%manga_series_desc%', '')
 
     if tagsSeparator == '%space%':
         tagsSeparator = ' '
