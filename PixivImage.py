@@ -9,6 +9,7 @@ import urllib
 import zipfile
 from collections import OrderedDict
 from datetime import datetime
+from typing import List, Tuple
 
 import demjson
 from bs4 import BeautifulSoup
@@ -73,8 +74,19 @@ class PixivImage (object):
     _tzInfo = None
     tags = list()
 
-    def __init__(self, iid=0, page=None, parent=None, fromBookmark=False,
-                 bookmark_count=-1, image_response_count=-1, dateFormat=None, tzInfo=None):
+    # only applicable for manga series
+    manga_series_order: int = -1
+
+    def __init__(self,
+                 iid=0,
+                 page=None,
+                 parent=None,
+                 fromBookmark=False,
+                 bookmark_count=-1,
+                 image_response_count=-1,
+                 dateFormat=None,
+                 tzInfo=None,
+                 manga_series_order=-1):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
@@ -85,11 +97,12 @@ class PixivImage (object):
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
         self.tags = list()
+        self.manga_series_order = manga_series_order
 
         if page is not None:
 
             # Issue #556
-            payload = parseJs(page)
+            payload = self.parseJs(page)
 
             # check error
             if payload is None:
@@ -428,17 +441,69 @@ class PixivImage (object):
         with zipfile.ZipFile(zipTarget, mode="a") as z:
             z.writestr("animation.json", jsStr)
 
+    def parseJs(self, page):
+        parsed = BeautifulSoup(page, features="html5lib")
+        jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
 
-def parseJs(page):
-    parsed = BeautifulSoup(page, features="html5lib")
-    jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
+        # cleanup
+        parsed.decompose()
+        del parsed
 
-    # cleanup
-    parsed.decompose()
-    del parsed
+        if jss is None or len(jss["content"]) == 0:
+            return None  # Possibly error page
 
-    if jss is None or len(jss["content"]) == 0:
-        return None  # Possibly error page
+        payload = demjson.decode(jss["content"])
+        return payload
 
-    payload = demjson.decode(jss["content"])
-    return payload
+
+class PixivMangaSeries:
+    manga_series_id: int = 0
+    member_id: int = 0
+    pages_with_order: List[Tuple[int, int]] = []
+    current_page: int = 0
+    total_works: int = 0
+    title: str = ""
+    description: str = ""
+
+    # object data
+    artist: PixivArtist = None
+    images: List[PixivImage] = []
+
+    def __init__(self, manga_series_id: int, current_page: int, payload: str):
+        self.manga_series_id = manga_series_id
+        self.current_page = current_page
+
+        if payload is not None:
+            js = json.loads(payload)
+
+            if js["error"]:
+                raise PixivException(message=js["message"], errorCode=PixivException.OTHER_ERROR, htmlPage=payload)
+            self.parse_info(js["body"])
+
+    def parse_info(self, payload):
+        self.title = payload["extraData"]["meta"]["title"]
+        self.description = payload["extraData"]["meta"]["description"]
+        self.total_works = payload["page"]["total"]
+
+        # possible to get multiple artists, not supported yet
+        # for now just take the first artist.
+        if len(payload["users"]) > 1:
+            raise PixivException(f"Multiple artist detected in manga series: {self.manga_series_id}", errorCode=PixivException.OTHER_ERROR, htmlPage=payload)
+        self.member_id = payload["users"][0]["userId"]
+
+        for work_id in payload["page"]["series"]:
+            self.pages_with_order.append((work_id["workId"], work_id["order"]))
+
+    def print_info(self):
+        works_per_page = 12
+        PixivHelper.safePrint('Manga Series Info')
+        PixivHelper.safePrint(f'Manga Series ID: {self.manga_series_id}')
+        PixivHelper.safePrint(f'Artist ID      : {self.member_id}')
+        if self.artist is not None:
+            PixivHelper.safePrint(f'Artist Name    : {self.artist.artistName}')
+        PixivHelper.safePrint(f'Title          : {self.title}')
+        PixivHelper.safePrint(f'Description    : {self.description}')
+        PixivHelper.safePrint(f'Pages          : {self.current_page} of {int(self.total_works/works_per_page)}')
+        PixivHelper.safePrint(f'Works          :')
+        for (work_id, order) in self.pages_with_order:
+            PixivHelper.safePrint(f' - [{order}] {work_id}')

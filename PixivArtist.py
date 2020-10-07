@@ -25,8 +25,10 @@ class PixivArtist:
     offset = None
     limit = None
     reference_image_id = 0
+    manga_series = []
+    novel_series = []
 
-    def __init__(self, mid=0, page=None, fromImage=False, offset=None, limit=None):
+    def __init__(self, mid: int = 0, page: str = None, fromImage=False, offset: int = None, limit: int = None):
         self.offset = offset
         self.limit = limit
         self.artistId = mid
@@ -42,13 +44,25 @@ class PixivArtist:
                     raise PixivException("Missing body content, possible artist id doesn't exists.",
                                          errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
                 self.ParseImages(payload["body"])
+                self.ParseMangaList(payload["body"])
+                self.ParseNovelList(payload["body"])
             else:
-                payload = parseJs(page)
+                payload = self.parseJs(page)
                 self.isLastPage = True
                 self.haveImages = True
 
             # parse artist info
             self.ParseInfo(payload, fromImage)
+
+    def ParseMangaList(self, payload):
+        if payload is not None and "mangaSeries" in payload:
+            for manga_series_id in payload["mangaSeries"]:
+                self.manga_series.append(int(manga_series_id["id"]))
+
+    def ParseNovelList(self, payload):
+        if payload is not None and "novelSeries" in payload:
+            for novel_series_id in payload["novelSeries"]:
+                self.novel_series.append(int(novel_series_id["id"]))
 
     def ParseInfo(self, page, fromImage=False, bookmark=False):
         self.artistId = 0
@@ -183,17 +197,17 @@ class PixivArtist:
         PixivHelper.safePrint('total : {0}'.format(self.totalImages))
         PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
 
+    def parseJs(self, page):
+        ''' get the <meta> tag for attribute meta-preload-data and return json object'''
+        parsed = BeautifulSoup(page, features="html5lib")
+        jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
 
-def parseJs(page):
-    parsed = BeautifulSoup(page, features="html5lib")
-    jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
+        # cleanup
+        parsed.decompose()
+        del parsed
 
-    # cleanup
-    parsed.decompose()
-    del parsed
+        if jss is None or len(jss["content"]) == 0:
+            return None  # Possibly error page
 
-    if jss is None or len(jss["content"]) == 0:
-        return None  # Possibly error page
-
-    payload = demjson.decode(jss["content"])
-    return payload
+        payload = demjson.decode(jss["content"])
+        return payload

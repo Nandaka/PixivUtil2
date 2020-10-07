@@ -10,6 +10,7 @@ import sys
 import time
 import traceback
 import urllib
+from typing import Union
 
 import demjson
 import mechanize
@@ -19,9 +20,9 @@ from bs4 import BeautifulSoup
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
-from PixivImage import PixivImage
+from PixivImage import PixivImage, PixivMangaSeries
 from PixivModelFanbox import FanboxArtist, FanboxPost
-from PixivModelSketch import SketchPost, SketchArtist
+from PixivModelSketch import SketchArtist, SketchPost
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
 
@@ -223,7 +224,7 @@ class PixivBrowser(mechanize.Browser):
                     raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus."
                                          .format(temp), errorCode=PixivException.SERVER_ERROR)
 
-    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True):
+    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True) -> Union[str, BeautifulSoup]:
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
             throw PixivException as server error
@@ -545,8 +546,13 @@ class PixivBrowser(mechanize.Browser):
         del page
         return r
 
-    def getImagePage(self, image_id, parent=None, from_bookmark=False,
-                     bookmark_count=-1, image_response_count=-1):
+    def getImagePage(self,
+                     image_id,
+                     parent=None,
+                     from_bookmark=False,
+                     bookmark_count=-1,
+                     image_response_count=-1,
+                     manga_series_order=-1) -> (PixivImage, str):
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
@@ -573,7 +579,8 @@ class PixivBrowser(mechanize.Browser):
                                    bookmark_count,
                                    image_response_count,
                                    dateFormat=self._config.dateFormat,
-                                   tzInfo=_tzInfo)
+                                   tzInfo=_tzInfo,
+                                   manga_series_order=manga_series_order)
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
@@ -677,7 +684,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False) -> (PixivArtist, str):
         artist = None
         response = None
         if tags is None:
@@ -1013,6 +1020,30 @@ class PixivBrowser(mechanize.Browser):
 
         return artist
 
+    def getMangaSeries(self, manga_series_id: int, current_page: int) -> PixivMangaSeries:
+        PixivHelper.print_and_log("info", f"Getting Manga Series: {manga_series_id} from page: {current_page}")
+        # get the manga information
+        # https://www.pixiv.net/ajax/series/6474?p=5&lang=en
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            locale = f"&lang={self._locale}"
+        url = f"https://www.pixiv.net/ajax/series/{manga_series_id}?p={current_page}{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        manga_series = PixivMangaSeries(manga_series_id, current_page, payload=response)
+
+        # get the artist information from given manga list
+        PixivHelper.print_and_log("info", f" - Fetching artist details {manga_series.member_id}")
+        (artist, _) = self.getMemberPage(manga_series.member_id)
+        manga_series.artist = artist
+
+        # get the image details from work list
+        for (image_id, order) in manga_series.pages_with_order:
+            PixivHelper.print_and_log("info", f" - Fetching image details {image_id}")
+            (image, _) = self.getImagePage(image_id, parent=manga_series.artist, manga_series_order=order)
+            manga_series.images.append(image)
+
+        return manga_series
+
 
 def getBrowser(config=None, cookieJar=None):
     global defaultCookieJar
@@ -1196,12 +1227,17 @@ def test():
             for post in result2.posts:
                 print(post)
 
+        def testMangaSeries():
+            result = b.getMangaSeries(6474, 1)
+            result.print_info()
+
         # testFanbox()
-        testSketch()
+        # testSketch()
         # testSearchTags()
         # testImage()
         # testMember()
         # testMemberBookmark()
+        testMangaSeries()
 
     else:
         print("Invalid username or password")
