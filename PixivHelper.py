@@ -908,6 +908,7 @@ def ugoira2webm(ugoira_file,
             cmd = f"{ffmpeg} -y -i \"{d}/i.ffconcat\" {param} \"{tempname}\""
 
         ffmpeg_args = shlex.split(cmd)
+        get_logger().info(f"[ugoira2webm()] running with cmd: {cmd}")
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
