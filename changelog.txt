@@ -1,3 +1,17 @@
+20201009-beta1
+- add cmd logging when converting ugoira.
+- Implement #406: add option 13: download by manga series
+  - Specific for filenameMangaFormat in Manga Series mode (option 13):
+    -> %manga_series_order%
+       the order in the manga series.
+    -> %manga_series_id%
+       original manga series id.
+    -> %manga_series_title%
+       original manga series title, different from work title.
+    -> %manga_series_desc%
+       original manga series description, different from work description.
+- Merge #806 fix for Fanbox EndPage input parameter (#808) by amatuerCoder.
+
 20201006
 - Implement #797: reload blacklist on after reloading main menu.
 - Implement #793: allow to download sketch when using option 1.
