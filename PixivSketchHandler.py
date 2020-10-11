@@ -8,6 +8,7 @@ import PixivBrowserFactory
 import PixivConstant
 import PixivHelper
 import PixivDownloadHandler
+from PixivException import PixivException
 
 
 def process_sketch_post(caller, config, post_id):
@@ -57,6 +58,8 @@ def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0):
             PixivHelper.print_and_log('info', f'Post ID   : {item.imageId}')
             download_post(caller, config, item)
             current_post = current_post + 1
+    except PixivException as pex:
+        PixivHelper.print_and_log("error", f"Failed to process PixivSketch for {artist_id}, maybe doesn't have PixivSketch? ==> {pex.message}")
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise

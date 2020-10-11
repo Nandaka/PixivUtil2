@@ -209,8 +209,8 @@ def menu_download_by_member_id(opisvalid, args, options):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        include_sketch = input('Include Pixiv Sketch [y/n]? ') or 'n'
-        if include_sketch.lower() == 'y':
+        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ') or 'n'
+        if include_sketch_ask.lower() == 'y':
             include_sketch = True
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
