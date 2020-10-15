@@ -34,10 +34,8 @@ _browser = None
 # pylint: disable=E1101
 class PixivBrowser(mechanize.Browser):
     _config = None
-    _isWhitecube = False
-    _whitecubeToken = ""
     _cache = dict()
-    _max_cache = 10000  # keep 1000 item in memory
+    _max_cache = 10000  # keep n-item in memory
     _myId = 0
     _isPremium = False
 
@@ -1230,13 +1228,13 @@ def test():
             result = b.getMangaSeries(6474, 1)
             result.print_info()
 
-        # testFanbox()
+        testFanbox()
         # testSketch()
         # testSearchTags()
-        # testImage()
+        testImage()
         # testMember()
-        # testMemberBookmark()
-        testMangaSeries()
+        testMemberBookmark()
+        # testMangaSeries()
 
     else:
         print("Invalid username or password")

@@ -843,13 +843,13 @@ def ugoira2gif(ugoira_file, exportname, delete_ugoira, fmt='gif', image=None):
     print_and_log('info', 'processing ugoira to animated gif...')
     # Issue #802 use ffmpeg to convert to gif
     ugoira2webm(ugoira_file,
-            exportname,
-            delete_ugoira,
-            ffmpeg=_config.ffmpeg,
-            codec=None,
-            param="-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\"",
-            extension="gif",
-            image=image)
+                exportname,
+                delete_ugoira,
+                ffmpeg=_config.ffmpeg,
+                codec=None,
+                param="-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\"",
+                extension="gif",
+                image=image)
 
 
 def ugoira2apng(ugoira_file, exportname, delete_ugoira, image=None):
