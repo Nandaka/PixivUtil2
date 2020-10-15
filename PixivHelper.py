@@ -19,6 +19,7 @@ import time
 import traceback
 import unicodedata
 import urllib
+import urllib.parse
 import webbrowser
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
@@ -1091,7 +1092,7 @@ def dummy_notifier(type=None, message=None, **kwargs):
 
 
 def get_extension_from_url(url):
-    o = urllib.urlparse(url, scheme='', allow_fragments=True)
+    o = urllib.parse.urlparse(url, scheme='', allow_fragments=True)
     ext = os.path.splitext(o.path)
     return ext[1]
 
