@@ -8,6 +8,7 @@ from PixivImage import PixivTagData
 
 class SketchArtist(object):
     artistId = 0
+    sketchArtistId = 0
     artistName = ""
     artistAvatar = ""
     artistToken = ""
@@ -33,7 +34,13 @@ class SketchArtist(object):
             # from https://sketch.pixiv.net/api/replies/3192562692181961341.json
             root = page["item"]["user"]
 
-        self.artistId = root["id"]
+        # Issue #812
+        if "pixiv_user_id" in root:
+            self.artistId = root["pixiv_user_id"]
+        else:
+            self.artistId = root["id"]
+
+        self.sketchArtistId = root["id"]
         self.artistName = root["name"]
         self.artistToken = root["unique_name"]
         self.artistAvatar = root["icon"]["photo"]["original"]["url"]

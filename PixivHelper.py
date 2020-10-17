@@ -168,6 +168,10 @@ def make_filename(nameFormat: str,
     nameFormat = nameFormat.replace('%member_id%', str(artistInfo.artistId))
     nameFormat = nameFormat.replace('%member_token%', artistInfo.artistToken)
 
+    # sketch related
+    if hasattr(artistInfo, "sketchArtistId"):
+        nameFormat = nameFormat.replace('%sketch_member_id%', artistInfo.sketchArtistId)
+
     # image related
     nameFormat = nameFormat.replace('%title%', replace_path_separator(imageInfo.imageTitle))
     nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
