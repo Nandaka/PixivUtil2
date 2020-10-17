@@ -1,4 +1,4 @@
-20201009-beta1
+20201017-beta2
 - add cmd logging when converting ugoira.
 - Implement #406: add option 13: download by manga series
   - Specific for filenameMangaFormat in Manga Series mode (option 13):
@@ -11,6 +11,8 @@
     -> %manga_series_desc%
        original manga series description, different from work description.
 - Merge #806 fix for Fanbox EndPage input parameter (#808) by amatuerCoder.
+- Implement #812: handle different Sketch and Pixiv artist id.
+  - add new filename format `%sketch_member_id%` for PixivSketch
 
 20201006
 - Implement #797: reload blacklist on after reloading main menu.

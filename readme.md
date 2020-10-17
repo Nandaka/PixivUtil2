@@ -598,7 +598,11 @@ Specific for filenameMangaFormat in Manga Series mode (option 13):
 -> %manga_series_desc%
    original manga series description, different from work description.
 ```
-
+Specific for PixivSketch (option 1 if PixivSketch included, s1, and s2 ):
+```
+-> %sketch_member_id%
+   Pixiv Sketch artist id, might be different from Pixiv's artist id.
+```
 # list.txt Format
 - This file should be build in the following way, white space will be trimmed,
   see example:
