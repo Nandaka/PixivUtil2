@@ -13,6 +13,7 @@
 - Merge #806 fix for Fanbox EndPage input parameter (#808) by amatuerCoder.
 - Implement #812: handle different Sketch and Pixiv artist id.
   - add new filename format `%sketch_member_id%` for PixivSketch
+- Fix Issue #822: Update parser for user's image bookmark.
 
 20201006
 - Implement #797: reload blacklist on after reloading main menu.

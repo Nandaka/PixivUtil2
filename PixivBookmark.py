@@ -61,7 +61,11 @@ class PixivBookmark(object):
         for work in image_bookmark["body"]["works"]:
             if "isAdContainer" in work and work["isAdContainer"]:
                 continue
-            imageList.append(int(work["illustId"]))
+            # Issue #822
+            if "illustId" in work:
+                imageList.append(int(work["illustId"]))
+            elif "id" in work:
+                imageList.append(int(work["id"]))
 
         # temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
         # temp = temp.findAll('a')
