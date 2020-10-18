@@ -113,12 +113,14 @@ class PixivOAuth():
             info = json.loads(oauth_response.text)
             self._refresh_token = info["response"]["refresh_token"]
             self._access_token = info["response"]["access_token"]
-        elif oauth_response.status_code == 400:
+        elif oauth_response.status_code in (400, 403):
             info = oauth_response.text
             try:
                 info = json.loads(info)["errors"]["system"]["message"]
             except (ValueError, KeyError):
-                pass
+                if info is not None:
+                    PixivHelper.dump_html(f"Error - oAuth login.html", info)
+
             PixivHelper.print_and_log('error', info)
             raise PixivException("Failed to login using OAuth", PixivException.OAUTH_LOGIN_ISSUE)
 
