@@ -613,7 +613,7 @@ class PixivBrowser(mechanize.Browser):
         try:
             info = None
             if int(artist.reference_image_id) > 0:
-                url = "https://www.pixiv.net/rpc/get_work.php?id={0}".format(artist.reference_image_id)
+                url = f"https://www.pixiv.net/rpc/get_work.php?id={artist.reference_image_id}"
                 PixivHelper.get_logger().debug("using webrpc: %s", url)
                 info = self._get_from_cache(url)
                 if info is None:
@@ -900,8 +900,12 @@ class PixivBrowser(mechanize.Browser):
                                   js_body["user"]["name"],
                                   js_body["creatorId"],
                                   tzInfo=_tzInfo)
-            pixivArtist = PixivArtist(artist.artistId)
-            self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+
+            # Issue #827, less efficient call, but it can avoid oAuth issue
+            # pixivArtist = PixivArtist(artist.artistId)
+            # self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+            (pixivArtist, _) = self.getMemberPage(artist.artistId)
+
             artist.artistName = pixivArtist.artistName
             artist.artistToken = pixivArtist.artistToken
             return artist
