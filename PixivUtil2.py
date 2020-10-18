@@ -214,11 +214,11 @@ def menu_download_by_member_id(opisvalid, args, options):
             include_sketch = True
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
-        PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
+        PixivHelper.print_and_log('info', f"Member IDs: f{member_ids}")
 
     for member_id in member_ids:
         try:
-            prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+            prefix = f"[{current_member} of {len(member_ids)}] "
             PixivArtistHandler.process_member(sys.modules[__name__],
                                                 __config__,
                                                 member_id,
@@ -238,7 +238,7 @@ def menu_download_by_member_id(opisvalid, args, options):
 
             current_member = current_member + 1
         except PixivException as ex:
-            PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+            PixivHelper.print_and_log('error', f"Member ID: {member_id} is not valid")
             global ERROR_CODE
             ERROR_CODE = -1
             continue
@@ -259,14 +259,14 @@ def menu_download_by_member_bookmark(opisvalid, args, options):
                 test_id = int(member_id)
                 valid_ids.append(test_id)
             except BaseException:
-                PixivHelper.print_and_log('error', "Member ID: {0} is not valid".format(member_id))
+                PixivHelper.print_and_log('error', f"Member ID: {member_id} is not valid")
                 global ERROR_CODE
                 ERROR_CODE = -1
                 continue
         if __br__._myId in valid_ids:
-            PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(__br__._myId))
+            PixivHelper.print_and_log('error', f"Member ID: {__br__._myId} is your own id, use option 6 instead.")
         for mid in valid_ids:
-            prefix = "[{0} of {1}] ".format(current_member, len(valid_ids))
+            prefix = f"[{current_member} of {len(valid_ids)}] "
             PixivArtistHandler.process_member(sys.modules[__name__],
                                               __config__,
                                               mid,
@@ -282,7 +282,7 @@ def menu_download_by_member_bookmark(opisvalid, args, options):
         tags = input('Filter Tags: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         if __br__._myId == int(member_id):
-            PixivHelper.print_and_log('error', "Member ID: {0} is your own id, use option 6 instead.".format(member_id))
+            PixivHelper.print_and_log('error', f"Member ID: {member_id} is your own id, use option 6 instead.")
         else:
             PixivArtistHandler.process_member(sys.modules[__name__],
                                               __config__,
@@ -305,7 +305,7 @@ def menu_download_by_image_id(opisvalid, args, options):
                                                 image_id=test_id,
                                                 useblacklist=False)
             except BaseException:
-                PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
+                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
                 global ERROR_CODE
                 ERROR_CODE = -1
                 continue
@@ -491,7 +491,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
 
     if opisvalid and len(args) > 0:
         if len(args) > 0:
-            tag = args[1]
+            tag = args[0]
 
         (start_page, end_page) = get_start_and_end_page_from_options(options)
         if options.bookmark_flag is not None:
@@ -602,7 +602,7 @@ def menu_download_by_manga_series_id(opisvalid, args, options):
         manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids, sep=" ")
-        PixivHelper.print_and_log('info', "Manga Series IDs: {0}".format(manga_series_ids))
+        PixivHelper.print_and_log('info', f"Manga Series IDs: {manga_series_ids}")
 
     for manga_series_id in manga_series_ids:
         PixivImageHandler.process_manga_series(sys.modules[__name__],
@@ -669,7 +669,7 @@ def menu_export_online_user_bookmark(opisvalid, args, options):
         if len(args) > 1:
             filename = args[1]
         else:
-            filename = "export-user-{0}.txt".format(arg)
+            filename = f"export-user-{arg}.txt"
     else:
         filename = input("Filename: ").rstrip("\r") or filename
         arg = input("Member Id: ").rstrip("\r") or ''
@@ -756,7 +756,7 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
             else:
                 continue
         except PixivException as pex:
-            PixivHelper.print_and_log("error", "Error processing FANBOX post: {0} ==> {1}".format(post_id, pex.message))
+            PixivHelper.print_and_log("error", f"Error processing FANBOX post: {post_id} ==> {pex.message}")
 
 
 def menu_fanbox_download_by_id(op_is_valid, args, options):
@@ -771,7 +771,7 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
         end_page = int(input("End page = ").rstrip("\r") or 0)
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
 
-    PixivHelper.print_and_log('info', "Member IDs: {0}".format(member_ids))
+    PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
 
     for index, member_id in enumerate(member_ids, start=1):
         PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
@@ -790,12 +790,12 @@ def menu_sketch_download_by_artist_id(opisvalid, args, options):
     if opisvalid and len(args) > 0:
         for member_id in args:
             try:
-                prefix = "[{0} of {1}] ".format(current_member, len(args))
+                prefix = f"[{current_member} of {len(args)}] "
                 PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                         __config__,
-                                                         member_id,
-                                                         page,
-                                                         end_page)
+                                                          __config__,
+                                                          member_id,
+                                                          page,
+                                                          end_page)
                 current_member = current_member + 1
             except PixivException as ex:
                 PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
@@ -805,15 +805,15 @@ def menu_sketch_download_by_artist_id(opisvalid, args, options):
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
-        PixivHelper.print_and_log('info', "Artist IDs: {0}".format(member_ids))
+        PixivHelper.print_and_log('info', f"Artist IDs: {member_ids}")
         for member_id in member_ids:
             try:
-                prefix = "[{0} of {1}] ".format(current_member, len(member_ids))
+                prefix = f"[{current_member} of {len(member_ids)}] "
                 PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                         __config__,
-                                                         member_id,
-                                                         page,
-                                                         end_page)
+                                                          __config__,
+                                                          member_id,
+                                                          page,
+                                                          end_page)
                 current_member = current_member + 1
             except PixivException as ex:
                 PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
@@ -829,7 +829,7 @@ def menu_sketch_download_by_post_id(opisvalid, args, options):
                                                         __config__,
                                                         image_id)
             except BaseException:
-                PixivHelper.print_and_log('error', "Image ID: {0} is not valid".format(image_id))
+                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
                 global ERROR_CODE
                 ERROR_CODE = -1
                 continue
@@ -853,7 +853,7 @@ def menu_print_config():
 
 
 def set_console_title(title=''):
-    set_title = 'PixivDownloader {0} {1}'.format(PixivConstant.PIXIVUTIL_VERSION, title)
+    set_title = f'PixivDownloader {PixivConstant.PIXIVUTIL_VERSION} {title}'
     PixivHelper.set_console_title(set_title)
 
 
@@ -1050,14 +1050,14 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 break
             op_is_valid = False  # Yavos: needed to prevent endless loop
         except KeyboardInterrupt:
-            PixivHelper.print_and_log("info", "Keyboard Interrupt pressed, selection: {0}".format(selection))
+            PixivHelper.print_and_log("info", f"Keyboard Interrupt pressed, selection: {selection}")
             PixivHelper.clearScreen()
             print("Restarting...")
             selection = menu()
         except PixivException as ex:
             if ex.htmlPage is not None:
-                filename = PixivHelper.sanitize_filename(ex.value)
-                PixivHelper.dump_html("Dump for {0}.html".format(filename), ex.htmlPage)
+                filename = f"Dump for {PixivHelper.sanitize_filename(ex.value)}.html"
+                PixivHelper.dump_html(filename, ex.htmlPage)
             raise  # keep old behaviour
 
     return np_is_valid_local, op_is_valid, selection
@@ -1080,7 +1080,7 @@ def doLogin(password, username):
             result = __br__.login(username, password)
 
     except BaseException:
-        PixivHelper.print_and_log('error', 'Error at doLogin(): {0}'.format(str(sys.exc_info())))
+        PixivHelper.print_and_log('error', f'Error at doLogin(): {sys.exc_info()}')
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
     return result
 
@@ -1167,8 +1167,7 @@ def main():
         __config__.loadConfig(path=configfile)
         PixivHelper.set_config(__config__)
     except BaseException:
-        print('Failed to read configuration.')
-        __log__.exception('Failed to read configuration.')
+        PixivHelper.print_and_log("error", f'Failed to read configuration from {configfile}.')
 
     PixivHelper.set_log_level(__config__.logLevel)
     if __br__ is None:
@@ -1234,37 +1233,36 @@ def main():
 
         if __config__.createWebm:
             import shlex
-            cmd = u"{0} -encoders".format(__config__.ffmpeg)
+            cmd = f"{__config__.ffmpeg} -encoders"
             ffmpeg_args = shlex.split(cmd)
             try:
                 p = subprocess.run(ffmpeg_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, check=True)
                 buff = p.stdout
                 if buff.find(__config__.ffmpegCodec) == 0:
                     __config__.createWebm = False
-                    PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
-                    PixivHelper.print_and_log('error', 'Missing {0} encoder, createWebm disabled.'.format(__config__.ffmpegCodec))
-                    PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
-                    PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
-                    PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
+                    PixivHelper.print_and_log('error', f'{"#" * 80}')
+                    PixivHelper.print_and_log('error', f'Missing {__config__.ffmpegCodec} encoder, createWebm disabled.')
+                    PixivHelper.print_and_log('error', f'Command used: {cmd}')
+                    PixivHelper.print_and_log('info', f'Please download ffmpeg with {__config__.ffmpegCodec} encoder enabled.')
+                    PixivHelper.print_and_log('error', f'{"#" * 80}')
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 __config__.createWebm = False
-                PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
-                PixivHelper.print_and_log('error', 'Failed to load ffmpeg, createWebm disabled: {0}'.format(exc_value))
-                PixivHelper.print_and_log('error', 'Command used: {0}.'.format(cmd))
-                PixivHelper.print_and_log('info', 'Please download ffmpeg with {0} encoder enabled.'.format(__config__.ffmpegCodec))
-                PixivHelper.print_and_log('error', '{0}'.format("#" * 80))
+                PixivHelper.print_and_log('error', f'{"#" * 80}')
+                PixivHelper.print_and_log('error', f'Failed to load ffmpeg, createWebm disabled: {exc_value}')
+                PixivHelper.print_and_log('error', f'Command used: {cmd}')
+                PixivHelper.print_and_log('info', f'Please download ffmpeg with {__config__.ffmpegCodec} encoder enabled.')
+                PixivHelper.print_and_log('error', f'{"#" * 80}')
 
         if __config__.useLocalTimezone:
-            PixivHelper.print_and_log("info", "Using local timezone: {0}".format(PixivHelper.LocalUTCOffsetTimezone()))
+            PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
 
         username = __config__.username
         if username == '':
             username = input('Username ? ').rstrip("\r")
         else:
-            msg = 'Using Username: ' + username
-            print(msg)
-            __log__.info(msg)
+            msg = f'Using Username: {username}'
+            PixivHelper.print_and_log('info', msg)
 
         password = __config__.password
         if password == '':
@@ -1288,9 +1286,10 @@ def main():
         PixivHelper.print_and_log('error', pex.message)
         ERROR_CODE = pex.errorCode
     except Exception as ex:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        traceback.print_exception(exc_type, exc_value, exc_traceback)
-        __log__.exception('Unknown Error: %s', str(exc_value))
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # traceback.print_exception(exc_type, exc_value, exc_traceback)
+        # __log__.exception('Unknown Error: %s', str(exc_value))
+        PixivHelper.print_and_log("error", f"Unknown Error: {sys.exc_info()}")
         ERROR_CODE = getattr(ex, 'errorCode', -1)
     finally:
         __dbManager__.close()
