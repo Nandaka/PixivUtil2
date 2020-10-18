@@ -218,9 +218,9 @@ class PixivBrowser(mechanize.Browser):
                     if isinstance(url, urllib.request.Request):
                         temp = url.full_url
 
-                    PixivHelper.print_and_log('error', 'Error at open_with_retry(): {0}'.format(str(sys.exc_info())))
-                    raise PixivException("Failed to get page: {0}, please check your internet connection/firewall/antivirus."
-                                         .format(temp), errorCode=PixivException.SERVER_ERROR)
+                    PixivHelper.print_and_log('error', f'Error at open_with_retry(): {sys.exc_info()}')
+                    raise PixivException(f"Failed to get page: {temp}, please check your internet connection/firewall/antivirus.",
+                                         errorCode=PixivException.SERVER_ERROR)
 
     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True) -> Union[str, BeautifulSoup]:
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
@@ -446,7 +446,7 @@ class PixivBrowser(mechanize.Browser):
             return result
         except BaseException:
             traceback.print_exc()
-            PixivHelper.print_and_log('error', 'Error at login(): {0}'.format(sys.exc_info()))
+            PixivHelper.print_and_log('error', f'Error at login(): {sys.exc_info()}')
             PixivHelper.dump_html("login_error.html", str(parsed))
             raise
         finally:
@@ -532,7 +532,7 @@ class PixivBrowser(mechanize.Browser):
                 temp = re.findall(r"var dataLayer = .*premium: '(\w+)'", parsed)
                 if temp is not None and len(temp) > 0:
                     self._isPremium = True if temp[0] == "yes" else False
-        PixivHelper.print_and_log('info', 'Premium User: {0}.'.format(self._isPremium))
+        PixivHelper.print_and_log('info', f'Premium User: {self._isPremium}.')
 
     def parseLoginError(self, res):
         page = BeautifulSoup(res, features="html5lib")
@@ -553,7 +553,7 @@ class PixivBrowser(mechanize.Browser):
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
         # https://www.pixiv.net/en/artworks/76656661
-        url = "https://www.pixiv.net{1}/artworks/{0}".format(image_id, self._locale)
+        url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
         response = self.getPixivPage(url, returnParsed=False, enable_cache=False)
         self.handleDebugMediumPage(response, image_id)
 
@@ -580,7 +580,7 @@ class PixivBrowser(mechanize.Browser):
                                    manga_series_parent=manga_series_parent)
 
                 if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = "https://www.pixiv.net/ajax/illust/{0}/ugoira_meta".format(image_id)
+                    ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
                     res = self.open_with_retry(ugoira_meta_url)
                     meta_response = res.read()
                     image.ParseUgoira(meta_response)
@@ -602,11 +602,11 @@ class PixivBrowser(mechanize.Browser):
     def handleDebugMediumPage(self, response, imageId):
         if self._config.enableDump:
             if self._config.dumpMediumPage:
-                dump_filename = "Medium Page for Image Id {0}.html".format(imageId)
+                dump_filename = f"Medium Page for Image Id {imageId}.html"
                 PixivHelper.dump_html(dump_filename, response)
-                PixivHelper.print_and_log('info', 'Dumping html to: {0}'.format(dump_filename))
+                PixivHelper.print_and_log('info', f'Dumping html to: {dump_filename}')
             if self._config.debugHttp:
-                PixivHelper.safePrint(u"reply: {0}".format(response))
+                PixivHelper.safePrint(f"reply: {response}")
 
     def getMemberInfoWhitecube(self, member_id, artist, bookmark=False):
         ''' get artist information using Ajax and AppAPI '''
@@ -648,7 +648,7 @@ class PixivBrowser(mechanize.Browser):
             artist.ParseInfo(info, False, bookmark=bookmark)
 
             # will throw HTTPError if user is suspended/not logged in.
-            url_ajax = 'https://www.pixiv.net/ajax/user/{0}'.format(member_id)
+            url_ajax = f'https://www.pixiv.net/ajax/user/{member_id}'
             info_ajax = self._get_from_cache(url_ajax)
             if info_ajax is None:
                 res = self.open_with_retry(url_ajax)
@@ -692,8 +692,7 @@ class PixivBrowser(mechanize.Browser):
         need_to_slice = False
         if bookmark:
             # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
-            url = 'https://www.pixiv.net/ajax/user/{0}/illusts/bookmarks?tag={1}&offset={2}&limit={3}&rest=show'
-            url = url.format(member_id, tags, offset, limit)
+            url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tags}&offset={offset}&limit={limit}&rest=show'
         else:
             # https://www.pixiv.net/ajax/user/1813972/illusts/tag?tag=Fate%2FGrandOrder?offset=0&limit=24
             # https://www.pixiv.net/ajax/user/1813972/manga/tag?tag=%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
@@ -701,16 +700,14 @@ class PixivBrowser(mechanize.Browser):
             # https://www.pixiv.net/ajax/user/1813972/profile/all
             url = None
             if len(tags) > 0:  # called from Download by tags
-                url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag?tag={1}&offset={2}&limit={3}'
-                url = url.format(member_id, tags, offset, limit)
+                url = f'https://www.pixiv.net/ajax/user/{member_id}/illustmanga/tag?tag={tags}&offset={offset}&limit={limit}'
             elif r18mode:
-                url = 'https://www.pixiv.net/ajax/user/{0}/illustmanga/tag?tag={1}&offset={2}&limit={3}'
-                url = url.format(member_id, 'R-18', offset, limit)
+                url = f'https://www.pixiv.net/ajax/user/{member_id}/illustmanga/tag?tag=R-18&offset={offset}&limit={limit}'
             else:
-                url = 'https://www.pixiv.net/ajax/user/{0}/profile/all'.format(member_id)
+                url = f'https://www.pixiv.net/ajax/user/{member_id}/profile/all'
                 need_to_slice = True
 
-            PixivHelper.print_and_log('info', 'Member Url: ' + url)
+            PixivHelper.print_and_log('info', f'Member Url: {url}')
 
         if url is not None:
             # cache the response
@@ -776,7 +773,7 @@ class PixivBrowser(mechanize.Browser):
                                                       bookmark_count,
                                                       type_mode)
 
-            PixivHelper.print_and_log('info', 'Looping... for {0}'.format(url))
+            PixivHelper.print_and_log('info', f'Looping... for {url}')
             response_page = self.getPixivPage(url, returnParsed=False)
             self.handleDebugTagSearchPage(response_page, url)
 
@@ -799,11 +796,9 @@ class PixivBrowser(mechanize.Browser):
                         for image in result.itemList:
                             idx = idx + 1
                             print("\r", end=' ')
-                            print("Retrieving bookmark information... [{0}] of [{1}]".format(
-                                idx, len(result.itemList)), end=' ')
+                            print(f"Retrieving bookmark information... [{idx}] of [{len(result.itemList)}]", end=' ')
 
-                            img_url = "https://www.pixiv.net/ajax/illust/{0}".format(
-                                image.imageId)
+                            img_url = f"https://www.pixiv.net/ajax/illust/{image.imageId}"
                             response_page = self._get_from_cache(img_url)
                             if response_page is None:
                                 try:
@@ -822,7 +817,7 @@ class PixivBrowser(mechanize.Browser):
                                 image_info_js["body"]["responseCount"])
                     print("")
                 except BaseException:
-                    PixivHelper.dump_html("Dump for SearchTags " + tags + ".html", response_page)
+                    PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
                     raise
 
         return (result, response_page)
@@ -830,13 +825,11 @@ class PixivBrowser(mechanize.Browser):
     def handleDebugTagSearchPage(self, response, url):
         if self._config.enableDump:
             if self._config.dumpTagSearchPage:
-                dump_filename = "TagSearch Page for {0}.html".format(url)
+                dump_filename = f"TagSearch Page for {url}.html"
                 PixivHelper.dump_html(dump_filename, response)
-                PixivHelper.print_and_log(
-                    'info', 'Dumping html to: {0}'.format(dump_filename))
+                PixivHelper.print_and_log('info', f'Dumping html to: {dump_filename}')
             if self._config.debugHttp:
-                PixivHelper.safePrint(u"reply: {0}".format(
-                    PixivHelper.toUnicode(response)))
+                PixivHelper.safePrint(f"reply: {response}")
 
     def fanboxGetArtistList(self, via):
         self.fanbox_is_logged_in()
@@ -1070,8 +1063,7 @@ def getBrowser(config=None, cookieJar=None):
 def getExistingBrowser():
     global _browser
     if _browser is None:
-        raise PixivException("Browser is not initialized yet!",
-                             errorCode=PixivException.NOT_LOGGED_IN)
+        raise PixivException("Browser is not initialized yet!", errorCode=PixivException.NOT_LOGGED_IN)
     return _browser
 
 

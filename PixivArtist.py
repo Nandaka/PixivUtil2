@@ -65,6 +65,7 @@ class PixivArtist:
                 self.novel_series.append(int(novel_series_id["id"]))
 
     def ParseInfo(self, page, fromImage=False, bookmark=False):
+        ''' parse artistId, artistAvatar, artistToken, artistName, and artistBackground '''
         self.artistId = 0
         self.artistAvatar = "no_profile"
         self.artistToken = "self"
@@ -76,7 +77,6 @@ class PixivArtist:
                 self.ParseInfoFromImage(page)
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
-
                 # webrpc method
                 if "body" in page and "illust" in page["body"] and page["body"]["illust"]:
                     root = page["body"]["illust"]
@@ -88,22 +88,22 @@ class PixivArtist:
                     self.artistId = root["user_id"]
                     self.artistToken = root["user_account"]
                     self.artistName = root["user_name"]
+                else:
+                    # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
+                    data = None
+                    if "user" in page:
+                        data = page
+                    elif "illusts" in page and len(page["illusts"]) > 0:
+                        data = page["illusts"][0]
 
-                # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
-                data = None
-                if "user" in page:
-                    data = page
-                elif "illusts" in page and len(page["illusts"]) > 0:
-                    data = page["illusts"][0]
+                    if data is not None:
+                        self.artistId = data["user"]["id"]
+                        self.artistToken = data["user"]["account"]
+                        self.artistName = data["user"]["name"]
 
-                if data is not None:
-                    self.artistId = data["user"]["id"]
-                    self.artistToken = data["user"]["account"]
-                    self.artistName = data["user"]["name"]
-
-                    avatar_data = data["user"]["profile_image_urls"]
-                    if avatar_data is not None and "medium" in avatar_data:
-                        self.artistAvatar = avatar_data["medium"].replace("_170", "")
+                        avatar_data = data["user"]["profile_image_urls"]
+                        if avatar_data is not None and "medium" in avatar_data:
+                            self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
                 if "profile" in page:
                     if self.totalImages == 0:
