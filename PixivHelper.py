@@ -943,6 +943,9 @@ def ugoira2webm(ugoira_file,
         if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
             ts = time.mktime(image.worksDateDateTime.timetuple())
             os.utime(exportname, (ts, ts))
+    except FileNotFoundError:
+        print_and_log("error", f"Failed when converting, ffmpeg command used: {cmd}")
+        raise
 
     finally:
         shutil.rmtree(d)
