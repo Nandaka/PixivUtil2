@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import getpass
+
 import mechanize
 
 import PixivBrowserFactory
 import PixivConfig
+import PixivConstant
+
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 __config__ = PixivConfig.PixivConfig()
 __config__.loadConfig()

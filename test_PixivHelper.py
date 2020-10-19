@@ -8,10 +8,13 @@ import unittest
 
 from bs4 import BeautifulSoup
 
+import PixivConfig
+import PixivConstant
 import PixivHelper
 from PixivArtist import PixivArtist
-import PixivConfig
 from PixivImage import PixivImage
+
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
 class TestPixivHelper(unittest.TestCase):

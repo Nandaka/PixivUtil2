@@ -5,13 +5,16 @@ import unittest
 
 from bs4 import BeautifulSoup
 
+import PixivConstant
+from PixivArtist import PixivArtist
+from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from PixivBrowserFactory import PixivBrowser
 from PixivException import PixivException
-from PixivArtist import PixivArtist
+from PixivGroup import PixivGroup
 from PixivImage import PixivImage
 from PixivTags import PixivTags
-from PixivGroup import PixivGroup
-from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
+
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
 class MockPixivBrowser(PixivBrowser):

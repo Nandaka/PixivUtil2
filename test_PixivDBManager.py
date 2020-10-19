@@ -1,11 +1,13 @@
 #!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
+import PixivConstant
 from PixivDBManager import PixivDBManager
 from PixivListItem import PixivListItem
 
 LIST_SIZE = 9
 root_directory = '.'
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
 class TestPixivDBManager(object):

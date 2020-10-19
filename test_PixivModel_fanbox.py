@@ -6,10 +6,12 @@ import unittest
 
 import demjson
 
+import PixivConstant
 import PixivHelper
 from PixivModelFanbox import FanboxArtist, FanboxPost
 
 temp = PixivHelper.__re_manga_index
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
 class TestPixivModel_Fanbox(unittest.TestCase):

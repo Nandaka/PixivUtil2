@@ -5,9 +5,12 @@ import json
 import os
 import unittest
 
+import PixivConstant
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
+
+PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
 class TestPixivModel_WhiteCube(unittest.TestCase):
