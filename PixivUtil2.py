@@ -478,7 +478,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
             print("Invalid args: ", arg)
             return
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-    PixivBookmarkHandler. process_bookmark(sys.modules[__name__], __config__, hide, start_page, end_page)
+    PixivBookmarkHandler.process_bookmark(sys.modules[__name__], __config__, hide, start_page, end_page)
 
 
 def menu_download_from_online_image_bookmark(opisvalid, args, options):
