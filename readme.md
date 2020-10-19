@@ -270,7 +270,8 @@ Please refer run with `--help` for latest information.
                         b - Batch Download from batch_job.json (experimental)
                             (optional: --bf=BATCH_FILE)
                         e - Export online bookmark
-                            (optional: Include Private Bookmark [y|n|o], filename)
+                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
+                             optional: filename)
                         m - Export online user bookmark
                             (required: member_id, optional: followed by filename)
                         d - Manage database
@@ -418,17 +419,18 @@ downloadlistdirectory ==> list.txt path, also used for download-lists needed for
 uselist       ==> set to 'True' to parse list.txt.
                   This will update the DB content from the list.txt (member_id
                   and custom folder).
-processfromdb  ==> Set 'True' to use the member_id from the DB.
+processfromdb ==> Set 'True' to use the member_id from the DB.
 rootdirectory ==> Your root directory for saving the images.
-downloadavatar  ==> set to 'True' to download the member avatar as 'folder.jpg'
-usesuppresstags	==> Remove the suppressed tags from %tags% meta for filename.
+downloadavatar ==> set to 'True' to download the member avatar as 'folder.jpg'
+usesuppresstags ==> Remove the suppressed tags from %tags% meta for filename.
                     The list is taken from suppress_tags.txt, each tags is
                     separated by new line.
 tagsLimit	==> Number of tags to be used for %tags% meta in filename.
-		        Use -1 to use all tags.
+		          Use -1 to use all tags.
 writeimageinfo  ==> set to 'True' to export the image information to text file.
                     The filename is following the image filename + .txt.
-writeImageJSON
+writeImageJSON  ==> set to 'True' to export the image information to JSON.
+                    The filename is following the image filename + .json.
 verifyimage     ==> Do image and zip checking after download. Set the value to
                     True to enable.
 writeUrlInDescription ==> Write all url found in the image description to a text
@@ -444,34 +446,36 @@ useLocalTimezone    ==> Use local timezone when setting last modified timestamp.
 ```
 minFileSize  ==> skip if file size is less than minFileSize, set 0 to disable.
 maxFileSize  ==> skip if file size is more than minFileSize, set 0 to disable.
-overwrite      ==> Overwrite old files, set 'False' to disable.
+overwrite       ==> Overwrite old files, set 'False' to disable.
 backupOldFile   ==> Set to True to backup old file if the file size is different.
                     Old filename will be renamed to filename.unix-time.extension.
-daylastupdated ==> Only process member_id which were processed at least x days since the last check.
-alwaysCheckFileSize   ==> Check the file size, if different then it will be
-                          downloaded again, set 'False' to disable.
+daylastupdated  ==> Only process member_id which were processed at least x days since the last check.
+alwaysCheckFileSize ==> Check the file size, if different then it will be
+                        downloaded again, set 'False' to disable.
  		                  This will override the image_id checking from db
-                          (always fetch the image page for checking the size)
-checkUpdatedLimit     ==> Jump to the next member id if already see n-number of
-                          previously downloaded images.
-			              alwaysCheckFileSize must be set to False.
-useblacklisttags==> Skip image if containing blacklisted tags.
-                    The list is taken from blacklist_tags.txt, each tags is
-                    separated by new line.
-useblacklisttitles==> Skip image if the title contains a blacklisted character sequence.
-                    The list is taken from blacklist_titles.txt, each sequence is
-                    separated by new line.
+                        (always fetch the image page for checking the size)
+checkUpdatedLimit   ==> Jump to the next member id if already see n-number of
+                        previously downloaded images.
+			               alwaysCheckFileSize must be set to False.
+useblacklisttags    ==> Skip image if containing blacklisted tags.
+                        The list is taken from blacklist_tags.txt, each tags is
+                        separated by new line.
+useblacklisttitles  ==> Skip image if the title contains a blacklisted character sequence.
+                        The list is taken from blacklist_titles.txt, each sequence is
+                        separated by new line.
 useblacklisttitlesregex==> Make the title blacklist check interpret each sequence as a regular expression.
-dateDiff        ==> Process only new images within the given date difference.
-                    Set 0 to disable. Skip to next member id if in 'Download
-                    by Member', stop processing if in 'Download New Illust' mode.
-enableInfiniteLoop ==> Enable infinite loop for download by tags.
-                       Only applicable for download in descending order (newest
-                       first).
+dateDiff            ==> Process only new images within the given date difference.
+                        Set 0 to disable. Skip to next member id if in 'Download
+                        by Member', stop processing if in 'Download New Illust' mode.
+enableInfiniteLoop  ==> Enable infinite loop for download by tags.
+                        Only applicable for download in descending order (newest
+                        first).
 useBlacklistMembers ==> Skip image by member id.
                         Please create 'blacklist_members.txt' in the same folder
                         of the application.
-downloadResized  ==> Download the medium size, rather than the original size.
+downloadResized     ==> Download the medium size, rather than the original size.
+checkLastModified   ==> Compare local file's last-modified timestamp with works date.
+                        Require `setlastmodified = True` in config.ini to work properly
 ```
 ## [FFmpeg]
 ```
@@ -494,7 +498,7 @@ creategif       ==> Set to True to convert ugoira file to gif.
                     Required createUgoira = True.
 createapng      ==> Set to True to convert ugoira file to animated png.
                     Required createUgoira = True.
-					The generated png is not optimized due to library limitation.
+					     The generated png is not optimized due to library limitation.
 deleteugoira    ==> set to True to delete original ugoira after conversion.
 createwebm      ==> set to True to create webm file (video format).
                     Required createUgoira = True.
@@ -513,16 +517,16 @@ filenamemangaformat ==> Similar to filename format, but for manga pages.
 filenameinfoformat  ==> Similar to filename format, but for info dumps.
 avatarNameFormat    ==> Similar to filename format, but for the avatar image.
                         Not all formats are available.
-backgroundNameFormat    ==> Similar to filename format, but for the background image.
+backgroundNameFormat ==> Similar to filename format, but for the background image.
                         Not all formats are available.
 tagsseparator   ==> Separator for each tag in filename, put %space% for space.
 createmangadir  ==> Create a directory if the imageMode is manga. The directory
-                   is created by splitting the image_id by '_pxx' pattern.
-                   This setting is depended on %urlFilename% format.
+                    is created by splitting the image_id by '_pxx' pattern.
+                    This setting is depended on %urlFilename% format.
 usetagsasdir    ==> Append the query tags in tagslist.txt to the root directory
-                   as save folder.
+                    as save folder.
 urlDumpFilename ==> Define the dump filename, use python strftime() format.
-                   Default value is 'url_list_%Y%m%d'
+                    Default value is 'url_list_%Y%m%d'
 ```
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,

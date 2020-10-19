@@ -1,4 +1,4 @@
-20201018-beta3
+20201019-beta4
 - add cmd logging when converting ugoira.
 - Implement #406: add option 13: download by manga series
   - Specific for filenameMangaFormat in Manga Series mode (option 13):
@@ -15,6 +15,10 @@
   - add new filename format `%sketch_member_id%` for PixivSketch
 - Fix Issue #822: Update parser for user's image bookmark.
 - Fix Issue #827: Update parser to NOT use AppAPI/oAuth to get member token.
+- Fix Issue #824: Update argument parser for option 6.
+- Add new configuration `checkLastModified` in `[DownloadControl]` for Issue #807
+  -  This will compare last-modified time with works date, require `setlastmodified = True` in config.ini to work properly.
+- Throw error if cannot get the user id during login, related to #831
 
 20201006
 - Implement #797: reload blacklist on after reloading main menu.
