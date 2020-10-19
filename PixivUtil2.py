@@ -489,7 +489,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
     tag = ''
     sorting = 'desc'
 
-    if opisvalid and len(args) > 0:
+    if opisvalid:
         if len(args) > 0:
             tag = args[0]
 
@@ -642,19 +642,21 @@ def menu_export_online_bookmark(opisvalid, args, options):
     hide = "y"  # y|n|o
     filename = "export.txt"
 
-    if opisvalid and len(args) > 0:
-        arg = args[0]
-        if len(args) > 1:
-            filename = args[1]
+    if opisvalid:
+        if len(args) > 0:
+            filename = args[0]
+        if options.bookmark_flag is not None:
+            hide = options.bookmark_flag.lower()
+            if hide not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {hide}, valid values are [y/n/o].")
+                return
     else:
         filename = input("Filename: ").rstrip("\r")
         arg = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
-        arg = arg.lower()
-
-    if arg == 'y' or arg == 'n' or arg == 'o':
-        hide = arg
-    else:
-        print("Invalid args: ", arg)
+        hide = arg.lower()
+        if hide not in ('y', 'n', 'o'):
+            PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {arg}, valid values are [y/n/o].")
+            return
 
     PixivBookmarkHandler.export_bookmark(sys.modules[__name__], __config__, filename, hide)
 
