@@ -66,6 +66,14 @@ def download_image(caller,
                         PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
+                # Issue #807
+                if config.checkLastModified and os.path.isfile(filename_save) and image is not None:
+                    local_timestamp = os.path.getmtime(filename_save)
+                    remote_timestamp = time.mktime(image.worksDateDateTime.timetuple())
+                    if local_timestamp == remote_timestamp:
+                        PixivHelper.print_and_log('info', f"\rLocal file timestamp match with remote: {filename} => {image.worksDateDateTime}")
+                        return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
+
                 remote_file_size = get_remote_filesize(url, referer, config, notifier)
 
                 # 576

@@ -177,6 +177,7 @@ class PixivConfig():
         ConfigItem("DownloadControl", "enableInfiniteLoop", False),
         ConfigItem("DownloadControl", "useBlacklistMembers", False),
         ConfigItem("DownloadControl", "downloadResized", False),
+        ConfigItem("DownloadControl", "checkLastModified", True),
     ]
 
     proxy = {"http": "", "https": "", }
