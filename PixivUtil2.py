@@ -334,6 +334,7 @@ def menu_download_by_tags(opisvalid, args, options):
 
     if opisvalid and len(args) > 0:
         wildcard = options.use_wildcard_tag
+        sort_order = options.tag_sort_order
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
@@ -544,6 +545,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
 
     if opisvalid:
         filename = get_list_file_from_options(options=options, default_list_file='./tags.txt')
+        sort_order = options.tag_sort_order
         wildcard = options.use_wildcard_tag
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
@@ -566,6 +568,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
+
     if bookmark_count is not None:
         bookmark_count = int(bookmark_count)
 
@@ -966,6 +969,16 @@ If using relative path, it will be prefixed with [downloadlistdirectory] in conf
  date - sort by date.                               \n
  date_d - sort by date in descending order.''')
 
+    parser.add_option('--tag_sort_order',
+                      dest='tag_sort_order',
+                      default='date_d',
+                      help='''Sorting order for option 3 and 7.                     \n
+ date - sort by date.                               \n
+ date_d - sort by date in descending order.         \n
+ PREMIUM ONLY:                                      \n
+ popular_d - overall popularity                     \n
+ popular_male_d - popular among male users          \n
+ popular_female_d - popular among female users''')
     return parser
 
 
