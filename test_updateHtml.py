@@ -152,7 +152,8 @@ def main():
         # ./test/test-member-nologin.htm
 
         # last page related
-        last_page = 51
+        import test_PixivModel
+        last_page = test_PixivModel.last_page
         downloadPage(f'https://www.pixiv.net/ajax/search/artworks/%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9?s_mode=s_tag_full&order=date_d&p={last_page}&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9', './test/test-tags-search-exact-last.json')
         downloadPage('https://www.pixiv.net/ajax/user/14095911/illustmanga/tag?tag=R-18&offset=96&limit=48', './test/tag-R-18-14095911-lastpage.json')
 
