@@ -170,7 +170,7 @@ def make_filename(nameFormat: str,
 
     # sketch related
     if hasattr(artistInfo, "sketchArtistId"):
-        nameFormat = nameFormat.replace('%sketch_member_id%', artistInfo.sketchArtistId)
+        nameFormat = nameFormat.replace('%sketch_member_id%', str(artistInfo.sketchArtistId))
 
     # image related
     nameFormat = nameFormat.replace('%title%', replace_path_separator(imageInfo.imageTitle))
