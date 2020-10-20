@@ -760,22 +760,30 @@ def print_progress(curr, total, max_msg_length=80):
     return curr_msg_length if curr_msg_length > max_msg_length else max_msg_length
 
 
-def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
-                            start_date=None, end_date=None, member_id=None,
-                            r18mode=False, blt=0, type_data="a"):
+def generate_search_tag_url(tags,
+                            page,
+                            title_caption=False,
+                            wild_card=False,
+                            sort_order='date_d',
+                            start_date=None,
+                            end_date=None,
+                            member_id=None,
+                            r18mode=False,
+                            blt=0,
+                            type_data="a"):
     url = ""
     date_param = ""
     page_param = ""
 
     if start_date is not None:
-        date_param = date_param + "&scd=" + start_date
+        date_param = f"{date_param}&scd={start_date}"
     if end_date is not None:
-        date_param = date_param + "&ecd=" + end_date
+        date_param = f"{date_param}&ecd={end_date}"
     if page is not None and int(page) > 1:
-        page_param = "&p={0}".format(page)
+        page_param = f"&p={page}"
 
     if member_id is not None:
-        url = 'https://www.pixiv.net/member_illust.php?id=' + str(member_id) + '&tag=' + tags + '&p=' + str(page)
+        url = f'https://www.pixiv.net/member_illust.php?id={member_id}&tag={tags}&p={page}'
     else:
         root_url = 'https://www.pixiv.net/ajax/search/artworks'
         search_mode = ""
@@ -806,12 +814,10 @@ def generate_search_tag_url(tags, page, title_caption, wild_card, oldest_first,
         url = f"{root_url}/{tags}?word={tags}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}"
 
     if r18mode:
-        url = url + '&mode=r18'
+        url = f'{url}&mode=r18'
 
-    if oldest_first:
-        url = url + '&order=date'
-    else:
-        url = url + '&order=date_d'
+    if sort_order in ('date', 'date_d', 'popular_d', 'popular_male_d', 'popular_female_d'):
+        url = f'{url}&order={sort_order}'
 
     # encode to ascii
     # url = url.encode('iso_8859_1')

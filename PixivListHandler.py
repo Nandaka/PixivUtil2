@@ -78,7 +78,7 @@ def process_tags_list(caller,
                       page=1,
                       end_page=0,
                       wild_card=True,
-                      oldest_first=False,
+                      sort_order='date_d',
                       bookmark_count=None,
                       start_date=None,
                       end_date=None):
@@ -96,7 +96,7 @@ def process_tags_list(caller,
                                           end_date=end_date,
                                           use_tags_as_dir=config.useTagsAsDir,
                                           bookmark_count=bookmark_count,
-                                          oldest_first=oldest_first)
+                                          sort_order=sort_order)
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise

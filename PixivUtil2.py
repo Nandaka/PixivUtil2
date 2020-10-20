@@ -209,7 +209,7 @@ def menu_download_by_member_id(opisvalid, args, options):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ') or 'n'
+        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ').rstrip("\r") or 'n'
         if include_sketch_ask.lower() == 'y':
             include_sketch = True
 
@@ -327,7 +327,8 @@ def menu_download_by_tags(opisvalid, args, options):
     start_date = None
     end_date = None
     bookmark_count = None
-    oldest_first = False
+    # oldest_first = False
+    sort_order = 'date_d'
     wildcard = False
     type_mode = "a"
 
@@ -336,18 +337,22 @@ def menu_download_by_tags(opisvalid, args, options):
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
-        tags = input('Tags: ')
+        tags = input('Tags: ').rstrip("\r")
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
         wildcard = input('Use Partial Match (s_tag) [y/n]: ').rstrip("\r") or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
             wildcard = False
-        oldest_first = input('Oldest first[y/n]: ').rstrip("\r") or 'n'
-        if oldest_first.lower() == 'y':
-            oldest_first = True
+
+        # Issue #834
+        if __br__._isPremium:
+            msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d]? '
+            sort_order = input(msg).rstrip("\r") or 'date_d'
         else:
-            oldest_first = False
+            oldest_first = input('Oldest first[y/n]: ').rstrip("\r") or 'n'
+            if oldest_first.lower() == 'y':
+                sort_order = 'date'
 
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
@@ -373,7 +378,7 @@ def menu_download_by_tags(opisvalid, args, options):
                                   end_date=end_date,
                                   use_tags_as_dir=__config__.useTagsAsDir,
                                   bookmark_count=bookmark_count,
-                                  oldest_first=oldest_first,
+                                  sort_order=sort_order,
                                   type_mode=type_mode)
 
 
@@ -387,7 +392,7 @@ def menu_download_by_title_caption(opisvalid, args, options):
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
-        tags = input('Title/Caption: ')
+        tags = input('Title/Caption: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
@@ -423,7 +428,7 @@ def menu_download_by_tag_and_member_id(opisvalid, args, options):
         PixivHelper.safePrint(f"Looking tags: {tags} from memberId: {member_id}")
     else:
         member_id = input('Member Id: ').rstrip("\r")
-        tags = input('Tag      : ')
+        tags = input('Tag      : ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
 
     PixivTagsHandler.process_tags(sys.modules[__name__],
@@ -447,7 +452,7 @@ def menu_download_from_list(opisvalid, args, options):
         if len(args) > 0:
             tags = args[0]
     else:
-        test_tags = input('Tag : ')
+        test_tags = input('Tag : ').rstrip("\r")
         if len(test_tags) > 0:
             tags = test_tags
 
@@ -531,7 +536,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
     __log__.info('Taglist mode (7).')
     page = 1
     end_page = 0
-    oldest_first = False
+    sort_order = 'date_d'
     wildcard = False
     bookmark_count = None
     start_date = None
@@ -548,11 +553,16 @@ def menu_download_from_tags_list(opisvalid, args, options):
             wildcard = True
         else:
             wildcard = False
-        oldest_first = input('Oldest first[y/n]: ').rstrip("\r") or 'n'
-        if oldest_first.lower() == 'y':
-            oldest_first = True
+
+        # Issue #834
+        if __br__._isPremium:
+            msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d]? '
+            sort_order = input(msg).rstrip("\r") or 'date_d'
         else:
-            oldest_first = False
+            oldest_first = input('Oldest first [y/n]: ').rstrip("\r") or 'n'
+            if oldest_first.lower() == 'y':
+                sort_order = 'date'
+
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
@@ -565,7 +575,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
                                        page,
                                        end_page,
                                        wild_card=wildcard,
-                                       oldest_first=oldest_first,
+                                       sort_order=sort_order,
                                        bookmark_count=bookmark_count,
                                        start_date=start_date,
                                        end_date=end_date)
@@ -1297,7 +1307,7 @@ def main():
         __dbManager__.close()
         if not ewd:  # Yavos: prevent input on exit_when_done
             if selection is None or selection != 'x':
-                input('press enter to exit.')
+                input('press enter to exit.').rstrip("\r")
         __log__.setLevel("INFO")
         __log__.info('EXIT: %s', ERROR_CODE)
         __log__.info('###############################################################')

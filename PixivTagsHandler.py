@@ -22,7 +22,7 @@ def process_tags(caller,
                  use_tags_as_dir=False,
                  member_id=None,
                  bookmark_count=None,
-                 oldest_first=False,
+                 sort_order='date_d',
                  type_mode=None,
                  notifier=None,
                  job_option=None):
@@ -69,16 +69,16 @@ def process_tags(caller,
         while flag:
             (t, search_page) = PixivBrowserFactory.getBrowser().getSearchTagPage(tags,
                                                                                  i,
-                                                                                 wild_card,
-                                                                                 title_caption,
-                                                                                 start_date,
-                                                                                 end_date,
-                                                                                 member_id,
-                                                                                 oldest_first,
-                                                                                 page,
-                                                                                 use_bookmark_data,
-                                                                                 bookmark_count,
-                                                                                 type_mode,
+                                                                                 wild_card=wild_card,
+                                                                                 title_caption=title_caption,
+                                                                                 start_date=start_date,
+                                                                                 end_date=end_date,
+                                                                                 member_id=member_id,
+                                                                                 sort_order=sort_order,
+                                                                                 start_page=page,
+                                                                                 use_bookmark_data=use_bookmark_data,
+                                                                                 bookmark_count=bookmark_count,
+                                                                                 type_mode=type_mode,
                                                                                  r18mode=format_src.r18mode)
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log(None, 'No more images')
@@ -175,7 +175,7 @@ def process_tags(caller,
             if t.isLastPage:
                 PixivHelper.print_and_log('info', f"Last page: {i - 1}")
                 flag = False
-            if config.enableInfiniteLoop and i == 1001 and not oldest_first:
+            if config.enableInfiniteLoop and i == 1001 and sort_order != 'date':
                 if last_image_id > 0:
                     # get the last date
                     PixivHelper.print_and_log('info', f"Hit page 1000, trying to get workdate for last image id: {last_image_id}.")

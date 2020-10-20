@@ -10,7 +10,7 @@ import sys
 import time
 import traceback
 import urllib
-from typing import Union
+from typing import Union, Tuple
 
 import demjson
 import mechanize
@@ -734,19 +734,20 @@ class PixivBrowser(mechanize.Browser):
 
         return (artist, response)
 
-    def getSearchTagPage(self, tags,
+    def getSearchTagPage(self,
+                         tags,
                          current_page,
                          wild_card=True,
                          title_caption=False,
                          start_date=None,
                          end_date=None,
                          member_id=None,
-                         oldest_first=False,
+                         sort_order='date_d',
                          start_page=1,
                          include_bookmark_data=False,
                          bookmark_count=0,
                          type_mode="a",
-                         r18mode=False):
+                         r18mode=False) -> Tuple[PixivTags, str]:
         response_page = None
         result = None
         url = ''
@@ -764,16 +765,17 @@ class PixivBrowser(mechanize.Browser):
                 bookmark_count = 0
 
             # search by tags
-            url = PixivHelper.generate_search_tag_url(tags, current_page,
-                                                      title_caption,
-                                                      wild_card,
-                                                      oldest_first,
-                                                      start_date,
-                                                      end_date,
-                                                      member_id,
-                                                      r18mode,
-                                                      bookmark_count,
-                                                      type_mode)
+            url = PixivHelper.generate_search_tag_url(tags,
+                                                      current_page,
+                                                      title_caption=title_caption,
+                                                      wild_card=wild_card,
+                                                      sort_order=sort_order,
+                                                      start_date=start_date,
+                                                      end_date=end_date,
+                                                      member_id=member_id,
+                                                      r18mode=r18mode,
+                                                      blt=bookmark_count,
+                                                      type_mode=type_mode)
 
             PixivHelper.print_and_log('info', f'Looping... for {url}')
             response_page = self.getPixivPage(url, returnParsed=False)
@@ -1111,16 +1113,17 @@ def test():
             start_date = "2016-11-06"
             end_date = "2016-11-07"
             member_id = None
-            oldest_first = True
+            sort_order = 'date'  # oldest first
             start_page = 1
-            (resultS, page) = b.getSearchTagPage(tags, p,
-                                                 wild_card,
-                                                 title_caption,
-                                                 start_date,
-                                                 end_date,
-                                                 member_id,
-                                                 oldest_first,
-                                                 start_page)
+            (resultS, page) = b.getSearchTagPage(tags,
+                                                 p,
+                                                 wild_card=wild_card,
+                                                 title_caption=title_caption,
+                                                 start_date=start_date,
+                                                 end_date=end_date,
+                                                 member_id=member_id,
+                                                 sort_order=sort_order,
+                                                 start_page=start_page)
             resultS.PrintInfo()
             assert (len(resultS.itemList) > 0)
 

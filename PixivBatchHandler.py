@@ -120,7 +120,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
     print("done.")
 
 
-def handle_tags(caller, job, job_name, job_option):
+def handle_tags(caller: PixivUtil2, job, job_name, job_option):
     if "tags" in job and len(job["tags"]) > 0:
         tags = job["tags"]
     else:
@@ -156,9 +156,17 @@ def handle_tags(caller, job, job_name, job_option):
     bookmark_count = None
     if "bookmark_count" in job:
         bookmark_count = int(job["bookmark_count"])
-    oldest_first = False
+
+    sort_order = 'date_d'  # default is newest work first.
     if "oldest_first" in job:
-        oldest_first = bool(job["oldest_first"])
+        sort_order = 'date' if bool(job["oldest_first"]) else 'date_d'
+
+    if "sort_order" in job and caller.__br__._isPremium:
+        if job["sort_order"] in ('date_d', 'date', 'popular_d', 'popular_male_d', 'popular_female_d'):
+            sort_order = job["sort_order"]
+        else:
+            raise Exception(f"Invalid sort_order: {job['sort_order']} in {job_name}.")
+
     type_mode = "a"
     if "type_mode" in job:
         if job["type_mode"] in {'a', 'i', 'm'}:
@@ -177,7 +185,7 @@ def handle_tags(caller, job, job_name, job_option):
                                   use_tags_as_dir=job_option.useTagsAsDir,
                                   member_id=member_id,
                                   bookmark_count=bookmark_count,
-                                  oldest_first=oldest_first,
+                                  sort_order=sort_order,
                                   type_mode=type_mode,
                                   job_option=job_option)
 
