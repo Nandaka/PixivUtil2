@@ -9,3 +9,4 @@ win_unicode_console>=0.5
 requests>=2.22.0
 apng>=0.3.3
 colorama
+cloudscraper

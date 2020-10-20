@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import Dict
 
-import requests
+import cloudscraper
 
 import PixivHelper
 from PixivException import PixivException
@@ -21,6 +21,7 @@ class PixivOAuth():
     _proxies: Dict[str, str] = None
     _tzInfo: PixivHelper.LocalUTCOffsetTimezone = None
     _validate_ssl: bool = True
+    _req = cloudscraper.create_scraper()
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
         if username is None or len(username) <= 0:
@@ -83,11 +84,11 @@ class PixivOAuth():
 
     def login_with_username_and_password(self):
         PixivHelper.get_logger().info("Login to OAuth using username and password.")
-        oauth_response = requests.post(self._url,
-                                       self._get_values_for_login(),
-                                       headers=self._get_default_headers(),
-                                       proxies=self._proxies,
-                                       verify=self._validate_ssl)
+        oauth_response = self._req.post(self._url,
+                                        data=self._get_values_for_login(),
+                                        headers=self._get_default_headers(),
+                                        proxies=self._proxies,
+                                        verify=self._validate_ssl)
         return oauth_response
 
     def login(self):
@@ -95,11 +96,11 @@ class PixivOAuth():
         need_relogin = True
         if self._refresh_token is not None:
             PixivHelper.get_logger().info("Login to OAuth using refresh token.")
-            oauth_response = requests.post(self._url,
-                                           self._get_values_for_refresh(),
-                                           headers=self._get_default_headers(),
-                                           proxies=self._proxies,
-                                           verify=self._validate_ssl)
+            oauth_response = self._req.post(self._url,
+                                            data=self._get_values_for_refresh(),
+                                            headers=self._get_default_headers(),
+                                            proxies=self._proxies,
+                                            verify=self._validate_ssl)
             if oauth_response.status_code == 200:
                 need_relogin = False
             else:
@@ -128,11 +129,10 @@ class PixivOAuth():
 
     def get_user_info(self, userid):
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(userid)
-        user_info = requests.get(url,
-                                 None,
-                                 headers=self._get_headers_with_bearer(),
-                                 proxies=self._proxies,
-                                 verify=self._validate_ssl)
+        user_info = self._req.get(url,
+                                  headers=self._get_headers_with_bearer(),
+                                  proxies=self._proxies,
+                                  verify=self._validate_ssl)
 
         if user_info.status_code == 404:
             PixivHelper.print_and_log('error', user_info.text)
@@ -141,15 +141,14 @@ class PixivOAuth():
 
 
 def test_OAuth():
-    proxies = {'http': 'http://localhost:8888',
-               'https': 'http://localhost:8888'}
-
     from PixivConfig import PixivConfig
     cfg = PixivConfig()
     cfg.loadConfig("./config.ini")
-    oauth = PixivOAuth(cfg.username, cfg.password, proxies, False, cfg.refresh_token)
+    # proxies = {'http': 'http://localhost:8888',
+    #            'https': 'http://localhost:8888'}
+    # oauth = PixivOAuth(cfg.username, cfg.password, proxies, False, cfg.refresh_token)
     # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, cfg.refresh_token)
-    # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
+    oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
     result = oauth.login()
     assert oauth._refresh_token is not None
     print("refresh token {0}".format(oauth._refresh_token))
