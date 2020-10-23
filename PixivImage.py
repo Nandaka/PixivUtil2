@@ -407,8 +407,6 @@ class PixivImage (object):
         jsonInfo["Tags"] = self.imageTags
         jsonInfo["Image Mode"] = self.imageMode
         jsonInfo["Pages"] = self.imageCount
-        print(self.worksDateDateTime)
-        print(str(self.worksDateDateTime))
         jsonInfo["Date"] = str(self.worksDateDateTime)
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
