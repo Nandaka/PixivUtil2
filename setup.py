@@ -1,18 +1,20 @@
 #!C:/Python37-32/python
 # -*- coding: utf-8 -*-
-from os import path
-import os
+import platform
 import sys
+from os import path
+
+import cloudscraper
 
 try:
-    from setuptools import setup, convert_path, find_packages
+    from setuptools import convert_path, find_packages, setup
     SETUPTOOLS_USED = True
 except ImportError:
-    from distutils.core import setup, find_packages
+    from distutils.core import find_packages, setup
     from distutils.util import convert_path
     SETUPTOOLS_USED = False
 
-isWindows = os.name == 'nt'
+isWindows = (platform.system() == "Windows")
 ranWithPy3 = sys.version_info >= (3, 0)
 
 
@@ -64,10 +66,10 @@ if isWindows:
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
-requires = ['bs4', 'html5lib', 'sqlite3']
+requires = ['bs4', 'html5lib', 'sqlite3', 'cloudscraper']
 options = {'py2exe': {'bundle_files': 3,
                       'compressed': 1,
-                      "packages": ['html5lib', 'sqlite3'],
+                      "packages": ['html5lib', 'sqlite3', 'cloudscraper'],
                       'excludes': ['Tkconstants', 'Tkinter']}, }
 
 setup_kwargs = dict(console=console, requires=requires, options=options)
@@ -119,9 +121,19 @@ setup(
 )
 
 if isWindows:
+    print("Adding cacert.pem.")
     # add certify cacert.pem in library.zip/certifi
-    import certifi
     import zipfile
+
+    import certifi
     zip2 = zipfile.ZipFile('./dist/library.zip', 'a')
     zip2.write(certifi.where(), "/certifi/cacert.pem")
     zip2.close()
+
+    print("Adding browsers.json.")
+    import shutil
+    # need to bundle browser json
+    browser_json_location = cloudscraper.__file__.replace('__init__.py', 'user_agent\\browsers.json')
+    shutil.copy(browser_json_location, "dist/browsers.json")
+
+    print("update done.")
