@@ -133,7 +133,7 @@ class SketchPost(object):
         if self._tzInfo is not None:
             self.worksUpdateDateTime = self.worksUpdateDateTime.astimezone(self._tzInfo)
 
-        tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
+        tempDateFormat = self.dateFormat or "%Y-%m-%d"  # 2018-07-22, else configured in config.ini
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
         self.worksUpdateDate = self.worksUpdateDateTime.strftime(tempDateFormat)
 
