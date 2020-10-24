@@ -1,4 +1,4 @@
-20201019-beta4
+20201024
 - add cmd logging when converting ugoira.
 - Implement #406: add option 13: download by manga series
   - Specific for filenameMangaFormat in Manga Series mode (option 13):
@@ -19,6 +19,19 @@
 - Add new configuration `checkLastModified` in `[DownloadControl]` for Issue #807
   -  This will compare last-modified time with works date, require `setlastmodified = True` in config.ini to work properly.
 - Throw error if cannot get the user id during login, related to #831
+- Merge Adding Filename option for Sketch and fixing dates and Unix filenames (#836) by byjtje
+  - change default dateFormat to %Y-%m-%d (YYYY-MM-DD)
+- Fix Issue #838: delete zip/ugoira handling.
+- Add new start parameter:
+  - --start_date and --end_date for option 3, 7, and 9
+  - --tag_sort_order to set sorting order for option 3 and 7
+- Add check if ffmpeg exist or not if ugoira conversion is enabled.
+- Implement #837: add new config to skip downloading if `alwaysCheckFileSize = True` and remote file size is unknown => skipUnknownSize.
+- Update #814: replace requests with cloudscrapper for oAuth handling.
+- Implement #834: additional tag sorting order for premium users.
+  - order=popular_d (overall), popular_male_d (popular among male users) and popular_female_d.
+- Merge Fix error in PixivHelper.py:173 - TypeError expects String, not Int (#832) by Jared Shields.
+- update test cases and libraries.
 
 20201006
 - Implement #797: reload blacklist on after reloading main menu.
