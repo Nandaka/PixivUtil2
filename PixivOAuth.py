@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from typing import Dict
 
+import requests
 import cloudscraper
 
 import PixivHelper
@@ -21,7 +22,12 @@ class PixivOAuth():
     _proxies: Dict[str, str] = None
     _tzInfo: PixivHelper.LocalUTCOffsetTimezone = None
     _validate_ssl: bool = True
-    _req = cloudscraper.create_scraper()
+
+    sess = requests.Session()
+    if PixivHelper.we_are_frozen():
+        # 842 always refer to local cacert.pem ca bundle if frozen
+        sess.verify = r'''./cacert.pem'''
+    _req = cloudscraper.create_scraper(sess=sess)
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
         if username is None or len(username) <= 0:
@@ -120,7 +126,7 @@ class PixivOAuth():
                 info = json.loads(info)["errors"]["system"]["message"]
             except (ValueError, KeyError):
                 if info is not None:
-                    PixivHelper.dump_html(f"Error - oAuth login.html", info)
+                    PixivHelper.dump_html("Error - oAuth login.html", info)
 
             PixivHelper.print_and_log('error', info)
             raise PixivException("Failed to login using OAuth", PixivException.OAUTH_LOGIN_ISSUE)

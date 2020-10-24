@@ -48,6 +48,7 @@ class PixivBrowser(mechanize.Browser):
     _orig_getaddrinfo = None
 
     __oauth_manager = None
+
     @property
     def _oauth_manager(self):
         if self.__oauth_manager is None:
