@@ -230,7 +230,7 @@ Please refer run with `--help` for latest information.
                             (required: followed by image_ids separated by space)
                         3 - Download by tags
                             (required: tags
-                             optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE)
+                             optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
                         4 - Download from list
                             (required: -f LIST_FILE and followed with optional tag)
                         5 - Download from user bookmark
@@ -240,12 +240,12 @@ Please refer run with `--help` for latest information.
                              optional: --sp=START_PAGE, and --ep=END_PAGE, and followed with tag)
                         7 - Download from tags list
                             (required: -f LIST_FILE,
-                             optional: --sp=START_PAGE, and --ep=END_PAGE)
+                             optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
                         8 - Download new illust from bookmark
                             (optional: --sp=START_PAGE, and --ep=END_PAGE)
                         9 - Download by Title/Caption
                             (required: title/caption
-                             optional: --sp=START_PAGE, and --ep=END_PAGE)
+                             optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
                         10 - Download by Tag and Member Id
                             (required: member_id, followed by tags
                              optional: --sp=START_PAGE, and --ep=END_PAGE)

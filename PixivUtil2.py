@@ -335,6 +335,8 @@ def menu_download_by_tags(opisvalid, args, options):
     if opisvalid and len(args) > 0:
         wildcard = options.use_wildcard_tag
         sort_order = options.tag_sort_order
+        start_date = options.start_date
+        end_date = options.end_date
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
@@ -390,6 +392,8 @@ def menu_download_by_title_caption(opisvalid, args, options):
     start_date = None
     end_date = None
     if opisvalid and len(args) > 0:
+        start_date = options.start_date
+        end_date = options.end_date
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
@@ -547,6 +551,8 @@ def menu_download_from_tags_list(opisvalid, args, options):
         filename = get_list_file_from_options(options=options, default_list_file='./tags.txt')
         sort_order = options.tag_sort_order
         wildcard = options.use_wildcard_tag
+        start_date = options.start_date
+        end_date = options.end_date
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
         filename = input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
@@ -979,6 +985,17 @@ If using relative path, it will be prefixed with [downloadlistdirectory] in conf
  popular_d - overall popularity                     \n
  popular_male_d - popular among male users          \n
  popular_female_d - popular among female users''')
+
+    parser.add_option('--start_date',
+                      dest='start_date',
+                      default=None,
+                      help='''Start Date for option 3, 7 and 9.                     \n
+ Format must follow YYYY-MM-DD.''')
+    parser.add_option('--end_date',
+                      dest='end_date',
+                      default=None,
+                      help='''End Date for option 3, 7 and 9.                       \n
+ Format must follow YYYY-MM-DD.''')
     return parser
 
 
