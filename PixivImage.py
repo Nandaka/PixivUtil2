@@ -65,6 +65,7 @@ class PixivImage (object):
     imageCount = 0
     fromBookmark = False
     worksDateDateTime = datetime.fromordinal(1)
+    js_createDate = None
     bookmark_count = -1
     image_response_count = -1
     ugoira_data = ""
@@ -217,6 +218,7 @@ class PixivImage (object):
         # datetime, in utc
         # "createDate" : "2018-06-08T15:00:04+00:00",
         self.worksDateDateTime = datetime_z.parse_datetime(root["createDate"])
+        self.js_createDate = root["createDate"]  # store for json file
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
@@ -407,7 +409,7 @@ class PixivImage (object):
         jsonInfo["Tags"] = self.imageTags
         jsonInfo["Image Mode"] = self.imageMode
         jsonInfo["Pages"] = self.imageCount
-        jsonInfo["Date"] = self.root["createDate"]
+        jsonInfo["Date"] = self.js_createDate
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
