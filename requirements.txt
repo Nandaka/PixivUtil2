@@ -2,11 +2,11 @@ beautifulsoup4>=4.8.1
 certifi>=2019.9.11
 demjson>=2.2.4
 mechanize>=0.4.4
-numpy>=1.17.2
+# numpy>=1.17.2
 Pillow>=6.1.0
 PySocks>=1.7.1
-win_unicode_console>=0.5
-requests>=2.22.0
-apng>=0.3.3
+# win_unicode_console>=0.5
+# requests>=2.22.0
+# apng>=0.3.3
 colorama
 cloudscraper
