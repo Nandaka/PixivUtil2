@@ -4,8 +4,6 @@ import platform
 import sys
 from os import path
 
-import cloudscraper
-
 try:
     from setuptools import convert_path, find_packages, setup
     SETUPTOOLS_USED = True
@@ -66,7 +64,7 @@ if isWindows:
 
 console = [{"script": "PixivUtil2.py",              # Main Python script
             "icon_resources": [(0, "icon2.ico")]}]  # Icon to embed into the PE file.
-requires = ['bs4', 'html5lib', 'sqlite3', 'cloudscraper']
+requires = ['bs4', 'html5lib', 'sqlite3']
 options = {'py2exe': {'bundle_files': 3,
                       'compressed': 1,
                       "packages": ['html5lib', 'sqlite3', 'cloudscraper'],
@@ -132,6 +130,7 @@ if isWindows:
 
     print("Adding browsers.json.")
     import shutil
+    import cloudscraper
     # need to bundle browser json
     browser_json_location = cloudscraper.__file__.replace('__init__.py', 'user_agent\\browsers.json')
     shutil.copy(browser_json_location, "dist/browsers.json")
