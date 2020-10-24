@@ -350,7 +350,11 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                  searchTags='')
             filename = PixivHelper.sanitize_filename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg")
+            expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20:28:16.jpeg"
+            if platform.system() == 'Windows':
+                expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_アスナさん０２_136761_OqhhcslOfbzZpHyTfJNtnIWm_2018-08-26 20_28_16.jpeg"
+
+            self.assertEqual(filename, expected_name)
         cover_more_format()
 
     def test_links_in_p_tags(self):
