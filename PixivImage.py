@@ -99,6 +99,7 @@ class PixivImage (object):
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
         self.tags = list()
+        self.root = []
         # only for manga series
         self.manga_series_order = manga_series_order
         self.manga_series_parent = manga_series_parent
@@ -153,14 +154,14 @@ class PixivImage (object):
     def ParseInfo(self, page):
         key = list(page["illust"].keys())[0]
         assert(str(key) == str(self.imageId))
-        root = page["illust"][key]
+        self.root = page["illust"][key]
 
         self.imageUrls = list()
         self.imageResizedUrls = list()
 
-        self.imageCount = int(root["pageCount"])
-        temp_url = root["urls"]["original"]
-        temp_resized_url = root["urls"]["regular"]
+        self.imageCount = int(self.root["pageCount"])
+        temp_url = self.root["urls"]["original"]
+        temp_resized_url = self.root["urls"]["regular"]
         if self.imageCount == 1:
             if temp_url.find("ugoira") > 0:
                 # ugoira mode
@@ -193,21 +194,21 @@ class PixivImage (object):
                 self.imageResizedUrls.append(resized_url)
 
         # title/caption
-        self.imageTitle = root["illustTitle"]
-        self.imageCaption = root["illustComment"]
+        self.imageTitle = self.root["illustTitle"]
+        self.imageCaption = self.root["illustComment"]
 
         # view count
-        self.jd_rtv = root["viewCount"]
+        self.jd_rtv = self.root["viewCount"]
         # like count
-        self.jd_rtc = root["likeCount"]
+        self.jd_rtc = self.root["likeCount"]
         # not available anymore
         self.jd_rtt = self.jd_rtc
 
         # tags
         self.imageTags = list()
-        tags = root["tags"]
+        tags = self.root["tags"]
         if tags is not None:
-            tags = root["tags"]["tags"]
+            tags = self.root["tags"]["tags"]
             for tag in tags:
                 self.imageTags.append(tag["tag"])
 
@@ -216,7 +217,7 @@ class PixivImage (object):
 
         # datetime, in utc
         # "createDate" : "2018-06-08T15:00:04+00:00",
-        self.worksDateDateTime = datetime_z.parse_datetime(root["createDate"])
+        self.worksDateDateTime = datetime_z.parse_datetime(self.root["createDate"])
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
@@ -225,15 +226,15 @@ class PixivImage (object):
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
         # resolution
-        self.worksResolution = "{0}x{1}".format(root["width"], root["height"])
+        self.worksResolution = "{0}x{1}".format(self.root["width"], self.root["height"])
         if self.imageCount > 1:
             self.worksResolution = "Multiple images: {0}P".format(self.imageCount)
 
         # tools = No more tool information
         self.worksTools = ""
 
-        self.bookmark_count = root["bookmarkCount"]
-        self.image_response_count = root["responseCount"]
+        self.bookmark_count = self.root["bookmarkCount"]
+        self.image_response_count = self.root["responseCount"]
 
         # Issue 421
         parsed = BeautifulSoup(self.imageCaption, features="html5lib")
