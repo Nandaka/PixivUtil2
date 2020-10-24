@@ -292,7 +292,7 @@ def make_filename(nameFormat: str,
 def safePrint(msg, newline=True, end=None):
     """Print empty string if UnicodeError raised."""
     if not isinstance(msg, str):
-        print(f"msg", end=' ')
+        print(f"{msg}", end=' ')
     for msgToken in msg.split(' '):
         try:
             print(msgToken, end=' ')

@@ -1256,7 +1256,11 @@ def main():
 
         read_lists()
 
-        if __config__.createWebm:
+        # check ffmpeg if ugoira conversion is enabled
+        if __config__.createGif or \
+           __config__.createApng or \
+           __config__.createWebm or \
+           __config__.createWebp:
             import shlex
             cmd = f"{__config__.ffmpeg} -encoders"
             ffmpeg_args = shlex.split(cmd)
@@ -1272,12 +1276,13 @@ def main():
                     PixivHelper.print_and_log('error', f'{"#" * 80}')
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                __config__.createWebm = False
                 PixivHelper.print_and_log('error', f'{"#" * 80}')
-                PixivHelper.print_and_log('error', f'Failed to load ffmpeg, createWebm disabled: {exc_value}')
-                PixivHelper.print_and_log('error', f'Command used: {cmd}')
-                PixivHelper.print_and_log('info', f'Please download ffmpeg with {__config__.ffmpegCodec} encoder enabled.')
+                PixivHelper.print_and_log('error', f'Failed to load ffmpeg: {exc_value}')
+                PixivHelper.print_and_log('error', f'Command used: [{cmd}]')
+                ffmpeg_url = Back.LIGHTWHITE_EX + Fore.BLUE + "https://ffmpeg.org/download.html#get-packages" + Style.RESET_ALL
+                PixivHelper.print_and_log('info', f'Please update your config.ini and/or download latest ffmpeg executables from {ffmpeg_url}.')
                 PixivHelper.print_and_log('error', f'{"#" * 80}')
+                return
 
         if __config__.useLocalTimezone:
             PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
