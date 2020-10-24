@@ -312,59 +312,62 @@ def get_remote_filesize(url, referer, config, notifier=None):
     return file_size
 
 
-def handle_ugoira(image, filename, config, notifier):
+def handle_ugoira(image, zip_filename, config, notifier):
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
-    if filename.endswith(".zip"):
-        ugo_name = filename[:-4] + ".ugoira"
+    if zip_filename.endswith(".zip"):
+        ugo_name = zip_filename[:-4] + ".ugoira"
     else:
-        ugo_name = filename
+        ugo_name = zip_filename
+
     if not os.path.exists(ugo_name):
-        PixivHelper.print_and_log('info', "Creating ugoira archive => " + ugo_name)
-        image.CreateUgoira(filename)
+        PixivHelper.print_and_log('info', f"Creating ugoira archive => {ugo_name}")
+        image.create_ugoira(zip_filename)
         # set last-modified and last-accessed timestamp
         if config.setLastModified and ugo_name is not None and os.path.isfile(ugo_name):
             ts = time.mktime(image.worksDateDateTime.timetuple())
             os.utime(ugo_name, (ts, ts))
 
-    if config.deleteZipFile and os.path.exists(filename):
-        PixivHelper.print_and_log('info', "Deleting zip file => " + filename)
-        os.remove(filename)
-
     if config.createGif:
         gif_filename = ugo_name[:-7] + ".gif"
         if not os.path.exists(gif_filename):
-            PixivHelper.ugoira2gif(ugo_name, gif_filename, config.deleteUgoira, image=image)
+            PixivHelper.ugoira2gif(ugo_name,
+                                   gif_filename,
+                                   image=image)
+
     if config.createApng:
-        gif_filename = ugo_name[:-7] + ".png"
-        if not os.path.exists(gif_filename):
-            try:
-                PixivHelper.ugoira2apng(ugo_name, gif_filename, config.deleteUgoira, image=image)
-            except Exception:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback)
-                PixivHelper.print_and_log('error', f'Error at handle_ugoira(): {sys.exc_info()} at when converting image id: {image.imageId} to aPNG.')
+        apng_filename = ugo_name[:-7] + ".png"
+        if not os.path.exists(apng_filename):
+            PixivHelper.ugoira2apng(ugo_name,
+                                    apng_filename,
+                                    image=image)
 
     if config.createWebm:
-        gif_filename = ugo_name[:-7] + "." + config.ffmpegExt
-        if not os.path.exists(gif_filename):
+        webm_filename = ugo_name[:-7] + "." + config.ffmpegExt
+        if not os.path.exists(webm_filename):
             PixivHelper.ugoira2webm(ugo_name,
-                                    gif_filename,
-                                    config.deleteUgoira,
+                                    webm_filename,
                                     config.ffmpeg,
                                     config.ffmpegCodec,
                                     config.ffmpegParam,
                                     config.ffmpegExt,
                                     image)
     if config.createWebp:
-        gif_filename = ugo_name[:-7] + ".webp"
-        if not os.path.exists(gif_filename):
+        webp_filename = ugo_name[:-7] + ".webp"
+        if not os.path.exists(webp_filename):
             PixivHelper.ugoira2webm(ugo_name,
-                                    gif_filename,
-                                    config.deleteUgoira,
+                                    webp_filename,
                                     config.ffmpeg,
                                     config.webpCodec,
                                     config.webpParam,
                                     "webp",
                                     image)
+
+    if config.deleteZipFile and os.path.exists(zip_filename) and zip_filename.endswith(".zip"):
+        PixivHelper.print_and_log('info', f"Deleting zip file => {zip_filename}")
+        os.remove(zip_filename)
+
+    if config.deleteUgoira and os.path.exists(ugo_name) and ugo_name.endswith(".ugoira"):
+        PixivHelper.print_and_log('info', f"Deleting ugoira file => {ugo_name}")
+        os.remove(ugo_name)

@@ -431,7 +431,7 @@ class PixivImage (object):
         info.write(str(self.ugoira_data))
         info.close()
 
-    def CreateUgoira(self, filename):
+    def create_ugoira(self, filename) -> bool:
         if len(self.ugoira_data) == 0:
             PixivHelper.get_logger().exception("Missing ugoira animation info for image: %d", self.imageId)
 
@@ -444,6 +444,7 @@ class PixivImage (object):
         jsStr = self.ugoira_data[:-1] + r',"zipSize":' + str(zipSize) + r'}'
         with zipfile.ZipFile(zipTarget, mode="a") as z:
             z.writestr("animation.json", jsStr)
+        return True
 
     def parseJs(self, page):
         parsed = BeautifulSoup(page, features="html5lib")
@@ -511,6 +512,6 @@ class PixivMangaSeries:
         PixivHelper.safePrint(f'Title          : {self.title}')
         PixivHelper.safePrint(f'Description    : {self.description}')
         PixivHelper.safePrint(f'Pages          : {self.current_page} of {int(self.total_works/works_per_page)}')
-        PixivHelper.safePrint(f'Works          :')
+        PixivHelper.safePrint('Works          :')
         for (work_id, order) in self.pages_with_order:
             PixivHelper.safePrint(f' - [{order}] {work_id}')
