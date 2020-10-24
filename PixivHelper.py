@@ -37,17 +37,22 @@ from PixivModelFanbox import FanboxArtist, FanboxPost
 logger = None
 _config = None
 __re_manga_index = re.compile(r'_p(\d+)')
-__badchars__ = re.compile(r'''
-^$
-|\?
-|:
-|<
-|>
-|\|
-|\*
-|\"
-''', re.VERBOSE)
-
+__badchars__ = None
+if platform.system() == 'Windows':
+    __badchars__ = re.compile(r'''
+    ^$
+    |\?
+    |:
+    |<
+    |>
+    |\|
+    |\*
+    |\"
+    ''', re.VERBOSE)
+else:
+    __badchars__ = re.compile(r'''
+    ^$
+    ''', re.VERBOSE)
 
 def set_config(config):
     global _config

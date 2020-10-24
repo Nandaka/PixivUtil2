@@ -82,7 +82,7 @@ def download_post(caller, config, post):
     referer = f"https://sketch.pixiv.net/items/{post.imageId}"
     current_page = 0
     for url in post.imageUrls:
-        filename = PixivHelper.make_filename(config.filenameFormat,
+        filename = PixivHelper.make_filename(config.filenameFormatSketch,
                                             post,
                                             artistInfo=post.artist,
                                             tagsSeparator=config.tagsSeparator,
