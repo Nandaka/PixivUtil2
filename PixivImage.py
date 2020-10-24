@@ -216,12 +216,12 @@ class PixivImage (object):
 
         # datetime, in utc
         # "createDate" : "2018-06-08T15:00:04+00:00",
-        self.worksDateDateTime = datetime_z.parse_datetime(str(root["createDate"]))
+        self.worksDateDateTime = datetime_z.parse_datetime(root["createDate"])
         # Issue #420
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
 
-        tempDateFormat = self.dateFormat or "%m/%d/%y %H:%M"  # 2/27/2018 12:31
+        tempDateFormat = self.dateFormat or "%Y%m%dT%H%M"     # 20180722T1231
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
         # resolution
@@ -375,7 +375,7 @@ class PixivImage (object):
         info.write("Tags          = " + ", ".join(self.imageTags) + "\r\n")
         info.write("Image Mode    = " + self.imageMode + "\r\n")
         info.write("Pages         = " + str(self.imageCount) + "\r\n")
-        info.write("Date          = " + self.worksDate + "\r\n")
+        info.write("Date          = " + self.root["createDate"] + "\r\n")
         info.write("Resolution    = " + self.worksResolution + "\r\n")
         info.write("Tools         = " + self.worksTools + "\r\n")
         info.write("BookmarkCount = " + str(self.bookmark_count) + "\r\n")
@@ -407,7 +407,7 @@ class PixivImage (object):
         jsonInfo["Tags"] = self.imageTags
         jsonInfo["Image Mode"] = self.imageMode
         jsonInfo["Pages"] = self.imageCount
-        jsonInfo["Date"] = self.worksDate
+        jsonInfo["Date"] = self.root["createDate"]
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
