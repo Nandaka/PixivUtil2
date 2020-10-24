@@ -80,7 +80,7 @@ class TestPixivHelper(unittest.TestCase):
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
 
-        expected = u'maidoll (554800)\\28865189_p0 001 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
+        expected = u'maidoll (554800)\\28865189_p0 001 2012-07-22 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
                                            artistInfo=None,
@@ -89,7 +89,7 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = u'maidoll (554800)\\28865189_p14 015 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
+        expected = u'maidoll (554800)\\28865189_p14 015 2012-07-22 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
                                            artistInfo=None,
@@ -98,7 +98,7 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
-        expected = u'maidoll (554800)\\28865189_p921 922 07/22/12 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
+        expected = u'maidoll (554800)\\28865189_p921 922 2012-07-22 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
                                            artistInfo=None,
@@ -121,7 +121,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
-        expected = u'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２.jpg'
+        expected = u'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２.jpg'
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
                                            artistInfo=None,
@@ -144,7 +144,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title% %tags%'
-        expected = 'balzehn (267014)\\2493913 12/23/08 852x1200 アラクネのいる日常２ arachne monster girl モン娘のいる日常シリーズ non-human monster girl R-18 tsundere spider woman love-making.jpg'
+        expected = 'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２ arachne monster girl モン娘のいる日常シリーズ non-human monster girl R-18 tsundere spider woman love-making.jpg'
 
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
