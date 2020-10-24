@@ -13,6 +13,7 @@ import PixivBrowserFactory
 import PixivConstant
 from PixivException import PixivException
 import PixivHelper
+import PixivConfig
 
 
 def download_image(caller,
@@ -29,7 +30,7 @@ def download_image(caller,
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config = caller.__config__
+    config: PixivConfig = caller.__config__
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
@@ -75,6 +76,11 @@ def download_image(caller,
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 remote_file_size = get_remote_filesize(url, referer, config, notifier)
+
+                # 837
+                if config.skipUnknownSize and os.path.isfile(filename_save) and remote_file_size == -1:
+                    PixivHelper.print_and_log('info', f"\rSkipped because file exists and cannot get remote file size for: {filename}")
+                    return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 # 576
                 if remote_file_size > 0:
@@ -259,7 +265,7 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
     req = PixivHelper.create_custom_request(url, config, referer)
     br = PixivBrowserFactory.getBrowser(config=config)
     res = br.open_novisit(req)
-    if file_size < 0:
+    if file_size < 0:  # final check before download for download progress bar.
         try:
             content_length = res.info()['Content-Length']
             if content_length is not None:
