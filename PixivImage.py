@@ -221,7 +221,7 @@ class PixivImage (object):
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
 
-        tempDateFormat = self.dateFormat or "%Y%m%dT%H%M"     # 20180722T1231
+        tempDateFormat = self.dateFormat or "%Y-%m-%d"     # 2018-07-22, else configured in config.ini
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
 
         # resolution
@@ -367,24 +367,24 @@ class PixivImage (object):
             info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename, str(self.imageId))
 
-        info.write("ArtistID      = " + str(self.artist.artistId) + "\r\n")
-        info.write("ArtistName    = " + self.artist.artistName + "\r\n")
-        info.write("ImageID       = " + str(self.imageId) + "\r\n")
-        info.write("Title         = " + self.imageTitle + "\r\n")
-        info.write("Caption       = " + self.imageCaption + "\r\n")
-        info.write("Tags          = " + ", ".join(self.imageTags) + "\r\n")
-        info.write("Image Mode    = " + self.imageMode + "\r\n")
-        info.write("Pages         = " + str(self.imageCount) + "\r\n")
-        info.write("Date          = " + self.root["createDate"] + "\r\n")
-        info.write("Resolution    = " + self.worksResolution + "\r\n")
-        info.write("Tools         = " + self.worksTools + "\r\n")
-        info.write("BookmarkCount = " + str(self.bookmark_count) + "\r\n")
-        info.write("Link          = https://www.pixiv.net/en/artworks/{0}\r\n".format(self.imageId))
-        info.write("Ugoira Data   = " + str(self.ugoira_data) + "\r\n")
+        info.write(f"ArtistID      = {self.artist.artistId}\r\n")
+        info.write(f"ArtistName    = {self.artist.artistName}\r\n")
+        info.write(f"ImageID       = {self.imageId}\r\n")
+        info.write(f"Title         = {self.imageTitle}\r\n")
+        info.write(f"Caption       = {self.imageCaption}\r\n")
+        info.write(f"Tags          = {', '.join(self.imageTags)}\r\n")
+        info.write(f"Image Mode    = {self.imageMode}\r\n")
+        info.write(f"Pages         = {self.imageCount}\r\n")
+        info.write(f"Date          = {self.worksDateDateTime}\r\n")
+        info.write(f"Resolution    = {self.worksResolution}\r\n")
+        info.write(f"Tools         = {self.worksTools}\r\n")
+        info.write(f"BookmarkCount = {self.bookmark_count}\r\n")
+        info.write(f"Link          = http://www.pixiv.net/en/artworks/{self.imageId}\r\n")
+        info.write(f"Ugoira Data   = {self.ugoira_data}\r\n")
         if len(self.descriptionUrlList) > 0:
             info.write("Urls          =\r\n")
             for link in self.descriptionUrlList:
-                info.write(" - " + link + "\r\n")
+                info.write(f" - {link}\r\n")
         info.close()
 
     def WriteJSON(self, filename):
@@ -411,7 +411,7 @@ class PixivImage (object):
         jsonInfo["Resolution"] = self.worksResolution
         jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
-        jsonInfo["Link"] = "https://www.pixiv.net/en/artworks/{0}".format(self.imageId)
+        jsonInfo["Link"] = f"https://www.pixiv.net/en/artworks/{self.imageId}"
         jsonInfo["Ugoira Data"] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
             jsonInfo["Urls"] = self.descriptionUrlList
