@@ -745,7 +745,7 @@ class PixivBrowser(mechanize.Browser):
                          member_id=None,
                          sort_order='date_d',
                          start_page=1,
-                         include_bookmark_data=False,
+                         use_bookmark_data=False,
                          bookmark_count=0,
                          type_mode="a",
                          r18mode=False) -> Tuple[PixivTags, str]:
@@ -795,7 +795,7 @@ class PixivBrowser(mechanize.Browser):
                     result.parseTags(response_page, tags, current_page)
 
                     # parse additional information
-                    if include_bookmark_data:
+                    if use_bookmark_data:
                         idx = 0
                         print("Retrieving bookmark information...", end=' ')
                         for image in result.itemList:
