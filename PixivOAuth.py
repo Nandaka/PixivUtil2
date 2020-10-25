@@ -3,16 +3,116 @@
 
 import hashlib
 import json
+import os
+import random
+import ssl
+import sys
+from collections import OrderedDict
 from datetime import datetime
 from typing import Dict
-import os
-import sys
 
-import requests
 import cloudscraper
+import requests
 
 import PixivHelper
 from PixivException import PixivException
+
+
+# monkey patch cloudscraper.User_Agent.loadUserAgent function
+# this is to allow to bundle browser.json in the package
+# based on cloudscraper==1.2.48
+def loadUserAgent(self, *args, **kwargs):
+    self.browser = kwargs.pop('browser', None)
+
+    self.platforms = ['linux', 'windows', 'darwin', 'android', 'ios']
+    self.browsers = ['chrome', 'firefox']
+
+    if isinstance(self.browser, dict):
+        self.custom = self.browser.get('custom', None)
+        self.platform = self.browser.get('platform', None)
+        self.desktop = self.browser.get('desktop', True)
+        self.mobile = self.browser.get('mobile', True)
+        self.browser = self.browser.get('browser', None)
+    else:
+        self.custom = kwargs.pop('custom', None)
+        self.platform = kwargs.pop('platform', None)
+        self.desktop = kwargs.pop('desktop', True)
+        self.mobile = kwargs.pop('mobile', True)
+
+    if not self.desktop and not self.mobile:
+        sys.tracebacklimit = 0
+        raise RuntimeError("Sorry you can't have mobile and desktop disabled at the same time.")
+
+    # resolve browser.json path if frozen
+    default_browser_json = os.path.dirname(sys.executable) + os.sep + 'browsers.json'
+    PixivHelper.get_logger().debug(f"browser.json location = {default_browser_json}")
+
+    with open(default_browser_json, 'r') as fp:
+        user_agents = json.load(
+            fp,
+            object_pairs_hook=OrderedDict
+        )
+
+    if self.custom:
+        if not self.tryMatchCustom(user_agents):
+            self.cipherSuite = [
+                ssl._DEFAULT_CIPHERS,
+                '!AES128-SHA',
+                '!ECDHE-RSA-AES256-SHA',
+            ]
+            self.headers = OrderedDict([
+                ('User-Agent', self.custom),
+                ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'),
+                ('Accept-Language', 'en-US,en;q=0.9'),
+                ('Accept-Encoding', 'gzip, deflate, br')
+            ])
+    else:
+        if self.browser and self.browser not in self.browsers:
+            sys.tracebacklimit = 0
+            raise RuntimeError('Sorry "{}" browser is not valid, valid browsers are [{}].'.format(self.browser, ', '.join(self.browsers)))
+
+        if not self.platform:
+            self.platform = random.SystemRandom().choice(self.platforms)
+
+        if self.platform not in self.platforms:
+            sys.tracebacklimit = 0
+            raise RuntimeError('Sorry the platform "{}" is not valid, valid platforms are [{}]'.format(self.platform, ', '.join(self.platforms)))
+
+        filteredAgents = self.filterAgents(user_agents['user_agents'])
+
+        if not self.browser:
+            # has to be at least one in there...
+            while not filteredAgents.get(self.browser):
+                self.browser = random.SystemRandom().choice(list(filteredAgents.keys()))
+
+        if not filteredAgents[self.browser]:
+            sys.tracebacklimit = 0
+            raise RuntimeError('Sorry "{}" browser was not found with a platform of "{}".'.format(self.browser, self.platform))
+
+        self.cipherSuite = user_agents['cipherSuite'][self.browser]
+        self.headers = user_agents['headers'][self.browser]
+
+        self.headers['User-Agent'] = random.SystemRandom().choice(filteredAgents[self.browser])
+
+    if not kwargs.get('allow_brotli', False) and 'br' in self.headers['Accept-Encoding']:
+        self.headers['Accept-Encoding'] = ','.join([
+            encoding for encoding in self.headers['Accept-Encoding'].split(',') if encoding.strip() != 'br'
+        ]).strip()
+
+
+def create_scraper(sess=None, **kwargs):
+    """
+    Convenience function for creating a ready-to-go CloudScraper object.
+    """
+    scraper = cloudscraper.CloudScraper(**kwargs)
+
+    if sess:
+        for attr in ['auth', 'cert', 'cookies', 'headers', 'hooks', 'params', 'proxies', 'data', 'verify']:
+            val = getattr(sess, attr, None)
+            if val:
+                setattr(scraper, attr, val)
+    return scraper
+# end monkey patch
 
 
 class PixivOAuth():
@@ -26,8 +126,13 @@ class PixivOAuth():
     _validate_ssl: bool = True
 
     sess = requests.Session()
-    if PixivHelper.we_are_frozen():  # 842 always refer to local cacert.pem ca bundle if frozen
+    if PixivHelper.we_are_frozen():
+        PixivHelper.get_logger().debug("Running from executable version for PixivOAuth")
+        # 842 always refer to local cacert.pem ca bundle if frozen
         sess.verify = os.path.dirname(sys.executable) + os.sep + 'cacert.pem'
+        # monkey patch load user agent
+        cloudscraper.User_Agent.loadUserAgent = loadUserAgent
+        cloudscraper.create_scraper = create_scraper
     _req = cloudscraper.create_scraper(sess=sess)
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
