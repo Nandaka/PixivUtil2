@@ -1,3 +1,9 @@
+20201025
+- Merge To be consistent with PixivBatchHandler. Fix #844 (#845) by fireattack.
+- Implement #842: to use cacert.pem from the root directory if frozen.
+  - need to modify cloudscraper library to inherit 'verify' attribute from given Session object
+- Merge Sketch default date fix (#841) by byjtje
+
 20201024
 - add cmd logging when converting ugoira.
 - Implement #406: add option 13: download by manga series
