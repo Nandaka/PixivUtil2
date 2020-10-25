@@ -775,7 +775,7 @@ def generate_search_tag_url(tags,
                             member_id=None,
                             r18mode=False,
                             blt=0,
-                            type_data="a"):
+                            type_mode="a"):
     url = ""
     date_param = ""
     page_param = ""
@@ -807,13 +807,13 @@ def generate_search_tag_url(tags,
         if blt is not None and blt > 0:
             bookmark_limit_premium = f'&blt={blt}'
 
-        if type_data == "i":
-            type_data = "illust_and_ugoira"
-        elif type_data == "m":
-            type_data = "manga"
+        if type_mode == "i":
+            type_mode = "illust_and_ugoira"
+        elif type_mode == "m":
+            type_mode = "manga"
         else:
-            type_data = "all"
-        type_mode = f"&type={type_data}"
+            type_mode = "all"
+        type_mode = f"&type={type_mode}"
 
         # https://www.pixiv.net/ajax/search/artworks/k-on?word=k-on&order=date_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=en
         url = f"{root_url}/{tags}?word={tags}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}"
