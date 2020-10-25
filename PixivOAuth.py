@@ -5,6 +5,8 @@ import hashlib
 import json
 from datetime import datetime
 from typing import Dict
+import os
+import sys
 
 import requests
 import cloudscraper
@@ -24,9 +26,8 @@ class PixivOAuth():
     _validate_ssl: bool = True
 
     sess = requests.Session()
-    if PixivHelper.we_are_frozen():
-        # 842 always refer to local cacert.pem ca bundle if frozen
-        sess.verify = r'''./cacert.pem'''
+    if PixivHelper.we_are_frozen():  # 842 always refer to local cacert.pem ca bundle if frozen
+        sess.verify = os.path.dirname(sys.executable) + os.sep + 'cacert.pem'
     _req = cloudscraper.create_scraper(sess=sess)
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):

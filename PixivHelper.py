@@ -54,6 +54,7 @@ else:
     ^$
     ''', re.VERBOSE)
 
+
 def set_config(config):
     global _config
     _config = config
