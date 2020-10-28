@@ -397,7 +397,7 @@ def process_manga_series(caller,
                 PixivHelper.print_and_log('info', f'End Page reached {end_page}')
                 flag = False
             if manga_series.pages_with_order is None or len(manga_series.pages_with_order) == 0:
-                PixivHelper.print_and_log('info', f'No more works.')
+                PixivHelper.print_and_log('info', 'No more works.')
                 flag = False
 
     except Exception as ex:
