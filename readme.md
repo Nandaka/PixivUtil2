@@ -322,249 +322,337 @@ Please refer run with `--help` for latest information.
 
 ## [Pixiv]
 - numberofpage
+
   Number of page to be processed, put `0` to process all pages.
 - r18mode
+
   Only list images tagged R18, for member, member's bookmark, and search by tag. Set to `True` to enable.
 - dateformat
+
   Pixiv DateTime format, leave blank to use default format (YYYY-MM-DD).
   Refer to http://strftime.org/ for syntax. Quick Reference:
   - %d = Day, %m = Month, %Y = Year (4 digit)
   - %H = Hour (24h), %M = Minute, %S = Seconds
 - autoAddMember
+
   Automatically save member id to db for all download.
 
 ## [FANBOX]
 - filenameFormatFanboxContent
+
   Similar to filename format, but for files inside FANBOX posts.
 - filenameFormatFanboxCover
+
   Similar to filename format, but for FANBOX post cover images
 - filenameFormatFanboxInfo
+
   Similar to filename format, but for info dumps.
 - writeHtml
+
   A switch to decide whether to write FANBOX posts into HTMLs or not.
   - If set to `True`, article type posts will for sure be written into HTMLs, while non-article type posts are controlled with `minTextLengthForNonArticle` and `minImageCountForNonArticle`.
   - If set to `False`, no post will be written into HTMLs.
   - `filenameFormatFanboxInfo` will be used for filename.
   - For HTML format, please refer to 'HTML Format' section
 - minTextLengthForNonArticle
+
   Works with `minImageCountForNonArticle`.
   When 'writeHtml' is True, a non-article post should contain text longer than this value to be written into HTML.
 - minImageCountForNonArticle
+
   Works with `minTextLengthForNonArticle`.
   When `writeHtml` is True, a non-article post should contain at least this many files/images to be written into HTML.
 - useAbsolutePathsInHtml
+
   Set to `True` to use absolute paths in HTMLs.
   Set to `False` to use relative paths.
 - downloadCoverWhenRestricted
+
   Set to `True` to download FANBOX post cover images even if they are restricted.
 - checkDBProcessHistory
   Each FANBOX post has a updated_date value, which will be recorded/updated in database after it is processed.
   - When this is `True`, the values in database would be checked when processing each post. If record is no earlier than the newly retrieved date, which means that the post has not been processed at all or changed since last time, the post would be skipped.
   - When this is `False`, posts will be processed anyways.
 - listPathFanbox
+
   The list file for fanbox creators. One creator per line.
   Doesn't support custom path.
 
 ## [Network]
 - useproxy
+
   Set `True` to use proxy server, or `False` to disable it.
 - proxyaddress
+
   Proxy server address, use this format:
   - http://<username>:<password>@<proxy_server>:<port> or
   - socks5://<username>:<password>@<proxy_server>:<port> or
   - socks4://<username>:<password>@<proxy_server>:<port>
 - useragent
+  
   Browser user agent to spoof. You can check it from https://www.whatismybrowser.com/detect/what-is-my-user-agent
 - userobots
+
   Download robots.txt for mechanize.
 - timeout
+
   Time to wait before giving up the connection, in seconds.
 - retry
+
   Number of retries.
 - retrywait
+
   Waiting time for each retry, in seconds.
 - downloadDelay
+
   Set random delay up to n seconds for each image post.
   Set to 0 to disable.
 - checkNewVersion
+
   Set to `True` to check new releases in github.
 - openNewVersion
+
   Set to `False` to disable opening new releases in browser.
 - enableSSLVerification
+
   Enable SSL verication, only set to `False` if you always encounter SSL Error (this disable the security)
 
 ## [Debug]
 - logLevel
+
   Set log level, valid values are CRITICAL, ERROR, WARNING, INFO, DEBUG, and NOTSET
 - enableDump
+
   Enable HTML Dump. Set to False to disable.
 - skipDumpFilter
+
   Skip HTML Dump based on error code (using regex format).
   E.g.: 1.*|2.* => skip all HTML dump for error code 1xxx/2xxx.
 - dumpMediumPage
+
   Dump all medium page for debugging. Set to True to enable.
 - dumpTagSearchPage
+
   Dump tags search page for debugging.
 - debughttp
+
   Print http header, useful for debuggin. Set 'False' to disable.
 
 ## [IrfanView]
 - IrfanViewPath
+
   Set directory where IrfanView is installed (needed to start IrfanView)
 - startIrfanView
+
   Set to `True` to start IrfanView with downloaded images when exiting pixivUtil
   - This will create download-lists
   - Be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
 - startIrfanSlide
+
   Set to `True` to start IrfanView-Slideshow with downloaded images when exiting pixivUtil.
   - This will create download-lists
   - Be sure to set IrfanView to load Unicode-Plugin on startup when there are unicode-named files!
   - Slideshow-options will be same as you have set in IrfanView before!
 - createDownloadLists
+
   Set to `True` to automatically create download-lists.
 
 ## [Settings]
 - downloadlistdirectory
+
   list.txt path, also used for download-lists needed for `createDownloadLists` and IrfanView-Handling
   If leaved blank it will create download-lists in pixivUtil-directory.
 - uselist
+
   Set to `True` to parse list.txt.
   This will update the DB content from the list.txt (member_id and custom folder).
 - processfromdb
+
   Set `True` to use the member_id from the DB.
 - rootdirectory
+
   Your root directory for saving the images.
 - downloadavatar
+
   Set to `True` to download the member avatar as 'folder.jpg'
 - usesuppresstags
+
   Remove the suppressed tags from %tags% meta for filename.
   The list is taken from suppress_tags.txt, each tags is separated by new line.
 - tagsLimit
+
   Number of tags to be used for %tags% meta in filename.
   Use -1 to use all tags.
 - writeimageinfo
+
   Set to `True` to export the image information to text file.
   The filename is following the image filename + .txt.
 - writeImageJSON
+
   Set to `True` to export the image information to JSON.
   The filename is following the image filename + .json.
 - verifyimage
+
   Do image and zip checking after download. Set the value to `True` to enable.
 - writeUrlInDescription
+
   Write all url found in the image description to a text file. Set to `True` to enable. The list will be saved to to the application folder as url_list_<timestamp>.txt
 - urlBlacklistRegex
+  
   Used to filter out the url in the description using regular expression.
 - dbPath
+
   Use different database.
 - setLastModified
+
   Set last modified timestamp based on pixiv upload timestamp.
 - useLocalTimezone
+
   Use local timezone when setting last modified timestamp/works date.
 
 ## [DownloadControl]
 - minFileSize
+
   Skip if file size is less than minFileSize, set `0` to disable.
 - maxFileSize
+
   Skip if file size is more than minFileSize, set `0` to disable.
 - overwrite
+
   Overwrite old files, set `False` to disable.
 - backupOldFile
+
   Set to True to backup old file if the file size is different.
   Old filename will be renamed to filename.unix-time.extension.
 - daylastupdated
+
   Only process member_id which were processed at least x days since the last check.
 - alwaysCheckFileSize
+
   Check the file size, if different then it will be downloaded again, set `False` to disable.
   This will override the image_id checking from db (always fetch the image page to check the remote size).
 - checkUpdatedLimit
+
   Jump to the next member id if already see n-number of previously downloaded images.
   `alwaysCheckFileSize` must be set to False.
 - useblacklisttags
+
   Skip image if containing blacklisted tags.
   The list is taken from `blacklist_tags.txt`, each tags is separated by new line.
 - useblacklisttitles
+
   Skip image if the title contains a blacklisted character sequence.
   The list is taken from `blacklist_titles.txt`, each sequence is separated by new line.
 - useblacklisttitlesregex
+
   Make the title blacklist check interpret each sequence as a regular expression.
 - dateDiff
+
   Process only new images within the given date difference.
   Set `0` to disable. Skip to next member id if in 'Download by Member', stop processing if in 'Download New Illust' mode.
 - enableInfiniteLoop
+
   Enable infinite loop for download by tags.
   Only applicable for download in descending order (newest first).
 - useBlacklistMembers
+
   Skip image by member id based on `blacklist_members.txt` in the same folder of the application.
 - downloadResized
+
   Download the medium size, rather than the original size.
 - checkLastModified
+
   Compare local file's last-modified timestamp with works date.
   Require `setlastmodified = True` in config.ini to work properly
 - skipUnknownSize
+
   Skip downloading if the remote size is not known when `alwaysCheckFileSize` is set to True.
 
 ## [FFmpeg]
 - ffmpeg
+
   Path to ffmpeg executable.
 - ffmpegcodec
+
   Codec to be used for encoding webm, default is using `libvpx-vp9`.
 - ffmpegparam
+
   Parameter to be used to encode webm. default is `-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p`
 - webpcodec
+
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
+
   Parameter to be used to encode webm.
   default is `lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999`
 
 ## [Ugoira]
 - writeugoirainfo
-  If set to True, it will dump the .js to external file.
+
+  If set to `True`, it will dump the .js to external file.
 - createugoira
-  If set to True, it will create .ugoira file.
+
+  If set to `True`, it will create .ugoira file.
   This is Pixiv own format for animated images. You can use Honeyview to see the animation.
 - deleteZipFile
-  If set to True, it will delete the zip files from ugoira.
+
+  If set to `True`, it will delete the zip files from ugoira.
   Only active if `createUgoira = True`.
 - creategif
+
   Set to True to convert ugoira file to gif.
   Required `createUgoira = True` and ffmpeg executeable.
 - createapng
+
   Set to True to convert ugoira file to animated png.
   Required `createUgoira = True` and ffmpeg executeable.
 - deleteugoira
+
   Set to True to delete original ugoira after conversion.
 - createwebm
+
   Set to True to create webm file (video format).
   Required `createUgoira = True` and ffmpeg executeable.
 - createwebp
+
   Set to True to create webp file (image format).
   Required `createUgoira = True` and ffmpeg executeable.
 
 ## [Filename]
 - filenameformat
+
   The format for the filename, reserved/illegal character will be replaced with underscore '_', repeated space will be trimmed to single space. The filename (+full path) will be trimmed to the first 250 character (Windows limitation).
   Refer to Filename Format Syntax for available format.
 - filenamemangaformat
+
   Similar to filename format, but for manga pages.
 - filenameinfoformat
+
   Similar to filename format, but for info dumps.
 - avatarNameFormat
+
   Similar to filename format, but for the avatar image.
   Not all formats are available.
 - backgroundNameFormat
+
   Similar to filename format, but for the background image.
   Not all formats are available.
 - tagsseparator
+
   Separator for each tag in filename, put %space% for space.
 - createmangadir
+
   Create a directory if the imageMode is manga. The directory is created by splitting the image_id by '_pxx' pattern.
   This setting is depends on %urlFilename% format.
 - usetagsasdir
+
   Append the query tags in tagslist.txt to the root directory as save folder.
 - urlDumpFilename
+
   Define the dump filename, use python strftime() format.
   Default value is 'url_list_%Y%m%d'
 - filenameFormatSketch
+
   Similar to filename format, but for Pixiv Sketch.
 
 # Filename Format Syntax
