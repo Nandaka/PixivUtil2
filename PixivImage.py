@@ -374,6 +374,7 @@ class PixivImage (object):
         info.write(f"ArtistID      = {self.artist.artistId}\r\n")
         info.write(f"ArtistName    = {self.artist.artistName}\r\n")
         info.write(f"ImageID       = {self.imageId}\r\n")
+        info.write(f"Title         = {self.imageTitle}\r\n")
         if self.seriesNavData:
             info.write(f"SeriesTitle   = {self.seriesNavData['title']}\r\n")
             info.write(f"SeriesOrder   = {self.seriesNavData['order']}\r\n")
@@ -410,6 +411,7 @@ class PixivImage (object):
         jsonInfo = collections.OrderedDict()
         jsonInfo["Artist ID"] = self.artist.artistId
         jsonInfo["Artist Name"] = self.artist.artistName
+        jsonInfo["Image ID"] = self.imageId
         if self.seriesNavData:
             jsonInfo["Series Data"] = self.seriesNavData
         jsonInfo["Title"] = self.imageTitle
