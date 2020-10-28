@@ -59,6 +59,7 @@ class PixivImage (object):
     worksDate = ""
     worksResolution = ""
     worksTools = ""
+    seriesNavData = ""
     jd_rtv = 0
     jd_rtc = 0
     # jd_rtt = 0
@@ -196,7 +197,8 @@ class PixivImage (object):
         # title/caption
         self.imageTitle = root["illustTitle"]
         self.imageCaption = root["illustComment"]
-
+        # Series
+        self.seriesNavData = root["seriesNavData"]
         # view count
         self.jd_rtv = root["viewCount"]
         # like count
@@ -372,17 +374,22 @@ class PixivImage (object):
         info.write(f"ArtistID      = {self.artist.artistId}\r\n")
         info.write(f"ArtistName    = {self.artist.artistName}\r\n")
         info.write(f"ImageID       = {self.imageId}\r\n")
-        info.write(f"Title         = {self.imageTitle}\r\n")
+        if self.seriesNavData:
+            info.write(f"SeriesTitle   = {self.seriesNavData['title']}\r\n")
+            info.write(f"SeriesOrder   = {self.seriesNavData['order']}\r\n")
+            info.write(f"SeriesId      = {self.seriesNavData['seriesId']}\r\n")
         info.write(f"Caption       = {self.imageCaption}\r\n")
         info.write(f"Tags          = {', '.join(self.imageTags)}\r\n")
         info.write(f"Image Mode    = {self.imageMode}\r\n")
         info.write(f"Pages         = {self.imageCount}\r\n")
         info.write(f"Date          = {self.worksDateDateTime}\r\n")
         info.write(f"Resolution    = {self.worksResolution}\r\n")
-        info.write(f"Tools         = {self.worksTools}\r\n")
+        if self.worksTools:
+            info.write(f"Tools         = {self.worksTools}\r\n")
         info.write(f"BookmarkCount = {self.bookmark_count}\r\n")
         info.write(f"Link          = http://www.pixiv.net/en/artworks/{self.imageId}\r\n")
-        info.write(f"Ugoira Data   = {self.ugoira_data}\r\n")
+        if self.ugoira_data:
+            info.write(f"Ugoira Data   = {self.ugoira_data}\r\n")
         if len(self.descriptionUrlList) > 0:
             info.write("Urls          =\r\n")
             for link in self.descriptionUrlList:
@@ -403,7 +410,8 @@ class PixivImage (object):
         jsonInfo = collections.OrderedDict()
         jsonInfo["Artist ID"] = self.artist.artistId
         jsonInfo["Artist Name"] = self.artist.artistName
-        jsonInfo["Image ID"] = self.imageId
+        if self.seriesNavData:
+            jsonInfo["Series Data"] = self.seriesNavData
         jsonInfo["Title"] = self.imageTitle
         jsonInfo["Caption"] = self.imageCaption
         jsonInfo["Tags"] = self.imageTags
@@ -411,10 +419,12 @@ class PixivImage (object):
         jsonInfo["Pages"] = self.imageCount
         jsonInfo["Date"] = self.js_createDate
         jsonInfo["Resolution"] = self.worksResolution
-        jsonInfo["Tools"] = self.worksTools
+        if self.worksTools:
+            jsonInfo["Tools"] = self.worksTools
         jsonInfo["BookmarkCount"] = self.bookmark_count
         jsonInfo["Link"] = f"https://www.pixiv.net/en/artworks/{self.imageId}"
-        jsonInfo["Ugoira Data"] = self.ugoira_data
+        if self.ugoira_data:
+            jsonInfo["Ugoira Data"] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
             jsonInfo["Urls"] = self.descriptionUrlList
 
