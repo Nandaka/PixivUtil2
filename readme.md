@@ -305,18 +305,20 @@ Please refer run with `--help` for latest information.
 # config.ini
 ## [Authentication]
 - username
-  Your pixiv username. Needed for OAuth. Please make sure the combination of username and password is valid in case of OAuth error.
-  If you get error 103, please try changing username from pixiv ID to email address or the other way around.
+
+  Your pixiv username. Needed for OAuth. Please make sure the combination of username and password is valid in case of OAuth error. If you get error 103, please try changing username from pixiv ID to email address or the other way around.
 - password
+
   Your pixiv password, in clear text! Needed for OAuth. Please make sure the combination of username and password is valid in case of OAuth error.
 - cookie
-  Your cookies for pixiv login, will be automatically updated in the login.
-  See https://github.com/Nandaka/PixivUtil2/issues/814#issuecomment-711182644 for details.
+
+  Your cookies for pixiv login, will be automatically updated in the login. See https://github.com/Nandaka/PixivUtil2/issues/814#issuecomment-711182644 for details.
 - cookieFanbox
+
   Cookie for fanbox.cc, normally no need to fill in.
 - refresh_token
-  Used for OAuth refresh token to avoid relogin too many time.
-  Automatically generated upon succesful OAuth login.
+
+  Used for OAuth refresh token to avoid relogin too many time. Automatically generated upon succesful OAuth login.
 
 ## [Pixiv]
 - numberofpage
