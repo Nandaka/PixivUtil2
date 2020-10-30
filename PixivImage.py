@@ -435,17 +435,17 @@ class PixivImage (object):
         info.close()
     
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
-        rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
-        jsondata = rawJSON["body"]["illustSeries"][0]
-        jsondata.update(rawJSON["body"]["page"])
-        pages = jsondata["total"]//12+2
         try:
             # Issue #421 ensure subdir exists.
             PixivHelper.makeSubdirs(filename)
             outfile = codecs.open(filename, 'w', encoding='utf-8')
         except IOError:
-            outfile = codecs.open("Series " + str(jsondata["total"]) + ".json", 'w', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(jsondata["total"]) + ".json")
+            outfile = codecs.open("Series " + str(seriesId) + ".json", 'w', encoding='utf-8')
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(seriesId) + ".json")
+        rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
+        jsondata = rawJSON["body"]["illustSeries"][0]
+        jsondata.update(rawJSON["body"]["page"])
+        pages = jsondata["total"]//12+2
         for x in range(2,pages):
             rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,x,returnJSON=True))
             jsondata["series"].extend(rawJSON["body"]["page"]["series"])
