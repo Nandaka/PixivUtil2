@@ -633,6 +633,9 @@ Please refer run with `--help` for latest information.
 - filenameinfoformat
 
   Similar to filename format, but for info dumps.
+- filenameSeriesJSON
+
+  Similar to filename format, but for series JSON dumps.
 - avatarNameFormat
 
   Similar to filename format, but for the avatar image.
