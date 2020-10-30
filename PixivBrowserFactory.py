@@ -159,7 +159,7 @@ class PixivBrowser(mechanize.Browser):
         self.addheaders = [('User-agent', config.useragent)]
 
         # force utf-8, fix issue #184
-        self.addheaders += [('Accept-Charset', 'utf-8')]
+        self.addheaders = [('Accept-Charset', 'utf-8')]
 
         socket.setdefaulttimeout(config.timeout)
 
@@ -1019,7 +1019,7 @@ class PixivBrowser(mechanize.Browser):
 
         return artist
 
-    def getMangaSeries(self, manga_series_id: int, current_page: int) -> PixivMangaSeries:
+    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON = False) -> PixivMangaSeries:
         PixivHelper.print_and_log("info", f"Getting Manga Series: {manga_series_id} from page: {current_page}")
         # get the manga information
         # https://www.pixiv.net/ajax/series/6474?p=5&lang=en
@@ -1028,6 +1028,8 @@ class PixivBrowser(mechanize.Browser):
             locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/series/{manga_series_id}?p={current_page}{locale}"
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        if returnJSON:
+            return response
         manga_series = PixivMangaSeries(manga_series_id, current_page, payload=response)
 
         # get the artist information from given manga list

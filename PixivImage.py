@@ -18,6 +18,7 @@ import datetime_z
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
+import PixivBrowserFactory
 
 
 class PixivTagData(object):
@@ -432,6 +433,27 @@ class PixivImage (object):
 
         info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
         info.close()
+    
+    def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
+        rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
+        jsondata = rawJSON["body"]["illustSeries"][0]
+        jsondata.update(rawJSON["body"]["page"])
+        pages = jsondata["total"]//12+2
+        try:
+            # Issue #421 ensure subdir exists.
+            PixivHelper.makeSubdirs(filename)
+            outfile = codecs.open(filename, 'w', encoding='utf-8')
+        except IOError:
+            outfile = codecs.open("Series " + str(jsondata["total"]) + ".json", 'w', encoding='utf-8')
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(jsondata["total"]) + ".json")
+        for x in range(2,pages):
+            rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,x,returnJSON=True))
+            jsondata["series"].extend(rawJSON["body"]["page"]["series"])
+        for x in ["recentUpdatedWorkIds","otherSeriesId","seriesId","isSetCover","firstIllustId","coverImageSl","url"]:
+            del jsondata[x]
+        outfile.write(json.dumps(jsondata, ensure_ascii=False))
+        outfile.close()
+        seriesDownloaded.append(seriesId)
 
     def WriteUgoiraData(self, filename):
         info = None

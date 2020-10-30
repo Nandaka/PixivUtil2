@@ -639,7 +639,7 @@ Please refer run with `--help` for latest information.
   Not all formats are available.
 - tagsseparator
 
-  Separator for each tag in filename, put %space% for space.
+  Separator for each tag in filename, put %space% for space and %ideo_space% for ideographic space ("　").
 - createmangadir
 
   Create a directory if the imageMode is manga. The directory is created by splitting the image_id by '_pxx' pattern.

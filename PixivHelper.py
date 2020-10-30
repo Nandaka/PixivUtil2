@@ -223,17 +223,14 @@ def make_filename(nameFormat: str,
     nameFormat = nameFormat.replace('%page_number%', page_number)
 
     # Manga Series related
-    if hasattr(imageInfo, "manga_series_parent") and imageInfo.manga_series_parent is not None:
-        ms: PixivMangaSeries = imageInfo.manga_series_parent
-        nameFormat = nameFormat.replace('%manga_series_order%', str(imageInfo.manga_series_order))
-        nameFormat = nameFormat.replace('%manga_series_id%', str(ms.manga_series_id))
-        nameFormat = nameFormat.replace('%manga_series_title%', ms.title)
-        nameFormat = nameFormat.replace('%manga_series_desc%', ms.description)
+    if imageInfo.seriesNavData:
+        nameFormat = nameFormat.replace('%manga_series_order%', str(imageInfo.seriesNavData['order']))
+        nameFormat = nameFormat.replace('%manga_series_id%', str(imageInfo.seriesNavData['seriesId']))
+        nameFormat = nameFormat.replace('%manga_series_title%', imageInfo.seriesNavData['title'])
     else:
         nameFormat = nameFormat.replace('%manga_series_order%', '')
         nameFormat = nameFormat.replace('%manga_series_id%', '')
         nameFormat = nameFormat.replace('%manga_series_title%', '')
-        nameFormat = nameFormat.replace('%manga_series_desc%', '')
 
     if tagsSeparator == '%space%':
         tagsSeparator = ' '

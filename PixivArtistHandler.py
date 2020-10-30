@@ -153,7 +153,6 @@ def process_member(caller,
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
                 PixivHelper.print_and_log(None, f'#{no_of_images}')
-
                 retry_count = 0
                 while True:
                     try:
