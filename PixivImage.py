@@ -18,7 +18,6 @@ import datetime_z
 import PixivHelper
 from PixivArtist import PixivArtist
 from PixivException import PixivException
-import PixivBrowserFactory
 
 
 class PixivTagData(object):
@@ -435,6 +434,7 @@ class PixivImage (object):
         info.close()
     
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
+        from PixivBrowserFactory import getBrowser, PixivBrowser
         try:
             # Issue #421 ensure subdir exists.
             PixivHelper.makeSubdirs(filename)
@@ -442,12 +442,12 @@ class PixivImage (object):
         except IOError:
             outfile = codecs.open("Series " + str(seriesId) + ".json", 'w', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(seriesId) + ".json")
-        rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
+        rawJSON = json.loads(getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
         jsondata = rawJSON["body"]["illustSeries"][0]
         jsondata.update(rawJSON["body"]["page"])
         pages = jsondata["total"]//12+2
         for x in range(2,pages):
-            rawJSON = json.loads(PixivBrowserFactory.getBrowser().getMangaSeries(seriesId,x,returnJSON=True))
+            rawJSON = json.loads(getBrowser().getMangaSeries(seriesId,x,returnJSON=True))
             jsondata["series"].extend(rawJSON["body"]["page"]["series"])
         for x in ["recentUpdatedWorkIds","otherSeriesId","seriesId","isSetCover","firstIllustId","coverImageSl","url"]:
             del jsondata[x]
