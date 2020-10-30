@@ -223,7 +223,7 @@ def make_filename(nameFormat: str,
     nameFormat = nameFormat.replace('%page_number%', page_number)
 
     # Manga Series related
-    if imageInfo.seriesNavData:
+    if hasattr(imageInfo, "seriesNavData") and image.seriesNavData:
         nameFormat = nameFormat.replace('%manga_series_order%', str(imageInfo.seriesNavData['order']))
         nameFormat = nameFormat.replace('%manga_series_id%', str(imageInfo.seriesNavData['seriesId']))
         nameFormat = nameFormat.replace('%manga_series_title%', imageInfo.seriesNavData['title'])
