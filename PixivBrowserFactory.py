@@ -159,7 +159,7 @@ class PixivBrowser(mechanize.Browser):
         self.addheaders = [('User-agent', config.useragent)]
 
         # force utf-8, fix issue #184
-        self.addheaders = [('Accept-Charset', 'utf-8')]
+        self.addheaders += [('Accept-Charset', 'utf-8')]
 
         socket.setdefaulttimeout(config.timeout)
 
