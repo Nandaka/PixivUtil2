@@ -486,11 +486,15 @@ Please refer run with `--help` for latest information.
 - writeimageinfo
 
   Set to `True` to export the image information to text file.
-  The filename is following the image filename + .txt.
+  The filename is following the image `filename(Manga)Infoformat` + .txt.
 - writeImageJSON
 
   Set to `True` to export the image information to JSON.
-  The filename is following the image filename + .json.
+  The filename is following the `filename(Manga)Infoformat` + .json.
+- writeSeriesJSON
+
+  Set to `True` to export the series information to JSON.
+  The filename is following the `filenameSeriesJSON` + .json.
 - verifyimage
 
   Do image and zip checking after download. Set the value to `True` to enable.
@@ -717,17 +721,12 @@ Available for filenameFormat and filenameMangaFormat:
    Bookmark count, will have overhead except on download by tags.
 -> %image_response_count%
    Image respose count, will have overhead except on download by tags.
-```
-Specific for filenameMangaFormat in Manga Series mode (option 13):
-```
 -> %manga_series_order%
    the order in the manga series.
 -> %manga_series_id%
    original manga series id.
 -> %manga_series_title%
    original manga series title, different from work title.
--> %manga_series_desc%
-   original manga series description, different from work description.
 ```
 Specific for PixivSketch (option 1 if PixivSketch included, s1, and s2 ):
 ```
