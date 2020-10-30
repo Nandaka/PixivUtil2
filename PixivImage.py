@@ -434,7 +434,7 @@ class PixivImage (object):
         info.close()
     
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
-        from PixivBrowserFactory import getBrowser, PixivBrowser
+        from PixivBrowserFactory import getBrowser
         try:
             # Issue #421 ensure subdir exists.
             PixivHelper.makeSubdirs(filename)
