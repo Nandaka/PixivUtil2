@@ -395,7 +395,7 @@ class PixivImage (object):
                 info.write(f" - {link}\r\n")
         info.close()
 
-    def WriteJSON(self, filename):
+    def WriteJSON(self, filename, JSONfilter):
         info = None
         try:
             # Issue #421 ensure subdir exists.
@@ -406,7 +406,7 @@ class PixivImage (object):
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
         if self.rawJSON:
             jsonInfo=self.rawJSON
-            for x in ["id","title","description","alt","userIllusts","storableTags","zoneConfig","extraData", "comicPromotion","fanboxPromotion"]:
+            for x in JSONfilter:
                 del jsonInfo[x]
             if self.ugoira_data:
                 jsonInfo["Ugoira Data"] = self.ugoira_data

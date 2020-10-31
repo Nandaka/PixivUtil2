@@ -292,7 +292,7 @@ def process_image(caller,
                 if config.writeImageInfo:
                     image.WriteInfo(info_filename + ".txt")
                 if config.writeImageJSON:
-                    image.WriteJSON(info_filename + ".json")
+                    image.WriteJSON(info_filename + ".json", config.RawJSONFilter.split(","))
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
                     json_filename = PixivHelper.make_filename(format_src.filenameSeriesJSON,
                                                             image,
