@@ -406,8 +406,9 @@ class PixivImage (object):
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
         if self.rawJSON:
             jsonInfo=self.rawJSON
-            for x in JSONfilter:
-                del jsonInfo[x]
+            if JSONfilter:
+                for x in JSONfilter.split(","):
+                    del jsonInfo[x]
             if self.ugoira_data:
                 jsonInfo["Ugoira Data"] = self.ugoira_data
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
