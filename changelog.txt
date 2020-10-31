@@ -1,3 +1,10 @@
+20201031
+- Merge Fix bug of header (#853) by markhuang3310.
+- Merge Added Series Info and conditionals to JSON/txt, and removed an unneccesary string format (#851) by byjtje.
+- Update readme.md (please read...)
+- monkey-patch cloudscraper method for browsers.json filepath resolution.
+- update cacert.pem path resolution to count if the exe being called from different folder
+
 20201025
 - Merge To be consistent with PixivBatchHandler. Fix #844 (#845) by fireattack.
 - Implement #842: to use cacert.pem from the root directory if frozen.
