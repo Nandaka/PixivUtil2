@@ -78,7 +78,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
-        nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %works_tools% %title%'
+        nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %title%'
 
         expected = u'maidoll (554800)\\28865189_p0 001 2012-07-22 Multiple images: 2P C82おまけ本 「沙耶は俺の嫁」サンプル.jpg'
         result = PixivHelper.make_filename(nameFormat,
@@ -120,7 +120,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
-        nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %works_tools% %title%'
+        nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title%'
         expected = u'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２.jpg'
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
