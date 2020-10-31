@@ -486,15 +486,19 @@ Please refer run with `--help` for latest information.
 - writeimageinfo
 
   Set to `True` to export the image information to text file.
-  The filename is following the image `filename(Manga)Infoformat` + .txt.
+  The filename is following `filename(Manga)Infoformat` + .txt.
 - writeImageJSON
 
   Set to `True` to export the image information to JSON.
-  The filename is following the `filename(Manga)Infoformat` + .json.
+  The filename is following `filename(Manga)Infoformat` + .json.
+- writeRawJSON
+
+  Set to `True` to export the image JSON almost untouched.
+  The filename is following `filename(Manga)Infoformat` + .json.
 - writeSeriesJSON
 
   Set to `True` to export the series information to JSON.
-  The filename is following the `filenameSeriesJSON` + .json.
+  The filename is following `filenameSeriesJSON` + .json.
 - verifyimage
 
   Do image and zip checking after download. Set the value to `True` to enable.

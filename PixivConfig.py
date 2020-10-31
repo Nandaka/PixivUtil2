@@ -87,6 +87,7 @@ class PixivConfig():
         ConfigItem("Settings", "tagsLimit", -1),
         ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
+        ConfigItem("Settings", "writeRawJSON", False),
         ConfigItem("Settings", "includeSeriesJSON", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),

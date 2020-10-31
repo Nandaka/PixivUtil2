@@ -580,7 +580,8 @@ class PixivBrowser(mechanize.Browser):
                                    dateFormat=self._config.dateFormat,
                                    tzInfo=_tzInfo,
                                    manga_series_order=manga_series_order,
-                                   manga_series_parent=manga_series_parent)
+                                   manga_series_parent=manga_series_parent,
+                                   writeRawJSON=self._config.writeRawJSON)
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
