@@ -493,8 +493,11 @@ Please refer run with `--help` for latest information.
   The filename is following `filename(Manga)Infoformat` + .json.
 - writeRawJSON
 
-  Set to `True` to export the image JSON almost untouched.
+  Set to `True` to export the image JSON untouched.
   The filename is following `filename(Manga)Infoformat` + .json.
+- RawJSONFilter
+
+  Enter the JSON keys which you want to filter out. Keys are seperated by a comma without space.
 - writeSeriesJSON
 
   Set to `True` to export the series information to JSON.
