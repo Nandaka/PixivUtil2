@@ -436,6 +436,7 @@ class PixivImage (object):
                 jsonInfo["Urls"] = self.descriptionUrlList
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
             info.close()
+
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
         from PixivBrowserFactory import getBrowser
         try:
