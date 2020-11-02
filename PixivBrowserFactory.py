@@ -1020,7 +1020,7 @@ class PixivBrowser(mechanize.Browser):
 
         return artist
 
-    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON = False) -> PixivMangaSeries:
+    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON = False) -> Union[PixivMangaSeries,str]:
         PixivHelper.print_and_log("info", f"Getting Manga Series: {manga_series_id} from page: {current_page}")
         # get the manga information
         # https://www.pixiv.net/ajax/series/6474?p=5&lang=en

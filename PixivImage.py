@@ -151,7 +151,7 @@ class PixivImage (object):
                 self.originalArtist = self.artist
 
             # parse image
-            self.ParseInfo(payload,writeRawJSON)
+            self.ParseInfo(payload, writeRawJSON)
 
     def ParseInfo(self, page, writeRawJSON):
         key = list(page["illust"].keys())[0]
@@ -436,7 +436,6 @@ class PixivImage (object):
                 jsonInfo["Urls"] = self.descriptionUrlList
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
             info.close()
-    
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
         from PixivBrowserFactory import getBrowser
         try:
