@@ -408,7 +408,7 @@ class PixivImage (object):
             jsonInfo=self.rawJSON
             if JSONfilter:
                 for x in JSONfilter.split(","):
-                    del jsonInfo[x]
+                    del jsonInfo[x.strip()]
             if self.ugoira_data:
                 jsonInfo["Ugoira Data"] = self.ugoira_data
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
