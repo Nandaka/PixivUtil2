@@ -580,7 +580,8 @@ class PixivBrowser(mechanize.Browser):
                                    dateFormat=self._config.dateFormat,
                                    tzInfo=_tzInfo,
                                    manga_series_order=manga_series_order,
-                                   manga_series_parent=manga_series_parent)
+                                   manga_series_parent=manga_series_parent,
+                                   writeRawJSON=self._config.writeRawJSON)
 
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
@@ -1019,7 +1020,7 @@ class PixivBrowser(mechanize.Browser):
 
         return artist
 
-    def getMangaSeries(self, manga_series_id: int, current_page: int) -> PixivMangaSeries:
+    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON = False) -> Union[PixivMangaSeries,str]:
         PixivHelper.print_and_log("info", f"Getting Manga Series: {manga_series_id} from page: {current_page}")
         # get the manga information
         # https://www.pixiv.net/ajax/series/6474?p=5&lang=en
@@ -1028,6 +1029,8 @@ class PixivBrowser(mechanize.Browser):
             locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/series/{manga_series_id}?p={current_page}{locale}"
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        if returnJSON:
+            return response
         manga_series = PixivMangaSeries(manga_series_id, current_page, payload=response)
 
         # get the artist information from given manga list

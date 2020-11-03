@@ -292,7 +292,17 @@ def process_image(caller,
                 if config.writeImageInfo:
                     image.WriteInfo(info_filename + ".txt")
                 if config.writeImageJSON:
-                    image.WriteJSON(info_filename + ".json")
+                    image.WriteJSON(info_filename + ".json", config.RawJSONFilter)
+                if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
+                    json_filename = PixivHelper.make_filename(format_src.filenameSeriesJSON,
+                                                            image,
+                                                            fileUrl=url,
+                                                            appendExtension=False
+                                                            )
+                    json_filename = PixivHelper.sanitize_filename(json_filename, target_dir)
+                    # trim _pXXX
+                    json_filename = re.sub(r'_p?\d+$', '', json_filename)
+                    image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename + ".json")
 
             if image.imageMode == 'ugoira_view':
                 if config.writeUgoiraInfo:

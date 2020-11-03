@@ -83,6 +83,7 @@ __errorList = list()
 __blacklistMembers = list()
 __blacklistTitles = list()
 __valid_options = ()
+__seriesDownloaded = []
 
 start_iv = False
 dfilename = ""
@@ -227,7 +228,7 @@ def menu_download_by_member_id(opisvalid, args, options):
                                                 title_prefix=prefix)
             # Issue #793
             if include_sketch:
-                # fecth artist token...
+                # fetching artist token...
                 (artist_model, _) = __br__.getMemberPage(member_id)
                 prefix = f"[{current_member} ({artist_model.artistToken}) of {len(member_ids)}] "
                 PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
