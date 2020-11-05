@@ -169,7 +169,7 @@ def process_image(caller,
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – url is not in the filter: {extension_filter} => {url}')
                     break
 
-        if download_image_flag and not caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
+        if download_image_flag:
             if artist is None:
                 PixivHelper.print_and_log(None, f'Member Name  : {image.artist.artistName}')
                 PixivHelper.print_and_log(None, f'Member Avatar: {image.artist.artistAvatar}')
@@ -214,6 +214,10 @@ def process_image(caller,
             source_urls = image.imageUrls
             if config.downloadResized:
                 source_urls = image.imageResizedUrls
+
+            # debugging purpose, to avoid actual download
+            if caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
+                return PixivConstant.PIXIVUTIL_OK
 
             for img in source_urls:
                 PixivHelper.print_and_log(None, f'Image URL : {img}')
@@ -295,10 +299,10 @@ def process_image(caller,
                     image.WriteJSON(info_filename + ".json", config.RawJSONFilter)
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
                     json_filename = PixivHelper.make_filename(format_src.filenameSeriesJSON,
-                                                            image,
-                                                            fileUrl=url,
-                                                            appendExtension=False
-                                                            )
+                                                              image,
+                                                              fileUrl=url,
+                                                              appendExtension=False
+                                                              )
                     json_filename = PixivHelper.sanitize_filename(json_filename, target_dir)
                     # trim _pXXX
                     json_filename = re.sub(r'_p?\d+$', '', json_filename)

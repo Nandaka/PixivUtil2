@@ -16,7 +16,7 @@ class PixivGroup(object):
     maxId = 0
 
     def __init__(self, jsonResponse):
-        data = json.loads(jsonResponse.read())
+        data = json.loads(jsonResponse)
         self.maxId = data["max_id"]
         self.imageList = list()
         self.externalImageList = list()

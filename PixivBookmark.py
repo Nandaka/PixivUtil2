@@ -81,12 +81,12 @@ class PixivBookmark(object):
         return imageList
 
     @staticmethod
-    def exportList(l, filename):
+    def exportList(lst, filename):
         if not filename.endswith('.txt'):
             filename = filename + '.txt'
         writer = codecs.open(filename, 'w', encoding='utf-8')
         writer.write(u'###Export date: ' + str(datetime.today()) + '###\n')
-        for item in l:
+        for item in lst:
             data = str(item.memberId)
             if len(item.path) > 0:
                 data = data + ' ' + item.path

@@ -99,6 +99,7 @@ def process_new_illust_from_bookmark(caller,
                                      page_num=1,
                                      end_page_num=0):
     br = caller.__br__
+    parsed_page = None
     try:
         print("Processing New Illust from bookmark")
         i = page_num
@@ -148,6 +149,9 @@ def process_new_illust_from_bookmark(caller,
         raise
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at process_new_illust_from_bookmark(): {0}'.format(sys.exc_info()))
+        if parsed_page is not None:
+            filename = "Dump for New Illust from bookmark.html"
+            PixivHelper.dump_html(filename, parsed_page)
         raise
 
 
@@ -157,6 +161,7 @@ def process_from_group(caller,
                        limit=0,
                        process_external=True):
     br = caller.__br__
+    json_response = None
     try:
         print("Download by Group Id")
         if limit != 0:
@@ -170,9 +175,10 @@ def process_from_group(caller,
         while flag:
             url = "https://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
             PixivHelper.print_and_log('info', "Getting images from: {0}".format(url))
-            json_response = br.open(url)
+            response = br.open(url)
+            json_response = response.read()
+            response.close()
             group_data = PixivGroup(json_response)
-            json_response.close()
             max_id = group_data.maxId
             if group_data.imageList is not None and len(group_data.imageList) > 0:
                 for image in group_data.imageList:
@@ -228,6 +234,9 @@ def process_from_group(caller,
 
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at process_from_group(): {0}'.format(sys.exc_info()))
+        if json_response is not None:
+            filename = f"Dump for Download by Group {group_id}.json"
+            PixivHelper.dump_html(filename, json_response)
         raise
 
 

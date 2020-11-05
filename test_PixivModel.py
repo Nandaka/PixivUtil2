@@ -639,7 +639,7 @@ class TestPixivGroup(unittest.TestCase):
     def testParseJson(self):
         path = './test/group.json'
         p = open(path)
-        result = PixivGroup(p)
+        result = PixivGroup(p.read())
 
         self.assertEqual(len(result.imageList), 35)
         self.assertEqual(len(result.externalImageList), 1)
