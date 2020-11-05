@@ -51,10 +51,8 @@ def process_member(caller,
         PixivHelper.print_and_log('info', 'End Page: ' + str(end_page))
         if config.numberOfPage != 0:
             PixivHelper.print_and_log('info', 'Number of page setting will be ignored')
-    # elif np != 0:
-    #     PixivHelper.print_and_log('info', 'End Page from command line: ' + str(np))
-    # elif config.numberOfPage != 0:
-    #     PixivHelper.print_and_log('info', 'End Page from config: ' + str(config.numberOfPage))
+    elif config.numberOfPage != 0:
+        PixivHelper.print_and_log('info', f'End Page from config: {config.numberOfPage}')
 
     # calculate the offset for display properties
     offset = 48  # new offset for AJAX call
@@ -233,14 +231,9 @@ def process_member(caller,
                 PixivHelper.print_and_log(None, f"Page limit reached (from endPage limit ={end_page})")
                 db.updateLastDownloadDate(member_id)
                 flag = False
-            # else:
-            #     if np_is_valid:  # Yavos: overwriting config-data
-            #         if page > np and np > 0:
-            #             PixivHelper.print_and_log(None, f"Page limit reached (from command line ={np})")
-            #             flag = False
-            #     elif page > config.numberOfPage and config.numberOfPage > 0:
-            #         PixivHelper.print_and_log(None, f"Page limit reached (from config ={config.numberOfPage})")
-            #         flag = False
+            elif config.numberOfPage > 0 and page > config.numberOfPage:
+                PixivHelper.print_and_log(None, f"Page limit reached (from config ={config.numberOfPage})")
+                flag = False
 
             del artist
             del list_page
