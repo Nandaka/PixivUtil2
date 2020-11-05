@@ -6,11 +6,10 @@ import datetime
 import gc
 import getpass
 import os
+import platform
 import re
 import subprocess
 import sys
-import time
-import traceback
 from optparse import OptionParser
 
 import colorama
@@ -22,7 +21,6 @@ import PixivBookmarkHandler
 import PixivBrowserFactory
 import PixivConfig
 import PixivConstant
-import PixivDownloadHandler
 import PixivFanboxHandler
 import PixivHelper
 import PixivImageHandler
@@ -38,7 +36,7 @@ colorama.init()
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
 
-if os.name == 'nt':
+if platform.system() == "Windows":
     # patch getpass.getpass() for windows to show '*'
     def win_getpass_with_mask(prompt='Password: ', stream=None):
         """Prompt for password with echo off, using Windows getch()."""
