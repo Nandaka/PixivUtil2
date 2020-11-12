@@ -87,7 +87,7 @@ def process_fanbox_post(caller, config, post, artist):
         if not post.is_restricted and not flag_processed:
             br.fanboxUpdatePost(post)
 
-        if ((not post.is_restricted) or config.downloadCoverWhenRestricted) and (not flag_processed):
+        if ((not post.is_restricted) or config.downloadCoverWhenRestricted) and (not flag_processed) and config.downloadCover:
             # cover image
             if post.coverImageUrl is not None:
                 # fake the image_url for filename compatibility, add post id and pagenum
