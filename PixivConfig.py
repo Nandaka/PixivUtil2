@@ -152,6 +152,7 @@ class PixivConfig():
         ConfigItem("FANBOX", "minImageCountForNonArticle", 3),
         ConfigItem("FANBOX", "useAbsolutePathsInHtml", False),
         ConfigItem("FANBOX", "downloadCoverWhenRestricted", False),
+        ConfigItem("FANBOX", "downloadCover", True),
         ConfigItem("FANBOX", "checkDBProcessHistory", False),
         ConfigItem("FANBOX", "listPathFanbox", "listfanbox.txt"),
 
