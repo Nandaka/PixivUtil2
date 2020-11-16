@@ -565,7 +565,7 @@ def get_ids_from_csv(ids_str, sep=',', is_string=False):
                 except ValueError:
                     print_and_log('error', u"ID: {0} is not valid".format(id_str))
     else:
-        ids = re.findall("(?<!p=)\d{2,}", ids_str)
+        ids = re.findall("(?:series|users|\s|,|^|artworks)\/?(\d+)", ids_str)
         if not ids:
             print_and_log('error', u"ID: {0} is not valid".format(ids_str))
     if len(ids) > 1:
