@@ -553,18 +553,21 @@ def have_strings(page, strings):
 
 
 def get_ids_from_csv(ids_str, sep=',', is_string=False):
-    ids = list()
-    ids_str = str(ids_str).split(sep)
-    for id_str in ids_str:
-        temp = id_str.strip()
-        if len(temp) > 0:
-            try:
-                _id = temp
-                if not is_string:
-                    _id = int(temp)
-                ids.append(_id)
-            except ValueError:
-                print_and_log('error', u"ID: {0} is not valid".format(id_str))
+    ids = []
+    if is_string:
+        ids_str = str(ids_str).split(sep)
+        for id_str in ids_str:
+            temp = id_str.strip()
+            if len(temp) > 0:
+                try:
+                    _id = temp
+                    ids.append(_id)
+                except ValueError:
+                    print_and_log('error', u"ID: {0} is not valid".format(id_str))
+    else:
+        ids = re.findall("(?<!p=)\d{2,}", ids_str)
+        if not ids:
+            print_and_log('error', u"ID: {0} is not valid".format(ids_str))
     if len(ids) > 1:
         print_and_log('info', u"Found {0} ids".format(len(ids)))
     return ids

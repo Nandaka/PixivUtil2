@@ -213,7 +213,7 @@ def menu_download_by_member_id(opisvalid, args, options):
             include_sketch = True
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
-        PixivHelper.print_and_log('info', f"Member IDs: f{member_ids}")
+        PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
 
     for member_id in member_ids:
         try:
