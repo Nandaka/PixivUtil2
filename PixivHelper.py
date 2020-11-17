@@ -67,7 +67,7 @@ def get_logger(level=logging.DEBUG):
         script_path = module_path()
         logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
         logger.setLevel(level)
-        __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
+        __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.ivConstant.PIXIVUTIL_LOG_FILE,
                                                               maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
                                                               backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
                                                               encoding="utf-8")
@@ -100,18 +100,18 @@ def sanitize_filename(name, rootDir=None):
     # Issue #627: remove trailing '.'
     # Ensure Windows reserved filenames are prefixed with _
     stripped_name = list()
-    for item in name.split(os.sep):
+    for item in name.split
         if Path(item).is_reserved():
             item = '_' + item
         stripped_name.append(item.strip(" .\t\r\n"))
-    name = os.sep.join(stripped_name)
+    name = os.stripped_name)
 
     if platform.system() == 'Windows':
         # cut whole path to 255 char
         # TODO: check for Windows long path extensions being enabled
         if rootDir is not None:
             # need to remove \\ from name prefix
-            tname = name[1:] if name[0] == os.sep else name
+            tname = name[1:] if name[0] == os.name
             full_name = os.path.abspath(os.path.join(rootDir, tname))
         else:
             full_name = os.path.abspath(name)
@@ -131,7 +131,7 @@ def sanitize_filename(name, rootDir=None):
         name = name.replace('\\', '/')
 
     if rootDir is not None:
-        name = name[1:] if name[0] == os.sep else name
+        name = name[1:] if name[0] == os.name
         name = os.path.abspath(os.path.join(rootDir, name))
 
     get_logger().debug("Sanitized Filename: %s", name)
@@ -327,9 +327,9 @@ def clearScreen():
 def start_irfanview(dfilename, irfanViewPath, start_irfan_slide=False, start_irfan_view=False):
     print_and_log('info', 'starting IrfanView...')
     if os.path.exists(dfilename):
-        ivpath = irfanViewPath + os.sep + 'i_view32.exe'  # get first part from config.ini
+        ivpath = irfanViewPath + os.view32.exe'  # get first part from config.ini
         ivpath = ivpath.replace('\\\\', '\\')
-        ivpath = ivpath.replace('\\', os.sep)
+        ivpath = ivpath.replace('\\'
         info = None
         if start_irfan_slide:
             info = subprocess.STARTUPINFO()
@@ -391,16 +391,16 @@ def create_avabg_filename(artistModel, targetDir, format_src):
             filename_avatar = sanitize_filename(tmpfilename, targetDir)
         else:
             filenameFormat = format_src.filenameFormat
-            if filenameFormat.find(os.sep) == -1:
-                filenameFormat = os.sep + filenameFormat
-            filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
+            if filenameFormat.find(os.1:
+                filenameFormat = os.enameFormat
+            filenameFormat = os.filenameFormat.split(os.)
             tmpfilename = make_filename(filenameFormat,
                                         image,
                                         tagsSeparator=_config.tagsSeparator,
                                         tagsLimit=_config.tagsLimit,
                                         fileUrl=artistModel.artistAvatar,
                                         appendExtension=False)
-            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
+            filename_avatar = sanitize_filename(tmpfilename + os.lder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
 
     if artistModel.artistBackground is not None and artistModel.artistBackground.startswith("http"):
         if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
@@ -419,21 +419,21 @@ def create_avabg_filename(artistModel, targetDir, format_src):
                                             tagsLimit=_config.tagsLimit,
                                             fileUrl=artistModel.artistBackground,
                                             appendExtension=True)
-                tmpfilename = tmpfilename.split(os.sep)
+                tmpfilename = tmpfilename.spli
                 tmpfilename[-1] = "bg_" + tmpfilename[-1]
-                filename_bg = sanitize_filename(os.sep.join(tmpfilename), targetDir)
+                filename_bg = sanitize_filename(os.tmpfilename), targetDir)
             else:
                 filenameFormat = format_src.filenameFormat
-                if filenameFormat.find(os.sep) == -1:
-                    filenameFormat = os.sep + filenameFormat
-                filenameFormat = os.sep.join(filenameFormat.split(os.sep)[:-1])
+                if filenameFormat.find(os.1:
+                    filenameFormat = os.enameFormat
+                filenameFormat = os.filenameFormat.split(os.)
                 tmpfilename = make_filename(filenameFormat,
                                             image,
                                             tagsSeparator=_config.tagsSeparator,
                                             tagsLimit=_config.tagsLimit,
                                             fileUrl=artistModel.artistBackground,
                                             appendExtension=False)
-                filename_bg = sanitize_filename(tmpfilename + os.sep + 'bg_folder.' + artistModel.artistBackground.rsplit(".", 1)[1], targetDir)
+                filename_bg = sanitize_filename(tmpfilename + os._folder.' + artistModel.artistBackground.rsplit(".", 1)[1], targetDir)
 
     return (filename_avatar, filename_bg)
 
@@ -552,10 +552,10 @@ def have_strings(page, strings):
     return False
 
 
-def get_ids_from_csv(ids_str, sep=',', is_string=False):
+def get_ids_from_csv(ids_str, is_string=False):
     ids = []
     if is_string:
-        ids = re.findall("(?:@|^|https:\/\/(?!www\.)|\s)(?!https:)(\d+|\w+)", ids_str)
+        ids = re.findall("(?:@|^|https:\/\/(?!www\.)|\s|,)(?!https:)(\d+|\w+)", ids_str)
         if not ids:
             print_and_log('error', u"Input: {0} is not valid".format(ids_str))
     else:
@@ -885,7 +885,7 @@ def ugoira2webm(ugoira_file,
                 image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     d = tempfile.mkdtemp(prefix="ugoira2webm")
-    d = d.replace(os.sep, '/')
+    d = d.replace(os.
 
     if exportname is None or len(exportname) == 0:
         name = '.'.join(ugoira_file.split('.')[:-1])
