@@ -552,19 +552,16 @@ def have_strings(page, strings):
     return False
 
 
-def get_ids_from_csv(ids_str, sep=',', is_string=False):
-    ids = list()
-    ids_str = str(ids_str).split(sep)
-    for id_str in ids_str:
-        temp = id_str.strip()
-        if len(temp) > 0:
-            try:
-                _id = temp
-                if not is_string:
-                    _id = int(temp)
-                ids.append(_id)
-            except ValueError:
-                print_and_log('error', u"ID: {0} is not valid".format(id_str))
+def get_ids_from_csv(ids_str, is_string=False):
+    ids = []
+    if is_string:
+        ids = re.findall("(?:@|^|https:\/\/(?!www\.)|\s|,)(?!https:)(\d+|\w+)", ids_str)
+        if not ids:
+            print_and_log('error', u"Input: {0} is not valid".format(ids_str))
+    else:
+        ids = re.findall("(?:series|users|\s|,|^|artworks|posts)\/?(\d+)", ids_str)
+        if not ids:
+            print_and_log('error', u"Input: {0} is not valid".format(ids_str))
     if len(ids) > 1:
         print_and_log('info', u"Found {0} ids".format(len(ids)))
     return ids
