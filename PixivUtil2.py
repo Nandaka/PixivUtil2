@@ -212,7 +212,7 @@ def menu_download_by_member_id(opisvalid, args, options):
         if include_sketch_ask.lower() == 'y':
             include_sketch = True
 
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ")
+        member_ids = PixivHelper.get_ids_from_csv(member_ids)
         PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
 
     for member_id in member_ids:
@@ -310,7 +310,7 @@ def menu_download_by_image_id(opisvalid, args, options):
                 continue
     else:
         image_ids = input('Image ids: ').rstrip("\r")
-        image_ids = PixivHelper.get_ids_from_csv(image_ids, sep=" ")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids)
         for image_id in image_ids:
             PixivImageHandler.process_image(sys.modules[__name__],
                                             __config__,
@@ -619,7 +619,7 @@ def menu_download_by_manga_series_id(opisvalid, args, options):
     else:
         manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids, sep=" ")
+        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids)
         PixivHelper.print_and_log('info', f"Manga Series IDs: {manga_series_ids}")
 
     for manga_series_id in manga_series_ids:
@@ -762,7 +762,7 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
     else:
         post_ids = input("Post ids = ").rstrip("\r")
 
-    post_ids = PixivHelper.get_ids_from_csv(post_ids, sep=" ")
+    post_ids = PixivHelper.get_ids_from_csv(post_ids)
     for post_id in post_ids:
         try:
             post = __br__.fanboxGetPostById(post_id)
@@ -789,7 +789,7 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
         end_page = int(input("End page = ").rstrip("\r") or 0)
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
 
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
 
@@ -824,7 +824,7 @@ def menu_sketch_download_by_artist_id(opisvalid, args, options):
         member_ids = input('Artist ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
 
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, sep=" ", is_string=True)
+        member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
         PixivHelper.print_and_log('info', f"Artist IDs: {member_ids}")
         for member_id in member_ids:
             try:
@@ -855,7 +855,7 @@ def menu_sketch_download_by_post_id(opisvalid, args, options):
                 continue
     else:
         image_ids = input('Post ids: ').rstrip("\r")
-        image_ids = PixivHelper.get_ids_from_csv(image_ids, sep=" ")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids)
         for image_id in image_ids:
             PixivSketchHandler.process_sketch_post(sys.modules[__name__],
                                                    __config__,
