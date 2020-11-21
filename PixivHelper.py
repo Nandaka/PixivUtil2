@@ -555,11 +555,11 @@ def have_strings(page, strings):
 def get_ids_from_csv(ids_str, is_string=False):
     ids = []
     if is_string:
-        ids = re.findall("(?:@|^|https:\/\/(?!www\.)|\s|,)(?!https:)(\d+|\w+)", ids_str)
+        ids = re.findall(r"(?:@|^|https:\/\/(?!www|sketch\.)|\s|,)(?!https:)(\d+|\S[\S]*\S)", ids_str)
         if not ids:
             print_and_log('error', u"Input: {0} is not valid".format(ids_str))
     else:
-        ids = re.findall("(?:series|users|\s|,|^|artworks|posts)\/?(\d+)", ids_str)
+        ids = re.findall(r"(?:series|users|\s|,|^|artworks|posts)\/?(\d+)", ids_str)
         if not ids:
             print_and_log('error', u"Input: {0} is not valid".format(ids_str))
     if len(ids) > 1:
