@@ -2,7 +2,7 @@
 - Merge Added series JSON and an option to download it, expended %manga_series% to work with all modes, added an option for untouched JSON (#855) by byjtje. 
 - Merge fix bad standard config value (#857) by byjtje.
 - Fix Issue #860: follow numberofpage in config.ini
-- Merge Add config option to not download the cover for fanbox (#865) by byjtje.
+- Merge Add config option to not download the cover for fanbox (#865) by qazmlpok.
 - Merge Allow pasting of urls for input (#867) by byjtje.
 - Update #867 to handle pixiv sketch and fanbox username with symbol.
 - other small fixes.
