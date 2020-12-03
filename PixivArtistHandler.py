@@ -12,23 +12,22 @@ import PixivDownloadHandler
 import PixivHelper
 import PixivImageHandler
 from PixivException import PixivException
+from PixivListHandler import process_blacklist
 
 
 def process_member(caller,
                    config,
                    member_id,
-                   user_dir='',
                    page=1,
                    end_page=0,
-                   bookmark=False,
                    tags=None,
                    title_prefix="",
                    notifier=None,
-                   job_option=None):
+                   job_option=None,
+                   useImageIDs=False):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config.loadConfig(path=caller.configfile)
     # np = caller.np
     # np_is_valid = caller.np_is_valid
 
@@ -53,128 +52,128 @@ def process_member(caller,
             PixivHelper.print_and_log('info', 'Number of page setting will be ignored')
     elif config.numberOfPage != 0:
         PixivHelper.print_and_log('info', f'End Page from config: {config.numberOfPage}')
-
-    # calculate the offset for display properties
-    offset = 48  # new offset for AJAX call
-    offset_start = (page - 1) * offset
-    offset_stop = end_page * offset
+        end_page= config.numberOfPage
 
     try:
         no_of_images = 1
-        is_avatar_downloaded = False
         flag = True
         updated_limit_count = 0
         image_id = -1
-
-        while flag:
-            PixivHelper.print_and_log(None, 'Page ', page)
-            caller.set_console_title(f"{title_prefix}MemberId: {member_id} Page: {page}")
-            # Try to get the member page
-            while True:
-                try:
-                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, r18mode=format_src.r18mode)
-                    break
-                except PixivException as ex:
-                    caller.ERROR_CODE = ex.errorCode
-                    PixivHelper.print_and_log('info', f'Member ID ({member_id}): {ex}')
-                    if ex.errorCode == PixivException.NO_IMAGES:
-                        pass
-                    else:
-                        if list_page is None:
-                            list_page = ex.htmlPage
-                        if list_page is not None:
-                            PixivHelper.dump_html(f"Dump for {member_id} Error Code {ex.errorCode}.html", list_page)
-                        if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
-                            db.setIsDeletedFlagForMemberId(int(member_id))
-                            PixivHelper.print_and_log('info', f'Set IsDeleted for MemberId: {member_id} not exist.')
-                            # db.deleteMemberByMemberId(member_id)
-                            # PixivHelper.printAndLog('info', 'Deleting MemberId: ' + str(member_id) + ' not exist.')
-                        if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
-                            PixivHelper.print_and_log(None, ex.message)
-                            caller.__errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
-                    return
-                except AttributeError:
-                    # Possible layout changes, try to dump the file below
-                    raise
-                except BaseException:
-                    exc_type, exc_value, exc_traceback = sys.exc_info()
-                    traceback.print_exception(exc_type, exc_value, exc_traceback)
-                    PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
-
-            PixivHelper.print_and_log(None, f'Member Name  : {artist.artistName}')
-            PixivHelper.print_and_log(None, f'Member Avatar: {artist.artistAvatar}')
-            PixivHelper.print_and_log(None, f'Member Token : {artist.artistToken}')
-            PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
-            print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
-            PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
-
-            if not is_avatar_downloaded and config.downloadAvatar:
-                if user_dir == '':
-                    target_dir = format_src.rootDirectory
+        if useImageIDs:
+            caller.set_console_title(f"{title_prefix}MemberId: {member_id} Images: {page} to {end_page}")
+        else:
+            caller.set_console_title(f"{title_prefix}MemberId: {member_id} Pages: {page} to {end_page}")
+        # Try to get the member page
+        while True:
+            try:
+                (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, tags=tags, r18mode=format_src.r18mode)
+                break
+            except PixivException as ex:
+                caller.ERROR_CODE = ex.errorCode
+                PixivHelper.print_and_log('info', f'Member ID ({member_id}): {ex}')
+                if ex.errorCode == PixivException.NO_IMAGES:
+                    pass
                 else:
-                    target_dir = user_dir
+                    if list_page is None:
+                        list_page = ex.htmlPage
+                    if list_page is not None:
+                        PixivHelper.dump_html(f"Dump for {member_id} Error Code {ex.errorCode}.html", list_page)
+                    if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
+                        db.setIsDeletedFlagForMemberId(int(member_id))
+                        PixivHelper.print_and_log('info', f'Set IsDeleted for MemberId: {member_id} not exist.')
+                    if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
+                        PixivHelper.print_and_log(None, ex.message)
+                        caller.__errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
+                return
+            except AttributeError:
+                # Possible layout changes, try to dump the file below
+                raise
+            except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
+                PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
 
-                (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, format_src)
-                if not caller.DEBUG_SKIP_PROCESS_IMAGE:
-                    if artist.artistAvatar.find('no_profile') == -1:
-                        PixivDownloadHandler.download_image(caller,
-                                                            artist.artistAvatar,
-                                                            filename_avatar,
-                                                            "https://www.pixiv.net/",
-                                                            config.overwrite,
-                                                            config.retry,
-                                                            config.backupOldFile,
-                                                            notifier=notifier)
-                    # Issue #508
-                    if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
-                        PixivDownloadHandler.download_image(caller,
-                                                            artist.artistBackground,
-                                                            filename_bg,
-                                                            "https://www.pixiv.net/",
-                                                            config.overwrite,
-                                                            config.retry,
-                                                            config.backupOldFile,
-                                                            notifier=notifier)
-                    is_avatar_downloaded = True
+        PixivHelper.print_and_log(None, f'Member Name  : {artist.artistName}')
+        PixivHelper.print_and_log(None, f'Member Avatar: {artist.artistAvatar}')
+        PixivHelper.print_and_log(None, f'Member Token : {artist.artistToken}')
+        PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
+        #PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
 
-            if config.autoAddMember:
-                db.insertNewMember(int(member_id))
+        if config.downloadAvatar:
+            (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, format_src.rootDirectory, format_src)
+            if not caller.DEBUG_SKIP_PROCESS_IMAGE:
+                if artist.artistAvatar.find('no_profile') == -1:
+                    PixivDownloadHandler.download_image(caller,
+                                                        artist.artistAvatar,
+                                                        filename_avatar,
+                                                        "https://www.pixiv.net/",
+                                                        config.overwrite,
+                                                        config.retry,
+                                                        config.backupOldFile,
+                                                        notifier=notifier)
+                # Issue #508
+                if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
+                    PixivDownloadHandler.download_image(caller,
+                                                        artist.artistBackground,
+                                                        filename_bg,
+                                                        "https://www.pixiv.net/",
+                                                        config.overwrite,
+                                                        config.retry,
+                                                        config.backupOldFile,
+                                                        notifier=notifier)
 
-            db.updateMemberName(member_id, artist.artistName)
+        if config.autoAddMember:
+            db.insertNewMember(int(member_id))
 
-            if not artist.haveImages:
-                PixivHelper.print_and_log('info', f"No image found for: {member_id}")
-                db.updateLastDownloadDate(member_id)
-                flag = False
-                continue
+        db.updateMemberName(member_id, artist.artistName)
 
-            result = PixivConstant.PIXIVUTIL_NOT_OK
-            for image_id in artist.imageList:
+        if not artist.haveImages:
+            PixivHelper.print_and_log('info', f"No image found for: {member_id}")
+            db.updateLastDownloadDate(member_id)
+
+        result = PixivConstant.PIXIVUTIL_NOT_OK
+        if useImageIDs:
+            print("Ja")
+            artist.imageList=artist.imageList[artist.imageList.index(str(end_page)) if end_page else 0 : artist.imageList.index(str(page))+1 if page != 1 else artist.totalImages] #imageList is sorted in reverse. Maybe better to just check for bigger/smaller numbers
+        else:
+            startpage = (page-1)*48
+            finalpage = end_page*48
+            if startpage > artist.totalImages:
+                pass
+            artist.imageList=artist.imageList[startpage:finalpage if finalpage else artist.totalImages]
+
+        usingBlacklist = config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff
+        for t in range(0,artist.totalImages//100+1 if usingBlacklist else 1):
+            flag = False
+            images = []
+            if usingBlacklist:
+                start = time.time()
+                print(artist.imageList)
+                imagedata = PixivBrowserFactory.getBrowser().getMemberImages(member_id,artist.imageList[t*100:(t+1)*100]).values() #API limits us to 100 illusts at a time
+                images = process_blacklist(caller, config, imagedata, flag)
+                print(time.time()-start)
+            else:
+                images = artist.imageList
+            for image_id in images:
                 PixivHelper.print_and_log(None, f'#{no_of_images}')
                 retry_count = 0
                 while True:
                     try:
-                        if artist.totalImages > 0:
-                            # PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
-                            total_image_page_count = artist.totalImages
-                            if(offset_stop > 0 and offset_stop < total_image_page_count):
-                                total_image_page_count = offset_stop
-                            total_image_page_count = total_image_page_count - offset_start
-                            # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
-                        else:
-                            total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
-                        title_prefix_img = f"{title_prefix}MemberId: {member_id} Page: {page} Post {no_of_images}+{updated_limit_count} of {total_image_page_count}"
+                        #if artist.totalImages > 0:
+                        #    PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
+                        #    # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
+                        #else:
+                        #    total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
+                        title_prefix_img = f"{title_prefix}MemberId: {member_id} Page: {page} Post {no_of_images}+{updated_limit_count} of {artist.totalImages}"
                         if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                             result = PixivImageHandler.process_image(caller,
-                                                                     config,
-                                                                     artist,
-                                                                     image_id,
-                                                                     user_dir,
-                                                                     bookmark,
-                                                                     title_prefix=title_prefix_img,
-                                                                     notifier=notifier,
-                                                                     job_option=job_option)
-
+                                                                        config,
+                                                                        artist,
+                                                                        image_id,
+                                                                        title_prefix=title_prefix_img,
+                                                                        notifier=notifier,
+                                                                        job_option=job_option,
+                                                                        useblacklist=False)
                         break
                     except KeyboardInterrupt:
                         result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
@@ -191,21 +190,22 @@ def process_member(caller,
                         time.sleep(2)
 
                 if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
-                              PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
-                              PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
+                                PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
+                                PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
                     updated_limit_count = updated_limit_count + 1
                     if config.checkUpdatedLimit != 0 and updated_limit_count >= config.checkUpdatedLimit:
                         PixivHelper.safePrint(f"Skipping member: {member_id}")
                         db.updateLastDownloadDate(member_id)
                         PixivBrowserFactory.getBrowser(config=config).clear_history()
+                        flag = True
                         return
                     gc.collect()
-                    continue
+                    #continue
                 if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                     choice = input("Keyboard Interrupt detected, continue to next image (Y/N)").rstrip("\r")
                     if choice.upper() == 'N':
                         PixivHelper.print_and_log("info", f"Member: {member_id}, processing aborted")
-                        flag = False
+                        flag = True
                         break
                     else:
                         continue
@@ -213,33 +213,17 @@ def process_member(caller,
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:
                     PixivHelper.print_and_log("info", "Reached older images, skippin to next member.")
                     db.updateLastDownloadDate(member_id)
-                    flag = False
+                    flag = True
                     break
-
                 no_of_images = no_of_images + 1
                 PixivHelper.wait(result, config)
+            if flag:
+                break
 
-            if artist.isLastPage:
-                db.updateLastDownloadDate(member_id)
-                PixivHelper.print_and_log(None, "Last Page")
-                flag = False
-
-            page = page + 1
-
-            # page limit checking
-            if end_page > 0 and page > end_page:
-                PixivHelper.print_and_log(None, f"Page limit reached (from endPage limit ={end_page})")
-                db.updateLastDownloadDate(member_id)
-                flag = False
-            elif config.numberOfPage > 0 and page > config.numberOfPage:
-                PixivHelper.print_and_log(None, f"Page limit reached (from config ={config.numberOfPage})")
-                flag = False
-
-            del artist
-            del list_page
-            PixivBrowserFactory.getBrowser(config=config).clear_history()
-            gc.collect()
-
+        del artist
+        del list_page
+        PixivBrowserFactory.getBrowser(config=config).clear_history()
+        gc.collect()
         log_message = ""
         if int(image_id) > 0:
             db.updateLastDownloadedImage(member_id, image_id)

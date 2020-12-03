@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
-
 import http.client
 import http.cookiejar
 import json
@@ -685,7 +684,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False) -> (PixivArtist, str):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False) -> (PixivArtist, str):
         artist = None
         response = None
         if tags is None:
@@ -693,7 +692,6 @@ class PixivBrowser(mechanize.Browser):
 
         limit = 48
         offset = (page - 1) * limit
-        need_to_slice = False
         if bookmark:
             # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
             url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tags}&offset={offset}&limit={limit}&rest=show'
@@ -709,7 +707,6 @@ class PixivBrowser(mechanize.Browser):
                 url = f'https://www.pixiv.net/ajax/user/{member_id}/illustmanga/tag?tag=R-18&offset={offset}&limit={limit}'
             else:
                 url = f'https://www.pixiv.net/ajax/user/{member_id}/profile/all'
-                need_to_slice = True
 
             PixivHelper.print_and_log('info', f'Member Url: {url}')
 
@@ -727,14 +724,28 @@ class PixivBrowser(mechanize.Browser):
                 self._put_to_cache(url, response)
 
             PixivHelper.get_logger().debug(response)
+            if dontprocess:
+                return json.loads(response)["body"]["works"] #maybe it's better to chose ["body"]["works"] afterwards in case we want to use it for something else?
             artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
-            if artist.haveImages and need_to_slice:
-                artist.imageList = artist.imageList[offset:offset + limit]
-
         return (artist, response)
+    
+    def getMemberImages(self, member_id, image_ids):
+        url = f"https://www.pixiv.net/ajax/user/{member_id}/profile/illusts?"
+        for x in image_ids:
+            url = url + f"ids[]={x}&"
+        url = url + "work_category=illustManga&is_first_page=1&lang=ja"
+        response = None
+        try:
+            res = self.open_with_retry(url)
+            response = res.read()
+            res.close()
+        except urllib.error.HTTPError as ex:
+            if ex.code == 404:
+                response = ex.read()
+        return json.loads(response)["body"]["works"]
 
     def getSearchTagPage(self,
                          tags,

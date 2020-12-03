@@ -116,3 +116,46 @@ def import_list(caller,
     else:
         msg = "List file not found: {0}".format(list_path)
         PixivHelper.print_and_log('warn', msg)
+
+
+def process_blacklist(caller, config, imagedata, flag=False):
+    import re
+    toDownload = []
+    for image in imagedata:
+        notRemoved = True                   
+
+        if config.dateDiff:
+            if False:
+                flag = True
+                break
+        
+        if config.r18mode:
+            if 'R-18' not in image["tags"]:
+                continue
+
+
+        if config.useBlacklistTags and notRemoved:
+            for item in caller.__blacklistTags:
+                if item in image["tags"]:
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – blacklisted tag: {item}')
+                    notRemoved = False
+                    break
+
+        if config.useBlacklistTitles and notRemoved:
+            if config.useBlacklistTitlesRegex:
+                for item in caller.__blacklistTitles:
+                    if re.search(rf"{item}", image["title"]):
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – Title matched: {item}')
+                        notRemoved = False
+                        break
+            else:
+                for item in caller.__blacklistTitles:
+                    if item in image["title"]:
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – Title contained: {item}')
+                        notRemoved = False
+                        break
+
+        if notRemoved:
+           toDownload.append(image["id"])
+
+    return toDownload

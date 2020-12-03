@@ -158,6 +158,7 @@ def menu():
     print('11. Download Member Bookmark (/bookmark.php?id=)')
     print('12. Download by Group Id')
     print('13. Download by Manga Series Id')
+    print('14. Download by member_id and image_id')
     print('--FANBOX'.ljust(PADDING, "-"))
     print('f1. Download from supporting list (FANBOX)')
     print('f2. Download by artist/creator id (FANBOX)')
@@ -184,7 +185,7 @@ def menu():
     return sel
 
 
-def menu_download_by_member_id(opisvalid, args, options):
+def menu_download_by_member_id(opisvalid, args, options,useIDs=False):
     __log__.info('Member id mode (1).')
     current_member = 1
     page = 1
@@ -223,7 +224,8 @@ def menu_download_by_member_id(opisvalid, args, options):
                                                 member_id,
                                                 page=page,
                                                 end_page=end_page,
-                                                title_prefix=prefix)
+                                                title_prefix=prefix,
+                                                useImageIDs=useIDs)
             # Issue #793
             if include_sketch:
                 # fetching artist token...
@@ -266,30 +268,30 @@ def menu_download_by_member_bookmark(opisvalid, args, options):
             PixivHelper.print_and_log('error', f"Member ID: {__br__._myId} is your own id, use option 6 instead.")
         for mid in valid_ids:
             prefix = f"[{current_member} of {len(valid_ids)}] "
-            PixivArtistHandler.process_member(sys.modules[__name__],
+            PixivBookmarkHandler.process_member_bookmarks(sys.modules[__name__],
                                               __config__,
                                               mid,
                                               page=page,
                                               end_page=end_page,
-                                              bookmark=True,
                                               tags=None,
                                               title_prefix=prefix)
             current_member = current_member + 1
 
     else:
         member_id = input('Member id: ').rstrip("\r")
+        member_id = PixivHelper.get_ids_from_csv(member_id)
         tags = input('Filter Tags: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        if __br__._myId == int(member_id):
+        if __br__._myId in member_id:
             PixivHelper.print_and_log('error', f"Member ID: {member_id} is your own id, use option 6 instead.")
         else:
-            PixivArtistHandler.process_member(sys.modules[__name__],
-                                              __config__,
-                                              member_id.strip(),
-                                              page=page,
-                                              end_page=end_page,
-                                              bookmark=True,
-                                              tags=tags)
+            for ID in member_id:
+                PixivBookmarkHandler.process_member_bookmarks(sys.modules[__name__],
+                                                    __config__,
+                                                    ID,
+                                                    page=page,
+                                                    end_page=end_page,
+                                                    tags=tags)
 
 
 def menu_download_by_image_id(opisvalid, args, options):
@@ -1044,6 +1046,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_group_id(op_is_valid, args, options)
             elif selection == '13':
                 menu_download_by_manga_series_id(op_is_valid, args, options)
+            elif selection == '14':
+                menu_download_by_member_id(op_is_valid,args,options,True)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':

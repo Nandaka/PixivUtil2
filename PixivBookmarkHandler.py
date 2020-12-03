@@ -54,6 +54,58 @@ def process_bookmark(caller,
         raise
 
 
+def process_member_bookmarks(caller,
+                   config,
+                   member_id,
+                   user_dir='',
+                   page=1,
+                   end_page=0,
+                   tags=None,
+                   useImageIDs=False):
+    # Try to get the bookmark page
+    usingBlacklist = config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff #maybe this should be added to PixivConfig instead
+    flag = False
+    from PixivListHandler import process_blacklist
+    list_page = None
+    while True:
+        import PixivBrowserFactory, traceback
+        from PixivException import PixivException
+        try:
+            list_page = PixivBrowserFactory.getBrowser().getMemberPage(member_id, tags=tags, bookmark=True ,dontprocess=True)
+            break
+        except PixivException as ex:
+            caller.ERROR_CODE = ex.errorCode
+            PixivHelper.print_and_log('info', f'Member ID ({member_id}): {ex}')
+            if ex.errorCode == PixivException.NO_IMAGES:
+                pass
+            else:
+                if list_page is None:
+                    list_page = ex.htmlPage
+                if list_page is not None:
+                    PixivHelper.dump_html(f"Dump for {member_id} Error Code {ex.errorCode}.html", list_page)
+                if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
+                    PixivHelper.print_and_log('info', f'MemberId: {member_id} does not exist.')
+                if ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
+                    PixivHelper.print_and_log(None, ex.message)
+                    caller.__errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
+            return
+        except AttributeError:
+            # Possible layout changes, try to dump the file below
+            raise
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+            PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
+    if list_page:
+        if usingBlacklist:
+            list_page = process_blacklist(caller, config, list_page, flag)
+        for ID in list_page:
+            PixivImageHandler.process_image(caller, config, artist=None, image_id=ID, useblacklist=False)
+    else:
+        print("No bookmarked images available.")
+
+
+
 def process_image_bookmark(caller,
                            config,
                            hide='n',
