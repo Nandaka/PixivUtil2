@@ -1056,6 +1056,10 @@ class PixivBrowser(mechanize.Browser):
         #     manga_series.images.append(image)
 
         return manga_series
+    
+    def getArtistJSON(self, member_id):
+        url = f"https://www.pixiv.net/ajax/user/{member_id}?full=1&lang={self._locale if self._locale else 'ja'}"
+        return self.getPixivPage(url, returnParsed=False, enable_cache=False)
 
 
 def getBrowser(config=None, cookieJar=None):

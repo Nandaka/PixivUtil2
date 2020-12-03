@@ -66,7 +66,7 @@ def process_member(caller,
         # Try to get the member page
         while True:
             try:
-                (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, tags=tags, r18mode=format_src.r18mode)
+                (artist, list_page) = PixivBrowserFactory.getExistingBrowser().getMemberPage(member_id, tags=tags, r18mode=format_src.r18mode)
                 break
             except PixivException as ex:
                 caller.ERROR_CODE = ex.errorCode
@@ -121,6 +121,21 @@ def process_member(caller,
                                                         config.retry,
                                                         config.backupOldFile,
                                                         notifier=notifier)
+        
+        if config.writeMemberJSON:
+            if not caller.DEBUG_SKIP_PROCESS_IMAGE:
+                import codecs
+                filename = PixivHelper.make_filename(format_src.filenameMemberJSON, artistInfo=artist, appendExtension=False)+".json"
+                filename = PixivHelper.sanitize_filename(filename, format_src.rootDirectory)
+                try:
+                    # Issue #421 ensure subdir exists.
+                    PixivHelper.makeSubdirs(filename)
+                    outfile = codecs.open(filename, 'w', encoding='utf-8')
+                except IOError:
+                    outfile = codecs.open(f"Artist {artist.member_id} ({artist.artistName}).json", 'w', encoding='utf-8')
+                    PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, f"Artist {artist.member_id} ({artist.artistName}).json")
+                outfile.write(PixivBrowserFactory.getExistingBrowser().getArtistJSON(artist.artistId))
+                outfile.close()
 
         if config.autoAddMember:
             db.insertNewMember(int(member_id))
@@ -147,8 +162,7 @@ def process_member(caller,
             images = []
             if usingBlacklist:
                 start = time.time()
-                print(artist.imageList)
-                imagedata = PixivBrowserFactory.getBrowser().getMemberImages(member_id,artist.imageList[t*100:(t+1)*100]).values() #API limits us to 100 illusts at a time
+                imagedata = PixivBrowserFactory.getExistingBrowser().getMemberImages(member_id,artist.imageList[t*100:(t+1)*100]).values() #API limits us to 100 illusts at a time
                 images = process_blacklist(caller, config, imagedata, flag)
                 print(time.time()-start)
             else:

@@ -145,7 +145,7 @@ def replace_path_separator(s, replacement='_'):
 
 
 def make_filename(nameFormat: str,
-                  imageInfo: Union[PixivImage, FanboxPost],
+                  imageInfo: Union[PixivImage, FanboxPost] = None,
                   artistInfo: Union[PixivArtist, FanboxArtist] = None,
                   tagsSeparator=' ',
                   tagsLimit=-1,
@@ -158,6 +158,8 @@ def make_filename(nameFormat: str,
     '''Build the filename from given info to the given format.'''
     if artistInfo is None:
         artistInfo = imageInfo.artist
+    if imageInfo is None:
+        imageInfo = PixivImage()
 
     # Get the image extension
     fileUrl = os.path.basename(fileUrl)
