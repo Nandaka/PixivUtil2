@@ -151,7 +151,7 @@ def process_member(caller,
 
         result = PixivConstant.PIXIVUTIL_NOT_OK
         if useImageIDs:
-            artist.imageList=artist.imageList[artist.imageList.index(str(end_page)) if end_page else 0 : artist.imageList.index(str(page))+1 if page != 1 else artist.totalImages] #imageList is sorted in reverse. Maybe better to just check for bigger/smaller numbers
+            artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
         else:
             startpage = (page-1)*48
             finalpage = end_page*48

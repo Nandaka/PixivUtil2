@@ -1061,10 +1061,13 @@ def get_start_and_end_date():
     return start_date, end_date
 
 
-def get_start_and_end_number(start_only=False, total_number_of_page=None):
+def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=False):
     page_num = input('Start Page (default=1): ').rstrip("\r") or 1
     try:
-        page_num = int(page_num)
+        if swap:
+            page_num = int(get_ids_from_csv(page_num)[0])
+        else:
+            page_num = int(page_num)
     except BaseException:
         print_and_log(None, f"Invalid page number: {page_num}")
         raise
@@ -1081,10 +1084,16 @@ def get_start_and_end_number(start_only=False, total_number_of_page=None):
         end_page_num = input(f'End Page (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
-                end_page_num = int(end_page_num)
+                if swap:
+                    end_page_num = int(get_ids_from_csv(end_page_num)[0])
+                else:
+                    end_page_num = int(end_page_num)
                 if page_num > end_page_num and end_page_num != 0:
-                    print_and_log(None, "page_num is bigger than end_page_num, assuming as page count.")
-                    end_page_num = page_num + end_page_num
+                    if swap:
+                        page_num,end_page_num=end_page_num,page_num
+                    else:
+                        print_and_log(None, "page_num is bigger than end_page_num, assuming as page count.")
+                        end_page_num = page_num + end_page_num
             except BaseException:
                 print_and_log(None, f"Invalid end page number: {end_page_num}")
                 raise
