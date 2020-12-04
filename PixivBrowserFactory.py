@@ -726,7 +726,6 @@ class PixivBrowser(mechanize.Browser):
 
             PixivHelper.get_logger().debug(response)
             if bookmark:
-                print(url)
                 return json.loads(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
@@ -762,7 +761,7 @@ class PixivBrowser(mechanize.Browser):
                          use_bookmark_data=False,
                          bookmark_count=0,
                          type_mode="a",
-                         r18mode=False) -> Tuple[PixivTags, str]:
+                         r18mode=False) -> Tuple[PixivTags, list]:
         response_page = None
         result = None
         url = ''
@@ -839,7 +838,8 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
                     raise
 
-        return (result, response_page)
+        print(url)
+        return (result, json.loads(response_page))
 
     def handleDebugTagSearchPage(self, response, url):
         if self._config.enableDump:

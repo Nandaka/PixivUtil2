@@ -89,12 +89,27 @@ def process_tags(caller,
                 if len(difference) == 0:
                     PixivHelper.print_and_log(None, 'Getting duplicated result set, no more new images.')
                     flag = False
+            
+            skipList = []
+            if config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff:
+                from PixivListHandler import process_blacklist
+                if member_id:
+                    skipList=process_blacklist(caller, config, search_page["body"]["works"], flag)
+                else:
+                    with open("/tmp/test.txt", "w") as f:
+                        f.write(str(search_page))
+                    skipList=process_blacklist(caller, config, search_page["body"]["illustManga"]["data"], flag)
+
 
             if flag:
                 for item in t.itemList:
                     last_image_id = item.imageId
                     PixivHelper.print_and_log(None, f'Image #{images}')
                     PixivHelper.print_and_log(None, f'Image Id: {item.imageId}')
+
+                    if item.imageId in skipList:
+                        skipped_count = skipped_count + 1
+                        continue
 
                     if bookmark_count is not None and bookmark_count > item.bookmarkCount:
                         PixivHelper.print_and_log(None, f'Bookmark Count: {item.bookmarkCount}')
@@ -203,8 +218,8 @@ def process_tags(caller,
         try:
             if search_page is not None:
                 dump_filename = f'Error page for search tags {tags} at page {i}.html'
-                PixivHelper.dump_html(dump_filename, search_page)
+                PixivHelper.dump_html(dump_filename, list(search_page))
                 PixivHelper.print_and_log('error', f"Dumping html to: {dump_filename}")
         except BaseException:
-            PixivHelper.print_and_log('error', f'Cannot dump page for search tags: {search_tags}')
+            PixivHelper.print_and_log('error', f'Cannot dump page for search tags: {list(search_tags)}')
         raise

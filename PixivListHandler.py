@@ -47,7 +47,6 @@ def process_list(caller, config, list_file_name=None, tags=None):
                                                       config,
                                                       item.memberId,
                                                       user_dir=item.path,
-                                                      tags=tags,
                                                       title_prefix=prefix)
                     current_member = current_member + 1
                     break
@@ -121,10 +120,14 @@ def import_list(caller,
 def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
     import re
     toDownload = []
-    print(tags)
     if config.r18mode:
         tags.append['R-18']
+    with open("/tmp/test.txt", "w") as f:
+        f.write(str(imagedata))
     for image in imagedata:
+        if image["isAdContainer"]:
+            continue
+        print(f"IMAGE: {image}")
         notRemoved = True                   
 
         if config.dateDiff:
