@@ -47,7 +47,6 @@ def process_list(caller, config, list_file_name=None, tags=None):
                                                       config,
                                                       item.memberId,
                                                       user_dir=item.path,
-                                                      tags=tags,
                                                       title_prefix=prefix)
                     current_member = current_member + 1
                     break
@@ -116,3 +115,52 @@ def import_list(caller,
     else:
         msg = "List file not found: {0}".format(list_path)
         PixivHelper.print_and_log('warn', msg)
+
+
+def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
+    import re
+    toDownload = []
+    if config.r18mode:
+        tags.append['R-18']
+    for image in imagedata:
+        if image["isAdContainer"]:
+            continue
+        notRemoved = True                   
+
+        if config.dateDiff:
+            if image["createDate"] == False:
+                flag = True
+                break
+        
+        if tags:
+            for x in tags:
+                if x not in image["tags"]:
+                    notRemoved = False
+                    break
+
+
+        if config.useBlacklistTags and notRemoved:
+            for item in caller.__blacklistTags:
+                if item in image["tags"]:
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – blacklisted tag: {item}')
+                    notRemoved = False
+                    break
+
+        if config.useBlacklistTitles and notRemoved:
+            if config.useBlacklistTitlesRegex:
+                for item in caller.__blacklistTitles:
+                    if re.search(rf"{item}", image["title"]):
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – Title matched: {item}')
+                        notRemoved = False
+                        break
+            else:
+                for item in caller.__blacklistTitles:
+                    if item in image["title"]:
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – Title contained: {item}')
+                        notRemoved = False
+                        break
+
+        if notRemoved:
+           toDownload.append(image["id"])
+
+    return toDownload

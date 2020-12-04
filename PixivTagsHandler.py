@@ -79,7 +79,9 @@ def process_tags(caller,
                                                                                  use_bookmark_data=use_bookmark_data,
                                                                                  bookmark_count=bookmark_count,
                                                                                  type_mode=type_mode,
-                                                                                 r18mode=format_src.r18mode)
+                                                                                 r18mode=format_src.r18mode,
+                                                                                 config=config,
+                                                                                 caller=caller)
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log(None, 'No more images')
                 flag = False
@@ -89,6 +91,7 @@ def process_tags(caller,
                 if len(difference) == 0:
                     PixivHelper.print_and_log(None, 'Getting duplicated result set, no more new images.')
                     flag = False
+            
 
             if flag:
                 for item in t.itemList:
@@ -134,7 +137,8 @@ def process_tags(caller,
                                                                          bookmark_count=item.bookmarkCount,
                                                                          image_response_count=item.imageResponse,
                                                                          notifier=notifier,
-                                                                         job_option=job_option)
+                                                                         job_option=job_option,
+                                                                         useblacklist=False)
                                 PixivHelper.wait(result, config)
                             break
                         except KeyboardInterrupt:
@@ -203,8 +207,8 @@ def process_tags(caller,
         try:
             if search_page is not None:
                 dump_filename = f'Error page for search tags {tags} at page {i}.html'
-                PixivHelper.dump_html(dump_filename, search_page)
+                PixivHelper.dump_html(dump_filename, list(search_page))
                 PixivHelper.print_and_log('error', f"Dumping html to: {dump_filename}")
         except BaseException:
-            PixivHelper.print_and_log('error', f'Cannot dump page for search tags: {search_tags}')
+            PixivHelper.print_and_log('error', f'Cannot dump page for search tags: {list(search_tags)}')
         raise

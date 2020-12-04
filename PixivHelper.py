@@ -145,7 +145,7 @@ def replace_path_separator(s, replacement='_'):
 
 
 def make_filename(nameFormat: str,
-                  imageInfo: Union[PixivImage, FanboxPost],
+                  imageInfo: Union[PixivImage, FanboxPost] = None,
                   artistInfo: Union[PixivArtist, FanboxArtist] = None,
                   tagsSeparator=' ',
                   tagsLimit=-1,
@@ -158,6 +158,8 @@ def make_filename(nameFormat: str,
     '''Build the filename from given info to the given format.'''
     if artistInfo is None:
         artistInfo = imageInfo.artist
+    if imageInfo is None:
+        imageInfo = PixivImage()
 
     # Get the image extension
     fileUrl = os.path.basename(fileUrl)
@@ -521,25 +523,29 @@ def dump_html(filename, html_text):
     return ""
 
 
+def dump_id(id):
+    with open(os.path.dirname(__file__)+os.sep+"FailedDownloadIDs.log", "a") as file:
+        file.write(str(id)+"\n")
+
+
 def print_and_log(level, msg, exception=None, newline=True, end=None):
     if level == 'debug':
         get_logger().debug(msg)
-    else:
-        if level == 'info':
-            safePrint(msg, newline, end)
-            get_logger().info(msg)
-        elif level == 'warn':
-            safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
-            get_logger().warning(msg)
-        elif level == 'error':
-            safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
-            if exception is None:
-                get_logger().error(msg)
-            else:
-                get_logger().error(msg, exception)
-            get_logger().error(traceback.format_exc())
-        elif level is None:
-            safePrint(msg, newline, end)
+    elif level == 'info':
+        safePrint(msg, newline, end)
+        get_logger().info(msg)
+    elif level == 'warn':
+        safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
+        get_logger().warning(msg)
+    elif level == 'error':
+        safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
+        if exception is None:
+            get_logger().error(msg)
+        else:
+            get_logger().error(msg, exception)
+        get_logger().error(traceback.format_exc())
+    elif level is None:
+        safePrint(msg, newline, end)
 
 
 def have_strings(page, strings):
@@ -1055,10 +1061,13 @@ def get_start_and_end_date():
     return start_date, end_date
 
 
-def get_start_and_end_number(start_only=False, total_number_of_page=None):
+def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=False):
     page_num = input('Start Page (default=1): ').rstrip("\r") or 1
     try:
-        page_num = int(page_num)
+        if swap:
+            page_num = int(get_ids_from_csv(page_num)[0])
+        else:
+            page_num = int(page_num)
     except BaseException:
         print_and_log(None, f"Invalid page number: {page_num}")
         raise
@@ -1075,10 +1084,16 @@ def get_start_and_end_number(start_only=False, total_number_of_page=None):
         end_page_num = input(f'End Page (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
-                end_page_num = int(end_page_num)
+                if swap:
+                    end_page_num = int(get_ids_from_csv(end_page_num)[0])
+                else:
+                    end_page_num = int(end_page_num)
                 if page_num > end_page_num and end_page_num != 0:
-                    print_and_log(None, "page_num is bigger than end_page_num, assuming as page count.")
-                    end_page_num = page_num + end_page_num
+                    if swap:
+                        page_num,end_page_num=end_page_num,page_num
+                    else:
+                        print_and_log(None, "page_num is bigger than end_page_num, assuming as page count.")
+                        end_page_num = page_num + end_page_num
             except BaseException:
                 print_and_log(None, f"Invalid end page number: {end_page_num}")
                 raise

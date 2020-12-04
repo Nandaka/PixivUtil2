@@ -54,6 +54,42 @@ def process_bookmark(caller,
         raise
 
 
+def process_member_bookmarks(caller,
+                   config,
+                   member_id,
+                   user_dir='',
+                   page=1,
+                   end_page=0,
+                   tags=None,
+                   useImageIDs=False):
+    # Try to get the bookmark page
+    from PixivListHandler import process_blacklist
+    import PixivBrowserFactory, traceback
+    usingBlacklist = config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff #maybe this should be added to PixivConfig instead
+    flag = False
+    def getpages(page,total=False):
+        data = None
+        while True:
+            try:
+                data = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, True)
+                break
+            except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
+                PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
+        if data["error"]:
+            PixivHelper.print_and_log('info', f'MemberId: {member_id} does not exist.')
+            return -1
+        return data["body"]["total"] if total else data["body"]["works"]
+    total = getpages(page,True)
+    for pagenumber in range(page,total//48+2,2):
+        list_page = getpages(pagenumber)
+        if usingBlacklist or tags or config.r18mode:
+            list_page = process_blacklist(caller, config, list_page, flag, tags)
+        for ID in list_page:
+            PixivImageHandler.process_image(caller, config, artist=None, image_id=ID, useblacklist=False)
+
+
 def process_image_bookmark(caller,
                            config,
                            hide='n',

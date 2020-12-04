@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
-
 import http.client
 import http.cookiejar
 import json
@@ -685,7 +684,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False) -> (PixivArtist, str):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False) -> (PixivArtist, str):
         artist = None
         response = None
         if tags is None:
@@ -693,10 +692,10 @@ class PixivBrowser(mechanize.Browser):
 
         limit = 48
         offset = (page - 1) * limit
-        need_to_slice = False
         if bookmark:
             # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
-            url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tags}&offset={offset}&limit={limit}&rest=show'
+            # tags don't work properly, best to manually filter for them
+            url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag=&offset={offset}&limit={limit*2}&rest=show'
         else:
             # https://www.pixiv.net/ajax/user/1813972/illusts/tag?tag=Fate%2FGrandOrder?offset=0&limit=24
             # https://www.pixiv.net/ajax/user/1813972/manga/tag?tag=%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
@@ -709,7 +708,6 @@ class PixivBrowser(mechanize.Browser):
                 url = f'https://www.pixiv.net/ajax/user/{member_id}/illustmanga/tag?tag=R-18&offset={offset}&limit={limit}'
             else:
                 url = f'https://www.pixiv.net/ajax/user/{member_id}/profile/all'
-                need_to_slice = True
 
             PixivHelper.print_and_log('info', f'Member Url: {url}')
 
@@ -727,14 +725,28 @@ class PixivBrowser(mechanize.Browser):
                 self._put_to_cache(url, response)
 
             PixivHelper.get_logger().debug(response)
+            if bookmark or dontprocess:
+                return json.loads(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
-            if artist.haveImages and need_to_slice:
-                artist.imageList = artist.imageList[offset:offset + limit]
-
         return (artist, response)
+    
+    def getMemberImages(self, member_id, image_ids):
+        url = f"https://www.pixiv.net/ajax/user/{member_id}/profile/illusts?"
+        for x in image_ids:
+            url = url + f"ids[]={x}&"
+        url = url + "work_category=illustManga&is_first_page=1&lang=ja"
+        response = None
+        try:
+            res = self.open_with_retry(url)
+            response = res.read()
+            res.close()
+        except urllib.error.HTTPError as ex:
+            if ex.code == 404:
+                response = ex.read()
+        return json.loads(response)["body"]["works"]
 
     def getSearchTagPage(self,
                          tags,
@@ -749,18 +761,20 @@ class PixivBrowser(mechanize.Browser):
                          use_bookmark_data=False,
                          bookmark_count=0,
                          type_mode="a",
-                         r18mode=False) -> Tuple[PixivTags, str]:
+                         r18mode=False,
+                         config=None,
+                         caller=None) -> Tuple[PixivTags, list]:
         response_page = None
         result = None
         url = ''
 
         if member_id is not None:
             # from member id search by tags
-            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)
+            response_page = self.getMemberPage(member_id, current_page, False, tags, dontprocess=True)
 
             # convert to PixivTags
             result = PixivTags()
-            result.parseMemberTags(artist, member_id, tags)
+            result.parseTags(response_page, tags, current_page, config, caller, member=member_id)
         else:
             # only premium support server-side filtering for bookmark count
             if not self._isPremium:
@@ -784,47 +798,40 @@ class PixivBrowser(mechanize.Browser):
             self.handleDebugTagSearchPage(response_page, url)
 
             result = None
-            if member_id is not None:
+            try:
                 result = PixivTags()
-                parse_search_page = BeautifulSoup(response_page, features="html5lib")
-                result.parseMemberTags(parse_search_page, member_id, tags)
-                parse_search_page.decompose()
-                del parse_search_page
-            else:
-                try:
-                    result = PixivTags()
-                    result.parseTags(response_page, tags, current_page)
+                result.parseTags(json.loads(response_page), tags, current_page, config, caller)
 
-                    # parse additional information
-                    if use_bookmark_data:
-                        idx = 0
-                        print("Retrieving bookmark information...", end=' ')
-                        for image in result.itemList:
-                            idx = idx + 1
-                            print("\r", end=' ')
-                            print(f"Retrieving bookmark information... [{idx}] of [{len(result.itemList)}]", end=' ')
+                # parse additional information
+                if use_bookmark_data:
+                    idx = 0
+                    print("Retrieving bookmark information...", end=' ')
+                    for image in result.itemList:
+                        idx = idx + 1
+                        print("\r", end=' ')
+                        print(f"Retrieving bookmark information... [{idx}] of [{len(result.itemList)}]", end=' ')
 
-                            img_url = f"https://www.pixiv.net/ajax/illust/{image.imageId}"
-                            response_page = self._get_from_cache(img_url)
-                            if response_page is None:
-                                try:
-                                    res = self.open_with_retry(img_url)
-                                    response_page = res.read()
-                                    res.close()
-                                except urllib.error.HTTPError as ex:
-                                    if ex.code == 404:
-                                        response_page = ex.read()
-                                self._put_to_cache(img_url, response_page)
+                        img_url = f"https://www.pixiv.net/ajax/illust/{image.imageId}"
+                        response_page = self._get_from_cache(img_url)
+                        if response_page is None:
+                            try:
+                                res = self.open_with_retry(img_url)
+                                response_page = res.read()
+                                res.close()
+                            except urllib.error.HTTPError as ex:
+                                if ex.code == 404:
+                                    response_page = ex.read()
+                            self._put_to_cache(img_url, response_page)
 
-                            image_info_js = json.loads(response_page)
-                            image.bookmarkCount = int(
-                                image_info_js["body"]["bookmarkCount"])
-                            image.imageResponse = int(
-                                image_info_js["body"]["responseCount"])
-                    print("")
-                except BaseException:
-                    PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
-                    raise
+                        image_info_js = json.loads(response_page)
+                        image.bookmarkCount = int(
+                            image_info_js["body"]["bookmarkCount"])
+                        image.imageResponse = int(
+                            image_info_js["body"]["responseCount"])
+                print("")
+            except BaseException:
+                PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
+                raise
 
         return (result, response_page)
 
@@ -1045,6 +1052,10 @@ class PixivBrowser(mechanize.Browser):
         #     manga_series.images.append(image)
 
         return manga_series
+    
+    def getArtistJSON(self, member_id):
+        url = f"https://www.pixiv.net/ajax/user/{member_id}?full=1&lang={self._locale if self._locale else 'ja'}"
+        return self.getPixivPage(url, returnParsed=False, enable_cache=False)
 
 
 def getBrowser(config=None, cookieJar=None):
