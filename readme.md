@@ -115,7 +115,7 @@ Q5. How to delete member id from Database?
     - If you are downloading using Download from List.txt (3), you can create
       ignore_list.txt to skip the member id.
 
-Q6. The app doesn't download all the images!
+Q6. The app doesn't download all the images! (I want to download SFW images too).
     - Pixiv only allow to search up to 1000 pages if you don't have Pixiv
       Premium.
     - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
@@ -143,6 +143,10 @@ Q9. The downloaded images are corrupted, how to redownload it again?
       from databases (enter d, followed by 10).
     - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini
       and retry the download.
+      
+Q10. I got this error またはメールアドレス、パスワードが正しいかチェックしてください。
+    - Use your email address for the username, or check your password in config.ini
+
 ```
 ## B.Bugs/Source Code/Supports
 ```
