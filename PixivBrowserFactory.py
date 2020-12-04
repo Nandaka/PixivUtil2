@@ -694,7 +694,8 @@ class PixivBrowser(mechanize.Browser):
         offset = (page - 1) * limit
         if bookmark:
             # https://www.pixiv.net/ajax/user/1039353/illusts/bookmarks?tag=&offset=0&limit=24&rest=show
-            url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={tags}&offset={offset}&limit={limit}&rest=show'
+            # tags don't work properly, best to manually filter for them
+            url = f'https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag=&offset={offset}&limit={limit*2}&rest=show'
         else:
             # https://www.pixiv.net/ajax/user/1813972/illusts/tag?tag=Fate%2FGrandOrder?offset=0&limit=24
             # https://www.pixiv.net/ajax/user/1813972/manga/tag?tag=%E3%83%A1%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0?offset=0&limit=24
@@ -724,8 +725,9 @@ class PixivBrowser(mechanize.Browser):
                 self._put_to_cache(url, response)
 
             PixivHelper.get_logger().debug(response)
-            if dontprocess:
-                return json.loads(response)["body"]["works"] #maybe it's better to chose ["body"]["works"] afterwards in case we want to use it for something else?
+            if bookmark:
+                print(url)
+                return json.loads(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)

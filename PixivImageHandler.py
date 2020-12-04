@@ -102,6 +102,7 @@ def process_image(caller,
             else:
                 PixivHelper.print_and_log('error', f'Image ID ({image_id}): {ex}')
             PixivHelper.print_and_log('error', f'Stack Trace: {sys.exc_info()}')
+            PixivHelper.dump_id(image_id)
             return PixivConstant.PIXIVUTIL_NOT_OK
         except Exception as ex:
             PixivHelper.print_and_log('error', f'Image ID ({image_id}): {ex}')
@@ -112,19 +113,20 @@ def process_image(caller,
             PixivHelper.print_and_log('error', f'Stack Trace: {sys.exc_info()}')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback)
+            PixivHelper.dump_id(image_id)
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
 
         # date validation and blacklist tag validation
-        if config.dateDiff > 0:
-            if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
-                if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
-                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – it\'s older than: {config.dateDiff} day(s).')
-                    download_image_flag = False
-                    result = PixivConstant.PIXIVUTIL_SKIP_OLDER
-
         if useblacklist:
+            if config.dateDiff > 0:
+                if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
+                    if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
+                        PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – it\'s older than: {config.dateDiff} day(s).')
+                        download_image_flag = False
+                        result = PixivConstant.PIXIVUTIL_SKIP_OLDER
+
             if config.useBlacklistMembers and download_image_flag:
                 if str(image.originalArtist.artistId) in caller.__blacklistMembers:
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
@@ -264,6 +266,7 @@ def process_image(caller,
                                                                                  notifier)
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
+                            PixivHelper.dump_id(image_id)
                             PixivHelper.print_and_log('error', f'Image url not found/failed to download: {image.imageId}')
                         elif result == PixivConstant.PIXIVUTIL_ABORTED:
                             raise KeyboardInterrupt()
@@ -272,6 +275,7 @@ def process_image(caller,
                         page = page + 1
 
                     except urllib.error.URLError:
+                        PixivHelper.dump_id(image_id)
                         PixivHelper.print_and_log('error', f'Error when download_image(), giving up url: {img}')
                     PixivHelper.print_and_log(None, '')
 
@@ -352,10 +356,12 @@ def process_image(caller,
         caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.dump_id(image_id)
         PixivHelper.print_and_log('error', f'Error at process_image(): {image_id}')
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
 
         if parse_medium_page is not None:
+            PixivHelper.dump_id(image_id)
             dump_filename = f'Error medium page for image {image_id}.html'
             PixivHelper.dump_html(dump_filename, parse_medium_page)
             PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')

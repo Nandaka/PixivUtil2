@@ -280,7 +280,8 @@ def menu_download_by_member_bookmark(opisvalid, args, options):
     else:
         member_id = input('Member id: ').rstrip("\r")
         member_id = PixivHelper.get_ids_from_csv(member_id)
-        tags = input('Filter Tags: ').rstrip("\r")
+        tags = input('Filter Tags: ').rstrip("\r").replace(',',' ').split(" ")
+        tags = [x for x in tags if x != '']
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         if __br__._myId in member_id:
             PixivHelper.print_and_log('error', f"Member ID: {member_id} is your own id, use option 6 instead.")
@@ -1142,22 +1143,23 @@ def read_lists():
     # Implement #797
     if __config__.useBlacklistTags:
         global __blacklistTags
-        __blacklistTags = PixivTags.parseTagsList("blacklist_tags.txt")
+        path = script_path+os.sep
+        __blacklistTags = PixivTags.parseTagsList(path+"blacklist_tags.txt")
         PixivHelper.print_and_log('info', 'Using Blacklist Tags: ' + str(len(__blacklistTags)) + " items.")
 
     if __config__.useBlacklistMembers:
         global __blacklistMembers
-        __blacklistMembers = PixivTags.parseTagsList("blacklist_members.txt")
+        __blacklistMembers = PixivTags.parseTagsList(path+"blacklist_members.txt")
         PixivHelper.print_and_log('info', 'Using Blacklist Members: ' + str(len(__blacklistMembers)) + " members.")
 
     if __config__.useBlacklistTitles:
         global __blacklistTitles
-        __blacklistTitles = PixivTags.parseTagsList("blacklist_titles.txt")
+        __blacklistTitles = PixivTags.parseTagsList(path+"blacklist_titles.txt")
         PixivHelper.print_and_log('info', 'Using Blacklist Titles: ' + str(len(__blacklistTitles)) + " items.")
 
     if __config__.useSuppressTags:
         global __suppressTags
-        __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
+        __suppressTags = PixivTags.parseTagsList(path+"suppress_tags.txt")
         PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
 
