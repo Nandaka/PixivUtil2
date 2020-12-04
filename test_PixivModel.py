@@ -4,6 +4,7 @@
 import unittest
 
 from bs4 import BeautifulSoup
+import json
 
 import PixivConstant
 from PixivArtist import PixivArtist
@@ -525,7 +526,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 1
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(len(image.itemList), 60)
         self.assertEqual(image.isLastPage, False)
@@ -540,7 +541,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 1
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(len(image.itemList), 60)
         self.assertEqual(image.isLastPage, False)
@@ -553,7 +554,7 @@ class TestPixivTags(unittest.TestCase):
         tags = ''
 
         image = PixivTags()
-        image.parseTags(response, tags, last_page)
+        image.parseTags(json.loads(response), tags, last_page)
 
         print(image.itemList[-1])
         self.assertEqual(image.isLastPage, True)
@@ -568,7 +569,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 1
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(len(image.itemList), 60)
         self.assertEqual(image.isLastPage, False)
@@ -581,7 +582,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 4
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(image.itemList[-1].imageId, 15060554)
         self.assertEqual(image.isLastPage, True)
@@ -594,7 +595,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 1
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(image.itemList[-1].imageId, 33815932)
 
