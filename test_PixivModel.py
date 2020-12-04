@@ -631,7 +631,7 @@ class TestPixivTags(unittest.TestCase):
         current_page = 1
 
         image = PixivTags()
-        image.parseTags(response, tags, current_page)
+        image.parseTags(json.loads(response), tags, current_page)
 
         self.assertEqual(len(image.itemList), 60)
 
