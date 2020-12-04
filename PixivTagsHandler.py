@@ -79,7 +79,9 @@ def process_tags(caller,
                                                                                  use_bookmark_data=use_bookmark_data,
                                                                                  bookmark_count=bookmark_count,
                                                                                  type_mode=type_mode,
-                                                                                 r18mode=format_src.r18mode)
+                                                                                 r18mode=format_src.r18mode,
+                                                                                 config=config,
+                                                                                 caller=caller)
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log(None, 'No more images')
                 flag = False
@@ -90,26 +92,12 @@ def process_tags(caller,
                     PixivHelper.print_and_log(None, 'Getting duplicated result set, no more new images.')
                     flag = False
             
-            skipList = []
-            if config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff:
-                from PixivListHandler import process_blacklist
-                if member_id:
-                    skipList=process_blacklist(caller, config, search_page["body"]["works"], flag)
-                else:
-                    with open("/tmp/test.txt", "w") as f:
-                        f.write(str(search_page))
-                    skipList=process_blacklist(caller, config, search_page["body"]["illustManga"]["data"], flag)
-
 
             if flag:
                 for item in t.itemList:
                     last_image_id = item.imageId
                     PixivHelper.print_and_log(None, f'Image #{images}')
                     PixivHelper.print_and_log(None, f'Image Id: {item.imageId}')
-
-                    if item.imageId in skipList:
-                        skipped_count = skipped_count + 1
-                        continue
 
                     if bookmark_count is not None and bookmark_count > item.bookmarkCount:
                         PixivHelper.print_and_log(None, f'Bookmark Count: {item.bookmarkCount}')

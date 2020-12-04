@@ -122,16 +122,13 @@ def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
     toDownload = []
     if config.r18mode:
         tags.append['R-18']
-    with open("/tmp/test.txt", "w") as f:
-        f.write(str(imagedata))
     for image in imagedata:
         if image["isAdContainer"]:
             continue
-        print(f"IMAGE: {image}")
         notRemoved = True                   
 
         if config.dateDiff:
-            if False:
+            if image["createDate"] == False:
                 flag = True
                 break
         

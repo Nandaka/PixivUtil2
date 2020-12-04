@@ -761,18 +761,20 @@ class PixivBrowser(mechanize.Browser):
                          use_bookmark_data=False,
                          bookmark_count=0,
                          type_mode="a",
-                         r18mode=False) -> Tuple[PixivTags, list]:
+                         r18mode=False,
+                         config=None,
+                         caller=None) -> Tuple[PixivTags, list]:
         response_page = None
         result = None
         url = ''
 
         if member_id is not None:
             # from member id search by tags
-            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)
+            response_page = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)[1]
 
             # convert to PixivTags
             result = PixivTags()
-            result.parseMemberTags(artist, member_id, tags)
+            result.parseTags(response_page, tags, current_page, config, caller, member=member_id)
         else:
             # only premium support server-side filtering for bookmark count
             if not self._isPremium:
@@ -796,50 +798,42 @@ class PixivBrowser(mechanize.Browser):
             self.handleDebugTagSearchPage(response_page, url)
 
             result = None
-            if member_id is not None:
+            try:
                 result = PixivTags()
-                parse_search_page = BeautifulSoup(response_page, features="html5lib")
-                result.parseMemberTags(parse_search_page, member_id, tags)
-                parse_search_page.decompose()
-                del parse_search_page
-            else:
-                try:
-                    result = PixivTags()
-                    result.parseTags(response_page, tags, current_page)
+                result.parseTags(response_page, tags, current_page, config, caller)
 
-                    # parse additional information
-                    if use_bookmark_data:
-                        idx = 0
-                        print("Retrieving bookmark information...", end=' ')
-                        for image in result.itemList:
-                            idx = idx + 1
-                            print("\r", end=' ')
-                            print(f"Retrieving bookmark information... [{idx}] of [{len(result.itemList)}]", end=' ')
+                # parse additional information
+                if use_bookmark_data:
+                    idx = 0
+                    print("Retrieving bookmark information...", end=' ')
+                    for image in result.itemList:
+                        idx = idx + 1
+                        print("\r", end=' ')
+                        print(f"Retrieving bookmark information... [{idx}] of [{len(result.itemList)}]", end=' ')
 
-                            img_url = f"https://www.pixiv.net/ajax/illust/{image.imageId}"
-                            response_page = self._get_from_cache(img_url)
-                            if response_page is None:
-                                try:
-                                    res = self.open_with_retry(img_url)
-                                    response_page = res.read()
-                                    res.close()
-                                except urllib.error.HTTPError as ex:
-                                    if ex.code == 404:
-                                        response_page = ex.read()
-                                self._put_to_cache(img_url, response_page)
+                        img_url = f"https://www.pixiv.net/ajax/illust/{image.imageId}"
+                        response_page = self._get_from_cache(img_url)
+                        if response_page is None:
+                            try:
+                                res = self.open_with_retry(img_url)
+                                response_page = res.read()
+                                res.close()
+                            except urllib.error.HTTPError as ex:
+                                if ex.code == 404:
+                                    response_page = ex.read()
+                            self._put_to_cache(img_url, response_page)
 
-                            image_info_js = json.loads(response_page)
-                            image.bookmarkCount = int(
-                                image_info_js["body"]["bookmarkCount"])
-                            image.imageResponse = int(
-                                image_info_js["body"]["responseCount"])
-                    print("")
-                except BaseException:
-                    PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
-                    raise
+                        image_info_js = json.loads(response_page)
+                        image.bookmarkCount = int(
+                            image_info_js["body"]["bookmarkCount"])
+                        image.imageResponse = int(
+                            image_info_js["body"]["responseCount"])
+                print("")
+            except BaseException:
+                PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
+                raise
 
-        print(url)
-        return (result, json.loads(response_page))
+        return (result, response_page)
 
     def handleDebugTagSearchPage(self, response, url):
         if self._config.enableDump:

@@ -14,7 +14,7 @@ class PixivTagsItem:
     bookmarkCount = 0
     imageResponse = 0
 
-    def __init__(self, image_id, bookmark_count, image_response_count):
+    def __init__(self, image_id, bookmark_count=0, image_response_count=0):
         self.imageId = image_id
         self.bookmarkCount = bookmark_count
         self.imageResponse = image_response_count
@@ -31,49 +31,39 @@ class PixivTags:
     query = ""
     memberId = 0
 
-    def parseMemberTags(self, artist, memberId, query=""):
-        '''process artist result and return the image list'''
-        self.itemList = list()
-        self.memberId = memberId
-        self.query = query
-        self.haveImage = artist.haveImages
-        self.isLastPage = artist.isLastPage
-        for image in artist.imageList:
-            self.itemList.append(PixivTagsItem(int(image), 0, 0))
-
-    def parseTags(self, page, query="", curr_page=1):
+    def parseTags(self, page, query="", curr_page=1, config=None, caller=None, member=0):
         payload = json.loads(page)
         self.query = query
 
         # check error
         if payload["error"]:
             raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+        if member:
+            self.availableImages = int(payload["body"]["total"])
+            payload = payload["body"]["works"]
+            self.memberId=member #Is this even used anywhere?
+        else:
+            self.availableImages = int(payload["body"]["illustManga"]["total"])
+            payload = payload["body"]["illustManga"]["data"]
 
         # parse images information
         self.itemList = list()
-        ad_container_count = 0
-        for item in payload["body"]["illustManga"]["data"]:
-            if item["isAdContainer"]:
-                ad_container_count = ad_container_count + 1
-                continue
+        if config and caller:
+            if config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff:
+                from PixivListHandler import process_blacklist
+                for x in process_blacklist(caller, config, payload):
+                    self.itemList.append(PixivTagsItem(int(x)))
+        else:
+            for item in payload:
+                if item["isAdContainer"]:
+                    continue
 
-            image_id = item["id"]
-            # like count not available anymore, need to call separate request...
-            bookmarkCount = 0
-            imageResponse = 0
-            tag_item = PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse))
-            self.itemList.append(tag_item)
+                self.itemList.append(PixivTagsItem(int(item["id"])))
 
-        self.haveImage = False
-        if len(self.itemList) > 0:
-            self.haveImage = True
 
-        # search page info
-        self.availableImages = int(payload["body"]["illustManga"]["total"])
-        # assuming there are only 47 image (1 is marked as ad)
-        # if self.availableImages > 47 * curr_page:
-        # assume it always return 6 images, including the advert
-        if len(self.itemList) + ad_container_count == 60:
+        self.haveImage = len(self.itemList) > 0
+        # assuming there are only 59 images (and an advertisement) per page
+        if self.availableImages/59 <= curr_page:
             self.isLastPage = False
         else:
             self.isLastPage = True
