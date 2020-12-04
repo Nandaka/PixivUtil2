@@ -725,7 +725,7 @@ class PixivBrowser(mechanize.Browser):
                 self._put_to_cache(url, response)
 
             PixivHelper.get_logger().debug(response)
-            if bookmark:
+            if bookmark or dontprocess:
                 return json.loads(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
@@ -770,7 +770,7 @@ class PixivBrowser(mechanize.Browser):
 
         if member_id is not None:
             # from member id search by tags
-            response_page = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)[1]
+            response_page = self.getMemberPage(member_id, current_page, False, tags, dontprocess=True)
 
             # convert to PixivTags
             result = PixivTags()
@@ -800,7 +800,7 @@ class PixivBrowser(mechanize.Browser):
             result = None
             try:
                 result = PixivTags()
-                result.parseTags(response_page, tags, current_page, config, caller)
+                result.parseTags(json.loads(response_page), tags, current_page, config, caller)
 
                 # parse additional information
                 if use_bookmark_data:

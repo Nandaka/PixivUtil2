@@ -123,7 +123,7 @@ def process_member(caller,
                                                         config.retry,
                                                         config.backupOldFile,
                                                         notifier=notifier)
-        
+
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 import codecs

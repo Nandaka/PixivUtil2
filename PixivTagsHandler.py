@@ -137,7 +137,8 @@ def process_tags(caller,
                                                                          bookmark_count=item.bookmarkCount,
                                                                          image_response_count=item.imageResponse,
                                                                          notifier=notifier,
-                                                                         job_option=job_option)
+                                                                         job_option=job_option,
+                                                                         useblacklist=False)
                                 PixivHelper.wait(result, config)
                             break
                         except KeyboardInterrupt:

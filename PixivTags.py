@@ -31,8 +31,7 @@ class PixivTags:
     query = ""
     memberId = 0
 
-    def parseTags(self, page, query="", curr_page=1, config=None, caller=None, member=0):
-        payload = json.loads(page)
+    def parseTags(self, payload, query="", curr_page=1, config=None, caller=None, member=0):
         self.query = query
 
         # check error
@@ -63,7 +62,7 @@ class PixivTags:
 
         self.haveImage = len(self.itemList) > 0
         # assuming there are only 59 images (and an advertisement) per page
-        if self.availableImages/59 <= curr_page:
+        if self.availableImages/59 > curr_page:
             self.isLastPage = False
         else:
             self.isLastPage = True
