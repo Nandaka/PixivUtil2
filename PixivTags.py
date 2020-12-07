@@ -53,7 +53,7 @@ class PixivTags:
         self.itemList = list()
         ad_container_count = 0
         for item in payload["body"]["illustManga"]["data"]:
-            if item["isAdContainer"]:
+            if "isAdContainer" in item and item["isAdContainer"]:
                 ad_container_count = ad_container_count + 1
                 continue
 
