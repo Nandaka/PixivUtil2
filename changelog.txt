@@ -1,3 +1,7 @@
+20201204-beta1
+- Fix Issue #878: update search by tag parser to handle missing 'isAdContainer'.
+- Fix Issue #877: update fanbox parser for missing embedId.
+
 20201130
 - Merge Added series JSON and an option to download it, expended %manga_series% to work with all modes, added an option for untouched JSON (#855) by byjtje. 
 - Merge fix bad standard config value (#857) by byjtje.

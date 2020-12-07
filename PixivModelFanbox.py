@@ -232,33 +232,32 @@ class FanboxPost(object):
                         block_text += block["text"][pointer:]
                     else:
                         block_text = block["text"]
-                    self.body_text = u"{0}<p>{1}</p>".format(
-                        self.body_text, block_text)
+                    self.body_text = f"{self.body_text}<p>{block_text}</p>"
                 elif block["type"] == "image":
                     imageId = block["imageId"]
                     if imageId not in jsPost["body"]["imageMap"]:
                         continue
-                    self.body_text = u"{0}<br /><a href='{1}'><img src='{2}'/></a>".format(
-                        self.body_text,
-                        jsPost["body"]["imageMap"][imageId]["originalUrl"],
-                        jsPost["body"]["imageMap"][imageId]["thumbnailUrl"])
-                    self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.images)
-                    self.try_add(jsPost["body"]["imageMap"][imageId]["originalUrl"], self.embeddedFiles)
+                    originalUrl = jsPost["body"]["imageMap"][imageId]["originalUrl"]
+                    thumbnailUrl = jsPost["body"]["imageMap"][imageId]["thumbnailUrl"]
+                    self.body_text = f"{self.body_text}<br /><a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
+                    self.try_add(originalUrl, self.images)
+                    self.try_add(originalUrl, self.embeddedFiles)
                 elif block["type"] == "file":
                     fileId = block["fileId"]
                     if fileId not in jsPost["body"]["fileMap"]:
                         continue
-                    self.body_text = u"{0}<br /><a href='{1}'>{2}</a>".format(
-                        self.body_text,
-                        jsPost["body"]["fileMap"][fileId]["url"],
-                        jsPost["body"]["fileMap"][fileId]["name"])
-                    self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.images)
-                    self.try_add(jsPost["body"]["fileMap"][fileId]["url"], self.embeddedFiles)
+                    fileUrl = jsPost["body"]["fileMap"][fileId]["url"]
+                    fileName = jsPost["body"]["fileMap"][fileId]["name"]
+                    self.body_text = f"{self.body_text}<br /><a href='{fileUrl}'>{fileName}</a>"
+                    self.try_add(fileUrl, self.images)
+                    self.try_add(fileUrl, self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
-                    self.body_text = u"{0}<br />{1}".format(
-                        self.body_text,
-                        self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost))
+                    if embedId in jsPost["body"]["embedMap"]:
+                        embedStr = self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost)
+                        self.body_text = f"{self.body_text}<br />{embedStr}"
+                    else:
+                        PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
 
         # Issue #476
         if "video" in jsPost["body"]:
@@ -266,7 +265,7 @@ class FanboxPost(object):
                 self.body_text,
                 self.getEmbedData(jsPost["body"]["video"], jsPost))
 
-    def getEmbedData(self, embedData, jsPost):
+    def getEmbedData(self, embedData, jsPost) -> str:
         if not os.path.exists("content_provider.json"):
             raise PixivException("Missing content_provider.json, please redownload application!",
                                  errorCode=PixivException.MISSING_CONFIG,
