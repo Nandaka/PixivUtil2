@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import time
+import time
 
 import PixivArtistHandler
 import PixivHelper
@@ -43,11 +43,15 @@ def process_list(caller, config, list_file_name=None, tags=None):
             while True:
                 try:
                     prefix = "[{0} of {1}] ".format(current_member, len(result))
-                    PixivArtistHandler.process_member(caller,
-                                                      config,
-                                                      item.memberId,
-                                                      user_dir=item.path,
-                                                      title_prefix=prefix)
+                    if tags:
+                        PixivTagsHandler.process_tags(caller, tags, member_id=item.memberId)
+                        db.updateLastDownloadDate(item.memberId)
+                    else:
+                        PixivArtistHandler.process_member(caller,
+                                                        config,
+                                                        item.memberId,
+                                                        user_dir=item.path,
+                                                        title_prefix=prefix)
                     current_member = current_member + 1
                     break
                 except KeyboardInterrupt:
@@ -123,12 +127,12 @@ def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
     if config.r18mode:
         tags.append['R-18']
     for image in imagedata:
-        if image["isAdContainer"]:
+        if "isAdContainer" in image and image["isAdContainer"]:
             continue
         notRemoved = True                   
 
         if config.dateDiff:
-            if image["createDate"] == False:
+            if image["createDate"]:
                 flag = True
                 break
         
@@ -162,5 +166,21 @@ def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
 
         if notRemoved:
            toDownload.append(image["id"])
+    print(toDownload)
+    print(flag)
+    return toDownload, flag
 
-    return toDownload
+
+def process_list_with_db(caller, limit, images):
+    count = 0
+    newimages = []
+    db = caller.__dbManager__
+    for image in images:
+            if db.selectImageByImageId(image):
+                count += 1
+            else:
+                count = 0
+                newimages.append(image)
+            if count == limit:
+                return newimages, True
+    return newimages, False

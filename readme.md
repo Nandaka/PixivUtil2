@@ -537,7 +537,7 @@ Please refer run with `--help` for latest information.
   Old filename will be renamed to filename.unix-time.extension.
 - daylastupdated
 
-  Only process member_id which were processed at least x days since the last check.
+  Only process member_id which were processed at least x days since the last check (requires processfromdb to be True).
 - alwaysCheckFileSize
 
   Check the file size, if different then it will be downloaded again, set `False` to disable.

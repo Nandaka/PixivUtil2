@@ -12,7 +12,7 @@ import PixivDownloadHandler
 import PixivHelper
 import PixivImageHandler
 from PixivException import PixivException
-from PixivListHandler import process_blacklist
+from PixivListHandler import process_blacklist, process_list_with_db
 
 
 def process_member(caller,
@@ -159,15 +159,16 @@ def process_member(caller,
                 pass
             artist.imageList=artist.imageList[startpage:finalpage if finalpage else artist.totalImages]
 
-        usingBlacklist = config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff
+        usingBlacklist = config.preprocess > 0 and config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff
         for t in range(0,artist.totalImages//100+1 if usingBlacklist else 1):
             flag = False
             images = []
             if usingBlacklist:
-                start = time.time()
+                if config.preprocess == 2 and t == 0:
+                    artist.imageList, flag = process_list_with_db(caller, config.checkUpdatedLimit, artist.imageList)
                 imagedata = PixivBrowserFactory.getExistingBrowser().getMemberImages(member_id,artist.imageList[t*100:(t+1)*100]).values() #API limits us to 100 illusts at a time
-                images = process_blacklist(caller, config, imagedata, flag)
-                print(time.time()-start)
+                images, flag2 = process_blacklist(caller, config, imagedata)
+                flag = flag2 or flag #I feel like this could be implemented better
             else:
                 images = artist.imageList
             for image_id in images:
@@ -180,7 +181,7 @@ def process_member(caller,
                         #    # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
                         #else:
                         #    total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
-                        title_prefix_img = f"{title_prefix}MemberId: {member_id} Page: {page} Post {no_of_images}+{updated_limit_count} of {artist.totalImages}"
+                        title_prefix_img = f"{title_prefix}MemberId: {member_id}{' Page: '+str(page) if not useImageIDs else ''} Post {no_of_images}+{updated_limit_count} of {artist.totalImages}"
                         if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                             result = PixivImageHandler.process_image(caller,
                                                                         config,

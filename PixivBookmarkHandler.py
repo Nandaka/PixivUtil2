@@ -61,12 +61,12 @@ def process_member_bookmarks(caller,
                    page=1,
                    end_page=0,
                    tags=None,
+                   title_prefix=None,
                    useImageIDs=False):
     # Try to get the bookmark page
     from PixivListHandler import process_blacklist
     import PixivBrowserFactory, traceback
     usingBlacklist = config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff #maybe this should be added to PixivConfig instead
-    flag = False
     def getpages(page,total=False):
         data = None
         while True:
@@ -85,9 +85,11 @@ def process_member_bookmarks(caller,
     for pagenumber in range(page,total//48+2,2):
         list_page = getpages(pagenumber)
         if usingBlacklist or tags or config.r18mode:
-            list_page = process_blacklist(caller, config, list_page, flag, tags)
+            list_page, flag = process_blacklist(caller, config, list_page, flag, tags)[0]
         for ID in list_page:
-            PixivImageHandler.process_image(caller, config, artist=None, image_id=ID, useblacklist=False)
+            PixivImageHandler.process_image(caller, config, artist=None, image_id=ID, title_prefix=title_prefix,useblacklist=False)
+        if flag:
+            break
 
 
 def process_image_bookmark(caller,

@@ -187,6 +187,7 @@ class PixivConfig():
         ConfigItem("DownloadControl", "useBlacklistTitles", False),
         ConfigItem("DownloadControl", "useBlacklistTitlesRegex", False),
         ConfigItem("DownloadControl", "dateDiff", 0),
+        ConfigItem("DownloadControl", "preprocess", 0),
         ConfigItem("DownloadControl", "enableInfiniteLoop", False),
         ConfigItem("DownloadControl", "useBlacklistMembers", False),
         ConfigItem("DownloadControl", "downloadResized", False),

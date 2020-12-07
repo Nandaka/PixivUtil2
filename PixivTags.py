@@ -50,13 +50,12 @@ class PixivTags:
         if config and caller:
             if config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff:
                 from PixivListHandler import process_blacklist
-                for x in process_blacklist(caller, config, payload):
+                for x in process_blacklist(caller, config, payload)[0]:
                     self.itemList.append(PixivTagsItem(int(x)))
         else:
             for item in payload:
-                if item["isAdContainer"]:
+                if "isAdContainer" in item and item["isAdContainer"]:
                     continue
-
                 self.itemList.append(PixivTagsItem(int(item["id"])))
 
 
