@@ -159,16 +159,20 @@ def process_member(caller,
                 pass
             artist.imageList=artist.imageList[startpage:finalpage if finalpage else artist.totalImages]
 
-        usingBlacklist = config.preprocess > 0 and config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff
-        for t in range(0,artist.totalImages//100+1 if usingBlacklist else 1):
+        usingBlacklist = config.preprocess != 0 and config.useBlacklistTags or config.useBlacklistTitles or config.dateDiff
+        if config.preprocess == 2:
+            artist.imageList = process_list_with_db(caller, config.checkUpdatedLimit, artist.imageList)
+            if artist.imageList == []:
+                PixivHelper.print_and_log('info', f"No new images found for: {member_id}")
+                return
+            
+
+        for t in range(0,len(artist.imageList)//100+1 if usingBlacklist else 1):
             flag = False
             images = []
             if usingBlacklist:
-                if config.preprocess == 2 and t == 0:
-                    artist.imageList, flag = process_list_with_db(caller, config.checkUpdatedLimit, artist.imageList)
                 imagedata = PixivBrowserFactory.getExistingBrowser().getMemberImages(member_id,artist.imageList[t*100:(t+1)*100]).values() #API limits us to 100 illusts at a time
-                images, flag2 = process_blacklist(caller, config, imagedata)
-                flag = flag2 or flag #I feel like this could be implemented better
+                images, flag = process_blacklist(caller, config, imagedata)
             else:
                 images = artist.imageList
             for image_id in images:

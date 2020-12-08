@@ -85,17 +85,39 @@ def handle_members(caller, job, job_name, job_option):
     if "tags" in job and len(job["tags"]) > 0:
         tags = job["tags"]
 
-    for member_id in member_ids:
-        PixivArtistHandler.process_member(caller,
-                                          caller.__config__,
-                                          member_id=member_id,
-                                          user_dir=job_option.rootDirectory,
-                                          page=start_page,
-                                          end_page=end_page,
-                                          bookmark=from_bookmark,
-                                          tags=tags,
-                                          title_prefix=job_name,
-                                          job_option=job_option)
+    if from_bookmark:
+        from PixivBookmarkHandler import process_member_bookmarks
+        for member_id in member_ids:
+            process_member_bookmarks(caller,
+                                            caller.__config__,
+                                            member_id=member_id,
+                                            user_dir=job_option.rootDirectory,
+                                            page=start_page,
+                                            tags=tags,
+                                            end_page=end_page,
+                                            title_prefix=job_name,
+                                            job_option=job_option)
+    elif tags:
+        for member_id in member_ids:
+            PixivTagsHandler.process_tags(caller,
+                                            caller.__config__,
+                                            member_id=member_id,
+                                            user_dir=job_option.rootDirectory,
+                                            page=start_page,
+                                            end_page=end_page,
+                                            tags=tags,
+                                            title_prefix=job_name,
+                                            job_option=job_option)
+    else:
+        for member_id in member_ids:
+            PixivArtistHandler.process_member(caller,
+                                            caller.__config__,
+                                            member_id=member_id,
+                                            user_dir=job_option.rootDirectory,
+                                            page=start_page,
+                                            end_page=end_page,
+                                            title_prefix=job_name,
+                                            job_option=job_option)
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):

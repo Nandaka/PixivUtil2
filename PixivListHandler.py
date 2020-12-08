@@ -137,11 +137,10 @@ def process_blacklist(caller, config, imagedata, tags=[]):
                 flag = True
                 break
         
-        if tags:
-            for x in tags:
-                if x not in image["tags"]:
-                    notRemoved = False
-                    break
+        for x in tags:
+            if x not in image["tags"]:
+                notRemoved = False
+                break
 
 
         if config.useBlacklistTags and notRemoved:
@@ -181,5 +180,5 @@ def process_list_with_db(caller, limit, images):
                 count = 0
                 newimages.append(image)
             if count == limit:
-                return newimages, True
-    return newimages, False
+                return newimages
+    return newimages

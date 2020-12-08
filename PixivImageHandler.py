@@ -32,6 +32,7 @@ def process_image(caller,
                   notifier=None,
                   job_option=None,
                   useblacklist=True,
+                  dbcheck=True,
                   manga_series_order=-1,
                   manga_series_parent=None) -> int:
     # caller function/method
@@ -59,19 +60,20 @@ def process_image(caller,
         PixivHelper.print_and_log(None, msg)
         notifier(type="IMAGE", message=msg)
 
-        # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
-        r = db.selectImageByImageId(image_id, cols='save_name')
-        exists = False
-        in_db = False
-        if r is not None:
-            exists = db.cleanupFileExists(r[0])
-            in_db = True
+        if dbcheck:
+            # check if already downloaded. images won't be downloaded twice - needed in process_image to catch any download
+            r = db.selectImageByImageId(image_id, cols='save_name')
+            exists = False
+            in_db = False
+            if r is not None:
+                exists = db.cleanupFileExists(r[0])
+                in_db = True
 
-        # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
-        if in_db and not config.alwaysCheckFileSize and not config.overwrite:
-            PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
-            gc.collect()
-            return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
+            # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
+            if in_db and not config.alwaysCheckFileSize and not config.overwrite:
+                PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
+                gc.collect()
+                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
 
         # get the medium page
         try:
@@ -322,10 +324,10 @@ def process_image(caller,
             if config.writeUrlInDescription:
                 PixivHelper.write_url_in_description(image, config.urlBlacklistRegex, config.urlDumpFilename)
 
-        if in_db and not exists:
+        if dbcheck and in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
-        # Only save to db if all images is downloaded completely
+        # Only save to db if all images are downloaded completely
         if result in (PixivConstant.PIXIVUTIL_OK,
                       PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
                       PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
