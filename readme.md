@@ -564,6 +564,7 @@ Please refer run with `--help` for latest information.
 - dateDiff
 
   Process only new images within the given date difference.
+  Set `0` to disable. Skip to next member id if in 'Download by Member', stop processing if in 'Download New Illust' mode. 
 - preprocess
 
   Processes blacklists and date filter before starting artist downloads. Saves time when filtering at least one image per download. 0 to disable, 1 to enable, 2 to enable alongside preprocessing the DB entries and checkUpdatedLimit (overrides the redownload checks).
