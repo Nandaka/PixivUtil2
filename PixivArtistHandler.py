@@ -191,7 +191,7 @@ def process_member(caller,
                                                                         title_prefix=title_prefix_img,
                                                                         notifier=notifier,
                                                                         job_option=job_option,
-                                                                        useblacklist=False)
+                                                                        useblacklist=not usingBlacklist)
                         break
                     except KeyboardInterrupt:
                         result = PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT
