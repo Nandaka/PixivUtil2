@@ -82,10 +82,7 @@ def process_tags(caller,
                                                                                  r18mode=format_src.r18mode,
                                                                                  config=config,
                                                                                  caller=caller)
-            if len(t.itemList) == 0:
-                PixivHelper.print_and_log(None, 'No more images')
-                flag = False
-            elif _last_search_result is not None:
+            if _last_search_result is not None:
                 set1 = set((x.imageId) for x in _last_search_result.itemList)
                 difference = [x for x in t.itemList if (x.imageId) not in set1]
                 if len(difference) == 0:
