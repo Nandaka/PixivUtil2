@@ -121,8 +121,9 @@ def import_list(caller,
         PixivHelper.print_and_log('warn', msg)
 
 
-def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
+def process_blacklist(caller, config, imagedata, tags=[]):
     import re
+    flag = False
     toDownload = []
     if config.r18mode:
         tags.append['R-18']
@@ -166,8 +167,6 @@ def process_blacklist(caller, config, imagedata, flag=False, tags=[]):
 
         if notRemoved:
            toDownload.append(image["id"])
-    print(toDownload)
-    print(flag)
     return toDownload, flag
 
 
