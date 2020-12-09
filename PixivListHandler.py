@@ -124,9 +124,7 @@ def process_blacklist(caller, config, imagedata, tags=[]):
     import re
     flag = False
     toDownload = []
-    if config.r18mode:
-        for x in ['R-18']:
-            pass
+    r18skip = 0
     for image in imagedata:
         if "isAdContainer" in image and image["isAdContainer"]:
             continue
@@ -136,12 +134,20 @@ def process_blacklist(caller, config, imagedata, tags=[]):
             if image["createDate"]:
                 flag = True
                 break
-        
+
+        if config.r18mode:
+            sin = False
+            for x in image["tags"]:
+                if "R-18" in x:
+                    sin = True
+            if not sin:
+                r18skip += 1
+                continue
+                    
         for x in tags:
             if x not in image["tags"]:
                 notRemoved = False
                 break
-
 
         if config.useBlacklistTags and notRemoved:
             for item in caller.__blacklistTags:
@@ -166,6 +172,9 @@ def process_blacklist(caller, config, imagedata, tags=[]):
 
         if notRemoved:
            toDownload.append(image["id"])
+
+    if r18skip > 0:
+        PixivHelper.print_and_log('warn', f'Skipped {r18skip} images due to R18-Mode')
     return toDownload, flag
 
 
