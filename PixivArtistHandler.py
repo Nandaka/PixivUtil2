@@ -18,12 +18,10 @@ from PixivListHandler import process_blacklist, process_list_with_db
 def process_member(caller,
                    config,
                    member_id,
-                   user_dir='',
                    page=1,
                    end_page=0,
                    title_prefix="",
                    notifier=None,
-                   job_option=None,
                    useImageIDs=False):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
@@ -33,11 +31,6 @@ def process_member(caller,
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
-
-    # override the config source if job_option is give for filename formats
-    format_src = config
-    if job_option is not None:
-        format_src = job_option
 
     list_page = None
 
@@ -66,7 +59,7 @@ def process_member(caller,
         # Try to get the member page
         while True:
             try:
-                (artist, list_page) = PixivBrowserFactory.getExistingBrowser().getMemberPage(member_id, r18mode=format_src.r18mode)
+                (artist, list_page) = PixivBrowserFactory.getExistingBrowser().getMemberPage(member_id, r18mode=config.r18mode)
                 break
             except PixivException as ex:
                 caller.ERROR_CODE = ex.errorCode
@@ -99,10 +92,8 @@ def process_member(caller,
         PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
         #PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
 
-        if not user_dir:
-            user_dir = format_src.rootDirectory
         if config.downloadAvatar:
-            (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, user_dir, format_src)
+            (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, config.rootDirectory, config)
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 if artist.artistAvatar.find('no_profile') == -1:
                     PixivDownloadHandler.download_image(caller,
@@ -127,8 +118,8 @@ def process_member(caller,
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 import codecs
-                filename = PixivHelper.make_filename(format_src.filenameMemberJSON, artistInfo=artist, appendExtension=False)+".json"
-                filename = PixivHelper.sanitize_filename(filename, format_src.rootDirectory)
+                filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, appendExtension=False)+".json"
+                filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
                 try:
                     # Issue #421 ensure subdir exists.
                     PixivHelper.makeSubdirs(filename)
@@ -191,10 +182,8 @@ def process_member(caller,
                                                                         config,
                                                                         artist,
                                                                         image_id,
-                                                                        user_dir=user_dir,
                                                                         title_prefix=title_prefix_img,
                                                                         notifier=notifier,
-                                                                        job_option=job_option,
                                                                         useblacklist=not usingBlacklist)
                         break
                     except KeyboardInterrupt:

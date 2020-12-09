@@ -381,7 +381,6 @@ def menu_download_by_tags(opisvalid, args, options):
                                   wild_card=wildcard,
                                   start_date=start_date,
                                   end_date=end_date,
-                                  use_tags_as_dir=__config__.useTagsAsDir,
                                   bookmark_count=bookmark_count,
                                   sort_order=sort_order,
                                   type_mode=type_mode)
@@ -410,9 +409,7 @@ def menu_download_by_title_caption(opisvalid, args, options):
                                   wild_card=False,
                                   title_caption=True,
                                   start_date=start_date,
-                                  end_date=end_date,
-                                  use_tags_as_dir=__config__.useTagsAsDir)
-
+                                  end_date=end_date)
 
 def menu_download_by_tag_and_member_id(opisvalid, args, options):
     __log__.info('Tag and MemberId mode (10).')
@@ -442,7 +439,6 @@ def menu_download_by_tag_and_member_id(opisvalid, args, options):
                                   tags.strip(),
                                   page=page,
                                   end_page=end_page,
-                                  use_tags_as_dir=__config__.useTagsAsDir,
                                   member_id=int(member_id))
 
 

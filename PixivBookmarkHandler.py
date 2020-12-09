@@ -39,7 +39,6 @@ def process_bookmark(caller,
             PixivArtistHandler.process_member(caller,
                                               config,
                                               item.memberId,
-                                              user_dir=item.path,
                                               title_prefix=prefix)
             current_member = current_member + 1
 
@@ -57,7 +56,6 @@ def process_bookmark(caller,
 def process_member_bookmarks(caller,
                    config,
                    member_id,
-                   user_dir='',
                    page=1,
                    end_page=0,
                    tags=None,

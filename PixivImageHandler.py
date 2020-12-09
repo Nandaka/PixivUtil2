@@ -23,14 +23,12 @@ def process_image(caller,
                   config,
                   artist=None,
                   image_id=None,
-                  user_dir='',
                   bookmark=False,
                   search_tags='',
                   title_prefix="",
                   bookmark_count=-1,
                   image_response_count=-1,
                   notifier=None,
-                  job_option=None,
                   useblacklist=True,
                   dbcheck=True,
                   manga_series_order=-1,
@@ -42,12 +40,9 @@ def process_image(caller,
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
-    # override the config source if job_option is give for filename formats
-    format_src = config
     extension_filter = None
-    if job_option is not None:
-        format_src = job_option
-        extension_filter = job_option.extensionFilter
+    if config.extension_filter is not None:
+        extension_filter = config.extension_filter
 
     parse_medium_page = None
     image = None
@@ -186,7 +181,7 @@ def process_image(caller,
             PixivHelper.print_and_log(None, f"Mode : {image.imageMode}")
 
             # get bookmark count
-            if ("%bookmark_count%" in format_src.filenameFormat or "%image_response_count%" in format_src.filenameFormat) and image.bookmark_count == -1:
+            if ("%bookmark_count%" in config.filenameFormat or "%image_response_count%" in config.filenameFormat) and image.bookmark_count == -1:
                 PixivHelper.print_and_log(None, "Parsing bookmark page", end=' ')
                 bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
                 parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
@@ -205,10 +200,7 @@ def process_image(caller,
             if image.imageMode == 'manga':
                 PixivHelper.print_and_log(None, f"Page Count : {image.imageCount}")
 
-            if user_dir == '':  # Yavos: use config-options
-                target_dir = format_src.rootDirectory
-            else:  # Yavos: use filename from list
-                target_dir = user_dir
+            target_dir = config.rootDirectory
 
             result = PixivConstant.PIXIVUTIL_OK
             manga_files = list()
@@ -229,9 +221,9 @@ def process_image(caller,
                 split_url = url.split('.')
                 if split_url[0].startswith(str(image_id)):
 
-                    filename_format = format_src.filenameFormat
+                    filename_format = config.filenameFormat
                     if image.imageMode == 'manga':
-                        filename_format = format_src.filenameMangaFormat
+                        filename_format = config.filenameMangaFormat
 
                     filename = PixivHelper.make_filename(filename_format,
                                                          image,
@@ -282,10 +274,10 @@ def process_image(caller,
                     PixivHelper.print_and_log(None, '')
 
             if config.writeImageInfo or config.writeImageJSON:
-                filename_info_format = format_src.filenameInfoFormat or format_src.filenameFormat
+                filename_info_format = config.filenameInfoFormat or config.filenameFormat
                 # Issue #575
                 if image.imageMode == 'manga':
-                    filename_info_format = format_src.filenameMangaInfoFormat or format_src.filenameMangaFormat or filename_info_format
+                    filename_info_format = config.filenameMangaInfoFormat or config.filenameMangaFormat or filename_info_format
                 info_filename = PixivHelper.make_filename(filename_info_format,
                                                           image,
                                                           tagsSeparator=config.tagsSeparator,
@@ -304,7 +296,7 @@ def process_image(caller,
                 if config.writeImageJSON:
                     image.WriteJSON(info_filename + ".json", config.RawJSONFilter)
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
-                    json_filename = PixivHelper.make_filename(format_src.filenameSeriesJSON,
+                    json_filename = PixivHelper.make_filename(config.filenameSeriesJSON,
                                                               image,
                                                               fileUrl=url,
                                                               appendExtension=False
@@ -399,14 +391,12 @@ def process_manga_series(caller,
                                        config,
                                        artist=manga_series.artist,
                                        image_id=image_id,
-                                       user_dir='',
                                        bookmark=False,
                                        search_tags='',
                                        title_prefix="",
                                        bookmark_count=-1,
                                        image_response_count=-1,
                                        notifier=notifier,
-                                       job_option=job_option,
                                        useblacklist=True,
                                        manga_series_order=order,
                                        manga_series_parent=manga_series)

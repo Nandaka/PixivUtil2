@@ -50,7 +50,6 @@ def process_list(caller, config, list_file_name=None, tags=None):
                         PixivArtistHandler.process_member(caller,
                                                         config,
                                                         item.memberId,
-                                                        user_dir=item.path,
                                                         title_prefix=prefix)
                     current_member = current_member + 1
                     break
@@ -97,9 +96,9 @@ def process_tags_list(caller,
                                           wild_card=wild_card,
                                           start_date=start_date,
                                           end_date=end_date,
-                                          use_tags_as_dir=config.useTagsAsDir,
                                           bookmark_count=bookmark_count,
-                                          sort_order=sort_order)
+                                          sort_order=sort_order,
+                                          config=config)
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
@@ -126,7 +125,8 @@ def process_blacklist(caller, config, imagedata, tags=[]):
     flag = False
     toDownload = []
     if config.r18mode:
-        tags.append['R-18']
+        for x in ['R-18']:
+            pass
     for image in imagedata:
         if "isAdContainer" in image and image["isAdContainer"]:
             continue

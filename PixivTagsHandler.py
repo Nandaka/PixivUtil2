@@ -19,25 +19,20 @@ def process_tags(caller,
                  title_caption=False,
                  start_date=None,
                  end_date=None,
-                 use_tags_as_dir=False,
                  member_id=None,
                  bookmark_count=None,
                  sort_order='date_d',
                  type_mode=None,
                  notifier=None,
-                 job_option=None):
+                 config=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
-    config = caller.__config__
-    config.loadConfig(path=caller.configfile)
+    if not config:
+        config = caller.__config__
+    use_tags_as_dir = config.useTagsAsDir
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
-
-    # override the config source if job_option is give for filename formats
-    format_src = config
-    if job_option is not None:
-        format_src = job_option
 
     search_page = None
     _last_search_result = None
@@ -49,7 +44,7 @@ def process_tags(caller,
 
         if use_tags_as_dir:
             PixivHelper.print_and_log(None, "Save to each directory using query tags.")
-            format_src.rootDirectory += os.sep + PixivHelper.sanitize_filename(search_tags)
+            config.rootDirectory += os.sep + PixivHelper.sanitize_filename(search_tags)
 
         tags = PixivHelper.encode_tags(tags)
 
@@ -79,7 +74,7 @@ def process_tags(caller,
                                                                                  use_bookmark_data=use_bookmark_data,
                                                                                  bookmark_count=bookmark_count,
                                                                                  type_mode=type_mode,
-                                                                                 r18mode=format_src.r18mode,
+                                                                                 r18mode=config.r18mode,
                                                                                  config=config,
                                                                                  caller=caller)
 
@@ -121,13 +116,11 @@ def process_tags(caller,
                                                                          config,
                                                                          None,
                                                                          item.imageId,
-                                                                         user_dir=format_src.rootDirectory,
                                                                          search_tags=search_tags,
                                                                          title_prefix=title_prefix,
                                                                          bookmark_count=item.bookmarkCount,
                                                                          image_response_count=item.imageResponse,
                                                                          notifier=notifier,
-                                                                         job_option=job_option,
                                                                          useblacklist=False)
                                 PixivHelper.wait(result, config)
                             break
