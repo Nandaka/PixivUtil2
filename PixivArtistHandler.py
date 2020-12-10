@@ -134,7 +134,7 @@ def process_member(caller,
                     is_avatar_downloaded = True
 
             if config.autoAddMember:
-                db.insertNewMember(int(member_id), artist.artistToken)
+                db.insertNewMember(int(member_id), member_token=artist.artistToken)
 
             db.updateMemberName(member_id, artist.artistName, artist.artistToken)
 

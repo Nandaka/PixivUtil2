@@ -390,7 +390,7 @@ class PixivDBManager(object):
                         break
 
             c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0, ?)''',
-                      (member_id, str(member_id), r'N\A'), member_token)
+                      (member_id, str(member_id), r'N\A', member_token))
             self.conn.commit()
         except BaseException:
             print('Error at insertNewMember():', str(sys.exc_info()))
