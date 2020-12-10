@@ -15,19 +15,19 @@ _default_batch_filename = "./batch_job.json"
 
 
 class JobOption(object):
-    jobconfig = PixivConfig.ConfigItem
+    config = PixivConfig.ConfigItem
 
     def __init__(self, job, _config):
         if _config is None:
             raise Exception("Cannot get default configuration, aborting...")
 
         # set default option from config
-        self.jobconfig = deepcopy(_config)
+        self.config = deepcopy(_config)
 
         if "option" in job and job["option"] is not None:
             option_data = job["option"]
             for option in option_data:
-                self.jobconfig.__setattr__(option, option_data[option])
+                self.config.__setattr__(option, option_data[option])
 
 
 def handle_members(caller, job, job_name, job_option):
@@ -55,33 +55,16 @@ def handle_members(caller, job, job_name, job_option):
     if "tags" in job and len(job["tags"]) > 0:
         tags = job["tags"]
 
-    if from_bookmark:
-        from PixivBookmarkHandler import process_member_bookmarks
-        for member_id in member_ids:
-            process_member_bookmarks(caller,
-                                            caller.__config__,
-                                            job_option.jobconfig,
-                                            member_id,
-                                            start_page,
-                                            end_page,
-                                            tags,
-                                            job_name)
-    elif tags:
-        for member_id in member_ids:
-            PixivTagsHandler.process_tags(caller,
-                                            job_option.jobconfig,
-                                            member_id,
-                                            start_page,
-                                            end_page,
-                                            tags)
-    else:
-        for member_id in member_ids:
-            PixivArtistHandler.process_member(caller,
-                                              job_option.jobconfig,
-                                              member_id,
-                                              page=start_page,
-                                              end_page=end_page,
-                                              title_prefix=f"{job_name} ")
+    for member_id in member_ids:
+        PixivArtistHandler.process_member(caller,
+                                          job_option.config,
+                                          member_id=member_id,
+                                          user_dir=job_option.config.rootDirectory,
+                                          page=start_page,
+                                          end_page=end_page,
+                                          bookmark=from_bookmark,
+                                          tags=tags,
+                                          title_prefix=f"{job_name} ")
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
@@ -100,6 +83,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
         PixivImageHandler.process_image(caller,
                                         job_option.config,
                                         image_id=image_id,
+                                        user_dir=job_option.config.rootDirectory,
                                         title_prefix=f"{job_name} ")
     print("done.")
 
@@ -168,11 +152,12 @@ def handle_tags(caller: PixivUtil2, job, job_name, job_option):
                                   title_caption=title_caption,
                                   start_date=start_date,
                                   end_date=end_date,
+                                  use_tags_as_dir=job_option.config.useTagsAsDir,
                                   member_id=member_id,
                                   bookmark_count=bookmark_count,
                                   sort_order=sort_order,
                                   type_mode=type_mode,
-                                  config=job_option.jobconfig)
+                                  config=job_option.config)
 
 
 def process_batch_job(caller: PixivUtil2, batch_file=None):
@@ -190,7 +175,7 @@ def process_batch_job(caller: PixivUtil2, batch_file=None):
 
         total_job = len(jobs["jobs"])
         active_job = len([y for y in jobs["jobs"] if jobs["jobs"][y]["enabled"]])
-        PixivHelper.print_and_log("info", f"Found {active_job} active job of {total_job} jobs from {batch_file}.")
+        PixivHelper.print_and_log("info", f"Found {active_job} active job(s) of {total_job} jobs from {batch_file}.")
 
         for job_name in jobs["jobs"]:
             PixivHelper.print_and_log("info", f"Processing {job_name}")

@@ -23,22 +23,18 @@ def process_member(caller,
                    bookmark=False,
                    tags=None,
                    title_prefix="",
-                   notifier=None,
-                   job_option=None):
+                   notifier=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__
-    config.loadConfig(path=caller.configfile)
     # np = caller.np
     # np_is_valid = caller.np_is_valid
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
-    # override the config source if job_option is give for filename formats
-    format_src = config
-    if job_option is not None:
-        format_src = job_option
+    if config is None:
+        config = config.loadConfig(path=caller.configfile)
 
     list_page = None
 
@@ -72,7 +68,7 @@ def process_member(caller,
             # Try to get the member page
             while True:
                 try:
-                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, r18mode=format_src.r18mode)
+                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, r18mode=config.r18mode)
                     break
                 except PixivException as ex:
                     caller.ERROR_CODE = ex.errorCode
@@ -110,11 +106,11 @@ def process_member(caller,
 
             if not is_avatar_downloaded and config.downloadAvatar:
                 if user_dir == '':
-                    target_dir = format_src.rootDirectory
+                    target_dir = config.rootDirectory
                 else:
                     target_dir = user_dir
 
-                (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, format_src)
+                (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, config)
                 if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                     if artist.artistAvatar.find('no_profile') == -1:
                         PixivDownloadHandler.download_image(caller,
@@ -172,8 +168,7 @@ def process_member(caller,
                                                                      user_dir,
                                                                      bookmark,
                                                                      title_prefix=title_prefix_img,
-                                                                     notifier=notifier,
-                                                                     job_option=job_option)
+                                                                     notifier=notifier)
 
                         break
                     except KeyboardInterrupt:
