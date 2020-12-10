@@ -138,9 +138,9 @@ def process_member(caller,
                     is_avatar_downloaded = True
 
             if config.autoAddMember:
-                db.insertNewMember(int(member_id))
+                db.insertNewMember(int(member_id), artist.artistToken)
 
-            db.updateMemberName(member_id, artist.artistName)
+            db.updateMemberName(member_id, artist.artistName, artist.artistToken)
 
             if not artist.haveImages:
                 PixivHelper.print_and_log('info', f"No image found for: {member_id}")
