@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
 import os
 from copy import deepcopy
-
-import json
 
 import PixivArtistHandler
 import PixivConfig
@@ -78,11 +77,11 @@ def handle_members(caller, job, job_name, job_option):
     else:
         for member_id in member_ids:
             PixivArtistHandler.process_member(caller,
-                                            job_option.jobconfig,
-                                            member_id,
-                                            page=start_page,
-                                            end_page=end_page,
-                                            title_prefix=job_name)
+                                              job_option.jobconfig,
+                                              member_id,
+                                              page=start_page,
+                                              end_page=end_page,
+                                              title_prefix=f"{job_name} ")
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
@@ -101,7 +100,7 @@ def handle_images(caller: PixivUtil2, job, job_name, job_option):
         PixivImageHandler.process_image(caller,
                                         job_option.config,
                                         image_id=image_id,
-                                        title_prefix=job_name)
+                                        title_prefix=f"{job_name} ")
     print("done.")
 
 
@@ -186,18 +185,23 @@ def process_batch_job(caller: PixivUtil2, batch_file=None):
     batch_file = os.path.abspath(batch_file)
 
     if os.path.exists(batch_file):
-        jobs_file = open(_default_batch_filename, encoding="utf-8")
-        jobs = json.loads(jobs_file.read())
+        jobs_file = open(batch_file, encoding="utf-8")
+        jobs = json.load(jobs_file)
+
+        total_job = len(jobs["jobs"])
+        active_job = len([y for y in jobs["jobs"] if jobs["jobs"][y]["enabled"]])
+        PixivHelper.print_and_log("info", f"Found {active_job} active job of {total_job} jobs from {batch_file}.")
+
         for job_name in jobs["jobs"]:
-            print(f"Processing {job_name}")
+            PixivHelper.print_and_log("info", f"Processing {job_name}")
             curr_job = jobs["jobs"][job_name]
 
             if "enabled" not in curr_job or not bool(curr_job["enabled"]):
-                print(f"Skipping {job_name} because not enabled.")
+                PixivHelper.print_and_log("warn", f"Skipping {job_name} because not enabled.")
                 continue
 
             if "job_type" not in curr_job:
-                print(f"Cannot find job_type in {job_name}")
+                PixivHelper.print_and_log("error", f"Cannot find job_type in {job_name}")
                 continue
 
             job_option = JobOption(curr_job, caller.__config__)
@@ -208,9 +212,9 @@ def process_batch_job(caller: PixivUtil2, batch_file=None):
             elif curr_job["job_type"] == '3':
                 handle_tags(caller, curr_job, job_name, job_option)
             else:
-                print(f"Unsupported job_type {curr_job['job_type']} in {job_name}")
+                PixivHelper.print_and_log("error", f"Unsupported job_type {curr_job['job_type']} in {job_name}")
     else:
-        print(f"Cannot found {batch_file}, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
+        PixivHelper.print_and_log("error", f"Cannot found {batch_file}, see https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental) for example. ")
 
     # restore original method
     # PixivHelper.print_and_log = temp_printer
