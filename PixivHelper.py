@@ -405,7 +405,7 @@ def create_avabg_filename(artistModel, targetDir, format_src):
                                         tagsLimit=format_src.tagsLimit,
                                         fileUrl=artistModel.artistAvatar,
                                         appendExtension=False)
-            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir) #TODO: look at this tomorrow
+            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
 
     if artistModel.artistBackground is not None and artistModel.artistBackground.startswith("http"):
         if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
