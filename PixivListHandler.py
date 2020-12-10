@@ -185,10 +185,11 @@ def process_list_with_db(caller, limit, images):
     db = caller.__dbManager__
     for image in images:
             if db.selectImageByImageId(image):
+                PixivHelper.print_and_log(None, f'Already downloaded in DB: {image}')
                 count += 1
             else:
                 count = 0
                 newimages.append(image)
-            if count == limit:
+            if limit and count == limit:
                 return newimages
     return newimages
