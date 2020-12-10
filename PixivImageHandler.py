@@ -40,6 +40,8 @@ def process_image(caller,
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
+    if config is None:
+        config = config.loadConfig(path=caller.configfile)
     extension_filter = config.extension_filter
 
     parse_medium_page = None

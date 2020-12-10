@@ -49,6 +49,8 @@ class TestPixivHelper(unittest.TestCase):
             rootDir = '/home/travis/build/Nandaka/PixivUtil2/'
 
         nameformat = '%searchTags%\\%member_id% %member_token%\\%R-18% %urlFilename% - %title%'
+        if platform.system() != 'Windows':
+            nameformat = nameformat.replace("\\","/")
         p = open('./test/test-image-unicode.htm', 'r', encoding="utf-8")
         page = p.read()
         image = PixivImage(2493913, page)
