@@ -122,6 +122,8 @@ def import_list(caller,
 
 def process_blacklist(caller, config, imagedata, tags=[]):
     import re
+    import datetime
+    import datetime_z
     flag = False
     toDownload = []
     r18skip = 0
@@ -130,10 +132,13 @@ def process_blacklist(caller, config, imagedata, tags=[]):
             continue
         notRemoved = True                   
 
-        if config.dateDiff:
-            if image["createDate"]:
-                flag = True
-                break
+        if config.dateDiff > 0:
+            imagedate = datetime_z.parse_datetime(image["createDate"])
+            if imagedate != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
+                if imagedate < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image} – it\'s older than: {config.dateDiff} day(s).')
+                    flag = True
+                    break
 
         if config.r18mode:
             sin = False
