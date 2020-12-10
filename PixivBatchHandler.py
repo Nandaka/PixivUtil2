@@ -2,7 +2,7 @@
 
 import os
 
-import demjson
+import json
 
 import PixivArtistHandler
 import PixivHelper
@@ -183,7 +183,7 @@ def process_batch_job(caller: PixivUtil2, batch_file=None):
 
     if os.path.exists(batch_file):
         jobs_file = open(_default_batch_filename, encoding="utf-8")
-        jobs = demjson.decode(jobs_file.read()) #is there a reason to use demjson over json?
+        jobs = json.loads(jobs_file.read())
         for job_name in jobs["jobs"]:
             print(f"Processing {job_name}")
             curr_job = jobs["jobs"][job_name]

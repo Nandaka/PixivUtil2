@@ -389,11 +389,11 @@ def create_avabg_filename(artistModel, targetDir, format_src):
         if format_src.avatarNameFormat != "":
             tmpfilename = make_filename(format_src.avatarNameFormat,
                                         image,
+                                        targetDir=targetDir,
                                         tagsSeparator=_config.tagsSeparator,
                                         tagsLimit=_config.tagsLimit,
                                         fileUrl=artistModel.artistAvatar,
                                         appendExtension=True)
-            filename_avatar = sanitize_filename(tmpfilename, targetDir)
         else:
             filenameFormat = format_src.filenameFormat
             if filenameFormat.find(os.sep) == -1:
@@ -405,17 +405,17 @@ def create_avabg_filename(artistModel, targetDir, format_src):
                                         tagsLimit=_config.tagsLimit,
                                         fileUrl=artistModel.artistAvatar,
                                         appendExtension=False)
-            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
+            filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir) #TODO: look at this tomorrow
 
     if artistModel.artistBackground is not None and artistModel.artistBackground.startswith("http"):
         if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
             tmpfilename = make_filename(format_src.backgroundNameFormat,
                                         image,
+                                        targetDir=targetDir,
                                         tagsSeparator=_config.tagsSeparator,
                                         tagsLimit=_config.tagsLimit,
                                         fileUrl=artistModel.artistBackground,
                                         appendExtension=True)
-            filename_bg = sanitize_filename(tmpfilename, targetDir)
         else:
             if format_src.avatarNameFormat != "":
                 tmpfilename = make_filename(format_src.avatarNameFormat,

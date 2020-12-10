@@ -53,13 +53,11 @@ class TestPixivHelper(unittest.TestCase):
         page = p.read()
         image = PixivImage(2493913, page)
         self.assertEqual(image.imageUrls[0], "https://i.pximg.net/img-original/img/2008/12/23/21/01/21/2493913_p0.jpg")
-        filename = PixivHelper.make_filename(nameformat, image, fileUrl="2493913_p0.jpg")
+        result = PixivHelper.make_filename(nameformat, image, fileUrl="2493913_p0.jpg", targetDir=rootDir)
 
         expected = "D:\\Temp\\Pixiv2\\267014 balzehn\\R-18 2493913_p0 - アラクネのいる日常２.jpg"
         if platform.system() != 'Windows':
             expected = "/home/travis/build/Nandaka/PixivUtil2/267014 balzehn/R-18 2493913_p0 - アラクネのいる日常２.jpg"
-
-        result = PixivHelper.sanitize_filename(filename, rootDir)
 
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
