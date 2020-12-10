@@ -157,6 +157,7 @@ def process_member(caller,
             artist.imageList = process_list_with_db(caller, config.checkUpdatedLimit, artist.imageList)
             if artist.imageList == []:
                 PixivHelper.print_and_log('info', f"No new images found for: {member_id}")
+                db.updateLastDownloadDate(member_id)
                 return
             
 
