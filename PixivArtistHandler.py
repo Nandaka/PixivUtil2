@@ -96,8 +96,6 @@ def process_member(caller,
             (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, config.rootDirectory, config)
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 if artist.artistAvatar.find('no_profile') == -1:
-                    PixivHelper.print_and_log("warn",artist.artistAvatar)
-                    return
                     PixivDownloadHandler.download_image(caller,
                                                         artist.artistAvatar,
                                                         filename_avatar,
@@ -120,7 +118,7 @@ def process_member(caller,
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 import codecs
-                filename = PixivHelper.make_filename(config.filenameMemberJSON, targetDir=config.rootDirectory, artistInfo=artist, appendExtension=False)+".json"
+                filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, targetDir=config.rootDirectory ,appendExtension=False)+".json"
                 try:
                     # Issue #421 ensure subdir exists.
                     PixivHelper.makeSubdirs(filename)
