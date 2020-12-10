@@ -163,9 +163,9 @@ def process_image(caller,
                 if "ugoira" in extension_filter:
                     extension_filter = f"{extension_filter}|zip"
 
-                if re.match(extension_filter, ext) is None:
+                if re.search(extension_filter, ext) is None:
                     download_image_flag = False
-                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – url is not in the filter: {extension_filter} => {url}')
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - url is not in the filter: {extension_filter} => {url}')
                     break
 
         if download_image_flag:
