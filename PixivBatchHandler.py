@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-
+from copy import deepcopy
 import json
 
 import PixivArtistHandler
@@ -10,7 +10,6 @@ import PixivImageHandler
 import PixivTagsHandler
 import PixivUtil2
 import PixivConfig
-from copy import deepcopy
 
 _default_batch_filename = "./batch_job.json"
 
@@ -182,8 +181,13 @@ def process_batch_job(caller: PixivUtil2, batch_file=None):
     batch_file = os.path.abspath(batch_file)
 
     if os.path.exists(batch_file):
-        jobs_file = open(_default_batch_filename, encoding="utf-8")
-        jobs = json.loads(jobs_file.read())
+        jobs_file = open(batch_file, encoding="utf-8")
+        jobs = json.load(jobs_file)
+
+        total_job = len(jobs["jobs"])
+        active_job = len([y for y in jobs["jobs"] if jobs["jobs"][y]["enabled"]])
+        PixivHelper.print_and_log("info", f"Found {active_job} active job(s) of {total_job} jobs from {batch_file}.")
+
         for job_name in jobs["jobs"]:
             print(f"Processing {job_name}")
             curr_job = jobs["jobs"][job_name]

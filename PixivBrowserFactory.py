@@ -267,6 +267,7 @@ class PixivBrowser(mechanize.Browser):
 
     def _loadCookie(self, cookie_value, domain):
         """ Load cookie to the Browser instance """
+        ck = None
         if "pixiv.net" in domain:
             ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
                                        port_specified=False, domain='pixiv.net', domain_specified=False,
@@ -279,7 +280,8 @@ class PixivBrowser(mechanize.Browser):
                                        domain_initial_dot=False, path='/', path_specified=True,
                                        secure=False, expires=None, discard=True, comment=None,
                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
-        self.addCookie(ck)
+        if ck is not None:
+            self.addCookie(ck)
 
     #        cookies = cookie_value.split(";")
     #        for cookie in cookies:
@@ -550,7 +552,7 @@ class PixivBrowser(mechanize.Browser):
                      bookmark_count=-1,
                      image_response_count=-1,
                      manga_series_order=-1,
-                     manga_series_parent=None) -> (PixivImage, str):
+                     manga_series_parent=None) -> Tuple[PixivImage, str]:
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
@@ -669,6 +671,7 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.get_logger().error("Error data: \r\n %s", errorMessage)
             payload = demjson.decode(errorMessage)
             # Issue #432
+            msg = None
             if "message" in payload:
                 msg = payload["message"]
             elif "error" in payload and payload["error"] is not None:
@@ -684,7 +687,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False) -> (PixivArtist, str):
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False) -> Tuple[PixivArtist, str]:
         artist = None
         response = None
         if tags is None:
@@ -846,6 +849,8 @@ class PixivBrowser(mechanize.Browser):
 
     def fanboxGetArtistList(self, via):
         self.fanbox_is_logged_in()
+        url = None
+        referer = ""
         if via == FanboxArtist.SUPPORTING:
             url = 'https://api.fanbox.cc/plan.listSupporting'
             PixivHelper.print_and_log('info', f'Getting supporting artists from {url}')
@@ -855,19 +860,22 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', f'Getting following artists from {url}')
             referer = "https://www.fanbox.cc/creators/following"
 
-        req = mechanize.Request(url)
-        req.add_header('Accept', 'application/json, text/plain, */*')
-        req.add_header('Referer', referer)
-        req.add_header('Origin', 'https://www.fanbox.cc')
-        req.add_header('User-Agent', self._config.useragent)
+        if url is not None:
+            req = mechanize.Request(url)
+            req.add_header('Accept', 'application/json, text/plain, */*')
+            req.add_header('Referer', referer)
+            req.add_header('Origin', 'https://www.fanbox.cc')
+            req.add_header('User-Agent', self._config.useragent)
 
-        res = self.open_with_retry(req)
-        # read the json response
-        response = res.read()
-        res.close()
+            res = self.open_with_retry(req)
+            # read the json response
+            response = res.read()
+            res.close()
 
-        ids = FanboxArtist.parseArtistIds(page=response)
-        return ids
+            ids = FanboxArtist.parseArtistIds(page=response)
+            return ids
+        else:
+            raise ValueError(f"Invalid via argument {via}")
 
     def fanboxGetArtistById(self, artist_id):
         self.fanbox_is_logged_in()
@@ -1027,7 +1035,7 @@ class PixivBrowser(mechanize.Browser):
 
         return artist
 
-    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON = False) -> Union[PixivMangaSeries,str]:
+    def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON=False) -> Union[PixivMangaSeries, str]:
         PixivHelper.print_and_log("info", f"Getting Manga Series: {manga_series_id} from page: {current_page}")
         # get the manga information
         # https://www.pixiv.net/ajax/series/6474?p=5&lang=en
