@@ -61,6 +61,14 @@ class PixivDBManager(object):
             except BaseException:
                 pass
 
+            # add column for artist token
+            try:
+                c.execute(
+                    '''ALTER TABLE pixiv_master_member ADD COLUMN member_token TEXT''')
+                self.conn.commit()
+            except BaseException:
+                pass
+
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_master_image (
                             image_id INTEGER PRIMARY KEY,
                             member_id INTEGER,
@@ -185,7 +193,7 @@ class PixivDBManager(object):
             c = self.conn.cursor()
 
             for item in listTxt:
-                c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
+                c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0, '')''',
                           (item.memberId, str(item.memberId), r'N\A'))
                 c.execute('''UPDATE pixiv_master_member
                              SET save_folder = ?
@@ -205,7 +213,7 @@ class PixivDBManager(object):
         print('Exporting list...', end=' ')
         try:
             c = self.conn.cursor()
-            c.execute('''SELECT member_id, save_folder, name
+            c.execute('''SELECT member_id, save_folder, name, member_token
                          FROM pixiv_master_member
                          WHERE is_deleted = 0
                          ORDER BY member_id''')
@@ -217,8 +225,8 @@ class PixivDBManager(object):
             for row in c:
                 if include_artist_token:
                     data = row[2]
-                    writer.write("# ")
-                    writer.write(data)
+                    token = row[3]
+                    writer.write(f"# name: {data},token: {token}")
                     writer.write("\r\n")
                 writer.write(str(row[0]))
                 if len(row[1]) > 0:
@@ -244,8 +252,7 @@ class PixivDBManager(object):
                             ORDER BY member_id''')
             filename = filename + '.csv'
             writer = codecs.open(filename, 'wb', encoding='utf-8')
-            writer.write(
-                'member_id,name,save_folder,created_date,last_update_date,last_image,is_deleted\r\n')
+            writer.write('member_id,name,save_folder,created_date,last_update_date,last_image,is_deleted,member_token\r\n')
             for row in c:
                 for string in row:
                     # Unicode write!!
@@ -296,13 +303,14 @@ class PixivDBManager(object):
             c = self.conn.cursor()
             c.execute('''SELECT * FROM pixiv_master_member
                          WHERE is_deleted = ? ORDER BY member_id''', (int(isDeleted), ))
-            print('%10s %25s %25s %20s %20s %10s %s' % ('member_id',
+            print('%10s %25s %25s %20s %20s %10s %s %s' % ('member_id',
                                                         'name',
                                                         'save_folder',
                                                         'created_date',
                                                         'last_update_date',
                                                         'last_image',
-                                                        'is_deleted'))
+                                                        'is_deleted',
+                                                        'member_token'))
             i = 0
             for row in c:
                 print('%10d %#25s %#25s %20s %20s %10d %5s' %
@@ -368,7 +376,7 @@ class PixivDBManager(object):
 ##########################################
 # IV. CRUD Member Table                  #
 ##########################################
-    def insertNewMember(self, member_id=0):
+    def insertNewMember(self, member_id=0, member_token=None):
         try:
             c = self.conn.cursor()
             if member_id == 0:
@@ -381,8 +389,8 @@ class PixivDBManager(object):
                     if member_id > 0:
                         break
 
-            c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0)''',
-                      (member_id, str(member_id), r'N\A'))
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_member VALUES(?, ?, ?, datetime('now'), '1-1-1', -1, 0, ?)''',
+                      (member_id, str(member_id), r'N\A', member_token))
             self.conn.commit()
         except BaseException:
             print('Error at insertNewMember():', str(sys.exc_info()))
@@ -478,13 +486,13 @@ class PixivDBManager(object):
                 print(string)
             print('\n')
 
-    def updateMemberName(self, memberId, memberName):
+    def updateMemberName(self, memberId, memberName, member_token):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_member
-                            SET name = ?
+                            SET name = ?, member_token = ?
                             WHERE member_id = ?
-                            ''', (memberName, memberId))
+                            ''', (memberName, member_token, memberId))
             self.conn.commit()
         except BaseException:
             print('Error at updateMemberName():', str(sys.exc_info()))

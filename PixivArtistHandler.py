@@ -130,9 +130,9 @@ def process_member(caller,
                 outfile.close()
 
         if config.autoAddMember:
-            db.insertNewMember(int(member_id))
+            db.insertNewMember(int(member_id), member_token=artist.artistToken)
 
-        db.updateMemberName(member_id, artist.artistName)
+        db.updateMemberName(member_id, artist.artistName, artist.artistToken)
 
         if not artist.haveImages:
             PixivHelper.print_and_log('info', f"No image found for: {member_id}")
