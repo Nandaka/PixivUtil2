@@ -59,7 +59,6 @@ def handle_members(caller, job, job_name, job_option):
         from PixivBookmarkHandler import process_member_bookmarks
         for member_id in member_ids:
             process_member_bookmarks(caller,
-                                            caller.__config__,
                                             job_option.jobconfig,
                                             member_id,
                                             start_page,

@@ -118,8 +118,7 @@ def process_member(caller,
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 import codecs
-                filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, appendExtension=False)+".json"
-                filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
+                filename = PixivHelper.make_filename(config.filenameMemberJSON, targetDir=config.rootDirectory, artistInfo=artist, appendExtension=False)+".json"
                 try:
                     # Issue #421 ensure subdir exists.
                     PixivHelper.makeSubdirs(filename)

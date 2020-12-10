@@ -40,9 +40,7 @@ def process_image(caller,
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
-    extension_filter = None
-    if config.extension_filter is not None:
-        extension_filter = config.extension_filter
+    extension_filter = config.extension_filter
 
     parse_medium_page = None
     image = None
@@ -155,7 +153,7 @@ def process_image(caller,
                             break
 
         # Issue #726
-        if extension_filter is not None and len(extension_filter) > 0:
+        if extension_filter and len(extension_filter) > 0:
             for url in image.imageUrls:
                 ext = PixivHelper.get_extension_from_url(url)
 
@@ -165,7 +163,7 @@ def process_image(caller,
 
                 if re.match(extension_filter, ext) is None:
                     download_image_flag = False
-                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – url is not in the filter: {extension_filter} => {url}')
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – url is not in the extension filter: {extension_filter} => {url}')
                     break
 
         if download_image_flag:
@@ -227,15 +225,15 @@ def process_image(caller,
 
                     filename = PixivHelper.make_filename(filename_format,
                                                          image,
+                                                         targetDir=target_dir,
                                                          tagsSeparator=config.tagsSeparator,
                                                          tagsLimit=config.tagsLimit,
                                                          fileUrl=url,
                                                          bookmark=bookmark,
                                                          searchTags=search_tags,
                                                          useTranslatedTag=config.useTranslatedTag,
-                                                         tagTranslationLocale=config.tagTranslationLocale)
-                    filename = PixivHelper.sanitize_filename(filename, target_dir)
-
+                                                         tagTranslationLocale=config.tagTranslationLocale,
+                                                         )
                     if image.imageMode == 'manga' and config.createMangaDir:
                         manga_page = __re_manga_page.findall(filename)
                         if len(manga_page) > 0:
@@ -280,6 +278,7 @@ def process_image(caller,
                     filename_info_format = config.filenameMangaInfoFormat or config.filenameMangaFormat or filename_info_format
                 info_filename = PixivHelper.make_filename(filename_info_format,
                                                           image,
+                                                          targetDir=target_dir,
                                                           tagsSeparator=config.tagsSeparator,
                                                           tagsLimit=config.tagsLimit,
                                                           fileUrl=url,
@@ -288,7 +287,6 @@ def process_image(caller,
                                                           searchTags=search_tags,
                                                           useTranslatedTag=config.useTranslatedTag,
                                                           tagTranslationLocale=config.tagTranslationLocale)
-                info_filename = PixivHelper.sanitize_filename(info_filename, target_dir)
                 # trim _pXXX
                 info_filename = re.sub(r'_p?\d+$', '', info_filename)
                 if config.writeImageInfo:
@@ -298,10 +296,10 @@ def process_image(caller,
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
                     json_filename = PixivHelper.make_filename(config.filenameSeriesJSON,
                                                               image,
+                                                              targetDir=target_dir,
                                                               fileUrl=url,
                                                               appendExtension=False
                                                               )
-                    json_filename = PixivHelper.sanitize_filename(json_filename, target_dir)
                     # trim _pXXX
                     json_filename = re.sub(r'_p?\d+$', '', json_filename)
                     image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename + ".json")

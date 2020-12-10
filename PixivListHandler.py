@@ -140,6 +140,7 @@ def process_blacklist(caller, config, imagedata, tags=[]):
             for x in image["tags"]:
                 if "R-18" in x:
                     sin = True
+                    break
             if not sin:
                 r18skip += 1
                 continue

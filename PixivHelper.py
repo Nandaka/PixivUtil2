@@ -128,7 +128,6 @@ def sanitize_filename(name, rootDir=None):
         while len(name.encode('utf-8')) > 249:
             filename, extname = os.path.splitext(name)
             name = filename[:len(filename) - 1] + extname
-        name = name.replace('\\', '/')
 
     if rootDir is not None:
         name = name[1:] if name[0] == os.sep else name
@@ -139,14 +138,15 @@ def sanitize_filename(name, rootDir=None):
     return name
 
 
-# Issue #277: always replace '/' and '\' with '_' for %artist%, %title%, %searchTags%, %tags%, and %original_artist%.
+# Issue #277: always replace '/' with '_' for %artist%, %title%, %searchTags%, %tags%, and %original_artist%.
 def replace_path_separator(s, replacement='_'):
-    return s.replace('/', replacement).replace('\\', replacement)
+    return s.replace('/', replacement) if platform.system() == "Windows" else s.replace('/', '／') 
 
 
 def make_filename(nameFormat: str,
                   imageInfo: Union[PixivImage, FanboxPost] = None,
                   artistInfo: Union[PixivArtist, FanboxArtist] = None,
+                  targetDir='',
                   tagsSeparator=' ',
                   tagsLimit=-1,
                   fileUrl='',
@@ -290,7 +290,10 @@ def make_filename(nameFormat: str,
     if appendExtension:
         nameFormat = nameFormat.strip() + '.' + imageExtension
 
-    return nameFormat.strip()
+    if targetDir:
+        return sanitize_filename(nameFormat.strip(), targetDir)
+    else:
+        return nameFormat.strip()
 
 
 def safePrint(msg, newline=True, end=None):

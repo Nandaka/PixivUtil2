@@ -59,8 +59,7 @@ def process_member_bookmarks(caller,
                    page=1,
                    end_page=0,
                    tags=None,
-                   title_prefix="",
-                   useImageIDs=False):
+                   title_prefix=""):
     # Try to get the bookmark page
     from PixivListHandler import process_blacklist
     import PixivBrowserFactory, traceback
@@ -241,13 +240,13 @@ def process_from_group(caller,
                     print("Image Url   : {0}".format(image_data.imageUrls[0]))
 
                     filename = PixivHelper.make_filename(config.filenameFormat,
+                                                         targetDir=config.rootDirectory,
                                                          imageInfo=image_data,
                                                          tagsSeparator=config.tagsSeparator,
                                                          tagsLimit=config.tagsLimit,
                                                          fileUrl=image_data.imageUrls[0],
                                                          useTranslatedTag=config.useTranslatedTag,
                                                          tagTranslationLocale=config.tagTranslationLocale)
-                    filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
                     PixivHelper.safePrint("Filename  : " + filename)
                     (result, filename) = PixivDownloadHandler.download_image(caller,
                                                                              image_data.imageUrls[0],

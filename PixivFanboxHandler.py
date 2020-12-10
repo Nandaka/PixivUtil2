@@ -95,6 +95,7 @@ def process_fanbox_post(caller, config, post, artist):
                                                             "{0}_".format(post.imageId))
                 filename = PixivHelper.make_filename(config.filenameFormatFanboxCover,
                                                      post,
+                                                     targetDir=config.rootDirectory,
                                                      artistInfo=artist,
                                                      tagsSeparator=config.tagsSeparator,
                                                      tagsLimit=config.tagsLimit,
@@ -103,7 +104,6 @@ def process_fanbox_post(caller, config, post, artist):
                                                      searchTags='',
                                                      useTranslatedTag=config.useTranslatedTag,
                                                      tagTranslationLocale=config.tagTranslationLocale)
-                filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
                 post.linkToFile[post.coverImageUrl] = filename
 
                 print("Downloading cover from {0}".format(post.coverImageUrl))
@@ -143,6 +143,7 @@ def process_fanbox_post(caller, config, post, artist):
                                                    "{0}_p{1}_".format(post.imageId, current_page))
                 filename = PixivHelper.make_filename(config.filenameFormatFanboxContent,
                                                      post,
+                                                     targetDir=config.rootDirectory,
                                                      artistInfo=artist,
                                                      tagsSeparator=config.tagsSeparator,
                                                      tagsLimit=config.tagsLimit,
@@ -151,8 +152,6 @@ def process_fanbox_post(caller, config, post, artist):
                                                      searchTags='',
                                                      useTranslatedTag=config.useTranslatedTag,
                                                      tagTranslationLocale=config.tagTranslationLocale)
-
-                filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
 
                 post.linkToFile[image_url] = filename
 
@@ -185,6 +184,7 @@ def process_fanbox_post(caller, config, post, artist):
         # Implement #447
         filename = PixivHelper.make_filename(config.filenameFormatFanboxInfo,
                                              post,
+                                             targetDir=config.rootDirectory,
                                              artistInfo=artist,
                                              tagsSeparator=config.tagsSeparator,
                                              tagsLimit=config.tagsLimit,
@@ -194,7 +194,6 @@ def process_fanbox_post(caller, config, post, artist):
                                              useTranslatedTag=config.useTranslatedTag,
                                              tagTranslationLocale=config.tagTranslationLocale)
 
-        filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
         if config.writeImageInfo:
             post.WriteInfo(filename + ".txt")
         if config.writeHtml:

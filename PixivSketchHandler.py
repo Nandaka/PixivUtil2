@@ -84,6 +84,7 @@ def download_post(caller, config, post):
     for url in post.imageUrls:
         filename = PixivHelper.make_filename(config.filenameFormatSketch,
                                             post,
+                                            targetDir=config.rootDirectory,
                                             artistInfo=post.artist,
                                             tagsSeparator=config.tagsSeparator,
                                             tagsLimit=config.tagsLimit,
@@ -92,7 +93,6 @@ def download_post(caller, config, post):
                                             searchTags='',
                                             useTranslatedTag=config.useTranslatedTag,
                                             tagTranslationLocale=config.tagTranslationLocale)
-        filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
 
         PixivHelper.print_and_log(None, f'Image URL : {url}')
         PixivHelper.print_and_log('info', f'Filename  : {filename}')
