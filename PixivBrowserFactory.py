@@ -1055,7 +1055,7 @@ class PixivBrowser(mechanize.Browser):
     
     def getArtistJSON(self, member_id):
         url = f"https://www.pixiv.net/ajax/user/{member_id}?full=1&lang={self._locale if self._locale else 'ja'}"
-        return self.getPixivPage(url, returnParsed=False, enable_cache=False)
+        return json.dumps(json.loads(self.getPixivPage(url, returnParsed=False, enable_cache=False),encoding="utf-8"), ensure_ascii=False) #to convert unicode, no clue how to convert it better
 
 
 def getBrowser(config=None, cookieJar=None):
