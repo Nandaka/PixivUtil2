@@ -2,12 +2,13 @@
 # pylint: disable=C1801, C0330
 import codecs
 import os
+import sys
 
 import demjson
 from bs4 import BeautifulSoup
 
-import PixivHelper
 import datetime_z
+import PixivHelper
 from PixivException import PixivException
 
 
@@ -266,12 +267,16 @@ class FanboxPost(object):
                 self.getEmbedData(jsPost["body"]["video"], jsPost))
 
     def getEmbedData(self, embedData, jsPost) -> str:
-        if not os.path.exists("content_provider.json"):
-            raise PixivException("Missing content_provider.json, please redownload application!",
+        # Issue #881
+        content_provider_path = os.path.abspath(os.path.dirname(sys.executable) + os.sep + "content_provider.json")
+        if not os.path.exists(content_provider_path):
+            content_provider_path = os.path.abspath("./content_provider.json")
+        if not os.path.exists(content_provider_path):
+            raise PixivException(f"Missing content_provider.json, please get it from https://github.com/Nandaka/PixivUtil2/blob/master/content_provider.json! Expected location => {content_provider_path}",
                                  errorCode=PixivException.MISSING_CONFIG,
                                  htmlPage=None)
 
-        cfg = demjson.decode_file("content_provider.json")
+        cfg = demjson.decode_file(content_provider_path)
         embed_cfg = cfg["embedConfig"]
         current_provider = embedData["serviceProvider"]
 
