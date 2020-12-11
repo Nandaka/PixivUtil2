@@ -244,6 +244,7 @@ def process_member(caller,
             db.updateLastDownloadedImage(member_id, image_id)
             log_message = f'last image_id: {image_id}'
         else:
+            db.updateLastDownloadDate(member_id)
             log_message = 'no images were found.'
 
         PixivHelper.print_and_log("info", f"Member_id: {member_id} completed: {log_message}")
