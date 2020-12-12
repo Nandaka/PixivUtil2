@@ -1,11 +1,10 @@
 #!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
+import json
 import os
 import platform
 import unittest
-
-import demjson
 
 import PixivConstant
 import PixivHelper
@@ -255,7 +254,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         reader = open('./test/Fanbox_post_with_multi_images.json', 'r', encoding="utf-8")
         p = reader.read()
         reader.close()
-        js = demjson.decode(p)
+        js = json.loads(p)
         result = FanboxPost(855025, None, js["body"])
         self.assertIsNotNone(result)
 
@@ -269,7 +268,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         reader = open('./test/Fanbox_post_with_files.json', 'r', encoding="utf-8")
         p = reader.read()
         reader.close()
-        js = demjson.decode(p)
+        js = json.loads(p)
         result = FanboxPost(685832, None, js["body"])
         self.assertIsNotNone(result)
 
@@ -360,7 +359,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
     def test_links_in_p_tags(self):
         with open('./test/test_for_links_in_p_tags.json', 'r', encoding="utf-8") as reader:
             p = reader.read()
-        js = demjson.decode(p)
+        js = json.loads(p)
         result = FanboxPost(6544246, None, js["body"])
         self.assertIsNotNone(result)
 
