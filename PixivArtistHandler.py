@@ -33,9 +33,6 @@ def process_member(caller,
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
-    if config is None:
-        config = config.loadConfig(path=caller.configfile)
-
     list_page = None
 
     msg = Fore.YELLOW + Style.BRIGHT + f'Processing Member Id: {member_id}' + Style.RESET_ALL

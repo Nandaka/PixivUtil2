@@ -12,6 +12,7 @@ import PixivImageHandler
 
 
 def process_tags(caller,
+                 config,
                  tags,
                  page=1,
                  end_page=0,
@@ -24,13 +25,9 @@ def process_tags(caller,
                  bookmark_count=None,
                  sort_order='date_d',
                  type_mode=None,
-                 notifier=None,
-                 config=None):
+                 notifier=None):
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
-
-    if config is None:
-        config = config.loadConfig(path=caller.configfile)
 
     search_page = None
     _last_search_result = None

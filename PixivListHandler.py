@@ -88,6 +88,7 @@ def process_tags_list(caller,
         tags = PixivTags.parseTagsList(filename)
         for tag in tags:
             PixivTagsHandler.process_tags(caller,
+                                          config,
                                           tag,
                                           page=page,
                                           end_page=end_page,

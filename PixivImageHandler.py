@@ -42,8 +42,6 @@ def process_image(caller,
 
     # override the config source if job_option is give for filename formats
     extension_filter = None
-    if config is None:
-        config = config.loadConfig(path=caller.configfile)
     if hasattr(config, "extensionFilter"):
         extension_filter = config.extensionFilter
 

@@ -17,12 +17,18 @@ _default_batch_filename = "./batch_job.json"
 class JobOption(object):
     config = PixivConfig.ConfigItem
 
+    def loadConfig(self, path=None):
+        # dummy method for compatibility
+        PixivHelper.print_and_log("debug", "Called from JobOption, will not reloading the config...")
+        pass
+
     def __init__(self, job, _config):
         if _config is None:
             raise Exception("Cannot get default configuration, aborting...")
 
         # set default option from config
         self.config = deepcopy(_config)
+        self.config.loadConfig = self.loadConfig
 
         if "option" in job and job["option"] is not None:
             option_data = job["option"]
@@ -145,6 +151,7 @@ def handle_tags(caller: PixivUtil2, job, job_name, job_option):
             raise Exception(f"Invalid type_mode: {job['type_mode']} in {job_name}.")
 
     PixivTagsHandler.process_tags(caller,
+                                  job_option.config,
                                   tags,
                                   page=start_page,
                                   end_page=end_page,
@@ -156,8 +163,7 @@ def handle_tags(caller: PixivUtil2, job, job_name, job_option):
                                   member_id=member_id,
                                   bookmark_count=bookmark_count,
                                   sort_order=sort_order,
-                                  type_mode=type_mode,
-                                  config=job_option.config)
+                                  type_mode=type_mode)
 
 
 def process_batch_job(caller: PixivUtil2, batch_file=None):

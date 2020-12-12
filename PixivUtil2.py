@@ -88,9 +88,12 @@ dfilename = ""
 
 
 def header():
-    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"PixivDownloader2 version {PixivConstant.PIXIVUTIL_VERSION}" + Style.RESET_ALL)
-    print(Fore.CYAN + Back.BLACK + Style.BRIGHT + PixivConstant.PIXIVUTIL_LINK + Style.RESET_ALL)
-    print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"Donate at {Fore.CYAN}{Style.BRIGHT}{PixivConstant.PIXIVUTIL_DONATE}" + Style.RESET_ALL)
+    PADDING = 60
+    print("┌" + "".ljust(PADDING - 2, "─") + "┐")
+    print("│ " + Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"PixivDownloader2 version {PixivConstant.PIXIVUTIL_VERSION}".ljust(PADDING - 3, " ") + Style.RESET_ALL + "│")
+    print("│ " + Fore.CYAN + Back.BLACK + Style.BRIGHT + PixivConstant.PIXIVUTIL_LINK.ljust(PADDING - 3, " ") + Style.RESET_ALL + "│")
+    print("│ " + Fore.YELLOW + Back.BLACK + Style.BRIGHT + f"Donate at {Fore.CYAN}{Style.BRIGHT}{PixivConstant.PIXIVUTIL_DONATE}".ljust(PADDING + 6, " ") + Style.RESET_ALL + "│")
+    print("└" + "".ljust(PADDING - 2, "─") + "┘")
 
 
 def get_start_and_end_page_from_options(options):
@@ -141,42 +144,42 @@ def get_list_file_from_options(options, default_list_file):
 
 
 def menu():
-    PADDING = 40
+    PADDING = 60
     set_console_title()
     header()
-    print('--Pixiv'.ljust(PADDING, "-"))
-    print('1. Download by member_id')
-    print('2. Download by image_id')
-    print('3. Download by tags')
-    print('4. Download from list')
-    print('5. Download from bookmarked artists (/bookmark.php?type=user)')
-    print('6. Download from bookmarked images (/bookmark.php)')
-    print('7. Download from tags list')
-    print('8. Download new illust from bookmarked members (/bookmark_new_illust.php)')
-    print('9. Download by Title/Caption')
-    print('10. Download by Tag and Member Id')
-    print('11. Download Member Bookmark (/bookmark.php?id=)')
-    print('12. Download by Group Id')
-    print('13. Download by Manga Series Id')
-    print('--FANBOX'.ljust(PADDING, "-"))
-    print('f1. Download from supporting list (FANBOX)')
-    print('f2. Download by artist/creator id (FANBOX)')
-    print('f3. Download by post id (FANBOX)')
-    print('f4. Download from following list (FANBOX)')
-    print('f5. Download from custom list (FANBOX)')
-    print('--Sketch'.ljust(PADDING, "-"))
-    print('s1. Download by creator id (Sketch)')
-    print('s2. Download by post id (Sketch)')
-    print('--Batch Download'.ljust(PADDING, "-"))
-    print('b. Batch Download from batch_job.json (experimental)')
-    print('--Others'.ljust(PADDING, "-"))
-    print('d. Manage database')
-    print('e. Export online bookmark')
-    print('m. Export online user bookmark')
-    print('i. Import list file')
-    print('r. Reload config.ini')
-    print('p. Print config.ini')
-    print('x. Exit')
+    print(Style.BRIGHT + '── Pixiv '.ljust(PADDING, "─") + Style.RESET_ALL)
+    print(' 1.  Download by member_id')
+    print(' 2.  Download by image_id')
+    print(' 3.  Download by tags')
+    print(' 4.  Download from list')
+    print(' 5.  Download from bookmarked artists (/bookmark.php?type=user)')
+    print(' 6.  Download from bookmarked images (/bookmark.php)')
+    print(' 7.  Download from tags list')
+    print(' 8.  Download new illust from bookmarked members (/bookmark_new_illust.php)')
+    print(' 9.  Download by Title/Caption')
+    print(' 10. Download by Tag and Member Id')
+    print(' 11. Download Member Bookmark (/bookmark.php?id=)')
+    print(' 12. Download by Group Id')
+    print(' 13. Download by Manga Series Id')
+    print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
+    print(' f1. Download from supporting list (FANBOX)')
+    print(' f2. Download by artist/creator id (FANBOX)')
+    print(' f3. Download by post id (FANBOX)')
+    print(' f4. Download from following list (FANBOX)')
+    print(' f5. Download from custom list (FANBOX)')
+    print(Style.BRIGHT + '── Sketch '.ljust(PADDING, "─") + Style.RESET_ALL)
+    print(' s1. Download by creator id (Sketch)')
+    print(' s2. Download by post id (Sketch)')
+    print(Style.BRIGHT + '── Batch Download '.ljust(PADDING, "─") + Style.RESET_ALL)
+    print(' b. Batch Download from batch_job.json (experimental)')
+    print(Style.BRIGHT + '── Others '.ljust(PADDING, "─") + Style.RESET_ALL)
+    print(' d. Manage database')
+    print(' e. Export online bookmark')
+    print(' m. Export online user bookmark')
+    print(' i. Import list file')
+    print(' r. Reload config.ini')
+    print(' p. Print config.ini')
+    print(' x. Exit')
 
     read_lists()
 
@@ -372,6 +375,7 @@ def menu_download_by_tags(opisvalid, args, options):
             bookmark_count = int(bookmark_count)
 
     PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  __config__,
                                   tags.strip(),
                                   page=page,
                                   end_page=end_page,
@@ -401,6 +405,7 @@ def menu_download_by_title_caption(opisvalid, args, options):
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
     PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  __config__,
                                   tags.strip(),
                                   page=page,
                                   end_page=end_page,
@@ -436,6 +441,7 @@ def menu_download_by_tag_and_member_id(opisvalid, args, options):
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
 
     PixivTagsHandler.process_tags(sys.modules[__name__],
+                                  __config__,
                                   tags.strip(),
                                   page=page,
                                   end_page=end_page,
