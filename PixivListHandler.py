@@ -136,7 +136,7 @@ def process_blacklist(caller, config, imagedata, tags=[]):
             imagedate = datetime_z.parse_datetime(image["createDate"])
             if imagedate != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
                 if imagedate < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
-                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image} – it\'s older than: {config.dateDiff} day(s).')
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image["id"]} – it\'s older than: {config.dateDiff} day(s).')
                     flag = True
                     break
 
