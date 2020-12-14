@@ -150,10 +150,11 @@ def process_blacklist(caller, config, imagedata, tags=[]):
                 r18skip += 1
                 continue
                     
-        for x in tags:
-            if x not in image["tags"]:
-                notRemoved = False
-                break
+        if tags:
+            for x in tags:
+                if x not in image["tags"]:
+                    notRemoved = False
+                    break
 
         if config.useBlacklistTags and notRemoved:
             for item in caller.__blacklistTags:
