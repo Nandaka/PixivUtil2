@@ -641,7 +641,8 @@ def menu_download_by_group_id(opisvalid, args, options):
             process_external = True
     else:
         group_id = input("Group Id: ").rstrip("\r")
-        limit = int(input("Limit: ").rstrip("\r"))
+        limit = input("Limit: ").rstrip("\r")
+        limit = int(limit) if limit else 0
         arg = input("Process External Image [y/n]: ").rstrip("\r") or 'n'
         arg = arg.lower()
         if arg == 'y':
