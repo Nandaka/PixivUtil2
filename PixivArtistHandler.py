@@ -46,7 +46,7 @@ def process_member(caller,
         PixivHelper.print_and_log('info', 'End Page: ' + str(end_page))
         if config.numberOfPage != 0:
             PixivHelper.print_and_log('info', 'Number of page setting will be ignored')
-    elif config.numberOfPage != 0:
+    elif config.numberOfPage != 0 and not useImageIDs:
         PixivHelper.print_and_log('info', f'End Page from config: {config.numberOfPage}')
         end_page= config.numberOfPage
 
@@ -55,10 +55,7 @@ def process_member(caller,
         flag = True
         updated_limit_count = 0
         image_id = -1
-        if useImageIDs:
-            caller.set_console_title(f"{title_prefix}MemberId: {member_id} Images: {page} to {end_page}")
-        else:
-            caller.set_console_title(f"{title_prefix}MemberId: {member_id} Pages: {page} to {end_page}")
+        caller.set_console_title(f"{title_prefix}MemberId: {member_id} {'Images:' if useImageIDs else 'Pages:'} {page} to {end_page}")
         # Try to get the member page
         while True:
             try:
@@ -144,7 +141,10 @@ def process_member(caller,
 
         result = PixivConstant.PIXIVUTIL_NOT_OK
         if useImageIDs:
-            artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
+            if end_page:
+                artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
+            else:
+                artist.imageList=[int(x) for x in artist.imageList if int(x) <= page]
         else:
             startpage = (page-1)*48
             finalpage = end_page*48

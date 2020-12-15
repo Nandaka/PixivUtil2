@@ -1068,7 +1068,7 @@ def get_start_and_end_date():
 def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=False):
     page_num = input('Start Page (default=1): ').rstrip("\r") or 1
     try:
-        if swap:
+        if swap and page_num != 1:
             page_num = int(get_ids_from_csv(page_num)[0])
         else:
             page_num = int(page_num)
@@ -1088,7 +1088,7 @@ def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=F
         end_page_num = input(f'End Page (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
-                if swap:
+                if swap and end_page_num != 0:
                     end_page_num = int(get_ids_from_csv(end_page_num)[0])
                 else:
                     end_page_num = int(end_page_num)
