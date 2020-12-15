@@ -140,7 +140,7 @@ def sanitize_filename(name, rootDir=None):
 
 # Issue #277: always replace '/' with '_' for %artist%, %title%, %searchTags%, %tags%, and %original_artist%.
 def replace_path_separator(s, replacement='_'):
-    return s.replace('/', replacement) if platform.system() == "Windows" else s.replace('/', '／') 
+    return s.replace('/', replacement) if platform.system() == "Windows" else s.replace('/', '／')
 
 
 def make_filename(nameFormat: str,
@@ -1066,7 +1066,7 @@ def get_start_and_end_date():
 
 
 def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=False):
-    page_num = input('Start Page (default=1): ').rstrip("\r") or 1
+    page_num = input(f'Start {"ID" if swap else "Page"} (default=1): ').rstrip("\r") or 1
     try:
         if swap and page_num != 1:
             page_num = int(get_ids_from_csv(page_num)[0])
@@ -1085,7 +1085,7 @@ def get_start_and_end_number(start_only=False, total_number_of_page=None, swap=F
         end_page_num = _config.numberOfPage
 
     if not start_only:
-        end_page_num = input(f'End Page (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
+        end_page_num = input(f'End {"ID" if swap else "Page"} (default= {end_page_num}, 0 for no limit): ').rstrip("\r") or end_page_num
         if end_page_num is not None:
             try:
                 if swap and end_page_num != 0:

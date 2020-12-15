@@ -159,7 +159,7 @@ def process_member(caller,
                 PixivHelper.print_and_log('info', f"No new images found for: {member_id}")
                 db.updateLastDownloadDate(member_id)
                 return
-            
+
 
         for t in range(0,len(artist.imageList)//100+1 if usingBlacklist else 1):
             flag = False
