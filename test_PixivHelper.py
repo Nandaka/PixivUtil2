@@ -195,7 +195,7 @@ class TestPixivHelper(unittest.TestCase):
         PixivHelper.set_config(_config)
 
         filename = PixivHelper.create_avabg_filename(artist, targetDir, _config)
-        self.assertEqual(filename[0], self.currPath + os.sep + f'{artist.artistName} ({artist.artistId})\\folder.png')
+        self.assertEqual(filename[0], self.currPath + os.sep + f'{artist.artistName} ({artist.artistId}){os.sep}folder.png')
         self.assertEqual(filename[1], '')
         self.assertTrue(artist.artistAvatar != "no_profile")
         self.assertTrue(artist.artistBackground == "no_background")
