@@ -386,7 +386,7 @@ def create_avabg_filename(artistModel, targetDir, format_src):
     # Issue #795
     if artistModel.artistAvatar.find('no_profile') == -1:
         # Download avatar using custom name, refer issue #174
-        if format_src.avatarNameFormat != "":
+        if format_src.avatarNameFormat:
             filename_avatar = make_filename(format_src.avatarNameFormat,
                                         image,
                                         targetDir=targetDir,
@@ -408,7 +408,7 @@ def create_avabg_filename(artistModel, targetDir, format_src):
             filename_avatar = sanitize_filename(tmpfilename + os.sep + 'folder.' + artistModel.artistAvatar.rsplit(".", 1)[1], targetDir)
 
     if artistModel.artistBackground is not None and artistModel.artistBackground.startswith("http"):
-        if format_src.backgroundNameFormat != "" and format_src.avatarNameFormat != format_src.backgroundNameFormat:
+        if format_src.backgroundNameFormat and format_src.avatarNameFormat != format_src.backgroundNameFormat:
             filename_bg = make_filename(format_src.backgroundNameFormat,
                                         image,
                                         targetDir=targetDir,
@@ -417,7 +417,7 @@ def create_avabg_filename(artistModel, targetDir, format_src):
                                         fileUrl=artistModel.artistBackground,
                                         appendExtension=True)
         else:
-            if format_src.avatarNameFormat != "":
+            if format_src.avatarNameFormat:
                 tmpfilename = make_filename(format_src.avatarNameFormat,
                                             image,
                                             tagsSeparator=format_src.tagsSeparator,
