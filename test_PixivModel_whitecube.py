@@ -16,6 +16,7 @@ PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 class TestPixivModel_WhiteCube(unittest.TestCase):
     currPath = os.path.abspath('.')
     PixivHelper.get_logger()
+    testParseMemberImagesByTagsLastPageOffset = 48
 
 #    @pytest.mark.xfail
 #    def testParseImage(self):
@@ -76,14 +77,14 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
     # https://www.pixiv.net/ajax/user/14095911/profile/all
     def testParseMemberImagesLastPage(self):
         p = open('./test/all-14095911.json', 'r')
-        member = PixivArtist(14095911, p.read(), False, 192, 48)
+        member = PixivArtist(14095911, p.read(), False, 144, 48)
         self.assertIsNotNone(member)
         p2 = open('./test/userdetail-14095911.json', 'r')
         info = json.loads(p2.read())
         member.ParseInfo(info, False, False)
 
         member.PrintInfo()
-        self.assertEqual(member.totalImages, 233)
+        self.assertEqual(member.totalImages, 183)
         self.assertTrue(member.isLastPage)
         self.assertEqual(member.artistId, 14095911)
         self.assertTrue(member.haveImages)
@@ -105,17 +106,18 @@ class TestPixivModel_WhiteCube(unittest.TestCase):
     # /ajax/user/14095911/illustmanga/tag?tag=R-18&offset=48&limit=48
     def testParseMemberImagesByTagsLastPage(self):
         p = open('./test/tag-R-18-14095911-lastpage.json', 'r')
-        member = PixivArtist(14095911, p.read(), False, 96, 48)
+        member = PixivArtist(14095911, p.read(), False, self.testParseMemberImagesByTagsLastPageOffset, 48)
         self.assertIsNotNone(member)
         p2 = open('./test/userdetail-14095911.json', 'r')
         info = json.loads(p2.read())
         member.ParseInfo(info, False, False)
 
         member.PrintInfo()
-        self.assertEqual(member.totalImages, 134)
+        self.assertEqual(member.totalImages, 85)
         self.assertTrue(member.isLastPage)
         self.assertEqual(member.artistId, 14095911)
         self.assertTrue(member.haveImages)
+        print(f"Last Image = {member.imageList[-1]}")
 
     def testParseMemberBookmarksByTags(self):
         p = open('./test/bookmarks-1039353.json', 'r')

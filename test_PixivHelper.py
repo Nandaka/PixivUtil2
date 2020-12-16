@@ -177,6 +177,29 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], self.currPath + os.sep + u'folder.png')
         self.assertEqual(filename[1], self.currPath + os.sep + u'bg_folder.jpg')
 
+    def testcreateAvatarFilenameFormatNoSubfolderNoRootDir883(self):
+        p = open('./test/all-4991959.json', 'r')
+        artist = PixivArtist(4991959, p.read(), False, 192, 48)
+        self.assertIsNotNone(artist)
+        p2 = open('./test/userdetail-4991959.json', 'r')
+        info = json.loads(p2.read())
+        artist.ParseInfo(info, False, False)
+
+        targetDir = ''
+        # change the config value
+        _config = PixivConfig.PixivConfig()
+        _config.avatarNameFormat = ''
+        _config.filenameFormat = "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%"
+        _config.tagsSeparator = ' '
+        _config.tagsLimit = 0
+        PixivHelper.set_config(_config)
+
+        filename = PixivHelper.create_avabg_filename(artist, targetDir, _config)
+        self.assertEqual(filename[0], self.currPath + os.sep + f'{artist.artistName} ({artist.artistId})\\folder.png')
+        self.assertEqual(filename[1], '')
+        self.assertTrue(artist.artistAvatar != "no_profile")
+        self.assertTrue(artist.artistBackground == "no_background")
+
     def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
         p = open('./test/all-14095911.json', 'r')
         artist = PixivArtist(14095911, p.read(), False, 192, 48)
