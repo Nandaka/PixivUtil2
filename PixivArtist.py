@@ -119,7 +119,7 @@ class PixivArtist:
         root = page["user"][key]
 
         self.artistId = root["userId"]
-        self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
+        self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")
         self.artistName = root["name"]
 
         if root["background"] is not None:
@@ -141,9 +141,9 @@ class PixivArtist:
             self.artistId = root["userId"]
             self.artistName = root["name"]
             if "imageBig" in root and root["imageBig"] is not None:
-                self.artistAvatar = payload["body"]["imageBig"].replace("_50", "").replace("_170", "")
+                self.artistAvatar = payload["body"]["imageBig"].replace("_50.", ".").replace("_170.", ".")
             elif "image" in root and root["image"] is not None:
-                self.artistAvatar = root["image"].replace("_50", "").replace("_170", "")
+                self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")
 
             # https://www.pixiv.net/ajax/user/1893126
             if "background" in root and root["background"] is not None:
