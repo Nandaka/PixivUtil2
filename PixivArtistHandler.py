@@ -117,17 +117,19 @@ def process_member(caller,
 
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
-                import codecs
                 filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, targetDir=config.rootDirectory ,appendExtension=False)+".json"
-                try:
-                    # Issue #421 ensure subdir exists.
-                    PixivHelper.makeSubdirs(filename)
-                    outfile = codecs.open(filename, 'w', encoding='utf-8')
-                except IOError:
-                    outfile = codecs.open(f"Artist {artist.member_id} ({artist.artistName}).json", 'w', encoding='utf-8')
-                    PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, f"Artist {artist.member_id} ({artist.artistName}).json")
-                outfile.write(PixivBrowserFactory.getExistingBrowser().getArtistJSON(artist.artistId))
-                outfile.close()
+                from os.path import isfile
+                if not isfile(filename):
+                    import codecs
+                    try:
+                        # Issue #421 ensure subdir exists.
+                        PixivHelper.makeSubdirs(filename)
+                        outfile = codecs.open(filename, 'w', encoding='utf-8')
+                    except IOError:
+                        outfile = codecs.open(f"Artist {artist.member_id} ({artist.artistName}).json", 'w', encoding='utf-8')
+                        PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, f"Artist {artist.member_id} ({artist.artistName}).json")
+                    outfile.write(PixivBrowserFactory.getExistingBrowser().getArtistJSON(artist.artistId))
+                    outfile.close()
 
         if config.autoAddMember:
             db.insertNewMember(int(member_id), member_token=artist.artistToken)
