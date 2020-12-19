@@ -440,7 +440,6 @@ def create_avabg_filename(artistModel, targetDir, format_src):
                                             appendExtension=False)
                 filename_bg = sanitize_filename(tmpfilename + os.sep + 'bg_folder.' + artistModel.artistBackground.rsplit(".", 1)[1], targetDir)
 
-    print(filename_avatar, filename_bg)
     return (filename_avatar, filename_bg)
 
 
