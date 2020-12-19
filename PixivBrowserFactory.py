@@ -735,7 +735,7 @@ class PixivBrowser(mechanize.Browser):
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
         return (artist, response)
-    
+
     def getMemberImages(self, member_id, image_ids):
         url = f"https://www.pixiv.net/ajax/user/{member_id}/profile/illusts?"
         for x in image_ids:
@@ -1060,7 +1060,7 @@ class PixivBrowser(mechanize.Browser):
         #     manga_series.images.append(image)
 
         return manga_series
-    
+
     def getArtistJSON(self, member_id):
         url = f"https://www.pixiv.net/ajax/user/{member_id}?full=1&lang={self._locale if self._locale else 'ja'}"
         return json.dumps(json.loads(self.getPixivPage(url, returnParsed=False, enable_cache=False)), ensure_ascii=False) #to convert unicode, no clue how to convert it better
