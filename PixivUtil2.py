@@ -431,15 +431,17 @@ def menu_download_by_tag_and_member_id(opisvalid, args, options):
         tags = " ".join(args[1:])
         PixivHelper.safePrint(f"Looking tags: {tags} from memberId: {member_id}")
     else:
-        member_id = input('Member Id: ').rstrip("\r")
+        member_id = input('Member Ids: ').rstrip("\r")
+        member_id = PixivHelper.get_ids_from_csv(member_id)
         tags = input('Tag      : ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
 
-    PixivTagsHandler.process_tags(sys.modules[__name__],
-                                  tags.strip(),
-                                  page=page,
-                                  end_page=end_page,
-                                  member_id=int(member_id))
+    for ID in member_id:
+        PixivTagsHandler.process_tags(sys.modules[__name__],
+                                    tags.strip(),
+                                    page=page,
+                                    end_page=end_page,
+                                    member_id=ID)
 
 
 def menu_download_from_list(opisvalid, args, options):
