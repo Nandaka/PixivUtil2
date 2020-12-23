@@ -200,12 +200,7 @@ def menu_download_by_member_id(opisvalid, args, options,useIDs=False):
 
         (page, end_page) = get_start_and_end_page_from_options(options)
 
-        for member_id in args:
-            if member_id.isdigit():
-                member_ids.append(int(member_id))
-            else:
-                print(f"Possible invalid member id = {member_id}")
-
+        member_ids = PixivHelper.get_ids_from_csv(args)
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         member_ids = PixivHelper.get_ids_from_csv(member_ids)
@@ -298,6 +293,7 @@ def menu_download_by_member_bookmark(opisvalid, args, options):
 def menu_download_by_image_id(opisvalid, args, options):
     __log__.info('Image id mode (2).')
     if opisvalid and len(args) > 0:
+        args = PixivHelper.get_ids_from_csv(args)
         for image_id in args:
             try:
                 test_id = int(image_id)

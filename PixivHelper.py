@@ -563,6 +563,8 @@ def have_strings(page, strings):
 
 def get_ids_from_csv(ids_str, is_string=False):
     ids = []
+    if isinstance(ids_str, list):
+        ids_str = " ".join(ids_str)
     if is_string:
         ids = re.findall(r"(?:@|^|https:\/\/(?!www|sketch\.)|\s|,)(?!https:)(\d+|\S[\S]*\S)", ids_str)
         if not ids:
