@@ -767,8 +767,8 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
         post_ids = args
     else:
         post_ids = input("Post ids = ").rstrip("\r")
+        post_ids = PixivHelper.get_ids_from_csv(post_ids)
 
-    post_ids = PixivHelper.get_ids_from_csv(post_ids)
     for post_id in post_ids:
         try:
             post = __br__.fanboxGetPostById(post_id)
