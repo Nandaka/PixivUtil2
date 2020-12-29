@@ -909,9 +909,9 @@ class PixivBrowser(mechanize.Browser):
                                   tzInfo=_tzInfo)
 
             # Issue #827, less efficient call, but it can avoid oAuth issue
-            # pixivArtist = PixivArtist(artist.artistId)
-            # self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
-            (pixivArtist, _) = self.getMemberPage(artist.artistId)
+            pixivArtist = PixivArtist(artist.artistId)
+            self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+            # (pixivArtist, _) = self.getMemberPage(artist.artistId)
 
             artist.artistName = pixivArtist.artistName
             artist.artistToken = pixivArtist.artistToken
