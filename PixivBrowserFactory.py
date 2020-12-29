@@ -870,7 +870,7 @@ class PixivBrowser(mechanize.Browser):
         else:
             raise ValueError(f"Invalid via argument {via}")
 
-        def fanboxGetArtistById(self, artist_id, for_suspended=False):
+    def fanboxGetArtistById(self, artist_id, for_suspended=False):
         self.fanbox_is_logged_in()
         if re.match(r"^\d+$", artist_id):
             id_type = "userId"
