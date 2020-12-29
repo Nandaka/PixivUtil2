@@ -870,7 +870,7 @@ class PixivBrowser(mechanize.Browser):
         else:
             raise ValueError(f"Invalid via argument {via}")
 
-    def fanboxGetArtistById(self, artist_id):
+    def fanboxGetArtistById(self, artist_id, for_suspended=False):
         self.fanbox_is_logged_in()
         if re.match(r"^\d+$", artist_id):
             id_type = "userId"
@@ -908,13 +908,14 @@ class PixivBrowser(mechanize.Browser):
                                   js_body["creatorId"],
                                   tzInfo=_tzInfo)
 
-            # Issue #827, less efficient call, but it can avoid oAuth issue
-            # pixivArtist = PixivArtist(artist.artistId)
-            # self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
-            (pixivArtist, _) = self.getMemberPage(artist.artistId)
+            if not for_suspended:
+                pixivArtist = PixivArtist(artist.artistId)
+                self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+                # Issue #827, less efficient call, but it can avoid oAuth issue
+                # (pixivArtist, _) = self.getMemberPage(artist.artistId)
 
-            artist.artistName = pixivArtist.artistName
-            artist.artistToken = pixivArtist.artistToken
+                artist.artistName = pixivArtist.artistName
+                artist.artistToken = pixivArtist.artistToken
             return artist
         else:
             raise PixivException("Id does not exist", errorCode=PixivException.USER_ID_NOT_EXISTS)

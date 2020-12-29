@@ -18,8 +18,17 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
     try:
         artist = br.fanboxGetArtistById(artist_id)
     except PixivException as pex:
-        PixivHelper.print_and_log("error", "Error gettting FANBOX artist by id: {0} ==> {1}".format(artist_id, pex.message))
-        return
+        PixivHelper.print_and_log("error", "Error getting FANBOX artist by id: {0} ==> {1}".format(artist_id, pex.message))
+        if pex.errorCode != PixivException.USER_ID_SUSPENDED:
+            return
+        result = caller.__dbManager__.selectMemberByMemberId(artist.artistId)
+        if not result:
+            return
+        artist = br.fanboxGetArtistById(artist_id, for_suspended=True)
+        artist.artistName = result[1]
+        artist.artistToken = result[7]
+        PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
+
 
     current_page = 1
     next_url = None
