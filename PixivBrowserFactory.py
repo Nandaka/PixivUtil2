@@ -908,11 +908,10 @@ class PixivBrowser(mechanize.Browser):
                                   js_body["creatorId"],
                                   tzInfo=_tzInfo)
 
-            # Issue #827, less efficient call, but it can avoid oAuth issue
-            pixivArtist = PixivArtist(artist.artistId)
-
             if not for_suspended:
+                pixivArtist = PixivArtist(artist.artistId)
                 self.getMemberInfoWhitecube(artist.artistId, pixivArtist)
+                # Issue #827, less efficient call, but it can avoid oAuth issue
                 # (pixivArtist, _) = self.getMemberPage(artist.artistId)
 
                 artist.artistName = pixivArtist.artistName
