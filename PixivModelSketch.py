@@ -121,6 +121,11 @@ class SketchPost(object):
             self.imageTags.append(tag)
             self.tags.append(PixivTagData(tag, None))
 
+        # add R-18 tag if is_r18 = True
+        if "is_r18" in page and page["is_r18"]:
+            self.imageTags.append('R-18')
+            self.tags.append(PixivTagData('R-18', None))
+
         for media in page["media"]:
             self.imageMode = media["type"]
             self.imageUrls.append(media["photo"]["original"]["url"])

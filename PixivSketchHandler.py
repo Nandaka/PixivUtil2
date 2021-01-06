@@ -56,6 +56,8 @@ def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0):
             caller.set_console_title(f"{title_prefix} - Post {current_post} of {len(post_to_process)}")
             PixivHelper.print_and_log(None, f'Post #: {current_post}')
             PixivHelper.print_and_log('info', f'Post ID   : {item.imageId}')
+            tags_str = ', '.join(item.imageTags)
+            PixivHelper.print_and_log('info', f'Tags   : {tags_str}')
             download_post(caller, config, item)
             current_post = current_post + 1
     except PixivException as pex:
