@@ -37,9 +37,10 @@ def process_tags(caller,
     try:
         search_tags = PixivHelper.decode_tags(tags)
 
+        root_dir = config.rootDirectory
         if use_tags_as_dir:
             PixivHelper.print_and_log(None, "Save to each directory using query tags.")
-            config.rootDirectory += os.sep + PixivHelper.sanitize_filename(search_tags)
+            root_dir = config.rootDirectory + os.sep + PixivHelper.sanitize_filename(search_tags)
 
         tags = PixivHelper.encode_tags(tags)
 
@@ -118,7 +119,7 @@ def process_tags(caller,
                                                                          config,
                                                                          None,
                                                                          item.imageId,
-                                                                         user_dir=config.rootDirectory,
+                                                                         user_dir=root_dir,
                                                                          search_tags=search_tags,
                                                                          title_prefix=title_prefix,
                                                                          bookmark_count=item.bookmarkCount,
