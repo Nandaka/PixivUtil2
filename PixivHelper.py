@@ -855,11 +855,13 @@ def write_url_in_description(image, blacklistRegex, filenamePattern):
 def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
     print_and_log('info', 'processing ugoira to animated gif...')
     # Issue #802 use ffmpeg to convert to gif
+    if len(_config.gifParam) == 0:
+        _config.gifParam = "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""
     ugoira2webm(ugoira_file,
                 exportname,
                 ffmpeg=_config.ffmpeg,
                 codec=None,
-                param="-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\"",
+                param=_config.gifParam,
                 extension="gif",
                 image=image)
 
@@ -867,11 +869,13 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
 def ugoira2apng(ugoira_file, exportname, image=None):
     print_and_log('info', 'processing ugoira to apng...')
     # fix #796 convert apng using ffmpeg
+    if len(_config.apngParam) == 0:
+        _config.apngParam = "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"
     ugoira2webm(ugoira_file,
                 exportname,
                 ffmpeg=_config.ffmpeg,
                 codec="apng",
-                param="-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0",
+                param=_config.apngParam,
                 extension="apng",
                 image=image)
 
