@@ -1,4 +1,4 @@
-20201212-beta3
+20210108-beta4
 - Fix Issue #878: update search by tag parser to handle missing 'isAdContainer'.
 - Fix Issue #877: update fanbox parser for missing embedId.
 - Fix Issue #881: change content_provider.json path resolution.
@@ -6,6 +6,12 @@
 - Fix Issue #880: update batch handler based on changes from byjtje.
 - Change from re.match() to re.search() for extension filter for batch job.
 - Fix Issue #882: trying to load from None object.
+- Implement #891: add new filename format '%bookmarks_group%', refer to https://dic.pixiv.net/a/users%E5%85%A5%E3%82%8A for grouping rule.
+- Implement #885: allow to configure the parameter to convert gif and apng.
+- Fix Issue #893: fix useTagsAsDir logic.
+- Fix Issue #892: PixivSketch now load all images, including R-18 (follow your settings in the website).
+- Merge Fix #873 and #886 (#888) by amatuerCoder.
+- Fix Issue #883: update parser for avatar image.
 
 20201130
 - Merge Added series JSON and an option to download it, expended %manga_series% to work with all modes, added an option for untouched JSON (#855) by byjtje. 
