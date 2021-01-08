@@ -178,16 +178,17 @@ def process_image(caller,
             PixivHelper.print_and_log(None, f"Date : {image.worksDateDateTime}")
             PixivHelper.print_and_log(None, f"Mode : {image.imageMode}")
 
-            # get bookmark count
-            if ("%bookmark_count%" in config.filenameFormat or "%image_response_count%" in config.filenameFormat) and image.bookmark_count == -1:
-                PixivHelper.print_and_log(None, "Parsing bookmark page", end=' ')
-                bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
-                parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
-                image.ParseBookmarkDetails(parse_bookmark_page)
-                parse_bookmark_page.decompose()
-                del parse_bookmark_page
-                PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
-                caller.__br__.back()
+            # # get bookmark count
+            # if ("%bookmark_count%" in config.filenameFormat or "%image_response_count%" in config.filenameFormat) and image.bookmark_count == -1:
+            #     PixivHelper.print_and_log(None, "Parsing bookmark page", end=' ')
+            #     bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
+            #     parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
+            #     image.ParseBookmarkDetails(parse_bookmark_page)
+            #     parse_bookmark_page.decompose()
+            #     del parse_bookmark_page
+            #     PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
+            #     caller.__br__.back()
+            PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
 
             if config.useSuppressTags:
                 for item in caller.__suppressTags:

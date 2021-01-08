@@ -273,8 +273,11 @@ def make_filename(nameFormat: str,
 
     if imageInfo.bookmark_count > 0:
         nameFormat = nameFormat.replace('%bookmark_count%', str(imageInfo.bookmark_count))
+        if '%bookmarks_group%' in nameFormat:
+            nameFormat = nameFormat.replace('%bookmarks_group%', calculate_group(imageInfo.bookmark_count))
     else:
         nameFormat = nameFormat.replace('%bookmark_count%', '')
+        nameFormat = nameFormat.replace('%bookmarks_group%', '')
 
     if imageInfo.image_response_count > 0:
         nameFormat = nameFormat.replace('%image_response_count%', str(imageInfo.image_response_count))
@@ -289,6 +292,24 @@ def make_filename(nameFormat: str,
         nameFormat = nameFormat.strip() + '.' + imageExtension
 
     return nameFormat.strip()
+
+
+def calculate_group(count):
+    # follow rules from https://dic.pixiv.net/a/users%E5%85%A5%E3%82%8A
+    if count >= 100 and count < 250:
+        return '100'
+    elif count >= 250 and count < 500:
+        return '250'
+    elif count >= 500 and count < 1000:
+        return '500'
+    elif count >= 1000 and count < 5000:
+        return '1000'
+    elif count >= 5000 and count < 10000:
+        return '5000'
+    elif count >= 10000:
+        return '10000'
+    else:
+        return ''
 
 
 def safePrint(msg, newline=True, end=None):
