@@ -157,7 +157,7 @@ class PixivImage (object):
         key = list(page["illust"].keys())[0]
         assert(str(key) == str(self.imageId))
         root = page["illust"][key]
-        #save the JSON if writeRawJSON is enabled
+        # save the JSON if writeRawJSON is enabled
         if writeRawJSON:
             self.rawJSON = root
 
@@ -405,7 +405,7 @@ class PixivImage (object):
             info = codecs.open(str(self.imageId) + ".json", 'w', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
         if self.rawJSON:
-            jsonInfo=self.rawJSON
+            jsonInfo = self.rawJSON
             if JSONfilter:
                 for x in JSONfilter.split(","):
                     del jsonInfo[x.strip()]
@@ -446,14 +446,14 @@ class PixivImage (object):
         except IOError:
             outfile = codecs.open("Series " + str(seriesId) + ".json", 'w', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(seriesId) + ".json")
-        receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId,1,returnJSON=True))
+        receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId, 1, returnJSON=True))
         jsondata = receivedJSON["body"]["illustSeries"][0]
         jsondata.update(receivedJSON["body"]["page"])
-        pages = jsondata["total"]//12+2
-        for x in range(2,pages):
-            receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId,x,returnJSON=True))
+        pages = jsondata["total"] // 12 + 2
+        for x in range(2, pages):
+            receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId, x, returnJSON=True))
             jsondata["series"].extend(receivedJSON["body"]["page"]["series"])
-        for x in ["recentUpdatedWorkIds","otherSeriesId","seriesId","isSetCover","firstIllustId","coverImageSl","url"]:
+        for x in ["recentUpdatedWorkIds", "otherSeriesId", "seriesId", "isSetCover", "firstIllustId", "coverImageSl", "url"]:
             del jsondata[x]
         outfile.write(json.dumps(jsondata, ensure_ascii=False))
         outfile.close()
