@@ -287,6 +287,10 @@ def make_filename(nameFormat: str,
     # clean up double space
     while nameFormat.find('  ') > -1:
         nameFormat = nameFormat.replace('  ', ' ')
+        
+    # clean up double slash
+    while nameFormat.find('//') > -1 or nameFormat.find('\\\\') > -1:
+        nameFormat = nameFormat.replace('//', '/').replace('\\\\', '\\')
 
     if appendExtension:
         nameFormat = nameFormat.strip() + '.' + imageExtension
