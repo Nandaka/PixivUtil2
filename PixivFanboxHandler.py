@@ -18,24 +18,32 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
     try:
         artist = br.fanboxGetArtistById(artist_id)
     except PixivException as pex:
-        PixivHelper.print_and_log("error", "Error getting FANBOX artist by id: {0} ==> {1}".format(artist_id, pex.message))
+        PixivHelper.print_and_log("error", f"Error getting FANBOX artist by id: {artist_id} ==> {pex.message}")
         if pex.errorCode != PixivException.USER_ID_SUSPENDED:
             return
-        result = caller.__dbManager__.selectMemberByMemberId(artist.artistId)
-        if not result:
-            return
         artist = br.fanboxGetArtistById(artist_id, for_suspended=True)
-        artist.artistName = result[1]
-        artist.artistToken = result[7]
-        PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
-
+        result = caller.__dbManager__.selectMemberByMemberId(artist.artistId)
+        if result:
+            artist.artistName = result[1]
+            artist.artistToken = result[7]
+            PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
+        else:
+            formats = f"{config.filenameFormatFanboxCover}{config.filenameFormatFanboxContent}{config.filenameFormatFanboxInfo}"
+            name_flag = "%artist%" in formats
+            token_flag = "%member_token%" in formats
+            if name_flag or token_flag:
+                PixivHelper.print_and_log("warn", f"Artist name or token found in FANBOX filename formats, but not in db.")
+            if name_flag:
+                artist.artistName = input(f"Please input %artist% for {artist_id}: ").strip()
+            if token_flag:
+                artist.artistToken = input(f"Please input %member_token% for {artist_id}: ").strip()
 
     current_page = 1
     next_url = None
     image_count = 1
     while True:
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
-        caller.set_console_title(f"{title_prefix} FANBOX Artist {artist}, page {current_page}")
+        caller.set_console_title(f"{title_prefix} {artist}, page {current_page}")
         try:
             posts = br.fanboxGetPostsFromArtist(artist, next_url)
         except PixivException as pex:
@@ -64,7 +72,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
             break
         current_page += 1
-        if end_page > 0 and current_page > end_page:
+        if 0 < end_page < current_page:
             PixivHelper.print_and_log("info", "Reaching page limit for {0}, limit {1}".format(artist, end_page))
             break
         next_url = artist.nextUrl
