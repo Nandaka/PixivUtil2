@@ -757,6 +757,13 @@ def menu_fanbox_download_from_list(op_is_valid, via, args, options):
                                                            artist_id,
                                                            end_page,
                                                            title_prefix=f"{index} of {len(ids)}")
+        except KeyboardInterrupt:
+            choice = input("Keyboard Interrupt detected, continue to next artist (Y/N)").rstrip("\r")
+            if choice.upper() == 'N':
+                PixivHelper.print_and_log("info", f"Artist id: {artist_id}, processing aborted")
+                break
+            else:
+                continue
         except PixivException as pex:
             PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist_id} ==> {pex.message}")
 
@@ -800,11 +807,21 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
 
     for index, member_id in enumerate(member_ids, start=1):
-        PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
-                                                       __config__,
-                                                       member_id,
-                                                       end_page,
-                                                       title_prefix=f"{index} of {len(member_ids)}")
+        try:
+            PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
+                                                           __config__,
+                                                           member_id,
+                                                           end_page,
+                                                           title_prefix=f"{index} of {len(member_ids)}")
+        except KeyboardInterrupt:
+            choice = input("Keyboard Interrupt detected, continue to next artist (Y/N)").rstrip("\r")
+            if choice.upper() == 'N':
+                PixivHelper.print_and_log("info", f"Artist id: {member_id}, processing aborted")
+                break
+            else:
+                continue
+        except PixivException as pex:
+            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist: {member_id} ==> {pex.message}")
 
 
 def menu_sketch_download_by_artist_id(opisvalid, args, options):

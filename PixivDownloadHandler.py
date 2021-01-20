@@ -206,10 +206,10 @@ def download_image(caller,
                 # write to downloaded lists
                 if caller.start_iv or config.createDownloadLists:
                     dfile = codecs.open(caller.dfilename, 'a+', encoding='utf-8')
-                    dfile.write(filename + "\n")
+                    dfile.write(filename_save + "\n")
                     dfile.close()
 
-                return (PixivConstant.PIXIVUTIL_OK, filename)
+                return (PixivConstant.PIXIVUTIL_OK, filename_save)
 
             except urllib.error.HTTPError as httpError:
                 PixivHelper.print_and_log('error', f'[download_image()] HTTP Error: {httpError} at {url}')
