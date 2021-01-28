@@ -860,7 +860,7 @@ http://www.pixiv.net/member_illust.php?id=123456
    A 'div' token with its 'class' set to 'non-article text' and all paragraphs
    of text put in 'p' tokens as its children tokens.
 ```
-- If there is a 'div' token with 'root' in its 'class' in the template, 'article' or 
+- If there is a 'div' token with 'main' in its 'class' in the template, 'article' or 
   'non-article' would be appended to its 'class' depending on the type of the post.
 
 # Credits/Contributor
