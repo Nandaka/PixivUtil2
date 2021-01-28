@@ -672,6 +672,9 @@ Please refer run with `--help` for latest information.
 - filenameFormatSketch
 
   Similar to filename format, but for Pixiv Sketch.
+- customBadChars
+
+  Custom bad chars for filenames. If encountered, chars in filename would be replaced with "_".
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
