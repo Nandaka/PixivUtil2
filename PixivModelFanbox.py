@@ -295,7 +295,7 @@ class FanboxPost(object):
                         continue
                     originalUrl = jsPost["body"]["imageMap"][imageId]["originalUrl"]
                     thumbnailUrl = jsPost["body"]["imageMap"][imageId]["thumbnailUrl"]
-                    self.body_text = f"{self.body_text}<br /><a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
+                    self.body_text += f"<a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
                     self.try_add(originalUrl, self.images)
                     self.try_add(originalUrl, self.embeddedFiles)
                 elif block["type"] == "file":
@@ -304,13 +304,13 @@ class FanboxPost(object):
                         continue
                     fileUrl = jsPost["body"]["fileMap"][fileId]["url"]
                     fileName = jsPost["body"]["fileMap"][fileId]["name"]
-                    self.body_text = f"{self.body_text}<br /><a href='{fileUrl}'>{fileName}</a>"
+                    self.body_text += f"<a href='{fileUrl}'>{fileName}</a>"
                     self.try_add(fileUrl, self.images)
                     self.try_add(fileUrl, self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     if embedId in jsPost["body"]["embedMap"]:
-                        self.body_text += self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost)
+                        self.body_text += "<p>" + self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost) + "</p>"
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
 
