@@ -672,6 +672,9 @@ Please refer run with `--help` for latest information.
 - filenameFormatSketch
 
   Similar to filename format, but for Pixiv Sketch.
+- customBadChars
+
+  Chars in filenames existing in this value would be replaced with "_".
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
@@ -833,7 +836,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - Currently available syntaxes are:
 ```
 -> %coverImage%
-   A 'div' token with its 'class' set to 'cover', and a child 'img' token with 
+   A 'div' tag with its 'class' set to 'cover', and a child 'img' tag with 
    the url to the cover image as its 'src' attribute.
 -> %coverImageUrl%
    Simply the url to the cover image in clear text.
@@ -845,22 +848,22 @@ http://www.pixiv.net/member_illust.php?id=123456
    Published date of the post in clear text.
 -> %body_text(article)%
    This works for article type posts only.
-   A 'div' token with its 'class' set to 'article', and the post's content,
+   A 'div' tag with its 'class' set to 'article', and the post's content,
    which is already formatted HTML if the post is article, as its inner text.
 -> %images(non-article)%
    This works for none-article type posts only.
-   A 'div' token with its 'class' set to 'non-article images', and 'a' tokens
+   A 'div' tag with its 'class' set to 'non-article images', and 'a' tags
    of all files in the post as its children tokens.
-   For each 'a' token, its 'href' would be url to the file, and the inner text
-   would be an 'img' token with its 'src' set to the url to the file if the
+   For each 'a' tag, its 'href' would be url to the file, and the inner text
+   would be an 'img' tag with its 'src' set to the url to the file if the
    file's extension is 'jpg', 'jpeg', 'png' or 'bmp'. Otherwise the inner text
    would simply be the url to the file.
 -> %text(non-article)%
    This works for none-article type posts only.
-   A 'div' token with its 'class' set to 'non-article text' and all paragraphs
-   of text put in 'p' tokens as its children tokens.
+   A 'div' tag with its 'class' set to 'non-article text' and all paragraphs
+   of text put in 'p' tags as its children tokens.
 ```
-- If there is a 'div' token with 'root' in its 'class' in the template, 'article' or 
+- If there is a 'div' tag with 'main' in its 'class' in the template, 'article' or 
   'non-article' would be appended to its 'class' depending on the type of the post.
 
 # Credits/Contributor
