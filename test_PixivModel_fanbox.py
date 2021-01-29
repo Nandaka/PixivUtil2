@@ -114,7 +114,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNone(result[0].coverImageUrl)
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 15)
-        self.assertEqual(len(result[0].body_text), 3121)
+        self.assertEqual(len(result[0].body_text), 3038)
 
         # result.posts[0].WriteInfo("./210980.txt")
 
