@@ -6,7 +6,7 @@ import unittest
 from bs4 import BeautifulSoup
 
 import PixivConstant
-# import PixivHelper
+import PixivHelper
 from PixivArtist import PixivArtist
 from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from PixivBrowserFactory import PixivBrowser
