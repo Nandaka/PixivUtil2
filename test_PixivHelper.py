@@ -144,7 +144,7 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title% %tags%'
-        expected = 'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２ arachne monster girl モン娘のいる日常シリーズ non-human monster girl R-18 tsundere spider woman love-making.jpg'
+        expected = 'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２ アラクネ モンスター娘 モン娘のいる日常シリーズ 人外 魔物娘 R-18 ツンデレ 蜘蛛女 愛のあるセックス.jpg'
 
         result = PixivHelper.make_filename(nameFormat,
                                            imageInfo,
