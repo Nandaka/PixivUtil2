@@ -93,6 +93,10 @@ def sanitize_filename(name, rootDir=None):
 
     name = __badchars__.sub("_", name)
 
+    if _config:
+        if _config.customBadChars:
+            name = "".join([c if c not in _config.customBadChars else "_" for c in name])
+
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
 
