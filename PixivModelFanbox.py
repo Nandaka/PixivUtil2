@@ -304,7 +304,7 @@ class FanboxPost(object):
                         continue
                     fileUrl = jsPost["body"]["fileMap"][fileId]["url"]
                     fileName = jsPost["body"]["fileMap"][fileId]["name"]
-                    self.body_text += f"<a href='{fileUrl}'>{fileName}</a>"
+                    self.body_text += f"<p><a href='{fileUrl}'>{fileName}</a></p>"
                     self.try_add(fileUrl, self.images)
                     self.try_add(fileUrl, self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
