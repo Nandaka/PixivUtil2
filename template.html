@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>%artistName% - %imageTitle%</title>
-<meta charset="utf-8">
-<style type="text/css">
-  body{text-align:center;} div{overflow:auto; margin:auto; text-align:center;} h1{text-align:left;} h5{text-align:left;} p{text-align:left; padding-left:5%; padding-right:5%;} img{max-width:100%;} a{margin:auto;} .root{display:inline-block; padding:10px;} .non-article.root{position:fixed; height:85%; top:0px; bottom:15%; left:0px; right:0px;} .non-article.text{position:fixed; height:15%; bottom:0px; left:0px; right:0px;}
-</style>
+    <title>%artistName% - %imageTitle%</title>
+    <meta charset="utf-8">
+    <style type="text/css">
+        *{margin:0px; padding:0px; max-width:100%;} body{text-align:center;} div{overflow:auto;} h1, h2, h5, p, span{padding-top:0.5em; padding-bottom:0.5em; text-align:left;} p{word-break:break-word;} div, h1, h2, h5, p{padding-left:2%; padding-right:2%;} .non-article.main, .non-article.images{position:fixed; max-height:100%; max-width:100%; padding:0px;} .non-article.main{top:0px; left:0px; height:100%; width:20%; right:80%;} .non-article.images{top:0px; left:20%; height:100%; width:80%; right:0px;} @media only screen and (max-aspect-ratio:0.8){.non-article.main{height:25%; width:100%; right:0px;} .non-article.images{top:25%; left:0px; height:75%; width:100%;}}
+    </style>
 </head>
 <body>
 <div class="root">
-%coverImage%
-<div class="title">
-<h1>%imageTitle%</h1>
-<h5>%worksDate%</h5>
-</div>
-%body_text(article)%
-%images(non-article)%
-%text(non-article)%
+    <div class="main">
+        %coverImage%
+        <div class="title">
+            <h1>%imageTitle%</h1>
+            <h5>%worksDate%</h5>
+        </div>
+        %body_text(article)%
+        %text(non-article)%
+    </div>
+    %images(non-article)%
 </div>
 </body>
 </html>
