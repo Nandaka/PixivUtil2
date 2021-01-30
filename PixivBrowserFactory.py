@@ -982,6 +982,7 @@ class PixivBrowser(mechanize.Browser):
         except urllib.error.HTTPError as ex:
             if ex.code in [404]:
                 raise PixivException("Fanbox post not found!", PixivException.OTHER_ERROR)
+            raise
         p_response = p_res.read()
         PixivHelper.get_logger().debug(p_response.decode('utf8'))
         p_res.close()
