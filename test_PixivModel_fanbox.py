@@ -139,7 +139,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result[4].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
         self.assertEqual(result[4].type, "video")
         self.assertEqual(len(result[4].images), 0)
-        self.assertEqual(len(result[4].body_text), 99)
+        self.assertEqual(len(result[4].body_text), 109)
+        print(result[4].body_text)
 
         # result.posts[0].WriteInfo("./210980.txt")
 
