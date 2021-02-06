@@ -21,7 +21,7 @@
 		"vimeo": {
 			"serviceProvider": "vimeo",
 			"keys": ["contentId", "videoId"],
-			"format": "https://vimeo.com/{0}'>vimeo post: {0}</a>",
+			"format": "<a href='https://vimeo.com/{0}'>vimeo post: {0}</a>",
             "ignore": false
 		},
 		"google_forms": {
@@ -33,7 +33,7 @@
 		"soundcloud": {
 			"serviceProvider": "soundcloud",
 			"keys": ["videoId"],
-			"format": "https://soundcloud.com/{0}'>soundcloud post: {0}</a>",
+			"format": "<a href='https://soundcloud.com/{0}'>soundcloud post: {0}</a>",
 			"ignore": false
 		}
 	}

@@ -91,7 +91,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNone(result[0].coverImageUrl)
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 5)
-        self.assertEqual(len(result[0].body_text), 1292)
+        self.assertEqual(len(result[0].body_text), 1312)
         # result.posts[0].WriteInfo("./201946.txt")
 
     def testFanboxArtistArticleFileMap(self):
@@ -114,7 +114,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNone(result[0].coverImageUrl)
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 15)
-        self.assertEqual(len(result[0].body_text), 3006)
+        self.assertEqual(len(result[0].body_text), 3038)
 
         # result.posts[0].WriteInfo("./210980.txt")
 
@@ -139,7 +139,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result[4].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
         self.assertEqual(result[4].type, "video")
         self.assertEqual(len(result[4].images), 0)
-        self.assertEqual(len(result[4].body_text), 99)
+        self.assertEqual(len(result[4].body_text), 109)
+        print(result[4].body_text)
 
         # result.posts[0].WriteInfo("./210980.txt")
 
@@ -163,7 +164,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(result[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 7)
-        self.assertEqual(len(result[0].body_text), 3164)
+        self.assertEqual(len(result[0].body_text), 3414)
 
         # result.posts[0].WriteInfo("./285502.txt")
 

@@ -125,6 +125,7 @@ class PixivConfig():
         ConfigItem("Filename", "urlDumpFilename", "url_list_%Y%m%d"),
         ConfigItem("Filename", "useTranslatedTag", False),
         ConfigItem("Filename", "tagTranslationLocale", "en"),
+        ConfigItem("Filename", "customBadChars", ""),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),

@@ -22,21 +22,22 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
         if pex.errorCode != PixivException.USER_ID_SUSPENDED:
             return
         artist = br.fanboxGetArtistById(artist_id, for_suspended=True)
-        result = caller.__dbManager__.selectMemberByMemberId(artist.artistId)
-        if result:
-            artist.artistName = result[1]
-            artist.artistToken = result[7]
-            PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
-        else:
-            formats = f"{config.filenameFormatFanboxCover}{config.filenameFormatFanboxContent}{config.filenameFormatFanboxInfo}"
-            name_flag = "%artist%" in formats
-            token_flag = "%member_token%" in formats
-            if name_flag or token_flag:
+
+        formats = f"{config.filenameFormatFanboxCover}{config.filenameFormatFanboxContent}{config.filenameFormatFanboxInfo}"
+        name_flag = "%artist%" in formats
+        token_flag = "%member_token%" in formats
+        if name_flag or token_flag:
+            result = caller.__dbManager__.selectMemberByMemberId(artist.artistId)
+            if result:
+                artist.artistName = result[1]
+                artist.artistToken = result[7]
+                PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
+            else:
                 PixivHelper.print_and_log("warn", f"Artist name or token found in FANBOX filename formats, but not in db.")
-            if name_flag:
-                artist.artistName = input(f"Please input %artist% for {artist_id}: ").strip()
-            if token_flag:
-                artist.artistToken = input(f"Please input %member_token% for {artist_id}: ").strip()
+                if name_flag:
+                    artist.artistName = input(f"Please input %artist% for {artist_id}: ").strip()
+                if token_flag:
+                    artist.artistToken = input(f"Please input %member_token% for {artist_id}: ").strip()
 
     current_page = 1
     next_url = None

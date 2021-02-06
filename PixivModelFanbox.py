@@ -219,28 +219,83 @@ class FanboxPost(object):
         if "blocks" in jsPost["body"] and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
                 if block["type"] == "p":
-                    if "links" in block:
-                        pointer = 0
-                        block_text = ""
-                        for i in range(0, len(block["links"])):
-                            link = block["links"][i]
-                            link_offset = link["offset"]
-                            block_text += block["text"][pointer:link_offset]
-                            pointer = link_offset + link["length"]
-                            block_text += "<a href='{0}'>{1}</a>".format(
-                                link["url"],
-                                block["text"][link_offset:pointer])
-                        block_text += block["text"][pointer:]
+                    block_text_raw = block["text"]
+
+                    if block_text_raw == "":
+                        block_text = "<br/>"
                     else:
-                        block_text = block["text"]
-                    self.body_text = f"{self.body_text}<p>{block_text}</p>"
+                        in_hyper = False
+                        in_style = False
+                        style_clause = ""
+                        sections = []
+                        links = sorted(block.get("links", []), key=lambda x: x["offset"])
+                        styles = sorted(block.get("styles", []), key=lambda x: x["offset"])
+
+                        for i in range(0, len(block_text_raw)):
+                            for link in links:
+                                link_offset = link["offset"]
+                                link_length = link["length"]
+                                if i > link_offset + link_length:
+                                    continue
+                                elif i < link_offset:
+                                    break
+                                # prioritized this situation for efficiency, nothing to do here indeed
+                                # not sure if this is how python works
+                                elif link_offset < i < link_offset + link_length:
+                                    pass
+                                elif link_offset == i:
+                                    in_hyper = True
+                                    if in_style:
+                                        sections.append("</span>")
+                                    sections.append("<a href='{0}'>".format(link["url"]))
+                                    if in_style:
+                                        sections.append(f"<span style='{style_clause}'>")
+                                elif link_offset + link_length == i:
+                                    in_hyper = False
+                                    if in_style:
+                                        sections.append("</span>")
+                                    sections.append("</a>")
+                                    if in_style:
+                                        sections.append(f"<span style='{style_clause}'>")
+                            for style in styles:
+                                style_offset = style["offset"]
+                                style_length = style["length"]
+                                style_clause = style["type"]
+                                if style_clause == "bold":
+                                    style_clause = "font-weight: bold;"
+                                    if i > style_offset + style_length:
+                                        continue
+                                    elif i < style_offset:
+                                        break
+                                    # prioritized this situation for efficiency, nothing to do here indeed
+                                    # not sure if this is how python works
+                                    elif style_offset < i < style_offset + style_length:
+                                        pass
+                                    elif style_offset == i:
+                                        in_style = True
+                                        sections.append(f"<span style='{style_clause}'>")
+                                    elif style_offset + style_length == i:
+                                        in_style = False
+                                        sections.append("</span>")
+                                else:
+                                    raise PixivException(f"Unknown style: {style_clause}", errorCode=PixivException.OTHER_ERROR)
+                            sections.append(block_text_raw[i])
+                        if in_style:
+                            sections.append("</span>")
+                        if in_hyper:
+                            sections.append("</a>")
+                        block_text = "".join(sections)
+                    self.body_text += f"<p>{block_text}</p>"
+                elif block["type"] == "header":
+                    block_text = block["text"]
+                    self.body_text += f"<h2>{block_text}</h2>"
                 elif block["type"] == "image":
                     imageId = block["imageId"]
                     if imageId not in jsPost["body"]["imageMap"]:
                         continue
                     originalUrl = jsPost["body"]["imageMap"][imageId]["originalUrl"]
                     thumbnailUrl = jsPost["body"]["imageMap"][imageId]["thumbnailUrl"]
-                    self.body_text = f"{self.body_text}<br /><a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
+                    self.body_text += f"<a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
                     self.try_add(originalUrl, self.images)
                     self.try_add(originalUrl, self.embeddedFiles)
                 elif block["type"] == "file":
@@ -249,20 +304,20 @@ class FanboxPost(object):
                         continue
                     fileUrl = jsPost["body"]["fileMap"][fileId]["url"]
                     fileName = jsPost["body"]["fileMap"][fileId]["name"]
-                    self.body_text = f"{self.body_text}<br /><a href='{fileUrl}'>{fileName}</a>"
+                    self.body_text += f"<p><a href='{fileUrl}'>{fileName}</a></p>"
                     self.try_add(fileUrl, self.images)
                     self.try_add(fileUrl, self.embeddedFiles)
                 elif block["type"] == "embed":  # Implement #470
                     embedId = block["embedId"]
                     if embedId in jsPost["body"]["embedMap"]:
                         embedStr = self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost)
-                        self.body_text = f"{self.body_text}<br />{embedStr}"
+                        self.body_text += f"<p>{embedStr}</p>"
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
 
         # Issue #476
         if "video" in jsPost["body"]:
-            self.body_text = u"{0}<br />{1}".format(
+            self.body_text += u"{0}<br />{1}".format(
                 self.body_text,
                 self.getEmbedData(jsPost["body"]["video"], jsPost))
 
@@ -389,12 +444,12 @@ class FanboxPost(object):
         token_images = ""
         token_text = ""
         if self.type == "article":
-            token_body_text = f'<div class="article">{self.body_text}</div>'
+            token_body_text = f'<div class="article caption">{self.body_text}</div>'
         else:
             token_images = '<div class="non-article images">{0}</div>'.format(
                 "".join(['<a href="{0}">{1}</a>'.format(x,
                 f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
-            token_text = '<div class="non-article text">{0}</div>'.format(
+            token_text = '<div class="non-article caption">{0}</div>'.format(
                 "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
 
         page = page.replace("%body_text(article)%", token_body_text)
@@ -407,10 +462,10 @@ class FanboxPost(object):
             tag = imageATag.img
             if tag:
                 tag["src"] = imageATag["href"]
-        root = page.find("div", attrs={"class": "root"})
+        root = page.find("div", attrs={"class": "main"})
         if root:
             root["class"].append("non-article" if self.type != "article" else "article")
-        page = page.prettify()
+        page = page.decode()
         html_dir = os.path.dirname(filename)
         for k, v in self.linkToFile.items():
             if not useAbsolutePaths:
