@@ -560,6 +560,8 @@ class PixivDBManager(object):
     def deleteCascadeMemberByMemberId(self, memberId):
         try:
             c = self.conn.cursor()
+            c.execute('''DELETE FROM pixiv_manga_image
+                      WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (memberId, ))
             c.execute('''DELETE FROM pixiv_master_image
                       WHERE member_id = ?''', (memberId, ))
             c.execute('''DELETE FROM pixiv_master_member
@@ -700,8 +702,8 @@ class PixivDBManager(object):
     def deleteImage(self, imageId):
         try:
             c = self.conn.cursor()
-            c.execute(
-                '''DELETE FROM pixiv_master_image WHERE image_id = ?''', (imageId, ))
+            c.execute('''DELETE FROM pixiv_master_image WHERE image_id = ?''', (imageId, ))
+            c.execute('''DELETE FROM pixiv_manga_image WHERE image_id = ?''', (imageId, ))
             self.conn.commit()
         except BaseException:
             print('Error at deleteImage():', str(sys.exc_info()))
