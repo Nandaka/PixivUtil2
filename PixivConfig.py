@@ -117,6 +117,8 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "filenameFormatSketch", "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
+        ConfigItem("Filename", "filenameFormatNovel", "%artist% (%member_id%)" + os.sep + "%manga_series_id% %manga_series_order% %urlFilename% - %title%",
+                   restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "avatarNameFormat", ""),
         ConfigItem("Filename", "backgroundNameFormat", ""),
         ConfigItem("Filename", "tagsSeparator", ", "),

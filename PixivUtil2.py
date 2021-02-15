@@ -1392,10 +1392,12 @@ def main():
         PixivHelper.print_and_log('error', pex.message)
         ERROR_CODE = pex.errorCode
     except Exception as ex:
-        # exc_type, exc_value, exc_traceback = sys.exc_info()
-        # traceback.print_exception(exc_type, exc_value, exc_traceback)
-        # __log__.exception('Unknown Error: %s', str(exc_value))
-        PixivHelper.print_and_log("error", f"Unknown Error: {sys.exc_info()}")
+        if __config__.logLevel == "DEBUG":
+            import traceback
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+            __log__.exception('Unknown Error: %s', str(exc_value))
+        PixivHelper.print_and_log("error", f"Unknown Error, please check the log file: {sys.exc_info()}")
         ERROR_CODE = getattr(ex, 'errorCode', -1)
     finally:
         __dbManager__.close()

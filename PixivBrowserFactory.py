@@ -1088,7 +1088,17 @@ class PixivBrowser(mechanize.Browser):
             locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/novel/{novel_id}?{locale}"
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
-        novel = PixivNovel(novel_id, response)
+
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+        novel = PixivNovel(novel_id,
+                           response,
+                           tzInfo=_tzInfo,
+                           dateFormat=self._config.dateFormat)
+
+        (artist, _) = self.getMemberPage(novel.artist_id)
+        novel.artist = artist
         return novel
 
     def getNovelSeries(self, novel_series_id) -> NovelSeries:

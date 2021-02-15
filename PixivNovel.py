@@ -1,8 +1,11 @@
 import codecs
 import json
+from datetime import datetime
+import datetime_z
 
 import PixivHelper
 from PixivException import PixivException
+from PixivImage import PixivTagData
 
 MAX_LIMIT = 10
 
@@ -11,11 +14,34 @@ class PixivNovel:
     novel_id = 0
     novel_json_str = ""
     content = ""
-    title = ""
 
-    def __init__(self, novel_id, novel_json) -> None:
-        self.novel_id = novel_id
+    # compatibility
+    artist = None
+    artist_id = 0
+    imageTitle = ""
+    imageId = 0
+    worksDate = ""
+    worksDateDateTime = datetime.fromordinal(1)
+    imageTags = None
+    tags = None
+    bookmark_count = 0
+    image_response_count = 0
+
+    # series info
+    seriesNavData = None
+
+    # doesn't apply
+    worksResolution = ""
+    imageMode = "Novel"
+
+    _tzInfo = None
+    dateFormat = None
+
+    def __init__(self, novel_id, novel_json, tzInfo=None, dateFormat=None) -> None:
+        self.novel_id = self.imageId = novel_id
         self.novel_json_str = novel_json
+        self._tzInfo = tzInfo
+        self.dateFormat = dateFormat
         self.parse()
 
     def parse(self):
@@ -25,8 +51,47 @@ class PixivNovel:
                                  errorCode=PixivException.UNKNOWN_IMAGE_ERROR,
                                  htmlPage=self.novel_json_str)
 
-        self.title = js["body"]["title"]
-        self.content = js["body"]["content"]
+        root = js["body"]
+
+        self.imageTitle = root["title"]
+        self.content = root["content"]
+        self.artist_id = root["userId"]
+        self.bookmark_count = root["bookmarkCount"]
+        self.image_response_count = root["imageResponseCount"]
+        self.seriesNavData = root["seriesNavData"]
+
+        # datetime
+        self.worksDateDateTime = datetime_z.parse_datetime(root["createDate"])
+        self.js_createDate = root["createDate"]  # store for json file
+        if self._tzInfo is not None:
+            self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+
+        tempDateFormat = self.dateFormat or "%Y-%m-%d"     # 2018-07-22, else configured in config.ini
+        self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)
+
+        # tags
+        self.imageTags = list()
+        self.tags = list()
+        tags = root["tags"]
+        if tags is not None:
+            tags = root["tags"]["tags"]
+            for tag in tags:
+                self.imageTags.append(tag["tag"])
+                self.tags.append(PixivTagData(tag["tag"], tag))
+
+        # append original tag
+        if root["isOriginal"]:
+            self.imageTags.append("オリジナル")
+            tag = {"tag": "オリジナル",
+                        "locked": True,
+                        "deletable": False,
+                        "userId": "",
+                        "romaji": "original",
+                        "translation": {
+                            "en": "original"
+                        }
+                   }
+            self.tags.append(PixivTagData(tag["tag"], tag))
 
     def write_content(self, filename):
         ft = open("novel_template.html")
@@ -42,7 +107,7 @@ class PixivNovel:
             PixivHelper.get_logger().exception("Error when saving novel: %s, file is saved to: %s.html", filename, str(self.novel_id))
 
         if fh is not None:
-            content_str = template_str.replace("%title%", self.title)
+            content_str = template_str.replace("%title%", self.imageTitle)
             content_str = content_str.replace("%novel_json_str%", self.novel_json_str)
             fh.write(content_str)
             fh.close()
@@ -54,6 +119,7 @@ class NovelSeries:
     series_list = list()
     series_list_str = dict()
     total = 0
+    series_name = ""
 
     def __init__(self, series_id, series_json) -> None:
         self.series_id = series_id
@@ -67,7 +133,9 @@ class NovelSeries:
             raise PixivException("Cannot get novel series content details",
                                  errorCode=PixivException.UNKNOWN_IMAGE_ERROR,
                                  htmlPage=self.series_str)
+        # from publishedContentCount or total or displaySeriesContentCount ????
         self.total = js["body"]["total"]
+        self.series_name = js["body"]["title"]
 
     def parse_series_content(self, page_info, current_page):
         js = json.loads(page_info)
