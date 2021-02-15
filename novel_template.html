@@ -1,0 +1,209 @@
+<html>
+
+<head>
+    <style>
+        .content {
+            color: rgb(31, 31, 31);
+            display: block;
+            font-family: YuGothic, "Hiragino Kaku Gothic Pro", Meiryo, "Source Han Sans", "Source Han Sans JP", "Noto Sans CJK JP", "Avenir Next", Avenir, "Source Sans", "Noto Sans", Roboto, Verdana, "Pingfang TC", "Pingfang HK", "Hiragino Sans CNS", "Lantinghei TC", "Source Han Sans TW", "Source Han Sans HK", "Noto Sans CJK TC", "Microsoft JhengHei", "Pingfang SC", "Hiragino Sans GB", "Lantinghei SC", "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft Yahei", DengXian, "Apple SD Gothic Neo", "Source Han Sans K", "Source Han Sans KR", "Noto Sans CJK KR", "Malgun Gothic", sans-serif;
+            font-feature-settings: normal;
+            font-kerning: normal;
+            font-size: 16px;
+            line-height: 32px;
+            margin-block-end: 32px;
+            margin-block-start: 31px;
+            margin-bottom: 32px;
+            margin-inline-end: 0px;
+            margin-inline-start: 0px;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-top: 31px;
+            overflow-wrap: break-word;
+            text-align: justify;
+            text-size-adjust: 100%;
+            transform: matrix(1, 0, 0, 1, 0, 1);
+            white-space: pre-wrap;
+            writing-mode: horizontal-tb;
+            -webkit-font-smoothing: antialiased;
+        }
+        .series{
+            background-color:rgba(0, 0, 0, 0);
+            color: rgb(92, 92, 92);
+            cursor: pointer;
+            display: block;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            font-kerning: normal;
+            font-size: 14px;
+            line-height: 21px;
+            text-decoration-color: rgb(92, 92, 92);
+            text-decoration-line: none;
+            text-decoration-style: solid;
+            text-decoration-thickness: auto;
+            text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+        .title{
+            color: rgb(31, 31, 31);
+            display: block;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            font-kerning: normal;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 24px;
+            margin-block-end: 8px;
+            margin-block-start: 0px;
+            margin-bottom: 8px;
+            margin-inline-end: 0px;
+            margin-inline-start: 0px;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-top: 0px;
+            text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+        .desc{
+            border-bottom-color: rgb(92, 92, 92);
+            border-bottom-style: none;
+            border-bottom-width: 0px;
+            border-image-outset: 0;
+            border-image-repeat: stretch;
+            border-image-slice: 100%;
+            border-image-source: none;
+            border-image-width: 1;
+            border-left-color: rgb(92, 92, 92);
+            border-left-style: none;
+            border-left-width: 0px;
+            border-right-color: rgb(92, 92, 92);
+            border-right-style: none;
+            border-right-width: 0px;
+            border-top-color: rgb(92, 92, 92);
+            border-top-style: none;
+            border-top-width: 0px;
+            color: rgb(92, 92, 92);
+            display: block;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            font-kerning: normal;
+            font-size: 14px;
+            line-height: 18.62px;
+            margin-block-end: 0px;
+            margin-block-start: 0px;
+            margin-bottom: 0px;
+            margin-inline-end: 0px;
+            margin-inline-start: 0px;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-top: 0px;
+            max-height: 180px;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            padding-bottom: 0px;
+            padding-left: 0px;
+            padding-right: 0px;
+            padding-top: 0px;
+            text-size-adjust: 100%;
+            word-break: break-word;
+            -webkit-font-smoothing: antialiased;
+        }
+        .workdate{
+            color: rgb(173, 173, 173);
+            display: block;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            font-kerning: normal;
+            font-size: 12px;
+            line-height: 12px;
+            text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+        .tag ul{
+            color: rgb(173, 173, 173);
+            display: block;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            font-kerning: normal;
+            font-size: 14px;
+            line-height: 18px;
+            list-style-image: none;
+            list-style-position: outside;
+            list-style-type: none;
+            margin-block-end: 0px;
+            margin-block-start: 0px;
+            margin-bottom: 0px;
+            margin-inline-end: -6px;
+            margin-inline-start: 0px;
+            margin-left: 0px;
+            margin-right: -6px;
+            margin-top: 0px;
+            padding-inline-start: 0px;
+            padding-left: 0px;
+            text-size-adjust: 100%;
+            word-break: break-all;
+            -webkit-font-smoothing: antialiased;
+        }
+    .tag li{
+        background-color: rgba(0, 0, 0, 0);
+        color: rgb(61, 118, 153);
+        cursor: pointer;
+        display: inline;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+        font-kerning: normal;
+        font-size: 14px;
+        height: auto;
+        line-height: 18px;
+        list-style-image: none;
+        list-style-position: outside;
+        list-style-type: none;
+        text-align: left;
+        text-decoration-color: rgb(61, 118, 153);
+        text-decoration-line: none;
+        text-decoration-style: solid;
+        text-decoration-thickness: auto;
+        text-size-adjust: 100%;
+        width: auto;
+        word-break: break-all;
+        -webkit-font-smoothing: antialiased;
+    }
+    </style>
+    <title>%title%</title>
+    <script>
+data = %novel_json_str%;
+    </script>
+    <script>
+function render() {
+    let content_div = document.getElementById("content");
+    content_div.innerHTML = data["body"]["content"];
+    let title = document.getElementById("title");
+    title.innerHTML = data["body"]["title"];
+    let desc = document.getElementById("desc");
+    desc.innerHTML = data["body"]["description"];
+    let workdate = document.getElementById("workdate");
+    workdate.innerHTML = data["body"]["uploadDate"];
+
+    let tags = document.getElementById("tags");
+    let tag_list = "<ul>";
+    let tags_arr = data["body"]["tags"]["tags"];
+    tags_arr.forEach(tag => {
+        tag_list = tag_list + "<li>" + tag["tag"] + "</li>";
+    });
+    tag_list = tag_list + "</ul>";
+    tags.innerHTML = tag_list;
+
+    let series_info = document.getElementById("series_info");
+    let series_id = data["body"]["seriesNavData"]["seriesId"]
+    let series_name = data["body"]["seriesNavData"]["title"]
+    let series_order = data["body"]["seriesNavData"]["order"]
+
+    series_info.innerHTML = "<a href='https://www.pixiv.net/novel/series/" + series_id + "'>" + series_name + " #" + series_order + "</a>";
+}
+    </script>
+</head>
+
+<body onload="render()">
+    <div id="series_info" class="series"></div>
+    <div id="title" class="title"></div>
+    <div id="desc" class="desc"></div>
+    <div id="workdate" class="workdate"></div>
+    <div id="tags" class="tags"></div>
+    <hr />
+    <pre id="content" class='content'>
+</body>
+
+</html>

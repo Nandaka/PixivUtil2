@@ -25,6 +25,7 @@ from PixivModelFanbox import FanboxArtist, FanboxPost
 from PixivModelSketch import SketchArtist, SketchPost
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
+from PixivNovel import NovelSeries, PixivNovel, MAX_LIMIT
 
 defaultCookieJar = None
 defaultConfig = None
@@ -1079,6 +1080,44 @@ class PixivBrowser(mechanize.Browser):
         #     manga_series.images.append(image)
 
         return manga_series
+
+    def getNovelPage(self, novel_id) -> PixivNovel:
+        # https://www.pixiv.net/ajax/novel/14521816?lang=en
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            locale = f"&lang={self._locale}"
+        url = f"https://www.pixiv.net/ajax/novel/{novel_id}?{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        novel = PixivNovel(novel_id, response)
+        return novel
+
+    def getNovelSeries(self, novel_series_id) -> NovelSeries:
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            locale = f"&lang={self._locale}"
+
+        # https://www.pixiv.net/ajax/novel/series/1328575?lang=en
+        url = f"https://www.pixiv.net/ajax/novel/series/{novel_series_id}?{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        novel_series = NovelSeries(novel_series_id, series_json=response)
+        return novel_series
+
+    def getNovelSeriesContent(self, novel_series, limit=MAX_LIMIT, current_page=1, order_by='asc'):
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            locale = f"&lang={self._locale}"
+        # https://www.pixiv.net/ajax/novel/series_content/1328575?limit=10&last_order=0&order_by=asc&lang=en
+        params = list()
+        params.append(f"limit={limit}")
+        last_order = 10 * (current_page - 1)
+        params.append(f"last_order={last_order}")
+        params.append(f"order_by={order_by}")
+        params_str = "&".join(params)
+        novel_series_id = novel_series.series_id
+        url = f"https://www.pixiv.net/ajax/novel/series_content/{novel_series_id}?{params_str}{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        novel_series.parse_series_content(response, current_page)
+        return novel_series
 
 
 def getBrowser(config=None, cookieJar=None):

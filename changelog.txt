@@ -1,4 +1,10 @@
-20210108-beta4
+20210215-beta1
+- Start implement #706: add novel support.
+- Merge Update PixivDBManager.py (#910) by amatuerCoder.
+- Merge Update PixivBrowserFactory.py (#908) by amatuerCoder.
+- Merge Fix #889 #899 (#903) by amatuerCoder.
+
+20210128
 - Fix Issue #878: update search by tag parser to handle missing 'isAdContainer'.
 - Fix Issue #877: update fanbox parser for missing embedId.
 - Fix Issue #881: change content_provider.json path resolution.
@@ -12,6 +18,9 @@
 - Fix Issue #892: PixivSketch now load all images, including R-18 (follow your settings in the website).
 - Merge Fix #873 and #886 (#888) by amatuerCoder.
 - Fix Issue #883: update parser for avatar image.
+- Merge Remove double slash (#894) by Yuki.
+- Merge Fix (#897) by amatuerCoder.
+- Update cloudscraper to 1.2.54
 
 20201130
 - Merge Added series JSON and an option to download it, expended %manga_series% to work with all modes, added an option for untouched JSON (#855) by byjtje. 

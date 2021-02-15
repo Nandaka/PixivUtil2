@@ -27,6 +27,7 @@ import PixivImageHandler
 import PixivListHandler
 import PixivModelFanbox
 import PixivSketchHandler
+import PixivNovelHandler
 import PixivTagsHandler
 from PixivDBManager import PixivDBManager
 from PixivException import PixivException
@@ -161,6 +162,8 @@ def menu():
     print(' 11. Download Member Bookmark (/bookmark.php?id=)')
     print(' 12. Download by Group Id')
     print(' 13. Download by Manga Series Id')
+    print(' 14. Download by Novel Id')
+    print(' 15. Download by Novel Series Id')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -636,6 +639,36 @@ def menu_download_by_manga_series_id(opisvalid, args, options):
                                                end_page=end_page)
 
 
+def menu_download_by_novel_id(opisvalid, args, options):
+    __log__.info('Novel mode (14).')
+    novel_ids = input('Novel IDs: ').rstrip("\r")
+    novel_ids = PixivHelper.get_ids_from_csv(novel_ids)
+    PixivHelper.print_and_log('info', f"Novel IDs: {novel_ids}")
+
+    for novel_id in novel_ids:
+        PixivNovelHandler.process_novel(sys.modules[__name__],
+                                        __config__,
+                                        novel_id)
+
+
+def menu_download_by_novel_series_id(opisvalid, args, options):
+    __log__.info('Novel Series mode (15).')
+    start_page = 1
+    end_page = 0
+
+    novel_series_ids = input('Novel Series IDs: ').rstrip("\r")
+    (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
+    novel_series_ids = PixivHelper.get_ids_from_csv(novel_series_ids)
+    PixivHelper.print_and_log('info', f"Novel Series IDs: {novel_series_ids}")
+
+    for novel_series_id in novel_series_ids:
+        PixivNovelHandler.process_novel_series(sys.modules[__name__],
+                                               __config__,
+                                               novel_series_id,
+                                               start_page=start_page,
+                                               end_page=end_page)
+
+
 def menu_download_by_group_id(opisvalid, args, options):
     __log__.info('Group mode (12).')
     process_external = False
@@ -1067,6 +1100,10 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_group_id(op_is_valid, args, options)
             elif selection == '13':
                 menu_download_by_manga_series_id(op_is_valid, args, options)
+            elif selection == '14':
+                menu_download_by_novel_id(op_is_valid, args, options)
+            elif selection == '15':
+                menu_download_by_novel_series_id(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':
