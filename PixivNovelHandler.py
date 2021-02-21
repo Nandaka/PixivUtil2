@@ -1,4 +1,9 @@
+import os
+import time
+
 from colorama.ansi import Fore, Style
+
+import PixivConstant
 import PixivHelper
 import PixivNovel
 
@@ -12,6 +17,13 @@ def process_novel(caller,
 
     msg = Fore.YELLOW + Style.BRIGHT + f'Processing Novel details: {novel_id}' + Style.RESET_ALL
     PixivHelper.print_and_log('info', msg)
+
+    # check if already downloaded before and overwrite is not enabled
+    db_result = caller.__dbManager__.selectNovelPostByPostId(novel_id)
+    if db_result is not None and not config.overwrite and not config.checkLastModified and not config.alwaysCheckFileSize:
+        save_name = db_result[2]  # save_name
+        PixivHelper.print_and_log('warn', f"Novel already downloaded : {save_name}")
+        return
 
     novel = caller.__br__.getNovelPage(novel_id)
     PixivHelper.print_and_log(None, f"Title : {novel.imageTitle}")
@@ -28,17 +40,43 @@ def process_novel(caller,
     # fake the fileUrl
     fileUrl = f"https://www.pixiv.net/ajax/novel/{novel_id}.html"
     filename = PixivHelper.make_filename(config.filenameFormatNovel,
-                                         novel,
-                                         tagsSeparator=config.tagsSeparator,
-                                         tagsLimit=config.tagsLimit,
-                                         fileUrl=fileUrl,
-                                         bookmark=False,
-                                         searchTags="",
-                                         useTranslatedTag=config.useTranslatedTag,
-                                         tagTranslationLocale=config.tagTranslationLocale)
+                                        novel,
+                                        tagsSeparator=config.tagsSeparator,
+                                        tagsLimit=config.tagsLimit,
+                                        fileUrl=fileUrl,
+                                        bookmark=False,
+                                        searchTags="",
+                                        useTranslatedTag=config.useTranslatedTag,
+                                        tagTranslationLocale=config.tagTranslationLocale)
     filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
     PixivHelper.print_and_log(None, f"Filename : {filename}")
-    novel.write_content(filename)
+
+    # checking logic
+    if os.path.exists(filename):
+        if config.checkLastModified:
+            local_timestamp = os.path.getmtime(filename)
+            remote_timestamp = time.mktime(novel.worksDateDateTime.timetuple())
+            if local_timestamp == remote_timestamp:
+                PixivHelper.print_and_log('warn', f"\rLocal file timestamp match with remote: {filename} => {novel.worksDateDateTime}")
+                return
+        if config.alwaysCheckFileSize:
+            temp_filename = filename + ".!tmp"
+            novel.write_content(temp_filename)
+            file_size = os.path.getsize(temp_filename)
+            old_size = os.path.getsize(filename)
+            result = PixivHelper.check_file_exists(config.overwrite, filename, file_size, old_size, config.backupOldFile)
+            if result == PixivConstant.PIXIVUTIL_OK:
+                os.rename(temp_filename, filename)
+            else:
+                os.remove(temp_filename)
+    else:
+        novel.write_content(filename)
+
+    if config.setLastModified and filename is not None and os.path.isfile(filename):
+        ts = time.mktime(novel.worksDateDateTime.timetuple())
+        os.utime(filename, (ts, ts))
+
+    caller.__dbManager__.insertNovelPost(novel, filename)
 
     print()
 

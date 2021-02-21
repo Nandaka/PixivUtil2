@@ -29,6 +29,15 @@ class PixivNovel:
 
     # series info
     seriesNavData = None
+    seriesId = 0
+    seriesOrder = 0
+
+    # novel specific
+    isOriginal = False
+    isBungei = False
+    language = ""
+    xRestrict = False
+    uploadDate = datetime.fromordinal(1)
 
     # doesn't apply
     worksResolution = ""
@@ -59,12 +68,21 @@ class PixivNovel:
         self.bookmark_count = root["bookmarkCount"]
         self.image_response_count = root["imageResponseCount"]
         self.seriesNavData = root["seriesNavData"]
+        if root["seriesNavData"] is not None:
+            self.seriesId = root["seriesNavData"]["seriesId"]
+            self.seriesOrder = root["seriesNavData"]["order"]
+        self.isOriginal = root["isOriginal"]
+        self.isBungei = root["isBungei"]
+        self.language = root["language"]
+        self.xRestrict = root["xRestrict"]
 
         # datetime
         self.worksDateDateTime = datetime_z.parse_datetime(root["createDate"])
+        self.uploadDate = datetime_z.parse_datetime(root["uploadDate"])
         self.js_createDate = root["createDate"]  # store for json file
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
+            self.uploadDate = self.uploadDate.astimezone(self._tzInfo)
 
         tempDateFormat = self.dateFormat or "%Y-%m-%d"     # 2018-07-22, else configured in config.ini
         self.worksDate = self.worksDateDateTime.strftime(tempDateFormat)

@@ -94,6 +94,7 @@ class PixivDBManager(object):
                             )''')
             self.conn.commit()
 
+            # FANBOX
             c.execute('''CREATE TABLE IF NOT EXISTS fanbox_master_post (
                             member_id INTEGER,
                             post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
@@ -115,6 +116,7 @@ class PixivDBManager(object):
                             )''')
             self.conn.commit()
 
+            # Sketch
             c.execute('''CREATE TABLE IF NOT EXISTS sketch_master_post (
                             member_id INTEGER,
                             post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
@@ -132,6 +134,9 @@ class PixivDBManager(object):
                             last_update_date DATE,
                             PRIMARY KEY (post_id, page)
                             )''')
+
+            # Novel
+            self.create_update_novel_table(c)
             self.conn.commit()
 
             print('done.')
@@ -1074,6 +1079,75 @@ class PixivDBManager(object):
             return c.fetchone()
         except BaseException:
             print('Error at selectSketchPostByPostId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+##########################################
+# VIII. CRUD Novel table                 #
+##########################################
+    def create_update_novel_table(self, c):
+        c.execute('''CREATE TABLE IF NOT EXISTS novel_detail (
+                        post_id INTEGER,
+                        user_id INTEGER,
+                        save_name TEXT,
+                        created_date DATE,
+                        last_update_date DATE,
+                        is_original INTEGER,
+                        is_bungei INTEGER,
+                        language TEXT,
+                        x_restrict INTEGER,
+                        series_id INTEGER,
+                        series_order INTEGER,
+                        PRIMARY KEY (post_id, user_id)
+                        )''')
+
+    def insertNovelPost(self, post, filename):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post.imageId)
+            c.execute('''INSERT OR IGNORE INTO novel_detail (user_id, post_id) VALUES(?, ?)''',
+                      (post.artist.artistId, post_id))
+            c.execute('''UPDATE novel_detail
+                            SET save_name = ?,
+                                created_date = ?,
+                                last_update_date = ?,
+                                is_original = ?,
+                                is_bungei = ?,
+                                language = ?,
+                                x_restrict = ?,
+                                series_id = ?,
+                                series_order = ?
+                            WHERE post_id = ?''',
+                      (filename,
+                       post.worksDateDateTime,
+                       post.uploadDate,
+                       post.isOriginal,
+                       post.isBungei,
+                       post.language,
+                       post.xRestrict,
+                       post.seriesId,
+                       post.seriesOrder,
+                       post_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertSketchPost():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectNovelPostByPostId(self, post_id):
+        try:
+            c = self.conn.cursor()
+            post_id = int(post_id)
+            c.execute(
+                '''SELECT * FROM novel_detail WHERE post_id = ?''',
+                (post_id,))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectNovelPostByPostId():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
