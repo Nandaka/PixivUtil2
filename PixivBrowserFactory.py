@@ -1185,12 +1185,20 @@ def test():
     print("Access Token = " + auth_token)
     print("Refresh Token = " + refresh_token)
     b._oauth_manager.login()
-    member_id = 2864095
-    response = b._oauth_manager.get_user_info(member_id)
-    info = json.loads(response.text)
-    print(info)
 
     if success:
+        def test_oauth_get_user_info():
+            member_id = 2864095
+            response = b._oauth_manager.get_user_info(member_id)
+            info = json.loads(response.text)
+            print(info)
+            print()
+            member_id = 57188403
+            response = b._oauth_manager.get_user_info(member_id)
+            info = json.loads(response.text)
+            print(info)
+            print()
+
         def testSearchTags():
             print("test search tags")
             tags = "VOCALOID"
@@ -1213,6 +1221,7 @@ def test():
                                                  start_page=start_page)
             resultS.PrintInfo()
             assert (len(resultS.itemList) > 0)
+            print()
 
         def testImage():
             print("test image mode")
@@ -1240,6 +1249,7 @@ def test():
             print(result3.ugoira_data)
             assert (len(result3.artist.artistToken) > 0)
             assert (result3.imageMode == 'ugoira_view')
+            print()
 
         def testMember():
             print("Test member mode")
@@ -1267,6 +1277,7 @@ def test():
             print(result6.PrintInfo())
             assert (len(result6.artistToken) > 0)
             assert (len(result6.imageList) > 0)
+            print()
 
         def testMemberBookmark():
             print("Test member bookmarks mode")
@@ -1293,6 +1304,7 @@ def test():
                 print(result6.PrintInfo())
                 assert (len(result6.artistToken) > 0)
                 assert (len(result6.imageList) == 0)
+            print()
 
         def testFanbox():
             result = b.fanboxGetArtistList(FanboxArtist.SUPPORTING)
@@ -1303,6 +1315,7 @@ def test():
             posts = b.fanboxGetPostsFromArtist(artist)
             for post in posts:
                 print(post)
+            print()
 
         def testSketch():
             # result = b.sketch_get_post_by_post_id("1213195054130835383")
@@ -1311,17 +1324,20 @@ def test():
             print(result2)
             for post in result2.posts:
                 print(post)
+            print()
 
         def testMangaSeries():
             result = b.getMangaSeries(6474, 1)
             result.print_info()
+            print()
 
+        test_oauth_get_user_info()
         testFanbox()
         # testSketch()
         # testSearchTags()
-        testImage()
+        # testImage()
         # testMember()
-        testMemberBookmark()
+        # testMemberBookmark()
         # testMangaSeries()
 
     else:
