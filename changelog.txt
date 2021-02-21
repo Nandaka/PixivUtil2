@@ -1,8 +1,9 @@
-20210215-beta1
-- Start implement #706: add novel support.
+20210221-beta2
+- Implement #706: add novel support.
 - Merge Update PixivDBManager.py (#910) by amatuerCoder.
 - Merge Update PixivBrowserFactory.py (#908) by amatuerCoder.
 - Merge Fix #889 #899 (#903) by amatuerCoder.
+- Update test script for PixivBrowserFactory.
 
 20210128
 - Fix Issue #878: update search by tag parser to handle missing 'isAdContainer'.
