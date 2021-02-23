@@ -236,7 +236,7 @@ class PixivOAuth():
                     PixivHelper.dump_html("Error - oAuth login.html", info)
 
             PixivHelper.print_and_log('error', info)
-            raise PixivException("Failed to login using OAuth", PixivException.OAUTH_LOGIN_ISSUE)
+            raise PixivException("Failed to login using OAuth, follow instruction in https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362 to get the refresh token.", PixivException.OAUTH_LOGIN_ISSUE)
 
         return oauth_response
 
