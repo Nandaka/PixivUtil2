@@ -6,12 +6,71 @@ import os.path
 import shutil
 import sys
 import time
+import re
 
 from colorama import Fore, Style
 
 import PixivHelper
 
 script_path = PixivHelper.module_path()
+
+
+class CustomSanitizer:
+    _clean_string = ""
+    _regex_dic = None
+
+    def __init__(self, bad_char_string):
+        if not bad_char_string:
+            return
+
+        self._regex_dic = {}
+        default_replacement = "_"
+
+        temp_string = bad_char_string
+        temp_dic = {"default": {}}
+
+        match = re.search(r"%replace<default>\((.+?)\)%", temp_string)
+        if match:
+            temp_string = temp_string.replace(match.group(), "")
+            default_replacement = match.group(1)
+
+        for match in re.finditer(r"%(pattern|replace)<(.+?)>\((.*?)\)%", temp_string):
+            temp_string = temp_string.replace(match.group(), "")
+            kind = match.group(1)
+            group = match.group(2)
+            content = match.group(3)
+            if group == "global":
+                continue
+            if group not in temp_dic:
+                temp_dic[group] = {}
+            temp_dic[group][kind] = content
+
+        if temp_string:
+            temp_string = "".join(sorted(set(temp_string)))
+            self._clean_string += temp_string
+            temp_string = re.sub(r"(\$|\(|\)|\*|\+|\.|\[|\]|\?|\^|\\|\{|\}|\|)", r"\\\1", temp_string)
+            self._regex_dic[re.compile(temp_string)] = default_replacement
+
+        if default_replacement != "_":
+            self._clean_string += f"%replace<default>({default_replacement})%"
+
+        for key in temp_dic:
+            if not temp_dic[key]:
+                continue
+            if "pattern" not in temp_dic[key]:
+                continue
+            self._regex_dic[re.compile(temp_dic[key]["pattern"])] = temp_dic[key].get("replace", default_replacement)
+            for k, v in temp_dic[key].items():
+                self._clean_string += f"%{k}<{key}>({v})%"
+
+    def __str__(self):
+        return self._clean_string
+
+    def sanitize_string(self, string):
+        if self._regex_dic:
+            for regex, replace in self._regex_dic.items():
+                string = regex.sub(replace, string)
+        return string
 
 
 class ConfigItem():
@@ -127,7 +186,7 @@ class PixivConfig():
         ConfigItem("Filename", "urlDumpFilename", "url_list_%Y%m%d"),
         ConfigItem("Filename", "useTranslatedTag", False),
         ConfigItem("Filename", "tagTranslationLocale", "en"),
-        ConfigItem("Filename", "customBadChars", ""),
+        ConfigItem("Filename", "customBadChars", "", followup=CustomSanitizer),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),
