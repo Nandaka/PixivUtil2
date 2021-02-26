@@ -88,6 +88,8 @@ class PixivListItem(object):
                             path = path.replace('%root%', rootDir)
                         else:
                             path = path.replace('%root%', '')
+                        if path[0:2] == "./":
+                            path = os.getcwd() + path[1:]
 
                 list_item = PixivListItem(member_id, path)
                 # PixivHelper.safePrint(u"- {0} ==> {1} ".format(member_id, path))
