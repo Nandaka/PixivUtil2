@@ -258,7 +258,7 @@ class PixivConfig():
 
     def __init__(self):
         for item in self.__items:
-            setattr(self, item.option, item.default)
+            setattr(self, item.option, item.process_value(item.default))
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
     def loadConfig(self, path=None):
