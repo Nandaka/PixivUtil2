@@ -44,7 +44,7 @@ def process_list(caller, config, list_file_name=None, tags=None):
                 try:
                     prefix = "[{0} of {1}] ".format(current_member, len(result))
                     if tags:
-                        PixivTagsHandler.process_tags(caller, tags, member_id=item.memberId)
+                        PixivTagsHandler.process_tags(caller, tags, member_id=item.memberId, user_dir=item.path)
                         db.updateLastDownloadDate(item.memberId)
                     else:
                         PixivArtistHandler.process_member(caller,

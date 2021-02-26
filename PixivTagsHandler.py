@@ -24,7 +24,8 @@ def process_tags(caller,
                  sort_order='date_d',
                  type_mode=None,
                  notifier=None,
-                 config=None):
+                 config=None,
+                 user_dir=''):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     if not config:
@@ -116,6 +117,7 @@ def process_tags(caller,
                                                                          config,
                                                                          None,
                                                                          item.imageId,
+                                                                         user_dir=user_dir,
                                                                          search_tags=search_tags,
                                                                          title_prefix=title_prefix,
                                                                          bookmark_count=item.bookmarkCount,
