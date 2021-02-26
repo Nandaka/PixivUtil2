@@ -50,6 +50,7 @@ def process_list(caller, config, list_file_name=None, tags=None):
                         PixivArtistHandler.process_member(caller,
                                                         config,
                                                         item.memberId,
+                                                        item.path,
                                                         title_prefix=prefix)
                     current_member = current_member + 1
                     break

@@ -23,6 +23,7 @@ def process_image(caller,
                   config,
                   artist=None,
                   image_id=None,
+                  user_dir="",
                   bookmark=False,
                   search_tags='',
                   title_prefix="",
@@ -200,7 +201,7 @@ def process_image(caller,
             if image.imageMode == 'manga':
                 PixivHelper.print_and_log(None, f"Page Count : {image.imageCount}")
 
-            target_dir = config.rootDirectory
+            target_dir = user_dir or config.rootDirectory
 
             result = PixivConstant.PIXIVUTIL_OK
             manga_files = list()

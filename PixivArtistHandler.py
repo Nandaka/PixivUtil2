@@ -18,6 +18,7 @@ from PixivListHandler import process_blacklist, process_list_with_db
 def process_member(caller,
                    config,
                    member_id,
+                   user_dir="",
                    page=1,
                    end_page=0,
                    title_prefix="",
@@ -92,8 +93,9 @@ def process_member(caller,
         PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
         #PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
 
+        target_dir = user_dir or config.rootDirectory
         if config.downloadAvatar:
-            (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, config.rootDirectory, config)
+            (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, config)
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                 if artist.artistAvatar.find('no_profile') == -1:
                     PixivDownloadHandler.download_image(caller,
@@ -117,7 +119,7 @@ def process_member(caller,
 
         if config.writeMemberJSON:
             if not caller.DEBUG_SKIP_PROCESS_IMAGE:
-                filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, targetDir=config.rootDirectory ,appendExtension=False)+".json"
+                filename = PixivHelper.make_filename(config.filenameMemberJSON, artistInfo=artist, targetDir=target_dir ,appendExtension=False)+".json"
                 from os.path import isfile
                 if not isfile(filename):
                     import codecs
@@ -187,6 +189,7 @@ def process_member(caller,
                                                                         config,
                                                                         artist,
                                                                         image_id,
+                                                                        user_dir,
                                                                         title_prefix=title_prefix_img,
                                                                         notifier=notifier,
                                                                         useblacklist=not usingBlacklist)
