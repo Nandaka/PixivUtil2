@@ -883,13 +883,11 @@ http://www.pixiv.net/member_illust.php?id=123456
    Use these two syntax to set groups of rules. Supports regular expression.
    Use <> to define different groups, and put the patterns and strings to be
    replace with between ().
-   Group names should not use global.
-   Groups with no pattern would be ignored.
-   Groups with no replace use global replace char/string.
+   Group names should not be "global".
+   Groups with no "pattern" would be ignored.
+   Groups with no "replace" use global replace char/string.
    If multiple patterns/replaces share the same group name, the one on the most
-   right side would be used.
-   If multiple groups use the same pattern, the one whose name appears earliest
-   would be used.
+   right side would be used, the others would be ignored and not saved.
 ```
 - Chars/string not wrapped with syntaxes above would be considered single chars
   to be replaced with global replacement char/string, "_" if unset.
