@@ -91,7 +91,6 @@ def process_member(caller,
         PixivHelper.print_and_log(None, f'Member Avatar: {artist.artistAvatar}')
         PixivHelper.print_and_log(None, f'Member Token : {artist.artistToken}')
         PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
-        #PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
 
         target_dir = user_dir or config.rootDirectory
         if config.downloadAvatar:
@@ -165,6 +164,7 @@ def process_member(caller,
                 return
 
 
+        PixivHelper.print_and_log(None, f'Processing images starting with {"ID" if useImageIDs else "page"} {page} {"to " + str(end_page) if end_page else ""}')    #should be worded better
         PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
         for t in range(0,len(artist.imageList)//100+1 if usingBlacklist else 1):
             flag = False
