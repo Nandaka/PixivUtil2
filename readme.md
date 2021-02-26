@@ -675,6 +675,7 @@ Please refer run with `--help` for latest information.
 - customBadChars
 
   Chars in filenames existing in this value would be replaced with "_".
+  For detailed syntax, please refer to 'Bad chars' section
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
@@ -865,6 +866,37 @@ http://www.pixiv.net/member_illust.php?id=123456
 ```
 - If there is a 'div' tag with 'main' in its 'class' in the template, 'article' or 
   'non-article' would be appended to its 'class' depending on the type of the post.
+
+# Bad chars
+- Originally for removing single bad chars for use between different OSs.
+- Now also supports strings and regular expressions.
+- The value set in option `customBadChars` would be parsed from left to right.
+- Currently available syntaxes are:
+```
+-> %replace<global>()%
+   Use this syntax to define default char/string to be replaced with.
+   Place your desired char/string in between ().
+   If set multiple times, the one which appears earliest would be used.
+   eg. $replace<global>(@)%. If not set, "_" is used.
+-> %pattern<group-name>()%
+-> %replace<group-name>()%
+   Use these two syntax to set groups of rules. Supports regular expression.
+   Use <> to define different groups, and put the patterns and strings to be
+   replace with between ().
+   Group names should not use global.
+   Groups with no pattern would be ignored.
+   Groups with no replace use global replace char/string.
+   If multiple patterns/replaces share the same group name, the one on the most
+   right side would be used.
+   If multiple groups use the same pattern, the one whose name appears earliest
+   would be used.
+```
+- Chars/string not wrapped with syntaxes above would be considered single chars
+  to be replaced with global replacement char/string, "_" if unset.
+- When configuration file gets written to file, `customBadChars` would be
+  replaced with parsed valid value. Single chars would be placed first, followed by
+  `%replace<global>()%`, then each group.
+
 
 # Credits/Contributor
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
