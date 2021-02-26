@@ -165,6 +165,7 @@ def process_member(caller,
                 return
 
 
+        PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
         for t in range(0,len(artist.imageList)//100+1 if usingBlacklist else 1):
             flag = False
             images = []
@@ -178,11 +179,6 @@ def process_member(caller,
                 retry_count = 0
                 while True:
                     try:
-                        #if artist.totalImages > 0:
-                        #    PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
-                        #    # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
-                        #else:
-                        #    total_image_page_count = ((page - 1) * 20) + len(artist.imageList)
                         title_prefix_img = f"{title_prefix}MemberId: {member_id}{' Page: '+str(page) if not useImageIDs else ''} Post {no_of_images}+{updated_limit_count} of {artist.totalImages}"
                         if not caller.DEBUG_SKIP_PROCESS_IMAGE:
                             result = PixivImageHandler.process_image(caller,
