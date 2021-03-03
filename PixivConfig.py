@@ -158,15 +158,12 @@ class PixivConfig():
         ConfigItem("Settings", "setLastModified", True),
         ConfigItem("Settings", "useLocalTimezone", False),
 
-        ConfigItem("Filename",
-                   "filenameFormat",
+        ConfigItem("Filename", "filenameFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
-        ConfigItem("Filename",
-                   "filenameMangaFormat",
+        ConfigItem("Filename", "filenameMangaFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
-                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
+                   restriction=lambda x: x is not None and len(x) > 0 and re.match(".*%(urlFilename|page_index|page_number)%.*", x),
                    error_message="At least %urlFilename%, %page_index%, or %page_number% is required in"),
         ConfigItem("Filename", "filenameInfoFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
@@ -208,8 +205,7 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("FANBOX", "filenameFormatFanboxContent",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
-                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
+                   restriction=lambda x: x is not None and len(x) > 0 and re.match(".*%(urlFilename|page_index|page_number)%.*", x),
                    error_message="At least %urlFilename%, %page_index%, or %page_number% is required in"),
         ConfigItem("FANBOX", "filenameFormatFanboxInfo",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
