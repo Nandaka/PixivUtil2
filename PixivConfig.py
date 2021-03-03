@@ -50,7 +50,7 @@ class CustomSanitizer:
             temp_string = "".join(sorted(set(temp_string)))
             self._clean_string = temp_string + self._clean_string
             temp_string = re.sub(r"(\$|\(|\)|\*|\+|\.|\[|\]|\?|\^|\\|\{|\}|\|)", r"\\\1", temp_string)
-            self._regex_dic["default"] = {"regex": re.compile(temp_string), "replace": default_replacement}
+            self._regex_dic["default"] = {"regex": re.compile(f"[{temp_string}]"), "replace": default_replacement}
 
         for key, value in group_dic.items():
             if not value:
