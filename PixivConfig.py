@@ -52,16 +52,16 @@ class CustomSanitizer:
             temp_string = re.sub(r"(\$|\(|\)|\*|\+|\.|\[|\]|\?|\^|\\|\{|\}|\|)", r"\\\1", temp_string)
             self._regex_dic["default"] = {"regex": re.compile(temp_string), "replace": default_replacement}
 
-        for key in group_dic:
-            if not group_dic[key]:
+        for key, value in group_dic.items():
+            if not value:
                 continue
-            if "pattern" not in group_dic[key]:
+            if "pattern" not in value:
                 continue
             self._regex_dic[key] = {
-                "regex": re.compile(group_dic[key]["pattern"]),
-                "replace": group_dic[key].get("replace", default_replacement)
+                "regex": re.compile(value["pattern"]),
+                "replace": value.get("replace", default_replacement)
             }
-            for k, v in group_dic[key].items():
+            for k, v in value.items():
                 self._clean_string += f"%{k}<{key}>({v})%"
 
     def __str__(self):
@@ -328,8 +328,7 @@ class PixivConfig():
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
         if haveError:
-            print(
-                Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.' + Style.RESET_ALL)
+            print(Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.' + Style.RESET_ALL)
             self.writeConfig(error=True, path=self.configFileLocation)
 
         print('Configuration loaded.')
