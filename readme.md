@@ -873,16 +873,17 @@ http://www.pixiv.net/member_illust.php?id=123456
 - The value set in option `customBadChars` would be parsed from left to right.
 - Currently available syntaxes are:
 ```
--> %replace<default>(your_default_string)%
+-> %replace<default>(your_default_replace_with)%
    Use this syntax to define default value to replace with.
    If this syntax gets used multiple times in the option value, the first value would be used.
+   If this value is not set, "_" would be used.
 -> %pattern<you_group_name>(your_pattern)%
 -> %replace<you_group_name>(your_replace_with)%
    Use these two syntaxes to set groups of rules. Supports regular expression.
    You should not use "default" as group names, otherwise the first replace would
    be parsed as default value to replace with, while the others would be ignored.
    Groups with no "pattern" would be ignored.
-   Groups with no "replace" use global replace char/string.
+   Groups with no "replace" use default value.
    If multiple "pattern"s or "replace"s share the same group name, the last value set
    would be used.
 ```
@@ -890,7 +891,7 @@ http://www.pixiv.net/member_illust.php?id=123456
   to be replaced with global replacement char/string, "_" if unset.
 - When configuration file gets written to file, `customBadChars` would be
   replaced with parsed valid value. Single chars would be placed first, followed by
-  `%replace<default>(your_default_string)%`, then each group.
+  `%replace<default>(your_default_replace_with)%`, and each group.
 
 
 # Credits/Contributor
