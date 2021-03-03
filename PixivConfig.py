@@ -27,7 +27,7 @@ class CustomSanitizer:
         default_replacement = "_"
 
         temp_string = bad_char_string
-        group_dic = {"default": {}}
+        group_dic = {}
 
         match = re.search(r"%replace<default>\((.+?)\)%", temp_string)
         if match:
@@ -43,7 +43,7 @@ class CustomSanitizer:
             if group == "default":
                 continue
             if group not in group_dic:
-                group_dic[group] = {}
+                group_dic[group] = {"pattern": None}
             group_dic[group][kind] = content
 
         if temp_string:
@@ -55,7 +55,7 @@ class CustomSanitizer:
         for key, value in group_dic.items():
             if not value:
                 continue
-            if "pattern" not in value:
+            if not value["pattern"]:
                 continue
             self._regex_dic[key] = {
                 "regex": re.compile(value["pattern"]),
