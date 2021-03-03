@@ -27,40 +27,41 @@ class CustomSanitizer:
         default_replacement = "_"
 
         temp_string = bad_char_string
-        temp_dic = {"default": {}}
+        group_dic = {"default": {}}
 
         match = re.search(r"%replace<default>\((.+?)\)%", temp_string)
         if match:
             temp_string = temp_string.replace(match.group(), "")
             default_replacement = match.group(1)
+            self._clean_string += f"%replace<default>({default_replacement})%"
 
         for match in re.finditer(r"%(pattern|replace)<(.+?)>\((.*?)\)%", temp_string):
             temp_string = temp_string.replace(match.group(), "")
             kind = match.group(1)
             group = match.group(2)
             content = match.group(3)
-            if group == "global":
+            if group == "default":
                 continue
-            if group not in temp_dic:
-                temp_dic[group] = {}
-            temp_dic[group][kind] = content
+            if group not in group_dic:
+                group_dic[group] = {}
+            group_dic[group][kind] = content
 
         if temp_string:
             temp_string = "".join(sorted(set(temp_string)))
-            self._clean_string += temp_string
+            self._clean_string = temp_string + self._clean_string
             temp_string = re.sub(r"(\$|\(|\)|\*|\+|\.|\[|\]|\?|\^|\\|\{|\}|\|)", r"\\\1", temp_string)
-            self._regex_dic[re.compile(temp_string)] = default_replacement
+            self._regex_dic["default"] = {"regex": re.compile(temp_string), "replace": default_replacement}
 
-        if default_replacement != "_":
-            self._clean_string += f"%replace<default>({default_replacement})%"
-
-        for key in temp_dic:
-            if not temp_dic[key]:
+        for key in group_dic:
+            if not group_dic[key]:
                 continue
-            if "pattern" not in temp_dic[key]:
+            if "pattern" not in group_dic[key]:
                 continue
-            self._regex_dic[re.compile(temp_dic[key]["pattern"])] = temp_dic[key].get("replace", default_replacement)
-            for k, v in temp_dic[key].items():
+            self._regex_dic[key] = {
+                "regex": re.compile(group_dic[key]["pattern"]),
+                "replace": group_dic[key].get("replace", default_replacement)
+            }
+            for k, v in group_dic[key].items():
                 self._clean_string += f"%{k}<{key}>({v})%"
 
     def __str__(self):
@@ -68,8 +69,8 @@ class CustomSanitizer:
 
     def sanitize_string(self, string):
         if self._regex_dic:
-            for regex, replace in self._regex_dic.items():
-                string = regex.sub(replace, string)
+            for key, value in self._regex_dic.items():
+                string = value["regex"].sub(value["replace"], string)
         return string
 
 
@@ -147,7 +148,8 @@ class PixivConfig():
         ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
         ConfigItem("Settings", "writeRawJSON", False),
-        ConfigItem("Settings", "RawJSONFilter", "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
+        ConfigItem("Settings", "RawJSONFilter",
+                   "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
         ConfigItem("Settings", "includeSeriesJSON", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),
@@ -163,7 +165,8 @@ class PixivConfig():
         ConfigItem("Filename",
                    "filenameMangaFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
+                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
+                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
                    error_message="At least %urlFilename%, %page_index%, or %page_number% is required in"),
         ConfigItem("Filename", "filenameInfoFormat",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
@@ -176,7 +179,8 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "filenameFormatSketch", "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
-        ConfigItem("Filename", "filenameFormatNovel", "%artist% (%member_id%)" + os.sep + "%manga_series_id% %manga_series_order% %urlFilename% - %title%",
+        ConfigItem("Filename", "filenameFormatNovel",
+                   "%artist% (%member_id%)" + os.sep + "%manga_series_id% %manga_series_order% %urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "avatarNameFormat", ""),
         ConfigItem("Filename", "backgroundNameFormat", ""),
@@ -204,7 +208,8 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("FANBOX", "filenameFormatFanboxContent",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
-                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
+                   restriction=lambda x: x is not None and len(x) > 0 and (x.find("%urlFilename%") >= 0 or (
+                           x.find('%page_index%') >= 0 or x.find('%page_number%') >= 0)),
                    error_message="At least %urlFilename%, %page_index%, or %page_number% is required in"),
         ConfigItem("FANBOX", "filenameFormatFanboxInfo",
                    "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
@@ -224,7 +229,8 @@ class PixivConfig():
         ConfigItem("FFmpeg", "ffmpegParam", "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"),
         ConfigItem("FFmpeg", "webpCodec", "libwebp"),
         ConfigItem("FFmpeg", "webpParam", "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"),
-        ConfigItem("FFmpeg", "gifParam", "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
+        ConfigItem("FFmpeg", "gifParam",
+                   "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
         ConfigItem("FFmpeg", "apngParam", "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"),
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
@@ -326,7 +332,8 @@ class PixivConfig():
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
         if haveError:
-            print(Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.' + Style.RESET_ALL)
+            print(
+                Fore.RED + Style.BRIGHT + 'Configurations with invalid value are set to default value.' + Style.RESET_ALL)
             self.writeConfig(error=True, path=self.configFileLocation)
 
         print('Configuration loaded.')
