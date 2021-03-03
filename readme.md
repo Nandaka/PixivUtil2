@@ -873,7 +873,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - The value set in option `customBadChars` would be parsed from left to right.
 - Currently available syntaxes are:
 ```
--> %replace<global>()%
+-> %replace<default>()%
    Use this syntax to define default char/string to be replaced with.
    Place your desired char/string in between ().
    If set multiple times, the one which appears earliest would be used.
@@ -883,11 +883,13 @@ http://www.pixiv.net/member_illust.php?id=123456
    Use these two syntax to set groups of rules. Supports regular expression.
    Use <> to define different groups, and put the patterns and strings to be
    replace with between ().
-   Group names should not be "global".
-   Groups with no "pattern" would be ignored.
-   Groups with no "replace" use global replace char/string.
+   Group names should not use default.
+   Groups with no pattern would be ignored.
+   Groups with no replace use global replace char/string.
    If multiple patterns/replaces share the same group name, the one on the most
-   right side would be used, the others would be ignored and not saved.
+   right side would be used.
+   If multiple groups use the same pattern, the one whose name appears earliest
+   would be used.
 ```
 - Chars/string not wrapped with syntaxes above would be considered single chars
   to be replaced with global replacement char/string, "_" if unset.
