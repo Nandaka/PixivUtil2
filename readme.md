@@ -674,7 +674,7 @@ Please refer run with `--help` for latest information.
   Similar to filename format, but for Pixiv Sketch.
 - customBadChars
 
-  Chars in filenames existing in this value would be replaced with "_".
+  Chars/strings in filenames matching values set option would be replaced.
   For detailed syntax, please refer to 'Bad chars' section
 
 # Filename Format Syntax
@@ -873,29 +873,24 @@ http://www.pixiv.net/member_illust.php?id=123456
 - The value set in option `customBadChars` would be parsed from left to right.
 - Currently available syntaxes are:
 ```
--> %replace<default>()%
-   Use this syntax to define default char/string to be replaced with.
-   Place your desired char/string in between ().
-   If set multiple times, the one which appears earliest would be used.
-   eg. $replace<global>(@)%. If not set, "_" is used.
--> %pattern<group-name>()%
--> %replace<group-name>()%
-   Use these two syntax to set groups of rules. Supports regular expression.
-   Use <> to define different groups, and put the patterns and strings to be
-   replace with between ().
-   Group names should not use default.
-   Groups with no pattern would be ignored.
-   Groups with no replace use global replace char/string.
-   If multiple patterns/replaces share the same group name, the one on the most
-   right side would be used.
-   If multiple groups use the same pattern, the one whose name appears earliest
+-> %replace<default>(your_default_string)%
+   Use this syntax to define default value to replace with.
+   If this syntax gets used multiple times in the option value, the first value would be used.
+-> %pattern<you_group_name>(your_pattern)%
+-> %replace<you_group_name>(your_replace_with)%
+   Use these two syntaxes to set groups of rules. Supports regular expression.
+   You should not use "default" as group names, otherwise the first replace would
+   be parsed as default value to replace with, while the others would be ignored.
+   Groups with no "pattern" would be ignored.
+   Groups with no "replace" use global replace char/string.
+   If multiple "pattern"s or "replace"s share the same group name, the last value set
    would be used.
 ```
 - Chars/string not wrapped with syntaxes above would be considered single chars
   to be replaced with global replacement char/string, "_" if unset.
 - When configuration file gets written to file, `customBadChars` would be
   replaced with parsed valid value. Single chars would be placed first, followed by
-  `%replace<global>()%`, then each group.
+  `%replace<default>(your_default_string)%`, then each group.
 
 
 # Credits/Contributor
