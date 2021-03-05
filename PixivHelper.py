@@ -96,9 +96,8 @@ def sanitize_filename(name, rootDir=None):
 
     # if _config:
         # name = "".join([c if c not in _config.customBadChars else "_" for c in name])
-    if __custom_sanitizer_dic__:
-        for key, value in __custom_sanitizer_dic__.items():
-            name = value["regex"].sub(value["replace"], name)
+    for key, value in __custom_sanitizer_dic__.items():
+        name = value["regex"].sub(value["replace"], name)
 
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
@@ -1205,8 +1204,6 @@ def parse_custom_sanitizer(bad_char_string):
         __custom_sanitizer_dic__["default"] = {"regex": re.compile(temp_string), "replace": default_replacement}
 
     for key, value in group_dic.items():
-        if not value:
-            continue
         if not value["pattern"]:
             continue
         __custom_sanitizer_dic__[key] = {
