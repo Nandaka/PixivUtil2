@@ -54,6 +54,7 @@ else:
     ^$
     ''', re.VERBOSE)
 
+__custom_sanitizer_dic__ = {}
 
 def set_config(config):
     global _config
@@ -93,9 +94,11 @@ def sanitize_filename(name, rootDir=None):
 
     name = __badchars__.sub("_", name)
 
-    if _config:
-        if _config.customBadChars:
-            name = "".join([c if c not in _config.customBadChars else "_" for c in name])
+    # if _config:
+        # name = "".join([c if c not in _config.customBadChars else "_" for c in name])
+    if __custom_sanitizer_dic__:
+        for key, value in __custom_sanitizer_dic__.items():
+            name = value["regex"].sub(value["replace"], name)
 
     # Remove unicode control characters
     name = "".join(c for c in name if unicodedata.category(c) != "Cc")
@@ -1168,3 +1171,49 @@ class LocalUTCOffsetTimezone(tzinfo):
     def getTimeZoneOffset(self):
         offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
         return offset / 60 / 60 * -1
+
+
+def parse_custom_sanitizer(bad_char_string):
+    __custom_sanitizer_dic__.clear()
+    default_replacement = "_"
+    clean_string = ""
+
+    temp_string = bad_char_string
+    group_dic = {}
+
+    match = re.search(r"%replace<default>\((.+?)\)%", temp_string)
+    if match:
+        temp_string = temp_string.replace(match.group(), "")
+        default_replacement = match.group(1)
+        clean_string += f"%replace<default>({default_replacement})%"
+
+    for match in re.finditer(r"%(pattern|replace)<(.+?)>\((.*?)\)%", temp_string):
+        temp_string = temp_string.replace(match.group(), "")
+        kind = match.group(1)
+        group_name = match.group(2)
+        content = match.group(3)
+        if group_name == "default":
+            continue
+        if group_name not in group_dic:
+            group_dic[group_name] = {"pattern": None}
+        group_dic[group_name][kind] = content
+
+    if temp_string:
+        temp_string = "".join(sorted(set(temp_string)))
+        clean_string = temp_string + clean_string
+        temp_string = "|".join([c if c not in r"$()*+.[]?^\{}|" else rf"\{c}" for c in temp_string])
+        __custom_sanitizer_dic__["default"] = {"regex": re.compile(temp_string), "replace": default_replacement}
+
+    for key, value in group_dic.items():
+        if not value:
+            continue
+        if not value["pattern"]:
+            continue
+        __custom_sanitizer_dic__[key] = {
+            "regex": re.compile(value["pattern"]),
+            "replace": value.get("replace", default_replacement)
+        }
+        for k, v in value.items():
+            clean_string += f"%{k}<{key}>({v})%"
+
+    return clean_string
