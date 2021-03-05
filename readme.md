@@ -674,7 +674,8 @@ Please refer run with `--help` for latest information.
   Similar to filename format, but for Pixiv Sketch.
 - customBadChars
 
-  Chars in filenames existing in this value would be replaced with "_".
+  For sanitizing filenames with custom rules. Supports regular expressions.
+  For detailed syntax, please refer to 'Bad chars' section.
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
@@ -865,6 +866,47 @@ http://www.pixiv.net/member_illust.php?id=123456
 ```
 - If there is a 'div' tag with 'main' in its 'class' in the template, 'article' or 
   'non-article' would be appended to its 'class' depending on the type of the post.
+
+# Bad chars
+- Originally for removing single bad chars for use between different OSs.
+- Now also supports strings and regular expressions.
+- The value set in option `customBadChars` would be parsed from left to right.
+- Currently available syntaxes are:
+```
+-> %replace<default>(your_default_replace_with)%
+   Use this syntax to define default value to replace with.
+   If this syntax gets used multiple times in the option value, the first value would be used.
+   If this value is not set, "_" would be used.
+-> %pattern<you_group_name>(your_pattern)%
+-> %replace<you_group_name>(your_replace_with)%
+   Use these two syntaxes to set groups of rules. Supports regular expression.
+   You should not use "default" as group names, otherwise the first replace would
+   be parsed as default value to replace with, while the others would be ignored.
+   Groups with no "pattern" would be ignored.
+   Groups with no "replace" use default value.
+   If multiple "pattern"s or "replace"s share the same group name, the last value set
+   would be used.
+```
+- Chars/string not wrapped with syntaxes above would be considered single chars
+  to be replaced with global replacement char/string, "_" if unset.
+- When configuration file gets written to file, `customBadChars` would be
+  replaced with parsed valid value. Single chars would be placed first, followed by
+  `%replace<default>(your_default_replace_with)%`, and each group.
+- Examples:
+```
+# If you just want to replace some single chars with "_"
+\@[]
+# If you want to replace them with "@":
+\@[]%replace<default>(@)%
+# If you want to replace certain words:
+# This example would first replace all "maze" with "labyrinth",
+# then all "labyrinth" with "nevermind"
+%pattern<1>(maze)%%replace<1>(labyrinth)%%pattern<2>(labyrinth)%%replace<2>(nevermind)%
+# If you want to replace characters within certain unicode range,
+# then remove all continuous "_"s with a single "_":
+%pattern<unicode>([\U0001d400-\U0001ffff])%%pattern<1>(_+)%%replace<1>(_)%
+```
+
 
 # Credits/Contributor
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
