@@ -88,7 +88,8 @@ class PixivConfig():
         ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
         ConfigItem("Settings", "writeRawJSON", False),
-        ConfigItem("Settings", "RawJSONFilter", "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
+        ConfigItem("Settings", "RawJSONFilter",
+                   "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
         ConfigItem("Settings", "includeSeriesJSON", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),
@@ -117,7 +118,8 @@ class PixivConfig():
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "filenameFormatSketch", "%artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
-        ConfigItem("Filename", "filenameFormatNovel", "%artist% (%member_id%)" + os.sep + "%manga_series_id% %manga_series_order% %urlFilename% - %title%",
+        ConfigItem("Filename", "filenameFormatNovel",
+                   "%artist% (%member_id%)" + os.sep + "%manga_series_id% %manga_series_order% %urlFilename% - %title%",
                    restriction=lambda x: x is not None and len(x) > 0),
         ConfigItem("Filename", "avatarNameFormat", ""),
         ConfigItem("Filename", "backgroundNameFormat", ""),
@@ -127,7 +129,7 @@ class PixivConfig():
         ConfigItem("Filename", "urlDumpFilename", "url_list_%Y%m%d"),
         ConfigItem("Filename", "useTranslatedTag", False),
         ConfigItem("Filename", "tagTranslationLocale", "en"),
-        ConfigItem("Filename", "customBadChars", ""),
+        ConfigItem("Filename", "customBadChars", "", followup=PixivHelper.parse_custom_sanitizer),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),
@@ -165,7 +167,8 @@ class PixivConfig():
         ConfigItem("FFmpeg", "ffmpegParam", "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"),
         ConfigItem("FFmpeg", "webpCodec", "libwebp"),
         ConfigItem("FFmpeg", "webpParam", "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"),
-        ConfigItem("FFmpeg", "gifParam", "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
+        ConfigItem("FFmpeg", "gifParam",
+                   "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
         ConfigItem("FFmpeg", "apngParam", "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"),
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
@@ -199,7 +202,7 @@ class PixivConfig():
 
     def __init__(self):
         for item in self.__items:
-            setattr(self, item.option, item.default)
+            setattr(self, item.option, item.process_value(item.default))
         self.proxy = {'http': self.proxyAddress, 'https': self.proxyAddress}
 
     def loadConfig(self, path=None):
