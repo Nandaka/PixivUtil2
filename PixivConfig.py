@@ -60,6 +60,7 @@ class PixivConfig():
         ConfigItem("Network", "retryWait", 5),
         ConfigItem("Network", "downloadDelay", 2),
         ConfigItem("Network", "checkNewVersion", True),
+        ConfigItem("Network", "notifyBetaVersion", True),
         ConfigItem("Network", "openNewVersion", True),
         ConfigItem("Network", "enableSSLVerification", True),
 
