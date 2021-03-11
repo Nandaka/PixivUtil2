@@ -165,7 +165,7 @@ def process_member(caller,
 
 
         PixivHelper.print_and_log(None, f'Processing images starting with {"ID" if useImageIDs else "page"} {page} {"to " + str(end_page) if end_page else ""}')    #should be worded better
-        PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
+        PixivHelper.safePrint("Total Images = " + str(len(artist.imageList)))
         for t in range(0,len(artist.imageList)//100+1 if usingBlacklist else 1):
             flag = False
             images = []
