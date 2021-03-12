@@ -414,6 +414,9 @@ Please refer run with `--help` for latest information.
 - checkNewVersion
 
   Set to `True` to check new releases in github.
+- notifyBetaVersion
+
+  Set to `False` to ignore beta releases.
 - openNewVersion
 
   Set to `False` to disable opening new releases in browser.
