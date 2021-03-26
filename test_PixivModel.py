@@ -462,7 +462,7 @@ class TestPixivBookmark(unittest.TestCase):
         # print('\nTesting PixivImageBookmark')
         p = open('./test/bookmarks.json', 'r', encoding="utf-8")
         page = p.read()
-        result = PixivBookmark.parseImageBookmark(page)
+        (result, total) = PixivBookmark.parseImageBookmark(page)
 
         self.assertEqual(len(result), 19)
         self.assertTrue(35303260 in result)

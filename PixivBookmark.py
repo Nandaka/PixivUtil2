@@ -54,31 +54,33 @@ class PixivBookmark(object):
         return bookmarks
 
     @staticmethod
-    def parseImageBookmark(page):
+    def parseImageBookmark(page, image_tags_filter=None):
+        total_images = 0
         imageList = list()
 
         image_bookmark = json.loads(page)
+        total_images = image_bookmark["body"]["total"]  # total bookmarks, won't be the same if image_tags_filter used.
         for work in image_bookmark["body"]["works"]:
             if "isAdContainer" in work and work["isAdContainer"]:
                 continue
+
+            # Issue #928
+            skip = True
+            if image_tags_filter is not None:  # exact tag only
+                for tag in work["tags"]:
+                    if tag == image_tags_filter:
+                        skip = False
+                        break
+                if skip:
+                    continue
+
             # Issue #822
             if "illustId" in work:
                 imageList.append(int(work["illustId"]))
             elif "id" in work:
                 imageList.append(int(work["id"]))
 
-        # temp = page.find('ul', attrs={'class': PixivBookmark.__re_imageULItemsClass})
-        # temp = temp.findAll('a')
-        # if temp is None or len(temp) == 0:
-        #     return imageList
-        # for item in temp:
-        #     href = re.search(r'/artworks/(\d+)', str(item))
-        #     if href is not None:
-        #         href = href.group(1)
-        #         if not int(href) in imageList:
-        #             imageList.append(int(href))
-
-        return imageList
+        return (imageList, total_images)
 
     @staticmethod
     def exportList(lst, filename):

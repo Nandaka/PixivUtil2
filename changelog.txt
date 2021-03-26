@@ -1,9 +1,13 @@
-20210221-beta2
+20210326
 - Implement #706: add novel support.
 - Merge Update PixivDBManager.py (#910) by amatuerCoder.
 - Merge Update PixivBrowserFactory.py (#908) by amatuerCoder.
 - Merge Fix #889 #899 (#903) by amatuerCoder.
 - Update test script for PixivBrowserFactory.
+- Implement #928: allow to use image tags for filtering when downloading user bookmark (option 6).
+- Merge Add config option to ignore beta versions (#923) by Terryble2
+- Merge Bad chars enhancement (#920) by amatuerCoder.
+- Update error message for #914
 
 20210128
 - Fix Issue #878: update search by tag parser to handle missing 'isAdContainer'.

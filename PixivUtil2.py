@@ -34,8 +34,8 @@ from PixivException import PixivException
 from PixivTags import PixivTags
 
 colorama.init()
-DEBUG_SKIP_PROCESS_IMAGE = False
-DEBUG_SKIP_DOWNLOAD_IMAGE = False
+DEBUG_SKIP_PROCESS_IMAGE = True
+DEBUG_SKIP_DOWNLOAD_IMAGE = True
 
 if platform.system() == "Windows":
     # patch getpass.getpass() for windows to show '*'
@@ -505,7 +505,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
     end_page = 0
     hide = 'n'
     tag = ''
-    sorting = 'desc'
+    use_image_tag = False
 
     if opisvalid:
         if len(args) > 0:
@@ -530,11 +530,15 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
             return
         tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
-        sorting = sorting.lower()
-        if sorting not in ('asc', 'desc', 'date', 'date_d'):
-            print("Invalid sorting order: ", sorting)
-            return
+        # sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
+        # sorting = sorting.lower()
+        # if sorting not in ('asc', 'desc', 'date', 'date_d'):
+        #     print("Invalid sorting order: ", sorting)
+        #     return
+        if tag != '':
+            use_image_tag = input("Use Image Tags as the filter [y/n]? ").rstrip("\r") or 'n'
+            use_image_tag = use_image_tag.lower()
+            use_image_tag = True if use_image_tag == 'y' else False
 
     PixivBookmarkHandler.process_image_bookmark(sys.modules[__name__],
                                                 __config__,
@@ -542,7 +546,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
                                                 start_page=start_page,
                                                 end_page=end_page,
                                                 tag=tag,
-                                                sorting=sorting)
+                                                use_image_tag=use_image_tag)
 
 
 def menu_download_from_tags_list(opisvalid, args, options):
