@@ -34,8 +34,8 @@ from PixivException import PixivException
 from PixivTags import PixivTags
 
 colorama.init()
-DEBUG_SKIP_PROCESS_IMAGE = True
-DEBUG_SKIP_DOWNLOAD_IMAGE = True
+DEBUG_SKIP_PROCESS_IMAGE = False
+DEBUG_SKIP_DOWNLOAD_IMAGE = False
 
 if platform.system() == "Windows":
     # patch getpass.getpass() for windows to show '*'
