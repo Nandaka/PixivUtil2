@@ -517,11 +517,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
             if hide not in ('y', 'n', 'o'):
                 PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {args}, valid values are [y/n/o].")
                 return
-        if options.sort_order is not None:
-            sorting = options.sort_order.lower()
-            if sorting not in ('asc', 'desc', 'date', 'date_d'):
-                PixivHelper.print_and_log("error", f"Invalid sorting order: {sorting}.")
-                return
+        use_image_tag = options.use_image_tag
     else:
         hide = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
         hide = hide.lower()
@@ -530,11 +526,6 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
             return
         tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        # sorting = input("Sort Order [asc/desc/date/date_d]: ").rstrip("\r") or 'desc'
-        # sorting = sorting.lower()
-        # if sorting not in ('asc', 'desc', 'date', 'date_d'):
-        #     print("Invalid sorting order: ", sorting)
-        #     return
         if tag != '':
             use_image_tag = input("Use Image Tags as the filter [y/n]? ").rstrip("\r") or 'n'
             use_image_tag = use_image_tag.lower()
@@ -1055,6 +1046,11 @@ If using relative path, it will be prefixed with [downloadlistdirectory] in conf
                       default=None,
                       help='''End Date for option 3, 7 and 9.                       \n
  Format must follow YYYY-MM-DD.''')
+    parser.add_option('--uit', '--use_image_tag',
+                      dest='use_image_tag',
+                      default=False,
+                      action='store_true',
+                      help='''Use Image Tag for filtering in option (6). Default is False.''')
     return parser
 
 
