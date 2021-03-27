@@ -15,7 +15,7 @@ import cloudscraper
 import requests
 
 import PixivHelper
-from PixivException import PixivException
+import PixivOAuthBrowser
 
 
 # monkey patch cloudscraper.User_Agent.loadUserAgent function
@@ -154,8 +154,8 @@ class PixivOAuth():
         self._validate_ssl = validate_ssl
 
     def _get_default_values(self):
-        return {'client_id': 'MOBrBDS8blbauoSck0ZfDbtuzpyT',
-                'client_secret': 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj',
+        return {'client_id': PixivOAuthBrowser.CLIENT_ID,
+                'client_secret': PixivOAuthBrowser.CLIENT_SECRET,
                 'device_token': 'pixiv',
                 'get_secure_url': 'true',
                 'include_policy': 'true'}
@@ -179,7 +179,7 @@ class PixivOAuth():
         time = "{0}{1}".format(datetime.now().isoformat()[0:19], self._tzInfo)
         secret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
         time_hash = hashlib.md5("{0}{1}".format(time, secret).encode('utf-8'))
-        return {'User-Agent': 'PixivAndroidApp/5.0.145 (Android 4.4.2; R831T)',
+        return {'User-Agent': PixivOAuthBrowser.USER_AGENT,
                 'Accept-Language': 'en_US',
                 'App-OS': 'android',
                 'App-OS-Version': '4.4.2',
@@ -220,7 +220,8 @@ class PixivOAuth():
                 PixivHelper.get_logger().info("OAuth Refresh Token invalid, Relogin needed.")
 
         if need_relogin:
-            oauth_response = self.login_with_username_and_password()
+            # Semi Auto handling to get the refresh token
+            oauth_response = PixivOAuthBrowser.login()
 
         PixivHelper.get_logger().debug("%s: %s", oauth_response.status_code, oauth_response.text)
         if oauth_response.status_code == 200:
@@ -236,7 +237,7 @@ class PixivOAuth():
                     PixivHelper.dump_html("Error - oAuth login.html", info)
 
             PixivHelper.print_and_log('error', info)
-            raise PixivException("Failed to login using OAuth, follow instruction in https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362 to get the refresh token.", PixivException.OAUTH_LOGIN_ISSUE)
+            # raise PixivException("Failed to login using OAuth, follow instruction in https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362 to get the refresh token.", PixivException.OAUTH_LOGIN_ISSUE)
 
         return oauth_response
 
@@ -260,8 +261,12 @@ def test_OAuth():
     # proxies = {'http': 'http://localhost:8888',
     #            'https': 'http://localhost:8888'}
     # oauth = PixivOAuth(cfg.username, cfg.password, proxies, False, cfg.refresh_token)
-    # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, cfg.refresh_token)
-    oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
+
+    if cfg.refresh_token is None:
+        cfg.refresh_token = PixivOAuthBrowser.login()
+
+    oauth = PixivOAuth(cfg.username, cfg.password, {}, True, cfg.refresh_token)
+    # oauth = PixivOAuth(cfg.username, cfg.password, {}, True, None)
     result = oauth.login()
     assert oauth._refresh_token is not None
     print("refresh token {0}".format(oauth._refresh_token))

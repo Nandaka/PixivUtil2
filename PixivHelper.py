@@ -56,6 +56,7 @@ else:
 
 __custom_sanitizer_dic__ = {}
 
+
 def set_config(config):
     global _config
     _config = config
@@ -94,8 +95,6 @@ def sanitize_filename(name, rootDir=None):
 
     name = __badchars__.sub("_", name)
 
-    # if _config:
-        # name = "".join([c if c not in _config.customBadChars else "_" for c in name])
     for key, value in __custom_sanitizer_dic__.items():
         name = value["regex"].sub(value["replace"], name)
 
