@@ -55,8 +55,7 @@ class FanboxArtist(object):
         js = demjson.decode(page)
 
         if "error" in js and js["error"]:
-            raise PixivException(
-                "Error when requesting Fanbox artist: {0}".format(self.artistId), 9999, page)
+            raise PixivException(f"Error when requesting Fanbox artist: {self.artistId}", 9999, page)
 
         if js["body"] is not None:
             js_body = js["body"]
@@ -193,7 +192,8 @@ class FanboxPost(object):
             parsed = BeautifulSoup(self.body_text, features="html5lib")
             links = parsed.findAll('a')
             for link in links:
-                if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0:
+                # Issue #929
+                if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0 or link["href"].find("//downloads.fanbox.cc/") > 0:
                     self.try_add(link["href"], self.embeddedFiles)
                     self.try_add(link["href"], self.images)
             images = parsed.findAll('img')
@@ -376,11 +376,11 @@ class FanboxPost(object):
             list_data.append(item)
 
     def printPost(self):
-        print("Post  = {0}".format(self.imageId))
-        print("Title = {0}".format(self.imageTitle))
-        print("Type  = {0}".format(self.type))
-        print("Created Date  = {0}".format(self.worksDate))
-        print("Is Restricted = {0}".format(self.is_restricted))
+        print(f"Post  = {self.imageId}")
+        print(f"Title = {self.imageTitle}")
+        print(f"Type  = {self.type}")
+        print(f"Created Date  = {self.worksDate}")
+        print(f"Is Restricted = {self.is_restricted}")
 
     def WriteInfo(self, filename):
         info = None
@@ -390,30 +390,24 @@ class FanboxPost(object):
 
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
-            info = codecs.open(str(self.imageId) + ".txt",
-                               'wb', encoding='utf-8')
+            info = codecs.open(str(self.imageId) + ".txt", 'wb', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.txt", filename, self.imageId)
 
-        info.write(u"ArtistID      = {0}\r\n".format(self.parent.artistId))
-        info.write(u"ArtistName    = {0}\r\n".format(self.parent.artistName))
+        info.write(f"ArtistID      = {self.parent.artistId}\r\n")
+        info.write(f"ArtistName    = {self.parent.artistName}\r\n")
 
-        info.write(u"ImageID       = {0}\r\n".format(self.imageId))
-        info.write(u"Title         = {0}\r\n".format(self.imageTitle))
-        info.write(u"Caption       = {0}\r\n".format(self.body_text))
-        # info.write(u"Tags          = " + ", ".join(self.imageTags) + "\r\n")
+        info.write(f"ImageID       = {self.imageId}\r\n")
+        info.write(f"Title         = {self.imageTitle}\r\n")
+        info.write(f"Caption       = {self.body_text}\r\n")
         if self.is_restricted:
-            info.write(
-                u"Image Mode    = {0}, Restricted\r\n".format(self.type))
+            info.write(f"Image Mode    = {self.type}, Restricted\r\n")
         else:
-            info.write(u"Image Mode    = {0}\r\n".format(self.type))
-        info.write(u"Pages         = {0}\r\n".format(self.imageCount))
-        info.write(u"Date          = {0}\r\n".format(self.worksDate))
-        # info.write(u"Resolution    = " + self.worksResolution + "\r\n")
-        # info.write(u"Tools         = " + self.worksTools + "\r\n")
-        info.write(u"Like Count    = {0}\r\n".format(self.likeCount))
-        info.write(u"Link          = https://www.pixiv.net/fanbox/creator/{0}/post/{1}\r\n".format(
-            self.parent.artistId, self.imageId))
-        # info.write("Ugoira Data   = " + str(self.ugoira_data) + "\r\n")
+            info.write(f"Image Mode    = {self.type}\r\n")
+        info.write(f"Pages         = {self.imageCount}\r\n")
+        info.write(f"Date          = {self.worksDate}\r\n")
+        info.write(f"Like Count    = {self.likeCount}\r\n")
+        # https://www.fanbox.cc/@nekoworks/posts/928
+        info.write(f"Link          = https://www.fanbox.cc/@{self.parent.creatorId}/posts/{self.imageId}\r\n")
         if len(self.embeddedFiles) > 0:
             info.write("Urls          =\r\n")
             for link in self.embeddedFiles:
@@ -426,10 +420,8 @@ class FanboxPost(object):
             PixivHelper.makeSubdirs(filename)
             info = codecs.open(filename, 'wb', encoding='utf-8')
         except IOError:
-            info = codecs.open(str(self.imageId) + ".html",
-                               'wb', encoding='utf-8')
-            PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html",
-                                               filename, self.imageId)
+            info = codecs.open(str(self.imageId) + ".html", 'wb', encoding='utf-8')
+            PixivHelper.get_logger().exception("Error when saving article html: %s, file is saved to: %s.html", filename, self.imageId)
 
         cover_image = ""
         if self.coverImageUrl:
