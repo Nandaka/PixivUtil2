@@ -2,6 +2,7 @@
 # pylint: disable=C1801, C0330
 import codecs
 import os
+import re
 import sys
 
 import demjson
@@ -10,6 +11,8 @@ from bs4 import BeautifulSoup
 import datetime_z
 import PixivHelper
 from PixivException import PixivException
+
+_re_fanbox_cover = re.compile(r"c\/.*\/fanbox")
 
 
 class FanboxArtist(object):
@@ -91,6 +94,7 @@ class FanboxPost(object):
     imageId = 0
     imageTitle = ""
     coverImageUrl = ""
+    fullCoverSizeUrl = ""
     worksDate = ""
     worksDateDateTime = None
     updatedDate = ""
@@ -156,8 +160,11 @@ class FanboxPost(object):
         self.imageTitle = jsPost["title"]
 
         self.coverImageUrl = jsPost["coverImageUrl"]
-        if self.coverImageUrl is not None and self.coverImageUrl not in self.embeddedFiles:
-            self.embeddedFiles.append(jsPost["coverImageUrl"])
+        # Issue #930
+        if self.coverImageUrl is not None:
+            original_url = jsPost["coverImageUrl"]
+            self.fullCoverSizeUrl = _re_fanbox_cover.sub("fanbox", original_url)
+            self.embeddedFiles.append(self.fullCoverSizeUrl)
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
@@ -425,7 +432,11 @@ class FanboxPost(object):
 
         cover_image = ""
         if self.coverImageUrl:
-            cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
+            # Issue #930
+            if self.fullCoverSizeUrl:
+                cover_image = f'<div class="cover"><a href="{self.fullCoverSizeUrl}" target="_blank"><img src="{self.coverImageUrl}"/></a></div>'
+            else:
+                cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
         page = html_template.replace("%coverImage%", cover_image)
         page = page.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
