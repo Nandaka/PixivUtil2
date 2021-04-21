@@ -1,3 +1,8 @@
+20210421
+- Implement #930: download full size image for fanbox cover.
+- Fix #929: update fanbox post parser for post type = entry.
+- Merge Show URL for oauth (#931) by Jhyrachy.
+
 20210326
 - Implement #706: add novel support.
 - Merge Update PixivDBManager.py (#910) by amatuerCoder.
