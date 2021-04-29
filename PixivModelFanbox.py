@@ -164,7 +164,8 @@ class FanboxPost(object):
         if self.coverImageUrl is not None:
             original_url = jsPost["coverImageUrl"]
             self.fullCoverSizeUrl = _re_fanbox_cover.sub("fanbox", original_url)
-            self.embeddedFiles.append(self.fullCoverSizeUrl)
+            self.try_add(self.fullCoverSizeUrl, self.images)
+            self.try_add(self.fullCoverSizeUrl, self.embeddedFiles)
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
