@@ -54,7 +54,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertTrue(len(result[0].imageTitle) > 0)
         self.assertTrue(len(result[0].coverImageUrl) > 0)
         self.assertEqual(result[0].type, "image")
-        self.assertEqual(len(result[0].images), 5)
+        self.assertEqual(len(result[0].images), 6)
 
         # post-132919 text
         self.assertEqual(result[2].imageId, 132919)
@@ -138,7 +138,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertTrue(len(result[4].imageTitle) > 0)
         self.assertEqual(result[4].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/330905/cover/3A2zPUg4s6iz17MM0Z45eWBj.jpeg')
         self.assertEqual(result[4].type, "video")
-        self.assertEqual(len(result[4].images), 0)
+        self.assertEqual(len(result[4].images), 1)
         self.assertEqual(len(result[4].body_text), 109)
         print(result[4].body_text)
 
@@ -163,7 +163,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertTrue(len(result[0].imageTitle) > 0)
         self.assertEqual(result[0].coverImageUrl, u'https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/285502/cover/orx9TCsiPFi5sgDdbvg4zwkX.jpeg')
         self.assertEqual(result[0].type, "article")
-        self.assertEqual(len(result[0].images), 7)
+        self.assertEqual(len(result[0].images), 8)
         self.assertEqual(len(result[0].body_text), 3414)
 
         # result.posts[0].WriteInfo("./285502.txt")
@@ -260,7 +260,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNotNone(result)
 
         self.assertEqual(result.imageId, 855025)
-        self.assertEqual(len(result.images), 2)
+        self.assertEqual(len(result.images), 3)
         self.assertEqual(len(result.embeddedFiles), 3)
         self.assertIsNotNone(result.coverImageUrl)
         self.assertFalse(result.coverImageUrl in result.images)
@@ -274,7 +274,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNotNone(result)
 
         self.assertEqual(result.imageId, 685832)
-        self.assertEqual(len(result.images), 1)
+        self.assertEqual(len(result.images), 2)
         self.assertEqual(len(result.embeddedFiles), 2)
         self.assertIsNotNone(result.coverImageUrl)
         self.assertFalse(result.coverImageUrl in result.images)
@@ -289,13 +289,21 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertIsNotNone(result)
         root_dir = os.path.abspath(os.path.curdir)
         post = result[0]
-        image_url = post.images[0]
-        current_page = 0
-        fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
 
-        re_page = temp.findall(fake_image_url)
-        self.assertIsNotNone(re_page)
-        self.assertEqual(re_page[0], u"0")
+        # 'https://pixiv.pximg.net/fanbox/public/images/post/136761/cover/OqhhcslOfbzZpHyTfJNtnIWm.jpeg'
+        big_cover_url = post.images[0]
+        # 'https://fanbox.pixiv.net/images/post/136761/hcXl48iORoJykmrR3zPZEoUu.jpeg'
+        image_url = post.images[1]
+        # current_page = 0
+        # fake_image_url = image_url.replace("{0}/".format(post.imageId), "{0}_p{1}_".format(post.imageId, current_page))
+
+        # # re_page = temp.findall(fake_image_url)
+        # re_page = temp.findall(image_url)
+        # self.assertIsNotNone(re_page)
+        # self.assertEqual(re_page[0], u"0")
+        # re_page = temp.findall(big_cover_url)
+        # self.assertIsNotNone(re_page)
+        # self.assertEqual(re_page[0], u"0")
 
         def simple_from_images():
             filename_format = '%title%_%urlFilename%'
@@ -305,12 +313,23 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                  artistInfo=artist,
                                                  tagsSeparator=" ",
                                                  tagsLimit=0,
-                                                 fileUrl=fake_image_url,
+                                                 fileUrl=image_url,
                                                  bookmark=None,
                                                  searchTags='')
             filename = PixivHelper.sanitize_filename(filename, root_dir)
 
-            self.assertEqual(filename, root_dir + os.sep + u"アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu.jpeg")
+            self.assertEqual(filename, root_dir + os.sep + "アスナさん０２_hcXl48iORoJykmrR3zPZEoUu.jpeg")
+            filename2 = PixivHelper.make_filename(filename_format,
+                                        post,
+                                        artistInfo=artist,
+                                        tagsSeparator=" ",
+                                        tagsLimit=0,
+                                        fileUrl=big_cover_url,
+                                        bookmark=None,
+                                        searchTags='')
+            filename = PixivHelper.sanitize_filename(filename2, root_dir)
+
+            self.assertEqual(filename, root_dir + os.sep + "アスナさん０２_OqhhcslOfbzZpHyTfJNtnIWm.jpeg")
         simple_from_images()
 
         def more_format():
@@ -322,14 +341,14 @@ class TestPixivModel_Fanbox(unittest.TestCase):
                                                  artistInfo=artist,
                                                  tagsSeparator=" ",
                                                  tagsLimit=0,
-                                                 fileUrl=fake_image_url,
+                                                 fileUrl=image_url,
                                                  bookmark=None,
                                                  searchTags='')
             filename = PixivHelper.sanitize_filename(filename, root_dir)
 
-            expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_p0_アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20:28:16.jpeg"
+            expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_p_アスナさん０２_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20:28:16.jpeg"
             if platform.system() == 'Windows':
-                expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_p0_アスナさん０２_136761_p0_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg"
+                expected_name = root_dir + os.sep + u"15521131" + os.sep + u"136761_p_アスナさん０２_hcXl48iORoJykmrR3zPZEoUu_2018-08-26 20_28_16.jpeg"
 
             self.assertEqual(filename, expected_name)
         more_format()

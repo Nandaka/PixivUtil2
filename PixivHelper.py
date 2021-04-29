@@ -213,6 +213,7 @@ def make_filename(nameFormat: str,
     page_number = ''
     page_big = ''
     if imageInfo.imageMode == 'manga':
+        # not working for fanbox due to url filename doesn't have _p0
         idx = __re_manga_index.findall(fileUrl)
         if len(idx) > 0:
             page_index = idx[0]
