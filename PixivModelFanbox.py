@@ -164,8 +164,9 @@ class FanboxPost(object):
         if self.coverImageUrl is not None:
             original_url = jsPost["coverImageUrl"]
             self.fullCoverSizeUrl = _re_fanbox_cover.sub("fanbox", original_url)
-            self.try_add(self.fullCoverSizeUrl, self.images)
-            self.try_add(self.fullCoverSizeUrl, self.embeddedFiles)
+            self.coverImageUrl = self.fullCoverSizeUrl
+            # self.try_add(self.fullCoverSizeUrl, self.images)
+            # self.try_add(self.fullCoverSizeUrl, self.embeddedFiles)
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
@@ -435,7 +436,7 @@ class FanboxPost(object):
         if self.coverImageUrl:
             # Issue #930
             if self.fullCoverSizeUrl:
-                cover_image = f'<div class="cover"><a href="{self.fullCoverSizeUrl}" target="_blank"><img src="{self.coverImageUrl}"/></a></div>'
+                cover_image = f'<div class="cover"><a href="{self.fullCoverSizeUrl}" target="_blank"><img style="max-width: 1200px; height:auto;" src="{self.coverImageUrl}"/></a></div>'
             else:
                 cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
         page = html_template.replace("%coverImage%", cover_image)

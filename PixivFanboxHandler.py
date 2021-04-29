@@ -33,7 +33,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
                 artist.artistToken = result[7]
                 PixivHelper.print_and_log("info", f"Using saved artist name and token from db: {artist.artistName}, {artist.artistToken}")
             else:
-                PixivHelper.print_and_log("warn", f"Artist name or token found in FANBOX filename formats, but not in db.")
+                PixivHelper.print_and_log("warn", "Artist name or token found in FANBOX filename formats, but not in db.")
                 if name_flag:
                     artist.artistName = input(f"Please input %artist% for {artist_id}: ").strip()
                 if token_flag:
