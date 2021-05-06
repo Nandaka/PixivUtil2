@@ -345,7 +345,7 @@ def set_console_title(title):
         except FileNotFoundError:
             print_and_log("error", f"Cannot set console title to {title}")
     else:
-        sys.stdout.write(f"\x1b]2;{title}\x07")
+        sys.stdout.write(f"\x1b[2;{title}\x07")
 
 
 def clearScreen():
