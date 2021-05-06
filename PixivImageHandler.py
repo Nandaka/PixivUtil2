@@ -366,8 +366,7 @@ def process_manga_series(caller,
                          manga_series_id: int,
                          start_page: int = 1,
                          end_page: int = 0,
-                         notifier=None,
-                         job_option=None):
+                         notifier=None):
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
     try:
@@ -396,7 +395,6 @@ def process_manga_series(caller,
                                        bookmark_count=-1,
                                        image_response_count=-1,
                                        notifier=notifier,
-                                       job_option=job_option,
                                        useblacklist=True,
                                        manga_series_order=order,
                                        manga_series_parent=manga_series)
