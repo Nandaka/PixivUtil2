@@ -225,7 +225,7 @@ def download_image(caller,
                 if ioex.errno == 28:
                     PixivHelper.print_and_log('error', str(ioex))
                     input("Press Enter to retry.")
-                    return (PixivConstant.PIXIVUTIL_NOT_OK, None)
+                    continue
                 temp_error_code = PixivException.DOWNLOAD_FAILED_IO
                 raise
             except KeyboardInterrupt:
