@@ -59,14 +59,14 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # post-132919 text
         self.assertEqual(result[2].imageId, 132919)
         self.assertTrue(len(result[2].imageTitle) > 0)
-        self.assertIsNone(result[2].coverImageUrl)
+        self.assertIsNotNone(result[2].coverImageUrl)
         self.assertEqual(result[2].type, "text")
         self.assertEqual(len(result[2].images), 0)
 
         # post-79695 image
         self.assertEqual(result[3].imageId, 79695)
         self.assertTrue(len(result[3].imageTitle) > 0)
-        self.assertIsNone(result[3].coverImageUrl)
+        self.assertIsNotNone(result[3].coverImageUrl)
         self.assertEqual(result[3].type, "image")
         self.assertEqual(len(result[3].images), 4)
 
@@ -88,7 +88,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # post-201946 article
         self.assertEqual(result[0].imageId, 201946)
         self.assertTrue(len(result[0].imageTitle) > 0)
-        self.assertIsNone(result[0].coverImageUrl)
+        self.assertIsNotNone(result[0].coverImageUrl)
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 5)
         self.assertEqual(len(result[0].body_text), 1312)
@@ -111,7 +111,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         # post-201946 article
         self.assertEqual(result[0].imageId, 210980)
         self.assertTrue(len(result[0].imageTitle) > 0)
-        self.assertIsNone(result[0].coverImageUrl)
+        self.assertIsNotNone(result[0].coverImageUrl)
         self.assertEqual(result[0].type, "article")
         self.assertEqual(len(result[0].images), 15)
         self.assertEqual(len(result[0].body_text), 3038)
@@ -261,7 +261,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         self.assertEqual(result.imageId, 855025)
         self.assertEqual(len(result.images), 2)
-        self.assertEqual(len(result.embeddedFiles), 2)
+        self.assertEqual(len(result.embeddedFiles), 3)
         self.assertIsNotNone(result.coverImageUrl)
         self.assertFalse(result.coverImageUrl in result.images)
 
@@ -275,7 +275,7 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         self.assertEqual(result.imageId, 685832)
         self.assertEqual(len(result.images), 1)
-        self.assertEqual(len(result.embeddedFiles), 1)
+        self.assertEqual(len(result.embeddedFiles), 2)
         self.assertIsNotNone(result.coverImageUrl)
         self.assertFalse(result.coverImageUrl in result.images)
 
