@@ -13,7 +13,7 @@ import PixivHelper
 from PixivException import PixivException
 
 _re_fanbox_cover = re.compile(r"c\/.*\/fanbox")
-
+_url_pattern = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
 
 class FanboxArtist(object):
     artistId = 0
@@ -94,7 +94,6 @@ class FanboxPost(object):
     imageId = 0
     imageTitle = ""
     coverImageUrl = ""
-    fullCoverSizeUrl = ""
     worksDate = ""
     worksDateDateTime = None
     updatedDate = ""
@@ -125,6 +124,9 @@ class FanboxPost(object):
 
     embeddedFiles = None
     provider = None
+    # 949
+    descriptionUrlList = None
+
 
     def __init__(self, post_id, parent, page, tzInfo=None):
         self.images = list()
@@ -132,7 +134,8 @@ class FanboxPost(object):
         self.imageId = int(post_id)
         self.parent = parent
         self._tzInfo = tzInfo
-
+        # 949
+        self.descriptionUrlList = list()
         self.linkToFile = dict()
 
         self.parsePost(page)
@@ -159,14 +162,11 @@ class FanboxPost(object):
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
 
-        self.coverImageUrl = jsPost["coverImageUrl"]
+        coverUrl = jsPost["coverImageUrl"]
         # Issue #930
-        if self.coverImageUrl is not None:
-            original_url = jsPost["coverImageUrl"]
-            self.fullCoverSizeUrl = _re_fanbox_cover.sub("fanbox", original_url)
-            self.coverImageUrl = self.fullCoverSizeUrl
-            # self.try_add(self.fullCoverSizeUrl, self.images)
-            # self.try_add(self.fullCoverSizeUrl, self.embeddedFiles)
+        if not self.coverImageUrl and coverUrl:
+            self.coverImageUrl = _re_fanbox_cover.sub("fanbox", coverUrl)
+            self.try_add(coverUrl, self.embeddedFiles)
 
         self.worksDate = jsPost["publishedDatetime"]
         self.worksDateDateTime = datetime_z.parse_datetime(self.worksDate)
@@ -205,6 +205,9 @@ class FanboxPost(object):
                 if link["href"].find("//fanbox.pixiv.net/images/entry/") > 0 or link["href"].find("//downloads.fanbox.cc/") > 0:
                     self.try_add(link["href"], self.embeddedFiles)
                     self.try_add(link["href"], self.images)
+                # 949
+                else:
+                    self.try_add(link["href"], self.descriptionUrlList)
             images = parsed.findAll('img')
             for image in images:
                 if "data-src-original" in image.attrs:
@@ -239,6 +242,12 @@ class FanboxPost(object):
                         sections = []
                         links = sorted(block.get("links", []), key=lambda x: x["offset"])
                         styles = sorted(block.get("styles", []), key=lambda x: x["offset"])
+
+                        # 949
+                        for link in links:
+                            self.try_add(link["url"], self.descriptionUrlList)
+                        for match in _url_pattern.finditer(block_text_raw):
+                            self.try_add(match.group(), self.descriptionUrlList)
 
                         for i in range(0, len(block_text_raw)):
                             for link in links:
@@ -321,6 +330,13 @@ class FanboxPost(object):
                     if embedId in jsPost["body"]["embedMap"]:
                         embedStr = self.getEmbedData(jsPost["body"]["embedMap"][embedId], jsPost)
                         self.body_text += f"<p>{embedStr}</p>"
+                        # 949
+                        # links = re.finditer("<a.*?href=(?P<mark>'|\")(.+?)(?P=mark)", embedStr)
+                        # for link in links:
+                        #     self.try_add(link.group(2), self.descriptionUrlList)
+                        links = _url_pattern.findall(embedStr)
+                        for link in links:
+                            self.try_add(link, self.descriptionUrlList)
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
 
@@ -434,11 +450,7 @@ class FanboxPost(object):
 
         cover_image = ""
         if self.coverImageUrl:
-            # Issue #930
-            if self.fullCoverSizeUrl:
-                cover_image = f'<div class="cover"><a href="{self.fullCoverSizeUrl}" target="_blank"><img style="max-width: 1200px; height:auto;" src="{self.coverImageUrl}"/></a></div>'
-            else:
-                cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
+            cover_image = f'<div class="cover"><img src="{self.coverImageUrl}"/></div>'
         page = html_template.replace("%coverImage%", cover_image)
         page = page.replace("%coverImageUrl%", self.coverImageUrl or "")
         page = page.replace("%artistName%", self.parent.artistName)
@@ -453,7 +465,7 @@ class FanboxPost(object):
         else:
             token_images = '<div class="non-article images">{0}</div>'.format(
                 "".join(['<a href="{0}">{1}</a>'.format(x,
-                f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp"] else x)for x in self.images]))
+                f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp", "gif"] else x) for x in self.images]))
             token_text = '<div class="non-article caption">{0}</div>'.format(
                 "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
 
