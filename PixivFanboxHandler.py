@@ -222,6 +222,9 @@ def process_fanbox_post(caller, config, post, artist):
                     html_template = reader.read()
                     reader.close()
                 post.WriteHtml(html_template, config.useAbsolutePathsInHtml, filename + ".html")
+
+        if config.writeUrlInDescription:
+            PixivHelper.write_url_in_description(post, config.urlBlacklistRegex, config.urlDumpFilename)
     finally:
         if len(post_files) > 0:
             db.insertPostImages(post_files)
