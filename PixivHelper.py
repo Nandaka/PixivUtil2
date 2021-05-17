@@ -174,6 +174,12 @@ def make_filename(nameFormat: str,
         imageExtension = splittedUrl[1]
         imageExtension = imageExtension.split('?')[0]
 
+    # Issue #940
+    if nameFormat.find('%force_extension') > -1:
+        to_replace_ext = re.findall("(%force_extension{.*}%)", nameFormat)
+        forced_ext = re.findall("{(.*)}", to_replace_ext[0])
+        imageExtension = forced_ext[0]
+
     # artist related
     nameFormat = nameFormat.replace('%artist%', replace_path_separator(artistInfo.artistName))
     nameFormat = nameFormat.replace('%member_id%', str(artistInfo.artistId))
