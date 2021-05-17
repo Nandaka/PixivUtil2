@@ -42,9 +42,9 @@ def process_member(caller,
     PixivHelper.print_and_log('info', msg)
     notifier(type="MEMBER", message=msg)
     if page != 1:
-        PixivHelper.print_and_log('info', 'Start Page: ' + str(page))
+        PixivHelper.print_and_log('info', f"Start {'ID' if useImageIDs else 'Page'}: " + str(page))
     if end_page != 0:
-        PixivHelper.print_and_log('info', 'End Page: ' + str(end_page))
+        PixivHelper.print_and_log('info', f"End {'ID' if useImageIDs else 'Page'}: " + str(end_page))
         if config.numberOfPage != 0:
             PixivHelper.print_and_log('info', 'Number of page setting will be ignored')
     elif config.numberOfPage != 0 and not useImageIDs:
@@ -147,7 +147,7 @@ def process_member(caller,
             if end_page:
                 artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
             else:
-                artist.imageList=[int(x) for x in artist.imageList if int(x) <= page]
+                artist.imageList=[int(x) for x in artist.imageList if int(x) >= page]
         else:
             startpage = (page-1)*48
             finalpage = end_page*48
