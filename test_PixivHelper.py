@@ -156,6 +156,19 @@ class TestPixivHelper(unittest.TestCase):
         # print(result)
         self.assertEqual(result, expected)
 
+        nameFormat2 = '%member_token% (%member_id%)\\folder%force_extension{png}%'
+        expected2 = 'balzehn (267014)\\folder.png'
+
+        result2 = PixivHelper.make_filename(nameFormat2,
+                                           imageInfo,
+                                           artistInfo=None,
+                                           tagsSeparator=' ',
+                                           fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg',
+                                           useTranslatedTag=True,
+                                           tagTranslationLocale="en")
+        # #940
+        self.assertEqual(result2, expected2)
+
     def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
         p = open('./test/all-14095911.json', 'r')
         artist = PixivArtist(14095911, p.read(), False, 192, 48)
