@@ -178,6 +178,7 @@ def make_filename(nameFormat: str,
     if nameFormat.find('%force_extension') > -1:
         to_replace_ext = re.findall("(%force_extension{.*}%)", nameFormat)
         forced_ext = re.findall("{(.*)}", to_replace_ext[0])
+        nameFormat = nameFormat.replace(to_replace_ext[0], "")
         imageExtension = forced_ext[0]
 
     # artist related
