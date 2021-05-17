@@ -147,7 +147,7 @@ def process_member(caller,
             if end_page:
                 artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
             else:
-                artist.imageList=[int(x) for x in artist.imageList if int(x) >= page]
+                artist.imageList=[int(x) for x in artist.imageList if int(x) <= page]
         else:
             startpage = (page-1)*48
             finalpage = end_page*48
