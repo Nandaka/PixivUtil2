@@ -145,7 +145,10 @@ def process_member(caller,
         result = PixivConstant.PIXIVUTIL_NOT_OK
         if useImageIDs:
             if end_page:
-                artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
+                if page != 1:
+                    artist.imageList=[int(x) for x in artist.imageList if int(x) <= end_page and int(x) >= page]
+                else:
+                    artist.imageList=[int(x) for x in artist.imageList if int(x) >= end_page]
             else:
                 artist.imageList=[int(x) for x in artist.imageList if int(x) <= page]
         else:
