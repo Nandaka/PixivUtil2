@@ -106,7 +106,7 @@ def process_fanbox_post(caller, config, post, artist):
 
         if ((not post.is_restricted) or config.downloadCoverWhenRestricted) and (not flag_processed) and config.downloadCover:
             # cover image
-            if post.coverImageUrl is not None:
+            if post.coverImageUrl:
                 # fake the image_url for filename compatibility, add post id and pagenum
                 fake_image_url = post.coverImageUrl.replace("{0}/cover/".format(post.imageId),
                                                             "{0}_".format(post.imageId))
