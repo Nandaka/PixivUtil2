@@ -23,6 +23,8 @@ import urllib.parse
 import webbrowser
 import zipfile
 from datetime import date, datetime, timedelta, tzinfo
+from hashlib import md5, sha1, sha256
+from mmap import ACCESS_READ, mmap
 from pathlib import Path
 from typing import Union
 
@@ -33,6 +35,7 @@ import PixivConstant
 from PixivArtist import PixivArtist
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
+import PixivException
 
 logger = None
 _config = None
@@ -309,6 +312,24 @@ def make_filename(nameFormat: str,
         nameFormat = nameFormat.strip() + '.' + imageExtension
 
     return nameFormat.strip()
+
+
+# Issue #956
+def get_hash(path: str, method="md5") -> str:
+    hash_str = ""
+    hash_method = None
+    if method == "md5":
+        hash_method = md5
+    elif method == "sha1":
+        hash_method = sha1
+    elif method == "sha256":
+        hash_method = sha256
+    else:
+        raise PixivException(msg=f"Invalid hash function {method}")
+
+    with open(path) as file, mmap(file.fileno(), 0, access=ACCESS_READ) as file:
+        hash_str = hash_method(file).hexdigest()
+    return hash_str
 
 
 def calculate_group(count):
