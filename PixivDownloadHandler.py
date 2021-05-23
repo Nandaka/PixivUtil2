@@ -151,6 +151,7 @@ def download_image(caller,
                 (downloadedSize, filename_save) = perform_download(url, remote_file_size, filename_save, overwrite, config, referer)
 
                 # Issue #956 need to calculate hash file for each method
+                old_filename_save = filename_save
                 if filename_save.find("%md5%") > 0:
                     PixivHelper.print_and_log('info', 'Calculating md5...', end="")
                     hash_str = PixivHelper.get_hash(filename_save)
@@ -166,6 +167,8 @@ def download_image(caller,
                     hash_str = PixivHelper.get_hash(filename_save, "sha256")
                     PixivHelper.print_and_log('info', f" => {hash_str}")
                     filename_save = filename_save.replace("%sha256%", hash_str)
+                if not os.exists(filename_save) and os.exists(old_filename_save):
+                    os.rename(old_filename_save, filename_save)
 
                 # set last-modified and last-accessed timestamp
                 if image is not None and config.setLastModified and filename_save is not None and os.path.isfile(filename_save):
