@@ -167,7 +167,7 @@ def download_image(caller,
                     hash_str = PixivHelper.get_hash(filename_save, "sha256")
                     PixivHelper.print_and_log('info', f" => {hash_str}")
                     filename_save = filename_save.replace("%sha256%", hash_str)
-                if not os.exists(filename_save) and os.exists(old_filename_save):
+                if not os.path.exists(filename_save) and os.path.exists(old_filename_save):
                     os.rename(old_filename_save, filename_save)
 
                 # set last-modified and last-accessed timestamp
