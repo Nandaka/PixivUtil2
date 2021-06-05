@@ -334,9 +334,9 @@ class FanboxPost(object):
                         # links = re.finditer("<a.*?href=(?P<mark>'|\")(.+?)(?P=mark)", embedStr)
                         # for link in links:
                         #     self.try_add(link.group(2), self.descriptionUrlList)
-                        links = _url_pattern.findall(embedStr)
+                        links = _url_pattern.finditer(embedStr)
                         for link in links:
-                            self.try_add(link, self.descriptionUrlList)
+                            self.try_add(link.group(), self.descriptionUrlList)
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
 
