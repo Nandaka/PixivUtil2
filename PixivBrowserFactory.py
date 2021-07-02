@@ -733,6 +733,11 @@ class PixivBrowser(mechanize.Browser):
 
             PixivHelper.get_logger().debug(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
+
+            # fix issue with member with 0 images, skip everything.
+            if len(artist.imageList) == 0:
+                raise PixivException(f"No images for Member Id:{member_id}, from Bookmark: {bookmark}", errorCode=PixivException.NO_IMAGES, htmlPage=response)
+
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
