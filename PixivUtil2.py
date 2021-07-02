@@ -1313,6 +1313,9 @@ def main():
         start_irfan_view = True
         start_irfan_slide = False
 
+    if __config__.enablePostProcessing and len(__config__.postProcessingCmd) > 0:
+        PixivHelper.print_and_log("warn", f"Post Processing after download is enabled: {__config__.postProcessingCmd}")
+
     try:
         __dbManager__ = PixivDBManager(root_directory=__config__.rootDirectory, target=__config__.dbPath)
         __dbManager__.createDatabase()

@@ -197,6 +197,8 @@ class PixivConfig():
         ConfigItem("DownloadControl", "downloadResized", False),
         ConfigItem("DownloadControl", "checkLastModified", True),
         ConfigItem("DownloadControl", "skipUnknownSize", False),
+        ConfigItem("DownloadControl", "enablePostProcessing", False),
+        ConfigItem("DownloadControl", "postProcessingCmd", ""),
     ]
 
     proxy = {"http": "", "https": "", }

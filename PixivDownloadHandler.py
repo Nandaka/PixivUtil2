@@ -2,6 +2,7 @@
 import codecs
 import gc
 import os
+import subprocess
 import sys
 import time
 import traceback
@@ -229,6 +230,12 @@ def download_image(caller,
                     dfile = codecs.open(caller.dfilename, 'a+', encoding='utf-8')
                     dfile.write(filename_save + "\n")
                     dfile.close()
+
+                # Issue #970
+                if config.enablePostProcessing and len(config.postProcessingCmd) > 0:
+                    cmd = config.postProcessingCmd.replace("%filename%", filename_save)
+                    PixivHelper.print_and_log('info', f'Running post processing command: {cmd}')
+                    subprocess.Popen(cmd, startupinfo=None)
 
                 return (PixivConstant.PIXIVUTIL_OK, filename_save)
 
