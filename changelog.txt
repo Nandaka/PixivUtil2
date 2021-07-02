@@ -1,3 +1,24 @@
+20210702
+- Update python to 3.9.6 and latest libraries.
+- Skip processing members at all if image list is empty (no folder/avatar/bg will be processed).
+- Merge fixes from amatuerCoder.
+  - #964, #963, #954, #945, #951
+- Merge Change shebang to python3 (#958) by KLsz.
+- Implement #956 additional filename format: %md5%, %sha1%, and %sha256%.
+  Please note that the file-exists check might not works due to the hash can only be calculated after the file is downloaded.
+- Merge fixed an ANSI escape code (#944) by DenDen047.
+- Merge Fix argument mismatch in process_manga_series (#939) by dddlr.
+- Merge fixed regression in console title: using XTerm OSC (#950) by whinette.
+- Update #930, replace resized cover with full size instead.
+- Fix Issue #942: AttributeError when picking "e. Export online bookmark"
+- Implement #940: add new name format: %force_extension{.*}% to force specific extension.
+  Usage = %force_extension{jpeg}% to always set the extension to .jpeg
+- Implement #970: add feature to perform post processing for downloaded files.
+  Add config in [DownloadControl] section:
+  - enablePostProcessing = default False. Set to true to enabled post processing cmd for every downloaded files
+  - postProcessingCmd = command to execute. add %filename% to pass the downloaded filename.
+    NO ERROR HANDLING AT ALL, use on your own risk.
+
 20210421
 - Implement #930: download full size image for fanbox cover.
 - Fix #929: update fanbox post parser for post type = entry.
