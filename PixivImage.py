@@ -7,7 +7,6 @@ import re
 import shutil
 import urllib
 import zipfile
-import pyexiv2
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple
@@ -439,6 +438,7 @@ class PixivImage (object):
             info.close()
 
     def WriteXMP(self, filename):
+        import pyexiv2
         info = None
         try:
             # Issue #421 ensure subdir exists.
