@@ -7,6 +7,7 @@ import re
 import shutil
 import urllib
 import zipfile
+import pyexiv2
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple
@@ -436,6 +437,54 @@ class PixivImage (object):
                 jsonInfo["Urls"] = self.descriptionUrlList
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
             info.close()
+
+    def WriteXMP(self, filename):
+        info = None
+        try:
+            # Issue #421 ensure subdir exists.
+            PixivHelper.makeSubdirs(filename)
+
+            info = codecs.open(filename, 'wb', encoding='utf-8')
+        except IOError:
+            info = codecs.open(str(self.imageId) + ".xmp", 'wb', encoding='utf-8')
+            PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.xmp", filename, str(self.imageId))
+
+        # Create the XMP file template.
+        info.write('<?xpacket begin="" id=""?>\n<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">\n</x:xmpmeta>\n<?xpacket end="w"?>\n')
+        info.close()
+
+        # Reopen file using pyexiv2
+        info = pyexiv2.ImageMetadata(filename)
+        info.read()
+
+        info['Xmp.dc.creator'] = [self.artist.artistName]
+        info['Xmp.dc.title'] = self.imageTitle
+        info['Xmp.dc.description'] = self.imageCaption
+        info['Xmp.dc.subject'] = self.imageTags
+        info['Xmp.dc.date'] = [self.worksDateDateTime]
+        info['Xmp.dc.source'] = "http://www.pixiv.net/en/artworks/{self.imageId}"
+
+        #Custom 'pixiv' namespace for non-standard details.
+        pyexiv2.xmp.register_namespace('http://pixiv.com/', 'pixiv')
+
+        info['Xmp.pixiv.image_id'] = self.imageId
+        info['Xmp.pixiv.artist_id'] = self.artist.artistId
+        info['Xmp.pixiv.image_mode'] = self.imageMode
+        info['Xmp.pixiv.pages'] = self.imageCount
+        info['Xmp.pixiv.resolution'] = self.worksResolution
+        info['Xmp.pixiv.bookmark_count'] = self.bookmark_count
+
+        if self.seriesNavData:
+            info['Xmp.pixiv.series_title'] = self.seriesNavData['title']
+            info['Xmp.pixiv.series_order'] = self.seriesNavData['order']
+            info['Xmp.pixiv.series_id'] = self.seriesNavData['seriesId']
+        if self.ugoira_data:
+            info['Xmp.pixiv.ugoira_data'] = self.ugoira_data
+        if len(self.descriptionUrlList) > 0:
+            info['Xmp.pixiv.urls'] = ", ".join(self.descriptionUrlList)
+
+        info.write()
+        pyexiv2.xmp.closeXmpParser()
 
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
         from PixivBrowserFactory import getBrowser
