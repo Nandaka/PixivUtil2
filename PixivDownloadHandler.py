@@ -7,6 +7,7 @@ import sys
 import time
 import traceback
 import urllib
+import shlex
 
 import mechanize
 
@@ -235,7 +236,7 @@ def download_image(caller,
                 if config.enablePostProcessing and len(config.postProcessingCmd) > 0:
                     cmd = config.postProcessingCmd.replace("%filename%", filename_save)
                     PixivHelper.print_and_log('info', f'Running post processing command: {cmd}')
-                    subprocess.Popen(cmd, startupinfo=None)
+                    subprocess.Popen(shlex.split(cmd), startupinfo=None)
 
                 return (PixivConstant.PIXIVUTIL_OK, filename_save)
 
