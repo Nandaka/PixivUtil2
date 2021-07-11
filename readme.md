@@ -946,6 +946,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - fireattack
 - Jared Shields
 - DenDen047
+- Baa
 
 ** If I forget someone, please send me a pull request with the commit/merge id.
 
