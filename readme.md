@@ -9,6 +9,7 @@
 
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
+  - Exiv2 (https://exiv2.org/) - used for writing XMP metadata (if enabled).
 
 # Capabilities:
 - Download by member_id
@@ -509,6 +510,12 @@ Please refer run with `--help` for latest information.
 
   Set to `True` to export the series information to JSON.
   The filename is following `filenameSeriesJSON` + .json.
+- writeImageXMP
+
+  Set to `True` to export the image information to a .XMP sidecar file, this does not add XMP metadata to the image header.
+- writeImageXMPPerImage
+
+  Set to `True` to export the image information to a .XMP sidecar file, one per image in the album. The data contained within the file is the same but some software requires matching file names to detect the metadata. If set to `True`, then `writeImageXMP` is ignored.
 - verifyimage
 
   Do image and zip checking after download. Set the value to `True` to enable.
@@ -940,6 +947,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - fireattack
 - Jared Shields
 - DenDen047
+- Baa
 
 ** If I forget someone, please send me a pull request with the commit/merge id.
 

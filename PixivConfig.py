@@ -92,6 +92,8 @@ class PixivConfig():
         ConfigItem("Settings", "RawJSONFilter",
                    "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
         ConfigItem("Settings", "includeSeriesJSON", False),
+        ConfigItem("Settings", "writeImageXMP", False),
+        ConfigItem("Settings", "writeImageXMPPerImage", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),
         ConfigItem("Settings", "urlBlacklistRegex", ""),
