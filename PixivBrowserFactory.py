@@ -202,9 +202,16 @@ class PixivBrowser(mechanize.Browser):
             retry = self._config.retry
 
         while True:
+            res = None
             try:
-                return self.open(url, data, timeout)
+                res = self.open(url, data, timeout)
+                return res
             except urllib.error.HTTPError:
+                if res is not None:
+                    print(f"Error Code: {res.code}")
+                    print(f"Response Headers: {res.headers}")
+                    if res.code == '302':
+                        print(f"Redirect to {res.headers['location']}")
                 raise
             except BaseException:
                 exc_value = sys.exc_info()[1]
