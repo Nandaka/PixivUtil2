@@ -458,16 +458,22 @@ class PixivImage (object):
         info.read()
 
         info['Xmp.dc.creator'] = [self.artist.artistName]
-        info['Xmp.dc.title'] = self.imageTitle
-        info['Xmp.dc.description'] = self.imageCaption
-        info['Xmp.dc.subject'] = self.imageTags
+        # Check array isn't empty.
+        if self.imageTitle:
+            info['Xmp.dc.title'] = self.imageTitle
+        # Check array isn't empty.
+        if self.imageCaption:
+            info['Xmp.dc.description'] = self.imageCaption
+        # Check array isn't empty.
+        if self.imageTags:
+            info['Xmp.dc.subject'] = self.imageTags
         info['Xmp.dc.date'] = [self.worksDateDateTime]
-        info['Xmp.dc.source'] = "http://www.pixiv.net/en/artworks/{self.imageId}"
+        info['Xmp.dc.source'] = f"http://www.pixiv.net/en/artworks/{self.imageId}"
+        info['Xmp.dc.identifier'] = self.imageId
 
-        #Custom 'pixiv' namespace for non-standard details.
+        # Custom 'pixiv' namespace for non-standard details.
         pyexiv2.xmp.register_namespace('http://pixiv.com/', 'pixiv')
 
-        info['Xmp.pixiv.image_id'] = self.imageId
         info['Xmp.pixiv.artist_id'] = self.artist.artistId
         info['Xmp.pixiv.image_mode'] = self.imageMode
         info['Xmp.pixiv.pages'] = self.imageCount
