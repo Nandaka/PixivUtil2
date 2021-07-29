@@ -65,7 +65,7 @@ def process_member(caller,
             # Try to get the member page
             while True:
                 try:
-                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, r18mode=config.r18mode)
+                    (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, page, bookmark, tags, r18mode=config.r18mode, throw_empty_error=True)
                     break
                 except PixivException as ex:
                     caller.ERROR_CODE = ex.errorCode

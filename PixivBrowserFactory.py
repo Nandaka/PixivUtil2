@@ -697,7 +697,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False) -> Tuple[PixivArtist, str]:
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, throw_empty_error=False) -> Tuple[PixivArtist, str]:
         artist = None
         response = None
         if tags is None:
@@ -742,7 +742,7 @@ class PixivBrowser(mechanize.Browser):
             artist = PixivArtist(member_id, response, False, offset, limit)
 
             # fix issue with member with 0 images, skip everything.
-            if len(artist.imageList) == 0:
+            if len(artist.imageList) == 0 and throw_empty_error:
                 raise PixivException(f"No images for Member Id:{member_id}, from Bookmark: {bookmark}", errorCode=PixivException.NO_IMAGES, htmlPage=response)
 
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
@@ -773,7 +773,7 @@ class PixivBrowser(mechanize.Browser):
 
         if member_id is not None:
             # from member id search by tags
-            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode)
+            (artist, response_page) = self.getMemberPage(member_id, current_page, False, tags, r18mode=r18mode, throw_empty_error=True)
 
             # convert to PixivTags
             result = PixivTags()
