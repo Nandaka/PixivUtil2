@@ -395,11 +395,26 @@ class PixivBrowser(mechanize.Browser):
                 raise Exception("Not logged in to FANBOX")
 
     def updateFanboxCookie(self):
-        p_req = mechanize.Request("https://www.fanbox.cc/auth/start")
-        p_req.add_header('Accept', 'application/json, text/plain, */*')
-        p_req.add_header('Origin', 'https://www.pixiv.net')
-        p_req.add_header('User-Agent', self._config.useragent)
-
+        p_req = mechanize.Request("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
+        p_req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+        p_req.add_header('Referer', 'https://www.fanbox.cc')
+        
+        try:
+            p_res = self.open_with_retry(p_req)
+            page = p_res.read().decode("utf-8")
+            p_res.close()
+        except BaseException:
+            PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
+            return False
+        
+        match = re.search(r"(?<=pixivAccount\.postKey\":\").*?(?=\")", page)
+        if not match:
+            raise Exception("Could not get pixivAccount.postKey while trying to log into fanbox.cc with given pixiv.net cookie")
+        
+        data = {"return_to": "https://www.fanbox.cc/auth/start",
+                "tt": match.group()}
+        
+        p_req = mechanize.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
         try:
             p_res = self.open_with_retry(p_req)
             parsed = BeautifulSoup(p_res, features="html5lib").decode('utf-8')
