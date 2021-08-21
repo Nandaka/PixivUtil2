@@ -1,3 +1,10 @@
+20210822
+- Merge Fix #993 (#995) by amatuerCoder.
+- Merge Get member information adjustment (#992) by amatuerCoder.
+- Merge Fixes some bugs with XMP sidecars. (#985) by Baa.
+- Merge Adds support for .XMP sidecar files. (#980) by Baa.
+- Merge Allows Post Processing to accept command arguments (#979) by Baa.
+
 20210702
 - Update python to 3.9.6 and latest libraries.
 - Skip processing members at all if image list is empty (no folder/avatar/bg will be processed).

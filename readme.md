@@ -1,9 +1,9 @@
 # Requirements:
 - Running from Windows binary:
-  - minimum Windows 7 SP1 with latest updates installed.
+  - minimum Windows 10 with latest updates installed.
 
 - Running from source code:
-  - Python 3.9.0+ (https://www.python.org/)
+  - Python 3.8.0+ (https://www.python.org/)
   - Additional library listed in requirements.txt
   - IDE Environment: see https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
 
@@ -147,6 +147,10 @@ Q9. The downloaded images are corrupted, how to redownload it again?
       
 Q10. I got this error またはメールアドレス、パスワードが正しいかチェックしてください。
     - Use your email address for the username, or check your password in config.ini
+
+Q11. Older windows support (e.g. Win7)?
+    - You can try to run from source code with the latest supported python 3.x.
+      See the instruction here: https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
 
 ```
 ## B.Bugs/Source Code/Supports
