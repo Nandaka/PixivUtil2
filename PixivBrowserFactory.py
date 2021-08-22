@@ -10,7 +10,7 @@ import sys
 import time
 import traceback
 import urllib
-from typing import Union, Tuple
+from typing import List, Tuple, Union
 
 import demjson
 import mechanize
@@ -23,9 +23,9 @@ from PixivException import PixivException
 from PixivImage import PixivImage, PixivMangaSeries
 from PixivModelFanbox import FanboxArtist, FanboxPost
 from PixivModelSketch import SketchArtist, SketchPost
+from PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
-from PixivNovel import NovelSeries, PixivNovel, MAX_LIMIT
 
 defaultCookieJar = None
 defaultConfig = None
@@ -398,7 +398,7 @@ class PixivBrowser(mechanize.Browser):
         p_req = mechanize.Request("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
         p_req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
         p_req.add_header('Referer', 'https://www.fanbox.cc')
-        
+
         try:
             p_res = self.open_with_retry(p_req)
             page = p_res.read().decode("utf-8")
@@ -406,14 +406,14 @@ class PixivBrowser(mechanize.Browser):
         except BaseException:
             PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
             return False
-        
+
         match = re.search(r"(?<=pixivAccount\.postKey\":\").*?(?=\")", page)
         if not match:
             raise Exception("Could not get pixivAccount.postKey while trying to log into fanbox.cc with given pixiv.net cookie")
-        
+
         data = {"return_to": "https://www.fanbox.cc/auth/start",
                 "tt": match.group()}
-        
+
         p_req = mechanize.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
         try:
             p_res = self.open_with_retry(p_req)
@@ -949,7 +949,7 @@ class PixivBrowser(mechanize.Browser):
         else:
             raise PixivException("Id does not exist", errorCode=PixivException.USER_ID_NOT_EXISTS)
 
-    def fanboxGetPostsFromArtist(self, artist=None, next_url=""):
+    def fanboxGetPostsFromArtist(self, artist: FanboxArtist = None, next_url="") -> List[FanboxPost]:
         ''' get all posts from the supported user
         from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
         self.fanbox_is_logged_in()

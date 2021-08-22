@@ -82,7 +82,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
             break
 
 
-def process_fanbox_post(caller, config, post, artist):
+def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artist):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db = caller.__dbManager__

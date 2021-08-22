@@ -887,7 +887,7 @@ def generate_search_tag_url(tags,
     return url
 
 
-def write_url_in_description(image, blacklistRegex, filenamePattern):
+def write_url_in_description(image: Union[PixivImage, FanboxPost], blacklistRegex, filenamePattern):
     valid_url = list()
     if len(image.descriptionUrlList) > 0:
         # filter first
@@ -906,7 +906,13 @@ def write_url_in_description(image, blacklistRegex, filenamePattern):
         filename = date.today().strftime(filenamePattern) + ".txt"
         makeSubdirs(filename)
         info = codecs.open(filename, 'a', encoding='utf-8')
-        info.write("#" + str(image.imageId) + "\r\n")
+
+        # implement #1002
+        if isinstance(image, FanboxPost):
+            info.write(f"# Fanbox Author ID: {image.parent.artistId} Post ID: {image.imageId}\r\n")
+        else:
+            info.write(f"# Pixiv Author ID: {image.artist.artistId} Image ID: {image.imageId}\r\n")
+
         for link in valid_url:
             info.write(link + "\r\n")
         info.close()

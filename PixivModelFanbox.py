@@ -4,6 +4,7 @@ import codecs
 import os
 import re
 import sys
+from typing import List
 
 import demjson
 from bs4 import BeautifulSoup
@@ -14,80 +15,6 @@ from PixivException import PixivException
 
 _re_fanbox_cover = re.compile(r"c\/.*\/fanbox")
 _url_pattern = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
-
-class FanboxArtist(object):
-    artistId = 0
-    creatorId = ""
-    nextUrl = None
-    hasNextPage = False
-    _tzInfo = None
-    # require additional API call
-    artistName = ""
-    artistToken = ""
-
-    SUPPORTING = 0
-    FOLLOWING = 1
-    CUSTOM = 2
-
-    @classmethod
-    def parseArtistIds(cls, page):
-        ids = list()
-        js = demjson.decode(page)
-
-        if "error" in js and js["error"]:
-            raise PixivException("Error when requesting Fanbox", 9999, page)
-
-        if "body" in js and js["body"] is not None:
-            js_body = js["body"]
-            if "supportingPlans" in js["body"]:
-                js_body = js_body["supportingPlans"]
-            for creator in js_body:
-                ids.append(creator["user"]["userId"])
-        return ids
-
-    def __init__(self, artist_id, artist_name, creator_id, tzInfo=None):
-        self.artistId = int(artist_id)
-        self.artistName = artist_name
-        self.creatorId = creator_id
-        self._tzInfo = tzInfo
-
-    def __str__(self):
-        return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"
-
-    def parsePosts(self, page):
-        js = demjson.decode(page)
-
-        if "error" in js and js["error"]:
-            raise PixivException(f"Error when requesting Fanbox artist: {self.artistId}", 9999, page)
-
-        if js["body"] is not None:
-            js_body = js["body"]
-
-            posts = list()
-
-            if "creator" in js_body:
-                self.artistName = js_body["creator"]["user"]["name"]
-
-            if "post" in js_body:
-                # new api
-                post_root = js_body["post"]
-            else:
-                # https://www.pixiv.net/ajax/fanbox/post?postId={0}
-                # or old api
-                post_root = js_body
-
-            for jsPost in post_root["items"]:
-                post_id = int(jsPost["id"])
-                post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
-                posts.append(post)
-                # sanity check
-                assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
-
-            self.nextUrl = post_root["nextUrl"]
-            if self.nextUrl is not None and len(self.nextUrl) > 0:
-                self.hasNextPage = True
-
-            return posts
 
 
 class FanboxPost(object):
@@ -126,7 +53,6 @@ class FanboxPost(object):
     provider = None
     # 949
     descriptionUrlList = None
-
 
     def __init__(self, post_id, parent, page, tzInfo=None):
         self.images = list()
@@ -496,3 +422,78 @@ class FanboxPost(object):
             page = page.replace(k, v)
         info.write(page)
         info.close()
+
+
+class FanboxArtist(object):
+    artistId = 0
+    creatorId = ""
+    nextUrl = None
+    hasNextPage = False
+    _tzInfo = None
+    # require additional API call
+    artistName = ""
+    artistToken = ""
+
+    SUPPORTING = 0
+    FOLLOWING = 1
+    CUSTOM = 2
+
+    @classmethod
+    def parseArtistIds(cls, page):
+        ids = list()
+        js = demjson.decode(page)
+
+        if "error" in js and js["error"]:
+            raise PixivException("Error when requesting Fanbox", 9999, page)
+
+        if "body" in js and js["body"] is not None:
+            js_body = js["body"]
+            if "supportingPlans" in js["body"]:
+                js_body = js_body["supportingPlans"]
+            for creator in js_body:
+                ids.append(creator["user"]["userId"])
+        return ids
+
+    def __init__(self, artist_id, artist_name, creator_id, tzInfo=None):
+        self.artistId = int(artist_id)
+        self.artistName = artist_name
+        self.creatorId = creator_id
+        self._tzInfo = tzInfo
+
+    def __str__(self):
+        return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"
+
+    def parsePosts(self, page) -> List[FanboxPost]:
+        js = demjson.decode(page)
+
+        if "error" in js and js["error"]:
+            raise PixivException(f"Error when requesting Fanbox artist: {self.artistId}", 9999, page)
+
+        if js["body"] is not None:
+            js_body = js["body"]
+
+            posts = list()
+
+            if "creator" in js_body:
+                self.artistName = js_body["creator"]["user"]["name"]
+
+            if "post" in js_body:
+                # new api
+                post_root = js_body["post"]
+            else:
+                # https://www.pixiv.net/ajax/fanbox/post?postId={0}
+                # or old api
+                post_root = js_body
+
+            for jsPost in post_root["items"]:
+                post_id = int(jsPost["id"])
+                post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
+                posts.append(post)
+                # sanity check
+                assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
+
+            self.nextUrl = post_root["nextUrl"]
+            if self.nextUrl is not None and len(self.nextUrl) > 0:
+                self.hasNextPage = True
+
+            return posts
