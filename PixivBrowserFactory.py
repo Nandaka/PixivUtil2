@@ -39,6 +39,7 @@ class PixivBrowser(mechanize.Browser):
     _max_cache = 10000  # keep n-item in memory
     _myId = 0
     _isPremium = False
+    _xRestrict = 0
 
     _username = None
     _password = None
@@ -550,18 +551,28 @@ class PixivBrowser(mechanize.Browser):
             raise PixivException("Unable to get User Id, please check your cookie.", errorCode=PixivException.NOT_LOGGED_IN, htmlPage=parsed)
 
         self._isPremium = False
-        temp = re.findall(r"pixiv.user.premium = (\w+);", parsed)
+        # not used anymore
+        # temp = re.findall(r"pixiv.user.premium = (\w+);", parsed)
+        # if temp is not None and len(temp) > 0:
+        #     self._isPremium = True if temp[0] == "true" else False
+        # else:
+        temp = re.findall(r"_gaq.push\(\['_setCustomVar', 3, 'plan', '(\w+)', 1\]\)", parsed)
         if temp is not None and len(temp) > 0:
-            self._isPremium = True if temp[0] == "true" else False
+            self._isPremium = True if temp[0] == "premium" else False
         else:
-            temp = re.findall(r"_gaq.push\(\['_setCustomVar', 3, 'plan', '(\w+)', 1\]\)", parsed)
+            temp = re.findall(r"var dataLayer = .*premium: '(\w+)'", parsed)
             if temp is not None and len(temp) > 0:
-                self._isPremium = True if temp[0] == "premium" else False
-            else:
-                temp = re.findall(r"var dataLayer = .*premium: '(\w+)'", parsed)
-                if temp is not None and len(temp) > 0:
-                    self._isPremium = True if temp[0] == "yes" else False
+                self._isPremium = True if temp[0] == "yes" else False
         PixivHelper.print_and_log('info', f'Premium User: {self._isPremium}.')
+
+        self._xRestrict = 0
+        temp = re.findall(r"\"xRestrict\":(\d+)", parsed)
+        if temp is not None and len(temp) > 0:
+            self._xRestrict = int(temp[0])
+        if self._xRestrict == 1:
+            PixivHelper.print_and_log('warn', 'R-18G is disabled from pixiv website settings.')
+        elif self._xRestrict == 0:
+            PixivHelper.print_and_log('warn', 'R-18 and R-18G are disabled from pixiv website settings.')
 
     def parseLoginError(self, res):
         page = BeautifulSoup(res, features="html5lib")

@@ -2,6 +2,7 @@ Downloaded*.txt
 _backup/*
 build/*
 dist/*
+dist*/*
 old/*
 config.ini
 config.ini.error*
