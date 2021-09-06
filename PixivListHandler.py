@@ -4,12 +4,13 @@ from datetime import time
 
 import PixivArtistHandler
 import PixivHelper
+import PixivSketchHandler
 import PixivTagsHandler
 from PixivListItem import PixivListItem
 from PixivTags import PixivTags
 
 
-def process_list(caller, config, list_file_name=None, tags=None):
+def process_list(caller, config, list_file_name=None, tags=None, include_sketch=False):
     db = caller.__dbManager__
     br = caller.__br__
 
@@ -60,6 +61,16 @@ def process_list(caller, config, list_file_name=None, tags=None):
                     retry_count = retry_count + 1
                     print('Something wrong, retrying after 2 second (', retry_count, ')')
                     time.sleep(2)
+
+            # Issue 1007
+            if include_sketch:
+                # fetching artist token...
+                (artist_model, _) = br.getMemberPage(item.memberId)
+                prefix = f"[{current_member} ({artist_model.artistToken}) of {len(result)}] "
+                PixivSketchHandler.process_sketch_artists(caller,
+                                                          config,
+                                                          artist_model.artistToken,
+                                                          title_prefix=prefix)
 
             br.clear_history()
             print('done.')

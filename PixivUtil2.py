@@ -239,7 +239,8 @@ def menu_download_by_member_id(opisvalid, args, options):
                                                             __config__,
                                                             artist_model.artistToken,
                                                             page,
-                                                            end_page)
+                                                            end_page,
+                                                            title_prefix=prefix)
 
             current_member = current_member + 1
         except PixivException as ex:
@@ -456,23 +457,29 @@ def menu_download_from_list(opisvalid, args, options):
     __log__.info('Batch mode from list (4).')
     global op
     global __config__
+    include_sketch = False
 
     list_file_name = __config__.downloadListDirectory + os.sep + 'list.txt'
     tags = None
     if opisvalid:
+        include_sketch = options.include_sketch
         list_file_name = get_list_file_from_options(options, list_file_name)
         # get one tag from input parameter
         if len(args) > 0:
             tags = args[0]
     else:
         test_tags = input('Tag : ').rstrip("\r")
+        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ').rstrip("\r") or 'n'
+        if include_sketch_ask.lower() == 'y':
+            include_sketch = True
         if len(test_tags) > 0:
             tags = test_tags
 
     PixivListHandler.process_list(sys.modules[__name__],
                                   __config__,
-                                  list_file_name,
-                                  tags)
+                                  list_file_name=list_file_name,
+                                  tags=tags,
+                                  include_sketch=include_sketch)
 
 
 def menu_download_from_online_user_bookmark(opisvalid, args, options):

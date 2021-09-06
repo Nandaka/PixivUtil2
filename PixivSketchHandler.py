@@ -31,10 +31,13 @@ def process_sketch_post(caller, config, post_id):
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
 
 
-def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0):
+def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0, title_prefix=None):
     config.loadConfig(path=caller.configfile)
     br = PixivBrowserFactory.getBrowser()
-    title_prefix = f"Pixiv Sketch - Processing Artist Id: {artist_id}"
+    if title_prefix is None:
+        title_prefix = f"Pixiv Sketch - Processing Artist Id: {artist_id}"
+    else:
+        title_prefix = f"{title_prefix} Pixiv Sketch - Processing Artist Id: {artist_id}"
     caller.set_console_title(title_prefix)
     msg = Fore.YELLOW + Style.NORMAL + f'Processing Artist Id: {artist_id}' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)

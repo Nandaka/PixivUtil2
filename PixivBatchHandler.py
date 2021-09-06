@@ -5,9 +5,11 @@ import os
 from copy import deepcopy
 
 import PixivArtistHandler
+import PixivBrowserFactory
 import PixivConfig
 import PixivHelper
 import PixivImageHandler
+import PixivSketchHandler
 import PixivTagsHandler
 import PixivUtil2
 
@@ -60,6 +62,9 @@ def handle_members(caller, job, job_name, job_option):
     tags = None
     if "tags" in job and len(job["tags"]) > 0:
         tags = job["tags"]
+    include_sketch = False
+    if "include_sketch" in job and len(job["include_sketch"]) > 0:
+        include_sketch = bool(job["include_sketch"])
 
     for member_id in member_ids:
         PixivArtistHandler.process_member(caller,
@@ -71,6 +76,15 @@ def handle_members(caller, job, job_name, job_option):
                                           bookmark=from_bookmark,
                                           tags=tags,
                                           title_prefix=f"{job_name} ")
+        if include_sketch:
+            # fetching artist token...
+            (artist_model, _) = PixivBrowserFactory.getBrowser().getMemberPage(member_id)
+            PixivSketchHandler.process_sketch_artists(caller,
+                                                      job_option.config,
+                                                      artist_model.artistToken,
+                                                      start_page=start_page,
+                                                      end_page=end_page,
+                                                      title_prefix=f"{job_name} ")
 
 
 def handle_images(caller: PixivUtil2, job, job_name, job_option):
