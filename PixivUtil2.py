@@ -1305,7 +1305,7 @@ def main():
     if start_iv or __config__.createDownloadLists:
         if not os.path.isfile(dfilename) or os.path.getsize(dfilename) == 0:
             dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
-            dfile.write(u'\ufeff')
+            dfile.write(u'\uefbbbf')
             dfile.close()
 
     # Yavos: adding IrfanView-Handling
