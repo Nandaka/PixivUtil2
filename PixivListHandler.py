@@ -22,15 +22,16 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
             if config.dayLastUpdated == 0:
                 result = db.selectAllMember()
             else:
-                print('Select only last', config.dayLastUpdated, 'days.')
+                print(f'Select only last {config.dayLastUpdated} days.')
                 result = db.selectMembersByLastDownloadDate(config.dayLastUpdated)
         else:
-            PixivHelper.print_and_log('info', 'Processing from list file: {0}'.format(list_file_name))
+            PixivHelper.print_and_log('info', f'Processing from list file: {list_file_name}')
             result = PixivListItem.parseList(list_file_name, config.rootDirectory)
 
-        if os.path.exists("ignore_list.txt"):
-            PixivHelper.print_and_log('info', 'Processing ignore list for member: {0}'.format("ignore_list.txt"))
-            ignore_list = PixivListItem.parseList("ignore_list.txt", config.rootDirectory)
+        ignore_file_list = "ignore_list.txt"
+        if os.path.exists(ignore_file_list):
+            PixivHelper.print_and_log('info', f'Processing ignore list for member: {ignore_file_list}')
+            ignore_list = PixivListItem.parseList(ignore_file_list, config.rootDirectory)
             for ignore in ignore_list:
                 for item in result:
                     if item.memberId == ignore.memberId:
@@ -43,7 +44,7 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
             retry_count = 0
             while True:
                 try:
-                    prefix = "[{0} of {1}] ".format(current_member, len(result))
+                    prefix = f"[{current_member} of {len(result)}] "
                     PixivArtistHandler.process_member(caller,
                                                       config,
                                                       item.memberId,
@@ -54,23 +55,34 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                     break
                 except KeyboardInterrupt:
                     raise
-                except BaseException:
+                except BaseException as ex:
                     if retry_count > config.retry:
-                        PixivHelper.print_and_log('error', 'Giving up member_id: ' + str(item.memberId))
+                        PixivHelper.print_and_log('error', f'Giving up member_id: {item.memberId} ==> {ex}')
                         break
                     retry_count = retry_count + 1
-                    print('Something wrong, retrying after 2 second (', retry_count, ')')
+                    print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
                     time.sleep(2)
 
-            # Issue 1007
-            if include_sketch:
-                # fetching artist token...
-                (artist_model, _) = br.getMemberPage(item.memberId)
-                prefix = f"[{current_member} ({artist_model.artistToken}) of {len(result)}] "
-                PixivSketchHandler.process_sketch_artists(caller,
-                                                          config,
-                                                          artist_model.artistToken,
-                                                          title_prefix=prefix)
+            while True:
+                try:
+                    # Issue 1007
+                    if include_sketch:
+                        # fetching artist token...
+                        (artist_model, _) = br.getMemberPage(item.memberId)
+                        prefix = f"[{current_member} ({artist_model.artistToken}) of {len(result)}] "
+                        PixivSketchHandler.process_sketch_artists(caller,
+                                                                config,
+                                                                artist_model.artistToken,
+                                                                title_prefix=prefix)
+                except KeyboardInterrupt:
+                    raise
+                except BaseException as ex:
+                    if retry_count > config.retry:
+                        PixivHelper.print_and_log('error', f'Giving up member_id: {item.memberId} when processing PixivSketch ==> {ex}')
+                        break
+                    retry_count = retry_count + 1
+                    print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
+                    time.sleep(2)
 
             br.clear_history()
             print('done.')
@@ -78,7 +90,7 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
         if isinstance(ex, KeyboardInterrupt):
             raise
         caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
-        PixivHelper.print_and_log('error', 'Error at process_list(): {0}'.format(sys.exc_info()))
+        PixivHelper.print_and_log('error', f'Error at process_list(): {sys.exc_info()}')
         print('Failed')
         raise
 
@@ -113,7 +125,7 @@ def process_tags_list(caller,
         if isinstance(ex, KeyboardInterrupt):
             raise
         caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
-        PixivHelper.print_and_log('error', 'Error at process_tags_list(): {0}'.format(sys.exc_info()))
+        PixivHelper.print_and_log('error', f'Error at process_tags_list(): {sys.exc_info()}')
         raise
 
 
@@ -124,7 +136,7 @@ def import_list(caller,
     if os.path.exists(list_path):
         list_txt = PixivListItem.parseList(list_path, config.rootDirectory)
         caller.__dbManager__.importList(list_txt)
-        print("Updated " + str(len(list_txt)) + " items.")
+        print(f"Updated {len(list_txt)} items.")
     else:
-        msg = "List file not found: {0}".format(list_path)
+        msg = f"List file not found: {list_path}"
         PixivHelper.print_and_log('warn', msg)
