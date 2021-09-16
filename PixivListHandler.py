@@ -51,7 +51,6 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                                                       user_dir=item.path,
                                                       tags=tags,
                                                       title_prefix=prefix)
-                    current_member = current_member + 1
                     break
                 except KeyboardInterrupt:
                     raise
@@ -63,17 +62,18 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                     print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
                     time.sleep(2)
 
-            while True:
+            retry_count = 0
+            while include_sketch:
                 try:
                     # Issue 1007
-                    if include_sketch:
-                        # fetching artist token...
-                        (artist_model, _) = br.getMemberPage(item.memberId)
-                        prefix = f"[{current_member} ({artist_model.artistToken}) of {len(result)}] "
-                        PixivSketchHandler.process_sketch_artists(caller,
-                                                                config,
-                                                                artist_model.artistToken,
-                                                                title_prefix=prefix)
+                    # fetching artist token...
+                    (artist_model, _) = br.getMemberPage(item.memberId)
+                    prefix = f"[{current_member} ({item.memberId} - {artist_model.artistToken}) of {len(result)}] "
+                    PixivSketchHandler.process_sketch_artists(caller,
+                                                              config,
+                                                              artist_model.artistToken,
+                                                              title_prefix=prefix)
+                    break
                 except KeyboardInterrupt:
                     raise
                 except BaseException as ex:
@@ -84,8 +84,10 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                     print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
                     time.sleep(2)
 
+            current_member = current_member + 1
             br.clear_history()
-            print('done.')
+            print(f'done for member id = {item.memberId}.')
+            print('')
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
