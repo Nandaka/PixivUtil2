@@ -633,7 +633,8 @@ class PixivBrowser(mechanize.Browser):
                 if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
-                url = f'https://app-api.pixiv.net/v1/user/detail?user_id={member_id}'
+                url = f'https://www.pixiv.net/ajax/user/{member_id}?full=1&lang=ja'
+                #url = f'https://app-api.pixiv.net/v1/user/detail?user_id={member_id}'
                 info = self._get_from_cache(url)
                 if info is None:
                     PixivHelper.get_logger().debug("Getting member information: %s", member_id)
@@ -687,7 +688,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 raise PixivException(msg, errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=errorMessage)
 
-    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False) -> Tuple[PixivArtist, str]:
+    def getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, dontprocess = False, throw_empty_error=True) -> Tuple[PixivArtist, str]:
         artist = None
         response = None
         if tags is None:
@@ -731,6 +732,10 @@ class PixivBrowser(mechanize.Browser):
             if bookmark or dontprocess:
                 return json.loads(response)
             artist = PixivArtist(member_id, response, False, offset, limit)
+	                # fix issue with member with 0 images, skip everything.
+            if len(artist.imageList) == 0 and throw_empty_error:
+                raise PixivException(f"No images for Member Id:{member_id}, from Bookmark: {bookmark}", errorCode=PixivException.NO_IMAGES, htmlPage=response)
+
             artist.reference_image_id = artist.imageList[0] if len(artist.imageList) > 0 else 0
             self.getMemberInfoWhitecube(member_id, artist, bookmark)
 
