@@ -633,8 +633,8 @@ class PixivBrowser(mechanize.Browser):
                 if self._username is None or self._password is None or len(self._username) < 0 or len(self._password) < 0:
                     raise PixivException("Empty Username or Password, remove cookie value and relogin, or add username/password to config.ini.")
 
-                url = f'https://www.pixiv.net/ajax/user/{member_id}?full=1&lang=ja'
-                #url = f'https://app-api.pixiv.net/v1/user/detail?user_id={member_id}'
+                url = f'https://app-api.pixiv.net/v1/user/detail?user_id={member_id}'
+                #url = f'https://www.pixiv.net/ajax/user/{member_id}?full=1&lang=ja'
                 info = self._get_from_cache(url)
                 if info is None:
                     PixivHelper.get_logger().debug("Getting member information: %s", member_id)
