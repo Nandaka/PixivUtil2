@@ -1,6 +1,5 @@
 import os
 import sys
-from datetime import time
 
 import PixivArtistHandler
 import PixivHelper
@@ -60,7 +59,7 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                         break
                     retry_count = retry_count + 1
                     print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
-                    time.sleep(2)
+                    PixivHelper.print_delay(2)
 
             retry_count = 0
             while include_sketch:
@@ -82,7 +81,7 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                         break
                     retry_count = retry_count + 1
                     print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
-                    time.sleep(2)
+                    PixivHelper.print_delay(2)
 
             current_member = current_member + 1
             br.clear_history()

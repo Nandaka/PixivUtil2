@@ -3,7 +3,6 @@ import gc
 import http.client
 import os
 import sys
-import time
 
 import PixivBrowserFactory
 import PixivConstant
@@ -132,7 +131,7 @@ def process_tags(caller,
                             break
                         except http.client.BadStatusLine:
                             PixivHelper.print_and_log(None, "Stuff happened, trying again after 2 second...")
-                            time.sleep(2)
+                            PixivHelper.print_delay(2)
 
                     images = images + 1
                     if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
