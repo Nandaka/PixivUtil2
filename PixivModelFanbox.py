@@ -6,7 +6,7 @@ import re
 import sys
 from typing import List
 
-import demjson
+import demjson3
 from bs4 import BeautifulSoup
 
 import datetime_z
@@ -282,7 +282,7 @@ class FanboxPost(object):
                                  errorCode=PixivException.MISSING_CONFIG,
                                  htmlPage=None)
 
-        cfg = demjson.decode_file(content_provider_path)
+        cfg = demjson3.decode_file(content_provider_path)
         embed_cfg = cfg["embedConfig"]
         current_provider = embedData["serviceProvider"]
 
@@ -441,7 +441,7 @@ class FanboxArtist(object):
     @classmethod
     def parseArtistIds(cls, page):
         ids = list()
-        js = demjson.decode(page)
+        js = demjson3.decode(page)
 
         if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox", 9999, page)
@@ -464,7 +464,7 @@ class FanboxArtist(object):
         return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"
 
     def parsePosts(self, page) -> List[FanboxPost]:
-        js = demjson.decode(page)
+        js = demjson3.decode(page)
 
         if "error" in js and js["error"]:
             raise PixivException(f"Error when requesting Fanbox artist: {self.artistId}", 9999, page)

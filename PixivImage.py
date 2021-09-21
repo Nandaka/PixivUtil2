@@ -11,7 +11,7 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple
 
-import demjson
+import demjson3
 from bs4 import BeautifulSoup
 
 import datetime_z
@@ -552,7 +552,7 @@ class PixivImage (object):
         if jss is None or len(jss["content"]) == 0:
             return None  # Possibly error page
 
-        payload = demjson.decode(jss["content"])
+        payload = demjson3.decode(jss["content"])
         return payload
 
 

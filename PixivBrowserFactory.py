@@ -12,7 +12,7 @@ import traceback
 import urllib
 from typing import List, Tuple, Union
 
-import demjson
+import demjson3
 import mechanize
 import socks
 from bs4 import BeautifulSoup
@@ -705,7 +705,7 @@ class PixivBrowser(mechanize.Browser):
             errorCode = error.getcode()
             errorMessage = error.get_data()
             PixivHelper.get_logger().error("Error data: \r\n %s", errorMessage)
-            payload = demjson.decode(errorMessage)
+            payload = demjson3.decode(errorMessage)
             # Issue #432
             msg = None
             if "message" in payload:
@@ -937,7 +937,7 @@ class PixivBrowser(mechanize.Browser):
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
 
-        js = demjson.decode(response)
+        js = demjson3.decode(response)
         if "error" in js and js["error"]:
             raise PixivException("Error when requesting Fanbox", 9999, js)
 
@@ -1025,7 +1025,7 @@ class PixivBrowser(mechanize.Browser):
         p_response = p_res.read()
         PixivHelper.get_logger().debug(p_response.decode('utf8'))
         p_res.close()
-        js = demjson.decode(p_response)
+        js = demjson3.decode(p_response)
         return js
 
     def sketch_get_post_by_post_id(self, post_id, artist=None):
