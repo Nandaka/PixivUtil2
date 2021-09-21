@@ -8,6 +8,7 @@ import PixivDownloadHandler
 import PixivHelper
 import PixivModelFanbox
 from PixivException import PixivException
+import PixivArtistHandler
 
 
 def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefix=""):
@@ -230,3 +231,21 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
             db.insertPostImages(post_files)
 
     db.updatePostUpdateDate(post.imageId, post.updatedDate)
+
+
+def process_pixiv_by_fanbox_id(caller, config, artist_id, start_page=1, end_page=0, tags=None, title_prefix=""):
+    # Implement #1005
+    config.loadConfig(path=caller.configfile)
+    br = PixivBrowserFactory.getBrowser()
+
+    caller.set_console_title(title_prefix)
+    artist = br.fanboxGetArtistById(artist_id)
+    PixivArtistHandler.process_member(caller,
+                                      config,
+                                      artist.artistId,
+                                      user_dir='',
+                                      page=start_page,
+                                      end_page=end_page,
+                                      bookmark=False,
+                                      tags=tags,
+                                      title_prefix=title_prefix)

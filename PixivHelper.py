@@ -32,10 +32,10 @@ import mechanize
 from colorama import Fore, Style
 
 import PixivConstant
+import PixivException
 from PixivArtist import PixivArtist
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
-import PixivException
 
 logger = None
 _config = None

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import gc
 import sys
-import time
 import traceback
 
 from colorama import Fore, Style
@@ -180,7 +179,7 @@ def process_member(caller,
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         traceback.print_exception(exc_type, exc_value, exc_traceback)
                         PixivHelper.print_and_log("error", f"Error at process_member(): {sys.exc_info()} Member Id: {member_id}")
-                        time.sleep(2)
+                        PixivHelper.print_delay(2)
 
                 if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
                               PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,

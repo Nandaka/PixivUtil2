@@ -220,7 +220,7 @@ class PixivBrowser(mechanize.Browser):
                     print(exc_value, end=' ')
                     for t in range(1, self._config.retryWait):
                         print(t, end=' ')
-                        time.sleep(1)
+                        PixivHelper.print_delay(2)
                     print('')
                     retry_count = retry_count + 1
                 else:

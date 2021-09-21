@@ -31,7 +31,7 @@ def process_sketch_post(caller, config, post_id):
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
 
 
-def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0, title_prefix=None):
+def process_sketch_artists(caller, config, artist_id, start_page=1, end_page=0, title_prefix=None):
     config.loadConfig(path=caller.configfile)
     br = PixivBrowserFactory.getBrowser()
     if title_prefix is None:
@@ -39,11 +39,16 @@ def process_sketch_artists(caller, config, artist_id, start_page=0, end_page=0, 
     else:
         title_prefix = f"{title_prefix} Pixiv Sketch - Processing Artist Id: {artist_id}"
     caller.set_console_title(title_prefix)
-    msg = Fore.YELLOW + Style.NORMAL + f'Processing Artist Id: {artist_id}' + Style.RESET_ALL
+    msg = Fore.YELLOW + Style.NORMAL + f'Processing Artist Id: {artist_id} for PixivSketch' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
 
     try:
         artist = br.sketch_get_posts_by_artist_id(artist_id, end_page)
+
+        # check if have posts
+        if len(artist.posts) == 0:
+            PixivHelper.print_and_log('warn', f'No images for Artist Id: {artist_id}')
+            return
 
         POST_PER_PAGE = 10
         start_idx = POST_PER_PAGE * (start_page - 1)
