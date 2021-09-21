@@ -1,6 +1,6 @@
 beautifulsoup4>=4.9.3
 certifi>=2021.5.30
-demjson>=2.2.4
+demjson3>=3.0.0
 mechanize>=0.4.5
 # numpy>=1.17.2
 Pillow>=8.3.0

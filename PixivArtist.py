@@ -3,7 +3,7 @@
 
 import re
 
-import demjson
+import demjson3
 from bs4 import BeautifulSoup
 
 import PixivHelper
@@ -37,7 +37,7 @@ class PixivArtist:
             payload = None
             # detect if image count != 0
             if not fromImage:
-                payload = demjson.decode(page)
+                payload = demjson3.decode(page)
                 if payload["error"]:
                     raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
                 if payload["body"] is None:
@@ -209,5 +209,5 @@ class PixivArtist:
         if jss is None or len(jss["content"]) == 0:
             return None  # Possibly error page
 
-        payload = demjson.decode(jss["content"])
+        payload = demjson3.decode(jss["content"])
         return payload
