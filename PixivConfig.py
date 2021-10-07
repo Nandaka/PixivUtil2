@@ -285,6 +285,7 @@ class PixivConfig():
         '''Backup old config if exist and write updated config.ini'''
         print('Writing config file...', end=' ')
         config = configparser.RawConfigParser()
+        config.optionxform = lambda option: option
 
         groups = itertools.groupby(PixivConfig.__items, lambda x: x.section)
 

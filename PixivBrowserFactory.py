@@ -436,8 +436,7 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.print_and_log(
                         'info', 'New FANBOX cookie value: ' + str(cookie.value))
                     self._config.cookieFanbox = cookie.value
-                    self._config.writeConfig(
-                        path=self._config.configFileLocation)
+                    self._config.writeConfig(path=self._config.configFileLocation)
                     break
         else:
             PixivHelper.print_and_log('info', 'Could not update FANBOX cookie string.')
@@ -1223,6 +1222,7 @@ def test():
     print("Access Token = " + auth_token)
     print("Refresh Token = " + refresh_token)
     b._oauth_manager.login()
+    b._config.writeConfig()
 
     if success:
         def test_oauth_get_user_info():
