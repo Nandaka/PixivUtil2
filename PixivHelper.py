@@ -164,6 +164,7 @@ def make_filename(nameFormat: str,
                   useTranslatedTag=False,
                   tagTranslationLocale="en") -> str:
     '''Build the filename from given info to the given format.'''
+    global _config
     if artistInfo is None:
         artistInfo = imageInfo.artist
 
@@ -310,6 +311,9 @@ def make_filename(nameFormat: str,
 
     if appendExtension:
         nameFormat = nameFormat.strip() + '.' + imageExtension
+
+    if _config and len(_config.customCleanUpRe) > 0:
+        nameFormat = re.sub(_config.customCleanUpRe, '', nameFormat)
 
     return nameFormat.strip()
 
@@ -1207,6 +1211,14 @@ class LocalUTCOffsetTimezone(tzinfo):
     def getTimeZoneOffset(self):
         offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
         return offset / 60 / 60 * -1
+
+
+def parse_custom_clean_up_re(custom_clean_up_re_string):
+    # need to use eval so can retain whitespace
+    if custom_clean_up_re_string is not None and len(custom_clean_up_re_string) > 0:
+        return eval(custom_clean_up_re_string)
+    else:
+        return ""
 
 
 def parse_custom_sanitizer(bad_char_string):

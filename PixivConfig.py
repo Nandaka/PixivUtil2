@@ -133,6 +133,7 @@ class PixivConfig():
         ConfigItem("Filename", "useTranslatedTag", False),
         ConfigItem("Filename", "tagTranslationLocale", "en"),
         ConfigItem("Filename", "customBadChars", "", followup=PixivHelper.parse_custom_sanitizer),
+        ConfigItem("Filename", "customCleanUpRe", "", followup=PixivHelper.parse_custom_clean_up_re),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),
@@ -334,3 +335,12 @@ class PixivConfig():
                 for item in g:
                     print(f" - {item.option:{25}} = {self.__getattribute__(item.option)}")
         print('')
+
+
+if __name__ == '__main__':
+    cfg = PixivConfig()
+    cfg.loadConfig("./config.ini")
+    test_filename = "C:\\haha\\hehe\\ ()\\filename.jpg"
+    import re
+    print(f"[{cfg.customCleanUpRe}]")
+    print(f"{test_filename} ==> {re.sub(cfg.customCleanUpRe, '', test_filename)}")
