@@ -61,12 +61,14 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
                 try:
                     process_fanbox_post(caller, config, post, artist)
                 except KeyboardInterrupt:
-                    choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
+                    choice = input("Keyboard Interrupt detected, continue to next post? (Y/N)").rstrip("\r")
                     if choice.upper() == 'N':
                         PixivHelper.print_and_log("info", f"FANBOX artist: {artist}, processing aborted")
-                        break
+                        return
                     else:
                         continue
+            else:
+                PixivHelper.print_and_log("info", f"Unsupported post type: {post.imageId} => {post.type}")
             image_count += 1
             PixivHelper.wait(config)
 
