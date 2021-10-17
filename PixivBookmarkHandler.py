@@ -17,7 +17,8 @@ def process_bookmark(caller,
                      config,
                      hide='n',
                      start_page=1,
-                     end_page=0):
+                     end_page=0,
+                     bookmark_count=-1):
     br = caller.__br__
 
     try:
@@ -40,7 +41,8 @@ def process_bookmark(caller,
                                               config,
                                               item.memberId,
                                               user_dir=item.path,
-                                              title_prefix=prefix)
+                                              title_prefix=prefix,
+                                              bookmark_count=bookmark_count)
             current_member = current_member + 1
 
         if len(total_list) > 0:
@@ -103,7 +105,8 @@ def process_image_bookmark(caller,
 def process_new_illust_from_bookmark(caller,
                                      config,
                                      page_num=1,
-                                     end_page_num=0):
+                                     end_page_num=0,
+                                     bookmark_count=-1):
     br = caller.__br__
     parsed_page = None
     try:
@@ -130,7 +133,8 @@ def process_new_illust_from_bookmark(caller,
                 result = PixivImageHandler.process_image(caller,
                                                          config,
                                                          artist=None,
-                                                         image_id=int(image_id))
+                                                         image_id=int(image_id),
+                                                         bookmark_count=bookmark_count)
                 image_count = image_count + 1
 
                 if result == PixivConstant.PIXIVUTIL_SKIP_OLDER:

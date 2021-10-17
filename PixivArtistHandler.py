@@ -22,6 +22,7 @@ def process_member(caller,
                    bookmark=False,
                    tags=None,
                    title_prefix="",
+                   bookmark_count=None,
                    notifier=None):
     # caller function/method
     # TODO: ideally to be removed or passed as argument
@@ -164,6 +165,7 @@ def process_member(caller,
                                                                      user_dir,
                                                                      bookmark,
                                                                      title_prefix=title_prefix_img,
+                                                                     bookmark_count=bookmark_count,
                                                                      notifier=notifier)
 
                         break

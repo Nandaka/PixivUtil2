@@ -344,6 +344,7 @@ def menu_download_by_tags(opisvalid, args, options):
         sort_order = options.tag_sort_order
         start_date = options.start_date
         end_date = options.end_date
+        bookmark_count = options.bookmark_count_limit
         (page, end_page) = get_start_and_end_page_from_options(options)
         tags = " ".join(args)
     else:
@@ -488,6 +489,8 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
     start_page = 1
     end_page = 0
     hide = 'n'
+    bookmark_count = None
+
     if opisvalid:
         if options.bookmark_flag is not None:
             hide = options.bookmark_flag.lower()
@@ -495,6 +498,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
                 PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {args}, valid values are [y/n/o].")
                 return
             (start_page, end_page) = get_start_and_end_page_from_options(options)
+            bookmark_count = options.bookmark_count_limit
     else:
         arg = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
         arg = arg.lower()
@@ -504,7 +508,17 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
             print("Invalid args: ", arg)
             return
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-    PixivBookmarkHandler.process_bookmark(sys.modules[__name__], __config__, hide, start_page, end_page)
+        bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
+
+    if bookmark_count is not None and len(bookmark_count.strip()) > 0:
+        bookmark_count = int(bookmark_count.strip())
+
+    PixivBookmarkHandler.process_bookmark(sys.modules[__name__],
+                                          __config__,
+                                          hide,
+                                          start_page,
+                                          end_page,
+                                          bookmark_count=bookmark_count)
 
 
 def menu_download_from_online_image_bookmark(opisvalid, args, options):
@@ -565,6 +579,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
         start_date = options.start_date
         end_date = options.end_date
         (page, end_page) = get_start_and_end_page_from_options(options)
+        bookmark_count = options.bookmark_count_limit
     else:
         filename = input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
         wildcard = input('Use Wildcard[y/n]: ').rstrip("\r") or 'n'
@@ -586,8 +601,8 @@ def menu_download_from_tags_list(opisvalid, args, options):
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
-    if bookmark_count is not None:
-        bookmark_count = int(bookmark_count)
+    if bookmark_count is not None and len(bookmark_count.strip()) > 0:
+        bookmark_count = int(bookmark_count.strip())
 
     PixivListHandler.process_tags_list(sys.modules[__name__],
                                        __config__,
@@ -603,16 +618,23 @@ def menu_download_from_tags_list(opisvalid, args, options):
 
 def menu_download_new_illust_from_bookmark(opisvalid, args, options):
     __log__.info('New Illust from Bookmark mode (8).')
+    bookmark_count = None
 
     if opisvalid:
         (page_num, end_page_num) = get_start_and_end_page_from_options(options)
+        bookmark_count = options.bookmark_count_limit
     else:
         (page_num, end_page_num) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
+        bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
+
+    if bookmark_count is not None and len(bookmark_count.strip()) > 0:
+        bookmark_count = int(bookmark_count.strip())
 
     PixivBookmarkHandler.process_new_illust_from_bookmark(sys.modules[__name__],
                                                           __config__,
                                                           page_num=page_num,
-                                                          end_page_num=end_page_num)
+                                                          end_page_num=end_page_num,
+                                                          bookmark_count=bookmark_count)
 
 
 def menu_download_by_manga_series_id(opisvalid, args, options):
@@ -1092,6 +1114,11 @@ If using relative path, it will be prefixed with [downloadlistdirectory] in conf
                       default=False,
                       action='store_true',
                       help='''Use Image Tag for filtering in option (6). Default is False.''')
+    parser.add_option('--bcl', '--bookmark_count_limit',
+                      dest='bookmark_count_limit',
+                      default=-1,
+                      help='''Bookmark count limit in integer.                             \n
+Used in option 3, 5, 7, and 8.''')
     return parser
 
 

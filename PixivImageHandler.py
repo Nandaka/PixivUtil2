@@ -166,28 +166,23 @@ def process_image(caller,
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - url is not in the filter: {extension_filter} => {url}')
                     break
 
+        # issue #1027 filter by bookmark count
+        if int(bookmark_count) > -1 and int(image.bookmark_count) < int(bookmark_count):
+            download_image_flag = False
+            PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - post bookmark count {image.bookmark_count} is less than: {bookmark_count}')
+
         if download_image_flag:
             if artist is None:
                 PixivHelper.print_and_log(None, f'Member Name  : {image.artist.artistName}')
                 PixivHelper.print_and_log(None, f'Member Avatar: {image.artist.artistAvatar}')
                 PixivHelper.print_and_log(None, f'Member Token : {image.artist.artistToken}')
                 PixivHelper.print_and_log(None, f'Member Background : {image.artist.artistBackground}')
+
             PixivHelper.print_and_log(None, f"Title: {image.imageTitle}")
             tags_str = ', '.join(image.imageTags)
             PixivHelper.print_and_log(None, f"Tags : {tags_str}")
             PixivHelper.print_and_log(None, f"Date : {image.worksDateDateTime}")
             PixivHelper.print_and_log(None, f"Mode : {image.imageMode}")
-
-            # # get bookmark count
-            # if ("%bookmark_count%" in config.filenameFormat or "%image_response_count%" in config.filenameFormat) and image.bookmark_count == -1:
-            #     PixivHelper.print_and_log(None, "Parsing bookmark page", end=' ')
-            #     bookmark_url = f'https://www.pixiv.net/bookmark_detail.php?illust_id={image_id}'
-            #     parse_bookmark_page = PixivBrowserFactory.getBrowser().getPixivPage(bookmark_url)
-            #     image.ParseBookmarkDetails(parse_bookmark_page)
-            #     parse_bookmark_page.decompose()
-            #     del parse_bookmark_page
-            #     PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
-            #     caller.__br__.back()
             PixivHelper.print_and_log(None, f"Bookmark Count : {image.bookmark_count}")
 
             if config.useSuppressTags:
