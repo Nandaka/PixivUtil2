@@ -167,7 +167,7 @@ def process_image(caller,
                     break
 
         # issue #1027 filter by bookmark count
-        if int(bookmark_count) > -1 and int(image.bookmark_count) < int(bookmark_count):
+        if bookmark_count is not None and int(bookmark_count) > -1 and int(image.bookmark_count) < int(bookmark_count):
             download_image_flag = False
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - post bookmark count {image.bookmark_count} is less than: {bookmark_count}')
 
