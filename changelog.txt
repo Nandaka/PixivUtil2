@@ -1,3 +1,19 @@
+20211020
+- Fix Issue #1028: Update download new illust parser to use new API.
+- Implement #1027: Add Bookmark Count Option to Option 5, 8.
+- Merge Update PixivFanboxHandler.py (#1026) by amatuerCoder.
+- Add new option for customCleanUpRe in config.ini.
+- Keep case when writing config.ini.
+- Update #1004 rewrite pyexiv2 to version 2.7.0.
+- Merge fix(deps): demjson (#1015) by BassOfBass.
+- Fix #1011: handle user not exists during download.
+- Fix check if pixiv sketch return empty post #1013 #1014.
+- Implement #1005: Resolve and download Pixiv by Fanbox "artist/creator" id.
+- Merge Correct shape of BOM in Downloaded List (#1010) by NHOrus.
+- Implement #1007: Add option to download Pixiv Sketch using option 4.
+- Add check  for R-18/R-18G from pixiv website setting.
+- Implement #1002: update url dump for fanbox and add some typing.
+
 20210822
 - Merge Fix #993 (#995) by amatuerCoder.
 - Merge Get member information adjustment (#992) by amatuerCoder.
