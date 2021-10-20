@@ -33,7 +33,7 @@ from colorama import Fore, Style
 
 import PixivConstant
 import PixivException
-from PixivArtist import PixivArtist
+import PixivArtist
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
 
@@ -154,7 +154,7 @@ def replace_path_separator(s, replacement='_'):
 
 def make_filename(nameFormat: str,
                   imageInfo: Union[PixivImage, FanboxPost],
-                  artistInfo: Union[PixivArtist, FanboxArtist] = None,
+                  artistInfo: Union[PixivArtist.PixivArtist, FanboxArtist] = None,
                   tagsSeparator=' ',
                   tagsLimit=-1,
                   fileUrl='',

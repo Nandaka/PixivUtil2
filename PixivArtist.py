@@ -6,7 +6,6 @@ import re
 import demjson3
 from bs4 import BeautifulSoup
 
-import PixivHelper
 from PixivException import PixivException
 
 
@@ -186,16 +185,16 @@ class PixivArtist:
                 self.haveImages = True
 
     def PrintInfo(self):
-        PixivHelper.safePrint('Artist Info')
-        PixivHelper.safePrint('id    : ' + str(self.artistId))
-        PixivHelper.safePrint('name  : ' + self.artistName)
-        PixivHelper.safePrint('avatar: ' + self.artistAvatar)
-        PixivHelper.safePrint('token : ' + self.artistToken)
-        PixivHelper.safePrint('urls  : {0}'.format(len(self.imageList)))
+        print('Artist Info')
+        print(f'id    : {self.artistId}')
+        print(f'name  : {self.artistName}')
+        print(f'avatar: {self.artistAvatar}')
+        print(f'token : {self.artistToken}')
+        print(f'urls  : {len(self.imageList)}')
         for item in self.imageList:
-            PixivHelper.safePrint('\t' + str(item))
-        PixivHelper.safePrint('total : {0}'.format(self.totalImages))
-        PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
+            print(f'\t{item}')
+        print(f'total : {self.totalImages}')
+        print(f'last? : {self.isLastPage}')
 
     def parseJs(self, page):
         ''' get the <meta> tag for attribute meta-preload-data and return json object'''

@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 
 import PixivHelper
 from PixivArtist import PixivArtist
+from PixivBookmark import PixivNewIllustBookmark
 from PixivException import PixivException
 from PixivImage import PixivImage, PixivMangaSeries
 from PixivModelFanbox import FanboxArtist, FanboxPost
@@ -1165,6 +1166,24 @@ class PixivBrowser(mechanize.Browser):
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
         novel_series.parse_series_content(response, current_page)
         return novel_series
+
+    def getFollowedNewIllusts(self, mode="all", current_page=1) -> PixivNewIllustBookmark:
+        # Issue #1028
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            locale = f"&lang={self._locale}"
+        url = f"https://www.pixiv.net/ajax/follow_latest/illust?p={current_page}&mode={mode}{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        PixivHelper.get_logger().info(f"Source URL: {url}")
+        pb = PixivNewIllustBookmark(response)
+
+        # Non premium is only limited to 2000 images (100 page old layout, 35 new layout)
+        # Premium user might be limited to 10000 images (5000 page old layout, 167 new layout)
+        pb.isLastPage = False
+        if (self._isPremium and int(current_page) >= 167) or (not self._isPremium and int(current_page) >= 35):
+            pb.isLastPage = True
+
+        return pb
 
 
 def getBrowser(config=None, cookieJar=None):

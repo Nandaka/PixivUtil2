@@ -2,15 +2,16 @@ import os
 import sys
 from datetime import time
 
-from bs4 import BeautifulSoup
-
 import PixivArtistHandler
+from PixivBrowserFactory import PixivBrowser
 import PixivConstant
 import PixivDownloadHandler
 import PixivHelper
 import PixivImageHandler
-from PixivBookmark import PixivBookmark, PixivNewIllustBookmark
+from PixivBookmark import PixivBookmark
 from PixivGroup import PixivGroup
+
+# from bs4 import BeautifulSoup
 
 
 def process_bookmark(caller,
@@ -19,7 +20,7 @@ def process_bookmark(caller,
                      start_page=1,
                      end_page=0,
                      bookmark_count=-1):
-    br = caller.__br__
+    br: PixivBrowser = caller.__br__
 
     try:
         total_list = list()
@@ -85,7 +86,7 @@ def process_image_bookmark(caller,
 
         PixivHelper.print_and_log('info', f"Found {len(totalList)} of {total_bookmark_count} possible image(s) .")
         for item in totalList:
-            print("Image #" + str(image_count))
+            print(f"Image # {image_count}")
             result = PixivImageHandler.process_image(caller,
                                                      config,
                                                      artist=None,
@@ -107,7 +108,7 @@ def process_new_illust_from_bookmark(caller,
                                      page_num=1,
                                      end_page_num=0,
                                      bookmark_count=-1):
-    br = caller.__br__
+    br: PixivBrowser = caller.__br__
     parsed_page = None
     try:
         print("Processing New Illust from bookmark")
@@ -115,21 +116,27 @@ def process_new_illust_from_bookmark(caller,
         image_count = 1
         flag = True
         while flag:
-            print("Page #" + str(i))
-            url = 'https://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
+            print(f"Page #{i}")
+            mode = "all"
             if config.r18mode:
-                url = 'https://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
+                mode = "r18"
+            pb = br.getFollowedNewIllusts(mode, current_page=i)
 
-            PixivHelper.print_and_log('info', "Source URL: " + url)
-            page = br.open(url)
-            parsed_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
-            pb = PixivNewIllustBookmark(parsed_page)
-            if not pb.haveImages:
-                print("No images!")
-                break
+            # url = 'https://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
+            # if config.r18mode:
+            #     url = 'https://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
+
+            # PixivHelper.print_and_log('info', "Source URL: " + url)
+            # page = br.open(url)
+            # parsed_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
+            # pb = PixivNewIllustBookmark(parsed_page)
+
+            # if not pb.haveImages:
+            #     print("No images!")
+            #     break
 
             for image_id in pb.imageList:
-                print("Image #" + str(image_count))
+                print(f"Image #{image_count}")
                 result = PixivImageHandler.process_image(caller,
                                                          config,
                                                          artist=None,
@@ -144,13 +151,11 @@ def process_new_illust_from_bookmark(caller,
                 PixivHelper.wait(result, config)
             i = i + 1
 
-            page.close()
-            parsed_page.decompose()
-            del parsed_page
+            # page.close()
+            # parsed_page.decompose()
+            # del parsed_page
 
-            # Non premium is only limited to 100 page
-            # Premium user might be limited to 5000, refer to issue #112
-            if (end_page_num != 0 and i > end_page_num) or i > 5000 or pb.isLastPage:
+            if (end_page_num != 0 and i > end_page_num) or pb.isLastPage:
                 print("Limit or last page reached.")
                 flag = False
 
@@ -170,21 +175,21 @@ def process_from_group(caller,
                        group_id,
                        limit=0,
                        process_external=True):
-    br = caller.__br__
+    br: PixivBrowser = caller.__br__
     json_response = None
     try:
         print("Download by Group Id")
         if limit != 0:
-            print("Limit: {0}".format(limit))
+            print(f"Limit: {limit}")
         if process_external:
-            print("Include External Image: {0}".format(process_external))
+            print(f"Include External Image: {process_external}")
 
         max_id = 0
         image_count = 0
         flag = True
         while flag:
-            url = "https://www.pixiv.net/group/images.php?format=json&max_id={0}&id={1}".format(max_id, group_id)
-            PixivHelper.print_and_log('info', "Getting images from: {0}".format(url))
+            url = f"https://www.pixiv.net/group/images.php?format=json&max_id={max_id}&id={group_id}"
+            PixivHelper.print_and_log('info', f"Getting images from: {url}")
             response = br.open(url)
             json_response = response.read()
             response.close()
@@ -195,8 +200,8 @@ def process_from_group(caller,
                     if image_count > limit and limit != 0:
                         flag = False
                         break
-                    print("Image #{0}".format(image_count))
-                    print("ImageId: {0}".format(image))
+                    print(f"Image #{image_count}")
+                    print(f"ImageId: {image}")
                     result = PixivImageHandler.process_image(caller,
                                                              config,
                                                              image_id=image)
@@ -208,11 +213,11 @@ def process_from_group(caller,
                     if image_count > limit and limit != 0:
                         flag = False
                         break
-                    print("Image #{0}".format(image_count))
-                    print("Member Id   : {0}".format(image_data.artist.artistId))
-                    PixivHelper.safePrint("Member Name  : " + image_data.artist.artistName)
-                    print("Member Token : {0}".format(image_data.artist.artistToken))
-                    print("Image Url   : {0}".format(image_data.imageUrls[0]))
+                    print(f"Image #{image_count}")
+                    print(f"Member Id    : {image_data.artist.artistId}")
+                    PixivHelper.safePrint(f"Member Name  : {image_data.artist.artistName}")
+                    print(f"Member Token : {image_data.artist.artistToken}")
+                    print(f"Image Url    : {image_data.imageUrls[0]}")
 
                     filename = PixivHelper.make_filename(config.filenameFormat,
                                                          imageInfo=image_data,
@@ -222,7 +227,7 @@ def process_from_group(caller,
                                                          useTranslatedTag=config.useTranslatedTag,
                                                          tagTranslationLocale=config.tagTranslationLocale)
                     filename = PixivHelper.sanitize_filename(filename, config.rootDirectory)
-                    PixivHelper.safePrint("Filename  : " + filename)
+                    PixivHelper.safePrint(f"Filename  : {filename}")
                     (result, filename) = PixivDownloadHandler.download_image(caller,
                                                                              image_data.imageUrls[0],
                                                                              filename,
@@ -265,7 +270,7 @@ def export_bookmark(caller,
         if hide != 'n':
             print("Importing Private Bookmarks...")
             total_list.extend(get_bookmarks(caller, config, True, start_page, end_page, member_id))
-        print("Result: ", str(len(total_list)), "items.")
+        print(f"Result: {len(total_list)} items.")
         PixivBookmark.exportList(total_list, filename)
     except KeyboardInterrupt:
         raise
@@ -275,7 +280,7 @@ def export_bookmark(caller,
 
 
 def get_bookmarks(caller, config, hide, start_page=1, end_page=0, member_id=None):
-    br = caller.__br__
+    br: PixivBrowser = caller.__br__
 
     """Get User's bookmarked artists """
     total_list = list()
@@ -331,7 +336,7 @@ def get_bookmarks(caller, config, hide, start_page=1, end_page=0, member_id=None
 
 def get_image_bookmark(caller, config, hide, start_page=1, end_page=0, tag=None, use_image_tag=False):
     """Get user's image bookmark"""
-    br = caller.__br__
+    br: PixivBrowser = caller.__br__
     total_list = list()
     i = start_page
     offset = 0
@@ -342,7 +347,7 @@ def get_image_bookmark(caller, config, hide, start_page=1, end_page=0, tag=None,
 
     while True:
         if end_page != 0 and i > end_page:
-            print("Page Limit reached: " + str(end_page))
+            print(f"Page Limit reached: {end_page}")
             break
 
         # https://www.pixiv.net/ajax/user/189816/illusts/bookmarks?tag=&offset=0&limit=48&rest=show

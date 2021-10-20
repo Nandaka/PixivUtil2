@@ -452,11 +452,12 @@ class TestPixivImage(unittest.TestCase):
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
         # print('\nTesting BookmarkNewIlust')
-        p = open('./test/test-bookmarks_new_ilust.htm', 'r', encoding="utf-8")
-        page = BeautifulSoup(p.read(), features="html5lib")
+        p = open('./test/test-bookmarks_new_ilust.json', 'r', encoding="utf-8")
+        # page = BeautifulSoup(p.read(), features="html5lib")
+        page = p.read()
         result = PixivNewIllustBookmark(page)
 
-        self.assertEqual(len(result.imageList), 20)
+        self.assertEqual(len(result.imageList), 60)
 
     def testPixivImageBookmark(self):
         # print('\nTesting PixivImageBookmark')

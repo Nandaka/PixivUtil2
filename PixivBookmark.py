@@ -9,6 +9,8 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
+import PixivException
+
 
 class PixivBookmark(object):
     '''Class for parsing Bookmarks'''
@@ -106,37 +108,45 @@ class PixivNewIllustBookmark(object):
 
     def __init__(self, page):
         self.__ParseNewIllustBookmark(page)
-        self.__CheckLastPage(page)
+        # self.__CheckLastPage(page)
         self.haveImages = bool(len(self.imageList) > 0)
 
     def __ParseNewIllustBookmark(self, page):
         self.imageList = list()
+        page_json = json.loads(page)
 
-        # Fix Issue#290
-        jsBookmarkItem = page.find(id='js-mount-point-latest-following')
-        if jsBookmarkItem is not None:
-            js = jsBookmarkItem["data-items"]
-            items = json.loads(js)
-            for item in items:
-                image_id = item["illustId"]
-                # bookmarkCount = item["bookmarkCount"]
-                # imageResponse = item["responseCount"]
-                self.imageList.append(int(image_id))
-        else:
-            result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
-            for r in result:
-                href = re.search(r'/artworks/(\d+)', r['href'])
-                if href is not None:
-                    href = int(href.group(1))
-                    if href not in self.imageList:
-                        self.imageList.append(href)
+        if bool(page_json["error"]):
+            raise PixivException(page_json["message"], errorCode=PixivException.OTHER_ERROR)
+
+        # 1028
+        for image_id in page_json["body"]["page"]["ids"]:
+            self.imageList.append(int(image_id))
+
+        # # Fix Issue#290
+        # jsBookmarkItem = page.find(id='js-mount-point-latest-following')
+        # if jsBookmarkItem is not None:
+        #     js = jsBookmarkItem["data-items"]
+        #     items = json.loads(js)
+        #     for item in items:
+        #         image_id = item["illustId"]
+        #         # bookmarkCount = item["bookmarkCount"]
+        #         # imageResponse = item["responseCount"]
+        #         self.imageList.append(int(image_id))
+        # else:
+        #     result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
+        #     for r in result:
+        #         href = re.search(r'/artworks/(\d+)', r['href'])
+        #         if href is not None:
+        #             href = int(href.group(1))
+        #             if href not in self.imageList:
+        #                 self.imageList.append(href)
 
         return self.imageList
 
-    def __CheckLastPage(self, page):
-        check = page.findAll('a', attrs={'class': '_button', 'rel': 'next'})
-        if len(check) > 0:
-            self.isLastPage = False
-        else:
-            self.isLastPage = True
-        return self.isLastPage
+    # def __CheckLastPage(self, page):
+    #     check = page.findAll('a', attrs={'class': '_button', 'rel': 'next'})
+    #     if len(check) > 0:
+    #         self.isLastPage = False
+    #     else:
+    #         self.isLastPage = True
+    #     return self.isLastPage
