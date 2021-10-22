@@ -18,6 +18,8 @@
 
 **Actual behavior:** [What actually happened]
 
+**Log file:** [Attach the `pixivutil.log` file in the application folder, recommended to delete the old file, reproduce the issue, and upload the newly generated file here]
+
 ### Versions
 
 You can get this information from executing `PixivUtil2.py --help`.
