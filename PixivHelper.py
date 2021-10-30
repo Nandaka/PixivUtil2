@@ -952,14 +952,28 @@ def ugoira2apng(ugoira_file, exportname, image=None):
 
 def ugoira2webm(ugoira_file,
                 exportname,
-                ffmpeg=u"ffmpeg",
+                ffmpeg=u"ffmpeg.exe",
                 codec="libvpx-vp9",
                 param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
                 extension="webm",
                 image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
+
+    if not os.path.exists(os.path.abspath(ffmpeg)):
+        raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
+
     d = tempfile.mkdtemp(prefix="ugoira2webm")
     d = d.replace(os.sep, '/')
+    # Issue #1035
+    if not os.path.exists(d):
+        new_temp = os.path.abspath(f"ugoira_{int(datetime.now().timestamp())}")
+        new_temp = new_temp.replace(os.sep, '/')
+        os.makedirs(new_temp)
+        print_and_log("warn", f"Cannot create temp folder at {d}, using current folder as the temp location => {new_temp}")
+        d = new_temp
+        # check again if still fail
+        if not os.path.exists(d):
+            raise PixivException(f"Cannot create temp folder => {d}", errorCode=PixivException.OTHER_ERROR)
 
     if exportname is None or len(exportname) == 0:
         name = '.'.join(ugoira_file.split('.')[:-1])
@@ -1004,15 +1018,19 @@ def ugoira2webm(ugoira_file,
             if buff.endswith("\r"):
                 if chatter.find("frame=") > 0:
                     print_and_log(None, chatter.strip(), os.linesep, end=' ')
+                elif chatter.lower().find("error") > 0:
+                    print_and_log("error", chatter.strip(), os.linesep, end=' ')
                 chatter = ""
             if len(buff) == 0:
                 break
 
         ret = p.wait()
-        shutil.move(tempname, exportname)
 
-        if ret is not None:
-            print_and_log(None, f"- Done with status = {ret}")
+        if(p.returncode != 0):
+            print_and_log("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.")
+        else:
+            print_and_log("info", f"- Done with status = {ret}")
+            shutil.move(tempname, exportname)
 
         # set last-modified and last-accessed timestamp
         if image is not None and _config.setLastModified and exportname is not None and os.path.isfile(exportname):
@@ -1023,7 +1041,8 @@ def ugoira2webm(ugoira_file,
         raise
 
     finally:
-        shutil.rmtree(d)
+        if os.path.exists(d):
+            shutil.rmtree(d)
 
 
 def parse_date_time(worksDate, dateFormat):

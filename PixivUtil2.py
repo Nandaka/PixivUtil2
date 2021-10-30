@@ -1408,6 +1408,10 @@ def main():
            __config__.createApng or \
            __config__.createWebm or \
            __config__.createWebp:
+
+            if not os.path.exists(os.path.abspath(__config__.ffmpeg)):
+                raise PixivException(f"Cannot find ffmpeg executables at {os.path.abspath(__config__.ffmpeg)}")
+
             import shlex
             cmd = f"{__config__.ffmpeg} -encoders"
             ffmpeg_args = shlex.split(cmd)
