@@ -1409,8 +1409,8 @@ def main():
            __config__.createWebm or \
            __config__.createWebp:
 
-            if not os.path.exists(os.path.abspath(__config__.ffmpeg)):
-                raise PixivException(f"Cannot find ffmpeg executables at {os.path.abspath(__config__.ffmpeg)}, please update the path (including.exe) in config.ini")
+            # if not os.path.exists(os.path.abspath(__config__.ffmpeg)):
+            #     raise PixivException(f"Cannot find ffmpeg executables at {os.path.abspath(__config__.ffmpeg)}, please update the path (including.exe) in config.ini")
 
             import shlex
             cmd = f"{__config__.ffmpeg} -encoders"
@@ -1425,6 +1425,8 @@ def main():
                     PixivHelper.print_and_log('error', f'Command used: {cmd}')
                     PixivHelper.print_and_log('info', f'Please download ffmpeg with {__config__.ffmpegCodec} encoder enabled.')
                     PixivHelper.print_and_log('error', f'{"#" * 80}')
+                if p.returncode != 0:
+                    PixivHelper.print_and_log('warn', f'Failed to run ffmpeg succesfully, returned exit code = {p.returncode}, expected to return 0.')
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 PixivHelper.print_and_log('error', f'{"#" * 80}')

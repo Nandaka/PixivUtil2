@@ -1,5 +1,6 @@
-20211031-beta1
+20211031-beta2
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
+- Update ffmpeg detection, it will return warning if ffmpeg return exit code != 0 when checking codec
 
 20211030
 - Fix Issue #1035: enhance error detection when converting ugoira.

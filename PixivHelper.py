@@ -923,11 +923,11 @@ def write_url_in_description(image: Union[PixivImage, FanboxPost], blacklistRege
 
 
 def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
-    print_and_log('info', 'processing ugoira to animated gif...')
+    print_and_log('info', 'Processing ugoira to animated gif...')
     # Issue #802 use ffmpeg to convert to gif
     if len(_config.gifParam) == 0:
         _config.gifParam = "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""
-    ugoira2webm(ugoira_file,
+    convert_ugoira(ugoira_file,
                 exportname,
                 ffmpeg=_config.ffmpeg,
                 codec=None,
@@ -937,11 +937,11 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
 
 
 def ugoira2apng(ugoira_file, exportname, image=None):
-    print_and_log('info', 'processing ugoira to apng...')
+    print_and_log('info', 'Processing ugoira to apng...')
     # fix #796 convert apng using ffmpeg
     if len(_config.apngParam) == 0:
         _config.apngParam = "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"
-    ugoira2webm(ugoira_file,
+    convert_ugoira(ugoira_file,
                 exportname,
                 ffmpeg=_config.ffmpeg,
                 codec="apng",
@@ -957,12 +957,31 @@ def ugoira2webm(ugoira_file,
                 param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
                 extension="webm",
                 image=None):
+    print_and_log('info', 'Processing ugoira to webm...')
+    if len(_config.ffmpegParam) == 0:
+        _config.ffmpegParam = "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"
+    convert_ugoira(ugoira_file,
+                exportname,
+                ffmpeg=_config.ffmpeg,
+                codec="libvpx-vp9",
+                param=_config.ffmpegParam,
+                extension="webm",
+                image=None)
+
+
+def convert_ugoira(ugoira_file,
+                exportname,
+                ffmpeg=u"ffmpeg.exe",
+                codec="libvpx-vp9",
+                param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
+                extension="webm",
+                image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
 
     if not os.path.exists(os.path.abspath(ffmpeg)):
         raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
 
-    d = tempfile.mkdtemp(prefix="ugoira2webm")
+    d = tempfile.mkdtemp(prefix="convert_ugoira")
     d = d.replace(os.sep, '/')
     # Issue #1035
     if not os.path.exists(d):
@@ -1006,7 +1025,7 @@ def ugoira2webm(ugoira_file,
             f.write(ffconcat)
 
         ffmpeg_args = shlex.split(cmd)
-        get_logger().info(f"[ugoira2webm()] running with cmd: {cmd}")
+        get_logger().info(f"[convert_ugoira()] running with cmd: {cmd}")
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
@@ -1017,9 +1036,10 @@ def ugoira2webm(ugoira_file,
             chatter += buff
             if buff.endswith("\r"):
                 if _config.verboseOutput:
-                    print_and_log(None, chatter.strip(), os.linesep, end=' ')
-                elif chatter.find("frame=") > 0:
-                    print_and_log(None, chatter.strip(), os.linesep, end=' ')
+                    print_and_log(None, chatter.strip())
+                elif chatter.find("frame=") > 0 \
+                     or chatter.lower().find("stream") > 0:
+                    print_and_log(None, chatter.strip())
                 elif chatter.lower().find("error") > 0 \
                      or chatter.lower().find("could not") > 0 \
                      or chatter.lower().find("unknown") > 0 \
@@ -1027,7 +1047,7 @@ def ugoira2webm(ugoira_file,
                      or chatter.lower().find("trailing options") > 0 \
                      or chatter.lower().find("cannot") > 0 \
                      or chatter.lower().find("can't") > 0:
-                    print_and_log("error", chatter.strip(), os.linesep, end=' ')
+                    print_and_log("error", chatter.strip())
                 chatter = ""
             if len(buff) == 0:
                 break
@@ -1051,6 +1071,7 @@ def ugoira2webm(ugoira_file,
     finally:
         if os.path.exists(d):
             shutil.rmtree(d)
+        print()
 
 
 def parse_date_time(worksDate, dateFormat):
