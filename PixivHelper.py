@@ -1016,9 +1016,17 @@ def ugoira2webm(ugoira_file,
             buff = p.stderr.readline().decode('utf-8').rstrip('\n')
             chatter += buff
             if buff.endswith("\r"):
-                if chatter.find("frame=") > 0:
+                if _config.verboseOutput:
                     print_and_log(None, chatter.strip(), os.linesep, end=' ')
-                elif chatter.lower().find("error") > 0:
+                elif chatter.find("frame=") > 0:
+                    print_and_log(None, chatter.strip(), os.linesep, end=' ')
+                elif chatter.lower().find("error") > 0 \
+                     or chatter.lower().find("could not") > 0 \
+                     or chatter.lower().find("unknown") > 0 \
+                     or chatter.lower().find("invalid") > 0 \
+                     or chatter.lower().find("trailing options") > 0 \
+                     or chatter.lower().find("cannot") > 0 \
+                     or chatter.lower().find("can't") > 0:
                     print_and_log("error", chatter.strip(), os.linesep, end=' ')
                 chatter = ""
             if len(buff) == 0:

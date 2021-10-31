@@ -1410,7 +1410,7 @@ def main():
            __config__.createWebp:
 
             if not os.path.exists(os.path.abspath(__config__.ffmpeg)):
-                raise PixivException(f"Cannot find ffmpeg executables at {os.path.abspath(__config__.ffmpeg)}")
+                raise PixivException(f"Cannot find ffmpeg executables at {os.path.abspath(__config__.ffmpeg)}, please update the path (including.exe) in config.ini")
 
             import shlex
             cmd = f"{__config__.ffmpeg} -encoders"

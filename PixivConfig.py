@@ -165,7 +165,7 @@ class PixivConfig():
         ConfigItem("FANBOX", "checkDBProcessHistory", False),
         ConfigItem("FANBOX", "listPathFanbox", "listfanbox.txt"),
 
-        ConfigItem("FFmpeg", "ffmpeg", "ffmpeg"),
+        ConfigItem("FFmpeg", "ffmpeg", "ffmpeg.exe"),
         ConfigItem("FFmpeg", "ffmpegCodec", "libvpx-vp9"),
         ConfigItem("FFmpeg", "ffmpegExt", "webm"),
         ConfigItem("FFmpeg", "ffmpegParam", "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"),
@@ -174,6 +174,7 @@ class PixivConfig():
         ConfigItem("FFmpeg", "gifParam",
                    "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
         ConfigItem("FFmpeg", "apngParam", "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"),
+        ConfigItem("FFmpeg", "verboseOutput", False),
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
         ConfigItem("Ugoira", "createUgoira", False),

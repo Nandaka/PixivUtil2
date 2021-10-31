@@ -1,3 +1,6 @@
+20211031-beta1
+- Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
+
 20211030
 - Fix Issue #1035: enhance error detection when converting ugoira.
 - Fix Issue #1031 and #1034: fix command line option for 3 and 8
