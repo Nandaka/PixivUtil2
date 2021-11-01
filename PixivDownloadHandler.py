@@ -385,7 +385,7 @@ def handle_ugoira(image, zip_filename, config, notifier):
     if config.createWebp:
         webp_filename = ugo_name[:-7] + ".webp"
         if not os.path.exists(webp_filename):
-            PixivHelper.ugoira2webm(ugo_name,
+            PixivHelper.ugoira2webp(ugo_name,
                                     webp_filename,
                                     config.ffmpeg,
                                     config.webpCodec,

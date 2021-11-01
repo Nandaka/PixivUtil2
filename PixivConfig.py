@@ -168,7 +168,7 @@ class PixivConfig():
         ConfigItem("FFmpeg", "ffmpeg", "ffmpeg.exe"),
         ConfigItem("FFmpeg", "ffmpegCodec", "libvpx-vp9"),
         ConfigItem("FFmpeg", "ffmpegExt", "webm"),
-        ConfigItem("FFmpeg", "ffmpegParam", "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"),
+        ConfigItem("FFmpeg", "ffmpegParam", "-vsync 2 -r 999 -pix_fmt yuv420p"),
         ConfigItem("FFmpeg", "webpCodec", "libwebp"),
         ConfigItem("FFmpeg", "webpParam", "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"),
         ConfigItem("FFmpeg", "gifParam",

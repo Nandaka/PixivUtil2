@@ -950,20 +950,39 @@ def ugoira2apng(ugoira_file, exportname, image=None):
                 image=image)
 
 
+def ugoira2webp(ugoira_file,
+                exportname,
+                ffmpeg="ffmpeg.exe",
+                codec="libwebp",
+                param="-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999",
+                extension="webp",
+                image=None):
+    print_and_log('info', 'Processing ugoira to webp...')
+    if len(_config.webpParam) == 0:
+        _config.webpParam = "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"
+    convert_ugoira(ugoira_file,
+                exportname,
+                ffmpeg=_config.ffmpeg,
+                codec=codec,
+                param=_config.webpParam,
+                extension="webp",
+                image=image)
+
+
 def ugoira2webm(ugoira_file,
                 exportname,
                 ffmpeg=u"ffmpeg.exe",
                 codec="libvpx-vp9",
-                param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
+                param="-vsync 2 -r 999 -pix_fmt yuv420p",
                 extension="webm",
                 image=None):
     print_and_log('info', 'Processing ugoira to webm...')
     if len(_config.ffmpegParam) == 0:
-        _config.ffmpegParam = "-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p"
+        _config.ffmpegParam = "-vsync 2 -r 999 -pix_fmt yuv420p"
     convert_ugoira(ugoira_file,
                 exportname,
                 ffmpeg=_config.ffmpeg,
-                codec="libvpx-vp9",
+                codec=codec,
                 param=_config.ffmpegParam,
                 extension="webm",
                 image=None)
@@ -1000,9 +1019,9 @@ def convert_ugoira(ugoira_file,
 
     tempname = d + "/temp." + extension
 
-    cmd = f"{ffmpeg} -y -i \"{d}/i.ffconcat\" -c:v {codec} {param} \"{tempname}\""
+    cmd = f"{ffmpeg} -y -safe 0 -i \"{d}/i.ffconcat\" -c:v {codec} {param} \"{tempname}\""
     if codec is None:
-        cmd = f"{ffmpeg} -y -i \"{d}/i.ffconcat\" {param} \"{tempname}\""
+        cmd = f"{ffmpeg} -y -safe 0 -i \"{d}/i.ffconcat\" {param} \"{tempname}\""
 
     try:
         frames = {}
@@ -1036,10 +1055,10 @@ def convert_ugoira(ugoira_file,
             chatter += buff
             if buff.endswith("\r"):
                 if _config.verboseOutput:
-                    print_and_log(None, chatter.strip())
+                    print(chatter.strip())
                 elif chatter.find("frame=") > 0 \
                      or chatter.lower().find("stream") > 0:
-                    print_and_log(None, chatter.strip())
+                    print(chatter.strip())
                 elif chatter.lower().find("error") > 0 \
                      or chatter.lower().find("could not") > 0 \
                      or chatter.lower().find("unknown") > 0 \
