@@ -1,5 +1,7 @@
-20211031-beta2
+20211031-beta3
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
+  - remove `-lossless 1` from webm param due to ffmpeg memory issue might cause ugoira not fully converted.
+  - remove logging from ffmpeg output due to conflict with logger
 - Update ffmpeg detection to return warning if ffmpeg return exit code != 0 when loading for the first time.
 
 20211030
