@@ -779,7 +779,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args, options):
     if op_is_valid:
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
-        end_page = int(input("End Page = ").rstrip("\r") or 0)
+        end_page = int(input("End Page (default 0) = ").rstrip("\r") or 0)
 
     ids = list()
     if via in [PixivModelFanbox.FanboxArtist.SUPPORTING, PixivModelFanbox.FanboxArtist.FOLLOWING]:
@@ -857,7 +857,7 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
 
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        end_page = int(input("End page = ").rstrip("\r") or 0)
+        end_page = int(input("End page (default 0) = ").rstrip("\r") or 0)
         member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
 
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
@@ -888,8 +888,8 @@ def menu_fanbox_download_pixiv_by_fanbox_id(op_is_valid, args, options):
         member_ids = args
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        start_page = int(input("Start page = ").rstrip("\r") or 0)
-        end_page = int(input("End page = ").rstrip("\r") or 0)
+        start_page = int(input("Start page (default 0) = ").rstrip("\r") or 0)
+        end_page = int(input("End page (default 0) = ").rstrip("\r") or 0)
 
     member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
