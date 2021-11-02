@@ -215,7 +215,7 @@ def menu_download_by_member_id(opisvalid, args, options):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ').rstrip("\r") or 'n'
+        include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
         if include_sketch_ask.lower() == 'y':
             include_sketch = True
 
@@ -350,7 +350,7 @@ def menu_download_by_tags(opisvalid, args, options):
     else:
         tags = input('Tags: ').rstrip("\r")
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
-        wildcard = input('Use Partial Match (s_tag) [y/n]: ').rstrip("\r") or 'n'
+        wildcard = input('Use Partial Match (s_tag) [y/n, default is no]: ').rstrip("\r") or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
@@ -361,7 +361,7 @@ def menu_download_by_tags(opisvalid, args, options):
             msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d]? '
             sort_order = input(msg).rstrip("\r") or 'date_d'
         else:
-            oldest_first = input('Oldest first[y/n]: ').rstrip("\r") or 'n'
+            oldest_first = input('Oldest first[y/n, default is no]: ').rstrip("\r") or 'n'
             if oldest_first.lower() == 'y':
                 sort_order = 'date'
 
@@ -369,7 +369,7 @@ def menu_download_by_tags(opisvalid, args, options):
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
         while True:
-            type_mode = input("Search type [a-all|i-Illustration and Ugoira|m-manga: ").rstrip("\r") or "a"
+            type_mode = input("Search type [a-all|i-Illustration and Ugoira|m-manga, default is all: ").rstrip("\r") or "a"
             if type_mode in {'a', 'i', 'm'}:
                 break
             else:
@@ -469,7 +469,7 @@ def menu_download_from_list(opisvalid, args, options):
             tags = args[0]
     else:
         test_tags = input('Tag : ').rstrip("\r")
-        include_sketch_ask = input('Include Pixiv Sketch [y/n]? ').rstrip("\r") or 'n'
+        include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
         if include_sketch_ask.lower() == 'y':
             include_sketch = True
         if len(test_tags) > 0:
@@ -498,7 +498,7 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
             (start_page, end_page) = get_start_and_end_page_from_options(options)
             bookmark_count = options.bookmark_count_limit
     else:
-        arg = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
+        arg = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
         arg = arg.lower()
         if arg == 'y' or arg == 'n' or arg == 'o':
             hide = arg
@@ -539,7 +539,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
                 return
         use_image_tag = options.use_image_tag
     else:
-        hide = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
+        hide = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
         hide = hide.lower()
         if hide not in ('y', 'n', 'o'):
             print("Invalid args: ", hide)
@@ -547,7 +547,7 @@ def menu_download_from_online_image_bookmark(opisvalid, args, options):
         tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         if tag != '':
-            use_image_tag = input("Use Image Tags as the filter [y/n]? ").rstrip("\r") or 'n'
+            use_image_tag = input("Use Image Tags as the filter [y/n, default is no]? ").rstrip("\r") or 'n'
             use_image_tag = use_image_tag.lower()
             use_image_tag = True if use_image_tag == 'y' else False
 
@@ -580,7 +580,7 @@ def menu_download_from_tags_list(opisvalid, args, options):
         bookmark_count = options.bookmark_count_limit
     else:
         filename = input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
-        wildcard = input('Use Wildcard[y/n]: ').rstrip("\r") or 'n'
+        wildcard = input('Use Wildcard[y/n, default is no]: ').rstrip("\r") or 'n'
         if wildcard.lower() == 'y':
             wildcard = True
         else:
@@ -588,10 +588,10 @@ def menu_download_from_tags_list(opisvalid, args, options):
 
         # Issue #834
         if __br__._isPremium:
-            msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d]? '
+            msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d, default is date_d]? '
             sort_order = input(msg).rstrip("\r") or 'date_d'
         else:
-            oldest_first = input('Oldest first [y/n]: ').rstrip("\r") or 'n'
+            oldest_first = input('Oldest first [y/n, default is no]: ').rstrip("\r") or 'n'
             if oldest_first.lower() == 'y':
                 sort_order = 'date'
 
@@ -705,7 +705,7 @@ def menu_download_by_group_id(opisvalid, args, options):
     else:
         group_id = input("Group Id: ").rstrip("\r")
         limit = int(input("Limit: ").rstrip("\r"))
-        arg = input("Process External Image [y/n]: ").rstrip("\r") or 'n'
+        arg = input("Process External Image [y/n, default is no]: ").rstrip("\r") or 'n'
         arg = arg.lower()
         if arg == 'y':
             process_external = True
@@ -732,7 +732,7 @@ def menu_export_online_bookmark(opisvalid, args, options):
                 return
     else:
         filename = input("Filename: ").rstrip("\r")
-        arg = input("Include Private bookmarks [y/n/o]: ").rstrip("\r") or 'n'
+        arg = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
         hide = arg.lower()
         if hide not in ('y', 'n', 'o'):
             PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {arg}, valid values are [y/n/o].")
@@ -779,7 +779,7 @@ def menu_fanbox_download_from_list(op_is_valid, via, args, options):
     if op_is_valid:
         (page, end_page) = get_start_and_end_page_from_options(options)
     else:
-        end_page = int(input("End Page = ").rstrip("\r") or 0)
+        end_page = int(input("End Page (default is 0) = ").rstrip("\r") or 0)
 
     ids = list()
     if via in [PixivModelFanbox.FanboxArtist.SUPPORTING, PixivModelFanbox.FanboxArtist.FOLLOWING]:
@@ -857,7 +857,7 @@ def menu_fanbox_download_by_id(op_is_valid, args, options):
 
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        end_page = int(input("End page = ").rstrip("\r") or 0)
+        end_page = int(input("End page (default is 0) = ").rstrip("\r") or 0)
         member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
 
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
@@ -888,8 +888,8 @@ def menu_fanbox_download_pixiv_by_fanbox_id(op_is_valid, args, options):
         member_ids = args
     else:
         member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        start_page = int(input("Start page = ").rstrip("\r") or 0)
-        end_page = int(input("End page = ").rstrip("\r") or 0)
+        start_page = int(input("Start page (default is 0) = ").rstrip("\r") or 0)
+        end_page = int(input("End page (default is 0) = ").rstrip("\r") or 0)
 
     member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
     PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
