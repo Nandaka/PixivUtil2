@@ -32,7 +32,7 @@ import mechanize
 from colorama import Fore, Style
 
 import PixivConstant
-import PixivException
+from PixivException import PixivException
 import PixivArtist
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
@@ -997,8 +997,8 @@ def convert_ugoira(ugoira_file,
                 image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
 
-    if not os.path.exists(os.path.abspath(ffmpeg)):
-        raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
+    # if not os.path.exists(os.path.abspath(ffmpeg)):
+    #     raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
 
     d = tempfile.mkdtemp(prefix="convert_ugoira")
     d = d.replace(os.sep, '/')
