@@ -1,8 +1,11 @@
-20211031-beta3
+20211104
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
   - remove `-lossless 1` from webm param due to ffmpeg memory issue might cause ugoira not fully converted.
   - remove logging from ffmpeg output due to conflict with logger
 - Update ffmpeg detection to return warning if ffmpeg return exit code != 0 when loading for the first time.
+- Update default encoding parameter for webm and webp
+  - ffmpegParam = -row-mt 1 -deadline good -crf 20 -vsync 2 -r 999 -pix_fmt yuv420p
+  - webpParam = -row-mt 1 -lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999
 
 20211030
 - Fix Issue #1035: enhance error detection when converting ugoira.
