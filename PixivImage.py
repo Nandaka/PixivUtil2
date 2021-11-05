@@ -441,7 +441,7 @@ class PixivImage (object):
         import pyexiv2
         import tempfile
 
-        # need to use temp file due to bad unicod support for pyexiv2 in windows
+        # need to use temp file due to bad unicode support for pyexiv2 in windows
         d = tempfile.mkdtemp(prefix="xmp")
         d = d.replace(os.sep, '/')
         tempname = f"{d}/{self.imageId}.xmp"
@@ -453,81 +453,41 @@ class PixivImage (object):
         info.close()
 
         # Reopen file using pyexiv2
-        if hasattr(pyexiv2, "ImageMetadata"):
-            info = pyexiv2.ImageMetadata(tempname)
-            info.read()
+        # newer version e.g. pyexiv2-2.7.0
+        info = pyexiv2.Image(tempname)
+        info_dict = info.read_xmp()
+        info_dict['Xmp.dc.creator'] = [self.artist.artistName]
+        # Check array isn't empty.
+        if self.imageTitle:
+            info_dict['Xmp.dc.title'] = self.imageTitle
+        # Check array isn't empty.
+        if self.imageCaption:
+            info_dict['Xmp.dc.description'] = self.imageCaption
+        # Check array isn't empty.
+        if self.imageTags:
+            info_dict['Xmp.dc.subject'] = self.imageTags
+        info_dict['Xmp.dc.date'] = [self.worksDateDateTime]
+        info_dict['Xmp.dc.source'] = f"http://www.pixiv.net/en/artworks/{self.imageId}"
+        info_dict['Xmp.dc.identifier'] = self.imageId
 
-            info['Xmp.dc.creator'] = [self.artist.artistName]
-            # Check array isn't empty.
-            if self.imageTitle:
-                info['Xmp.dc.title'] = self.imageTitle
-            # Check array isn't empty.
-            if self.imageCaption:
-                info['Xmp.dc.description'] = self.imageCaption
-            # Check array isn't empty.
-            if self.imageTags:
-                info['Xmp.dc.subject'] = self.imageTags
-            info['Xmp.dc.date'] = [self.worksDateDateTime]
-            info['Xmp.dc.source'] = f"http://www.pixiv.net/en/artworks/{self.imageId}"
-            info['Xmp.dc.identifier'] = self.imageId
+        # Custom 'pixiv' namespace for non-standard details.
+        pyexiv2.registerNs('http://pixiv.com/', 'pixiv')
 
-            # Custom 'pixiv' namespace for non-standard details.
-            pyexiv2.xmp.register_namespace('http://pixiv.com/', 'pixiv')
+        info_dict['Xmp.pixiv.artist_id'] = self.artist.artistId
+        info_dict['Xmp.pixiv.image_mode'] = self.imageMode
+        info_dict['Xmp.pixiv.pages'] = self.imageCount
+        info_dict['Xmp.pixiv.resolution'] = self.worksResolution
+        info_dict['Xmp.pixiv.bookmark_count'] = self.bookmark_count
 
-            info['Xmp.pixiv.artist_id'] = self.artist.artistId
-            info['Xmp.pixiv.image_mode'] = self.imageMode
-            info['Xmp.pixiv.pages'] = self.imageCount
-            info['Xmp.pixiv.resolution'] = self.worksResolution
-            info['Xmp.pixiv.bookmark_count'] = self.bookmark_count
-
-            if self.seriesNavData:
-                info['Xmp.pixiv.series_title'] = self.seriesNavData['title']
-                info['Xmp.pixiv.series_order'] = self.seriesNavData['order']
-                info['Xmp.pixiv.series_id'] = self.seriesNavData['seriesId']
-            if self.ugoira_data:
-                info['Xmp.pixiv.ugoira_data'] = self.ugoira_data
-            if len(self.descriptionUrlList) > 0:
-                info['Xmp.pixiv.urls'] = ", ".join(self.descriptionUrlList)
-
-            info.write()
-            pyexiv2.xmp.closeXmpParser()
-        else:
-            # newer version e.g. pyexiv2-2.7.0
-            info = pyexiv2.Image(tempname)
-            info_dict = info.read_xmp()
-            info_dict['Xmp.dc.creator'] = [self.artist.artistName]
-            # Check array isn't empty.
-            if self.imageTitle:
-                info_dict['Xmp.dc.title'] = self.imageTitle
-            # Check array isn't empty.
-            if self.imageCaption:
-                info_dict['Xmp.dc.description'] = self.imageCaption
-            # Check array isn't empty.
-            if self.imageTags:
-                info_dict['Xmp.dc.subject'] = self.imageTags
-            info_dict['Xmp.dc.date'] = [self.worksDateDateTime]
-            info_dict['Xmp.dc.source'] = f"http://www.pixiv.net/en/artworks/{self.imageId}"
-            info_dict['Xmp.dc.identifier'] = self.imageId
-
-            # Custom 'pixiv' namespace for non-standard details.
-            pyexiv2.registerNs('http://pixiv.com/', 'pixiv')
-
-            info_dict['Xmp.pixiv.artist_id'] = self.artist.artistId
-            info_dict['Xmp.pixiv.image_mode'] = self.imageMode
-            info_dict['Xmp.pixiv.pages'] = self.imageCount
-            info_dict['Xmp.pixiv.resolution'] = self.worksResolution
-            info_dict['Xmp.pixiv.bookmark_count'] = self.bookmark_count
-
-            if self.seriesNavData:
-                info_dict['Xmp.pixiv.series_title'] = self.seriesNavData['title']
-                info_dict['Xmp.pixiv.series_order'] = self.seriesNavData['order']
-                info_dict['Xmp.pixiv.series_id'] = self.seriesNavData['seriesId']
-            if self.ugoira_data:
-                info_dict['Xmp.pixiv.ugoira_data'] = self.ugoira_data
-            if len(self.descriptionUrlList) > 0:
-                info_dict['Xmp.pixiv.urls'] = ", ".join(self.descriptionUrlList)
-            info.modify_xmp(info_dict)
-
+        if self.seriesNavData:
+            info_dict['Xmp.pixiv.series_title'] = self.seriesNavData['title']
+            info_dict['Xmp.pixiv.series_order'] = self.seriesNavData['order']
+            info_dict['Xmp.pixiv.series_id'] = self.seriesNavData['seriesId']
+        if self.ugoira_data:
+            info_dict['Xmp.pixiv.ugoira_data'] = self.ugoira_data
+        if len(self.descriptionUrlList) > 0:
+            info_dict['Xmp.pixiv.urls'] = ", ".join(self.descriptionUrlList)
+        info.modify_xmp(info_dict)
         info.close()
 
         # rename to actual file
