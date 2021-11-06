@@ -9,7 +9,6 @@
 
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
-  - Exiv2 (https://exiv2.org/) - used for writing XMP metadata (if enabled).
 
 # Capabilities:
 - Download by member_id
