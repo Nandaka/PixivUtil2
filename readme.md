@@ -9,7 +9,7 @@
 
 - Dependent software
   - FFmpeg (https://www.ffmpeg.org/) - used for converting ugoira to video.
-  - Exiv2 (https://exiv2.org/) - used for writing XMP metadata (if enabled).
+  - VC++ Redistributable (https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019) - Needed for pyexiv2 to write XMP metadata (if enabled).
 
 # Capabilities:
 - Download by member_id
