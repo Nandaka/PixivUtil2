@@ -93,13 +93,12 @@ Q3. I cannot login to Pixiv!
       1. Open Firefox.
       2. Go to Pixiv website and login, remember to enable [Remember Me]
           check box.
-      3. Right click the page and select View Page Info.
-      4. Click the Security tab.
-      5. Click the View Cookies button.
-      6. Look for Cookie named = PHPSESSID.
-      7. Copy the content value.
-      8. Open config.ini, go to [Authentication] section, paste the value
-          to cookie, set keepsignedin = 1.
+      3. Press F12 to open Developer Tools, and select the Storage tab.
+      4. Click the Cookies and select for the pixiv.net.
+      5. Look for Cookie named = PHPSESSID.
+      6. Copy the content value. https://imgur.com/a/BppHOoQ
+      7. Open config.ini, go to [Authentication] section, paste the value
+         to cookie. https://imgur.com/VB2g3qn
 
 Q4. PixivUtil working from local terminal on Linux box but not working when I
     used SSH with PuTTY!
