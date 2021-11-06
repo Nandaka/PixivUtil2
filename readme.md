@@ -526,6 +526,9 @@ Please refer run with `--help` for latest information.
 - writeUrlInDescription
 
   Write all url found in the image description to a text file. Set to `True` to enable. The list will be saved to to the application folder as url_list_<timestamp>.txt
+- stripHTMLTagsFromCaption
+
+  Remove all HTML tags and their contents from the image caption/description when writing metadata to files. The contents of any links will be lost, so consider enabling writeUrlInDescription to retain them.
 - urlBlacklistRegex
   
   Used to filter out the url in the description using regular expression.
