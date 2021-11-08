@@ -96,6 +96,7 @@ class PixivConfig():
         ConfigItem("Settings", "writeImageXMPPerImage", False),
         ConfigItem("Settings", "verifyImage", False),
         ConfigItem("Settings", "writeUrlInDescription", False),
+        ConfigItem("Settings", "stripHTMLTagsFromCaption", False),
         ConfigItem("Settings", "urlBlacklistRegex", ""),
         ConfigItem("Settings", "dbPath", ""),
         ConfigItem("Settings", "setLastModified", True),

@@ -91,7 +91,8 @@ class PixivImage (object):
                  tzInfo=None,
                  manga_series_order=-1,
                  manga_series_parent=None,
-                 writeRawJSON=False):
+                 writeRawJSON=False,
+                 stripHTMLTagsFromCaption=False):
         self.artist = parent
         self.fromBookmark = fromBookmark
         self.bookmark_count = bookmark_count
@@ -102,6 +103,7 @@ class PixivImage (object):
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
         self.tags = list()
+        self.stripHTMLTagsFromCaption = stripHTMLTagsFromCaption
         # only for manga series
         self.manga_series_order = manga_series_order
         self.manga_series_parent = manga_series_parent
@@ -253,6 +255,10 @@ class PixivImage (object):
                 self.descriptionUrlList.append(link_str)
         parsed.decompose()
         del parsed
+
+        # Strip HTML tags from caption once they have been collected by the above statement.
+        if self.stripHTMLTagsFromCaption:
+            self.imageCaption = BeautifulSoup(self.imageCaption, "lxml").text
 
     def ParseUgoira(self, page):
         # preserve the order
