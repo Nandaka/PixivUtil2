@@ -377,21 +377,15 @@ def handle_ugoira(image, zip_filename, config, notifier):
         if not os.path.exists(webm_filename):
             PixivHelper.ugoira2webm(ugo_name,
                                     webm_filename,
-                                    config.ffmpeg,
-                                    config.ffmpegCodec,
-                                    config.ffmpegParam,
-                                    config.ffmpegExt,
-                                    image)
+                                    codec=config.ffmpegCodec,
+                                    extension=config.ffmpegExt,
+                                    image=image)
     if config.createWebp:
         webp_filename = ugo_name[:-7] + ".webp"
         if not os.path.exists(webp_filename):
             PixivHelper.ugoira2webp(ugo_name,
                                     webp_filename,
-                                    config.ffmpeg,
-                                    config.webpCodec,
-                                    config.webpParam,
-                                    "webp",
-                                    image)
+                                    image=image)
 
     if config.deleteZipFile and os.path.exists(zip_filename) and zip_filename.endswith(".zip"):
         PixivHelper.print_and_log('info', f"Deleting zip file => {zip_filename}")

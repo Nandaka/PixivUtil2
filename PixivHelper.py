@@ -928,12 +928,12 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
     if len(_config.gifParam) == 0:
         _config.gifParam = "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""
     convert_ugoira(ugoira_file,
-                exportname,
-                ffmpeg=_config.ffmpeg,
-                codec=None,
-                param=_config.gifParam,
-                extension="gif",
-                image=image)
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec=None,
+                   param=_config.gifParam,
+                   extension="gif",
+                   image=image)
 
 
 def ugoira2apng(ugoira_file, exportname, image=None):
@@ -942,66 +942,48 @@ def ugoira2apng(ugoira_file, exportname, image=None):
     if len(_config.apngParam) == 0:
         _config.apngParam = "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"
     convert_ugoira(ugoira_file,
-                exportname,
-                ffmpeg=_config.ffmpeg,
-                codec="apng",
-                param=_config.apngParam,
-                extension="apng",
-                image=image)
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec="apng",
+                   param=_config.apngParam,
+                   extension="apng",
+                   image=image)
 
 
-def ugoira2webp(ugoira_file,
-                exportname,
-                ffmpeg="ffmpeg.exe",
-                codec="libwebp",
-                param="-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999",
-                extension="webp",
-                image=None):
+def ugoira2webp(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to webp...')
     if len(_config.webpParam) == 0:
         _config.webpParam = "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"
     convert_ugoira(ugoira_file,
-                exportname,
-                ffmpeg=_config.ffmpeg,
-                codec=codec,
-                param=_config.webpParam,
-                extension="webp",
-                image=image)
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec=_config.webpCodec,
+                   param=_config.webpParam,
+                   extension="webp",
+                   image=image)
 
 
-def ugoira2webm(ugoira_file,
-                exportname,
-                ffmpeg=u"ffmpeg.exe",
-                codec="libvpx-vp9",
-                param="-vsync 2 -r 999 -pix_fmt yuv420p",
-                extension="webm",
-                image=None):
+def ugoira2webm(ugoira_file, exportname, codec="libvpx-vp9", extension="webm", image=None):
     print_and_log('info', 'Processing ugoira to webm...')
     if len(_config.ffmpegParam) == 0:
         _config.ffmpegParam = "-vsync 2 -r 999 -pix_fmt yuv420p"
     convert_ugoira(ugoira_file,
-                exportname,
-                ffmpeg=_config.ffmpeg,
-                codec=codec,
-                param=_config.ffmpegParam,
-                extension="webm",
-                image=None)
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec=codec,
+                   param=_config.ffmpegParam,
+                   extension=extension,
+                   image=image)
 
 
-def convert_ugoira(ugoira_file,
-                exportname,
-                ffmpeg=u"ffmpeg.exe",
-                codec="libvpx-vp9",
-                param="-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p",
-                extension="webm",
-                image=None):
+def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
-
     # if not os.path.exists(os.path.abspath(ffmpeg)):
     #     raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
 
     d = tempfile.mkdtemp(prefix="convert_ugoira")
     d = d.replace(os.sep, '/')
+
     # Issue #1035
     if not os.path.exists(d):
         new_temp = os.path.abspath(f"ugoira_{int(datetime.now().timestamp())}")
