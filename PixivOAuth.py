@@ -152,6 +152,8 @@ class PixivOAuth():
         self._access_token = None
         self._tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         self._validate_ssl = validate_ssl
+        PixivOAuthBrowser.set_proxy(proxies)
+        PixivOAuthBrowser.set_verify(validate_ssl)
 
     def _get_default_values(self):
         return {'client_id': PixivOAuthBrowser.CLIENT_ID,
