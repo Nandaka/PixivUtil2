@@ -19,6 +19,17 @@ CLIENT_ID = "MOBrBDS8blbauoSck0ZfDbtuzpyT"
 CLIENT_SECRET = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
 
 
+session = requests.Session()
+
+
+def set_proxy(value):
+    session.proxies = value
+
+
+def set_verify(value):
+    session.verify = value
+
+
 def s256(data):
     """S256 transformation method."""
 
@@ -79,7 +90,7 @@ def login():
     except (EOFError, KeyboardInterrupt):
         return
 
-    response = requests.post(
+    response = session.post(
         AUTH_TOKEN_URL,
         data={
             "client_id": CLIENT_ID,
@@ -99,7 +110,7 @@ def login():
 
 def refresh(refresh_token):
     ''' :return new access token and refresh token '''
-    response = requests.post(
+    response = session.post(
         AUTH_TOKEN_URL,
         data={
             "client_id": CLIENT_ID,
