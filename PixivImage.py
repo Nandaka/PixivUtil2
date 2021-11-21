@@ -258,7 +258,7 @@ class PixivImage (object):
 
         # Strip HTML tags from caption once they have been collected by the above statement.
         if self.stripHTMLTagsFromCaption:
-            self.imageCaption = BeautifulSoup(self.imageCaption, "lxml").text
+            self.imageCaption = BeautifulSoup(self.imageCaption, "html.parser").text
 
     def ParseUgoira(self, page):
         # preserve the order
