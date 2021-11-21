@@ -258,7 +258,12 @@ class PixivImage (object):
 
         # Strip HTML tags from caption once they have been collected by the above statement.
         if self.stripHTMLTagsFromCaption:
-            self.imageCaption = BeautifulSoup(self.imageCaption, "html.parser").text
+            self.imageCaption = BeautifulSoup(self.imageCaption, "html5lib")
+            # Replace <br> with whitespace to help preserve formatting.
+            self.imageCaption.br.replace_with(" ")
+            # Replace <a href="https://meow.com">Meow</a> with  "Meow (meow.com)" to help prevent data loss while sanitising tags.
+            self.imageCaption.a.replace_with(f"{self.imageCaption.a.string} ({self.imageCaption.a.contents[0]})")
+            self.imageCaption = self.imageCaption.text
 
     def ParseUgoira(self, page):
         # preserve the order
