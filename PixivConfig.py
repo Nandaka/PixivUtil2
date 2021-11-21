@@ -219,12 +219,12 @@ class PixivConfig():
         value = getattr(self, "proxyAddress", None)
         if not value:
             return None
-        match = re.match(r"^(?:(http|socks[45])://)?(\d+\.\d+\.\d+\.\d+):(\d+)$", value)
+        match = re.match(r"^(?:(https?|socks[45])://)?([\w.-]+)(:\d+)?$", value)
         if not match:
             return None
-        scheme, ip, port = match.groups()
+        scheme, netloc, port = match.groups()
         scheme = scheme or "http"
-        value = f"{scheme}://{ip}:{port}"
+        value = f"{scheme}://{netloc}{port}"
         return {"http": value, "https": value}
 
 
