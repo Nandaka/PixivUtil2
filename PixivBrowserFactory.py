@@ -1052,7 +1052,14 @@ class PixivBrowser(mechanize.Browser):
         x_requested_with = f'https://sketch.pixiv.net/@{artist_id}'
 
         PixivHelper.get_logger().debug('Getting sketch artist detail from %s', url)
-        response = self.getPixivSketchPage(url=url, referer=referer, x_requested_with=x_requested_with)
+        response = None
+        try:
+            response = self.getPixivSketchPage(url=url, referer=referer, x_requested_with=x_requested_with)
+        except Exception as ex:
+            if isinstance(ex, urllib.error.HTTPError) and ex.status == 404:
+                raise PixivException(f"No Pixiv Sketch for : {artist_id}", errorCode=PixivException.USER_ID_NOT_EXISTS)
+            else:
+                raise
         self.handleDebugMediumPage(response, artist_id)
         _tzInfo = None
         if self._config.useLocalTimezone:
