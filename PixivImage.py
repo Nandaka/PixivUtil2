@@ -112,6 +112,9 @@ class PixivImage (object):
         self.manga_series_order = manga_series_order
         self.manga_series_parent = manga_series_parent
 
+        self.translated_work_title = ""
+        self.translated_work_caption = ""
+
         if page is not None:
 
             # Issue #556
@@ -255,9 +258,13 @@ class PixivImage (object):
 
         # Issue #1064
         if "titleCaptionTranslation" in root:
-            if "workTitle" in root["titleCaptionTranslation"] and len(root["titleCaptionTranslation"]["workTitle"]) > 0:
+            if "workTitle" in root["titleCaptionTranslation"] and \
+               root["titleCaptionTranslation"]["workTitle"] is not None and \
+               len(root["titleCaptionTranslation"]["workTitle"]) > 0:
                 self.translated_work_title = root["titleCaptionTranslation"]["workTitle"]
-            if "workCaption" in root["titleCaptionTranslation"] and len(root["titleCaptionTranslation"]["workCaption"]) > 0:
+            if "workCaption" in root["titleCaptionTranslation"] and \
+               root["titleCaptionTranslation"]["workCaption"] is not None and \
+               len(root["titleCaptionTranslation"]["workCaption"]) > 0:
                 self.translated_work_caption = root["titleCaptionTranslation"]["workCaption"]
                 self.parse_url_from_caption(self.translated_work_caption)
                 if self.stripHTMLTagsFromCaption:

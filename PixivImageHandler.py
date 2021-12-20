@@ -179,6 +179,8 @@ def process_image(caller,
                 PixivHelper.print_and_log(None, f'Member Background : {image.artist.artistBackground}')
 
             PixivHelper.print_and_log(None, f"Title: {image.imageTitle}")
+            if len(image.translated_work_title) > 0:
+                PixivHelper.print_and_log(None, f"Translated Title: {image.translated_work_title}")
             tags_str = ', '.join(image.imageTags)
             PixivHelper.print_and_log(None, f"Tags : {tags_str}")
             PixivHelper.print_and_log(None, f"Date : {image.worksDateDateTime}")
