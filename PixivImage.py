@@ -80,6 +80,10 @@ class PixivImage (object):
     manga_series_order: int = -1
     manga_series_parent = None
 
+    # Issue #1064 titleCaptionTranslation
+    translated_work_title = ""
+    translated_work_caption = ""
+
     def __init__(self,
                  iid=0,
                  page=None,
@@ -243,7 +247,24 @@ class PixivImage (object):
         self.image_response_count = root["responseCount"]
 
         # Issue 421
-        parsed = BeautifulSoup(self.imageCaption, features="html5lib")
+        self.parse_url_from_caption(self.imageCaption)
+
+        # Strip HTML tags from caption once they have been collected by the above statement.
+        if self.stripHTMLTagsFromCaption:
+            self.imageCaption = BeautifulSoup(self.imageCaption, "lxml").text
+
+        # Issue #1064
+        if "titleCaptionTranslation" in root:
+            if "workTitle" in root["titleCaptionTranslation"] and len(root["titleCaptionTranslation"]["workTitle"]) > 0:
+                self.translated_work_title = root["titleCaptionTranslation"]["workTitle"]
+            if "workCaption" in root["titleCaptionTranslation"] and len(root["titleCaptionTranslation"]["workCaption"]) > 0:
+                self.translated_work_caption = root["titleCaptionTranslation"]["workCaption"]
+                self.parse_url_from_caption(self.translated_work_caption)
+                if self.stripHTMLTagsFromCaption:
+                    self.translated_work_caption = BeautifulSoup(self.translated_work_caption, "lxml").text
+
+    def parse_url_from_caption(self, caption_to_parse):
+        parsed = BeautifulSoup(caption_to_parse, features="html5lib")
         links = parsed.findAll('a')
         if links is not None and len(links) > 0:
             for link in links:
@@ -252,13 +273,11 @@ class PixivImage (object):
                 if link_str.startswith("/jump.php?"):
                     link_str = link_str[10:]
                     link_str = urllib.parse.unquote(link_str)
-                self.descriptionUrlList.append(link_str)
+
+                if link_str not in self.descriptionUrlList:
+                    self.descriptionUrlList.append(link_str)
         parsed.decompose()
         del parsed
-
-        # Strip HTML tags from caption once they have been collected by the above statement.
-        if self.stripHTMLTagsFromCaption:
-            self.imageCaption = BeautifulSoup(self.imageCaption, "lxml").text
 
     def ParseUgoira(self, page):
         # preserve the order
@@ -399,6 +418,12 @@ class PixivImage (object):
             info.write("Urls          =\r\n")
             for link in self.descriptionUrlList:
                 info.write(f" - {link}\r\n")
+        # Issue #1064
+        if len(self.translated_work_title) > 0:
+            info.write(f"Translated Title   = {self.translated_work_title}\r\n")
+        if len(self.translated_work_caption) > 0:
+            info.write(f"Translated Caption = {self.translated_work_caption}\r\n")
+
         info.close()
 
     def WriteJSON(self, filename, JSONfilter):
@@ -440,6 +465,8 @@ class PixivImage (object):
                 jsonInfo["Ugoira Data"] = self.ugoira_data
             if len(self.descriptionUrlList) > 0:
                 jsonInfo["Urls"] = self.descriptionUrlList
+            # Issue #1064
+            jsonInfo["titleCaptionTranslation"] = {"workTitle": self.translated_work_title, "workCaption": self.translated_work_caption}
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))
             info.close()
 
@@ -493,6 +520,11 @@ class PixivImage (object):
             info_dict['Xmp.pixiv.ugoira_data'] = self.ugoira_data
         if len(self.descriptionUrlList) > 0:
             info_dict['Xmp.pixiv.urls'] = ", ".join(self.descriptionUrlList)
+        # Issue #1064
+        if len(self.translated_work_title) > 0:
+            info_dict['Xmp.pixiv.translated_work_title'] = self.translated_work_title
+        if len(self.translated_work_caption) > 0:
+            info_dict['Xmp.pixiv.translated_work_caption'] = self.translated_work_caption
         info.modify_xmp(info_dict)
         info.close()
 
