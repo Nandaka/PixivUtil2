@@ -200,6 +200,12 @@ def make_filename(nameFormat: str,
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
 
+    # Issue #1064
+    if hasattr(imageInfo, "translated_work_title") and len(imageInfo.translated_work_title) > 0:
+        nameFormat = nameFormat.replace('%translated_title%', replace_path_separator(imageInfo.translated_work_title))
+    else:
+        nameFormat = nameFormat.replace('%translated_title%', replace_path_separator(imageInfo.imageTitle))
+
     # formatted works date/time, ex. %works_date_fmt{%Y-%m-%d}%
     if nameFormat.find("%works_date_fmt") > -1:
         to_replace = re.findall("(%works_date_fmt{.*}%)", nameFormat)
