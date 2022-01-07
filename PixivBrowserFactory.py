@@ -1194,10 +1194,13 @@ class PixivBrowser(mechanize.Browser):
 
         return pb
 
-    def getPixivRanking(self, mode, page, date="", filter=None) -> PixivRanking:
-        url = f"https://www.pixiv.net/ranking.php?mode={mode}&p={page}&format=json"
+    def getPixivRanking(self, mode, page, date="", content="", filter=None) -> PixivRanking:
+        url = f"https://www.pixiv.net/ranking.php?mode={mode}"
         if len(date) > 0:
-            url = f"https://www.pixiv.net/ranking.php?mode={mode}&date={date}&p={page}&format=json"
+            url = f"{url}&date={date}"
+        if len(content) > 0:
+            url = f"{url}&content={content}"
+        url = f"{url}&p={page}&format=json"
 
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
         result = PixivRanking(response, filter)

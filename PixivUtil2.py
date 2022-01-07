@@ -165,6 +165,8 @@ def menu():
     print(' 13. Download by Manga Series Id')
     print(' 14. Download by Novel Id')
     print(' 15. Download by Novel Series Id')
+    print(' 16. Download by Rank')
+    print(' 17. Download by Rank R-18')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -979,8 +981,10 @@ def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
     if valid_modes is None:
         __log__.info('Download Ranking by Post ID mode (15).')
         valid_modes = ["daily", "weekly", "monthly", "rookie", "original", "male", "female"]
+    valid_contents = ["all", "illust", "ugoira", "manga"]
     mode = ""
     date = ""
+    content = "all"
     start_page = 1
     end_page = 0
 
@@ -989,6 +993,9 @@ def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
         mode = options.rank_mode
         if mode not in valid_modes:
             print(f"Invalid mode: {mode}, valid modes are {', '.join(valid_modes)}.")
+        content = options.rank_content
+        if content not in valid_contents:
+            print(f"Invalid type: {content}, valid content types are {', '.join(valid_contents)}.")
     else:
         while True:
             print(f"Valid Modes are: {', '.join(valid_modes)}")
@@ -997,11 +1004,19 @@ def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
                 break
             else:
                 print("Invalid mode.")
+        while True:
+            print(f"Valid Content Types are: {', '.join(valid_contents)}")
+            content = input('Type: ').rstrip("\r").lower()
+            if content in valid_contents:
+                break
+            else:
+                print("Invalid Content Type.")
         (start_page, end_page) = PixivHelper.get_start_and_end_number()
 
     PixivRankingHandler.process_ranking(sys.modules[__name__],
                                         __config__,
                                         mode,
+                                        content,
                                         start_page,
                                         end_page,
                                         date=date,
@@ -1032,7 +1047,10 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', 'f1', 'f2', 'f3', 'f4', 'f5', 's1', 's2', 'd', 'e', 'm', 'b')
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
+                       'f1', 'f2', 'f3', 'f4', 'f5',
+                       's1', 's2',
+                       'd', 'e', 'm', 'b')
     parser = OptionParser()
 
     # need to keep the whitespace to adjust the output for --help
@@ -1161,6 +1179,10 @@ Used in option 3, 5, 7, and 8.''')
                       dest='rank_mode',
                       default="daily",
                       help='''Ranking Mode.''')
+    parser.add_option('--rc', '--rank_content',
+                      dest='rank_content',
+                      default="all",
+                      help='''Ranking Content Type.''')
     return parser
 
 
@@ -1213,11 +1235,11 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
             elif selection == '14':
                 menu_download_by_novel_id(op_is_valid, args, options)
             elif selection == '15':
-                menu_download_by_rank(op_is_valid, args, options)
-            elif selection == '16':
-                menu_download_by_rank_r18(op_is_valid, args, options)
-            elif selection == '17':
                 menu_download_by_novel_series_id(op_is_valid, args, options)
+            elif selection == '16':
+                menu_download_by_rank(op_is_valid, args, options)
+            elif selection == '17':
+                menu_download_by_rank_r18(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':
