@@ -393,9 +393,9 @@ Please refer run with `--help` for latest information.
 - proxyaddress
 
   Proxy server address, use this format:
-  - http://<username>:<password>@<proxy_server>:<port> or
-  - socks5://<username>:<password>@<proxy_server>:<port> or
-  - socks4://<username>:<password>@<proxy_server>:<port>
+  - `http://<username>:<password>@<proxy_server>:<port>` or
+  - `socks5://<username>:<password>@<proxy_server>:<port>` or
+  - `socks4://<username>:<password>@<proxy_server>:<port>`
 - useragent
   
   Browser user agent to spoof. You can check it from https://www.whatismybrowser.com/detect/what-is-my-user-agent
