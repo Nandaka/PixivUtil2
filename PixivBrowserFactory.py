@@ -27,6 +27,7 @@ from PixivModelSketch import SketchArtist, SketchPost
 from PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
 from PixivOAuth import PixivOAuth
 from PixivTags import PixivTags
+from PixivRanking import PixivRanking
 
 defaultCookieJar = None
 defaultConfig = None
@@ -1192,6 +1193,15 @@ class PixivBrowser(mechanize.Browser):
             pb.isLastPage = True
 
         return pb
+
+    def getPixivRanking(self, mode, page, date="", filter=None) -> PixivRanking:
+        url = f"https://www.pixiv.net/ranking.php?mode={mode}&p={page}&format=json"
+        if len(date) > 0:
+            url = f"https://www.pixiv.net/ranking.php?mode={mode}&date={date}&p={page}&format=json"
+
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        result = PixivRanking(response, filter)
+        return result
 
 
 def getBrowser(config=None, cookieJar=None):

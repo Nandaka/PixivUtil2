@@ -29,6 +29,7 @@ import PixivModelFanbox
 import PixivSketchHandler
 import PixivNovelHandler
 import PixivTagsHandler
+import PixivRankingHandler
 from PixivDBManager import PixivDBManager
 from PixivException import PixivException
 from PixivTags import PixivTags
@@ -974,6 +975,45 @@ def menu_sketch_download_by_post_id(opisvalid, args, options):
                                                    image_id)
 
 
+def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
+    if valid_modes is None:
+        __log__.info('Download Ranking by Post ID mode (15).')
+        valid_modes = ["daily", "weekly", "monthly", "rookie", "original", "male", "female"]
+    mode = ""
+    date = ""
+    start_page = 1
+    end_page = 0
+
+    if op_is_valid and len(args) > 0:
+        (start_page, end_page) = get_start_and_end_page_from_options(options)
+        mode = options.rank_mode
+        if mode not in valid_modes:
+            print(f"Invalid mode: {mode}, valid modes are {', '.join(valid_modes)}.")
+    else:
+        while True:
+            print(f"Valid Modes are: {', '.join(valid_modes)}")
+            mode = input('Mode: ').rstrip("\r").lower()
+            if mode in valid_modes:
+                break
+            else:
+                print("Invalid mode.")
+        (start_page, end_page) = PixivHelper.get_start_and_end_number()
+
+    PixivRankingHandler.process_ranking(sys.modules[__name__],
+                                        __config__,
+                                        mode,
+                                        start_page,
+                                        end_page,
+                                        date=date,
+                                        filter=None)
+
+
+def menu_download_by_rank_r18(op_is_valid, args, options):
+    __log__.info('Download R-18 Ranking by Post ID mode (16).')
+    valid_modes = ["daily_r18", "weekly_r18", "male_r18", "female_r18"]
+    menu_download_by_rank(op_is_valid, args, options, valid_modes)
+
+
 def menu_reload_config():
     __log__.info('Manual Reload Config (r).')
     __config__.loadConfig(path=configfile)
@@ -1117,6 +1157,10 @@ If using relative path, it will be prefixed with [downloadlistdirectory] in conf
                       default=-1,
                       help='''Bookmark count limit in integer.                             \n
 Used in option 3, 5, 7, and 8.''')
+    parser.add_option('--rm', '--rank_mode',
+                      dest='rank_mode',
+                      default="daily",
+                      help='''Ranking Mode.''')
     return parser
 
 
@@ -1169,6 +1213,10 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
             elif selection == '14':
                 menu_download_by_novel_id(op_is_valid, args, options)
             elif selection == '15':
+                menu_download_by_rank(op_is_valid, args, options)
+            elif selection == '16':
+                menu_download_by_rank_r18(op_is_valid, args, options)
+            elif selection == '17':
                 menu_download_by_novel_series_id(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
