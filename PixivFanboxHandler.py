@@ -193,7 +193,7 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                                                                          config.retry,
                                                                          config.backupOldFile,
                                                                          image=post)
-                if result == PixivConstant.PIXIVUTIL_ABORTED:
+                if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                     raise KeyboardInterrupt()
                 post_files.append((post.imageId, current_page, filename))
 
