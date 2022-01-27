@@ -87,7 +87,7 @@ def download_post(caller, config, post):
     if config.checkDBProcessHistory and not config.overwrite and not config.alwaysCheckFileSize:
         result = db.selectSketchPostByPostId(post.imageId)
         if result:
-            msg = Fore.YELLOW + Style.NORMAL + f'Skipping Post: {post.imageId} because already exists in DB and overwrite and alwaysCheckFileSize are disabled. .' + Style.RESET_ALL
+            msg = Fore.YELLOW + Style.NORMAL + f'Skipping Post: {post.imageId} because already exists in DB and overwrite and alwaysCheckFileSize are disabled.' + Style.RESET_ALL
             PixivHelper.print_and_log(None, msg)
             gc.collect()
             return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT

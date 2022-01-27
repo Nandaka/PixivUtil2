@@ -715,7 +715,7 @@ filenameFormatFanboxCover, filenameFormatFanboxContent and filenameFormatFanboxI
 Available for filenameFormat and filenameMangaFormat:
 ```
 -> %image_id%
-   Image id, in number.
+   Image id, in number. Post id for sketches.
 -> %title%
    Image title, usually in japanese character.
 -> %tags%
