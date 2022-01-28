@@ -997,7 +997,7 @@ class PixivDBManager(object):
                     if os.path.exists(filename):
                         continue
                 items.append(row)
-                print("Missing: {0} at \n{1}".format(row[0], row[1]))
+                print("Missing: {0} at \n{1}".format(row[0], row[2]))
 
             while len(items) != 0:
                 # End scan
