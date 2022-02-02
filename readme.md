@@ -49,6 +49,8 @@
   - Export FANBOX post list
   - Delete FANBOX download history by member_id
   - Delete FANBOX download history by post_id
+  - Delete Sketch download history by member_id
+  - Delete Sketch download history by post_id
   - Clean Up Database (remove db entry if downloaded file is missing)
 - Export user bookmark (member_id) to a text files.
 
