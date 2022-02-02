@@ -540,6 +540,9 @@ Please refer run with `--help` for latest information.
 - useLocalTimezone
 
   Use local timezone when setting last modified timestamp/works date.
+- defaultSketchOption
+
+  Skip the "Include Pixiv Sketch" prompt when downloading by `member_id` option by using a default option. Set the value to `y` to always include sketches or `n` to exclude sketches from the download.
 
 ## [DownloadControl]
 - minFileSize
