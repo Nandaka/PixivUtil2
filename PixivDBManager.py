@@ -1120,7 +1120,7 @@ class PixivDBManager(object):
 
     def cleanUpSketch(self):
         try:
-            print("Start clean-up operation.")
+            print("Start sketch clean-up operation.")
             print("Selecting all sketches, this may take some times.")
             c = self.conn.cursor()
             c.execute('''SELECT post_id, page, save_name from sketch_post_image''')
@@ -1148,8 +1148,8 @@ class PixivDBManager(object):
     def interactiveSketchCleanUp(self):
         items = []
         try:
-            print("Start clean-up operation.")
-            print("Selecting all images, this may take some times.")
+            print("Start sketch clean-up operation.")
+            print("Selecting all sketches, this may take some times.")
             c = self.conn.cursor()
             print("Collecting missing images.")
             c.execute('''SELECT post_id, page, save_name from sketch_post_image''')
