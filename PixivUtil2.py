@@ -218,9 +218,17 @@ def menu_download_by_member_id(opisvalid, args, options):
     else:
         member_ids = input('Member ids: ').rstrip("\r")
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
-        if include_sketch_ask.lower() == 'y':
+        skipSketchPrompt = __config__.defaultSketchOption
+
+        if skipSketchPrompt.lower() == 'y':
+            print("Including Pixiv Sketch.")
             include_sketch = True
+        elif skipSketchPrompt.lower() == 'n':
+            print("Excluding Pixiv Sketch.")
+        else:
+            include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
+            if include_sketch_ask.lower() == 'y':
+                include_sketch = True
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids)
         PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
