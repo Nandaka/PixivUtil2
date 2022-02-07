@@ -377,17 +377,18 @@ def safePrint(msg, newline=True, end=None):
 
 
 def set_console_title(title):
-    try:
-        if platform.system() == "Windows":
+    if platform.system() == "Windows":
+        try:
             subprocess.call('title' + ' ' + title, shell=True)
-        else:
-            sys.stdout.write(f'\33]0;{title}\a')
-            sys.stdout.flush()
-    except FileNotFoundError:
-        print_and_log("error", f"Cannot set console title to {title}")
-    except AttributeError:
-        # Issue #1065
-        pass
+        except FileNotFoundError:
+            print_and_log("error", f"Cannot set console title to {title}")
+        except AttributeError:
+            # Issue #1065
+            pass
+    else:
+        sys.stdout.write(f'\33]0;{title}\a')
+        sys.stdout.flush()
+
 
 def clearScreen():
     if platform.system() == "Windows":

@@ -14,7 +14,6 @@ import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
 import PixivHelper
-from PixivDBManager import PixivDBManager
 from PixivException import PixivException
 
 __re_manga_page = re.compile(r'(\d+(_big)?_p\d+)')
@@ -36,7 +35,7 @@ def process_image(caller,
                   manga_series_parent=None) -> int:
     # caller function/method
     # TODO: ideally to be removed or passed as argument
-    db: PixivDBManager = caller.__dbManager__
+    db = caller.__dbManager__
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier

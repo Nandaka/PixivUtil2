@@ -2,21 +2,20 @@
 import codecs
 import gc
 import os
-import shlex
 import subprocess
 import sys
 import time
 import traceback
 import urllib
+import shlex
 
 import mechanize
 
 import PixivBrowserFactory
-import PixivConfig
 import PixivConstant
-import PixivHelper
-from PixivDBManager import PixivDBManager
 from PixivException import PixivException
+import PixivHelper
+import PixivConfig
 
 
 def download_image(caller,
@@ -28,12 +27,11 @@ def download_image(caller,
                    backup_old_file=False,
                    image=None,
                    page=None,
-                   notifier=None,
-                   download_from=PixivConstant.DOWNLOAD_PIXIV):
+                   notifier=None):
     '''return download result and filename if ok'''
     # caller function/method
     # TODO: ideally to be removed or passed as argument
-    db: PixivDBManager = caller.__dbManager__
+    db = caller.__dbManager__
     config: PixivConfig = caller.__config__
 
     if notifier is None:
@@ -124,33 +122,15 @@ def download_image(caller,
 
                 # check based on filename stored in DB using image id
                 if image is not None:
-                    row = None
                     db_filename = None
-                    # Issue #1084
-                    if download_from == PixivConstant.DOWNLOAD_PIXIV:
-                        if page is not None:
-                            row = db.selectImageByImageIdAndPage(image.imageId, page)
-                            if row is not None:
-                                db_filename = row[2]
-                        else:
-                            row = db.selectImageByImageId(image.imageId)
-                            if row is not None:
-                                db_filename = row[3]
-                    elif download_from == PixivConstant.DOWNLOAD_FANBOX:
-                        if page is not None:
-                            row = db.selectFanboxImageByImageIdAndPage(image.imageId, page)
-                        else:
-                            row = db.selectFanboxImageByImageIdAndPage(image.imageId, -1)  # Cover image
+                    if page is not None:
+                        row = db.selectImageByImageIdAndPage(image.imageId, page)
                         if row is not None:
                             db_filename = row[2]
-                    elif download_from == PixivConstant.DOWNLOAD_SKETCH:
-                        if page is not None:
-                            row = db.selectSketchImageByImageIdAndPage(image.imageId, page)
-                        else:
-                            row = db.selectSketchImageByImageIdAndPage(image.imageId, 0)
+                    else:
+                        row = db.selectImageByImageId(image.imageId)
                         if row is not None:
-                            db_filename = row[2]
-
+                            db_filename = row[3]
                     if db_filename is not None and os.path.isfile(db_filename):
                         old_size = os.path.getsize(db_filename)
                         # if file_size < 0:
