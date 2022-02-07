@@ -116,7 +116,8 @@ def download_post(caller, config, post):
                                                                  config.overwrite,
                                                                  config.retry,
                                                                  config.backupOldFile,
-                                                                 image=post)
+                                                                 image=post,
+                                                                 download_from=PixivConstant.DOWNLOAD_SKETCH)
         if result == PixivConstant.PIXIVUTIL_OK:
             db.insertSketchPost(post)
             db.insertSketchPostImages(post.imageId,
