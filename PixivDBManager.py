@@ -935,6 +935,19 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+    def selectFanboxImageByImageIdAndPage(self, post_id, page):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                '''SELECT * FROM fanbox_post_image WHERE post_id = ? AND page = ? ''', (post_id, page))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectFanboxImageByImageIdAndPage():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
     def deleteFanboxPost(self, post_id, by):
         post_id = int(post_id)
         if by not in ["member_id", "post_id"]:
@@ -1064,6 +1077,19 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print('Error at insertSketchPostImages():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectSketchImageByImageIdAndPage(self, post_id, page):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                '''SELECT * FROM sketch_post_image WHERE post_id = ? AND page = ? ''', (post_id, page))
+            return c.fetchone()
+        except BaseException:
+            print('Error at selectSketchImageByImageIdAndPage():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
