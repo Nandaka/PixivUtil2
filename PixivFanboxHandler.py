@@ -193,14 +193,9 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                                                                          False,  # config.overwrite somehow unable to get remote filesize
                                                                          config.retry,
                                                                          config.backupOldFile,
-<<<<<<< HEAD
-                                                                         image=post)
-                if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
-=======
                                                                          image=post,
                                                                          download_from=PixivConstant.DOWNLOAD_FANBOX)
-                if result == PixivConstant.PIXIVUTIL_ABORTED:
->>>>>>> 790198dafe470e62c2629dfa4b13275f2cf78156
+                if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                     raise KeyboardInterrupt()
                 post_files.append((post.imageId, current_page, filename))
 
