@@ -255,6 +255,7 @@ class PixivBrowser(mechanize.Browser):
                         if enable_cache:
                             self._put_to_cache(url, read_page)
                         temp.close()
+                        break
                     except urllib.error.HTTPError as ex:
                         if ex.code in [403, 404, 503]:
                             read_page = ex.read()
