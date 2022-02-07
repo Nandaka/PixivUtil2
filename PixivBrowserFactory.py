@@ -240,26 +240,39 @@ class PixivBrowser(mechanize.Browser):
             throw PixivException as server error
         '''
         url = self.fixUrl(url)
+        retry_count = 0
         while True:
             req = mechanize.Request(url)
             req.add_header('Referer', referer)
 
             read_page = self._get_from_cache(url)
             if read_page is None:
-                try:
-                    temp = self.open_with_retry(req)
-                    read_page = temp.read()
-                    read_page = read_page.decode('utf8')
-                    if enable_cache:
-                        self._put_to_cache(url, read_page)
-                    temp.close()
-                except urllib.error.HTTPError as ex:
-                    if ex.code in [403, 404, 503]:
-                        read_page = ex.read()
-                        raise PixivException(f"Failed to get page: {url} => {ex}", errorCode=PixivException.SERVER_ERROR)
-                    else:
-                        PixivHelper.print_and_log('error', f'Error at getPixivPage(): {sys.exc_info()}')
-                        raise PixivException(f"Failed to get page: {url}", errorCode=PixivException.SERVER_ERROR)
+                while True:
+                    try:
+                        temp = self.open_with_retry(req)
+                        read_page = temp.read()
+                        read_page = read_page.decode('utf8')
+                        if enable_cache:
+                            self._put_to_cache(url, read_page)
+                        temp.close()
+                    except urllib.error.HTTPError as ex:
+                        if ex.code in [403, 404, 503]:
+                            read_page = ex.read()
+                            raise PixivException(f"Failed to get page: {url} => {ex}", errorCode=PixivException.SERVER_ERROR)
+                        else:
+                            PixivHelper.print_and_log('error', f'Error at getPixivPage(): {sys.exc_info()}')
+                            raise PixivException(f"Failed to get page: {url}", errorCode=PixivException.SERVER_ERROR)
+                    except BaseException:
+                        exc_value = sys.exc_info()[1]
+                        if retry_count < self._config.retry:
+                            print(exc_value, end=' ')
+                            for t in range(1, self._config.retryWait):
+                                print(t, end=' ')
+                                PixivHelper.print_delay(2)
+                            print('')
+                            retry_count = retry_count + 1
+                        else:
+                            raise PixivException(f"Failed to get page: {url}", errorCode=PixivException.SERVER_ERROR)
 
             if returnParsed:
                 parsedPage = BeautifulSoup(read_page, features="html5lib")
