@@ -265,6 +265,20 @@ class FanboxPost(object):
                             self.try_add(link.group(), self.descriptionUrlList)
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing embedId: {embedId} for {self.imageId}")
+                elif block["type"] == "url_embed":  # Issue #1087
+                    urlEmbedId = block["urlEmbedId"]
+                    if urlEmbedId in jsPost["body"]["urlEmbedMap"]:
+                        embedType = jsPost["body"]["urlEmbedMap"][urlEmbedId]["type"]
+                        if embedType == "html.card":
+                            embedStr = jsPost["body"]["urlEmbedMap"][urlEmbedId]["html"]
+                            self.body_text += f"<p>{embedStr}</p>"
+                            links = _url_pattern.finditer(embedStr)
+                            for link in links:
+                                self.try_add(link.group(), self.descriptionUrlList)
+                        else:
+                            PixivHelper.print_and_log("warn", f"Unknown urlEmbedId's type: {urlEmbedId} for {self.imageId} => {embedType}")
+                    else:
+                        PixivHelper.print_and_log("warn", f"Found missing urlEmbedId: {urlEmbedId} for {self.imageId}")
 
         # Issue #476
         if "video" in jsPost["body"]:
@@ -362,6 +376,10 @@ class FanboxPost(object):
         if len(self.embeddedFiles) > 0:
             info.write("Urls          =\r\n")
             for link in self.embeddedFiles:
+                info.write(" - {0}\r\n".format(link))
+        if len(self.embeddedFiles) > 0:
+            info.write("descriptionUrlList =\r\n")
+            for link in self.descriptionUrlList:
                 info.write(" - {0}\r\n".format(link))
         info.close()
 
