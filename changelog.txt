@@ -1,3 +1,17 @@
+20220224-beta1
+- Merge Update WriteXMP feature to use pyexiv2 only (#1043) by Baa.
+- Merge Adds feature to strip HTML from captions (#1045) by Baa.
+- Fix #1047: fix "ffmpegExt" config.
+- Fix #1019: add 404 handling for pixiv sketch
+- Merge Some optimizations (#1052) by amatuerCoder.
+- Implement #1064: add parser for titleCaptionTranslation.
+  - Add new filename format %translated_title% for translated title if exists, else it will use original title.
+- Implement #1068: add content type filter.
+- Merge Fix #1072, #1065 (running in pipe on Unix) (#1082) by dragontamer8740.
+- Fix #1084: Fanbox download removes Pixiv files with same ID.
+- Implement #1087: FANBOX's url_embed not detected.
+- Update logging for #1090: premature download by tags.
+
 20211104
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
   - remove `-lossless 1` from webm param due to ffmpeg memory issue might cause ugoira not fully converted.
