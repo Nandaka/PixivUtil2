@@ -389,6 +389,7 @@ def set_console_title(title):
         # Issue #1065
         pass
 
+
 def clearScreen():
     if platform.system() == "Windows":
         subprocess.call('cls', shell=True)
