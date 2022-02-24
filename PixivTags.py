@@ -31,6 +31,8 @@ class PixivTags:
     query = ""
     memberId = 0
 
+    POSTS_PER_PAGE = 60
+
     def parseMemberTags(self, artist, memberId, query=""):
         '''process artist result and return the image list'''
         self.itemList = list()
@@ -70,10 +72,8 @@ class PixivTags:
 
         # search page info
         self.availableImages = int(payload["body"]["illustManga"]["total"])
-        # assuming there are only 47 image (1 is marked as ad)
-        # if self.availableImages > 47 * curr_page:
-        # assume it always return 6 images, including the advert
-        if len(self.itemList) + ad_container_count == 60:
+        # assume it always return 60 images, including the advert
+        if len(self.itemList) + ad_container_count == PixivTags.POSTS_PER_PAGE:
             self.isLastPage = False
         else:
             self.isLastPage = True

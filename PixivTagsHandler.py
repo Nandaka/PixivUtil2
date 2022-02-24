@@ -71,14 +71,16 @@ def process_tags(caller,
                                                                                  type_mode=type_mode,
                                                                                  r18mode=config.r18mode)
             if len(t.itemList) == 0:
-                PixivHelper.print_and_log(None, 'No more images')
+                PixivHelper.print_and_log("warn", 'No more images')
                 flag = False
             elif _last_search_result is not None:
                 set1 = set((x.imageId) for x in _last_search_result.itemList)
                 difference = [x for x in t.itemList if (x.imageId) not in set1]
                 if len(difference) == 0:
-                    PixivHelper.print_and_log(None, 'Getting duplicated result set, no more new images.')
+                    PixivHelper.print_and_log("warn", 'Getting duplicated result set, no more new images.')
                     flag = False
+            else:
+                PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
 
             if flag:
                 for item in t.itemList:
