@@ -26,10 +26,10 @@ import PixivHelper
 import PixivImageHandler
 import PixivListHandler
 import PixivModelFanbox
-import PixivSketchHandler
 import PixivNovelHandler
-import PixivTagsHandler
 import PixivRankingHandler
+import PixivSketchHandler
+import PixivTagsHandler
 from PixivDBManager import PixivDBManager
 from PixivException import PixivException
 from PixivTags import PixivTags

@@ -8,6 +8,7 @@ import PixivBrowserFactory
 import PixivConstant
 import PixivHelper
 import PixivImageHandler
+from PixivTags import PixivTags
 
 
 def process_tags(caller,
@@ -50,11 +51,11 @@ def process_tags(caller,
         if bookmark_count is not None and bookmark_count > 0:
             use_bookmark_data = True
 
-        offset = 60
+        offset = PixivTags.POSTS_PER_PAGE
         start_offset = (page - 1) * offset
         stop_offset = end_page * offset
 
-        PixivHelper.print_and_log('info', f'Searching for: ({search_tags}) {tags}')
+        PixivHelper.print_and_log('info', f'Searching for: ({search_tags}) {tags} with partial match = {wild_card} and title/caption = {title_caption}')
         flag = True
         while flag:
             (t, search_page) = PixivBrowserFactory.getBrowser().getSearchTagPage(tags,
@@ -70,6 +71,8 @@ def process_tags(caller,
                                                                                  bookmark_count=bookmark_count,
                                                                                  type_mode=type_mode,
                                                                                  r18mode=config.r18mode)
+
+            PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
             if len(t.itemList) == 0:
                 PixivHelper.print_and_log("warn", 'No more images')
                 flag = False
@@ -79,8 +82,6 @@ def process_tags(caller,
                 if len(difference) == 0:
                     PixivHelper.print_and_log("warn", 'Getting duplicated result set, no more new images.')
                     flag = False
-            else:
-                PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
 
             if flag:
                 for item in t.itemList:

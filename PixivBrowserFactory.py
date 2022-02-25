@@ -836,7 +836,8 @@ class PixivBrowser(mechanize.Browser):
                                                       member_id=member_id,
                                                       r18mode=r18mode,
                                                       blt=bookmark_count,
-                                                      type_mode=type_mode)
+                                                      type_mode=type_mode,
+                                                      locale=self._locale)
 
             PixivHelper.print_and_log('info', f'Looping... for {url}')
             response_page = self.getPixivPage(url, returnParsed=False)
