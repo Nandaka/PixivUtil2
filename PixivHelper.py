@@ -701,10 +701,10 @@ def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file)
         return PixivConstant.PIXIVUTIL_OK
 
 
-def print_delay(retryWait):
-    repeat = range(1, retryWait)
+def print_delay(retry_wait):
+    repeat = range(1, retry_wait + 1)
     for t in repeat:
-        print_and_log(None, f"{t}", newline=False)
+        print_and_log(None, f"\r{t} of {retry_wait}s.", newline=False)
         time.sleep(1)
     print_and_log(None, "")
 

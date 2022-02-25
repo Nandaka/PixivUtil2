@@ -3,6 +3,7 @@ import gc
 import http.client
 import os
 import sys
+import time
 
 import PixivBrowserFactory
 import PixivConstant
@@ -33,6 +34,7 @@ def process_tags(caller,
     _last_search_result = None
     i = page
     updated_limit_count = 0
+    empty_page_retry = 0
 
     try:
         search_tags = PixivHelper.decode_tags(tags)
@@ -74,8 +76,23 @@ def process_tags(caller,
 
             PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
             if len(t.itemList) == 0:
-                PixivHelper.print_and_log("warn", 'No more images')
-                flag = False
+                # Issue #1090
+                # check if the available images matching with current page * PixivTags.POSTS_PER_PAGE
+                # and wait for {timeout} seconds and retry the page up to {config.retry} times.
+                if _last_search_result is not None and _last_search_result.availableImages > (PixivTags.POSTS_PER_PAGE * i) and empty_page_retry < config.retry:
+                    PixivHelper.print_and_log("warn", f'Server did not return images, expected to have more (Total Post = {_last_search_result.availableImages}, current max posts = {PixivTags.POSTS_PER_PAGE * i}).')
+                    # wait at least 2 minutes before retry
+                    delay = config.timeout
+                    if delay < 120:
+                        delay = 120
+                    PixivHelper.print_and_log(None, f"Waiting for {delay} seconds before retrying.")
+                    PixivHelper.print_delay(delay)
+                    empty_page_retry = empty_page_retry + 1
+                    PixivBrowserFactory.getBrowser().addheaders = [('User-agent', f'{config.useragent}{int(time.time())}')]
+                    continue
+                else:
+                    PixivHelper.print_and_log("warn", 'No more images.')
+                    flag = False
             elif _last_search_result is not None:
                 set1 = set((x.imageId) for x in _last_search_result.itemList)
                 difference = [x for x in t.itemList if (x.imageId) not in set1]
@@ -84,6 +101,9 @@ def process_tags(caller,
                     flag = False
 
             if flag:
+                # Issue #1090 reset retry flag on succesfull load
+                empty_page_retry = 0
+
                 for item in t.itemList:
                     last_image_id = item.imageId
                     PixivHelper.print_and_log(None, f'Image #{images}')
