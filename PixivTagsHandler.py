@@ -3,11 +3,13 @@ import gc
 import http.client
 import os
 import sys
+import time
 
 import PixivBrowserFactory
 import PixivConstant
 import PixivHelper
 import PixivImageHandler
+from PixivTags import PixivTags
 
 
 def process_tags(caller,
@@ -32,6 +34,7 @@ def process_tags(caller,
     _last_search_result = None
     i = page
     updated_limit_count = 0
+    empty_page_retry = 0
 
     try:
         search_tags = PixivHelper.decode_tags(tags)
@@ -50,11 +53,11 @@ def process_tags(caller,
         if bookmark_count is not None and bookmark_count > 0:
             use_bookmark_data = True
 
-        offset = 60
+        offset = PixivTags.POSTS_PER_PAGE
         start_offset = (page - 1) * offset
         stop_offset = end_page * offset
 
-        PixivHelper.print_and_log('info', f'Searching for: ({search_tags}) {tags}')
+        PixivHelper.print_and_log('info', f'Searching for: ({search_tags}) {tags} with partial match = {wild_card} and title/caption = {title_caption}')
         flag = True
         while flag:
             (t, search_page) = PixivBrowserFactory.getBrowser().getSearchTagPage(tags,
@@ -70,19 +73,37 @@ def process_tags(caller,
                                                                                  bookmark_count=bookmark_count,
                                                                                  type_mode=type_mode,
                                                                                  r18mode=config.r18mode)
+
+            PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
             if len(t.itemList) == 0:
-                PixivHelper.print_and_log("warn", 'No more images')
-                flag = False
+                # Issue #1090
+                # check if the available images matching with current page * PixivTags.POSTS_PER_PAGE
+                # and wait for {timeout} seconds and retry the page up to {config.retry} times.
+                if _last_search_result is not None and _last_search_result.availableImages > (PixivTags.POSTS_PER_PAGE * i) and empty_page_retry < config.retry:
+                    PixivHelper.print_and_log("warn", f'Server did not return images, expected to have more (Total Post = {_last_search_result.availableImages}, current max posts = {PixivTags.POSTS_PER_PAGE * i}).')
+                    # wait at least 2 minutes before retry
+                    delay = config.timeout
+                    if delay < 120:
+                        delay = 120
+                    PixivHelper.print_and_log(None, f"Waiting for {delay} seconds before retrying.")
+                    PixivHelper.print_delay(delay)
+                    empty_page_retry = empty_page_retry + 1
+                    PixivBrowserFactory.getBrowser().addheaders = [('User-agent', f'{config.useragent}{int(time.time())}')]
+                    continue
+                else:
+                    PixivHelper.print_and_log("warn", 'No more images.')
+                    flag = False
             elif _last_search_result is not None:
                 set1 = set((x.imageId) for x in _last_search_result.itemList)
                 difference = [x for x in t.itemList if (x.imageId) not in set1]
                 if len(difference) == 0:
                     PixivHelper.print_and_log("warn", 'Getting duplicated result set, no more new images.')
                     flag = False
-            else:
-                PixivHelper.print_and_log("info", f'Found {len(t.itemList)} images for page {i}.')
 
             if flag:
+                # Issue #1090 reset retry flag on succesfull load
+                empty_page_retry = 0
+
                 for item in t.itemList:
                     last_image_id = item.imageId
                     PixivHelper.print_and_log(None, f'Image #{images}')

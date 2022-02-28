@@ -701,10 +701,10 @@ def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file)
         return PixivConstant.PIXIVUTIL_OK
 
 
-def print_delay(retryWait):
-    repeat = range(1, retryWait)
+def print_delay(retry_wait):
+    repeat = range(1, retry_wait + 1)
     for t in repeat:
-        print_and_log(None, f"{t}", newline=False)
+        print_and_log(None, f"\r{t} of {retry_wait}s.", newline=False)
         time.sleep(1)
     print_and_log(None, "")
 
@@ -845,7 +845,8 @@ def generate_search_tag_url(tags,
                             member_id=None,
                             r18mode=False,
                             blt=0,
-                            type_mode="a"):
+                            type_mode="a",
+                            locale=""):
     url = ""
     date_param = ""
     page_param = ""
@@ -857,8 +858,21 @@ def generate_search_tag_url(tags,
     if page is not None and int(page) > 1:
         page_param = f"&p={page}"
 
+    mode = '&mode=all'
+    if r18mode:
+        mode = '&mode=r18'
+
+    order = ''
+    if sort_order in ('date', 'date_d', 'popular_d', 'popular_male_d', 'popular_female_d'):
+        order = f'&order={sort_order}'
+
+    if locale != "":
+        if locale.startswith("/"):
+            locale = locale[1:]
+        locale = f"&lang={locale}"
+
     if member_id is not None:
-        url = f'https://www.pixiv.net/member_illust.php?id={member_id}&tag={tags}&p={page}'
+        url = f'https://www.pixiv.net/member_illust.php?id={member_id}&tag={tags}&p={page}{mode}{order}'
     else:
         root_url = 'https://www.pixiv.net/ajax/search/artworks'
         search_mode = ""
@@ -886,13 +900,9 @@ def generate_search_tag_url(tags,
         type_mode = f"&type={type_mode}"
 
         # https://www.pixiv.net/ajax/search/artworks/k-on?word=k-on&order=date_d&mode=all&p=1&s_mode=s_tag_full&type=all&lang=en
-        url = f"{root_url}/{tags}?word={tags}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}"
-
-    if r18mode:
-        url = f'{url}&mode=r18'
-
-    if sort_order in ('date', 'date_d', 'popular_d', 'popular_male_d', 'popular_female_d'):
-        url = f'{url}&order={sort_order}'
+        # https://www.pixiv.net/ajax/search/artworks/GuP or ガルパン or ガールズ&パンツァー or garupan?word=GuP or ガルパン or ガールズ&パンツァー or garupan
+        # &order=date&mode=all&scd=2022-01-25&p=1&s_mode=s_tag&type=all&lang=en
+        url = f"{root_url}/{tags}?word={tags}{order}{mode}{date_param}{page_param}{search_mode}{bookmark_limit_premium}{type_mode}{locale}"
 
     # encode to ascii
     # url = url.encode('iso_8859_1')
