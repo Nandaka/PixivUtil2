@@ -261,7 +261,7 @@ def process_image(caller,
 
                         if result == PixivConstant.PIXIVUTIL_NOT_OK:
                             PixivHelper.print_and_log('error', f'Image url not found/failed to download: {image.imageId}')
-                        elif result == PixivConstant.PIXIVUTIL_ABORTED:
+                        elif result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                             raise KeyboardInterrupt()
 
                         manga_files.append((image_id, page, filename))

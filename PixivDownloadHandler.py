@@ -279,7 +279,7 @@ def download_image(caller,
                 raise
             except KeyboardInterrupt:
                 PixivHelper.print_and_log('info', 'Aborted by user request => Ctrl-C')
-                return (PixivConstant.PIXIVUTIL_ABORTED, None)
+                return (PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT, None)
             finally:
                 if res is not None:
                     del res

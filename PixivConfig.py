@@ -105,6 +105,7 @@ class PixivConfig():
         ConfigItem("Settings", "dbPath", ""),
         ConfigItem("Settings", "setLastModified", True),
         ConfigItem("Settings", "useLocalTimezone", False),
+        ConfigItem("Settings", "defaultSketchOption", ""),
 
         ConfigItem("Filename",
                    "filenameFormat",
