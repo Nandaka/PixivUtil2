@@ -13,7 +13,7 @@ import PixivArtistHandler
 
 def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefix=""):
     config.loadConfig(path=caller.configfile)
-    br = PixivBrowserFactory.getBrowser()
+    br: PixivBrowserFactory.PixivBrowser = PixivBrowserFactory.getBrowser()
 
     caller.set_console_title(title_prefix)
     try:

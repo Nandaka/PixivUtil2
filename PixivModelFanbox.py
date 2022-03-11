@@ -66,7 +66,8 @@ class FanboxPost(object):
 
         self.parsePost(page)
 
-        if not self.is_restricted:
+        # Issue #1094
+        if not self.is_restricted and "body" in page:
             self.parseBody(page)
 
             if self.type == 'image':
@@ -106,13 +107,22 @@ class FanboxPost(object):
         if self._tzInfo is not None:
             self.worksDateDateTime = self.worksDateDateTime.astimezone(self._tzInfo)
 
-        self.type = jsPost["type"]
-        if self.type not in FanboxPost._supportedType:
-            raise PixivException(f"Unsupported post type = {self.type} for post = {self.imageId}", errorCode=9999, htmlPage=jsPost)
+        # Issue #1094
+        if "type" in jsPost:
+            self.type = jsPost["type"]
+            if self.type not in FanboxPost._supportedType:
+                raise PixivException(f"Unsupported post type = {self.type} for post = {self.imageId}", errorCode=9999, htmlPage=jsPost)
+        else:
+            # assume it is image post
+            self.type = "image"
 
         self.likeCount = int(jsPost["likeCount"])
-        if jsPost["body"] is None:
+
+        # Issue #1094
+        if "body" not in jsPost or jsPost["body"] is None:
             self.is_restricted = True
+        if "isRestricted" in jsPost:
+            self.is_restricted = jsPost["isRestricted"]
 
     def parseBody(self, jsPost):
         ''' Parse general data for text and article'''

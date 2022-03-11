@@ -904,11 +904,11 @@ class PixivBrowser(mechanize.Browser):
         if via == FanboxArtist.SUPPORTING:
             url = 'https://api.fanbox.cc/plan.listSupporting'
             PixivHelper.print_and_log('info', f'Getting supporting artists from {url}')
-            referer = "https://www.fanbox.cc/creators/supporting"
+            referer = "https://www.fanbox.cc/"
         elif via == FanboxArtist.FOLLOWING:
             url = 'https://api.fanbox.cc/creator.listFollowing'
             PixivHelper.print_and_log('info', f'Getting following artists from {url}')
-            referer = "https://www.fanbox.cc/creators/following"
+            referer = "https://www.fanbox.cc/"
 
         if url is not None:
             req = mechanize.Request(url)
@@ -984,7 +984,10 @@ class PixivBrowser(mechanize.Browser):
 
         # Issue #641
         if next_url is None or next_url == "":
-            url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
+            # url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
+            # Issue #1094
+            # https://api.fanbox.cc/post.listCreator?creatorId=onartworks&maxPublishedDatetime=2022-02-26%2015%3A57%3A17&maxId=3468213&limit=10
+            url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
         elif next_url.startswith("https://"):
             url = next_url
         else:
@@ -992,7 +995,7 @@ class PixivBrowser(mechanize.Browser):
 
         # Fix #494
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
-        referer = f"https://www.fanbox.cc/@{artist.creatorId}"
+        referer = "https://www.fanbox.cc/"
         req = mechanize.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
@@ -1006,7 +1009,7 @@ class PixivBrowser(mechanize.Browser):
         posts = artist.parsePosts(response)
         return posts
 
-    def fanboxUpdatePost(self, post):
+    def fanboxUpdatePost(self, post: FanboxPost):
         js = self.fanboxGetPostJsonById(post.imageId, post.parent)
         post.parsePost(js["body"])
 
