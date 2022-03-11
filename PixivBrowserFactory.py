@@ -1012,6 +1012,7 @@ class PixivBrowser(mechanize.Browser):
     def fanboxUpdatePost(self, post: FanboxPost):
         js = self.fanboxGetPostJsonById(post.imageId, post.parent)
         post.parsePost(js["body"])
+        post.parse_post_details(js["body"])
 
     def fanboxGetPostById(self, post_id):
         js = self.fanboxGetPostJsonById(post_id)

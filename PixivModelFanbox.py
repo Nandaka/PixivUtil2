@@ -65,7 +65,9 @@ class FanboxPost(object):
         self.linkToFile = dict()
 
         self.parsePost(page)
+        self.parse_post_details(page)
 
+    def parse_post_details(self, page):
         # Issue #1094
         if not self.is_restricted and "body" in page:
             self.parseBody(page)
