@@ -1,4 +1,4 @@
-20220224-beta1
+20220311-beta2
 - Merge Update WriteXMP feature to use pyexiv2 only (#1043) by Baa.
 - Merge Adds feature to strip HTML from captions (#1045) by Baa.
 - Fix #1047: fix "ffmpegExt" config.
@@ -11,6 +11,8 @@
 - Fix #1084: Fanbox download removes Pixiv files with same ID.
 - Implement #1087: FANBOX's url_embed not detected.
 - Update logging for #1090: premature download by tags.
+- Merge Pixiv Sketch config and Database Manager changes (#1078) by cglmrfreeman.
+- Fix #1094: Fanbox f1/f2 download issue.
 
 20211104
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
