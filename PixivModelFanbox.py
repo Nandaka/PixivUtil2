@@ -166,6 +166,15 @@ class FanboxPost(object):
                 embedData.append(jsPost["body"]["embedMap"][embed])
                 self.embeddedFiles.append(jsPost["body"]["embedMap"][embed])
 
+        if "images" in jsPost["body"] and jsPost["body"]["images"] is not None:
+            for image in jsPost["body"]["images"]:
+                imageId = image["imageId"]
+                originalUrl = image["originalUrl"]
+                thumbnailUrl = image["thumbnailUrl"]
+                self.body_text += f"<a href='{originalUrl}'><img src='{thumbnailUrl}'/></a>"
+                self.try_add(originalUrl, self.images)
+                self.try_add(originalUrl, self.embeddedFiles)
+
         if "blocks" in jsPost["body"] and jsPost["body"]["blocks"] is not None:
             for block in jsPost["body"]["blocks"]:
                 if block["type"] == "p":
