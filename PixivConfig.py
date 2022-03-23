@@ -228,7 +228,6 @@ class PixivConfig():
         value = f"{scheme}://{netloc}{port}"
         return {"http": value, "https": value}
 
-
     def loadConfig(self, path=None):
         if path is not None:
             self.configFileLocation = path

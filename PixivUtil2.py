@@ -167,6 +167,7 @@ def menu():
     print(' 15. Download by Novel Series Id')
     print(' 16. Download by Rank')
     print(' 17. Download by Rank R-18')
+    print(' 18. Download by New Illusts')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -1037,6 +1038,33 @@ def menu_download_by_rank_r18(op_is_valid, args, options):
     menu_download_by_rank(op_is_valid, args, options, valid_modes)
 
 
+def menu_download_new_illusts(op_is_valid, args, options):
+    __log__.info('Download New Illust mode (17).')
+    valid_modes = ["illust", "manga"]
+    type_mode = "illusts"
+    max_page = 0
+
+    if op_is_valid and len(args) > 0:
+        mode = options.rank_mode
+        if mode not in valid_modes:
+            print(f"Invalid mode: {mode}, valid modes are {', '.join(valid_modes)}.")
+        max_page = options.end_page
+    else:
+        while True:
+            print(f"Valid Modes are: {', '.join(valid_modes)}")
+            type_mode = input('Mode: ').rstrip("\r").lower()
+            if type_mode in valid_modes:
+                break
+            else:
+                print("Invalid mode.")
+        max_page = int(input('Max Page: ').rstrip("\r").lower()) or 0
+
+    PixivRankingHandler.process_new_illusts(sys.modules[__name__],
+                                            __config__,
+                                            type_mode,
+                                            max_page)
+
+
 def menu_reload_config():
     __log__.info('Manual Reload Config (r).')
     __config__.loadConfig(path=configfile)
@@ -1055,7 +1083,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
                        'd', 'e', 'm', 'b')
@@ -1248,6 +1276,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_rank(op_is_valid, args, options)
             elif selection == '17':
                 menu_download_by_rank_r18(op_is_valid, args, options)
+            elif selection == '18':
+                menu_download_new_illusts(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':

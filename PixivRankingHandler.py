@@ -3,12 +3,13 @@ import sys
 
 from colorama import Fore, Style
 
-import PixivHelper
-from PixivListItem import PixivListItem
+import PixivConfig
 import PixivConstant
 import PixivException
+import PixivHelper
 import PixivImageHandler
 from PixivBrowserFactory import PixivBrowser
+from PixivListItem import PixivListItem
 
 
 def process_ranking(caller, config, mode, content, start_page=1, end_page=0, date="", filter=None, notifier=None):
@@ -74,3 +75,47 @@ def process_ranking(caller, config, mode, content, start_page=1, end_page=0, dat
         PixivHelper.print_and_log('error', f'Error at process_ranking(): {sys.exc_info()}')
         print('Failed')
         raise
+
+
+def process_new_illusts(caller, config: PixivConfig, type_mode="illust", max_page=0, notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    br: PixivBrowser = caller.__br__
+
+    msg = Fore.YELLOW + Style.NORMAL + f'Processing Pixiv Ranking: RR-18={config.r18mode}.' + Style.RESET_ALL
+    PixivHelper.print_and_log(None, msg)
+    last_id = 0
+    current_page = 1
+    i = 1
+    while True:
+        result = br.getNewIllust(last_id, type_mode=type_mode, r18=config.r18mode)
+        title_prefix = f"Pixiv New Illusts: RR-18={config.r18mode} - page {current_page}."
+        PixivHelper.print_and_log(None, title_prefix)
+
+        for image in result.images:
+            try:
+                dl_result = PixivConstant.PIXIVUTIL_OK
+                image_id = image["id"]
+                print(f"{Fore.YELLOW} #{i} - {image_id}.{Style.RESET_ALL}")
+                if not caller.DEBUG_SKIP_PROCESS_IMAGE:
+                    dl_result = PixivImageHandler.process_image(caller,
+                                                            config,
+                                                            None,
+                                                            image_id,
+                                                            user_dir=config.rootDirectory,
+                                                            title_prefix=title_prefix,
+                                                            notifier=notifier)
+                PixivHelper.wait(dl_result, config)
+                i = i + 1
+            except PixivException as pex:
+                PixivHelper.print_and_log("error", f"Failed to process Pixiv New Illusts for {image_id} ==> {pex.message}")
+
+        last_id = result.last_id
+        current_page = current_page + 1
+
+        if max_page != 0 and current_page > max_page:
+            PixivHelper.print_and_log("info", f"Reached max page = {max_page}.")
+            break
+        elif last_id == 0 or len(result.images) == 0:
+            PixivHelper.print_and_log("info", "No more images!")
+            break

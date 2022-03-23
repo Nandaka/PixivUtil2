@@ -26,8 +26,8 @@ from PixivModelFanbox import FanboxArtist, FanboxPost
 from PixivModelSketch import SketchArtist, SketchPost
 from PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
 from PixivOAuth import PixivOAuth
+from PixivRanking import PixivNewIllust, PixivRanking
 from PixivTags import PixivTags
-from PixivRanking import PixivRanking
 
 defaultCookieJar = None
 defaultConfig = None
@@ -1199,7 +1199,10 @@ class PixivBrowser(mechanize.Browser):
         # Issue #1028
         locale = ""
         if self._locale is not None and len(self._locale) > 0:
-            locale = f"&lang={self._locale}"
+            if self._locale[0] == "/":
+                locale = f"&lang={self._locale[1:]}"
+            else:
+                locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/follow_latest/illust?p={current_page}&mode={mode}{locale}"
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
         PixivHelper.get_logger().info(f"Source URL: {url}")
@@ -1223,6 +1226,22 @@ class PixivBrowser(mechanize.Browser):
 
         response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
         result = PixivRanking(response, filter)
+        return result
+
+    def getNewIllust(self, last_id=0, limit=20, type_mode="illust", r18=False):
+        locale = ""
+        if self._locale is not None and len(self._locale) > 0:
+            if self._locale[0] == "/":
+                locale = f"&lang={self._locale[1:]}"
+            else:
+                locale = f"&lang={self._locale}"
+        if type_mode not in ('illust', 'manga'):
+            raise PixivException(f"Invalid type={type_mode} for PixivNewIllust, only 'illust' or 'manga' are accepted!", errorCode=PixivException.OTHER_ERROR)
+
+        # https://www.pixiv.net/ajax/illust/new?lastId=97097963&limit=20&type=illust&r18=true&lang=en
+        url = f"https://www.pixiv.net/ajax/illust/new?lastId={last_id}&limit={limit}&type={type_mode}&r18={str(r18).lower()}{locale}"
+        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        result = PixivNewIllust(response, type_mode)
         return result
 
 
