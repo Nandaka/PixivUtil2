@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
-import re
-
 import demjson3
 from bs4 import BeautifulSoup
 
@@ -20,7 +18,7 @@ class PixivArtist:
     isLastPage = None
     haveImages = None
     totalImages = 0
-    __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
+    # __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
     offset = None
     limit = None
     reference_image_id = 0

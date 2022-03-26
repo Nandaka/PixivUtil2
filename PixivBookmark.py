@@ -14,7 +14,7 @@ import PixivException
 
 class PixivBookmark(object):
     '''Class for parsing Bookmarks'''
-    __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
+    # __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
 
     @staticmethod
     def parseBookmark(page, root_directory, db_path, locale='', is_json=False):
@@ -89,13 +89,26 @@ class PixivBookmark(object):
         if not filename.endswith('.txt'):
             filename = filename + '.txt'
         writer = codecs.open(filename, 'w', encoding='utf-8')
-        writer.write(u'###Export date: ' + str(datetime.today()) + '###\n')
+        writer.write(f'###Export members date: {datetime.today()} ###\n')
         for item in lst:
             data = str(item.memberId)
             if len(item.path) > 0:
                 data = data + ' ' + item.path
             writer.write(data)
-            writer.write(u'\r\n')
+            writer.write('\r\n')
+        writer.write('###END-OF-FILE###')
+        writer.close()
+
+    @staticmethod
+    def export_image_list(lst, filename):
+        if not filename.endswith('.txt'):
+            filename = filename + '.txt'
+        writer = codecs.open(filename, 'w', encoding='utf-8')
+        writer.write(f'###Export images date: {datetime.today()} ###\n')
+        for item in lst:
+            data = str(item)
+            writer.write(data)
+            writer.write('\r\n')
         writer.write('###END-OF-FILE###')
         writer.close()
 
@@ -122,31 +135,4 @@ class PixivNewIllustBookmark(object):
         for image_id in page_json["body"]["page"]["ids"]:
             self.imageList.append(int(image_id))
 
-        # # Fix Issue#290
-        # jsBookmarkItem = page.find(id='js-mount-point-latest-following')
-        # if jsBookmarkItem is not None:
-        #     js = jsBookmarkItem["data-items"]
-        #     items = json.loads(js)
-        #     for item in items:
-        #         image_id = item["illustId"]
-        #         # bookmarkCount = item["bookmarkCount"]
-        #         # imageResponse = item["responseCount"]
-        #         self.imageList.append(int(image_id))
-        # else:
-        #     result = page.find(attrs={'class': '_image-items autopagerize_page_element'}).findAll('a')
-        #     for r in result:
-        #         href = re.search(r'/artworks/(\d+)', r['href'])
-        #         if href is not None:
-        #             href = int(href.group(1))
-        #             if href not in self.imageList:
-        #                 self.imageList.append(href)
-
         return self.imageList
-
-    # def __CheckLastPage(self, page):
-    #     check = page.findAll('a', attrs={'class': '_button', 'rel': 'next'})
-    #     if len(check) > 0:
-    #         self.isLastPage = False
-    #     else:
-    #         self.isLastPage = True
-    #     return self.isLastPage

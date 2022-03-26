@@ -3,12 +3,12 @@ import sys
 from datetime import time
 
 import PixivArtistHandler
-from PixivBrowserFactory import PixivBrowser
 import PixivConstant
 import PixivDownloadHandler
 import PixivHelper
 import PixivImageHandler
 from PixivBookmark import PixivBookmark
+from PixivBrowserFactory import PixivBrowser
 from PixivGroup import PixivGroup
 
 # from bs4 import BeautifulSoup
@@ -121,19 +121,6 @@ def process_new_illust_from_bookmark(caller,
             if config.r18mode:
                 mode = "r18"
             pb = br.getFollowedNewIllusts(mode, current_page=i)
-
-            # url = 'https://www.pixiv.net/bookmark_new_illust.php?p=' + str(i)
-            # if config.r18mode:
-            #     url = 'https://www.pixiv.net/bookmark_new_illust_r18.php?p=' + str(i)
-
-            # PixivHelper.print_and_log('info', "Source URL: " + url)
-            # page = br.open(url)
-            # parsed_page = BeautifulSoup(page.read().decode("utf-8"), features="html5lib")
-            # pb = PixivNewIllustBookmark(parsed_page)
-
-            # if not pb.haveImages:
-            #     print("No images!")
-            #     break
 
             for image_id in pb.imageList:
                 print(f"Image #{image_count}")
@@ -276,6 +263,45 @@ def export_bookmark(caller,
         raise
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at export_bookmark(): {0}'.format(sys.exc_info()))
+        raise
+
+
+def export_image_bookmark(caller,
+                          config,
+                          hide='n',
+                          start_page=1,
+                          end_page=0,
+                          tag=None,
+                          use_image_tag=False,
+                          filename='exported_images.txt'):
+    try:
+        print("Getting image bookmarks...")
+        total_list = list()
+        private_list = list()
+        public_list = list()
+        total_bookmark_count = 0
+
+        if hide == 'n':
+            (public_list, total_bookmark_count) = get_image_bookmark(caller, config, False, start_page, end_page, tag, use_image_tag)
+        elif hide == 'y':
+            # public and private image bookmarks
+            (public_list, total_bookmark_count_pub) = get_image_bookmark(caller, config, False, start_page, end_page, tag, use_image_tag)
+            (private_list, total_bookmark_count_priv) = get_image_bookmark(caller, config, True, start_page, end_page, tag, use_image_tag)
+            total_bookmark_count = total_bookmark_count_pub + total_bookmark_count_priv
+        else:
+            (private_list, total_bookmark_count) = get_image_bookmark(caller, config, True, start_page, end_page, tag, use_image_tag)
+        total_list.extend(private_list)
+        total_list.extend(public_list)
+
+        PixivBookmark.export_image_list(total_list, filename)
+
+        PixivHelper.print_and_log('info', f"Found {len(total_list)} of {total_bookmark_count} possible image(s) .")
+
+        print("Done.\n")
+    except KeyboardInterrupt:
+        raise
+    except BaseException:
+        PixivHelper.print_and_log('error', 'Error at export_image_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
 
