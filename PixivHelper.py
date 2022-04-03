@@ -1114,11 +1114,20 @@ def check_image_encoding(directory: str) -> None:
         f = os.path.join(directory, filename)
         # checking if it is a file
         if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
-            fp = open(f, "rb")
-            ImageFile.LOAD_TRUNCATED_IMAGES = True
-            im = Image.open(fp)
-            nb_components = len(im.getbands())
-            dict_of_components[nb_components].append(f)
+            fp = None
+            try :
+                fp = open(f, "rb")
+                # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
+                ImageFile.LOAD_TRUNCATED_IMAGES = True
+                im = Image.open(fp)
+                nb_components = len(im.getbands())
+                dict_of_components[nb_components].append(f)
+            except BaseException:
+                if fp is not None:
+                    fp.close()
+                print_and_log('error', ' Image {f} invalid during check_image_encoding() , deleting...')
+                os.remove(f)
+                raise
     
     # Get the maximum amount of component of bit depth from the batch of images and convert thoses below it
     re_encode = False
@@ -1155,7 +1164,7 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
     ret = p.wait()
 
     if(p.returncode != 0):
-        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERRO)
+        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERROR)
     
     if os.path.exists(im_path) and os.path.exists(temp_name):
         try:
