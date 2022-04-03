@@ -30,6 +30,7 @@ from typing import Union
 
 import mechanize
 from colorama import Fore, Style
+from PIL import Image, ImageFile
 
 import PixivConstant
 from PixivException import PixivException
@@ -1044,34 +1045,15 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         with open(d + "/i.ffconcat", "w") as f:
             f.write(ffconcat)
 
+        check_image_encoding(d)
+
         ffmpeg_args = shlex.split(cmd)
         get_logger().info(f"[convert_ugoira()] running with cmd: {cmd}")
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
-        chatter = ""
         print_and_log('info', f"Start encoding {exportname}")
-        while p.stderr:
-            buff = p.stderr.readline().decode('utf-8').rstrip('\n')
-            chatter += buff
-            if buff.endswith("\r"):
-                if _config.verboseOutput:
-                    print(chatter.strip())
-                elif chatter.find("frame=") > 0 \
-                     or chatter.lower().find("stream") > 0:
-                    print(chatter.strip())
-                elif chatter.lower().find("error") > 0 \
-                     or chatter.lower().find("could not") > 0 \
-                     or chatter.lower().find("unknown") > 0 \
-                     or chatter.lower().find("invalid") > 0 \
-                     or chatter.lower().find("trailing options") > 0 \
-                     or chatter.lower().find("cannot") > 0 \
-                     or chatter.lower().find("can't") > 0:
-                    print_and_log("error", chatter.strip())
-                chatter = ""
-            if len(buff) == 0:
-                break
-
+        p = ffmpeg_progress_report(p)
         ret = p.wait()
 
         if(p.returncode != 0):
@@ -1093,6 +1075,97 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
             shutil.rmtree(d)
         print()
 
+def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
+    chatter = ""
+    while p.stderr:
+        buff = p.stderr.readline().decode('utf-8').rstrip('\n')
+        chatter += buff
+        if buff.endswith("\r"):
+            if _config.verboseOutput:
+                print(chatter.strip())
+            elif chatter.find("frame=") > 0 \
+                    or chatter.lower().find("stream") > 0:
+                print(chatter.strip())
+            elif chatter.lower().find("error") > 0 \
+                    or chatter.lower().find("could not") > 0 \
+                    or chatter.lower().find("unknown") > 0 \
+                    or chatter.lower().find("invalid") > 0 \
+                    or chatter.lower().find("trailing options") > 0 \
+                    or chatter.lower().find("cannot") > 0 \
+                    or chatter.lower().find("can't") > 0:
+                print_and_log("error", chatter.strip())
+            chatter = ""
+        if len(buff) == 0:
+            break
+    return p
+
+# Issue 1109
+def check_image_encoding(directory: str) -> None:
+    """
+    Check if images in the temporary folder have the same amount of component of there bit depth
+    """
+    nb_channel_max = 4
+    dict_of_components = dict()
+    for i in range(nb_channel_max):
+        dict_of_components[i] = list()
+
+    # Append every images to their corresponding number of bit depth in a dictionnary
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        # checking if it is a file
+        if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
+            fp = open(f, "rb")
+            ImageFile.LOAD_TRUNCATED_IMAGES = True
+            im = Image.open(fp)
+            nb_components = len(im.getbands())
+            dict_of_components[nb_components].append(f)
+    
+    # Get the maximum amount of component of bit depth from the batch of images and convert thoses below it
+    re_encode = False
+    re_encode_channel = nb_channel_max
+    for i in range(nb_channel_max, 0, -1):
+        if re_encode:
+            for file in dict_of_components[i-1]:
+                re_encode_image(re_encode_channel, file)
+
+        if (len(dict_of_components[i-1]) != 0) and not(re_encode) :
+            re_encode = True
+            re_encode_channel = i-1
+
+def re_encode_image(nb_channel: int, im_path: str) -> None:
+    """
+    Re-encode image with less component of there bit depth into a greater amount determine by images with the most component of there bit depth
+    """
+    print_and_log("debug", f"Procced to change {im_path} image for a pixel format with {nb_channel} components ")
+    
+    # use filters with the most component of bit depth to make sure conversion run smoothly
+    pix_fmt_nb_components = {1:"grayf32be", 2:"ya16be", 3:"gbrpf32be", 4:"gbrapf32be"}
+    
+    split_tup = os.path.splitext(im_path)
+    temp_name = f"{split_tup[0]}_temp{split_tup[1]}"
+    cmd = f"ffmpeg -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
+
+    ffmpeg_args = shlex.split(cmd)
+    get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
+    p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
+
+    # progress report
+    print_and_log('debug', f"Start re_encoding image {im_path}")
+    p = ffmpeg_progress_report(p)
+    ret = p.wait()
+
+    if(p.returncode != 0):
+        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERRO)
+    
+    if os.path.exists(im_path) and os.path.exists(temp_name):
+        try:
+            os.remove(im_path)
+            os.rename(temp_name, im_path)
+        except:
+            raise PixivException(f"Cannot create remove or rename the temp file => {im_path}", errorCode=PixivException.OTHER_ERROR)
+    else:
+        print_and_log("error", f"Failed to modify {im_path} because the file or its re-encoded version {temp_name} does not exist ")
+    
 
 def parse_date_time(worksDate, dateFormat):
     if dateFormat is not None and len(dateFormat) > 0 and '%' in dateFormat:
