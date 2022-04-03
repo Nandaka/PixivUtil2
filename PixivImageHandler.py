@@ -65,8 +65,15 @@ def process_image(caller,
             exists = db.cleanupFileExists(r[0])
             in_db = True
 
-        # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
-        if in_db and not config.alwaysCheckFileSize and not config.overwrite:
+        # Issue 1112
+        # check if file is ugoira so it might be able to overwrite old ugoira due to bug raise in issue #1109 causing gif, webm, webp and apng to be chopped
+        ru = db.selectImageByImageIdAndIsManga(image_id, "ugoira_view")
+        is_ugoira = False
+        if ru is not None:
+            is_ugoira = True
+
+        # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite and overwrite of ugoira is disabled.
+        if in_db and not config.alwaysCheckFileSize and not config.overwrite and not(config.overwriteUgoira and is_ugoira):
             PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
             gc.collect()
             return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT

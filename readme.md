@@ -556,6 +556,10 @@ Please refer run with `--help` for latest information.
 - overwrite
 
   Overwrite old files, set `False` to disable.
+
+- overwriteUgoira
+
+  Overwrite old ugoira, set `False` to disable
 - backupOldFile
 
   Set to True to backup old file if the file size is different.

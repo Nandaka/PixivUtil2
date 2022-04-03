@@ -65,7 +65,7 @@ def download_image(caller,
         req = None
         try:
             try:
-                if not overwrite and not config.alwaysCheckFileSize:
+                if not overwrite and not config.alwaysCheckFileSize and not(config.overwriteUgoira and image.imageMode == "ugoira_view"):
                     PixivHelper.print_and_log(None, '\rChecking local filename...', newline=False)
                     if os.path.isfile(filename_save):
                         PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
