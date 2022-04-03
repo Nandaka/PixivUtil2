@@ -32,17 +32,6 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
 
-    def testSanitizeFilename2(self):
-        rootDir = '.'
-        filename = u'12345.jpg'
-        currentDir = os.path.abspath('.')
-        expected = currentDir + os.sep + filename
-
-        result = PixivHelper.sanitize_filename(filename, rootDir)
-
-        self.assertEqual(result, expected)
-        self.assertTrue(len(result) < 255)
-
     def testSanitizeFilename3(self):
         rootDir = 'D:\\Temp\\Pixiv2\\'
         if platform.system() != 'Windows':
