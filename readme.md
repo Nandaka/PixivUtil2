@@ -37,6 +37,7 @@
   - Show all downloaded images
   - Export list (member_id only)
   - Export list (detailed)
+  - Export local database (image_id)
   - Show member by last downloaded date
   - Show image by image_id
   - Show member by member_id
@@ -264,8 +265,7 @@ Please refer run with `--help` for latest information.
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
                         13 - Download by Manga Series ID
-                            (required: Manga Series ID separated by space
-                             optional: --sp=START_PAGE, and --ep=END_PAGE))
+                            (required: Manga Series ID separated by space)
                         f1 - Download from supported artists (FANBOX)
                             (optional: End Page)
                         f2 - Download by artist/creator id (FANBOX)
@@ -279,6 +279,8 @@ Please refer run with `--help` for latest information.
                             (optional: End page, path to list)
                         b - Batch Download from batch_job.json (experimental)
                             (optional: --bf=BATCH_FILE)
+                        l - Export local database image_id/post_id
+                            (required: --up=USE_PIXIV, and --uf=USE_FANBOX, and --us=USE_SKETCH)
                         e - Export online bookmark
                             (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
                              optional: filename)
