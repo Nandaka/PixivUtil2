@@ -741,19 +741,6 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def selectImageByImageIdAndIsManga(self, imageId, isManga):
-        try:
-            c = self.conn.cursor()
-            c.execute(
-                '''SELECT * FROM pixiv_master_image WHERE image_id = ? AND is_manga = ? ''', (imageId, isManga))
-            return c.fetchone()
-        except BaseException:
-            print('Error at selectImageByImageIdAndIsManga():', str(sys.exc_info()))
-            print('failed')
-            raise
-        finally:
-            c.close()
-
     def updateImage(self, imageId, title, filename, isManga=""):
         try:
             c = self.conn.cursor()

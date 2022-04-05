@@ -30,6 +30,7 @@
 - Download by artist/creator id (FANBOX)
 - Download by post id (FANBOX)
 - Download from followed artists (FANBOX)
+- Re-encoding of all ugoira present in folder
 - Batch Download from batch_job.json (experimental)
   See https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental)
 - Manage database:
@@ -265,7 +266,8 @@ Please refer run with `--help` for latest information.
                         12 - Download by Group ID
                             (required: Group ID, limit, and process external[y/n])
                         13 - Download by Manga Series ID
-                            (required: Manga Series ID separated by space)
+                            (required: Manga Series ID separated by space
+                            optional: --sp=START_PAGE, and --ep=END_PAGE)
                         f1 - Download from supported artists (FANBOX)
                             (optional: End Page)
                         f2 - Download by artist/creator id (FANBOX)
@@ -558,10 +560,6 @@ Please refer run with `--help` for latest information.
 - overwrite
 
   Overwrite old files, set `False` to disable.
-
-- overwriteUgoira
-
-  Overwrite old ugoira, set `False` to disable
 - backupOldFile
 
   Set to True to backup old file if the file size is different.

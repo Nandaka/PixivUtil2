@@ -187,6 +187,7 @@ def menu():
     print(' m. Export online other\'s followed artist.')
     print(' p. Export online image bookmarks.')
     print(' i. Import list file')
+    print(' u. Ugoira re-encode')
     print(' r. Reload config.ini')
     print(' p. Print config.ini')
     print(' x. Exit')
@@ -730,6 +731,19 @@ def menu_download_by_group_id(opisvalid, args, options):
                                             limit=limit,
                                             process_external=process_external)
 
+def menu_ugoira_reencode(opisvalid, args, options):
+
+    msg = Fore.YELLOW + Style.NORMAL + f'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
+    PixivHelper.print_and_log(None, msg)
+    msg = Fore.YELLOW + Style.NORMAL + f'You are about to to re-encode and overwrite all of your ugoira based on its zip file.' + Style.RESET_ALL
+    PixivHelper.print_and_log(None, msg)
+    arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
+    sure = arg.lower()
+    if sure not in ('y', 'n'):
+        PixivHelper.print_and_log("error", f"Invalid args for ugoira reencode: {arg}, valid values are [y/n].")
+        return
+    if sure == 'y':
+        PixivImageHandler.process_ugoira_local(sys.modules[__name__], __config__)
 
 def menu_export_database_images(opisvalid, args, options):
     __log__.info('Export local database')
@@ -1209,11 +1223,7 @@ f5 - Download from custom list (FANBOX)             \n
 s1 - Download by creator id (Sketch)')              \n
 s2 - Download by post id (Sketch)')                 \n
 b  - Batch Download from batch_job.json             \n
-<<<<<<< HEAD
 l  - Export local database (image_id)               \n
-=======
-l  - Export local database                          \n
->>>>>>> New export by post_id feature
 e  - Export online bookmark                         \n
 m  - Export online user bookmark                    \n
 p  - Export online image bookmark                   \n
@@ -1417,6 +1427,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_export_online_user_bookmark(op_is_valid, args, options)
             elif selection == 'p':
                 menu_export_from_online_image_bookmark(op_is_valid, args, options)
+            elif selection == 'u':
+                menu_ugoira_reencode(op_is_valid, args, options)
             elif selection == 'd':
                 __dbManager__.main()
             elif selection == 'r':
@@ -1425,6 +1437,7 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_print_config()
             elif selection == 'i':
                 menu_import_list()
+
             # PIXIV FANBOX
             elif selection == 'f1':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.SUPPORTING, args, options)
