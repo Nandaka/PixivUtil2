@@ -217,6 +217,54 @@ class PixivDBManager(object):
         print('done.')
         return 0
 
+    def exportImageTable(self, name):
+        print(f'Exporting {name} table ...', end=' ')
+        im_list = list()
+        if name == "Pixiv":
+            table = "pixiv_master_image"
+            key = "image_id"
+        elif name == "Fanbox":
+            table = "fanbox_master_post"
+            key = "post_id"
+        elif name == "Sketch":
+            table = "sketch_master_post"
+            key = "post_id"
+        else:
+            raise
+        try:
+            c = self.conn.cursor()
+            c.execute(f''' SELECT COUNT(*) FROM {table}''')
+            result = c.fetchall()
+            if result[0][0] > 10000:
+                print('Row count is more than 10000 (actual row count:',
+                      str(result[0][0]), ')')
+                print('It may take a while to retrieve the data.')
+                arg = input('Continue [y/n, default is yes]').rstrip("\r") or 'y'
+                answer = arg.lower()
+                if answer not in ('y', 'n', 'o'):
+                    PixivHelper.print_and_log("error", f"Invalid args for TODO: {arg}, valid values are [y/n/o].")
+                    return
+                if answer == 'y':
+                    c = self.conn.cursor()
+                    c.execute(f'''SELECT {key}
+                                FROM {table}
+                                ORDER BY member_id''')
+                    for row in c:
+                        im_list.append(row[0])
+            else:
+                c.execute(f'''SELECT {key}
+                            FROM {table}
+                            ORDER BY member_id''')
+                for row in c:
+                        im_list.append(row[0])
+            c.close()
+            print('done.')
+            return im_list
+        except BaseException:
+            print('Error at exportImageTable():', str(sys.exc_info()))
+            print('failed')
+            raise
+    
     def exportList(self, filename, include_artist_token=True):
         print('Exporting list...', end=' ')
         try:

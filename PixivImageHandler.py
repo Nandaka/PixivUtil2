@@ -437,3 +437,65 @@ def process_manga_series(caller,
         PixivHelper.print_and_log('error', f'Error at process_manga_series(): {manga_series_id}')
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
         raise
+
+def process_ugoira_local(caller, config):
+    directory = config.rootDirectory
+    all_directory = list()
+    all_zip = list()
+    counter = 0
+
+    for folder in os.scandir(directory):
+        folder_name = os.path.basename(folder)
+        if folder_name != ".DS_Store":
+            all_directory.append(folder_name)
+    try:
+        # Go through all directory
+        for sub_directory in all_directory:
+            sub_directory = os.scandir(directory+"/"+sub_directory)
+            for file in sub_directory:
+                # Get name of the file and it s extension
+
+                    file_name = os.path.splitext(os.path.basename(file))[0]
+                    file_ext = os.path.splitext(os.path.basename(file))[1]
+                    # Check zip archive
+                    if file_ext == ".zip":
+                        counter += 1
+                        PixivHelper.print_and_log(None, f"\r{counter} zip files found", newline = False)
+                        all_zip.append(os.path.abspath(file))
+
+        print('')
+        nb_zip = counter
+        counter = 0
+        for zip in all_zip:
+            counter += 1
+            PixivHelper.print_and_log(None, f"# Ugoira {counter}/{nb_zip}")
+            zip_name = os.path.splitext(os.path.basename(zip))[0]
+            PixivHelper.print_and_log("info", f"Deleting old ugoira files ...", newline = False)
+            for file in os.scandir(os.path.dirname(zip)):
+                file_name = os.path.splitext(os.path.basename(file))[0]
+                file_ext = os.path.splitext(os.path.basename(file))[1]
+                if (file_name == zip_name):
+                    if  ((("ugoira" in file_ext) and (config.createUgoira))    or
+                        ((("gif" in file_ext) and (config.createGif)))         or
+                        (("apng" in file_ext) and (config.createApng))         or
+                        (("webm" in file_ext) and (config.createWebm))         or
+                        (("webp" in file_ext) and (config.createWebp))):
+                        PixivHelper.print_and_log("debug", f"Deleting {os.path.abspath(file)}")
+                        os.remove(os.path.abspath(file))
+            PixivHelper.print_and_log(None, f" done.")
+            # Get id artwork
+            image_id = ''
+            for letter in zip_name:
+                if letter == '_':
+                    break
+                image_id = image_id+letter
+            process_image(  caller,
+                            config,
+                            artist=None,
+                            image_id=image_id,
+                            useblacklist=False)
+
+    except Exception as ex:
+        PixivHelper.print_and_log('error', 'Error at process_ugoira_local(): %s' %str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'failed')
+        raise

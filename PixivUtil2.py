@@ -182,10 +182,12 @@ def menu():
     print(' b. Batch Download from batch_job.json (experimental)')
     print(Style.BRIGHT + '── Others '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' d. Manage database')
+    print(' l. Export local database.')
     print(' e. Export online followed artist.')
     print(' m. Export online other\'s followed artist.')
     print(' p. Export online image bookmarks.')
     print(' i. Import list file')
+    print(' u. Ugoira re-encode')
     print(' r. Reload config.ini')
     print(' p. Print config.ini')
     print(' x. Exit')
@@ -729,6 +731,65 @@ def menu_download_by_group_id(opisvalid, args, options):
                                             limit=limit,
                                             process_external=process_external)
 
+def menu_ugoira_reencode(opisvalid, args, options):
+
+    msg = Fore.YELLOW + Style.NORMAL + f'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
+    PixivHelper.print_and_log(None, msg)
+    msg = Fore.YELLOW + Style.NORMAL + f'You are about to to re-encode and overwrite all of your ugoira based on its zip file.' + Style.RESET_ALL
+    PixivHelper.print_and_log(None, msg)
+    arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
+    sure = arg.lower()
+    if sure not in ('y', 'n'):
+        PixivHelper.print_and_log("error", f"Invalid args for ugoira reencode: {arg}, valid values are [y/n].")
+        return
+    if sure == 'y':
+        PixivImageHandler.process_ugoira_local(sys.modules[__name__], __config__)
+
+def menu_export_database_images(opisvalid, args, options):
+    __log__.info('Export local database')
+    use_pixiv = "n"  # y|n|o
+    use_fanbox = "n" # y|n|o
+    use_sketch = "n" # y|n|o
+    filename = "export-database.txt"
+
+    if opisvalid:
+        if options.export_filename is not None:
+            filename = options.export_filename
+        if options.use_pixiv is not None:
+            use_pixiv = options.use_pixiv
+            if use_pixiv not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for Pixiv database: {use_pixiv}, valid values are [y/n/o].")
+                return
+        if options.use_fanbox is not None:
+            use_fanbox = options.use_fanbox
+            if use_fanbox not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {use_fanbox}, valid values are [y/n/o].")
+                return
+        if options.use_sketch is not None:
+            use_sketch = options.use_sketch
+            if use_sketch not in ('y', 'n', 'o'):
+                PixivHelper.print_and_log("error", f"Invalid args for Sketch database: {use_sketch}, valid values are [y/n/o].")
+                return
+
+    else:
+        filename = input("Filename: ").rstrip("\r") or filename
+        arg = input("Include Pixiv database [y/n/o, default is no]: ").rstrip("\r") or 'n'
+        use_pixiv = arg.lower()
+        if use_pixiv not in ('y', 'n', 'o'):
+            PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {arg}, valid values are [y/n/o].")
+            return
+        arg = input("Include Fanbox database [y/n/o, default is no]: ").rstrip("\r") or 'n'
+        use_fanbox = arg.lower()
+        if use_fanbox not in ('y', 'n', 'o'):
+            PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {arg}, valid values are [y/n/o].")
+            return
+        arg = input("Include Sketch database [y/n/o, default is no]: ").rstrip("\r") or 'n'
+        use_sketch = arg.lower()
+        if use_sketch not in ('y', 'n', 'o'):
+            PixivHelper.print_and_log("error", f"Invalid args for Sketch database: {arg}, valid values are [y/n/o].")
+            return
+    
+    PixivBookmarkHandler.export_image_table(sys.modules[__name__], filename, use_pixiv, use_fanbox, use_sketch)
 
 def menu_export_online_bookmark(opisvalid, args, options):
     __log__.info('Export Followed Artists mode (e).')
@@ -1136,7 +1197,7 @@ def setup_option_parser():
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18',
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
-                       'd', 'e', 'm', 'b', 'p')
+                       'l', 'd', 'e', 'm', 'b', 'p')
     parser = OptionParser()
 
     # need to keep the whitespace to adjust the output for --help
@@ -1162,6 +1223,7 @@ f5 - Download from custom list (FANBOX)             \n
 s1 - Download by creator id (Sketch)')              \n
 s2 - Download by post id (Sketch)')                 \n
 b  - Batch Download from batch_job.json             \n
+l  - Export local database (image_id)               \n
 e  - Export online bookmark                         \n
 m  - Export online user bookmark                    \n
 p  - Export online image bookmark                   \n
@@ -1275,6 +1337,27 @@ Used in option 3, 5, 7, and 8.''')
                       default="export.txt",
                       help='''Filename for exporting members/images.                    \n
 Used in option e, m, p''')
+    parser.add_option('--up', '--use_pixiv',
+                      dest='use_pixiv',
+                      default=None,
+                      help='''Use Pixiv table for export.                               \n
+ y - include pixiv database.                        \n
+ n - don't include pixiv database.                     \n
+ o - only export pixiv database.''')
+    parser.add_option('--uf', '--use_fanbox',
+                      dest='use_fanbox',
+                      default=None,
+                      help='''Use Fanbox table for export.                              \n
+ y - include fanbox database.                       \n
+ n - don't include fanbox database.                 \n
+ o - only export fanbox database.''')
+    parser.add_option('--us', '--use_sketch',
+                      dest='use_sketch',
+                      default=None,
+                      help='''Use Sketch table for export.                              \n
+ y - include sketch database.                       \n
+ n - don't include sketch database.                 \n
+ o - only export sketch database.''')
     return parser
 
 
@@ -1334,6 +1417,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_rank_r18(op_is_valid, args, options)
             elif selection == '18':
                 menu_download_new_illusts(op_is_valid, args, options)
+            elif selection == "l":
+                menu_export_database_images(op_is_valid, args, options)
             elif selection == 'b':
                 PixivBatchHandler.process_batch_job(sys.modules[__name__], batch_file=options.batch_file)
             elif selection == 'e':
@@ -1342,6 +1427,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_export_online_user_bookmark(op_is_valid, args, options)
             elif selection == 'p':
                 menu_export_from_online_image_bookmark(op_is_valid, args, options)
+            elif selection == 'u':
+                menu_ugoira_reencode(op_is_valid, args, options)
             elif selection == 'd':
                 __dbManager__.main()
             elif selection == 'r':
@@ -1350,6 +1437,7 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_print_config()
             elif selection == 'i':
                 menu_import_list()
+
             # PIXIV FANBOX
             elif selection == 'f1':
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.SUPPORTING, args, options)
