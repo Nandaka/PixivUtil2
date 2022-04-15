@@ -731,8 +731,9 @@ def menu_download_by_group_id(opisvalid, args, options):
                                             limit=limit,
                                             process_external=process_external)
 
-def menu_ugoira_reencode(opisvalid, args, options):
 
+def menu_ugoira_reencode(opisvalid, args, options):
+    __log__.info('Re-encode Ugoira (u)')
     msg = Fore.YELLOW + Style.NORMAL + f'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
     msg = Fore.YELLOW + Style.NORMAL + f'You are about to to re-encode and overwrite all of your ugoira based on its zip file.' + Style.RESET_ALL
@@ -745,11 +746,12 @@ def menu_ugoira_reencode(opisvalid, args, options):
     if sure == 'y':
         PixivImageHandler.process_ugoira_local(sys.modules[__name__], __config__)
 
+
 def menu_export_database_images(opisvalid, args, options):
-    __log__.info('Export local database')
-    use_pixiv = "n"  # y|n|o
-    use_fanbox = "n" # y|n|o
-    use_sketch = "n" # y|n|o
+    __log__.info('Export local database (l)')
+    use_pixiv = "n"   # y|n|o
+    use_fanbox = "n"  # y|n|o
+    use_sketch = "n"  # y|n|o
     filename = "export-database.txt"
 
     if opisvalid:
@@ -788,8 +790,8 @@ def menu_export_database_images(opisvalid, args, options):
         if use_sketch not in ('y', 'n', 'o'):
             PixivHelper.print_and_log("error", f"Invalid args for Sketch database: {arg}, valid values are [y/n/o].")
             return
-    
     PixivBookmarkHandler.export_image_table(sys.modules[__name__], filename, use_pixiv, use_fanbox, use_sketch)
+
 
 def menu_export_online_bookmark(opisvalid, args, options):
     __log__.info('Export Followed Artists mode (e).')
