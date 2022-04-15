@@ -189,7 +189,7 @@ def menu():
     print(' i. Import list file')
     print(' u. Ugoira re-encode')
     print(' r. Reload config.ini')
-    print(' p. Print config.ini')
+    print(' c. Print config.ini')
     print(' x. Exit')
 
     read_lists()
@@ -1197,7 +1197,7 @@ def setup_option_parser():
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18',
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
-                       'l', 'd', 'e', 'm', 'b', 'p')
+                       'l', 'd', 'e', 'm', 'b', 'p', 'c')
     parser = OptionParser()
 
     # need to keep the whitespace to adjust the output for --help
@@ -1433,7 +1433,7 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 __dbManager__.main()
             elif selection == 'r':
                 menu_reload_config()
-            elif selection == 'p':
+            elif selection == 'c':
                 menu_print_config()
             elif selection == 'i':
                 menu_import_list()
