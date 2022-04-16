@@ -736,9 +736,9 @@ def menu_ugoira_reencode(opisvalid, args, options):
     __log__.info('Re-encode Ugoira (u)')
     msg = Fore.YELLOW + Style.NORMAL + f'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
-    msg = Fore.YELLOW + Style.NORMAL + f'You are about to to re-encode and overwrite all of your ugoira based on its zip file.' + Style.RESET_ALL
+    msg = Fore.YELLOW + Style.NORMAL + f'You are about to re-encode and overwrite all of your ugoira based on its zip file.' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
-    arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
+    arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really want to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
     sure = arg.lower()
     if sure not in ('y', 'n'):
         PixivHelper.print_and_log("error", f"Invalid args for ugoira reencode: {arg}, valid values are [y/n].")
