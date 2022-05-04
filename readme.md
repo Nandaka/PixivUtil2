@@ -776,6 +776,12 @@ Specific for PixivSketch (option 1 if PixivSketch included, s1, and s2 ):
 -> %sketch_member_id%
    Pixiv Sketch artist id, might be different from Pixiv's artist id.
 ```
+Specific for Fanbox:
+```
+-> %fanbox_name%
+   Fanbox name, might be different from Pixiv's artist name.
+   Useful if the artist is suspended from Pixiv and there is no record in the DB to avoid interuption.
+```
 # list.txt Format
 - This file should be build in the following way, white space will be trimmed,
   see example:

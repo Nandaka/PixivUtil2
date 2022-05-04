@@ -463,6 +463,7 @@ class FanboxArtist(object):
     # require additional API call
     artistName = ""
     artistToken = ""
+    fanbox_name = ""
 
     SUPPORTING = 0
     FOLLOWING = 1
@@ -489,6 +490,8 @@ class FanboxArtist(object):
         self.artistName = artist_name
         self.creatorId = creator_id
         self._tzInfo = tzInfo
+        # Issue #1117 Fanbox name might be different with Pixiv name
+        self.fanbox_name = artist_name
 
     def __str__(self):
         return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"

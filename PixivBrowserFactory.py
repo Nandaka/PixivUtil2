@@ -960,9 +960,9 @@ class PixivBrowser(mechanize.Browser):
 
         if "body" in js and js["body"] is not None:
             js_body = js["body"]
-            artist = FanboxArtist(js_body["user"]["userId"],
-                                  js_body["user"]["name"],
-                                  js_body["creatorId"],
+            artist = FanboxArtist(artist_id=js_body["user"]["userId"],
+                                  artist_name=js_body["user"]["name"],
+                                  creator_id=js_body["creatorId"],
                                   tzInfo=_tzInfo)
 
             if not for_suspended:
