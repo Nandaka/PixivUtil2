@@ -284,10 +284,10 @@ Please refer run with `--help` for latest information.
                         l - Export local database image_id/post_id
                             (required: --up=USE_PIXIV, and --uf=USE_FANBOX, and --us=USE_SKETCH)
                         e - Export online bookmark
-                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
-                             optional: filename)
+                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark,
+                             optional: --ef=EXPORT_FILENAME)
                         m - Export online user bookmark
-                            (required: member_id, optional: followed by filename)
+                            (required: member_id, optional: --ef=EXPORT_FILENAME)
                         d - Manage database
   -x, --exitwhendone    Exit programm when done.
                         (only useful when DB-Manager)
