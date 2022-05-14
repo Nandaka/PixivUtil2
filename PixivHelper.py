@@ -1005,19 +1005,7 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
     # if not os.path.exists(os.path.abspath(ffmpeg)):
     #     raise PixivException(f"Cannot find ffmpeg executables => {ffmpeg}", errorCode=PixivException.MISSING_CONFIG)
 
-    d = tempfile.mkdtemp(prefix="convert_ugoira")
-    d = d.replace(os.sep, '/')
-
-    # Issue #1035
-    if not os.path.exists(d):
-        new_temp = os.path.abspath(f"ugoira_{int(datetime.now().timestamp())}")
-        new_temp = new_temp.replace(os.sep, '/')
-        os.makedirs(new_temp)
-        print_and_log("warn", f"Cannot create temp folder at {d}, using current folder as the temp location => {new_temp}")
-        d = new_temp
-        # check again if still fail
-        if not os.path.exists(d):
-            raise PixivException(f"Cannot create temp folder => {d}", errorCode=PixivException.OTHER_ERROR)
+    d = create_temp_dir(prefix="convert_ugoira")
 
     if exportname is None or len(exportname) == 0:
         name = '.'.join(ugoira_file.split('.')[:-1])
@@ -1078,6 +1066,23 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         if os.path.exists(d):
             shutil.rmtree(d)
         print()
+
+
+def create_temp_dir(prefix: str=None) -> str:
+    d = tempfile.mkdtemp(prefix=prefix)
+    d = d.replace(os.sep, '/')
+    
+    # Issue #1035
+    if not os.path.exists(d):
+        new_temp = os.path.abspath(f"file_{int(datetime.now().timestamp())}")
+        new_temp = new_temp.replace(os.sep, '/')
+        os.makedirs(new_temp)
+        print_and_log("warn", f"Cannot create temp folder at {d}, using current folder as the temp location => {new_temp}")
+        d = new_temp
+        # check again if still fail
+        if not os.path.exists(d):
+            raise PixivException(f"Cannot create temp folder => {d}", errorCode=PixivException.OTHER_ERROR)
+    return d
 
 
 def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
