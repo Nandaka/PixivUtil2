@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import shutil
+import time
 import traceback
 import pathlib
 import urllib
@@ -451,7 +452,7 @@ def process_ugoira_local(caller, config):
 
     try:
         print('')
-        for extension in ["ugoira", "zip"]:
+        for extension in ["ugoira", "zip"]: # always ugoira then zip
             for zip in pathlib.Path(directory).rglob(f'*.{extension}'):
                 zip_name = os.path.splitext(os.path.basename(zip))[0]
                 zip_dir = os.path.dirname(zip)
@@ -482,7 +483,7 @@ def process_ugoira_local(caller, config):
                     PixivHelper.print_and_log(None, f" done.")
                     
                     # Process artwork locally
-                    if "ugoira" in extension:
+                    if "ugoira" in extension and not config.overwrite:
                         try:
                             msg = Fore.YELLOW + Style.NORMAL + f'Processing Image Id: {image_id}' + Style.RESET_ALL
                             PixivHelper.print_and_log(None, msg)
@@ -501,9 +502,11 @@ def process_ugoira_local(caller, config):
                         finally:
                             if res == PixivConstant.PIXIVUTIL_NOT_OK:
                                 PixivHelper.print_and_log('warn', f'Failed to process Image ID {image_id} locally: will retry with online infos')
+                                PixivHelper.print_and_log('debug', f'Removing corrupted ugoira {zip}')
+                                os.remove(zip)
                     
                     # Process artwork with online infos
-                    if "zip" in extension or res == PixivConstant.PIXIVUTIL_NOT_OK:
+                    if "zip" in extension or res == PixivConstant.PIXIVUTIL_NOT_OK or ("ugoira" in extension and config.overwrite):
                         res = process_image(caller,
                                             config,
                                             artist=None,
@@ -518,13 +521,27 @@ def process_ugoira_local(caller, config):
                             PixivHelper.print_and_log(None, f" done.")
                             print('')
                     
+                    # Checking result
+                    list_file_zipdir = os.listdir(zip_dir)
+                    for file_name in os.listdir(d):
+                        if file_name not in list_file_zipdir and config.backupOldFile:
+                            split_name = file_name.rsplit(".", 1)
+                            new_name = file_name + "." + str(int(time.time()))
+                            if len(split_name) == 2:
+                                new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
+                            PixivHelper.print_and_log('warn', f"Could not found the animated file re-encoded ==> {file_name}, backing up to: {new_name}")
+                            PixivHelper.print_and_log('warn', f"The new encoded file may have another name or the artist may have change its name")
+                            PixivHelper.print_and_log("debug", f"Rename and move {os.path.join(d, file_name)} to {os.path.join(zip_dir, new_name)}")
+                            shutil.move(os.path.join(d, file_name), os.path.join(zip_dir, new_name))
+                    print('')
+                    
                     # Delete temp path
                     if os.path.exists(d) and d != "":
                         PixivHelper.print_and_log("debug", f"Deleting path {d}")
                         shutil.rmtree(d)
                     list_done.append(image_id)
-            if counter == 0:
-                PixivHelper.print_and_log('info', "No zip file or ugoira found to re-encode animated files.")
+        if counter == 0:
+            PixivHelper.print_and_log('info', "No zip file or ugoira found to re-encode animated files.")
     
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
