@@ -482,8 +482,7 @@ class PixivImage (object):
         import tempfile
 
         # need to use temp file due to bad unicode support for pyexiv2 in windows
-        d = tempfile.mkdtemp(prefix="xmp")
-        d = d.replace(os.sep, '/')
+        d = PixivHelper.create_temp_dir(prefix="xmp")
         tempname = f"{d}/{self.imageId}.xmp"
 
         info = codecs.open(tempname, 'wb', encoding='utf-8')
