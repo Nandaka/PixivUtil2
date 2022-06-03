@@ -1068,10 +1068,10 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         print()
 
 
-def create_temp_dir(prefix: str=None) -> str:
+def create_temp_dir(prefix: str = None) -> str:
     d = tempfile.mkdtemp(prefix=prefix)
     d = d.replace(os.sep, '/')
-    
+
     # Issue #1035
     if not os.path.exists(d):
         new_temp = os.path.abspath(f"file_{int(datetime.now().timestamp())}")
@@ -1164,7 +1164,8 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
 
     split_tup = os.path.splitext(im_path)
     temp_name = f"{split_tup[0]}_temp{split_tup[1]}"
-    cmd = f"ffmpeg -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
+    # Fix #1126
+    cmd = f"{_config.ffmpeg} -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
 
     ffmpeg_args = shlex.split(cmd)
     get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
