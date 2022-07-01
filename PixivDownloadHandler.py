@@ -248,7 +248,7 @@ def download_image(caller,
 
                 # write to downloaded lists
                 if caller.start_iv or config.createDownloadLists:
-                    dfile = codecs.open(caller.dfilename, 'a+', encoding='utf-8')
+                    dfile = codecs.open(caller.dfilename, 'a+', encoding=caller.platform_encoding)
                     dfile.write(filename_save + "\n")
                     dfile.close()
 
