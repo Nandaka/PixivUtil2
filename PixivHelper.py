@@ -80,6 +80,7 @@ def get_logger(level=None, reload=False):
             if _config is not None and _config.disableLog:
                 print(f"{Fore.RED}Log Disabled!{Style.RESET_ALL}")
         else:
+            logging.disable(logging.NOTSET)
             if level is None:
                 level = logging.DEBUG
                 if _config is not None:

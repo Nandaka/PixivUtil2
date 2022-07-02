@@ -1,4 +1,4 @@
-20220311-beta3
+20220701
 - Merge Update WriteXMP feature to use pyexiv2 only (#1043) by Baa.
 - Merge Adds feature to strip HTML from captions (#1045) by Baa.
 - Fix #1047: fix "ffmpegExt" config.
@@ -14,6 +14,16 @@
 - Merge Pixiv Sketch config and Database Manager changes (#1078) by cglmrfreeman.
 - Fix #1094: Fanbox f1/f2 download issue.
 - Fix #1095: Fanbox Post missing files to download.
+- Merge ugoira re-encode and export local database option  (#1113) by Toyem.
+- Merge Fix option name collision (#1114) by TwinkleStar03.
+- Merge Code improvement based on @PatrickL546 's script (#1112) (#1115) by Toyem.
+- Implement #1117: add new filename format %fanbox_name% for fanbox specific artist name.
+- Merge Update readme (#1121) by PatrickL546.
+- Merge Update on the reencoding function (#1123) by Toyem.
+- Fix #1126 use ffmpeg from config.ini
+- Merge Fixes my bad on past attempt to deal with BOM (#1130) by  NHOrus.
+- Implement #1128
+  - add new configuration `disableLog` in `config.ini` in `Debug` section. Set to `True` to disable logging.
 
 20211104
 - Fix Issue #1036: update error message for ffmpeg and add option to enable verboseOutput from ffmpeg.
