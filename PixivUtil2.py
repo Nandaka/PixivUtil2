@@ -65,6 +65,10 @@ if platform.system() == "Windows":
         return pw
 
     getpass.getpass = win_getpass_with_mask
+    platform_encoding = 'utf-8-sig'
+else:
+    platform_encoding = 'utf-8'
+
 
 script_path = PixivHelper.module_path()
 
@@ -1623,13 +1627,6 @@ def main():
     if not os.path.exists(directory):
         os.makedirs(directory)
         __log__.info('Creating directory: %s', directory)
-
-    # write BOM
-    if start_iv or __config__.createDownloadLists:
-        if not os.path.isfile(dfilename) or os.path.getsize(dfilename) == 0:
-            dfile = codecs.open(dfilename, 'a+', encoding='utf-8')
-            dfile.write(u'\uefbbbf')
-            dfile.close()
 
     # Yavos: adding IrfanView-Handling
     start_irfan_slide = False
