@@ -38,7 +38,7 @@ import PixivArtist
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
 
-logger = None
+__logger = None
 _config = None
 __re_manga_index = re.compile(r'_p(\d+)')
 __badchars__ = None
@@ -66,25 +66,37 @@ def set_config(config):
     _config = config
 
 
-def get_logger(level=logging.DEBUG):
+def get_logger(level=None, reload=False):
     '''Set up logging'''
-    global logger
-    if logger is None:
+    global __logger
+    if reload:
+        __logger = None
+
+    if __logger is None:
         script_path = module_path()
-        logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
-        logger.setLevel(level)
-        __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
-                                                              maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
-                                                              backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
-                                                              encoding="utf-8")
-        __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
-        __logHandler__.setFormatter(__formatter__)
-        logger.addHandler(__logHandler__)
-    return logger
+        __logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
+        if _config is None or _config.disableLog:
+            logging.disable()
+            if _config is not None and _config.disableLog:
+                print(f"{Fore.RED}Log Disabled!{Style.RESET_ALL}")
+        else:
+            if level is None:
+                level = logging.DEBUG
+                if _config is not None:
+                    level = _config.logLevel
+            __logger.setLevel(level)
+            __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
+                                                                maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
+                                                                backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
+                                                                encoding="utf-8")
+            __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
+            __logHandler__.setFormatter(__formatter__)
+            __logger.addHandler(__logHandler__)
+    return __logger
 
 
 def set_log_level(level):
-    logger.info("Setting log level to: %s", level)
+    get_logger(logging.INFO).info("Setting log level to: %s", level)
     get_logger(level).setLevel(level)
 
 
@@ -414,11 +426,11 @@ def start_irfanview(dfilename, irfanViewPath, start_irfan_slide=False, start_irf
             info.dwFlags = 1
             info.wShowWindow = 6  # start minimized in background (6)
             ivcommand = ivpath + ' /slideshow=' + dfilename
-            logger.info(ivcommand)
+            get_logger().info(ivcommand)
             subprocess.Popen(ivcommand)
         elif start_irfan_view:
             ivcommand = ivpath + ' /filelist=' + dfilename
-            logger.info(ivcommand)
+            get_logger().info(ivcommand)
             subprocess.Popen(ivcommand, startupinfo=info)
     else:
         print_and_log('error', u'could not load' + dfilename)

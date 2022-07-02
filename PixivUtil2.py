@@ -82,7 +82,7 @@ __dbManager__ = None
 __br__: PixivBrowserFactory.PixivBrowser = None
 __blacklistTags = list()
 __suppressTags = list()
-__log__ = PixivHelper.get_logger()
+__log__ = None
 __errorList = list()
 __blacklistMembers = list()
 __blacklistTitles = list()
@@ -1564,6 +1564,7 @@ def main():
     global ERROR_CODE
     global __dbManager__
     global __valid_options
+    global __log__
 
     parser = setup_option_parser()
     (options, args) = parser.parse_args()
@@ -1593,16 +1594,19 @@ def main():
         # Yavos: use print option instead when program should be running even with this error
         # end new lines by Yavos
 
+    # load the configuration before start using logging!
+    try:
+        __config__.loadConfig(path=configfile)
+        PixivHelper.set_config(__config__)
+        __log__ = PixivHelper.get_logger(reload=True)
+    except BaseException:
+        PixivHelper.print_and_log("error", f'Failed to read configuration from {configfile}.')
+
     __log__.info('###############################################################')
     if len(sys.argv) == 0:
         __log__.info('Starting with no argument..')
     else:
         __log__.info('Starting with argument: [%s].', " ".join(sys.argv))
-    try:
-        __config__.loadConfig(path=configfile)
-        PixivHelper.set_config(__config__)
-    except BaseException:
-        PixivHelper.print_and_log("error", f'Failed to read configuration from {configfile}.')
 
     PixivHelper.set_log_level(__config__.logLevel)
     if __br__ is None:
