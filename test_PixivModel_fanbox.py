@@ -168,6 +168,33 @@ class TestPixivModel_Fanbox(unittest.TestCase):
 
         # result.posts[0].WriteInfo("./285502.txt")
 
+    def testFanboxPost_url_embed(self):
+        reader = open('./test/fanbox_urlembed.json', 'r', encoding="utf-8")
+        p = reader.read()
+        reader.close()
+
+        js = json.loads(p)
+
+        dummy_artist = FanboxArtist(1, "kurikara", "kurikara")
+
+        # https://www.fanbox.cc/@kurikara/posts/4071336 => https://api.fanbox.cc/post.info?postId=4071336
+        post = FanboxPost(4071336, dummy_artist, js["body"], None)
+
+        self.assertIsNotNone(post)
+
+        # post-201946 article
+        self.assertEqual(post.imageId, 4071336)
+        self.assertTrue(len(post.imageTitle) > 0)
+        self.assertEqual(post.coverImageUrl, "https://pixiv.pximg.net/fanbox/public/images/post/4071336/cover/17bKPzVXhXtTz8dCeDMDg8qR.jpeg")
+        self.assertEqual(post.type, "article")
+        self.assertEqual(len(post.images), 1)
+        self.assertEqual(len(post.descriptionUrlList), 2)
+
+        template = open('./template.html', 'r', encoding="utf-8").read()
+        post.WriteHtml(template, False, "./4071336.html")
+        self.assertEqual(len(post.body_text), 3598)
+
+        # result.posts[0].WriteInfo("./285502.txt")
     def testFanboxArtistPostsNextPage(self):
         # https://fanbox.pixiv.net/api/post.listCreator?userId=91029&maxPublishedDatetime=2019-07-25%2004%3A27%3A54&maxId=481268&limit=10
         reader = open('./test/Fanbox_artist_posts_nextpage.json', 'r', encoding="utf-8")

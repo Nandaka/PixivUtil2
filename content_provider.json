@@ -36,5 +36,28 @@
 			"format": "<a href='https://soundcloud.com/{0}'>soundcloud post: {0}</a>",
 			"ignore": false
 		}
+	}, 
+	"urlEmbedConfig": {
+		"html.card": {
+			"type": "html.card",
+			"keys": ["html"],
+			"get_link_keys": ["html"],
+			"format": "<p>{0}</p>",
+			"ignore": false
+		},
+		"html": {
+			"type": "html",
+			"keys": ["html"],
+			"get_link_keys": ["html"],
+			"format": "<p>{0}</p>",
+			"ignore": false
+		},
+		"fanbox.post": {
+			"type": "html.card",
+			"get_link_keys": ["postInfo.excerpt"],
+			"keys": ["postInfo.title", "postInfo.coverImageUrl", "postInfo.excerpt", "postInfo.creatorId", "postInfo.id"],
+			"format": "<h3><a href='https://www.fanbox.cc/@{3}/posts/{4}'>{0}</a></h3>\n<p><img src='{1}'/></p>\n<p>{2}</p>\n",
+			"ignore": false
+		}
 	}
 }

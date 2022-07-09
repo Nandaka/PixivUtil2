@@ -280,15 +280,17 @@ class FanboxPost(object):
                 elif block["type"] == "url_embed":  # Issue #1087
                     urlEmbedId = block["urlEmbedId"]
                     if urlEmbedId in jsPost["body"]["urlEmbedMap"]:
-                        embedType = jsPost["body"]["urlEmbedMap"][urlEmbedId]["type"]
-                        if embedType == "html.card":
-                            embedStr = jsPost["body"]["urlEmbedMap"][urlEmbedId]["html"]
-                            self.body_text += f"<p>{embedStr}</p>"
-                            links = _url_pattern.finditer(embedStr)
-                            for link in links:
-                                self.try_add(link.group(), self.descriptionUrlList)
-                        else:
-                            PixivHelper.print_and_log("warn", f"Unknown urlEmbedId's type: {urlEmbedId} for {self.imageId} => {embedType}")
+                        result = self.get_embed_url_data(jsPost["body"]["urlEmbedMap"][urlEmbedId], jsPost)
+                        self.body_text += "\n" + result
+                        # embedType = jsPost["body"]["urlEmbedMap"][urlEmbedId]["type"]
+                        # if embedType == "html.card":
+                        #     embedStr = jsPost["body"]["urlEmbedMap"][urlEmbedId]["html"]
+                        #     self.body_text += f"<p>{embedStr}</p>"
+                        #     links = _url_pattern.finditer(embedStr)
+                        #     for link in links:
+                        #         self.try_add(link.group(), self.descriptionUrlList)
+                        # else:
+                        #     PixivHelper.print_and_log("warn", f"Unknown urlEmbedId's type: {urlEmbedId} for {self.imageId} => {embedType}")
                     else:
                         PixivHelper.print_and_log("warn", f"Found missing urlEmbedId: {urlEmbedId} for {self.imageId}")
 
@@ -297,6 +299,53 @@ class FanboxPost(object):
             self.body_text += u"{0}<br />{1}".format(
                 self.body_text,
                 self.getEmbedData(jsPost["body"]["video"], jsPost))
+
+    def get_embed_url_data(self, embedData, jsPost) -> str:
+        # Issue #1133
+        content_provider_path = os.path.abspath(os.path.dirname(sys.executable) + os.sep + "content_provider.json")
+        if not os.path.exists(content_provider_path):
+            content_provider_path = os.path.abspath("./content_provider.json")
+        if not os.path.exists(content_provider_path):
+            raise PixivException(f"Missing content_provider.json, please get it from https://github.com/Nandaka/PixivUtil2/blob/master/content_provider.json! Expected location => {content_provider_path}",
+                                 errorCode=PixivException.MISSING_CONFIG,
+                                 htmlPage=None)
+
+        cfg = demjson3.decode_file(content_provider_path)
+        embed_cfg = cfg["urlEmbedConfig"]
+        current_provider = embedData["type"]
+
+        if current_provider in embed_cfg:
+            if embed_cfg[current_provider]["ignore"]:
+                return ""
+
+            # get urls from given keys
+            for key in embed_cfg[current_provider]["get_link_keys"]:
+                js_keys = key.split(".")
+                root = embedData
+                for js_key in js_keys:
+                    root = root[js_key]
+                links = _url_pattern.finditer(root)
+                for link in links:
+                    self.try_add(link.group(), self.descriptionUrlList)
+
+            # get all the keys to list
+            keys = list()
+            for key in embed_cfg[current_provider]["keys"]:
+                js_keys = key.split(".")
+                root = embedData
+                for js_key in js_keys:
+                    root = root[js_key]
+                keys.append(root)
+            template = embed_cfg[current_provider]["format"]
+
+            result = template.format(*keys)
+            return result
+
+        else:
+            msg = "Unsupported url embed provider = {0} for post = {1}, please update content_provider.json."
+            raise PixivException(msg.format(embedData["serviceProvider"], self.imageId),
+                                 errorCode=9999,
+                                 htmlPage=jsPost)
 
     def getEmbedData(self, embedData, jsPost) -> str:
         # Issue #881
