@@ -190,8 +190,8 @@ class TestPixivModel_Fanbox(unittest.TestCase):
         self.assertEqual(len(post.images), 1)
         self.assertEqual(len(post.descriptionUrlList), 2)
 
-        template = open('./template.html', 'r', encoding="utf-8").read()
-        post.WriteHtml(template, False, "./4071336.html")
+        # template = open('./template.html', 'r', encoding="utf-8").read()
+        # post.WriteHtml(template, False, "./4071336.html")
         self.assertEqual(len(post.body_text), 3598)
 
         # result.posts[0].WriteInfo("./285502.txt")
