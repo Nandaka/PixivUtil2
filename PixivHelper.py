@@ -1135,7 +1135,7 @@ def check_image_encoding(directory: str) -> None:
 
     # Append every images to their corresponding number of bit depth in a dictionnary
     for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
+        f = os.path.join(directory, os.sep, filename)
         # checking if it is a file
         if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
             fp = None
