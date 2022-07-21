@@ -938,6 +938,13 @@ http://www.pixiv.net/member_illust.php?id=123456
 %pattern<unicode>([\U0001d400-\U0001ffff])%%pattern<1>(_+)%%replace<1>(_)%
 ```
 
+# Development
+PixivUtil2 posesses robust test suite. To run it, one needs pytest suite:
+```
+pip install --user pytest
+
+pytest -v ./test_*
+```
 
 # Credits/Contributor
 - Nandaka (Main Developer) - https://nandaka.devnull.zone
