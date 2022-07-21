@@ -1083,12 +1083,10 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
 def create_temp_dir(prefix: str = None) -> str:
     d = tempfile.mkdtemp(prefix=prefix)
-    d = d.replace(os.sep, '/')
 
     # Issue #1035
     if not os.path.exists(d):
         new_temp = os.path.abspath(f"file_{int(datetime.now().timestamp())}")
-        new_temp = new_temp.replace(os.sep, '/')
         os.makedirs(new_temp)
         print_and_log("warn", f"Cannot create temp folder at {d}, using current folder as the temp location => {new_temp}")
         d = new_temp
@@ -1135,7 +1133,7 @@ def check_image_encoding(directory: str) -> None:
 
     # Append every images to their corresponding number of bit depth in a dictionnary
     for filename in os.listdir(directory):
-        f = os.path.join(directory, os.sep, filename)
+        f = os.path.join(directory + os.sep, filename)
         # checking if it is a file
         if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
             fp = None
@@ -1143,9 +1141,10 @@ def check_image_encoding(directory: str) -> None:
                 fp = open(f, "rb")
                 # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
                 ImageFile.LOAD_TRUNCATED_IMAGES = True
-                im = Image.open(fp)
-                nb_components = len(im.getbands())
-                dict_of_components[nb_components].append(f)
+                with Image.open(fp) as im:
+                    nb_components = len(im.getbands())
+                    dict_of_components[nb_components].append(f)
+                    im.close()
             except BaseException:
                 if fp is not None:
                     fp.close()
@@ -1180,7 +1179,7 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
     # Fix #1126
     cmd = f"{_config.ffmpeg} -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
 
-    ffmpeg_args = shlex.split(cmd)
+    ffmpeg_args = shlex.split(cmd, posix=False)
     get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
     p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
