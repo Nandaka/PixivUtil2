@@ -245,7 +245,7 @@ def download_image(caller,
                         raise
                 else:
                     PixivHelper.print_and_log('info', ' done.')
-                
+
                 # codecs.open is stateless, so if platform_encoding == utf-8-sig each new line starts from utf-8-sig
                 # this is bad and I feel bad
 
@@ -256,7 +256,7 @@ def download_image(caller,
 
                 # write to downloaded lists
                 if caller.start_iv or config.createDownloadLists:
-                    dfile = codecs.open(caller.dfilename, 'a+', encoding=caller.platform_encoding)
+                    dfile = codecs.open(caller.dfilename, 'a+', encoding=dfile_encoding)
                     dfile.write(filename_save + "\n")
                     dfile.close()
 
