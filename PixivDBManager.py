@@ -8,7 +8,7 @@ import sqlite3
 import sys
 from datetime import datetime
 
-import colorama
+# import colorama
 from colorama import Back, Fore, Style
 
 import PixivHelper
@@ -256,7 +256,7 @@ class PixivDBManager(object):
                             FROM {table}
                             ORDER BY member_id''')
                 for row in c:
-                        im_list.append(row[0])
+                    im_list.append(row[0])
             c.close()
             print('done.')
             return im_list
@@ -264,7 +264,7 @@ class PixivDBManager(object):
             print('Error at exportImageTable():', str(sys.exc_info()))
             print('failed')
             raise
-    
+
     def exportList(self, filename, include_artist_token=True):
         print('Exporting list...', end=' ')
         try:
@@ -1346,7 +1346,7 @@ class PixivDBManager(object):
 
     def menu(self):
         PADDING = 60
-        print('Pixiv DB Manager Console')
+        print(Fore.YELLOW + Back.BLACK + Style.BRIGHT + 'Pixiv DB Manager Console' + Style.RESET_ALL)
         print(Style.BRIGHT + '── Pixiv '.ljust(PADDING, "─") + Style.RESET_ALL)
         print('1. Show all member')
         print('2. Show all images')

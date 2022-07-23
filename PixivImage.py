@@ -479,7 +479,7 @@ class PixivImage (object):
 
     def WriteXMP(self, filename):
         import pyexiv2
-        import tempfile
+        # import tempfile
 
         # need to use temp file due to bad unicode support for pyexiv2 in windows
         d = PixivHelper.create_temp_dir(prefix="xmp")

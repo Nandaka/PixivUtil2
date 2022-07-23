@@ -304,6 +304,7 @@ def export_image_bookmark(caller,
         PixivHelper.print_and_log('error', 'Error at export_image_bookmark(): {0}'.format(sys.exc_info()))
         raise
 
+
 def export_image_table(caller, filename, pixiv, fanbox, sketch):
     export_list = list()
     table = list()
@@ -329,6 +330,7 @@ def export_image_table(caller, filename, pixiv, fanbox, sketch):
     except BaseException:
         PixivHelper.print_and_log('error', 'Error at export_image_table(): {0}'.format(sys.exc_info()))
         raise
+
 
 def get_bookmarks(caller, config, hide, start_page=1, end_page=0, member_id=None):
     br: PixivBrowser = caller.__br__

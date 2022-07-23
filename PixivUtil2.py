@@ -1442,6 +1442,7 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
             elif selection == 'u':
                 menu_ugoira_reencode(op_is_valid, args, options)
             elif selection == 'd':
+                PixivHelper.clearScreen()
                 __dbManager__.main()
             elif selection == 'r':
                 menu_reload_config()

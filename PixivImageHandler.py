@@ -442,6 +442,7 @@ def process_manga_series(caller,
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
         raise
 
+
 def process_ugoira_local(caller, config):
     directory = config.rootDirectory
     counter = 0
@@ -452,7 +453,7 @@ def process_ugoira_local(caller, config):
 
     try:
         print('')
-        for extension in ["ugoira", "zip"]: # always ugoira then zip
+        for extension in ["ugoira", "zip"]:  # always ugoira then zip
             for zip in pathlib.Path(directory).rglob(f'*.{extension}'):
                 zip_name = os.path.splitext(os.path.basename(zip))[0]
                 zip_dir = os.path.dirname(zip)
@@ -460,28 +461,28 @@ def process_ugoira_local(caller, config):
                 if image_id not in list_done:
                     counter += 1
                     PixivHelper.print_and_log(None, f"# Ugoira {counter}")
-                    PixivHelper.print_and_log("info", f"Deleting old animated files ...", newline = False)
+                    PixivHelper.print_and_log("info", "Deleting old animated files ...", newline=False)
                     d = PixivHelper.create_temp_dir(prefix="reencoding")
-                    
+
                     # List and move all files related to the image_id
                     for file in os.listdir(zip_dir):
-                        if os.path.isfile(os.path.join(zip_dir,file)) and zip_name in file:
+                        if os.path.isfile(os.path.join(zip_dir, file)) and zip_name in file:
                             file_basename = os.path.basename(file)
                             file_ext = os.path.splitext(file_basename)[1]
-                            if  ((("gif" in file_ext) and (config.createGif))           or
-                                (("png" in file_ext) and (config.createApng))           or
-                                (("webm" in file_ext) and (config.createWebm))          or
-                                (("webp" in file_ext) and (config.createWebp))          or
-                                (("ugoira"in file_ext) and (config.createUgoira))       or
-                                ("zip" in file_ext)):
-                                abs_file_path = os.path.abspath(os.path.join(zip_dir,file))
+                            if((("gif" in file_ext) and (config.createGif))
+                               or (("png" in file_ext) and (config.createApng))
+                               or (("webm" in file_ext) and (config.createWebm))
+                               or (("webp" in file_ext) and (config.createWebp))
+                               or (("ugoira" in file_ext) and (config.createUgoira))
+                               or ("zip" in file_ext)):
+                                abs_file_path = os.path.abspath(os.path.join(zip_dir, file))
                                 PixivHelper.print_and_log("debug", f"Moving {abs_file_path} to {d}")
                                 if ("zip" in file_ext) or ("ugoira" in file_ext):
                                     shutil.copy2(abs_file_path, os.path.join(d, file_basename))
                                 else:
                                     shutil.move(abs_file_path, os.path.join(d, file_basename))
-                    PixivHelper.print_and_log(None, f" done.")
-                    
+                    PixivHelper.print_and_log(None, " done.")
+
                     # Process artwork locally
                     if "ugoira" in extension and not config.overwrite:
                         try:
@@ -504,7 +505,7 @@ def process_ugoira_local(caller, config):
                                 PixivHelper.print_and_log('warn', f'Failed to process Image ID {image_id} locally: will retry with online infos')
                                 PixivHelper.print_and_log('debug', f'Removing corrupted ugoira {zip}')
                                 os.remove(zip)
-                    
+
                     # Process artwork with online infos
                     if "zip" in extension or res == PixivConstant.PIXIVUTIL_NOT_OK or ("ugoira" in extension and config.overwrite):
                         res = process_image(caller,
@@ -514,34 +515,34 @@ def process_ugoira_local(caller, config):
                                             useblacklist=False,
                                             reencoding=True)
                         if res == PixivConstant.PIXIVUTIL_NOT_OK:
-                            PixivHelper.print_and_log("warn", f"Cannot process Image Id: {image_id}, restoring old animated files...", newline = False)
+                            PixivHelper.print_and_log("warn", f"Cannot process Image Id: {image_id}, restoring old animated files...", newline=False)
                             for file_name in os.listdir(d):
                                 PixivHelper.print_and_log("debug", f"Moving back {os.path.join(d, file_name)} to {os.path.join(zip_dir, file_name)}")
-                                shutil.move(os.path.join(d, file_name), os.path.join(zip_dir, file_name)) # overwrite corrupted file generated
-                            PixivHelper.print_and_log(None, f" done.")
+                                shutil.move(os.path.join(d, file_name), os.path.join(zip_dir, file_name))  # overwrite corrupted file generated
+                            PixivHelper.print_and_log(None, " done.")
                             print('')
-                    
+
                     # Checking result
                     list_file_zipdir = os.listdir(zip_dir)
                     for file_name in os.listdir(d):
                         file_ext = os.path.splitext(file_name)[1]
                         if file_name not in list_file_zipdir and config.backupOldFile:
-                            if  ((config.createUgoira and not config.deleteUgoira and "ugoira" in file_ext) or
-                                (not config.deleteZipFile and "zip" in file_ext)                            or
-                                (config.createGif and "gif" in file_ext)                                    or
-                                (config.createApng and "png" in file_ext)                                   or
-                                (config.createWebm and "webm" in file_ext)                                  or
-                                (config.createWebp and "webp" in file_ext)):
+                            if((config.createUgoira and not config.deleteUgoira and "ugoira" in file_ext)
+                              or (not config.deleteZipFile and "zip" in file_ext)
+                              or (config.createGif and "gif" in file_ext)
+                              or (config.createApng and "png" in file_ext)
+                              or (config.createWebm and "webm" in file_ext)
+                              or (config.createWebp and "webp" in file_ext)):
                                 split_name = file_name.rsplit(".", 1)
                                 new_name = file_name + "." + str(int(time.time()))
                                 if len(split_name) == 2:
                                     new_name = split_name[0] + "." + str(int(time.time())) + "." + split_name[1]
                                 PixivHelper.print_and_log('warn', f"Could not found the animated file re-encoded ==> {file_name}, backing up to: {new_name}")
-                                PixivHelper.print_and_log('warn', f"The new encoded file may have another name or the artist may have change its name")
+                                PixivHelper.print_and_log('warn', "The new encoded file may have another name or the artist may have change its name.")
                                 PixivHelper.print_and_log("debug", f"Rename and move {os.path.join(d, file_name)} to {os.path.join(zip_dir, new_name)}")
                                 shutil.move(os.path.join(d, file_name), os.path.join(zip_dir, new_name))
                     print('')
-                    
+
                     # Delete temp path
                     if os.path.exists(d) and d != "":
                         PixivHelper.print_and_log("debug", f"Deleting path {d}")
@@ -549,11 +550,11 @@ def process_ugoira_local(caller, config):
                     list_done.append(image_id)
         if counter == 0:
             PixivHelper.print_and_log('info', "No zip file or ugoira found to re-encode animated files.")
-    
+
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
-        PixivHelper.print_and_log('error', 'Error at process_ugoira_local(): %s' %str(sys.exc_info()))
+        PixivHelper.print_and_log('error', 'Error at process_ugoira_local(): %s' % str(sys.exc_info()))
         PixivHelper.print_and_log('error', 'failed')
         raise
     finally:
