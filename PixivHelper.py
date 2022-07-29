@@ -760,15 +760,15 @@ def download_image(url, filename, res, file_size, overwrite):
     try:
         makeSubdirs(filename)
         save = open(filename + '.pixiv', 'wb+', 4096)
-    except IOError:
-        print_and_log('error', u"Error at download_image(): Cannot save {0} to {1}: {2}".format(url, filename, sys.exc_info()))
+    except IOError as ex:
+        print_and_log('error', f"Error at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
 
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
         filename = filename.split("?")[0]
         filename = sanitize_filename(filename)
         save = open(filename + '.pixiv', 'wb+', 4096)
-        print_and_log('info', u'File is saved to ' + filename)
+        print_and_log('info', f'File is saved to {filename}')
 
     # download the file
     prev = 0
@@ -783,12 +783,12 @@ def download_image(url, filename, res, file_size, overwrite):
             # check if downloaded file is complete
             if file_size > 0 and curr == file_size:
                 total_time = (datetime.now() - start_time).total_seconds()
-                print_and_log(None, f' Completed in {total_time}s ({speed_in_str(file_size, total_time)})')
+                print_and_log(None, f' Completed in {Fore.CYAN}{total_time}{Style.RESET_ALL}s ({Fore.RED}{speed_in_str(file_size, total_time)}{Style.RESET_ALL})')
                 break
 
             elif curr == prev:  # no file size info
                 total_time = (datetime.now() - start_time).total_seconds()
-                print_and_log(None, f' Completed in {total_time}s ({speed_in_str(curr, total_time)})')
+                print_and_log(None, f' Completed in {Fore.CYAN}{total_time}{Style.RESET_ALL}s ({Fore.RED}{speed_in_str(curr, total_time)}{Style.RESET_ALL})')
                 break
 
             prev = curr
@@ -800,15 +800,15 @@ def download_image(url, filename, res, file_size, overwrite):
         completed = True
         if file_size > 0 and curr < file_size:
             # File size is known and downloaded file is smaller
-            print_and_log('error', u'Downloaded file incomplete! {0:9} of {1:9} Bytes'.format(curr, file_size))
-            print_and_log('error', u'Filename = ' + filename)
-            print_and_log('error', u'URL      = {0}'.format(url))
+            print_and_log('error', f'Downloaded file incomplete! {curr:9} of {file_size:9} Bytes')
+            print_and_log('error', f'Filename = {filename}')
+            print_and_log('error', f'URL      = {url}')
             completed = False
         elif curr == 0:
             # No data received.
-            print_and_log('error', u'No data received!')
-            print_and_log('error', u'Filename = ' + filename)
-            print_and_log('error', u'URL      = {0}'.format(url))
+            print_and_log('error', 'No data received!')
+            print_and_log('error', f'Filename = {filename}')
+            print_and_log('error', f'URL      = {url}')
             completed = False
 
         if completed:
@@ -826,17 +826,19 @@ def download_image(url, filename, res, file_size, overwrite):
 def print_progress(curr, total, max_msg_length=80):
     # [12345678901234567890]
     # [████████------------]
-    animBarLen = 20
+    # [━╸                  ]
+    animBarLen = 40
 
     if total > 0:
         complete = int((curr * animBarLen) / total)
         remainder = (((curr * animBarLen) % total) / total)
         use_half_block = (remainder <= 0.5) and remainder > 0.1
+        color = f"{Fore.GREEN}{Style.BRIGHT}" if complete == animBarLen else Fore.RED
         if use_half_block:
-            with_half_block = f"{'█' * (complete - 1)}▌"
-            msg = f"\r[{with_half_block:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+            with_half_block = f"{'━' * (complete - 1)}╸"
+            msg = f"\r{color}[{with_half_block:{animBarLen}} ]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
         else:
-            msg = f"\r[{'█' * complete:{animBarLen}}] {size_in_str(curr)} of {size_in_str(total)}"
+            msg = f"\r{color}[{'━' * complete:{animBarLen}} ]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
 
     else:
         # indeterminite
@@ -845,7 +847,7 @@ def print_progress(curr, total, max_msg_length=80):
         # Use nested replacement field to specify the precision value. This limits the maximum print
         # length of the progress bar. As pos changes, the starting print position of the anim string
         # also changes, thus producing the scrolling effect.
-        msg = f'\r[{anim[animBarLen + 3 - pos:]:.{animBarLen}}] {size_in_str(curr)}'
+        msg = f'\r{Fore.YELLOW}[{anim[animBarLen + 3 - pos:]:.{animBarLen}}]{Style.RESET_ALL} {size_in_str(curr)}'
 
     curr_msg_length = len(msg)
     print_and_log(None, msg.ljust(max_msg_length, " "), newline=False)
