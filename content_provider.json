@@ -58,6 +58,13 @@
 			"keys": ["postInfo.title", "postInfo.coverImageUrl", "postInfo.excerpt", "postInfo.creatorId", "postInfo.id"],
 			"format": "<h3><a href='https://www.fanbox.cc/@{3}/posts/{4}'>{0}</a></h3>\n<p><img src='{1}'/></p>\n<p>{2}</p>\n",
 			"ignore": false
+		},
+		"default": {
+			"type": "default",
+			"get_link_keys": ["url"],
+			"keys": ["url", "host"],
+			"format": "<div><div><div><a href='{0}' ><div>{1}</div><div>{0}</div></a></div></div></div>",
+			"ignore": false
 		}
 	}
 }

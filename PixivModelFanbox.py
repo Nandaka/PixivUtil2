@@ -343,7 +343,7 @@ class FanboxPost(object):
 
         else:
             msg = "Unsupported url embed provider = {0} for post = {1}, please update content_provider.json."
-            raise PixivException(msg.format(embedData["serviceProvider"], self.imageId),
+            raise PixivException(msg.format(embedData["type"], self.imageId),
                                  errorCode=9999,
                                  htmlPage=jsPost)
 
