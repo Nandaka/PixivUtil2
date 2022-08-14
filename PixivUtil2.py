@@ -1678,7 +1678,7 @@ def main():
 
             import shlex
             cmd = f"{__config__.ffmpeg} -encoders"
-            ffmpeg_args = shlex.split(cmd)
+            ffmpeg_args = shlex.split(cmd, posix=False)
             try:
                 p = subprocess.run(ffmpeg_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, check=True)
                 buff = p.stdout

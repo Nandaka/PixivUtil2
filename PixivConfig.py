@@ -179,8 +179,8 @@ class PixivConfig():
         ConfigItem("FFmpeg", "webpCodec", "libwebp"),
         ConfigItem("FFmpeg", "webpParam", "-row-mt 1 -lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"),
         ConfigItem("FFmpeg", "gifParam",
-                   "-filter_complex \"[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle\""),
-        ConfigItem("FFmpeg", "apngParam", "-vf \"setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6\" -plays 0"),
+                   "-filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"),
+        ConfigItem("FFmpeg", "apngParam", "-vf setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6 -plays 0"),
         ConfigItem("FFmpeg", "verboseOutput", False),
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
