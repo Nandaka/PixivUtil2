@@ -254,7 +254,7 @@ class PixivImage (object):
 
         # Strip HTML tags from caption once they have been collected by the above statement.
         if self.stripHTMLTagsFromCaption:
-            self.imageCaption = BeautifulSoup(self.imageCaption, "lxml").text
+            self.imageCaption = BeautifulSoup(self.imageCaption, features="html5lib").text
 
         # Issue #1064
         if "titleCaptionTranslation" in root:
@@ -268,7 +268,7 @@ class PixivImage (object):
                 self.translated_work_caption = root["titleCaptionTranslation"]["workCaption"]
                 self.parse_url_from_caption(self.translated_work_caption)
                 if self.stripHTMLTagsFromCaption:
-                    self.translated_work_caption = BeautifulSoup(self.translated_work_caption, "lxml").text
+                    self.translated_work_caption = BeautifulSoup(self.translated_work_caption, features="html5lib").text
 
     def parse_url_from_caption(self, caption_to_parse):
         parsed = BeautifulSoup(caption_to_parse, features="html5lib")
