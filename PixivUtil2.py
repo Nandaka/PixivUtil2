@@ -1143,6 +1143,16 @@ def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
                 break
             else:
                 print("Invalid Content Type.")
+        while True:
+            print(f"Specify the ranking date, valid type is YYYYMMDD (default: today)")
+            date = input('Date: ').rstrip("\r").lower()
+            try:
+                if date != '':
+                    datetime.datetime.strptime(date, "%Y%m%d")
+            except Exception as ex:
+                PixivHelper.print_and_log("error", f"Invalid format for ranking date: {date}.")
+            else:
+                break
         (start_page, end_page) = PixivHelper.get_start_and_end_number()
 
     PixivRankingHandler.process_ranking(sys.modules[__name__],
