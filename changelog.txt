@@ -1,10 +1,18 @@
+20220825
+- Fix #1142 and #1152: Fanbox Service Provider error.
+- Update #814: support to import full cookies string.
+- Merge fix ugoira generation using ffmpeg.exe Windows path for all distribution (#1145) by @Toyem
+  - need to update `config.ini` in `[FFmpeg]` section if you have parameter error when encoding to gif.
+    `gifParam = -filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`
+- Fix #1146: update lxml with html5lib.
+
 20220804
-- Merge fix reencoding backup of files to follow ugoira config (#1131) by Toyem.
+- Merge fix reencoding backup of files to follow ugoira config (#1131) by @Toyem.
 - Implement #1133: enhance content_provider.json to support urlEmbed.
-- Merge Add a separator in temp folder cmd for windows (fix #1132) (#1135) by Toyem.
-- Merge fix ugoira generation and reencoding for all distribution for issue #1132 (#1136) by Toyem.
-- Merge Fix for #1138 (#1139) by NHOrus.
-- Merge Fixes Byte Order Mark in Downloaded file list, again. (#1137) by NHOrus.
+- Merge Add a separator in temp folder cmd for windows (fix #1132) (#1135) by @Toyem.
+- Merge fix ugoira generation and reencoding for all distribution for issue #1132 (#1136) by @Toyem.
+- Merge Fix for #1138 (#1139) by @NHOrus.
+- Merge Fixes Byte Order Mark in Downloaded file list, again. (#1137) by @NHOrus.
 - and other minor changes.
 
 20220701
