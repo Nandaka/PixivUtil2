@@ -5,6 +5,7 @@
   - need to update `config.ini` in `[FFmpeg]` section if you have parameter error when encoding to gif.
     `gifParam = -filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`
 - Fix #1146: update lxml with html5lib.
+- Merge Add date option to ranking download (#1149) by @Toyem
 
 20220804
 - Merge fix reencoding backup of files to follow ugoira config (#1131) by @Toyem.
