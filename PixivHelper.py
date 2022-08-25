@@ -1056,6 +1056,7 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
         ffmpeg_args = shlex.split(cmd, posix=False)
         get_logger().info(f"[convert_ugoira()] running with cmd: {cmd}")
+        get_logger().info(f"[convert_ugoira()] running with ffmpeg_args: {ffmpeg_args}")
         p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
 
         # progress report
@@ -1115,7 +1116,8 @@ def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
                     or chatter.lower().find("invalid") > 0 \
                     or chatter.lower().find("trailing options") > 0 \
                     or chatter.lower().find("cannot") > 0 \
-                    or chatter.lower().find("can't") > 0:
+                    or chatter.lower().find("can't") > 0 \
+                    or chatter.lower().find("no ") > 0:
                 print_and_log("error", chatter.strip())
             chatter = ""
         if len(buff) == 0:

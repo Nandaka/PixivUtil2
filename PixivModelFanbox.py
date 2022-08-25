@@ -342,10 +342,8 @@ class FanboxPost(object):
             return result
 
         else:
-            msg = "Unsupported url embed provider = {0} for post = {1}, please update content_provider.json."
-            raise PixivException(msg.format(embedData["type"], self.imageId),
-                                 errorCode=9999,
-                                 htmlPage=jsPost)
+            msg = f"Unsupported url embed provider = {embedData['type']} for post = {self.imageId}, please update content_provider.json."
+            raise PixivException(msg, errorCode=9999, htmlPage=jsPost)
 
     def getEmbedData(self, embedData, jsPost) -> str:
         # Issue #881
@@ -375,15 +373,11 @@ class FanboxPost(object):
                 content_format = embed_cfg[current_provider]["format"]
                 return content_format.format(content_id)
             else:
-                msg = "Empty content_id for embed provider = {0} for post = {1}, please update content_provider.json."
-                raise PixivException(msg.format(embedData["serviceProvider"], self.imageId),
-                                     errorCode=9999,
-                                     htmlPage=jsPost)
+                msg = f"Empty content_id for embed provider = {embedData['serviceProvider']} for post = {self.imageId}, please update content_provider.json."
+                raise PixivException(msg, errorCode=9999, htmlPage=jsPost)
         else:
-            msg = "Unsupported embed provider = {0} for post = {1}, please update content_provider.json."
-            raise PixivException(msg.format(embedData["serviceProvider"], self.imageId),
-                                 errorCode=9999,
-                                 htmlPage=jsPost)
+            msg = f"Unsupported embed provider = {embedData['serviceProvider']} for post = {self.imageId}, please update content_provider.json."
+            raise PixivException(msg, errorCode=9999, htmlPage=jsPost)
 
     def parseImages(self, jsPost):
         for image in jsPost["body"]["images"]:
