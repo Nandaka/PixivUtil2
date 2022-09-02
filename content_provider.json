@@ -59,6 +59,13 @@
 			"format": "<h3><a href='https://www.fanbox.cc/@{3}/posts/{4}'>{0}</a></h3>\n<p><img src='{1}'/></p>\n<p>{2}</p>\n",
 			"ignore": false
 		},
+        "fanbox.creator": {
+			"type": "fanbox.creator",
+			"get_link_keys": ["profile.description"],
+			"keys": ["profile.creatorId", "profile.coverImageUrl", "profile.user.iconUrl", "profile.user.name", "profile.description"],
+			"format": "\n\n<div style='width: 80%; margin: auto; border-style: dashed;'><div><img src='{1}'/></div><div><h3><img src='{2}'/><a href='https://{0}.fanbox.cc/'>{3}</a></h3></div><pre>{4}</pre></div>\n\n",
+			"ignore": false
+		},
 		"default": {
 			"type": "default",
 			"get_link_keys": ["url"],
