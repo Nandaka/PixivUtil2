@@ -50,8 +50,8 @@ def process_tags(caller,
         last_image_id = -1
         skipped_count = 0
         use_bookmark_data = False
-        if bookmark_count is not None and bookmark_count > 0:
-            use_bookmark_data = True
+        #if bookmark_count is not None and bookmark_count > 0:
+        #    use_bookmark_data = True
 
         offset = PixivTags.POSTS_PER_PAGE
         start_offset = (page - 1) * offset
@@ -109,7 +109,7 @@ def process_tags(caller,
                     PixivHelper.print_and_log(None, f'Image #{images}')
                     PixivHelper.print_and_log(None, f'Image Id: {item.imageId}')
 
-                    if bookmark_count is not None and bookmark_count > item.bookmarkCount:
+                    if use_bookmark_data and bookmark_count > item.bookmarkCount:
                         PixivHelper.print_and_log(None, f'Bookmark Count: {item.bookmarkCount}')
                         PixivHelper.print_and_log('info', f'Skipping imageId= {item.imageId} because less than bookmark count limit ({bookmark_count} > {item.bookmarkCount}).')
                         skipped_count = skipped_count + 1
@@ -144,7 +144,7 @@ def process_tags(caller,
                                                                          user_dir=root_dir,
                                                                          search_tags=search_tags,
                                                                          title_prefix=title_prefix,
-                                                                         bookmark_count=item.bookmarkCount,
+                                                                         bookmark_count=bookmark_count,
                                                                          image_response_count=item.imageResponse,
                                                                          notifier=notifier)
                                 PixivHelper.wait(result, config)

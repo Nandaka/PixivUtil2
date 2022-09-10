@@ -864,7 +864,7 @@ class PixivBrowser(mechanize.Browser):
                     result.parseTags(response_page, tags, current_page)
 
                     # parse additional information
-                    if use_bookmark_data:
+                    if 0:
                         idx = 0
                         print("Retrieving bookmark information...", end=' ')
                         for image in result.itemList:
@@ -889,6 +889,7 @@ class PixivBrowser(mechanize.Browser):
                                 image_info_js["body"]["bookmarkCount"])
                             image.imageResponse = int(
                                 image_info_js["body"]["responseCount"])
+                            PixivHelper.wait(result, self._config)
                     print("")
                 except BaseException:
                     PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
