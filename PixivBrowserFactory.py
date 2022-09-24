@@ -864,7 +864,7 @@ class PixivBrowser(mechanize.Browser):
                     result.parseTags(response_page, tags, current_page)
 
                     # parse additional information
-                    if 0:
+                    if 0:  # Disabled, see #1159 #1160
                         idx = 0
                         print("Retrieving bookmark information...", end=' ')
                         for image in result.itemList:
