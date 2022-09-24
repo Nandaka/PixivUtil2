@@ -747,9 +747,9 @@ Available for filenameFormat and filenameMangaFormat:
 -> %page_big%
    for manga mode, add big in the filename.
 -> %page_index%
-   for manga mode, add page number with 0-index.
+   for manga mode, add page number with 0-index. It will auto-pad with 0 based on the total count.
 -> %page_number%
-   for manga mode, add page number with 1-index.
+   for manga mode, add page number with 1-index. It will auto-pad with 0 based on the total count.
 -> %bookmark%
    for bookmark mode, add 'Bookmarks' string.
 -> %original_member_id%
