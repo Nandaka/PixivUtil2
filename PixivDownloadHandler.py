@@ -226,6 +226,9 @@ def download_image(caller,
                         check_result = None
                         try:
                             check_result = zf.testzip()
+                        # Issue #1165
+                        except NotImplementedError as ne:
+                            PixivHelper.print_and_log('warn', f' {ne}')
                         except RuntimeError as e:
                             if 'encrypted' in str(e):
                                 PixivHelper.print_and_log('info', ' archive is encrypted, cannot verify.')
