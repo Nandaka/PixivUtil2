@@ -33,14 +33,13 @@ from colorama import Fore, Style
 from PIL import Image, ImageFile
 
 import PixivArtist
-import PixivConfig
 import PixivConstant
 from PixivException import PixivException
 from PixivImage import PixivImage
 from PixivModelFanbox import FanboxArtist, FanboxPost
 
 __logger = None
-_config: PixivConfig = None
+_config = None
 __re_manga_index = re.compile(r'_p(\d+)')
 __badchars__ = None
 if platform.system() == 'Windows':

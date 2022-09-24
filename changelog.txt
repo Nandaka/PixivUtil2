@@ -1,3 +1,12 @@
+20220924
+- Update #1156: add support for url provider 'fanbox.creator'.
+- Merge bookmark skip function improvement (#1160) by @Yuki.
+- Implement #1162: add disableScreenClear in config.ini in debug section,
+- Implement #1165: Skip retry if the archive file format not supported.
+- Update #1167: change default downloadDelay to 5s.
+- Update #1116: update readme.md
+- Increase download buffer size from 8kB to 128kB.
+
 20220825
 - Fix #1142 and #1152: Fanbox Service Provider error.
 - Update #814: support to import full cookies string.
