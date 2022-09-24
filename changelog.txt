@@ -6,6 +6,7 @@
 - Update #1167: change default downloadDelay to 5s.
 - Update #1116: update readme.md
 - Increase download buffer size from 8kB to 128kB.
+- update compiled version to use Python 3.10.7 64-bit.
 
 20220825
 - Fix #1142 and #1152: Fanbox Service Provider error.
