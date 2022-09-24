@@ -63,7 +63,7 @@ class PixivConfig():
         ConfigItem("Network", "timeout", 60),
         ConfigItem("Network", "retry", 3),
         ConfigItem("Network", "retryWait", 5),
-        ConfigItem("Network", "downloadDelay", 2),
+        ConfigItem("Network", "downloadDelay", 5),
         ConfigItem("Network", "checkNewVersion", True),
         ConfigItem("Network", "notifyBetaVersion", True),
         ConfigItem("Network", "openNewVersion", True),
