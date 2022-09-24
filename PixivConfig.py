@@ -78,6 +78,7 @@ class PixivConfig():
         ConfigItem("Debug", "dumpTagSearchPage", False),
         ConfigItem("Debug", "debugHttp", False),
         ConfigItem("Debug", "disableLog", False),
+        ConfigItem("Debug", "disableScreenClear", False),
 
         ConfigItem("IrfanView", "IrfanViewPath", r"C:\Program Files\IrfanView", followup=os.path.expanduser),
         ConfigItem("IrfanView", "startIrfanView", False),
