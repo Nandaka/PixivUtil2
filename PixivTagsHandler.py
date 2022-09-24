@@ -50,8 +50,9 @@ def process_tags(caller,
         last_image_id = -1
         skipped_count = 0
         use_bookmark_data = False
-        #if bookmark_count is not None and bookmark_count > 0:
-        #    use_bookmark_data = True
+        # Disabled, see #1159 #1160
+        # if bookmark_count is not None and bookmark_count > 0:
+        #     use_bookmark_data = True
 
         offset = PixivTags.POSTS_PER_PAGE
         start_offset = (page - 1) * offset
