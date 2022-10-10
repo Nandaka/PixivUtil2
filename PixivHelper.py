@@ -1030,9 +1030,10 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
     tempname = d + os.sep + "temp." + extension
 
-    cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
-    if codec is None:
-        cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat {param} {tempname}"
+    cmd = f"{ffmpeg} -y -safe 0 -reinit_filter 0 -i {d}{os.sep}i.ffconcat "
+    if codec is not None:
+        cmd += f"-c:v {codec} "
+    cmd += f"{param} {tempname}"
 
     try:
         frames = {}
@@ -1053,8 +1054,6 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
         with open(d + f"{os.sep}i.ffconcat", "w") as f:
             f.write(ffconcat)
-
-        check_image_encoding(d)
 
         ffmpeg_args = shlex.split(cmd, posix=False)
         get_logger().info(f"[convert_ugoira()] running with cmd: {cmd}")
@@ -1125,87 +1124,6 @@ def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
         if len(buff) == 0:
             break
     return p
-
-
-# Issue 1109
-def check_image_encoding(directory: str) -> None:
-    """
-    Check if images in the temporary folder have the same amount of component of there bit depth
-    """
-    nb_channel_max = 4
-    dict_of_components = dict()
-    for i in range(nb_channel_max):
-        dict_of_components[i] = list()
-
-    # Append every images to their corresponding number of bit depth in a dictionnary
-    for filename in os.listdir(directory):
-        f = os.path.join(directory + os.sep, filename)
-        # checking if it is a file
-        if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
-            fp = None
-            try:
-                fp = open(f, "rb")
-                # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
-                ImageFile.LOAD_TRUNCATED_IMAGES = True
-                with Image.open(fp) as im:
-                    nb_components = len(im.getbands())
-                    dict_of_components[nb_components].append(f)
-                    im.close()
-            except BaseException:
-                if fp is not None:
-                    fp.close()
-                print_and_log('error', ' Image {f} invalid during check_image_encoding() , deleting...')
-                os.remove(f)
-                raise
-
-    # Get the maximum amount of component of bit depth from the batch of images and convert thoses below it
-    re_encode = False
-    re_encode_channel = nb_channel_max
-    for i in range(nb_channel_max, 0, -1):
-        if re_encode:
-            for file in dict_of_components[i - 1]:
-                re_encode_image(re_encode_channel, file)
-
-        if (len(dict_of_components[i - 1]) != 0) and not(re_encode):
-            re_encode = True
-            re_encode_channel = i - 1
-
-
-def re_encode_image(nb_channel: int, im_path: str) -> None:
-    """
-    Re-encode image with less component of there bit depth into a greater amount determine by images with the most component of there bit depth
-    """
-    print_and_log("debug", f"Procced to change {im_path} image for a pixel format with {nb_channel} components ")
-
-    # use filters with the most component of bit depth to make sure conversion run smoothly
-    pix_fmt_nb_components = {1: "grayf32be", 2: "ya16be", 3: "gbrpf32be", 4: "gbrapf32be"}
-
-    split_tup = os.path.splitext(im_path)
-    temp_name = f"{split_tup[0]}_temp{split_tup[1]}"
-    # Fix #1126
-    cmd = f"{_config.ffmpeg} -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
-
-    ffmpeg_args = shlex.split(cmd, posix=False)
-    get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
-    p = subprocess.Popen(ffmpeg_args, stderr=subprocess.PIPE)
-
-    # progress report
-    print_and_log('debug', f"Start re_encoding image {im_path}")
-    p = ffmpeg_progress_report(p)
-    p.wait()
-
-    if(p.returncode != 0):
-        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERROR)
-
-    if os.path.exists(im_path) and os.path.exists(temp_name):
-        try:
-            os.remove(im_path)
-            os.rename(temp_name, im_path)
-        except Exception as ex:
-            get_logger().error("[re_encode_image()] Unknown exception: ", ex)
-            raise PixivException(f"Cannot create remove or rename the temp file => {im_path}", errorCode=PixivException.OTHER_ERROR)
-    else:
-        print_and_log("error", f"Failed to modify {im_path} because the file or its re-encoded version {temp_name} does not exist ")
 
 
 def parse_date_time(worksDate, dateFormat):
