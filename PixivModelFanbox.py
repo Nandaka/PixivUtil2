@@ -91,7 +91,14 @@ class FanboxPost(object):
     def parsePost(self, jsPost):
         self.imageTitle = jsPost["title"]
 
-        coverUrl = jsPost["coverImageUrl"]
+        # Issue 1181
+        if jsPost.get("coverImageUrl"):
+            coverUrl = jsPost["coverImageUrl"]
+        else:
+           if jsPost.get("cover") and jsPost["cover"] is not None:
+              coverUrl = jsPost["cover"]["url"]
+           else:
+              coverUrl = None
         # Issue #930
         if not self.coverImageUrl and coverUrl:
             self.coverImageUrl = _re_fanbox_cover.sub("fanbox", coverUrl)
