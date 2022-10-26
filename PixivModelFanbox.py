@@ -341,7 +341,7 @@ class FanboxPost(object):
                 js_keys = key.split(".")
                 root = embedData
                 for js_key in js_keys:
-                    if js_key == "url" and not root.get(js_key):
+                    if js_key == "url" and root is None:
                         root = None
                     else:
                         root = root[js_key]
