@@ -394,7 +394,10 @@
                             "name": "くりから",
                             "iconUrl": "https://pixiv.pximg.net/c/160x160_90_a2_g5/fanbox/public/images/user/24176/icon/zB9nJnJXIzJZpKncOMcB7UqM.jpeg"
                         },
-                        "coverImageUrl": "https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/2440017/cover/9UpNbKhFOxa07nw0x0TGhOHv.jpeg",
+                        "cover": {
+                            "type": "cover_image",
+                            "url": "https://pixiv.pximg.net/c/1200x630_90_a2_g5/fanbox/public/images/post/2440017/cover/9UpNbKhFOxa07nw0x0TGhOHv.jpeg"
+                        },
                         "excerpt": "Twitterでも告知したのですがこちらでも改めまして。\n現在発売中のペンギンクラブ2021年08月号にて\n「パイズリ専門風俗パイデルン」のep02を描かせて頂きました。\nhttps://www.s2comix.com/Magazines/view/m01\n今回はおっとりとしたお姉さんに優しくちんちん挟んでもらえるお話です。\nぱふぱふ→授乳手コキ→馬乗りパイズ...",
                         "publishedDatetime": "2021-07-03T21:02:31+09:00"
                     }
