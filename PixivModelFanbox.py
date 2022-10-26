@@ -341,7 +341,10 @@ class FanboxPost(object):
                 js_keys = key.split(".")
                 root = embedData
                 for js_key in js_keys:
-                    root = root[js_key]
+                    if js_key == "url" and not root.get(js_key):
+                        root = None
+                    else:
+                        root = root[js_key]
                 keys.append(root)
             template = embed_cfg[current_provider]["format"]
 
