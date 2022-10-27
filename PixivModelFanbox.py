@@ -95,7 +95,7 @@ class FanboxPost(object):
         if jsPost.get("coverImageUrl"):
             coverUrl = jsPost["coverImageUrl"]
         else:
-           if jsPost.get("cover") and jsPost["cover"] is not None:
+           if jsPost.get("cover") and jsPost["cover"] is not None and jsPost["cover"]["type"] == "cover_image":
               coverUrl = jsPost["cover"]["url"]
            else:
               coverUrl = None
@@ -341,7 +341,8 @@ class FanboxPost(object):
                 js_keys = key.split(".")
                 root = embedData
                 for js_key in js_keys:
-                    if js_key == "url" and root is None:
+                    if js_key == "cover" and (root["cover"] is None or root["cover"]["type"] != "cover_image"):
+                        root = None
                         break
                     else:
                         root = root[js_key]
