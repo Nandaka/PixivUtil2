@@ -1,8 +1,15 @@
 # VSCode files
 .vscode/*
 *.code-workspace
-# virtual env
-venv
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+# others
 Downloaded*.txt
 _backup/*
 build/*
