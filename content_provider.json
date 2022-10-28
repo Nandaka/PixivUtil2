@@ -55,7 +55,7 @@
 		"fanbox.post": {
 			"type": "fanbox.post",
 			"get_link_keys": ["postInfo.excerpt"],
-			"keys": ["postInfo.title", "postInfo.coverImageUrl", "postInfo.excerpt", "postInfo.creatorId", "postInfo.id"],
+			"keys": ["postInfo.title", "postInfo.cover.url", "postInfo.excerpt", "postInfo.creatorId", "postInfo.id"],
 			"format": "<h3><a href='https://www.fanbox.cc/@{3}/posts/{4}'>{0}</a></h3>\n<p><img src='{1}'/></p>\n<p>{2}</p>\n",
 			"ignore": false
 		},
