@@ -1,3 +1,7 @@
+20221029
+- Merge Fix issue with fanbox coverImageUrl (#1181) (#1185) by @KamenReader
+- Update #1184: fix .gitignore for venv. 
+
 20220924
 - Update #1156: add support for url provider 'fanbox.creator'.
 - Merge bookmark skip function improvement (#1160) by @Yuki.
