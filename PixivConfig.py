@@ -151,6 +151,7 @@ class PixivConfig():
 
         ConfigItem("Pixiv", "numberOfPage", 0),
         ConfigItem("Pixiv", "r18mode", False),
+        ConfigItem("Pixiv", "r18Type", 0),  # Issue #439
         ConfigItem("Pixiv", "dateFormat", ""),
         ConfigItem("Pixiv", "autoAddMember", False),
 

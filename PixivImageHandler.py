@@ -141,6 +141,20 @@ def process_image(caller,
                         result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
                         break
 
+            # Issue #439
+            if config.r18Type == 1 and download_image_flag:
+                # only download R18 if r18Type = 1
+                if 'R-18G' in (tag.upper() for tag in image.imageTags):
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} because it has R-18G tag.')
+                    download_image_flag = False
+                    result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+            elif config.r18Type == 2 and download_image_flag:
+                # only download R18G if r18Type = 2
+                if 'R-18' in (tag.upper() for tag in image.imageTags):
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} because it has R-18 tag.')
+                    download_image_flag = False
+                    result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+
             if config.useBlacklistTitles and download_image_flag:
                 if config.useBlacklistTitlesRegex:
                     for item in caller.__blacklistTitles:
