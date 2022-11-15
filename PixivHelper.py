@@ -764,6 +764,7 @@ def download_image(url, filename, res, file_size, overwrite):
         save = open(filename + '.pixiv', 'wb+', 4096)
     except IOError as ex:
         print_and_log('error', f"Error at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
+        input("Press enter to continue or Ctrl+C to abort.")  # Issue #1187
 
         # get the actual server filename and use it as the filename for saving to current app dir
         filename = os.path.split(url)[1]
@@ -794,6 +795,9 @@ def download_image(url, filename, res, file_size, overwrite):
                 break
 
             prev = curr
+    except OSError as ex:
+        print_and_log('error', f"Error at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
+        input("Press enter to continue or Ctrl+C to abort.")  # Issue #1187
 
     finally:
         if save is not None:
