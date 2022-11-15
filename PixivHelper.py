@@ -87,9 +87,9 @@ def get_logger(level=None, reload=False):
                     level = _config.logLevel
             __logger.setLevel(level)
             __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
-                                                                maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
-                                                                backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
-                                                                encoding="utf-8")
+                                                                  maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
+                                                                  backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
+                                                                  encoding="utf-8")
             __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
             __logHandler__.setFormatter(__formatter__)
             __logger.addHandler(__logHandler__)
@@ -1066,7 +1066,7 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         p = ffmpeg_progress_report(p)
         ret = p.wait()
 
-        if(p.returncode != 0):
+        if (p.returncode != 0):
             print_and_log("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.")
         else:
             print_and_log("info", f"- Done with status = {ret}")
@@ -1166,7 +1166,7 @@ def check_image_encoding(directory: str) -> None:
             for file in dict_of_components[i - 1]:
                 re_encode_image(re_encode_channel, file)
 
-        if (len(dict_of_components[i - 1]) != 0) and not(re_encode):
+        if (len(dict_of_components[i - 1]) != 0) and not (re_encode):
             re_encode = True
             re_encode_channel = i - 1
 
@@ -1194,7 +1194,7 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
     p = ffmpeg_progress_report(p)
     p.wait()
 
-    if(p.returncode != 0):
+    if (p.returncode != 0):
         raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERROR)
 
     if os.path.exists(im_path) and os.path.exists(temp_name):

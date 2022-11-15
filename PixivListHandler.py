@@ -122,6 +122,7 @@ def process_tags_list(caller,
                                           use_tags_as_dir=config.useTagsAsDir,
                                           bookmark_count=bookmark_count,
                                           sort_order=sort_order)
+            PixivHelper.wait(config=config)
     except Exception as ex:
         if isinstance(ex, KeyboardInterrupt):
             raise
