@@ -281,15 +281,15 @@ def process_image(caller,
                         if image.imageMode == 'manga':
                             filename_info_format = config.filenameMangaInfoFormat or config.filenameMangaFormat or filename_info_format
                         info_filename = PixivHelper.make_filename(filename_info_format,
-                                                                image,
-                                                                tagsSeparator=config.tagsSeparator,
-                                                                tagsLimit=config.tagsLimit,
-                                                                fileUrl=url,
-                                                                appendExtension=False,
-                                                                bookmark=bookmark,
-                                                                searchTags=search_tags,
-                                                                useTranslatedTag=config.useTranslatedTag,
-                                                                tagTranslationLocale=config.tagTranslationLocale)
+                                                                    image,
+                                                                    tagsSeparator=config.tagsSeparator,
+                                                                    tagsLimit=config.tagsLimit,
+                                                                    fileUrl=url,
+                                                                    appendExtension=False,
+                                                                    bookmark=bookmark,
+                                                                    searchTags=search_tags,
+                                                                    useTranslatedTag=config.useTranslatedTag,
+                                                                    tagTranslationLocale=config.tagTranslationLocale)
                         info_filename = PixivHelper.sanitize_filename(info_filename, target_dir)
                         image.WriteXMP(info_filename + ".xmp")
 
@@ -469,7 +469,7 @@ def process_ugoira_local(caller, config):
                         if os.path.isfile(os.path.join(zip_dir, file)) and zip_name in file:
                             file_basename = os.path.basename(file)
                             file_ext = os.path.splitext(file_basename)[1]
-                            if((("gif" in file_ext) and (config.createGif))
+                            if ((("gif" in file_ext) and (config.createGif))
                                or (("png" in file_ext) and (config.createApng))
                                or (("webm" in file_ext) and (config.createWebm))
                                or (("webp" in file_ext) and (config.createWebp))
@@ -527,12 +527,12 @@ def process_ugoira_local(caller, config):
                     for file_name in os.listdir(d):
                         file_ext = os.path.splitext(file_name)[1]
                         if file_name not in list_file_zipdir and config.backupOldFile:
-                            if((config.createUgoira and not config.deleteUgoira and "ugoira" in file_ext)
-                              or (not config.deleteZipFile and "zip" in file_ext)
-                              or (config.createGif and "gif" in file_ext)
-                              or (config.createApng and "png" in file_ext)
-                              or (config.createWebm and "webm" in file_ext)
-                              or (config.createWebp and "webp" in file_ext)):
+                            if ((config.createUgoira and not config.deleteUgoira and "ugoira" in file_ext)
+                                 or (not config.deleteZipFile and "zip" in file_ext)
+                                 or (config.createGif and "gif" in file_ext)
+                                 or (config.createApng and "png" in file_ext)
+                                 or (config.createWebm and "webm" in file_ext)
+                                 or (config.createWebp and "webp" in file_ext)):
                                 split_name = file_name.rsplit(".", 1)
                                 new_name = file_name + "." + str(int(time.time()))
                                 if len(split_name) == 2:

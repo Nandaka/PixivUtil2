@@ -1071,7 +1071,9 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         ret = p.wait()
 
         if (p.returncode != 0):
-            print_and_log("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.")
+            msg = f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0."
+            print_and_log("error", msg)
+            raise PixivException(msg, errorCode=PixivException.UGOIRA_CONVERSION_ERROR)  # Issue #1176
         else:
             print_and_log("info", f"- Done with status = {ret}")
             shutil.move(tempname, exportname)
