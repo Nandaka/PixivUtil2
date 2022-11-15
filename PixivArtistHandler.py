@@ -150,7 +150,7 @@ def process_member(caller,
                         if artist.totalImages > 0:
                             # PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
                             total_image_page_count = artist.totalImages
-                            if(offset_stop > 0 and offset_stop < total_image_page_count):
+                            if (offset_stop > 0 and offset_stop < total_image_page_count):
                                 total_image_page_count = offset_stop
                             total_image_page_count = total_image_page_count - offset_start
                             # PixivHelper.safePrint("Total Images Offset = " + str(total_image_page_count))
