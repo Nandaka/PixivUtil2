@@ -49,7 +49,6 @@ class PixivBrowser(mechanize.Browser):
     _locale = ""
 
     _is_logged_in_to_FANBOX = False
-    _orig_getaddrinfo = None
 
     __oauth_manager = None
 
@@ -113,12 +112,6 @@ class PixivBrowser(mechanize.Browser):
         mechanize.Browser.back(self)
         return
 
-    def getaddrinfo(self, *args):
-        try:
-            return self._orig_getaddrinfo(*args)
-        except socket.gaierror:
-            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
-
     def _configureBrowser(self, config):
         if config is None:
             PixivHelper.get_logger().info("No config given")
@@ -133,17 +126,20 @@ class PixivBrowser(mechanize.Browser):
             if config.proxyAddress.startswith('socks'):
                 parseResult = urllib.parse.urlparse(config.proxyAddress)
                 assert parseResult.scheme and parseResult.hostname and parseResult.port
-                socksType = socks.PROXY_TYPE_SOCKS5 if parseResult.scheme == 'socks5' else socks.PROXY_TYPE_SOCKS4
-                PixivHelper.get_logger().info(f"Using SOCKS5 Proxy= {parseResult.hostname}:{parseResult.port}")
+                socksType = socks.PROXY_TYPE_SOCKS5 if 'socks5' in parseResult.scheme else socks.PROXY_TYPE_SOCKS4
+                PixivHelper.get_logger().info(f"Using SOCKS5 Proxy= {parseResult.hostname}:{parseResult.port} @ {parseResult.username}")
 
                 # https://stackoverflow.com/a/14512227
-                socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port)
+                socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port,
+                                      True, parseResult.username, parseResult.password)
                 socket.socket = socks.socksocket
 
-                # https://github.com/Nandaka/PixivUtil2/issues/592#issuecomment-659516296
-                if self._orig_getaddrinfo is None:
-                    self._orig_getaddrinfo = socket.getaddrinfo
-                socket.getaddrinfo = self._orig_getaddrinfo
+                # https://stackoverflow.com/a/13214222 and 
+                # https://github.com/Anorov/PySocks/issues/22
+                def getaddrinfo(*args):
+                    return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+                self._orig_getaddrinfo = socket.getaddrinfo
+                socket.getaddrinfo = getaddrinfo
 
             else:
                 self.set_proxies(config.proxy)
