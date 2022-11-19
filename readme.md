@@ -216,6 +216,7 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
       id, dump html, and log file (check on the application folder).
 
 Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
+    - Update version to > pixivutil20221029.
     - This is because the Pixiv downloader cannot resolve the address to
       download the images, please try to restart the network connection or do
       ipconfig /flushdns to refresh the dns cache (windows).
