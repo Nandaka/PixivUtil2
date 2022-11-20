@@ -92,8 +92,8 @@ class PixivConfig():
         ConfigItem("Settings", "downloadAvatar", False),
         ConfigItem("Settings", "useSuppressTags", False),
         ConfigItem("Settings", "tagsLimit", -1),
-        ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
+        ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeRawJSON", False),
         ConfigItem("Settings", "RawJSONFilter",
                    "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
@@ -223,7 +223,7 @@ class PixivConfig():
         value = getattr(self, "proxyAddress", None)
         if not value:
             return None
-        match = re.match(r"^(?:(https?|socks[45])://)?([\w.-]+)(:\d+)?$", value)
+        match = re.match(r"^(?:(https?|socks[45]h?)://)?([\w.-]+)(:\d+)?$", value)
         if not match:
             return None
         scheme, netloc, port = match.groups()
