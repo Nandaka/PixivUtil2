@@ -624,7 +624,7 @@ Please refer run with `--help` for latest information.
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm.
+  Parameter to be used to encode webp.
   default is `lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999`
 
 ## [Ugoira]
