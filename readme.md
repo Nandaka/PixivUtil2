@@ -501,14 +501,14 @@ Please refer run with `--help` for latest information.
 
   Number of tags to be used for %tags% meta in filename.
   Use -1 to use all tags.
-- writeimageinfo
-
-  Set to `True` to export the image information to text file.
-  The filename is following `filename(Manga)Infoformat` + .txt.
 - writeImageJSON
 
   Set to `True` to export the image information to JSON.
   The filename is following `filename(Manga)Infoformat` + .json.
+- writeimageinfo
+
+  Set to `True` to export the image information to text file.
+  The filename is following `filename(Manga)Infoformat` + .txt.
 - writeRawJSON
 
   Set to `True` to export the image JSON untouched.
@@ -516,7 +516,7 @@ Please refer run with `--help` for latest information.
 - RawJSONFilter
 
   Enter the JSON keys which you want to filter out. Keys are seperated by a comma.
-- writeSeriesJSON
+- includeSeriesJSON
 
   Set to `True` to export the series information to JSON.
   The filename is following `filenameSeriesJSON` + .json.
@@ -528,7 +528,7 @@ Please refer run with `--help` for latest information.
   Set to `True` to export the image information to a .XMP sidecar file, one per image in the album. The data contained within the file is the same but some software requires matching file names to detect the metadata. If set to `True`, then `writeImageXMP` is ignored.
 - verifyimage
 
-  Do image and zip checking after download. Set the value to `True` to enable.
+  Check if downloaded files is valid image or zip. Set the value to `True` to enable.
 - writeUrlInDescription
 
   Write all url found in the image description to a text file. Set to `True` to enable. The list will be saved to to the application folder as url_list_<timestamp>.txt
@@ -702,6 +702,9 @@ Please refer run with `--help` for latest information.
 
   For sanitizing filenames with custom rules. Supports regular expressions.
   For detailed syntax, please refer to 'Bad chars' section.
+- customCleanUpRe
+  
+  TODO.
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
