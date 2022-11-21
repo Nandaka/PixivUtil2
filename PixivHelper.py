@@ -985,7 +985,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to apng...')
     # fix #796 convert apng using ffmpeg
     if len(_config.apngParam) == 0:
-        _config.apngParam = "-vf setpts=PTS-STARTPTS,hqdn3d=1.5:1.5:6:6 -plays 0"
+        _config.apngParam = "-plays 0"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -998,7 +998,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
 def ugoira2webp(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to webp...')
     if len(_config.webpParam) == 0:
-        _config.webpParam = "-lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999"
+        _config.webpParam = "-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 2"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1011,7 +1011,7 @@ def ugoira2webp(ugoira_file, exportname, image=None):
 def ugoira2webm(ugoira_file, exportname, codec="libvpx-vp9", extension="webm", image=None):
     print_and_log('info', 'Processing ugoira to webm...')
     if len(_config.ffmpegParam) == 0:
-        _config.ffmpegParam = "-vsync 2 -r 999 -pix_fmt yuv420p"
+        _config.ffmpegParam = "-lossless 0 -crf 15 -b 0 -vsync 2"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
