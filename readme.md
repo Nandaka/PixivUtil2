@@ -620,13 +620,13 @@ Please refer run with `--help` for latest information.
   The file extension (container format) to use for encoding. default: `webm`.
 - ffmpegparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 2`.
+  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 0`.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 2`
+  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`
 
 ## [Ugoira]
 - writeugoirainfo
