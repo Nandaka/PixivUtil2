@@ -559,6 +559,7 @@ Please refer run with `--help` for latest information.
 
   Skip if file size is more than minFileSize, set `0` to disable.
 - checkLastModified
+
   If the last-modified timestamp of the local files is the same with the uploaded date of the artwork, it'll log "match" and skip to process the current image_id.
   Require `setlastmodified = True` in config.ini to work properly
 - alwaysCheckFileSize
