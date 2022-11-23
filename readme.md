@@ -342,6 +342,9 @@ Please refer run with `--help` for latest information.
 - r18mode
 
   Only list images tagged R18, for member, member's bookmark, and search by tag. Set to `True` to enable.
+- r18Type
+
+  0: All; 1: R18; 2: R18G
 - dateformat
 
   Pixiv DateTime format, leave blank to use default format (YYYY-MM-DD).
