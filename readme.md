@@ -611,20 +611,22 @@ Please refer run with `--help` for latest information.
 ## [FFmpeg]
 - ffmpeg
 
-  Path to ffmpeg executable.
+  ffmpeg executable path.
 - ffmpegcodec
 
-  Codec to be used for encoding webm, default is using `libvpx-vp9`.
+  Codec to be used for encoding, default is using `libvpx-vp9`.
+- ffmpegExt
+  
+  The file extension (container format) to use for encoding. default: `webm`.
 - ffmpegparam
 
-  Parameter to be used to encode webm. default is `-lossless 1 -vsync 2 -r 999 -pix_fmt yuv420p`
+  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 0`.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm.
-  default is `lossless 0 -q:v 90 -loop 0 -vsync 2 -r 999`
+  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`
 
 ## [Ugoira]
 - writeugoirainfo
