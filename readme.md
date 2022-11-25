@@ -216,6 +216,7 @@ Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
       id, dump html, and log file (check on the application folder).
 
 Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
+    - Update version to > pixivutil20221029.
     - This is because the Pixiv downloader cannot resolve the address to
       download the images, please try to restart the network connection or do
       ipconfig /flushdns to refresh the dns cache (windows).
@@ -341,6 +342,9 @@ Please refer run with `--help` for latest information.
 - r18mode
 
   Only list images tagged R18, for member, member's bookmark, and search by tag. Set to `True` to enable.
+- r18Type
+
+  0: All; 1: R18; 2: R18G
 - dateformat
 
   Pixiv DateTime format, leave blank to use default format (YYYY-MM-DD).
@@ -500,14 +504,14 @@ Please refer run with `--help` for latest information.
 
   Number of tags to be used for %tags% meta in filename.
   Use -1 to use all tags.
-- writeimageinfo
-
-  Set to `True` to export the image information to text file.
-  The filename is following `filename(Manga)Infoformat` + .txt.
 - writeImageJSON
 
-  Set to `True` to export the image information to JSON.
+  Set to `True` to export the entire original information for the image from the source to JSON.
   The filename is following `filename(Manga)Infoformat` + .json.
+- writeimageinfo
+
+  Set to `True` to export the image information to text file. This is a subset info extracted from the `writeImageJSON`.
+  The filename is following `filename(Manga)Infoformat` + .txt.
 - writeRawJSON
 
   Set to `True` to export the image JSON untouched.
@@ -515,9 +519,9 @@ Please refer run with `--help` for latest information.
 - RawJSONFilter
 
   Enter the JSON keys which you want to filter out. Keys are seperated by a comma.
-- writeSeriesJSON
+- includeSeriesJSON
 
-  Set to `True` to export the series information to JSON.
+  Set to `True` to export the series information to JSON. Non-series artwork doesn't have this info.
   The filename is following `filenameSeriesJSON` + .json.
 - writeImageXMP
 
@@ -527,10 +531,10 @@ Please refer run with `--help` for latest information.
   Set to `True` to export the image information to a .XMP sidecar file, one per image in the album. The data contained within the file is the same but some software requires matching file names to detect the metadata. If set to `True`, then `writeImageXMP` is ignored.
 - verifyimage
 
-  Do image and zip checking after download. Set the value to `True` to enable.
+  Check if downloaded files are valid image or zip. Set the value to `True` to enable.
 - writeUrlInDescription
 
-  Write all url found in the image description to a text file. Set to `True` to enable. The list will be saved to to the application folder as url_list_<timestamp>.txt
+  Write all url found in the image description to a text file at the root directory. Set to `True` to enable. The list will be saved to to the application folder as url_list_<timestamp>.txt
 - stripHTMLTagsFromCaption
 
   Remove all HTML tags and their contents from the image caption/description when writing metadata to files. The contents of any links will be lost, so consider enabling writeUrlInDescription to retain them.
@@ -542,7 +546,7 @@ Please refer run with `--help` for latest information.
   Use different database.
 - setLastModified
 
-  Set last modified timestamp based on pixiv upload timestamp.
+  Set last modified timestamp based on pixiv upload timestamp to the file.
 - useLocalTimezone
 
   Use local timezone when setting last modified timestamp/works date.
@@ -557,9 +561,17 @@ Please refer run with `--help` for latest information.
 - maxFileSize
 
   Skip if file size is more than minFileSize, set `0` to disable.
+- checkLastModified
+
+  If the last-modified timestamp of the local files is the same with the uploaded date of the artwork, it'll log "match" and skip to process the current image_id.
+  Require `setlastmodified = True` in config.ini to work properly
+- alwaysCheckFileSize
+
+  Actually, it'll always check the file size. But if `this` is false, if the `overwrite` is also false and this file is recorded in db, it'll skip to process the current image_id.
+  This will override the image_id checking from db (always fetch the image page to check the remote size).
 - overwrite
 
-  Overwrite old files, set `False` to disable.
+  If is true, when found file size different, it'll just delete the file (unless the backupOldFile is true), then start to re-download the image.
 - backupOldFile
 
   Set to True to backup old file if the file size is different.
@@ -567,10 +579,6 @@ Please refer run with `--help` for latest information.
 - daylastupdated
 
   Only process member_id which were processed at least x days since the last check.
-- alwaysCheckFileSize
-
-  Check the file size, if different then it will be downloaded again, set `False` to disable.
-  This will override the image_id checking from db (always fetch the image page to check the remote size).
 - checkUpdatedLimit
 
   Jump to the next member id if already see n-number of previously downloaded images.
@@ -600,10 +608,6 @@ Please refer run with `--help` for latest information.
 - downloadResized
 
   Download the medium size, rather than the original size.
-- checkLastModified
-
-  Compare local file's last-modified timestamp with works date.
-  Require `setlastmodified = True` in config.ini to work properly
 - skipUnknownSize
 
   Skip downloading if the remote size is not known when `alwaysCheckFileSize` is set to True.
@@ -626,39 +630,39 @@ Please refer run with `--help` for latest information.
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`
+  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`.
 
 ## [Ugoira]
 - writeugoirainfo
 
-  If set to `True`, it will dump the .js to external file.
+  If set to `True`, it will write the info of ugoira frames to a `filename(Manga)Infoformat`+.zip.js file. `writeImageJSON` contains this info as well.
 - createugoira
 
   If set to `True`, it will create .ugoira file.
   This is Pixiv own format for animated images. You can use Honeyview to see the animation.
-- deleteZipFile
+- createwebm
 
-  If set to `True`, it will delete the zip files from ugoira.
-  Only active if `createUgoira = True`.
+  Set to True to create webm file (video format). The default encoding settings is lossy encoding but high quality with smallest file size.
+  Required `createUgoira = True` and ffmpeg executeable.
+- createwebp
+
+  Set to True to create webp file (image format). The default encoding settings is lossy encoding but high quality with smaller file size.
+  Required `createUgoira = True` and ffmpeg executeable.
 - creategif
 
-  Set to True to convert ugoira file to gif.
+  Set to True to convert ugoira file to gif. The default encoding settings is lossy encoding but moderate quality with smaller file size.
   Required `createUgoira = True` and ffmpeg executeable.
 - createapng
 
-  Set to True to convert ugoira file to animated png.
+  Set to True to convert ugoira file to animated png. The default encoding settings is lossless encoding but very large file size.
   Required `createUgoira = True` and ffmpeg executeable.
 - deleteugoira
 
   Set to True to delete original ugoira after conversion.
-- createwebm
+- deleteZipFile
 
-  Set to True to create webm file (video format).
-  Required `createUgoira = True` and ffmpeg executeable.
-- createwebp
-
-  Set to True to create webp file (image format).
-  Required `createUgoira = True` and ffmpeg executeable.
+  If set to `True`, it will delete the zip files from ugoira.
+  Only active if `createUgoira = True`.
 
 ## [Filename]
 - filenameformat
@@ -703,6 +707,9 @@ Please refer run with `--help` for latest information.
 
   For sanitizing filenames with custom rules. Supports regular expressions.
   For detailed syntax, please refer to 'Bad chars' section.
+- customCleanUpRe
+  
+  TODO.
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,

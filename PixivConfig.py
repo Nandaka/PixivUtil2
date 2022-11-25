@@ -92,8 +92,8 @@ class PixivConfig():
         ConfigItem("Settings", "downloadAvatar", False),
         ConfigItem("Settings", "useSuppressTags", False),
         ConfigItem("Settings", "tagsLimit", -1),
-        ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeImageJSON", False),
+        ConfigItem("Settings", "writeImageInfo", False),
         ConfigItem("Settings", "writeRawJSON", False),
         ConfigItem("Settings", "RawJSONFilter",
                    "id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion"),
@@ -187,19 +187,20 @@ class PixivConfig():
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
         ConfigItem("Ugoira", "createUgoira", False),
-        ConfigItem("Ugoira", "deleteZipFile", False),
+        ConfigItem("Ugoira", "createWebm", False),
+        ConfigItem("Ugoira", "createWebp", False),
         ConfigItem("Ugoira", "createGif", False),
         ConfigItem("Ugoira", "createApng", False),
         ConfigItem("Ugoira", "deleteUgoira", False),
-        ConfigItem("Ugoira", "createWebm", False),
-        ConfigItem("Ugoira", "createWebp", False),
+        ConfigItem("Ugoira", "deleteZipFile", False),
 
         ConfigItem("DownloadControl", "minFileSize", 0),
         ConfigItem("DownloadControl", "maxFileSize", 0),
+        ConfigItem("DownloadControl", "checkLastModified", True),
+        ConfigItem("DownloadControl", "alwaysCheckFileSize", False),
         ConfigItem("DownloadControl", "overwrite", False),
         ConfigItem("DownloadControl", "backupOldFile", False),
         ConfigItem("DownloadControl", "dayLastUpdated", 7),
-        ConfigItem("DownloadControl", "alwaysCheckFileSize", False),
         ConfigItem("DownloadControl", "checkUpdatedLimit", 0),
         ConfigItem("DownloadControl", "useBlacklistTags", False),
         ConfigItem("DownloadControl", "useBlacklistTitles", False),
@@ -208,7 +209,6 @@ class PixivConfig():
         ConfigItem("DownloadControl", "enableInfiniteLoop", False),
         ConfigItem("DownloadControl", "useBlacklistMembers", False),
         ConfigItem("DownloadControl", "downloadResized", False),
-        ConfigItem("DownloadControl", "checkLastModified", True),
         ConfigItem("DownloadControl", "skipUnknownSize", False),
         ConfigItem("DownloadControl", "enablePostProcessing", False),
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
@@ -223,7 +223,7 @@ class PixivConfig():
         value = getattr(self, "proxyAddress", None)
         if not value:
             return None
-        match = re.match(r"^(?:(https?|socks[45])://)?([\w.-]+)(:\d+)?$", value)
+        match = re.match(r"^(?:(https?|socks[45]h?)://)?([\w.-]+)(:\d+)?$", value)
         if not match:
             return None
         scheme, netloc, port = match.groups()
