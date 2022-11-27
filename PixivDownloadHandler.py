@@ -81,7 +81,11 @@ def download_image(caller,
                         PixivHelper.print_and_log('info', f"\rLocal file timestamp match with remote: {filename} => {image.worksDateDateTime}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
-                remote_file_size = get_remote_filesize(url, referer, config, notifier) if does_file_exist else -1
+                if does_file_exist:
+                    remote_file_size = get_remote_filesize(url, referer, config, notifier)
+                else:
+                    remote_file_size = -1
+                    PixivHelper.print_and_log(None, f"\rSkipped getting remote file size because local file not exists")
 
                 # 837
                 if config.skipUnknownSize and does_file_exist and remote_file_size == -1:
