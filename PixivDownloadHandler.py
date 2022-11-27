@@ -65,24 +65,26 @@ def download_image(caller,
         req = None
         try:
             try:
+                does_file_exist = os.path.isfile(filename_save)
+
                 if not overwrite and not config.alwaysCheckFileSize:
                     PixivHelper.print_and_log(None, '\rChecking local filename...', newline=False)
-                    if os.path.isfile(filename_save):
+                    if does_file_exist:
                         PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 # Issue #807
-                if config.checkLastModified and os.path.isfile(filename_save) and image is not None:
+                if config.checkLastModified and does_file_exist and image is not None:
                     local_timestamp = os.path.getmtime(filename_save)
                     remote_timestamp = time.mktime(image.worksDateDateTime.timetuple())
                     if local_timestamp == remote_timestamp:
                         PixivHelper.print_and_log('info', f"\rLocal file timestamp match with remote: {filename} => {image.worksDateDateTime}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
-                remote_file_size = get_remote_filesize(url, referer, config, notifier)
+                remote_file_size = get_remote_filesize(url, referer, config, notifier) if does_file_exist else -1
 
                 # 837
-                if config.skipUnknownSize and os.path.isfile(filename_save) and remote_file_size == -1:
+                if config.skipUnknownSize and does_file_exist and remote_file_size == -1:
                     PixivHelper.print_and_log('info', f"\rSkipped because file exists and cannot get remote file size for: {filename}")
                     return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
@@ -98,7 +100,7 @@ def download_image(caller,
                 # check if existing ugoira file exists
                 if filename.endswith(".zip"):
                     # non-converted zip (no animation.json)
-                    if os.path.isfile(filename_save):
+                    if does_file_exist:
                         old_size = os.path.getsize(filename_save)
                         # update for #451, always return identical?
                         check_result = PixivHelper.check_file_exists(overwrite, filename_save, remote_file_size, old_size, backup_old_file)
@@ -115,7 +117,7 @@ def download_image(caller,
                             handle_ugoira(image, filename_save, config, notifier)
 
                             return (check_result, filename)
-                elif os.path.isfile(filename_save):
+                elif does_file_exist:
                     # other image? files
                     old_size = os.path.getsize(filename_save)
                     check_result = PixivHelper.check_file_exists(overwrite, filename, remote_file_size, old_size, backup_old_file)
@@ -193,7 +195,7 @@ def download_image(caller,
                     os.rename(old_filename_save, filename_save)
 
                 # set last-modified and last-accessed timestamp
-                if image is not None and config.setLastModified and filename_save is not None and os.path.isfile(filename_save):
+                if image is not None and config.setLastModified and filename_save is not None and does_file_exist:
                     ts = time.mktime(image.worksDateDateTime.timetuple())
                     os.utime(filename_save, (ts, ts))
 
