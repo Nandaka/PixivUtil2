@@ -26,7 +26,7 @@ PIXIVUTIL_ABORTED = 9999
 
 HTML_TEMPLATE = '<!DOCTYPE html> <html lang="ja"> <head> <title>%artistName% - %imageTitle%</title> <meta charset="utf-8"> <style type="text/css"> *{margin:0px; padding:0px; max-width:100%; overflow:auto;} body{text-align:center; background-color:#f3f5f8;} h1, h2, h5, p{text-align:left;} h1, h2, h5, p{padding-left:4%; padding-right:4%;} p{word-break:break-word; padding-top:0.5em; padding-bottom:0.5em;} span{padding:0px;} .title{margin-top:2rem; margin-bottom:2rem;} a{margin:auto;} .root{max-width:1280px; margin:auto; background-color:#ffffff;} .caption{display:grid;} .non-article.main, .non-article.images{position:fixed; overflow-y:scroll; background-color:#ffffff;} .non-article.main{top:0px; left:0px; height:100%; width:360px;} .non-article.images{top:0px; left:360px; height:100%;} @media screen and (max-aspect-ratio:4/5){.non-article.main{height:25%; width:100%;} .non-article.images{top:25%; left:0px; height:75%; width:100%;}} </style> </head> <body> <div class="root"> <div class="main"> %coverImage% <div class="title"> <h1>%imageTitle%</h1> <h5>%worksDate%</h5> </div> %body_text(article)% %text(non-article)% </div> %images(non-article)% </div> </body> </html>'
 
-BUFFER_SIZE = 1024 * 128
+BUFFER_SIZE = 512 * 1024
 
 DOWNLOAD_PIXIV = "Pixiv"
 DOWNLOAD_FANBOX = "Fanbox"
