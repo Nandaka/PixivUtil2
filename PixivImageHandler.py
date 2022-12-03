@@ -304,8 +304,8 @@ def process_image(caller,
                                                                     searchTags=search_tags,
                                                                     useTranslatedTag=config.useTranslatedTag,
                                                                     tagTranslationLocale=config.tagTranslationLocale)
-                        info_filename = PixivHelper.sanitize_filename(info_filename, target_dir)
-                        image.WriteXMP(info_filename + ".xmp")
+                        info_filename = PixivHelper.sanitize_filename(info_filename + ".xmp", target_dir)
+                        image.WriteXMP(info_filename)
 
             if config.writeImageInfo or config.writeImageJSON or config.writeImageXMP:
                 filename_info_format = config.filenameInfoFormat or config.filenameFormat
@@ -322,25 +322,25 @@ def process_image(caller,
                                                           searchTags=search_tags,
                                                           useTranslatedTag=config.useTranslatedTag,
                                                           tagTranslationLocale=config.tagTranslationLocale)
-                info_filename = PixivHelper.sanitize_filename(info_filename, target_dir)
                 # trim _pXXX
                 info_filename = re.sub(r'_p?\d+$', '', info_filename)
+                info_filename = PixivHelper.sanitize_filename(info_filename + ".infoext", target_dir)
                 if config.writeImageInfo:
-                    image.WriteInfo(info_filename + ".txt")
+                    image.WriteInfo(info_filename[:-8] + ".txt")
                 if config.writeImageJSON:
-                    image.WriteJSON(info_filename + ".json", config.RawJSONFilter)
+                    image.WriteJSON(info_filename[:-8] + ".json", config.RawJSONFilter)
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
                     json_filename = PixivHelper.make_filename(config.filenameSeriesJSON,
                                                               image,
                                                               fileUrl=url,
                                                               appendExtension=False
                                                               )
-                    json_filename = PixivHelper.sanitize_filename(json_filename, target_dir)
                     # trim _pXXX
                     json_filename = re.sub(r'_p?\d+$', '', json_filename)
-                    image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename + ".json")
+                    json_filename = PixivHelper.sanitize_filename(json_filename + ".json", target_dir)
+                    image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename)
                 if config.writeImageXMP and not config.writeImageXMPPerImage:
-                    image.WriteXMP(info_filename + ".xmp")
+                    image.WriteXMP(info_filename[:-8] + ".xmp")
 
             if image.imageMode == 'ugoira_view':
                 if config.writeUgoiraInfo:
