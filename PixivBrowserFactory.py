@@ -134,7 +134,7 @@ class PixivBrowser(mechanize.Browser):
                                       True, parseResult.username, parseResult.password)
                 socket.socket = socks.socksocket
 
-                # https://stackoverflow.com/a/13214222 and 
+                # https://stackoverflow.com/a/13214222 and
                 # https://github.com/Anorov/PySocks/issues/22
                 def getaddrinfo(*args):
                     return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
@@ -230,7 +230,8 @@ class PixivBrowser(mechanize.Browser):
                     raise PixivException(f"Failed to get page: {temp}, please check your internet connection/firewall/antivirus.",
                                          errorCode=PixivException.SERVER_ERROR)
 
-    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True) -> Union[str, BeautifulSoup]:
+    # def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True, enable_cache=True) -> Union[str, BeautifulSoup]:
+    def getPixivPage(self, url, referer="https://www.pixiv.net", enable_cache=True) -> str:
         ''' get page from pixiv and return as parsed BeautifulSoup object or response object.
 
             throw PixivException as server error
@@ -271,9 +272,9 @@ class PixivBrowser(mechanize.Browser):
                         else:
                             raise PixivException(f"Failed to get page: {url}", errorCode=PixivException.SERVER_ERROR)
 
-            if returnParsed:
-                parsedPage = BeautifulSoup(read_page, features="html5lib")
-                return parsedPage
+            # if returnParsed:
+            #     parsedPage = BeautifulSoup(read_page, features="html5lib")
+            #     return parsedPage
             return read_page
 
     def fixUrl(self, url, useHttps=True):
@@ -304,25 +305,25 @@ class PixivBrowser(mechanize.Browser):
                 elif name in ("login_ever"):
                     domain = ".www.pixiv.net"
                 ck = http.cookiejar.Cookie(version=0, name=name, value=value, port=None,
-                                        port_specified=False, domain=domain, domain_specified=False,
-                                        domain_initial_dot=False, path='/', path_specified=True,
-                                        secure=False, expires=None, discard=True, comment=None,
-                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+                                           port_specified=False, domain=domain, domain_specified=False,
+                                           domain_initial_dot=False, path='/', path_specified=True,
+                                           secure=False, expires=None, discard=True, comment=None,
+                                           comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
                 self.addCookie(ck)
 
         else:
             if "pixiv.net" in domain:
                 ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                                        port_specified=False, domain='pixiv.net', domain_specified=False,
-                                        domain_initial_dot=False, path='/', path_specified=True,
-                                        secure=False, expires=None, discard=True, comment=None,
-                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+                                           port_specified=False, domain='pixiv.net', domain_specified=False,
+                                           domain_initial_dot=False, path='/', path_specified=True,
+                                           secure=False, expires=None, discard=True, comment=None,
+                                           comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
             elif "fanbox.cc" in domain:
                 ck = http.cookiejar.Cookie(version=0, name='FANBOXSESSID', value=cookie_value, port=None,
-                                        port_specified=False, domain='fanbox.cc', domain_specified=False,
-                                        domain_initial_dot=False, path='/', path_specified=True,
-                                        secure=False, expires=None, discard=True, comment=None,
-                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+                                           port_specified=False, domain='fanbox.cc', domain_specified=False,
+                                           domain_initial_dot=False, path='/', path_specified=True,
+                                           secure=False, expires=None, discard=True, comment=None,
+                                           comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
             if ck is not None:
                 self.addCookie(ck)
 
@@ -343,23 +344,26 @@ class PixivBrowser(mechanize.Browser):
             self.clearCookie()
             self._loadCookie(login_cookie, "pixiv.net")
             res = self.open_with_retry('https://www.pixiv.net/')
-            parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
+            parsed = BeautifulSoup(res, features="html5lib")
+            parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
             res.close()
+            parsed.decompose()
+            del parsed
 
-            if "logout.php" in str(parsed):
+            if "logout.php" in parsed_str:
                 result = True
-            if "pixiv.user.loggedIn = true" in str(parsed):
+            if "pixiv.user.loggedIn = true" in parsed_str:
                 result = True
-            if "_gaq.push(['_setCustomVar', 1, 'login', 'yes'" in str(parsed):
+            if "_gaq.push(['_setCustomVar', 1, 'login', 'yes'" in parsed_str:
                 result = True
-            if "var dataLayer = [{ login: 'yes'," in str(parsed):
+            if "var dataLayer = [{ login: 'yes'," in parsed_str:
                 result = True
 
             if result:
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.get_logger().info('Logged in using cookie')
-                self.getMyId(parsed)
+                self.getMyId(parsed_str)
                 temp_locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
                 if len(temp_locale) > 0:
                     self._locale = '/' + temp_locale
@@ -368,7 +372,6 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().info('Failed to log in using cookie')
                 PixivHelper.print_and_log('info', 'Cookie already expired/invalid.')
 
-            del parsed
         return result
 
     def fanboxLoginUsingCookie(self, login_cookie=None):
@@ -389,16 +392,17 @@ class PixivBrowser(mechanize.Browser):
             req.add_header('User-Agent', self._config.useragent)
             try:
                 res = self.open_with_retry(req)
-                parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
+                parsed = BeautifulSoup(res, features="html5lib")
                 PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
                 res.close()
             except BaseException:
                 PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie(): %s', sys.exc_info())
                 self.cookiejar.clear("fanbox.cc")
 
-            if '"user":{"isLoggedIn":true' in str(parsed):
+            if '"user":{"isLoggedIn":true' in str(parsed.decode('utf-8')):
                 result = True
                 self._is_logged_in_to_FANBOX = True
+            parsed.decompose()
             del parsed
 
         if result:
@@ -438,16 +442,17 @@ class PixivBrowser(mechanize.Browser):
         p_req = mechanize.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
         try:
             p_res = self.open_with_retry(p_req)
-            parsed = BeautifulSoup(p_res, features="html5lib").decode('utf-8')
+            parsed = BeautifulSoup(p_res, features="html5lib")
             p_res.close()
         except BaseException:
             PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
             return False
 
         result = False
-        if '"user":{"isLoggedIn":true' in str(parsed):
+        if '"user":{"isLoggedIn":true' in str(parsed.decode('utf-8')):
             result = True
             self._is_logged_in_to_FANBOX = True
+        parsed.decompose()
         del parsed
 
         if result:
@@ -522,14 +527,15 @@ class PixivBrowser(mechanize.Browser):
 
             # check whitecube
             res = self.open_with_retry(result["body"]["success"]["return_to"])
-            parsed = BeautifulSoup(res, features="html5lib").decode('utf-8')
-            self.getMyId(parsed)
+            parsed = BeautifulSoup(res, features="html5lib")
+            self.getMyId(parsed.decode('utf-8'))
             res.close()
 
             # store the username and password in memory for oAuth login
             self._config.username = username
             self._config.password = password
 
+            parsed.decompose()
             del parsed
             return True
         else:
@@ -613,7 +619,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
         # https://www.pixiv.net/en/artworks/76656661
         url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=False)
+        response = self.getPixivPage(url, enable_cache=False)
         self.handleDebugMediumPage(response, image_id)
 
         # Issue #355 new ui handler
@@ -844,7 +850,7 @@ class PixivBrowser(mechanize.Browser):
                                                       locale=self._locale)
 
             PixivHelper.print_and_log('info', f'Looping... for {url}')
-            response_page = self.getPixivPage(url, returnParsed=False)
+            response_page = self.getPixivPage(url)
             self.handleDebugTagSearchPage(response_page, url)
 
             result = None
@@ -1134,7 +1140,7 @@ class PixivBrowser(mechanize.Browser):
         if self._locale is not None and len(self._locale) > 0:
             locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/series/{manga_series_id}?p={current_page}{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         if returnJSON:
             return response
         manga_series = PixivMangaSeries(manga_series_id, current_page, payload=response)
@@ -1158,7 +1164,7 @@ class PixivBrowser(mechanize.Browser):
         if self._locale is not None and len(self._locale) > 0:
             locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/novel/{novel_id}?{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
 
         _tzInfo = None
         if self._config.useLocalTimezone:
@@ -1179,7 +1185,7 @@ class PixivBrowser(mechanize.Browser):
 
         # https://www.pixiv.net/ajax/novel/series/1328575?lang=en
         url = f"https://www.pixiv.net/ajax/novel/series/{novel_series_id}?{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         novel_series = NovelSeries(novel_series_id, series_json=response)
         return novel_series
 
@@ -1196,7 +1202,7 @@ class PixivBrowser(mechanize.Browser):
         params_str = "&".join(params)
         novel_series_id = novel_series.series_id
         url = f"https://www.pixiv.net/ajax/novel/series_content/{novel_series_id}?{params_str}{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         novel_series.parse_series_content(response, current_page)
         return novel_series
 
@@ -1209,7 +1215,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 locale = f"&lang={self._locale}"
         url = f"https://www.pixiv.net/ajax/follow_latest/illust?p={current_page}&mode={mode}{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         PixivHelper.get_logger().info(f"Source URL: {url}")
         pb = PixivNewIllustBookmark(response)
 
@@ -1229,7 +1235,7 @@ class PixivBrowser(mechanize.Browser):
             url = f"{url}&content={content}"
         url = f"{url}&p={page}&format=json"
 
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         result = PixivRanking(response, filter)
         return result
 
@@ -1245,7 +1251,7 @@ class PixivBrowser(mechanize.Browser):
 
         # https://www.pixiv.net/ajax/illust/new?lastId=97097963&limit=20&type=illust&r18=true&lang=en
         url = f"https://www.pixiv.net/ajax/illust/new?lastId={last_id}&limit={limit}&type={type_mode}&r18={str(r18).lower()}{locale}"
-        response = self.getPixivPage(url, returnParsed=False, enable_cache=True)
+        response = self.getPixivPage(url, enable_cache=True)
         result = PixivNewIllust(response, type_mode)
         return result
 

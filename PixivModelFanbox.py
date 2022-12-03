@@ -95,10 +95,10 @@ class FanboxPost(object):
         if jsPost.get("coverImageUrl"):
             coverUrl = jsPost["coverImageUrl"]
         else:
-           if jsPost.get("cover") and jsPost["cover"] is not None and jsPost["cover"]["type"] == "cover_image":
-              coverUrl = jsPost["cover"]["url"]
-           else:
-              coverUrl = None
+            if jsPost.get("cover") and jsPost["cover"] is not None and jsPost["cover"]["type"] == "cover_image":
+                coverUrl = jsPost["cover"]["url"]
+            else:
+                coverUrl = None
         # Issue #930
         if not self.coverImageUrl and coverUrl:
             self.coverImageUrl = _re_fanbox_cover.sub("fanbox", coverUrl)
@@ -473,11 +473,11 @@ class FanboxPost(object):
         if self.type == "article":
             token_body_text = f'<div class="article caption">{self.body_text}</div>'
         else:
-            token_images = '<div class="non-article images">{0}</div>'.format(
-                "".join(['<a href="{0}">{1}</a>'.format(x,
-                f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp", "gif"] else x) for x in self.images]))
-            token_text = '<div class="non-article caption">{0}</div>'.format(
-                "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")]))
+            images = "".join(['<a href="{0}">{1}</a>'.format(x,
+                             f'<img scr="{0}"/>' if x[x.rindex(".") + 1:].lower() in ["jpg", "jpeg", "png", "bmp", "gif"] else x) for x in self.images])
+            token_images = f'<div class="non-article images">{images}</div>'
+            text = "".join(['<p>{0}</p>'.format(x.rstrip()) for x in self.body_text.split("\n")])
+            token_text = f'<div class="non-article caption">{text}</div>'
 
         page = page.replace("%body_text(article)%", token_body_text)
         page = page.replace("%images(non-article)%", token_images)

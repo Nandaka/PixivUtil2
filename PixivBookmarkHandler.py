@@ -11,8 +11,6 @@ from PixivBookmark import PixivBookmark
 from PixivBrowserFactory import PixivBrowser
 from PixivGroup import PixivGroup
 
-# from bs4 import BeautifulSoup
-
 
 def process_bookmark(caller,
                      config,
