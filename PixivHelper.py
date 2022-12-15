@@ -614,7 +614,7 @@ def dump_html(filename, html_text):
     return ""
 
 
-def print_and_log(level, msg, exception=None, newline=True, end=None):
+def print_and_log(level, msg, exception: Exception = None, newline=True, end=None):
     if level == 'debug':
         get_logger().debug(msg)
     else:
@@ -626,11 +626,12 @@ def print_and_log(level, msg, exception=None, newline=True, end=None):
             get_logger().warning(msg)
         elif level == 'error':
             safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
-            if exception is None:
+            if exception is None or not isinstance(exception, Exception) or exception.__traceback__ is None:
                 get_logger().error(msg)
             else:
-                get_logger().error(msg, exception)
-            get_logger().error(traceback.format_exc())
+                get_logger().error(msg)
+                # get_logger().exception(exception)
+                get_logger().error(traceback.format_exc())
         elif level is None:
             safePrint(msg, newline, end)
 
@@ -798,6 +799,7 @@ def download_image(url, filename, res, file_size, overwrite):
     except OSError as ex:
         print_and_log('error', f"Error at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
         input("Press enter to continue or Ctrl+C to abort.")  # Issue #1187
+        raise
 
     finally:
         if save is not None:
