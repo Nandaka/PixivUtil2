@@ -37,7 +37,7 @@ def process_bookmark(caller,
             i += 1
             prefix = "[{0} of {1}]".format(current_member, len(total_list))
 
-            if item.memberID in caller.__blacklistMembers:
+            if item.memberId in caller.__blacklistMembers:
                 PixivHelper.print_and_log('warn', f'Skipping member id: {item.memberId} by blacklist_members.txt.')
             else:
                 PixivArtistHandler.process_member(caller,
