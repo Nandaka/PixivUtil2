@@ -375,7 +375,7 @@ def get_remote_filesize(url, referer, config, notifier=None):
         res.close()
     except KeyError:
         PixivHelper.print_and_log('info', "\tNo file size information!")
-    except HTTPError as e:
+    except urllib.HTTPError as e:
         # fix Issue #503
         # handle http errors explicit by code
         if int(e.code) in (404, 500):

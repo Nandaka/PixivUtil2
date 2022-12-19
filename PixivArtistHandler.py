@@ -230,7 +230,7 @@ def process_member(caller,
 
             del artist
             del list_page
-            PixivBrowserFactory.getBrowser(config=config).clear_history()
+            # PixivBrowserFactory.getBrowser(config=config).clear_history()
             gc.collect()
 
         log_message = ""

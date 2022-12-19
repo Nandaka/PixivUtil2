@@ -132,13 +132,13 @@ class PixivBrowser():
     #     self._configureBrowser(config)
         # self._configureCookie(cookie_jar)
 
-    # def clear_history(self):
-    #     mechanize.Browser.clear_history(self)
-    #     return
+    def clear_history(self):
+        # mechanize.Browser.clear_history(self)
+        return
 
-    # def back(self):
-    #     mechanize.Browser.back(self)
-    #     return
+    def back(self):
+        # mechanize.Browser.back(self)
+        return
 
     def _configureBrowser(self, config):
         if config is None:
@@ -210,17 +210,17 @@ class PixivBrowser():
     #         if defaultCookieJar is None:
     #             defaultCookieJar = cookie_jar
 
-    # def addCookie(self, cookie):
-    #     global defaultCookieJar
-    #     if defaultCookieJar is None:
-    #         defaultCookieJar = http.cookiejar.LWPCookieJar()
-    #     defaultCookieJar.set_cookie(cookie)
+    def addCookie(self, cookie):
+        global defaultCookieJar
+        if defaultCookieJar is None:
+            defaultCookieJar = http.cookiejar.LWPCookieJar()
+        defaultCookieJar.set_cookie(cookie)
 
-    # def clearCookie(self):
-    #     global defaultCookieJar
-    #     if defaultCookieJar is None:
-    #         defaultCookieJar = http.cookiejar.LWPCookieJar()
-    #     defaultCookieJar.clear()
+    def clearCookie(self):
+        global defaultCookieJar
+        if defaultCookieJar is None:
+            defaultCookieJar = http.cookiejar.LWPCookieJar()
+        defaultCookieJar.clear()
 
     def open_with_retry(self, url, data=None, timeout=60, retry=0, referer=None):
         ''' Return response object with retry.'''
