@@ -730,11 +730,12 @@ def print_delay(retry_wait):
 
 
 # def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
+#     import cloudscraper
 #     if config.useProxy:
 #         proxy = urllib.request.ProxyHandler(config.proxy)
 #         opener = urllib.request.build_opener(proxy)
 #         urllib.request.install_opener(opener)
-#     req = mechanize.Request(url)
+#     req = cloudscraper.requests.Request(url)
 #     req.add_header('Referer', referer)
 #     # print_and_log('info', u"Using Referer: " + str(referer))
 #     get_logger().info(f"Using Referer: {referer}")
@@ -778,7 +779,7 @@ def download_image(url, filename, res, file_size, overwrite):
     curr = 0
     msg_len = 0
     try:
-        for chunk in res.iter_bytes(PixivConstant.BUFFER_SIZE):
+        for chunk in res.iter_content(PixivConstant.BUFFER_SIZE):
             save.write(chunk)
             curr = save.tell()
             msg_len = print_progress(curr, file_size, msg_len)
@@ -827,7 +828,7 @@ def download_image(url, filename, res, file_size, overwrite):
 
         del save
 
-    return (curr, filename)
+    return (curr, filename, completed)
 
 
 def print_progress(curr, total, max_msg_length=80):

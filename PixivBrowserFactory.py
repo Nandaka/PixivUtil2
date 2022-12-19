@@ -14,7 +14,8 @@ from typing import List, Tuple, Union
 
 import demjson3
 import socks
-import httpx
+import cloudscraper
+import requests
 from bs4 import BeautifulSoup
 
 import PixivHelper
@@ -39,7 +40,7 @@ def geturl(self):
     return self.url
 
 
-httpx.Response.geturl = geturl
+requests.Response.geturl = geturl
 
 
 # pylint: disable=E1101
@@ -112,15 +113,16 @@ class PixivBrowser():
         headers = {'User-Agent': self._config.useragent, 'Accept-Language': 'en-US,en;q=0.5', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'}
         cookies = (dict(i.split('=', 1) for i in self._config.cookie.split('; ')))
 
-        self.session = httpx.Client(http2=True, verify=False, follow_redirects=True, headers=headers, cookies=cookies)
+        self.session = cloudscraper.CloudScraper()
+        self.session.headers = headers
+        self.session.cookies = requests.cookies.cookiejar_from_dict(cookies)
 
-    def open_novisit(self, url, method="GET", referer=None) -> httpx.Response:
+    def open_novisit(self, url, method="GET", referer=None) -> requests.Response:
         temp_headers = self.session.headers
         if referer is not None:
             temp_headers["Referer"] = referer
 
-        res = self.session.stream(method, url, headers=temp_headers, timeout=self._config.timeout)
-        print(res.http_version)
+        res = self.session.request(method, url, headers=temp_headers, timeout=self._config.timeout, stream=True)
         print(res.status_code)
         return res
 
@@ -237,7 +239,6 @@ class PixivBrowser():
                     res = self.session.get(url, headers=temp_headers)
                 else:
                     res = self.session.post(url, data=data, headers=temp_headers)
-                print(res.http_version)
                 print(res.status_code)
                 return res
             except urllib.error.HTTPError:
@@ -279,15 +280,14 @@ class PixivBrowser():
                 while True:
                     try:
                         temp = self.open_with_retry(url, referer=referer)
-                        read_page = temp.read()
-                        read_page = read_page.decode('utf8')
+                        read_page = temp.text
                         if enable_cache:
                             self._put_to_cache(url, read_page)
                         temp.close()
                         break
                     except urllib.error.HTTPError as ex:
                         if ex.code in [403, 404, 503]:
-                            read_page = ex.read()
+                            read_page = ex.text
                             raise PixivException(f"Failed to get page: {url} => {ex}", errorCode=PixivException.SERVER_ERROR)
                         else:
                             PixivHelper.print_and_log('error', f'Error at getPixivPage(): {sys.exc_info()}')
@@ -376,7 +376,7 @@ class PixivBrowser():
             # self.clearCookie()
             # self._loadCookie(login_cookie, "pixiv.net")
             res = self.open_with_retry('https://www.pixiv.net/')
-            parsed = BeautifulSoup(res, features="html5lib")
+            parsed = BeautifulSoup(res.content, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
             print(parsed_str)
@@ -419,7 +419,7 @@ class PixivBrowser():
             # self.clearCookie()
             self._loadCookie(login_cookie, "fanbox.cc")
 
-            req = httpx.Request("https://www.fanbox.cc")
+            req = requests.get("https://www.fanbox.cc")
             req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
             req.add_header('Origin', 'https://www.fanbox.cc')
             req.add_header('User-Agent', self._config.useragent)
@@ -453,13 +453,13 @@ class PixivBrowser():
                 raise Exception("Not logged in to FANBOX")
 
     def updateFanboxCookie(self):
-        p_req = httpx.Request("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
+        p_req = requests.get("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
         p_req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
         p_req.add_header('Referer', 'https://www.fanbox.cc')
 
         try:
             p_res = self.open_with_retry(p_req)
-            page = p_res.read().decode("utf-8")
+            page = p_res.text
             p_res.close()
         except BaseException:
             PixivHelper.get_logger().error('Error at updateFanboxCookie(): %s', sys.exc_info())
@@ -472,7 +472,7 @@ class PixivBrowser():
         data = {"return_to": "https://www.fanbox.cc/auth/start",
                 "tt": match.group()}
 
-        p_req = httpx.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
+        p_req = requests.post("https://accounts.pixiv.net/account-selected", data, method="POST")
         try:
             p_res = self.open_with_retry(p_req)
             parsed = BeautifulSoup(p_res, features="html5lib")
@@ -543,7 +543,7 @@ class PixivBrowser():
         PixivHelper.get_logger().info('Logging in, return url: %s', response.geturl())
 
         # check the returned json
-        js = response.read()
+        js = response.text
         PixivHelper.get_logger().info(str(js))
         result = json.loads(js)
 
@@ -682,7 +682,7 @@ class PixivBrowser():
                 if image.imageMode == "ugoira_view":
                     ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
                     res = self.open_with_retry(ugoira_meta_url)
-                    meta_response = res.read()
+                    meta_response = res.text
                     image.ParseUgoira(meta_response)
                     res.close()
 
@@ -718,7 +718,7 @@ class PixivBrowser():
                 info = self._get_from_cache(url)
                 if info is None:
                     res = self.open_with_retry(url)
-                    infoStr = res.read()
+                    infoStr = res.text  # read()
                     res.close()
                     info = json.loads(infoStr)
                     self._put_to_cache(url, info)
@@ -751,7 +751,7 @@ class PixivBrowser():
             info_ajax = self._get_from_cache(url_ajax)
             if info_ajax is None:
                 res = self.open_with_retry(url_ajax)
-                info_ajax_str = res.read()
+                info_ajax_str = res.text
                 res.close()
                 info_ajax = json.loads(info_ajax_str)
                 self._put_to_cache(url_ajax, info_ajax)
@@ -815,11 +815,11 @@ class PixivBrowser():
             if response is None:
                 try:
                     res = self.open_with_retry(url)
-                    response = res.read()
+                    response = res.text
                     res.close()
                 except urllib.error.HTTPError as ex:
                     if ex.code == 404:
-                        response = ex.read()
+                        response = ex.text
                 self._put_to_cache(url, response)
 
             PixivHelper.get_logger().debug(response)
@@ -911,11 +911,11 @@ class PixivBrowser():
                             if response_page is None:
                                 try:
                                     res = self.open_with_retry(img_url)
-                                    response_page = res.read()
+                                    response_page = res.text
                                     res.close()
                                 except urllib.error.HTTPError as ex:
                                     if ex.code == 404:
-                                        response_page = ex.read()
+                                        response_page = ex.text
                                 self._put_to_cache(img_url, response_page)
 
                             image_info_js = json.loads(response_page)
@@ -954,7 +954,7 @@ class PixivBrowser():
             referer = "https://www.fanbox.cc/"
 
         if url is not None:
-            req = httpx.Request(url)
+            req = requests.get(url)
             req.add_header('Accept', 'application/json, text/plain, */*')
             req.add_header('Referer', referer)
             req.add_header('Origin', 'https://www.fanbox.cc')
@@ -962,7 +962,7 @@ class PixivBrowser():
 
             res = self.open_with_retry(req)
             # read the json response
-            response = res.read()
+            response = res.text
             res.close()
 
             ids = FanboxArtist.parseArtistIds(page=response)
@@ -983,7 +983,7 @@ class PixivBrowser():
         if id_type == "creatorId":
             referer += f"/@{artist_id}"
 
-        req = httpx.Request(url)
+        req = requests.get(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
         req.add_header('Origin', 'https://www.fanbox.cc')
@@ -991,7 +991,7 @@ class PixivBrowser():
 
         res = self.open_with_retry(req)
         # read the json response
-        response = res.read()
+        response = res.text
         res.close()
         _tzInfo = None
         if self._config.useLocalTimezone:
@@ -1039,15 +1039,15 @@ class PixivBrowser():
         # Fix #494
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
         referer = "https://www.fanbox.cc/"
-        req = httpx.Request(url)
+        req = requests.get(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
         req.add_header('Origin', 'https://www.fanbox.cc')
         req.add_header('User-Agent', self._config.useragent)
 
         res = self.open_with_retry(req)
-        response = res.read()
-        PixivHelper.get_logger().debug(response.decode('utf8'))
+        response = res.text
+        PixivHelper.get_logger().debug(response)
         res.close()
         posts = artist.parsePosts(response)
         return posts
@@ -1074,7 +1074,7 @@ class PixivBrowser():
         # referer doesn't seeem to be essential
         p_referer = f"https://www.fanbox.cc/@{artist.creatorId if artist else ''}/posts/{post_id}"
         PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
-        p_req = httpx.Request(p_url)
+        p_req = requests.get(p_url)
         p_req.add_header('Accept', 'application/json, text/plain, */*')
         p_req.add_header('Referer', p_referer)
         p_req.add_header('Origin', 'https://www.fanbox.cc')
@@ -1086,8 +1086,8 @@ class PixivBrowser():
             if ex.code in [404]:
                 raise PixivException("Fanbox post not found!", PixivException.OTHER_ERROR)
             raise
-        p_response = p_res.read()
-        PixivHelper.get_logger().debug(p_response.decode('utf8'))
+        p_response = p_res.text
+        PixivHelper.get_logger().debug(p_response)
         p_res.close()
         js = demjson3.decode(p_response)
         return js
@@ -1154,14 +1154,14 @@ class PixivBrowser():
         return artist
 
     def getPixivSketchPage(self, url, referer, x_requested_with) -> str:
-        p_req = httpx.Request(url)
+        p_req = requests.get(url)
         p_req.add_header('Accept', 'application/vnd.sketch-v4+json')
         p_req.add_header('Referer', referer)
         p_req.add_header('X-Requested-With', x_requested_with)
         p_req.add_header('User-Agent', self._config.useragent)
 
         p_res = self.open_with_retry(p_req)
-        response_post = p_res.read()
+        response_post = p_res.text
         return response_post
 
     def getMangaSeries(self, manga_series_id: int, current_page: int, returnJSON=False) -> Union[PixivMangaSeries, str]:

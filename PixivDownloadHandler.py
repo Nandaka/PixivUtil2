@@ -176,7 +176,7 @@ def download_image(caller,
 
                 # actual download
                 notifier(type="DOWNLOAD", message=f"Start downloading {url} to {filename_save}")
-                (downloadedSize, filename_save) = perform_download(url, remote_file_size, filename_save, overwrite, config, referer)
+                (downloadedSize, filename_save, completed) = perform_download(url, remote_file_size, filename_save, overwrite, config, referer)
 
                 # double check after download, because the file might be deleted due to partial download
                 is_exists = os.path.isfile(filename_save)
@@ -207,7 +207,7 @@ def download_image(caller,
                     os.utime(filename_save, (ts, ts))
 
                 # check the downloaded file size again
-                if remote_file_size > 0 and downloadedSize != remote_file_size:
+                if not completed or (remote_file_size > 0 and downloadedSize != remote_file_size):
                     PixivHelper.print_and_log('error', f"Incomplete Download for {url} => {filename_save}")
                     if retry_count < max_retry:
                         retry_count = retry_count + 1
@@ -348,10 +348,10 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
         except KeyError:
             file_size = -1
             PixivHelper.print_and_log('info', "\tNo file size information!")
-    (downloadedSize, filename) = PixivHelper.download_image(url, filename, res, file_size, overwrite)
+    (downloadedSize, filename, completed) = PixivHelper.download_image(url, filename, res, file_size, overwrite)
     res.close()
     gc.collect()
-    return (downloadedSize, filename)
+    return (downloadedSize, filename, completed)
 
 
 # issue #299
