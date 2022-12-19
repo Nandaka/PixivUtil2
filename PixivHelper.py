@@ -28,7 +28,6 @@ from mmap import ACCESS_READ, mmap
 from pathlib import Path
 from typing import Union
 
-import mechanize
 from colorama import Fore, Style
 from PIL import Image, ImageFile
 
@@ -730,22 +729,22 @@ def print_delay(retry_wait):
     print_and_log(None, "")
 
 
-def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
-    if config.useProxy:
-        proxy = urllib.request.ProxyHandler(config.proxy)
-        opener = urllib.request.build_opener(proxy)
-        urllib.request.install_opener(opener)
-    req = mechanize.Request(url)
-    req.add_header('Referer', referer)
-    # print_and_log('info', u"Using Referer: " + str(referer))
-    get_logger().info(f"Using Referer: {referer}")
+# def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
+#     if config.useProxy:
+#         proxy = urllib.request.ProxyHandler(config.proxy)
+#         opener = urllib.request.build_opener(proxy)
+#         urllib.request.install_opener(opener)
+#     req = mechanize.Request(url)
+#     req.add_header('Referer', referer)
+#     # print_and_log('info', u"Using Referer: " + str(referer))
+#     get_logger().info(f"Using Referer: {referer}")
 
-    if head:
-        req.get_method = lambda: 'HEAD'
-    else:
-        req.get_method = lambda: 'GET'
+#     if head:
+#         req.get_method = lambda: 'HEAD'
+#     else:
+#         req.get_method = lambda: 'GET'
 
-    return req
+#     return req
 
 
 def makeSubdirs(filename):
@@ -779,8 +778,8 @@ def download_image(url, filename, res, file_size, overwrite):
     curr = 0
     msg_len = 0
     try:
-        while True:
-            save.write(res.read(PixivConstant.BUFFER_SIZE))
+        for chunk in res.iter_bytes(PixivConstant.BUFFER_SIZE):
+            save.write(chunk)
             curr = save.tell()
             msg_len = print_progress(curr, file_size, msg_len)
 

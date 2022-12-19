@@ -13,8 +13,8 @@ import urllib
 from typing import List, Tuple, Union
 
 import demjson3
-import mechanize
 import socks
+import httpx
 from bs4 import BeautifulSoup
 
 import PixivHelper
@@ -34,8 +34,16 @@ defaultConfig = None
 _browser = None
 
 
+# mongke patch
+def geturl(self):
+    return self.url
+
+
+httpx.Response.geturl = geturl
+
+
 # pylint: disable=E1101
-class PixivBrowser(mechanize.Browser):
+class PixivBrowser():
     _config = None
     _cache = dict()
     _max_cache = 10000  # keep n-item in memory
@@ -51,6 +59,7 @@ class PixivBrowser(mechanize.Browser):
     _is_logged_in_to_FANBOX = False
 
     __oauth_manager = None
+    session = None
 
     @property
     def _oauth_manager(self):
@@ -98,19 +107,36 @@ class PixivBrowser(mechanize.Browser):
         return None
 
     def __init__(self, config, cookie_jar):
-        # fix #218 not applicable after upgrading to mechanize 4.x
-        mechanize.Browser.__init__(self)
+        self._config = config
+        url = "https://www.pixiv.net/en/"
+        headers = {'User-Agent': self._config.useragent, 'Accept-Language': 'en-US,en;q=0.5', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'}
+        cookies = (dict(i.split('=', 1) for i in self._config.cookie.split('; ')))
 
-        self._configureBrowser(config)
-        self._configureCookie(cookie_jar)
+        self.session = httpx.Client(http2=True, verify=False, follow_redirects=True, headers=headers, cookies=cookies)
 
-    def clear_history(self):
-        mechanize.Browser.clear_history(self)
-        return
+    def open_novisit(self, url, method="GET", referer=None) -> httpx.Response:
+        temp_headers = self.session.headers
+        if referer is not None:
+            temp_headers["Referer"] = referer
 
-    def back(self):
-        mechanize.Browser.back(self)
-        return
+        res = self.session.stream(method, url, headers=temp_headers, timeout=self._config.timeout)
+        print(res.http_version)
+        print(res.status_code)
+        return res
+
+    #     # fix #218 not applicable after upgrading to mechanize 4.x
+    #     mechanize.Browser.__init__(self)
+
+    #     self._configureBrowser(config)
+        # self._configureCookie(cookie_jar)
+
+    # def clear_history(self):
+    #     mechanize.Browser.clear_history(self)
+    #     return
+
+    # def back(self):
+    #     mechanize.Browser.back(self)
+    #     return
 
     def _configureBrowser(self, config):
         if config is None:
@@ -122,79 +148,79 @@ class PixivBrowser(mechanize.Browser):
             defaultConfig = config
 
         self._config = config
-        if config.useProxy:
-            if config.proxyAddress.startswith('socks'):
-                parseResult = urllib.parse.urlparse(config.proxyAddress)
-                assert parseResult.scheme and parseResult.hostname and parseResult.port
-                socksType = socks.PROXY_TYPE_SOCKS5 if 'socks5' in parseResult.scheme else socks.PROXY_TYPE_SOCKS4
-                PixivHelper.get_logger().info(f"Using SOCKS5 Proxy= {parseResult.hostname}:{parseResult.port} @ {parseResult.username}")
+    #     if config.useProxy:
+    #         if config.proxyAddress.startswith('socks'):
+    #             parseResult = urllib.parse.urlparse(config.proxyAddress)
+    #             assert parseResult.scheme and parseResult.hostname and parseResult.port
+    #             socksType = socks.PROXY_TYPE_SOCKS5 if 'socks5' in parseResult.scheme else socks.PROXY_TYPE_SOCKS4
+    #             PixivHelper.get_logger().info(f"Using SOCKS5 Proxy= {parseResult.hostname}:{parseResult.port} @ {parseResult.username}")
 
-                # https://stackoverflow.com/a/14512227
-                socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port,
-                                      True, parseResult.username, parseResult.password)
-                socket.socket = socks.socksocket
+    #             # https://stackoverflow.com/a/14512227
+    #             socks.setdefaultproxy(socksType, parseResult.hostname, parseResult.port,
+    #                                   True, parseResult.username, parseResult.password)
+    #             socket.socket = socks.socksocket
 
-                # https://stackoverflow.com/a/13214222 and
-                # https://github.com/Anorov/PySocks/issues/22
-                def getaddrinfo(*args):
-                    return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
-                self._orig_getaddrinfo = socket.getaddrinfo
-                socket.getaddrinfo = getaddrinfo
+    #             # https://stackoverflow.com/a/13214222 and
+    #             # https://github.com/Anorov/PySocks/issues/22
+    #             def getaddrinfo(*args):
+    #                 return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+    #             self._orig_getaddrinfo = socket.getaddrinfo
+    #             socket.getaddrinfo = getaddrinfo
 
-            else:
-                self.set_proxies(config.proxy)
-                PixivHelper.get_logger().info("Using Proxy: %s", config.proxyAddress)
+    #         else:
+    #             self.set_proxies(config.proxy)
+    #             PixivHelper.get_logger().info("Using Proxy: %s", config.proxyAddress)
 
-        # self.set_handle_equiv(True)
-        # self.set_handle_gzip(True)
-        self.set_handle_redirect(True)
-        self.set_handle_referer(True)
-        self.set_handle_robots(False)
+    #     # self.set_handle_equiv(True)
+    #     # self.set_handle_gzip(True)
+    #     self.set_handle_redirect(True)
+    #     self.set_handle_referer(True)
+    #     self.set_handle_robots(False)
 
-        self.set_debug_http(config.debugHttp)
-        if config.debugHttp:
-            PixivHelper.get_logger().info('Debug HTTP enabled.')
+    #     self.set_debug_http(config.debugHttp)
+    #     if config.debugHttp:
+    #         PixivHelper.get_logger().info('Debug HTTP enabled.')
 
-        # self.visit_response
-        self.addheaders = [('User-agent', config.useragent)]
+    #     # self.visit_response
+    #     self.addheaders = [('User-agent', config.useragent)]
 
-        # # force utf-8, fix issue #184
-        # self.addheaders += [('Accept-Charset', 'utf-8')]
+    #     # # force utf-8, fix issue #184
+    #     # self.addheaders += [('Accept-Charset', 'utf-8')]
 
-        socket.setdefaulttimeout(config.timeout)
+    #     socket.setdefaulttimeout(config.timeout)
 
-        if not self._config.enableSSLVerification:
-            import ssl
-            try:
-                _create_unverified_https_context = ssl._create_unverified_context
-            except AttributeError:
-                # Legacy Python that doesn't verify HTTPS certificates by default
-                pass
-            else:
-                # Handle target environment that doesn't support HTTPS verification
-                ssl._create_default_https_context = _create_unverified_https_context
+    #     if not self._config.enableSSLVerification:
+    #         import ssl
+    #         try:
+    #             _create_unverified_https_context = ssl._create_unverified_context
+    #         except AttributeError:
+    #             # Legacy Python that doesn't verify HTTPS certificates by default
+    #             pass
+    #         else:
+    #             # Handle target environment that doesn't support HTTPS verification
+    #             ssl._create_default_https_context = _create_unverified_https_context
 
-    def _configureCookie(self, cookie_jar):
-        if cookie_jar is not None:
-            self.set_cookiejar(cookie_jar)
+    # def _configureCookie(self, cookie_jar):
+    #     if cookie_jar is not None:
+    #         self.set_cookiejar(cookie_jar)
 
-            global defaultCookieJar
-            if defaultCookieJar is None:
-                defaultCookieJar = cookie_jar
+    #         global defaultCookieJar
+    #         if defaultCookieJar is None:
+    #             defaultCookieJar = cookie_jar
 
-    def addCookie(self, cookie):
-        global defaultCookieJar
-        if defaultCookieJar is None:
-            defaultCookieJar = http.cookiejar.LWPCookieJar()
-        defaultCookieJar.set_cookie(cookie)
+    # def addCookie(self, cookie):
+    #     global defaultCookieJar
+    #     if defaultCookieJar is None:
+    #         defaultCookieJar = http.cookiejar.LWPCookieJar()
+    #     defaultCookieJar.set_cookie(cookie)
 
-    def clearCookie(self):
-        global defaultCookieJar
-        if defaultCookieJar is None:
-            defaultCookieJar = http.cookiejar.LWPCookieJar()
-        defaultCookieJar.clear()
+    # def clearCookie(self):
+    #     global defaultCookieJar
+    #     if defaultCookieJar is None:
+    #         defaultCookieJar = http.cookiejar.LWPCookieJar()
+    #     defaultCookieJar.clear()
 
-    def open_with_retry(self, url, data=None, timeout=60, retry=0):
+    def open_with_retry(self, url, data=None, timeout=60, retry=0, referer=None):
         ''' Return response object with retry.'''
         retry_count = 0
         if retry == 0 and self._config is not None:
@@ -203,7 +229,16 @@ class PixivBrowser(mechanize.Browser):
         while True:
             res = None
             try:
-                res = self.open(url, data, timeout)
+                temp_headers = self.session.headers
+                if referer is not None:
+                    temp_headers["Referer"] = referer
+                # res = self.open(url, data, timeout)
+                if data is None:
+                    res = self.session.get(url, headers=temp_headers)
+                else:
+                    res = self.session.post(url, data=data, headers=temp_headers)
+                print(res.http_version)
+                print(res.status_code)
                 return res
             except urllib.error.HTTPError:
                 if res is not None:
@@ -239,14 +274,11 @@ class PixivBrowser(mechanize.Browser):
         url = self.fixUrl(url)
         retry_count = 0
         while True:
-            req = mechanize.Request(url)
-            req.add_header('Referer', referer)
-
             read_page = self._get_from_cache(url)
             if read_page is None:
                 while True:
                     try:
-                        temp = self.open_with_retry(req)
+                        temp = self.open_with_retry(url, referer=referer)
                         read_page = temp.read()
                         read_page = read_page.decode('utf8')
                         if enable_cache:
@@ -341,12 +373,13 @@ class PixivBrowser(mechanize.Browser):
 
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
-            self.clearCookie()
-            self._loadCookie(login_cookie, "pixiv.net")
-            res = self.open_with_retry('https://www.pixiv.net/en')  # + self._locale)
+            # self.clearCookie()
+            # self._loadCookie(login_cookie, "pixiv.net")
+            res = self.open_with_retry('https://www.pixiv.net/')
             parsed = BeautifulSoup(res, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
+            print(parsed_str)
             res.close()
             parsed.decompose()
             del parsed
@@ -386,7 +419,7 @@ class PixivBrowser(mechanize.Browser):
             # self.clearCookie()
             self._loadCookie(login_cookie, "fanbox.cc")
 
-            req = mechanize.Request("https://www.fanbox.cc")
+            req = httpx.Request("https://www.fanbox.cc")
             req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
             req.add_header('Origin', 'https://www.fanbox.cc')
             req.add_header('User-Agent', self._config.useragent)
@@ -420,7 +453,7 @@ class PixivBrowser(mechanize.Browser):
                 raise Exception("Not logged in to FANBOX")
 
     def updateFanboxCookie(self):
-        p_req = mechanize.Request("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
+        p_req = httpx.Request("https://www.fanbox.cc/login?return_to=https%3A%2F%2Fwww.fanbox.cc%2F")
         p_req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
         p_req.add_header('Referer', 'https://www.fanbox.cc')
 
@@ -439,7 +472,7 @@ class PixivBrowser(mechanize.Browser):
         data = {"return_to": "https://www.fanbox.cc/auth/start",
                 "tt": match.group()}
 
-        p_req = mechanize.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
+        p_req = httpx.Request("https://accounts.pixiv.net/account-selected", data, method="POST")
         try:
             p_res = self.open_with_retry(p_req)
             parsed = BeautifulSoup(p_res, features="html5lib")
@@ -467,44 +500,44 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Could not update FANBOX cookie string.')
         return result
 
-    def login(self, username, password):
-        parsed = None
-        try:
-            PixivHelper.print_and_log('info', 'Logging in...')
-            url = "https://accounts.pixiv.net/login"
-            # get the post key
-            res = self.open_with_retry(url)
-            parsed = BeautifulSoup(res, features="html5lib")
-            post_key = parsed.find('input', attrs={'name': 'post_key'})
-            # js_init_config = self._getInitConfig(parsed)
-            res.close()
+    # def login(self, username, password):
+    #     parsed = None
+    #     try:
+    #         PixivHelper.print_and_log('info', 'Logging in...')
+    #         url = "https://accounts.pixiv.net/login"
+    #         # get the post key
+    #         res = self.open_with_retry(url)
+    #         parsed = BeautifulSoup(res, features="html5lib")
+    #         post_key = parsed.find('input', attrs={'name': 'post_key'})
+    #         # js_init_config = self._getInitConfig(parsed)
+    #         res.close()
 
-            data = {}
-            data['pixiv_id'] = username
-            data['password'] = password
-            # data['captcha'] = ''
-            # data['g_recaptcha_response'] = ''
-            data['return_to'] = 'https://www.pixiv.net'
-            data['lang'] = 'en'
-            data['post_key'] = post_key['value']
-            data['source'] = "accounts"
-            data['ref'] = ''
+    #         data = {}
+    #         data['pixiv_id'] = username
+    #         data['password'] = password
+    #         # data['captcha'] = ''
+    #         # data['g_recaptcha_response'] = ''
+    #         data['return_to'] = 'https://www.pixiv.net'
+    #         data['lang'] = 'en'
+    #         data['post_key'] = post_key['value']
+    #         data['source'] = "accounts"
+    #         data['ref'] = ''
 
-            request = mechanize.Request("https://accounts.pixiv.net/api/login?lang=en", data, method='POST')
-            response = self.open_with_retry(request)
+    #         request = mechanize.Request("https://accounts.pixiv.net/api/login?lang=en", data, method='POST')
+    #         response = self.open_with_retry(request)
 
-            result = self.processLoginResult(response, username, password)
-            response.close()
-            return result
-        except BaseException:
-            traceback.print_exc()
-            PixivHelper.print_and_log('error', f'Error at login(): {sys.exc_info()}')
-            PixivHelper.dump_html("login_error.html", str(parsed))
-            raise
-        finally:
-            if parsed is not None:
-                parsed.decompose()
-                del parsed
+    #         result = self.processLoginResult(response, username, password)
+    #         response.close()
+    #         return result
+    #     except BaseException:
+    #         traceback.print_exc()
+    #         PixivHelper.print_and_log('error', f'Error at login(): {sys.exc_info()}')
+    #         PixivHelper.dump_html("login_error.html", str(parsed))
+    #         raise
+    #     finally:
+    #         if parsed is not None:
+    #             parsed.decompose()
+    #             del parsed
 
     def processLoginResult(self, response, username, password):
         PixivHelper.get_logger().info('Logging in, return url: %s', response.geturl())
@@ -684,8 +717,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().debug("using webrpc: %s", url)
                 info = self._get_from_cache(url)
                 if info is None:
-                    request = mechanize.Request(url)
-                    res = self.open_with_retry(request)
+                    res = self.open_with_retry(url)
                     infoStr = res.read()
                     res.close()
                     info = json.loads(infoStr)
@@ -922,7 +954,7 @@ class PixivBrowser(mechanize.Browser):
             referer = "https://www.fanbox.cc/"
 
         if url is not None:
-            req = mechanize.Request(url)
+            req = httpx.Request(url)
             req.add_header('Accept', 'application/json, text/plain, */*')
             req.add_header('Referer', referer)
             req.add_header('Origin', 'https://www.fanbox.cc')
@@ -951,7 +983,7 @@ class PixivBrowser(mechanize.Browser):
         if id_type == "creatorId":
             referer += f"/@{artist_id}"
 
-        req = mechanize.Request(url)
+        req = httpx.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
         req.add_header('Origin', 'https://www.fanbox.cc')
@@ -1007,7 +1039,7 @@ class PixivBrowser(mechanize.Browser):
         # Fix #494
         PixivHelper.print_and_log('info', 'Getting posts from ' + url)
         referer = "https://www.fanbox.cc/"
-        req = mechanize.Request(url)
+        req = httpx.Request(url)
         req.add_header('Accept', 'application/json, text/plain, */*')
         req.add_header('Referer', referer)
         req.add_header('Origin', 'https://www.fanbox.cc')
@@ -1042,7 +1074,7 @@ class PixivBrowser(mechanize.Browser):
         # referer doesn't seeem to be essential
         p_referer = f"https://www.fanbox.cc/@{artist.creatorId if artist else ''}/posts/{post_id}"
         PixivHelper.get_logger().debug('Getting post detail from %s', p_url)
-        p_req = mechanize.Request(p_url)
+        p_req = httpx.Request(p_url)
         p_req.add_header('Accept', 'application/json, text/plain, */*')
         p_req.add_header('Referer', p_referer)
         p_req.add_header('Origin', 'https://www.fanbox.cc')
@@ -1122,7 +1154,7 @@ class PixivBrowser(mechanize.Browser):
         return artist
 
     def getPixivSketchPage(self, url, referer, x_requested_with) -> str:
-        p_req = mechanize.Request(url)
+        p_req = httpx.Request(url)
         p_req.add_header('Accept', 'application/vnd.sketch-v4+json')
         p_req.add_header('Referer', referer)
         p_req.add_header('X-Requested-With', x_requested_with)

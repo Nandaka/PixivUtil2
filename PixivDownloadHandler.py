@@ -9,7 +9,7 @@ import time
 import traceback
 import urllib
 
-import mechanize
+from httpx import HTTPError
 
 import PixivBrowserFactory
 import PixivConfig
@@ -337,12 +337,12 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
     # actual download
     PixivHelper.print_and_log(None, '\rStart downloading...', newline=False)
     # fetch filesize
-    req = PixivHelper.create_custom_request(url, config, referer)
+    # req = PixivHelper.create_custom_request(url, config, referer)
     br = PixivBrowserFactory.getBrowser(config=config)
-    res = br.open_novisit(req)
+    res = br.open_novisit(url, referer=referer)
     if file_size < 0:  # final check before download for download progress bar.
         try:
-            content_length = res.info()['Content-Length']
+            content_length = res.headers['Content-Length']
             if content_length is not None:
                 file_size = int(content_length)
         except KeyError:
@@ -361,13 +361,13 @@ def get_remote_filesize(url, referer, config, notifier=None):
 
     PixivHelper.print_and_log(None, 'Getting remote filesize...')
     # open with HEAD method, might be expensive
-    req = PixivHelper.create_custom_request(url, config, referer, head=True)
+    # req = PixivHelper.create_custom_request(url, config, referer, head=True)
     file_size = -1
 
     try:
         br = PixivBrowserFactory.getBrowser(config=config)
-        res = br.open_novisit(req)
-        content_length = res.info()['Content-Length']
+        res = br.open_novisit(url, method="HEAD")
+        content_length = res.headers['Content-Length']
         if content_length is not None:
             file_size = int(content_length)
         else:
@@ -375,7 +375,7 @@ def get_remote_filesize(url, referer, config, notifier=None):
         res.close()
     except KeyError:
         PixivHelper.print_and_log('info', "\tNo file size information!")
-    except mechanize.HTTPError as e:
+    except HTTPError as e:
         # fix Issue #503
         # handle http errors explicit by code
         if int(e.code) in (404, 500):
