@@ -54,7 +54,7 @@ def downloadPage(url, filename):
     print("Dumping " + url + " to " + filename)
     try:
         html = __br__.open(url).read()
-    except urllib3.HTTPError as e:
+    except urllib3.exceptions.HTTPError as e:
         if e.code in [400, 403, 404]:
             html = e.read()
         else:

@@ -379,7 +379,7 @@ class PixivBrowser():
             parsed = BeautifulSoup(res.content, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
-            print(parsed_str)
+            # print(parsed_str)
             res.close()
             parsed.decompose()
             del parsed
