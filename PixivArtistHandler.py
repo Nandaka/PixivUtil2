@@ -90,9 +90,8 @@ def process_member(caller,
                     # Possible layout changes, try to dump the file below
                     raise
                 except BaseException:
-                    exc_type, exc_value, exc_traceback = sys.exc_info()
-                    traceback.print_exception(exc_type, exc_value, exc_traceback)
                     PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
+                    PixivHelper.print_and_log('error', f'{traceback.format_exc()}')
 
             PixivHelper.print_and_log(None, f'Member Name  : {artist.artistName}')
             PixivHelper.print_and_log(None, f'Member Avatar: {artist.artistAvatar}')
