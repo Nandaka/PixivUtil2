@@ -175,8 +175,8 @@ def process_from_group(caller,
         while flag:
             url = f"https://www.pixiv.net/group/images.php?format=json&max_id={max_id}&id={group_id}"
             PixivHelper.print_and_log('info', f"Getting images from: {url}")
-            response = br.open(url)
-            json_response = response.read()
+            response = br.open_with_retry(url)
+            json_response = response.text
             response.close()
             group_data = PixivGroup(json_response)
             max_id = group_data.maxId
@@ -366,7 +366,7 @@ def get_bookmarks(caller, config, hide, start_page=1, end_page=0, member_id=None
         PixivHelper.print_and_log('info', f"Source URL: {url}")
 
         page = br.open_with_retry(url)
-        page_str = page.read().decode('utf8')
+        page_str = page.text
         page.close()
 
         bookmarks = PixivBookmark.parseBookmark(page_str,
@@ -417,8 +417,8 @@ def get_image_bookmark(caller, config, hide, start_page=1, end_page=0, tag=None,
             PixivHelper.print_and_log('info', f"Using image tag: {tag}")
 
         PixivHelper.print_and_log('info', f"Source URL: {url}")
-        page = br.open(url)
-        page_str = page.read().decode('utf8')
+        page = br.open_with_retry(url)
+        page_str = page.text
         page.close()
 
         if use_image_tag:

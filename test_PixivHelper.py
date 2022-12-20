@@ -149,12 +149,12 @@ class TestPixivHelper(unittest.TestCase):
         expected2 = 'balzehn (267014)\\folder.png'
 
         result2 = PixivHelper.make_filename(nameFormat2,
-                                           imageInfo,
-                                           artistInfo=None,
-                                           tagsSeparator=' ',
-                                           fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg',
-                                           useTranslatedTag=True,
-                                           tagTranslationLocale="en")
+                                            imageInfo,
+                                            artistInfo=None,
+                                            tagsSeparator=' ',
+                                            fileUrl='http://i2.pixiv.net/img16/img/balzehn/2493913.jpg',
+                                            useTranslatedTag=True,
+                                            tagTranslationLocale="en")
         # #940
         self.assertEqual(result2, expected2)
 

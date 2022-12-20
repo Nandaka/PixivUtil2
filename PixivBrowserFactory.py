@@ -718,7 +718,7 @@ class PixivBrowser():
                 info = self._get_from_cache(url)
                 if info is None:
                     res = self.open_with_retry(url)
-                    infoStr = res.text  # read()
+                    infoStr = res.text
                     res.close()
                     info = json.loads(infoStr)
                     self._put_to_cache(url, info)
