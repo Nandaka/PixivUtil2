@@ -111,7 +111,12 @@ class PixivBrowser():
         self._config = config
         url = "https://www.pixiv.net/en/"
         headers = {'User-Agent': self._config.useragent, 'Accept-Language': 'en-US,en;q=0.5', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'}
-        cookies = (dict(i.split('=', 1) for i in self._config.cookie.split('; ')))
+
+        cookie_list = self._config.cookie.split('; ')
+        if len(cookie_list) > 1:
+            cookies = (dict(i.split('=', 1) for i in cookie_list))
+        else:
+            cookies = {"PHPSESSID": self._config.cookie}
 
         self.session = cloudscraper.CloudScraper()
         self.session.headers = headers
