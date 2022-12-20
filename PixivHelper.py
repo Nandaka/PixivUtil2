@@ -65,6 +65,24 @@ def set_config(config):
     _config = config
 
 
+__version = None
+
+
+def get_version():
+    global __version
+    if __version is not None:
+        return __version
+
+    ver_file = module_path() + "\\version"
+    if os.path.exists(ver_file) and os.path.isfile(ver_file):
+        with open(ver_file) as version:
+            ver = version.readline().strip()
+        __version = f"{PixivConstant.PIXIVUTIL_VERSION} ({ver})"
+    else:
+        __version = PixivConstant.PIXIVUTIL_VERSION
+    return __version
+
+
 def get_logger(level=None, reload=False):
     '''Set up logging'''
     global __logger
@@ -73,7 +91,7 @@ def get_logger(level=None, reload=False):
 
     if __logger is None:
         script_path = module_path()
-        __logger = logging.getLogger('PixivUtil' + PixivConstant.PIXIVUTIL_VERSION)
+        __logger = logging.getLogger(f'PixivUtil {get_version()}')  # + PixivConstant.PIXIVUTIL_VERSION)
         if _config is None or _config.disableLog:
             logging.disable()
             if _config is not None and _config.disableLog:
