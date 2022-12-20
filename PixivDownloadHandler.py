@@ -366,7 +366,7 @@ def get_remote_filesize(url, referer, config, notifier=None):
         br = PixivBrowserFactory.getBrowser(config=config)
         res = br.open_novisit(url, method="HEAD")
         content_length = res.headers['Content-Length']
-        if content_length is not None:
+        if res.status_code == 200 and content_length is not None:
             file_size = int(content_length)
         else:
             PixivHelper.print_and_log('info', "\tNo file size information!")
