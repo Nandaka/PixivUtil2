@@ -612,6 +612,10 @@ Please refer run with `--help` for latest information.
 
   Skip downloading if the remote size is not known when `alwaysCheckFileSize` is set to True.
 
+- extensionFilter
+
+  Provide a | seperated list of acceptable file extensions to download. Eg. jpg|png|gif|ugoira
+
 ## [FFmpeg]
 - ffmpeg
 
