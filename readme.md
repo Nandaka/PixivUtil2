@@ -628,6 +628,9 @@ Please refer run with `--help` for latest information.
 - mkvcodec
 
   Codec to be used for encoding mkv, default is using `copy`.
+- mkvparam
+
+  Parameter to be used to encode mkv, default: ``.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.

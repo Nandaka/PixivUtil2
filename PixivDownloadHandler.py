@@ -85,7 +85,7 @@ def download_image(caller,
                     remote_file_size = get_remote_filesize(url, referer, config, notifier)
                 else:
                     remote_file_size = -1
-                    PixivHelper.print_and_log(None, f"\rSkipped getting remote file size because local file not exists")
+                    PixivHelper.print_and_log(None, "\rSkipped getting remote file size because local file not exists")
 
                 # 837
                 if config.skipUnknownSize and is_exists and remote_file_size == -1:
@@ -439,6 +439,7 @@ def handle_ugoira(image, zip_filename, config, notifier):
         if not os.path.exists(mkv_filename):
             PixivHelper.ugoira2mkv(ugo_name,
                                    mkv_filename,
+                                   codec=config.mkvCodec,
                                    image=image)
 
     if config.deleteZipFile and os.path.exists(zip_filename) and zip_filename.endswith(".zip"):
