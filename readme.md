@@ -645,7 +645,7 @@ Please refer run with `--help` for latest information.
   This is Pixiv own format for animated images. You can use Honeyview to see the animation.
 - createmkv
 
-  Set to True to create mkv file (video format). The default encoding settings is lossless encoding but very large file size.
+  Set to True to create mkv file (video format). The default settings is lossless(no encoding), it will pack the images in the container. Very large file size.
   Required `createUgoira = True` and ffmpeg executeable.
 - createwebm
 
