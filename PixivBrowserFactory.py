@@ -158,8 +158,8 @@ class PixivBrowser(mechanize.Browser):
         # self.visit_response
         self.addheaders = [('User-agent', config.useragent)]
 
-        # # force utf-8, fix issue #184
-        # self.addheaders += [('Accept-Charset', 'utf-8')]
+        # force utf-8, fix issue #184
+        self.addheaders += [('Accept-Charset', 'utf-8')]
 
         socket.setdefaulttimeout(config.timeout)
 
@@ -343,10 +343,10 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie, "pixiv.net")
-            res = self.open_with_retry('https://www.pixiv.net/en')  # + self._locale)
+            res = self.open_with_retry('https://www.pixiv.net/')
             parsed = BeautifulSoup(res, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
-            PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
+            PixivHelper.get_logger().info('Logging in, return url: %s', res.geturl())
             res.close()
             parsed.decompose()
             del parsed

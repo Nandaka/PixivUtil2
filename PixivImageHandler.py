@@ -484,6 +484,7 @@ def process_ugoira_local(caller, config):
                             file_basename = os.path.basename(file)
                             file_ext = os.path.splitext(file_basename)[1]
                             if ((("gif" in file_ext) and (config.createGif))
+                               or (("mkv" in file_ext) and (config.createMkv))
                                or (("png" in file_ext) and (config.createApng))
                                or (("webm" in file_ext) and (config.createWebm))
                                or (("webp" in file_ext) and (config.createWebp))

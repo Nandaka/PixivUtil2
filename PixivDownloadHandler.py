@@ -426,12 +426,20 @@ def handle_ugoira(image, zip_filename, config, notifier):
                                     codec=config.ffmpegCodec,
                                     extension=config.ffmpegExt,
                                     image=image)
+
     if config.createWebp:
         webp_filename = ugo_name[:-7] + ".webp"
         if not os.path.exists(webp_filename):
             PixivHelper.ugoira2webp(ugo_name,
                                     webp_filename,
                                     image=image)
+
+    if config.createMkv:
+        mkv_filename = ugo_name[:-7] + ".mkv"
+        if not os.path.exists(mkv_filename):
+            PixivHelper.ugoira2mkv(ugo_name,
+                                   mkv_filename,
+                                   image=image)
 
     if config.deleteZipFile and os.path.exists(zip_filename) and zip_filename.endswith(".zip"):
         PixivHelper.print_and_log('info', f"Deleting zip file => {zip_filename}")
