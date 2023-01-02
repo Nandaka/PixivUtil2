@@ -322,6 +322,8 @@ def process_image(caller,
                                                           searchTags=search_tags,
                                                           useTranslatedTag=config.useTranslatedTag,
                                                           tagTranslationLocale=config.tagTranslationLocale)
+                # trim _pXXX
+                info_filename = re.sub(r'_p?\d+$', '', info_filename)
                 info_filename = PixivHelper.sanitize_filename(info_filename + ".infoext", target_dir)
                 if config.writeImageInfo:
                     image.WriteInfo(info_filename[:-8] + ".txt")
@@ -333,6 +335,8 @@ def process_image(caller,
                                                               fileUrl=url,
                                                               appendExtension=False
                                                               )
+                    # trim _pXXX
+                    json_filename = re.sub(r'_p?\d+$', '', json_filename)
                     json_filename = PixivHelper.sanitize_filename(json_filename + ".json", target_dir)
                     image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename)
                 if config.writeImageXMP and not config.writeImageXMPPerImage:
