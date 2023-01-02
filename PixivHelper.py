@@ -285,7 +285,7 @@ def make_filename(nameFormat: str,
     # 701
     if useTranslatedTag:
         for idx, tag in enumerate(image_tags):
-            for translated_tags in imageInfo.tags:
+            for translated_tags in imageInfo.tags:  # type: PixivImage.PixivTagData
                 if translated_tags.tag == tag:
                     image_tags[idx] = translated_tags.get_translation(tagTranslationLocale)
                     break

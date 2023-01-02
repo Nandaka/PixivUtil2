@@ -305,7 +305,7 @@ def process_image(caller,
                                                                     useTranslatedTag=config.useTranslatedTag,
                                                                     tagTranslationLocale=config.tagTranslationLocale)
                         info_filename = PixivHelper.sanitize_filename(info_filename + ".xmp", target_dir)
-                        image.WriteXMP(info_filename)
+                        image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
 
             if config.writeImageInfo or config.writeImageJSON or config.writeImageXMP:
                 filename_info_format = config.filenameInfoFormat or config.filenameFormat
@@ -326,7 +326,7 @@ def process_image(caller,
                 if config.writeImageInfo:
                     image.WriteInfo(info_filename[:-8] + ".txt")
                 if config.writeImageJSON:
-                    image.WriteJSON(info_filename[:-8] + ".json", config.RawJSONFilter)
+                    image.WriteJSON(info_filename[:-8] + ".json", config.RawJSONFilter, config.useTranslatedTag, config.tagTranslationLocale)
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
                     json_filename = PixivHelper.make_filename(config.filenameSeriesJSON,
                                                               image,
@@ -336,7 +336,7 @@ def process_image(caller,
                     json_filename = PixivHelper.sanitize_filename(json_filename + ".json", target_dir)
                     image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename)
                 if config.writeImageXMP and not config.writeImageXMPPerImage:
-                    image.WriteXMP(info_filename[:-8] + ".xmp")
+                    image.WriteXMP(info_filename[:-8] + ".xmp", config.useTranslatedTag, config.tagTranslationLocale)
 
             if image.imageMode == 'ugoira_view':
                 if config.writeUgoiraInfo:
