@@ -779,6 +779,8 @@ def download_image(url, filename, res, file_size, overwrite):
     curr = 0
     msg_len = 0
     try:
+        # read the first 4kb for ui refresh
+        save.write(res.read(4096))
         while True:
             save.write(res.read(PixivConstant.BUFFER_SIZE))
             curr = save.tell()
@@ -844,9 +846,11 @@ def print_progress(curr, total, max_msg_length=80):
         color = f"{Fore.GREEN}{Style.BRIGHT}" if complete == animBarLen else Fore.RED
         if use_half_block:
             with_half_block = f"{'━' * (complete - 1)}╸"
-            msg = f"\r{color}[{with_half_block:{animBarLen}} ]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
+            msg = f"\r{color}[{with_half_block:{animBarLen}}]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
+        elif complete == animBarLen:
+            msg = f"\r{color}[{'━' * complete:{animBarLen}}]{Style.RESET_ALL} {size_in_str(total)}"
         else:
-            msg = f"\r{color}[{'━' * complete:{animBarLen}} ]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
+            msg = f"\r{color}[{'━' * complete:{animBarLen}}]{Style.RESET_ALL} {size_in_str(curr)} of {size_in_str(total)}"
 
     else:
         # indeterminite

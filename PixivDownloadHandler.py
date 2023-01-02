@@ -85,7 +85,7 @@ def download_image(caller,
                     remote_file_size = get_remote_filesize(url, referer, config, notifier)
                 else:
                     remote_file_size = -1
-                    PixivHelper.print_and_log(None, "\rSkipped getting remote file size because local file not exists")
+                    # PixivHelper.print_and_log(None, "\rSkipped getting remote file size because local file not exists")
 
                 # 837
                 if config.skipUnknownSize and is_exists and remote_file_size == -1:
@@ -335,7 +335,7 @@ def perform_download(url, file_size, filename, overwrite, config, referer=None, 
     if referer is None:
         referer = config.referer
     # actual download
-    PixivHelper.print_and_log(None, '\rStart downloading...', newline=False)
+    # PixivHelper.print_and_log(None, '\rStart downloading...', newline=False)
     # fetch filesize
     req = PixivHelper.create_custom_request(url, config, referer)
     br = PixivBrowserFactory.getBrowser(config=config)

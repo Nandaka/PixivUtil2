@@ -16,6 +16,7 @@ import demjson3
 import mechanize
 import socks
 from bs4 import BeautifulSoup
+from colorama import Fore, Style
 
 import PixivHelper
 from PixivArtist import PixivArtist
@@ -775,7 +776,7 @@ class PixivBrowser(mechanize.Browser):
                 url = f'https://www.pixiv.net/ajax/user/{member_id}/profile/all'
                 need_to_slice = True
 
-            PixivHelper.print_and_log('info', f'Member Url: {url}')
+            PixivHelper.print_and_log('info', f'{Fore.LIGHTGREEN_EX}{"Member Url":14}:{Style.RESET_ALL} {url}')
 
         if url is not None:
             # cache the response

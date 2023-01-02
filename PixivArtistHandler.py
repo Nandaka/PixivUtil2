@@ -39,9 +39,9 @@ def process_member(caller,
     PixivHelper.print_and_log('info', msg)
     notifier(type="MEMBER", message=msg)
     if page != 1:
-        PixivHelper.print_and_log('info', 'Start Page: ' + str(page))
+        PixivHelper.print_and_log('info', f'Start Page: {page}')
     if end_page != 0:
-        PixivHelper.print_and_log('info', 'End Page: ' + str(end_page))
+        PixivHelper.print_and_log('info', f'End Page: {end_page}')
         if config.numberOfPage != 0:
             PixivHelper.print_and_log('info', 'Number of page setting will be ignored')
     elif config.numberOfPage != 0:
@@ -60,7 +60,7 @@ def process_member(caller,
         image_id = -1
 
         while flag:
-            PixivHelper.print_and_log(None, 'Page ', page)
+            PixivHelper.print_and_log(None, f'Page {page} of {end_page}')
             caller.set_console_title(f"{title_prefix}MemberId: {member_id} Page: {page}")
             # Try to get the member page
             while True:
@@ -94,46 +94,12 @@ def process_member(caller,
                     traceback.print_exception(exc_type, exc_value, exc_traceback)
                     PixivHelper.print_and_log('error', f'Error at processing Artist Info: {sys.exc_info()}')
 
-            PixivHelper.print_and_log(None, f'Member Name  : {artist.artistName}')
-            PixivHelper.print_and_log(None, f'Member Avatar: {artist.artistAvatar}')
-            PixivHelper.print_and_log(None, f'Member Token : {artist.artistToken}')
-            PixivHelper.print_and_log(None, f'Member Background : {artist.artistBackground}')
+            PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Name":14}:{Style.RESET_ALL} {artist.artistName}')
+            PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Avatar":14}:{Style.RESET_ALL} {artist.artistAvatar}')
+            PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Token":14}:{Style.RESET_ALL} {artist.artistToken}')
+            PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Backgrd":14}:{Style.RESET_ALL} {artist.artistBackground}')
             print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
             PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
-
-            if not is_avatar_downloaded and config.downloadAvatar:
-                if user_dir == '':
-                    target_dir = config.rootDirectory
-                else:
-                    target_dir = user_dir
-
-                (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, config)
-                if not caller.DEBUG_SKIP_PROCESS_IMAGE:
-                    if artist.artistAvatar.find('no_profile') == -1:
-                        PixivDownloadHandler.download_image(caller,
-                                                            artist.artistAvatar,
-                                                            filename_avatar,
-                                                            "https://www.pixiv.net/",
-                                                            config.overwrite,
-                                                            config.retry,
-                                                            config.backupOldFile,
-                                                            notifier=notifier)
-                    # Issue #508
-                    if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
-                        PixivDownloadHandler.download_image(caller,
-                                                            artist.artistBackground,
-                                                            filename_bg,
-                                                            "https://www.pixiv.net/",
-                                                            config.overwrite,
-                                                            config.retry,
-                                                            config.backupOldFile,
-                                                            notifier=notifier)
-                    is_avatar_downloaded = True
-
-            if config.autoAddMember:
-                db.insertNewMember(int(member_id), member_token=artist.artistToken)
-
-            db.updateMemberName(member_id, artist.artistName, artist.artistToken)
 
             if not artist.haveImages:
                 PixivHelper.print_and_log('info', f"No image found for: {member_id}")
@@ -141,14 +107,22 @@ def process_member(caller,
                 flag = False
                 continue
 
+            if config.downloadAvatar and not is_avatar_downloaded:
+                is_avatar_downloaded = process_avatar_bg(caller, config, user_dir, notifier, artist)
+
+            if config.autoAddMember:
+                db.insertNewMember(int(member_id), member_token=artist.artistToken)
+
+            db.updateMemberName(member_id, artist.artistName, artist.artistToken)
+
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
-                PixivHelper.print_and_log(None, f'#{no_of_images}')
+                ui_prefix = f'{Fore.LIGHTGREEN_EX}[{no_of_images} of {artist.totalImages}]{Style.RESET_ALL} '
+                # PixivHelper.print_and_log(None, ui_prefix)
                 retry_count = 0
                 while True:
                     try:
                         if artist.totalImages > 0:
-                            # PixivHelper.safePrint("Total Images = " + str(artist.totalImages))
                             total_image_page_count = artist.totalImages
                             if (offset_stop > 0 and offset_stop < total_image_page_count):
                                 total_image_page_count = offset_stop
@@ -166,7 +140,8 @@ def process_member(caller,
                                                                      bookmark,
                                                                      title_prefix=title_prefix_img,
                                                                      bookmark_count=bookmark_count,
-                                                                     notifier=notifier)
+                                                                     notifier=notifier,
+                                                                     ui_prefix=ui_prefix)
 
                         break
                     except KeyboardInterrupt:
@@ -255,3 +230,35 @@ def process_member(caller,
         except BaseException:
             PixivHelper.print_and_log('error', f'Cannot dump page for member_id: {member_id}')
         raise
+
+
+def process_avatar_bg(caller, config, user_dir, notifier, artist):
+    if user_dir == '':
+        target_dir = config.rootDirectory
+    else:
+        target_dir = user_dir
+
+    (filename_avatar, filename_bg) = PixivHelper.create_avabg_filename(artist, target_dir, config)
+    if not caller.DEBUG_SKIP_PROCESS_IMAGE:
+        if artist.artistAvatar.find('no_profile') == -1:
+            PixivHelper.print_and_log("info", f"Getting member's avatar from {artist.artistAvatar}.")
+            PixivDownloadHandler.download_image(caller,
+                                                artist.artistAvatar,
+                                                filename_avatar,
+                                                "https://www.pixiv.net/",
+                                                config.overwrite,
+                                                config.retry,
+                                                config.backupOldFile,
+                                                notifier=notifier)
+        # Issue #508
+        if artist.artistBackground is not None and artist.artistBackground.startswith("http"):
+            PixivHelper.print_and_log("info", f"Getting member's background from {artist.artistBackground}.")
+            PixivDownloadHandler.download_image(caller,
+                                                artist.artistBackground,
+                                                filename_bg,
+                                                "https://www.pixiv.net/",
+                                                config.overwrite,
+                                                config.retry,
+                                                config.backupOldFile,
+                                                notifier=notifier)
+    return True
