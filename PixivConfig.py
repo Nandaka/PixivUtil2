@@ -212,6 +212,7 @@ class PixivConfig():
         ConfigItem("DownloadControl", "skipUnknownSize", False),
         ConfigItem("DownloadControl", "enablePostProcessing", False),
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
+        ConfigItem("DownloadControl", "extensionFilter", ""),
     ]
 
     def __init__(self):
