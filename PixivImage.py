@@ -84,6 +84,9 @@ class PixivImage (object):
     translated_work_title = ""
     translated_work_caption = ""
 
+    # Issue #1189
+    ai_type = -1
+
     def __init__(self,
                  iid=0,
                  page=None,
@@ -275,6 +278,12 @@ class PixivImage (object):
                     self.translated_work_caption = caption_element.text
                     caption_element.decompose()
                     del caption_element
+
+        # Feature #1189
+        if "aiType" in root:
+            self.ai_type = int(root["aiType"])  # 1 == non-AI, 2 == AI-generated
+            if self.ai_type == 2:
+                self.imageTags.insert(0, "AI-generated")
 
     def parse_url_from_caption(self, caption_to_parse):
         parsed = BeautifulSoup(caption_to_parse, features="html5lib")

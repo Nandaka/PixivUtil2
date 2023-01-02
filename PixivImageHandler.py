@@ -118,6 +118,13 @@ def process_image(caller,
 
         download_image_flag = True
 
+        # feature #1189 AI filtering
+        if config.aiDisplayFewer:
+            if image.ai_type == 2:
+                PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True.')
+                download_image_flag = False
+                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+
         # date validation and blacklist tag validation
         if config.dateDiff > 0:
             if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
@@ -200,7 +207,7 @@ def process_image(caller,
             PixivHelper.print_and_log(None, f"Title: {image.imageTitle}")
             if len(image.translated_work_title) > 0:
                 PixivHelper.print_and_log(None, f"Translated Title: {image.translated_work_title}")
-            tags_str = ', '.join(image.imageTags)
+            tags_str = ', '.join(image.imageTags).replace("AI-generated", f"{Style.BRIGHT}AI-generated{Style.RESET_ALL}")
             PixivHelper.print_and_log(None, f"Tags : {tags_str}")
             PixivHelper.print_and_log(None, f"Date : {image.worksDateDateTime}")
             PixivHelper.print_and_log(None, f"Mode : {image.imageMode}")

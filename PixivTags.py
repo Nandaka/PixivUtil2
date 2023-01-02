@@ -10,14 +10,16 @@ from PixivException import PixivException
 
 
 class PixivTagsItem:
-    imageId = 0
-    bookmarkCount = 0
-    imageResponse = 0
+    imageId: int = 0
+    bookmarkCount: int = 0
+    imageResponse: int = 0
+    ai_type: int = -1
 
-    def __init__(self, image_id, bookmark_count, image_response_count):
+    def __init__(self, image_id, bookmark_count, image_response_count, ai_type=-1):
         self.imageId = image_id
         self.bookmarkCount = bookmark_count
         self.imageResponse = image_response_count
+        self.ai_type = ai_type
 
 
 class PixivTags:
@@ -26,15 +28,16 @@ class PixivTags:
     haveImage = None
     isLastPage = None
     availableImages = 0
-    __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-    __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
+    # __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+    # __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
     query = ""
     memberId = 0
 
     POSTS_PER_PAGE = 60
+    page = -1
 
     def parseMemberTags(self, artist, memberId, query=""):
-        '''process artist result and return the image list'''
+        '''process artist result and return the image list, https://www.pixiv.net/ajax/user/25661139/illustmanga/tag/<search_tags>'''
         self.itemList = list()
         self.memberId = memberId
         self.query = query
@@ -44,12 +47,14 @@ class PixivTags:
             self.itemList.append(PixivTagsItem(int(image), 0, 0))
 
     def parseTags(self, page, query="", curr_page=1):
+        '''From search by tags page, https://www.pixiv.net/ajax/search/artworks/<search_tags>'''
         payload = json.loads(page)
         self.query = query
+        self.page = curr_page
 
         # check error
         if payload["error"]:
-            raise PixivException('Image Error: ' + payload["message"], errorCode=PixivException.SERVER_ERROR)
+            raise PixivException(f'Image Error: {payload["message"]}', errorCode=PixivException.SERVER_ERROR)
 
         # parse images information
         self.itemList = list()
@@ -59,11 +64,14 @@ class PixivTags:
                 ad_container_count = ad_container_count + 1
                 continue
 
-            image_id = item["id"]
+            image_id = int(item["id"])
             # like count not available anymore, need to call separate request...
             bookmarkCount = 0
             imageResponse = 0
-            tag_item = PixivTagsItem(int(image_id), int(bookmarkCount), int(imageResponse))
+            ai_type = -1
+            if "aiType" in item:
+                ai_type = int(item["aiType"])
+            tag_item = PixivTagsItem(image_id, bookmarkCount, imageResponse, ai_type)
             self.itemList.append(tag_item)
 
         self.haveImage = False
@@ -82,14 +90,14 @@ class PixivTags:
     def PrintInfo(self):
         PixivHelper.safePrint('Search Result')
         if self.memberId > 0:
-            PixivHelper.safePrint('Member Id: {0}'.format(self.memberId))
-        PixivHelper.safePrint('Query: {0}'.format(self.query))
-        PixivHelper.safePrint('haveImage  : {0}'.format(self.haveImage))
-        PixivHelper.safePrint('urls  : {0}'.format(len(self.itemList)))
+            PixivHelper.safePrint(f'Member Id: {self.memberId}')
+        PixivHelper.safePrint(f'Query: {self.query}')
+        PixivHelper.safePrint(f'haveImage  : {self.haveImage}')
+        PixivHelper.safePrint(f'urls  : {len(self.itemList)}')
         for item in self.itemList:
-            print("\tImage Id: {0}\tFav Count:{1}".format(item.imageId, item.bookmarkCount))
-        PixivHelper.safePrint('total : {0}'.format(self.availableImages))
-        PixivHelper.safePrint('last? : {0}'.format(self.isLastPage))
+            print(f"\tImage Id: {item.imageId}\tFav Count:{item.bookmarkCount}")
+        PixivHelper.safePrint(f'total : {self.availableImages}')
+        PixivHelper.safePrint(f'last? : {self.isLastPage}')
 
     @staticmethod
     def parseTagsList(filename):
@@ -97,8 +105,7 @@ class PixivTags:
         tags = list()
 
         if not os.path.exists(filename):
-            raise PixivException("File doesn't exists or no permission to read: " + filename,
-                                 PixivException.FILE_NOT_EXISTS_OR_NO_READ_PERMISSION)
+            raise PixivException(f"File doesn't exists or no permission to read: {filename}", PixivException.FILE_NOT_EXISTS_OR_NO_PERMISSION)
 
         reader = PixivHelper.open_text_file(filename)
         for line in reader:
