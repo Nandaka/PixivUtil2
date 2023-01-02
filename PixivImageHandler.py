@@ -289,6 +289,7 @@ def process_image(caller,
                         PixivHelper.print_and_log('error', f'Error when download_image(), giving up url: {img}')
                     PixivHelper.print_and_log(None, '')
 
+                    # XMP image info per images
                     if config.writeImageXMPPerImage:
                         filename_info_format = config.filenameInfoFormat or config.filenameFormat
                         # Issue #575
@@ -322,17 +323,19 @@ def process_image(caller,
                                                           searchTags=search_tags,
                                                           useTranslatedTag=config.useTranslatedTag,
                                                           tagTranslationLocale=config.tagTranslationLocale)
+                if image.imageMode == 'manga':
+                    # trim _pXXX for manga
+                    info_filename = re.sub(r'_p?\d+$', '', info_filename)
                 info_filename = PixivHelper.sanitize_filename(info_filename + ".infoext", target_dir)
                 if config.writeImageInfo:
                     image.WriteInfo(info_filename[:-8] + ".txt")
                 if config.writeImageJSON:
                     image.WriteJSON(info_filename[:-8] + ".json", config.RawJSONFilter, config.useTranslatedTag, config.tagTranslationLocale)
                 if config.includeSeriesJSON and image.seriesNavData and image.seriesNavData['seriesId'] not in caller.__seriesDownloaded:
-                    json_filename = PixivHelper.make_filename(config.filenameSeriesJSON,
-                                                              image,
-                                                              fileUrl=url,
-                                                              appendExtension=False
-                                                              )
+                    json_filename = PixivHelper.make_filename(config.filenameSeriesJSON, image, fileUrl=url, appendExtension=False)
+                    if image.imageMode == 'manga':
+                        # trim _pXXX for manga
+                        json_filename = re.sub(r'_p?\d+$', '', json_filename)
                     json_filename = PixivHelper.sanitize_filename(json_filename + ".json", target_dir)
                     image.WriteSeriesData(image.seriesNavData['seriesId'], caller.__seriesDownloaded, json_filename)
                 if config.writeImageXMP and not config.writeImageXMPPerImage:
