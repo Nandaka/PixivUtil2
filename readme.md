@@ -640,6 +640,12 @@ Please refer run with `--help` for latest information.
 - ffmpegparam
 
   Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 0`.
+- mkvcodec
+
+  Codec to be used for encoding mkv, default is using `copy`.
+- mkvparam
+
+  Parameter to be used to encode mkv, default: ` `.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
@@ -655,6 +661,10 @@ Please refer run with `--help` for latest information.
 
   If set to `True`, it will create .ugoira file.
   This is Pixiv own format for animated images. You can use Honeyview to see the animation.
+- createmkv
+
+  Set to True to create mkv file (video format). The default settings is lossless(no encoding), it will pack the images in the container. Very large file size.
+  Required `createUgoira = True` and ffmpeg executeable.
 - createwebm
 
   Set to True to create webm file (video format). The default encoding settings is lossy encoding but high quality with smallest file size.

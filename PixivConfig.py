@@ -178,6 +178,8 @@ class PixivConfig():
         ConfigItem("FFmpeg", "ffmpegCodec", "libvpx-vp9"),
         ConfigItem("FFmpeg", "ffmpegExt", "webm"),
         ConfigItem("FFmpeg", "ffmpegParam", "-lossless 0 -crf 15 -b 0 -vsync 0"),
+        ConfigItem("FFmpeg", "mkvCodec", "copy"),
+        ConfigItem("FFmpeg", "mkvParam", ""),
         ConfigItem("FFmpeg", "webpCodec", "libwebp"),
         ConfigItem("FFmpeg", "webpParam", "-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0"),
         ConfigItem("FFmpeg", "gifParam",
@@ -187,6 +189,7 @@ class PixivConfig():
 
         ConfigItem("Ugoira", "writeUgoiraInfo", False),
         ConfigItem("Ugoira", "createUgoira", False),
+        ConfigItem("Ugoira", "createMkv", False),
         ConfigItem("Ugoira", "createWebm", False),
         ConfigItem("Ugoira", "createWebp", False),
         ConfigItem("Ugoira", "createGif", False),

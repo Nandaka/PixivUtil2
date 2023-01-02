@@ -1023,6 +1023,17 @@ def ugoira2webm(ugoira_file, exportname, codec="libvpx-vp9", extension="webm", i
                    image=image)
 
 
+def ugoira2mkv(ugoira_file, exportname, codec="copy", image=None):
+    print_and_log('info', 'Processing ugoira to mkv...')
+    convert_ugoira(ugoira_file,
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec=codec,
+                   param=_config.mkvParam,
+                   extension="mkv",
+                   image=image)
+
+
 def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     # if not os.path.exists(os.path.abspath(ffmpeg)):
