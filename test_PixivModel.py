@@ -19,23 +19,23 @@ PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 last_page = 52
 
 
-class MockPixivBrowser(PixivBrowser):
-    mode = None
+# class MockPixivBrowser(PixivBrowser):
+#     mode = None
 
-    def __init__(self, mode):
-        self.mode = mode
+#     def __init__(self, mode):
+#         self.mode = mode
 
-    def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
-        if self.mode == 1:
-            p = open('./test/test-image-big-single.html', 'r', encoding="utf-8")
-            page = BeautifulSoup(p.read(), features="html5lib")
-            return page
-        else:
-            # fake the manga page
-            pageNo = url.split("=")[-1]
-            p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r', encoding="utf-8")
-            page = BeautifulSoup(p.read(), features="html5lib")
-            return page
+#     def getPixivPage(self, url, referer="https://www.pixiv.net", returnParsed=True):
+#         if self.mode == 1:
+#             p = open('./test/test-image-big-single.html', 'r', encoding="utf-8")
+#             page = BeautifulSoup(p.read(), features="html5lib")
+#             return page
+#         else:
+#             # fake the manga page
+#             pageNo = url.split("=")[-1]
+#             p = open('./test/test-image-parsemanga-big-' + pageNo + '.htm', 'r', encoding="utf-8")
+#             page = BeautifulSoup(p.read(), features="html5lib")
+#             return page
 
 
 class TestPixivArtist(unittest.TestCase):

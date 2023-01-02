@@ -65,24 +65,30 @@ def download_image(caller,
         req = None
         try:
             try:
+                is_exists = os.path.isfile(filename_save)
+
                 if not overwrite and not config.alwaysCheckFileSize:
                     PixivHelper.print_and_log(None, '\rChecking local filename...', newline=False)
-                    if os.path.isfile(filename_save):
+                    if is_exists:
                         PixivHelper.print_and_log('info', f"\rLocal file exists: {filename}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
                 # Issue #807
-                if config.checkLastModified and os.path.isfile(filename_save) and image is not None:
+                if config.checkLastModified and is_exists and image is not None:
                     local_timestamp = os.path.getmtime(filename_save)
                     remote_timestamp = time.mktime(image.worksDateDateTime.timetuple())
                     if local_timestamp == remote_timestamp:
                         PixivHelper.print_and_log('info', f"\rLocal file timestamp match with remote: {filename} => {image.worksDateDateTime}")
                         return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
-                remote_file_size = get_remote_filesize(url, referer, config, notifier)
+                if is_exists:
+                    remote_file_size = get_remote_filesize(url, referer, config, notifier)
+                else:
+                    remote_file_size = -1
+                    PixivHelper.print_and_log(None, f"\rSkipped getting remote file size because local file not exists")
 
                 # 837
-                if config.skipUnknownSize and os.path.isfile(filename_save) and remote_file_size == -1:
+                if config.skipUnknownSize and is_exists and remote_file_size == -1:
                     PixivHelper.print_and_log('info', f"\rSkipped because file exists and cannot get remote file size for: {filename}")
                     return (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE, filename_save)
 
@@ -98,7 +104,7 @@ def download_image(caller,
                 # check if existing ugoira file exists
                 if filename.endswith(".zip"):
                     # non-converted zip (no animation.json)
-                    if os.path.isfile(filename_save):
+                    if is_exists:
                         old_size = os.path.getsize(filename_save)
                         # update for #451, always return identical?
                         check_result = PixivHelper.check_file_exists(overwrite, filename_save, remote_file_size, old_size, backup_old_file)
@@ -115,7 +121,7 @@ def download_image(caller,
                             handle_ugoira(image, filename_save, config, notifier)
 
                             return (check_result, filename)
-                elif os.path.isfile(filename_save):
+                elif is_exists:
                     # other image? files
                     old_size = os.path.getsize(filename_save)
                     check_result = PixivHelper.check_file_exists(overwrite, filename, remote_file_size, old_size, backup_old_file)
@@ -172,6 +178,9 @@ def download_image(caller,
                 notifier(type="DOWNLOAD", message=f"Start downloading {url} to {filename_save}")
                 (downloadedSize, filename_save) = perform_download(url, remote_file_size, filename_save, overwrite, config, referer)
 
+                # double check after download, because the file might be deleted due to partial download
+                is_exists = os.path.isfile(filename_save)
+
                 # Issue #956 need to calculate hash file for each method
                 old_filename_save = filename_save
                 if filename_save.find("%md5%") > 0:
@@ -193,14 +202,21 @@ def download_image(caller,
                     os.rename(old_filename_save, filename_save)
 
                 # set last-modified and last-accessed timestamp
-                if image is not None and config.setLastModified and filename_save is not None and os.path.isfile(filename_save):
+                if image is not None and config.setLastModified and filename_save is not None and is_exists:
                     ts = time.mktime(image.worksDateDateTime.timetuple())
                     os.utime(filename_save, (ts, ts))
 
                 # check the downloaded file size again
                 if remote_file_size > 0 and downloadedSize != remote_file_size:
-                    raise PixivException(f"Incomplete Downloaded for {url}", PixivException.DOWNLOAD_FAILED_OTHER)
-                elif config.verifyImage and filename_save.endswith((".jpg", ".png", ".gif")):
+                    PixivHelper.print_and_log('error', f"Incomplete Download for {url} => {filename_save}")
+                    if retry_count < max_retry:
+                        retry_count = retry_count + 1
+                        PixivHelper.print_and_log(None, f"\rRetrying [{retry_count}]...", newline=False)
+                        PixivHelper.print_delay(config.retryWait)
+                        continue
+                    return (PixivConstant.DOWNLOAD_FAILED_OTHER, filename_save)
+
+                elif config.verifyImage and filename_save.endswith((".jpg", ".png", ".gif")) and is_exists:
                     fp = None
                     try:
                         from PIL import Image, ImageFile
@@ -246,8 +262,7 @@ def download_image(caller,
                         PixivHelper.print_and_log('info', ' Image invalid, deleting...')
                         os.remove(filename_save)
                         raise
-                else:
-                    PixivHelper.print_and_log('info', ' done.')
+                PixivHelper.print_and_log('info', f' Download done ==> {filename_save}')
 
                 # codecs.open is stateless, so if platform_encoding == utf-8-sig each new line starts from utf-8-sig
                 # this is bad and I feel bad

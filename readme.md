@@ -622,6 +622,11 @@ Please refer run with `--help` for latest information.
   command to execute. add %filename% to pass the downloaded filename.
     NO ERROR HANDLING AT ALL, use on your own risk.
 
+- extensionFilter
+
+  Provide a | seperated list of acceptable file extensions to download. Eg. jpg|png|gif|ugoira
+
+
 ## [FFmpeg]
 - ffmpeg
 

@@ -10,6 +10,7 @@ import platform
 import re
 import subprocess
 import sys
+import traceback
 from optparse import OptionParser
 
 import colorama
@@ -1522,11 +1523,12 @@ def doLogin(password, username):
         if len(__config__.cookie) > 0:
             result = __br__.loginUsingCookie()
 
-        if not result:
-            result = __br__.login(username, password)
+        # if not result:
+        #     result = __br__.login(username, password)
 
     except BaseException:
         PixivHelper.print_and_log('error', f'Error at doLogin(): {sys.exc_info()}')
+        PixivHelper.print_and_log('error', f'{traceback.format_exc()}')
         raise PixivException("Cannot Login!", PixivException.CANNOT_LOGIN)
     return result
 
