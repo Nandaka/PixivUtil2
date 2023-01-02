@@ -154,6 +154,7 @@ class PixivConfig():
         ConfigItem("Pixiv", "r18Type", 0),  # Issue #439
         ConfigItem("Pixiv", "dateFormat", ""),
         ConfigItem("Pixiv", "autoAddMember", False),
+        ConfigItem("Pixiv", "aiDisplayFewer", False),
 
         ConfigItem("FANBOX", "filenameFormatFanboxCover",
                    "FANBOX %artist% (%member_id%)" + os.sep + "%urlFilename% - %title%",
@@ -216,7 +217,6 @@ class PixivConfig():
         ConfigItem("DownloadControl", "enablePostProcessing", False),
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
         ConfigItem("DownloadControl", "extensionFilter", ""),
-        ConfigItem("DownloadControl", "aiDisplayFewer", False),
         ConfigItem("DownloadControl", "downloadBuffer", 512, restriction=lambda x: int(x) > 0),
     ]
 

@@ -339,21 +339,30 @@ Please refer run with `--help` for latest information.
 - numberofpage
 
   Number of page to be processed, put `0` to process all pages.
+  
 - r18mode
 
   Only list images tagged R18, for member, member's bookmark, and search by tag. Set to `True` to enable.
+
 - r18Type
 
-  0: All; 1: R18; 2: R18G
+  Allow filtering for R-18 type (R-18 or R-18G)
+  Set `r18Type` with value `0` = both R18 and R-18G, `1` = only R18, or `2` = only R18G
+
 - dateformat
 
   Pixiv DateTime format, leave blank to use default format (YYYY-MM-DD).
   Refer to http://strftime.org/ for syntax. Quick Reference:
   - %d = Day, %m = Month, %Y = Year (4 digit)
   - %H = Hour (24h), %M = Minute, %S = Seconds
+
 - autoAddMember
 
   Automatically save member id to db for all download.
+
+- aiDisplayFewer
+
+  if true, filter out AI-generated images from downloading.
 
 ## [FANBOX]
 - filenameFormatFanboxContent
@@ -620,11 +629,17 @@ Please refer run with `--help` for latest information.
 - postProcessingCmd
 
   command to execute. add %filename% to pass the downloaded filename.
-    NO ERROR HANDLING AT ALL, use on your own risk.
+  **NO ERROR HANDLING AT ALL, use on your own risk.**
 
 - extensionFilter
 
   Provide a | seperated list of acceptable file extensions to download. Eg. jpg|png|gif|ugoira
+
+- downloadBuffer
+
+  Download buffer before it write to disk in kiloByte, default is 512kB.
+  You can change it based on your download speed. Mainly useful for smoother progress bar.
+  Usually no need to change this value.
 
 
 ## [FFmpeg]

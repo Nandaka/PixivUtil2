@@ -1,3 +1,28 @@
+20230102
+- Implement #1191: add wait between search API
+- Implement #1187: Handle OSErrors in a cleaner way
+- Implement #1176: Failed ugoira conversions counted as successful downloads
+- Implement #439: Have options to download both R-18/18G or one over other
+  Add new config `r18Type` with value `0` = both R18 and R-18G, `1` = only R18, or `2` = only R18G
+- Merge fixs socks5 `getaddrinfo`&dns leak, and enable auth (#1195) by @NewUserHa
+- Merge Optimize visual quality of converted ugoira (#1198) by @NewUserHa
+- Merge Enhance document (#1197) by @NewUserHa
+- Merge fix: infofile add extension name first (#1203) by @神楽坂みずき
+- temp fix? #1209, you also need to change the user agent to 'Mozilla/5.0' only in config.ini
+- Merge get rid of useless checks to speed up the download, if image not exists at all. (#1201) by @NewUserHa
+  Also Fix #1206: Update retry logic for incomplete download.
+- Merge Add the unused configuration option "extensionFilter" to the app. (#1217) by @Terryble2
+- Merge Don't process member page if it's in blacklist_member.txt (#1208) by @NewUserHa
+- Merge Update readme.md (#1202) by @NewUserHa
+- Merge Add mkv ugoira packing without encoding (#1218) by @PatrickL546
+- Merge Update to python 3.11 for faster startup for docker (#1199) by @NewUserHa
+- Implement #1216, set useTranslatedTag = True in config.ini to enable
+- Merge fix: remove trim `_pxx` (#1204) by @ミズキ
+  also add logic to only trim p_xx for image info when image mode == manga / multi images
+- Implement #1189, set `aiDisplayFewer=True` in config.ini to enable.
+- Add configurable download buffer in config.ini
+- Add color to ui for download by image and by member.
+
 20221029
 - Merge Fix issue with fanbox coverImageUrl (#1181) (#1185) by @KamenReader
 - Update #1184: fix .gitignore for venv. 
