@@ -758,6 +758,8 @@ def makeSubdirs(filename):
 def download_image(url, filename, res, file_size, overwrite):
     ''' Actual download, return the downloaded filesize and saved filename.'''
     start_time = datetime.now()
+    global _config
+    BUFFER_SIZE = _config.downloadBuffer * 1024
 
     # try to save to the given filename + .pixiv extension if possible
     try:
@@ -779,10 +781,8 @@ def download_image(url, filename, res, file_size, overwrite):
     curr = 0
     msg_len = 0
     try:
-        # read the first 4kb for ui refresh
-        save.write(res.read(4096))
         while True:
-            save.write(res.read(PixivConstant.BUFFER_SIZE))
+            save.write(res.read(BUFFER_SIZE))
             curr = save.tell()
             msg_len = print_progress(curr, file_size, msg_len)
 

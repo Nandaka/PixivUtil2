@@ -217,6 +217,7 @@ class PixivConfig():
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
         ConfigItem("DownloadControl", "extensionFilter", ""),
         ConfigItem("DownloadControl", "aiDisplayFewer", False),
+        ConfigItem("DownloadControl", "downloadBuffer", 512, restriction=lambda x: int(x) > 0),
     ]
 
     def __init__(self):
