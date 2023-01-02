@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.11
 
 COPY requirements.txt requirements.txt
 

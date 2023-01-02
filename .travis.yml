@@ -1,6 +1,7 @@
+dist: jammy
 language: python
 python:
-  - "3.9"
+  - "3.11"
 # command to install dependencies
 install:
   - pip install -e .
