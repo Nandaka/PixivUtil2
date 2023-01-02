@@ -36,12 +36,17 @@ def process_bookmark(caller,
             print("%d/%d\t%f %%" % (i, len(total_list), 100.0 * i / float(len(total_list))))
             i += 1
             prefix = "[{0} of {1}]".format(current_member, len(total_list))
-            PixivArtistHandler.process_member(caller,
-                                              config,
-                                              item.memberId,
-                                              user_dir=item.path,
-                                              title_prefix=prefix,
-                                              bookmark_count=bookmark_count)
+
+            if str(item.memberId) in caller.__blacklistMembers:
+                PixivHelper.print_and_log('warn', f'Skipping member id: {item.memberId} by blacklist_members.txt.')
+            else:
+                PixivArtistHandler.process_member(caller,
+                                                  config,
+                                                  item.memberId,
+                                                  user_dir=item.path,
+                                                  title_prefix=prefix,
+                                                  bookmark_count=bookmark_count)
+
             current_member = current_member + 1
 
         if len(total_list) > 0:
