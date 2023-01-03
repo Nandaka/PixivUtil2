@@ -120,11 +120,10 @@ def process_image(caller,
         download_image_flag = True
 
         # feature #1189 AI filtering
-        if config.aiDisplayFewer:
-            if image.ai_type == 2:
-                PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True.')
-                download_image_flag = False
-                result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
+        if config.aiDisplayFewer and image.ai_type == 2:
+            PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True and aiType = {image.ai_type}.')
+            download_image_flag = False
+            result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         # date validation and blacklist tag validation
         if config.dateDiff > 0:

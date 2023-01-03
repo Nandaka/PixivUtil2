@@ -115,8 +115,8 @@ def process_tags(caller,
                         PixivHelper.print_and_log('info', f'Skipping imageId= {item.imageId} because less than bookmark count limit ({bookmark_count} > {item.bookmarkCount}).')
                         skipped_count = skipped_count + 1
                         continue
-                    elif config.aiDisplayFewer:
-                        PixivHelper.print_and_log('info', f'Skipping imageId= {item.imageId} because blacklisted due to aiDisplayFewer is set to True..')
+                    elif config.aiDisplayFewer and item.ai_type == 2:
+                        PixivHelper.print_and_log('info', f'Skipping imageId: {item.imageId} because blacklisted due to aiDisplayFewer is set to True and aiType = {item.ai_type}..')
                         skipped_count = skipped_count + 1
                         continue
 
