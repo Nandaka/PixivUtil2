@@ -1,3 +1,7 @@
+20230105
+- Fix #1219: ai filtering logic for tag search.
+- Fix cacert resolution #1220 and remove ansi code from logging
+
 20230102
 - Implement #1191: add wait between search API
 - Implement #1187: Handle OSErrors in a cleaner way
