@@ -59,6 +59,7 @@ else:
     ''', re.VERBOSE)
 
 __custom_sanitizer_dic__ = {}
+__ansi_color = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 
 def set_config(config):
@@ -532,12 +533,19 @@ def create_avabg_filename(artistModel, targetDir, format_src):
 
 
 def we_are_frozen():
-    """Returns whether we are frozen via py2exe.
-        This will affect how we find out where we are located.
-        Get actual script directory
-        http://www.py2exe.org/index.cgi/WhereAmI"""
+    # """Returns whether we are frozen via py2exe.
+    #     This will affect how we find out where we are located.
+    #     Get actual script directory
+    #     http://www.py2exe.org/index.cgi/WhereAmI"""
 
-    return hasattr(sys, "frozen")
+    # return hasattr(sys, "frozen")
+    ''' updated for PyInstaller from https://pyinstaller.org/en/stable/runtime-information.html'''
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # print('running in a PyInstaller bundle')
+        return True
+    else:
+        # print('running in a normal Python process')
+        return False
 
 
 def module_path():
@@ -615,25 +623,26 @@ def dump_html(filename, html_text):
 
 
 def print_and_log(level, msg, exception: Exception = None, newline=True, end=None):
+    if level is None:
+        safePrint(msg, newline, end)
+        return
+
+    msg_no_color = __ansi_color.sub('', msg)
     if level == 'debug':
-        get_logger().debug(msg)
-    else:
-        if level == 'info':
-            safePrint(msg, newline, end)
-            get_logger().info(msg)
-        elif level == 'warn':
-            safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
-            get_logger().warning(msg)
-        elif level == 'error':
-            safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
-            if exception is None or not isinstance(exception, Exception) or exception.__traceback__ is None:
-                get_logger().error(msg)
-            else:
-                get_logger().error(msg)
-                # get_logger().exception(exception)
-                get_logger().error(traceback.format_exc())
-        elif level is None:
-            safePrint(msg, newline, end)
+        get_logger().debug(msg_no_color)
+    elif level == 'info':
+        safePrint(msg, newline, end)
+        get_logger().info(msg_no_color)
+    elif level == 'warn':
+        safePrint(Fore.YELLOW + f"{msg}" + Style.RESET_ALL, newline, end)
+        get_logger().warning(msg_no_color)
+    elif level == 'error':
+        safePrint(Fore.RED + f"{msg}" + Style.RESET_ALL, newline, end)
+        if exception is None or not isinstance(exception, Exception) or exception.__traceback__ is None:
+            get_logger().error(msg_no_color)
+        else:
+            get_logger().error(msg_no_color)
+            get_logger().error(traceback.format_exc())
 
 
 def have_strings(page, strings):
