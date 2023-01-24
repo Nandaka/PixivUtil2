@@ -293,6 +293,12 @@ def make_filename(nameFormat: str,
 
     tags = tagsSeparator.join(image_tags)
 
+    # Issue #1226
+    if hasattr(imageInfo, "ai_type") and imageInfo.ai_type == 2:
+        nameFormat = nameFormat.replace('%AI%', 'AI')
+    else:
+        nameFormat = nameFormat.replace('%AI%', '')
+
     r18Dir = ""
     if "R-18G" in imageInfo.imageTags:
         r18Dir = "R-18G"

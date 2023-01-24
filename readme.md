@@ -819,6 +819,8 @@ Available for filenameFormat and filenameMangaFormat:
    original manga series id.
 -> %manga_series_title%
    original manga series title, different from work title.
+-> %AI%
+   Add 'AI' for AI-generated images (aiType==2).
 ```
 Specific for PixivSketch (option 1 if PixivSketch included, s1, and s2 ):
 ```
