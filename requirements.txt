@@ -11,4 +11,3 @@ PySocks>=1.7.1
 colorama>=0.4.4
 cloudscraper>=1.2.58
 # pyexiv2>=2.7.0 # Required for writeImageXMP.
-demjson3
