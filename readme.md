@@ -769,6 +769,10 @@ filenameFormatFanboxCover, filenameFormatFanboxContent and filenameFormatFanboxI
    Current date using custom format.
    Use Python string format notation, refer: https://goo.gl/3UiMAb
    e.g. %date_fmt{%Y-%m-%d}%
+-> %file_ext%
+   The image's file extension (jpg, png, etc.), the "." is not included.
+   The correct file extension is already appended to the end of all files.
+   This is available if you want to add more, or want to add the image's file extension to info files etc.
 ```
 Available for filenameFormat and filenameMangaFormat:
 ```

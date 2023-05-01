@@ -218,6 +218,7 @@ def make_filename(nameFormat: str,
     nameFormat = nameFormat.replace('%image_id%', str(imageInfo.imageId))
     nameFormat = nameFormat.replace('%works_date%', imageInfo.worksDate)
     nameFormat = nameFormat.replace('%works_date_only%', imageInfo.worksDate.split(' ')[0])
+    nameFormat = nameFormat.replace('%file_ext%', imageExtension)
 
     # Issue #1064
     if hasattr(imageInfo, "translated_work_title") and len(imageInfo.translated_work_title) > 0:
