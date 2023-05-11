@@ -162,5 +162,5 @@ class NovelSeries:
                                  errorCode=PixivException.UNKNOWN_IMAGE_ERROR,
                                  htmlPage=page_info)
 
-        self.series_list.extend(js["body"]["seriesContents"])
+        self.series_list.extend(js["body"]["page"]["seriesContents"])
         self.series_list_str[current_page] = page_info
