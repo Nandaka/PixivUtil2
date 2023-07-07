@@ -1716,6 +1716,8 @@ def main():
         if __config__.useLocalTimezone:
             PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
 
+        print("Username login is broken, use cookie to log in.")
+
         username = __config__.username
         # if username == '':
         #     username = input('Username ? ').rstrip("\r")
