@@ -58,7 +58,7 @@ class PixivConfig():
         ConfigItem("Network", "useProxy", False),
         ConfigItem("Network", "proxyAddress", ""),
         ConfigItem("Network", "useragent",
-                   "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36"),
+                   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0"),
         ConfigItem("Network", "useRobots", True),
         ConfigItem("Network", "timeout", 60),
         ConfigItem("Network", "retry", 3),
