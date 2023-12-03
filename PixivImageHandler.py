@@ -480,7 +480,7 @@ def process_ugoira_local(caller, config):
                 zip_name = os.path.splitext(os.path.basename(zip))[0]
                 zip_dir = os.path.dirname(zip)
                 image_id = zip_name.partition("_")[0]
-                if image_id not in list_done:
+                if 'ugoira' in zip_name and image_id not in list_done:
                     counter += 1
                     PixivHelper.print_and_log(None, f"# Ugoira {counter}")
                     PixivHelper.print_and_log("info", "Deleting old animated files ...", newline=False)
