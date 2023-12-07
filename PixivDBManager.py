@@ -14,6 +14,8 @@ from colorama import Back, Fore, Style
 import PixivHelper
 from PixivListItem import PixivListItem
 
+from PixivException import PixivException
+
 script_path = PixivHelper.module_path()
 
 
@@ -608,6 +610,99 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print('Error at deleteMemberByMemberId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def deleteMembersByList(self):
+        list_name = input("Members filename = ").rstrip("\r")
+
+        if len(list_name) == 0:
+            list_name = "members.txt"
+
+        listTxt = PixivListItem.parseList(list_name)
+
+        print('Reading list...', end=' ')
+        print('Found', len(listTxt), 'items', end=' ')
+
+        try:
+            c = self.conn.cursor()
+            for item in listTxt:
+                c.execute('''DELETE FROM pixiv_manga_image
+                        WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (item.memberId, ))
+                c.execute('''DELETE FROM pixiv_master_image
+                        WHERE member_id = ?''', (item.memberId, ))
+                c.execute('''DELETE FROM pixiv_master_member
+                        WHERE member_id = ?''', (item.memberId, ))
+            self.conn.commit()
+        except BaseException:
+            print('Error at deleteMembersByList():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def keepMembersByList(self):
+        def parseMembersList(filename):
+            memberList = list()
+            reader = PixivHelper.open_text_file(filename)
+            line_no = 1
+
+            try:
+                for line in reader:
+                    original_line = line
+                    if line.startswith('#') or len(line) < 1:
+                        continue
+                    if len(line.strip()) == 0:
+                        continue
+                    
+                    line = line.strip()
+                    memberList.append(line)
+                    line_no = line_no + 1
+                    original_line = ""
+
+            except UnicodeDecodeError:
+                PixivHelper.get_logger().exception("PixivDBManager.parseMembersList(): Invalid value when parsing list")
+                PixivHelper.print_and_log('error', 'Invalid value: {0} at line {1}, try to save the list.txt in UTF-8.'.format(
+                                        original_line, line_no))
+            except BaseException:
+                PixivHelper.get_logger().exception("PixivDBManager.parseMembersList(): Invalid value when parsing list")
+                PixivHelper.print_and_log('error', 'Invalid value: {0} at line {1}'.format(original_line, line_no))
+            finally:
+                reader.close()
+                return memberList
+        
+        list_name = input("Members filename = ").rstrip("\r")
+
+        if len(list_name) == 0:
+            list_name = "members.txt"
+
+        if os.path.exists(list_name):
+            listTxt = parseMembersList(list_name)
+        else:
+            msg = f"List file not found: {list_name}"
+            raise PixivException("File doesn't exists or no permission to read: " + list_name,
+                                    errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION)
+
+        print('Reading list...', end=' ')
+        print('Found', len(listTxt), 'items', end=' ')
+
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT * FROM pixiv_master_member''')
+            result = c.fetchall()
+            for row in result:
+                if str(row[0]) not in listTxt:
+                    c.execute('''DELETE FROM pixiv_manga_image
+                        WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (row[0], ))
+                    c.execute('''DELETE FROM pixiv_master_image
+                        WHERE member_id = ?''', (row[0], ))
+                    c.execute('''DELETE FROM pixiv_master_member
+                        WHERE member_id = ?''', (row[0], ))
+            self.conn.commit()
+        except BaseException:
+            print('Error at keepMembersByList():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
@@ -1361,6 +1456,8 @@ class PixivDBManager(object):
         print('11. Delete member and image (cascade deletion)')
         print('12. Blacklist image by image_id')
         print('13. Show all deleted member')
+        print('14. Delete members by list')
+        print('15. Keep members by list')
         print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
         print('f1. Export FANBOX post list')
         print('f2. Delete FANBOX download history by member_id')
@@ -1454,6 +1551,10 @@ class PixivDBManager(object):
                     self.blacklistImage(member_id, image_id)
                 elif selection == '13':
                     self.printMemberList(isDeleted=True)
+                elif selection == '14':
+                    self.deleteMembersByList()
+                elif selection == '15':
+                    self.keepMembersByList()
                 elif selection == 'f1':
                     filename = input('Filename? ').rstrip("\r")
                     sep = input('Separator? (1(default)=",", 2="\\t") ').rstrip("\r")
