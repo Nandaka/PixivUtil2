@@ -158,6 +158,8 @@ def process_member(caller,
                         PixivHelper.print_and_log("error", f"Error at process_member(): {sys.exc_info()} Member Id: {member_id}")
                         PixivHelper.print_delay(2)
 
+                no_of_images = no_of_images + 1
+                
                 if result in (PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
                               PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER,
                               PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT):
@@ -184,7 +186,6 @@ def process_member(caller,
                     flag = False
                     break
 
-                no_of_images = no_of_images + 1
                 PixivHelper.wait(result, config)
 
             if artist.isLastPage:
