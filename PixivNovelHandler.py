@@ -101,13 +101,13 @@ def process_novel_series(caller,
     while (flag):
         PixivHelper.print_and_log(None, f"Getting page = {page}")
         novel_series = caller.__br__.getNovelSeriesContent(novel_series, current_page=page)
-        page = page + 1
         if end_page > 0 and page > end_page:
             PixivHelper.print_and_log(None, f"Page limit reached = {end_page}.")
             flag = False
         if (page * PixivNovel.MAX_LIMIT) >= novel_series.total:
             PixivHelper.print_and_log(None, "No more novel.")
             flag = False
+        page = page + 1
 
     for novel in novel_series.series_list:
         process_novel(caller,

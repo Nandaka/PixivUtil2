@@ -1716,16 +1716,18 @@ def main():
         if __config__.useLocalTimezone:
             PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
 
+        print("Username login is broken, use cookie to log in.")
+
         username = __config__.username
-        if username == '':
-            username = input('Username ? ').rstrip("\r")
-        else:
-            msg = f'Using Username: {username}'
-            PixivHelper.print_and_log('info', msg)
+        # if username == '':
+        #     username = input('Username ? ').rstrip("\r")
+        # else:
+        #     msg = f'Using Username: {username}'
+        #     PixivHelper.print_and_log('info', msg)
 
         password = __config__.password
-        if password == '':
-            password = getpass.getpass('Password ? ')
+        # if password == '':
+        #     password = getpass.getpass('Password ? ')
 
         if np_is_valid and options.number_of_pages != 0:  # Yavos: overwrite config-data
             PixivHelper.print_and_log("info", f'Limit up to: {options.number_of_pages} page(s). (set via commandline)')
