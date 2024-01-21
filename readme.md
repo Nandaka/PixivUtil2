@@ -539,6 +539,7 @@ Please refer run with `--help` for latest information.
 - writeImageXMPPerImage
 
   Set to `True` to export the image information to a .XMP sidecar file, one per image in the album. The data contained within the file is the same but some software requires matching file names to detect the metadata. If set to `True`, then `writeImageXMP` is ignored.
+  Additionally, enabling this option will create a .XMP sidecar for every ugoira encoding enabled, and allow you to customise the name of each file using `%image_ext%`. For example, if you enable `createWebp` and `createGif`, then set your `filenameInfoFormat` to something like `%urlFilename%.%image_ext%`, then you will end up with `<image ID>.gif.xmp` and `<image ID>.webp.xmp` files created.
 - verifyimage
 
   Check if downloaded files are valid image or zip. Set the value to `True` to enable.
@@ -769,7 +770,7 @@ filenameFormatFanboxCover, filenameFormatFanboxContent and filenameFormatFanboxI
    Current date using custom format.
    Use Python string format notation, refer: https://goo.gl/3UiMAb
    e.g. %date_fmt{%Y-%m-%d}%
--> %file_ext%
+-> %image_ext%
    The image's file extension (jpg, png, etc.), the "." is not included.
    The correct file extension is already appended to the end of all files.
    This is available if you want to add more, or want to add the image's file extension to info files etc.
