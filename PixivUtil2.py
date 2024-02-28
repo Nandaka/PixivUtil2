@@ -395,8 +395,8 @@ def menu_download_by_tags(opisvalid, args, options):
             else:
                 print("Valid values are 'a', 'i', or 'm'.")
 
-        if bookmark_count is not None and len(bookmark_count) > 0:
-            bookmark_count = int(bookmark_count)
+    if bookmark_count is not None and len(bookmark_count) > 0:
+        bookmark_count = int(bookmark_count)
 
     PixivTagsHandler.process_tags(sys.modules[__name__],
                                   __config__,
@@ -528,8 +528,8 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
         (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
 
-        if bookmark_count is not None and len(bookmark_count) > 0:
-            bookmark_count = int(bookmark_count)
+    if bookmark_count is not None and len(bookmark_count) > 0:
+        bookmark_count = int(bookmark_count)
 
     PixivBookmarkHandler.process_bookmark(sys.modules[__name__],
                                           __config__,
@@ -619,8 +619,8 @@ def menu_download_from_tags_list(opisvalid, args, options):
         (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         (start_date, end_date) = PixivHelper.get_start_and_end_date()
 
-        if bookmark_count is not None and len(bookmark_count) > 0:
-            bookmark_count = int(bookmark_count)
+    if bookmark_count is not None and len(bookmark_count) > 0:
+        bookmark_count = int(bookmark_count)
 
     PixivListHandler.process_tags_list(sys.modules[__name__],
                                        __config__,
@@ -645,8 +645,8 @@ def menu_download_new_illust_from_bookmark(opisvalid, args, options):
         (page_num, end_page_num) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
         bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
 
-        if bookmark_count is not None and len(bookmark_count) > 0:
-            bookmark_count = int(bookmark_count)
+    if bookmark_count is not None and len(bookmark_count) > 0:
+        bookmark_count = int(bookmark_count)
 
     PixivBookmarkHandler.process_new_illust_from_bookmark(sys.modules[__name__],
                                                           __config__,
