@@ -739,9 +739,9 @@ def menu_download_by_group_id(opisvalid, args, options):
 
 def menu_ugoira_reencode(opisvalid, args, options):
     __log__.info('Re-encode Ugoira (u)')
-    msg = Fore.YELLOW + Style.NORMAL + f'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
+    msg = Fore.YELLOW + Style.NORMAL + 'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
-    msg = Fore.YELLOW + Style.NORMAL + f'You are about to re-encode and overwrite all of your stored ugoira and its related files (gif, webm ...).' + Style.RESET_ALL
+    msg = Fore.YELLOW + Style.NORMAL + 'You are about to re-encode and overwrite all of your stored ugoira and its related files (gif, webm ...).' + Style.RESET_ALL
     PixivHelper.print_and_log(None, msg)
     arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really want to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
     sure = arg.lower()
@@ -1716,7 +1716,9 @@ def main():
         if __config__.useLocalTimezone:
             PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
 
-        print("Username login is broken, use cookie to log in.")
+        print(Fore.RED + Style.BRIGHT + "Username login is broken, use Cookies to log in." + Style.RESET_ALL)
+        print(Fore.YELLOW + Style.BRIGHT + "See Q3. at " + Style.RESET_ALL +
+              Fore.CYAN + Style.BRIGHT + "https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#a-usage" + Style.RESET_ALL)
 
         username = __config__.username
         # if username == '':
