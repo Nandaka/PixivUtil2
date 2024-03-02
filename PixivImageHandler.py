@@ -304,18 +304,55 @@ def process_image(caller,
                     # Issue #575
                     if image.imageMode == 'manga':
                         filename_info_format = config.filenameMangaInfoFormat or config.filenameMangaFormat or filename_info_format
-                    info_filename = PixivHelper.make_filename(filename_info_format,
-                                                                image,
-                                                                tagsSeparator=config.tagsSeparator,
-                                                                tagsLimit=config.tagsLimit,
-                                                                fileUrl=url,
-                                                                appendExtension=False,
-                                                                bookmark=bookmark,
-                                                                searchTags=search_tags,
-                                                                useTranslatedTag=config.useTranslatedTag,
-                                                                tagTranslationLocale=config.tagTranslationLocale)
-                    info_filename = PixivHelper.sanitize_filename(info_filename + ".xmp", target_dir)
-                    image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                    # If we are creating an ugoira, we need to create side-car metadata for each converted file.
+                    if image.imageMode == 'ugoira_view':
+                        def get_info_filename(extension):
+                            fileUrl = os.path.splitext(url)[0] + "." + extension
+                            info_filename = PixivHelper.make_filename(filename_info_format,
+                                            image,
+                                            tagsSeparator=config.tagsSeparator,
+                                            tagsLimit=config.tagsLimit,
+                                            fileUrl=fileUrl,
+                                            appendExtension=False,
+                                            bookmark=bookmark,
+                                            searchTags=search_tags,
+                                            useTranslatedTag=config.useTranslatedTag,
+                                            tagTranslationLocale=config.tagTranslationLocale)
+                            return PixivHelper.sanitize_filename(info_filename + ".xmp", target_dir)
+                        if config.createGif:
+                            info_filename = get_info_filename("gif")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if config.createApng:
+                            info_filename = get_info_filename("apng")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if config.createWebm:
+                            info_filename = get_info_filename("webm")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if config.createWebp:
+                            info_filename = get_info_filename("webp")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if config.createMkv:
+                            info_filename = get_info_filename("mkv")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if not config.deleteZipFile:
+                            info_filename = get_info_filename("zip")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if not config.deleteUgoira:
+                            info_filename = get_info_filename("ugoira")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                    else:
+                        info_filename = PixivHelper.make_filename(filename_info_format,
+                                                                    image,
+                                                                    tagsSeparator=config.tagsSeparator,
+                                                                    tagsLimit=config.tagsLimit,
+                                                                    fileUrl=url,
+                                                                    appendExtension=False,
+                                                                    bookmark=bookmark,
+                                                                    searchTags=search_tags,
+                                                                    useTranslatedTag=config.useTranslatedTag,
+                                                                    tagTranslationLocale=config.tagTranslationLocale)
+                        info_filename = PixivHelper.sanitize_filename(info_filename + ".xmp", target_dir)
+                        image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
                 current_img = current_img + 1
 
             if config.writeImageInfo or config.writeImageJSON or config.writeImageXMP:
