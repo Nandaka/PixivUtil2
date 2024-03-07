@@ -1501,6 +1501,9 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
             PixivHelper.clearScreen()
             print("Restarting...")
             selection = menu()
+        except EOFError:
+            selection = 'x'
+            break
         except PixivException as ex:
             if ex.htmlPage is not None:
                 filename = f"Dump for {PixivHelper.sanitize_filename(ex.value)}.html"
