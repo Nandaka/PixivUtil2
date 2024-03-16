@@ -985,7 +985,7 @@ class PixivDBManager(object):
         # TODO check for files which exist but don't have a DB entry
 
     def replaceRootPath(self):
-        oldPath = input("Old Path to Replace = ").rstrip("\r")
+        oldPath = input("Old Path to Replace = ").rstrip(" \\\r\n")
         print("Replacing " + oldPath + " to " + self.rootDirectory)
         cont = input("continue[y/n, default is no]?").rstrip("\r") or 'n'
         if cont != "y":
@@ -1009,6 +1009,22 @@ class PixivDBManager(object):
                          SET save_name = replace(save_name, ?, ?)
                          WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
             print("Updated manga image:", c.rowcount)
+
+            print("Updating PIXIV novel details, this may take some times.")
+            
+            c = self.conn.cursor()
+            c.execute('''UPDATE novel_detail
+                         SET save_name = replace(save_name, ?, ?)
+                         WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
+            print("Updated novel detail:", c.rowcount)
+            
+            print("Updating SKETCH images, this may take some times.")
+            
+            c = self.conn.cursor()
+            c.execute('''UPDATE sketch_post_image
+                         SET save_name = replace(save_name, ?, ?)
+                         WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
+            print("Updated sketch image:", c.rowcount)
 
             print("Updating FANBOX post images, this may take some times.")
 
