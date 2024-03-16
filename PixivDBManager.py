@@ -985,7 +985,7 @@ class PixivDBManager(object):
         # TODO check for files which exist but don't have a DB entry
 
     def replaceRootPath(self):
-        oldPath = input("Old Path to Replace = ").rstrip("\r")
+        oldPath = input("Old Path to Replace = ").rstrip(" \\\r\n")
         print("Replacing " + oldPath + " to " + self.rootDirectory)
         cont = input("continue[y/n, default is no]?").rstrip("\r") or 'n'
         if cont != "y":
