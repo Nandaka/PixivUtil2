@@ -1725,7 +1725,10 @@ def main():
 
         username = __config__.username
         password = __config__.password
-
+        if not username or not password:
+            print(Fore.RED + Style.BRIGHT + "No username and/or password found in config.ini" + Style.RESET_ALL)
+            print(Fore.YELLOW + Style.BRIGHT + "See " + Style.RESET_ALL + Fore.CYAN + Style.BRIGHT +
+                  "https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#authentication" + Style.RESET_ALL)
         if np_is_valid and options.number_of_pages != 0:  # Yavos: overwrite config-data
             PixivHelper.print_and_log("info", f'Limit up to: {options.number_of_pages} page(s). (set via commandline)')
         elif __config__.numberOfPage != 0:
