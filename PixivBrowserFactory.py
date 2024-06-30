@@ -427,8 +427,6 @@ class PixivBrowser(mechanize.Browser):
                 self._is_logged_in_to_FANBOX = True
             # Issue #1342
             elif "challenge_basic_security_FANBOX" in str(parsed.decode('utf-8')):
-                result = False
-                self._is_logged_in_to_FANBOX = False
                 raise PixivException("Failed FANBOX Cloudflare CAPTCHA challenge, please check your cookie and user-agent settings.", 
                                              errorCode=PixivException.CANNOT_LOGIN, htmlPage=parsed.decode('utf-8'))
             parsed.decompose()
