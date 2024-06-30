@@ -381,6 +381,21 @@ class PixivBrowser(mechanize.Browser):
         parsed = ""
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookieFanbox
+        
+        if self._config.cf_clearance != "":
+            ck1 = http.cookiejar.Cookie(version=0, name='cf_clearance', value=self._config.cf_clearance, port=None,
+                                        port_specified=False, domain='fanbox.cc', domain_specified=False,
+                                        domain_initial_dot=False, path='/', path_specified=True,
+                                        secure=False, expires=None, discard=True, comment=None,
+                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+            self.addCookie(ck1)
+        if self._config.cf_bm != "":
+            ck2 = http.cookiejar.Cookie(version=0, name='__cf_bm', value=self._config.cf_bm, port=None,
+                                        port_specified=False, domain='fanbox.cc', domain_specified=False,
+                                        domain_initial_dot=False, path='/', path_specified=True,
+                                        secure=False, expires=None, discard=True, comment=None,
+                                        comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+            self.addCookie(ck2)
 
         if len(login_cookie) > 0:
             PixivHelper.print_and_log('info', 'Trying to log in FANBOX with saved cookie')
