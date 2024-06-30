@@ -206,7 +206,7 @@ class PixivBrowser(mechanize.Browser):
             try:
                 res = self.open(url, data, timeout)
                 return res
-            except urllib.error.HTTPError as error:
+            except urllib.error.HTTPError as fanboxError:
                 if res is not None:
                     print(f"Error Code: {res.code}")
                     print(f"Response Headers: {res.headers}")
@@ -214,8 +214,8 @@ class PixivBrowser(mechanize.Browser):
                         print(f"Redirect to {res.headers['location']}")
                 else:
                     # Issue #1342
-                    if "challenge_basic_security_FANBOX" in str(error.get_data()) and error.getcode() == 403:
-                        return error
+                    if "challenge_basic_security_FANBOX" in str(fanboxError.get_data()) and fanboxError.getcode() == 403:
+                        return fanboxError
                 raise
             except BaseException:
                 exc_value = sys.exc_info()[1]
