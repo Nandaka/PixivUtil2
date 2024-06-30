@@ -214,10 +214,8 @@ class PixivBrowser(mechanize.Browser):
                         print(f"Redirect to {res.headers['location']}")
                 else:
                     # Issue #1342
-                    errorCode = error.getcode()
-                    errorMessage = error.get_data()
-                    if "challenge_basic_security_FANBOX" in str(errorMessage) and errorCode == 403:
-                        return errorMessage
+                    if "challenge_basic_security_FANBOX" in str(error.get_data()) and error.getcode() == 403:
+                        return error
                 raise
             except BaseException:
                 exc_value = sys.exc_info()[1]
@@ -416,7 +414,7 @@ class PixivBrowser(mechanize.Browser):
             try:
                 res = self.open_with_retry(req)
                 parsed = BeautifulSoup(res, features="html5lib")
-                PixivHelper.get_logger().info('Logging in with cookit to Fanbox, return url: %s', res.geturl())
+                PixivHelper.get_logger().info('Logging in with cookie to Fanbox, return url: %s', res.geturl())
                 res.close()
             except BaseException:
                 PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie(): %s', sys.exc_info())
