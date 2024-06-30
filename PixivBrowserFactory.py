@@ -206,12 +206,18 @@ class PixivBrowser(mechanize.Browser):
             try:
                 res = self.open(url, data, timeout)
                 return res
-            except urllib.error.HTTPError:
+            except urllib.error.HTTPError as error:
                 if res is not None:
                     print(f"Error Code: {res.code}")
                     print(f"Response Headers: {res.headers}")
                     if res.code == '302':
                         print(f"Redirect to {res.headers['location']}")
+                else:
+                    # Issue #1342
+                    errorCode = error.getcode()
+                    errorMessage = error.get_data()
+                    if "challenge_basic_security_FANBOX" in str(errorMessage) and errorCode == 403:
+                        return errorMessage
                 raise
             except BaseException:
                 exc_value = sys.exc_info()[1]
@@ -382,6 +388,7 @@ class PixivBrowser(mechanize.Browser):
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookieFanbox
         
+        # Issue #1342
         if self._config.cf_clearance != "":
             ck1 = http.cookiejar.Cookie(version=0, name='cf_clearance', value=self._config.cf_clearance, port=None,
                                         port_specified=False, domain='fanbox.cc', domain_specified=False,
@@ -418,6 +425,12 @@ class PixivBrowser(mechanize.Browser):
             if '"user":{"isLoggedIn":true' in str(parsed.decode('utf-8')):
                 result = True
                 self._is_logged_in_to_FANBOX = True
+            # Issue #1342
+            elif "challenge_basic_security_FANBOX" in str(parsed.decode('utf-8')):
+                result = False
+                self._is_logged_in_to_FANBOX = False
+                raise PixivException("Failed FANBOX Cloudflare CAPTCHA challenge, please check your cookie and user-agent settings.", 
+                                             errorCode=PixivException.CANNOT_LOGIN, htmlPage=parsed.decode('utf-8'))
             parsed.decompose()
             del parsed
 
