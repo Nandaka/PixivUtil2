@@ -1,3 +1,20 @@
+20240703
+- Implement #1226, add %AI% for nameformat
+- Update Dockerfile (#1230) by @Naoya Muramatsu
+- Remove duplicate demjson3 entry in requirements and optimize Dockerfile (#1231) by @biggestsonicfan
+- Fix opt 15 crash (#1234), fix opt 15 download N0 of NN novels (#1268) by @Hirumori
+- Fix re-encoding not ugoira zip files (#1313) by @TSUNG YU HSIEH
+- Add deleteMembersByList and keepMembersByList (#1311) @Terryble2
+- Update User-Agent, disable username/password prompt, and added [FFMPEG]-pix_fmt yuv420p to fix colors (#1281) by PatrickL546
+- Proper update the image counter when downloading artists gallery (#1294) by @MonoS
+- Fixed Inappropriate Logical Expression (#1315) by @Ataf Fazledin Ahamed
+- Fix Nandaka#1323 (#1324) by Nico Suarez
+- Enhance Cookie login message, pep8 (#1318) by @PatrickL546
+- Add option to manually specify file extension inside file names v2 (#1321) by @Baa
+- PixivUtil2.py: Handle EOFError in main_loop (#1326) by SimonPilkington
+- Added Cloudflare cookie support for Fanbox. Code provided by @emerladCoder (#1344) by @biggestsonicfan
+- Gracefully handle FANBOX Cloudflare check failures. (#1345) by biggestsonicfan
+
 20230105
 - Fix #1219: ai filtering logic for tag search.
 - Fix cacert resolution #1220 and remove ansi code from logging
