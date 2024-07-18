@@ -720,12 +720,15 @@ def get_ugoira_size(ugoName):
     return size
 
 
-def check_file_exists(overwrite, filename, file_size, old_size, backup_old_file):
-    if not overwrite and int(file_size) == old_size:
+def check_file_exists(config, filename, file_size, old_size):
+    if not config.overwrite and int(file_size) == old_size:
         print_and_log('warn', f"\tFile exist! (Identical Size) ==> {filename}.")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
+    elif not config.overwrite and int(file_size) == -1:
+        print_and_log('warn', f"\tCannot resolve remote file size! Skipping the download. ==> {filename}.")
+        return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
     else:
-        if backup_old_file:
+        if config.backup_old_file:
             split_name = filename.rsplit(".", 1)
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:

@@ -64,7 +64,7 @@ def process_novel(caller,
             novel.write_content(temp_filename)
             file_size = os.path.getsize(temp_filename)
             old_size = os.path.getsize(filename)
-            result = PixivHelper.check_file_exists(config.overwrite, filename, file_size, old_size, config.backupOldFile)
+            result = PixivHelper.check_file_exists(config, filename, file_size, old_size)
             if result == PixivConstant.PIXIVUTIL_OK:
                 os.rename(temp_filename, filename)
             else:
