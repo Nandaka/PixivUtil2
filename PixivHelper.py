@@ -728,7 +728,7 @@ def check_file_exists(config, filename, file_size, old_size):
         print_and_log('warn', f"\tCannot resolve remote file size! Skipping the download. ==> {filename}.")
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
     else:
-        if config.backup_old_file:
+        if config.backupOldFile:
             split_name = filename.rsplit(".", 1)
             new_name = filename + "." + str(int(time.time()))
             if len(split_name) == 2:
