@@ -1020,6 +1020,19 @@ def ugoira2apng(ugoira_file, exportname, image=None):
                    image=image)
 
 
+def ugoira2avif(ugoira_file, exportname, image=None):
+    print_and_log('info', 'Processing ugoira to avif...')
+    if len(_config.avifParam) == 0:
+        _config.avifParam = "-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0"
+    convert_ugoira(ugoira_file,
+                   exportname,
+                   ffmpeg=_config.ffmpeg,
+                   codec=_config.avifCodec,
+                   param=_config.avifParam,
+                   extension="avif",
+                   image=image)
+
+
 def ugoira2webp(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to webp...')
     if len(_config.webpParam) == 0:

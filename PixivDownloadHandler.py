@@ -418,6 +418,13 @@ def handle_ugoira(image, zip_filename, config, notifier):
                                     apng_filename,
                                     image=image)
 
+    if config.createAvif:
+        avif_filename = ugo_name[:-7] + ".avif"
+        if not os.path.exists(avif_filename):
+            PixivHelper.ugoira2avif(ugo_name,
+                                    avif_filename,
+                                    image=image)
+
     if config.createWebm:
         webm_filename = ugo_name[:-7] + "." + config.ffmpegExt
         if not os.path.exists(webm_filename):
