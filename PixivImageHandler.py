@@ -325,6 +325,9 @@ def process_image(caller,
                         if config.createApng:
                             info_filename = get_info_filename("apng")
                             image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
+                        if config.createAvif:
+                            info_filename = get_info_filename("avif")
+                            image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
                         if config.createWebm:
                             info_filename = get_info_filename("webm")
                             image.WriteXMP(info_filename, config.useTranslatedTag, config.tagTranslationLocale)
@@ -531,6 +534,7 @@ def process_ugoira_local(caller, config):
                             if ((("gif" in file_ext) and (config.createGif))
                                or (("mkv" in file_ext) and (config.createMkv))
                                or (("png" in file_ext) and (config.createApng))
+                               or (("avif" in file_ext) and (config.createAvif))
                                or (("webm" in file_ext) and (config.createWebm))
                                or (("webp" in file_ext) and (config.createWebp))
                                or (("ugoira" in file_ext) and (config.createUgoira))
@@ -591,6 +595,7 @@ def process_ugoira_local(caller, config):
                                  or (not config.deleteZipFile and "zip" in file_ext)
                                  or (config.createGif and "gif" in file_ext)
                                  or (config.createApng and "png" in file_ext)
+                                 or (config.createAvif and "avif" in file_ext)
                                  or (config.createWebm and "webm" in file_ext)
                                  or (config.createWebp and "webp" in file_ext)):
                                 split_name = file_name.rsplit(".", 1)

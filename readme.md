@@ -662,6 +662,12 @@ Please refer run with `--help` for latest information.
 - mkvparam
 
   Parameter to be used to encode mkv, default: ` `.
+- avifcodec
+
+  Codec to be used for encoding avif, default is using `libaom-av1`.
+- avifparam
+
+  Parameter to be used to encode avif, default: `-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0`.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
@@ -696,6 +702,10 @@ Please refer run with `--help` for latest information.
 - createapng
 
   Set to True to convert ugoira file to animated png. The default encoding settings is lossless encoding but very large file size.
+  Required `createUgoira = True` and ffmpeg executeable.
+- createavif
+
+  Set to True to convert ugoira file to avif. The default encoding settings is lossless encoding with comparable filesizes to webp.
   Required `createUgoira = True` and ffmpeg executeable.
 - deleteugoira
 
