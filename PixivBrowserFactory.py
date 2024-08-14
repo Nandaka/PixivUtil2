@@ -348,7 +348,7 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie, "pixiv.net")
-            res = self.open_with_retry('https://www.pixiv.net/en')  # + self._locale)
+            res = self.open_with_retry('https://www.pixiv.net')  # + self._locale)
             parsed = BeautifulSoup(res, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
@@ -369,7 +369,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.get_logger().info('Logged in using cookie')
                 self.getMyId(parsed_str)
-                temp_locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
+                temp_locale = str(res.geturl()).replace('https://www.pixiv.net', '').replace('/', '')
                 if len(temp_locale) > 0:
                     self._locale = '/' + temp_locale
                 PixivHelper.get_logger().info('Locale = %s', self._locale)
