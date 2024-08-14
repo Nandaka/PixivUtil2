@@ -1023,10 +1023,27 @@ class PixivBrowser(mechanize.Browser):
 
         # Issue #641
         if next_url is None or next_url == "":
+            url = f"https://api.fanbox.cc/post.paginateCreator?creatorId={artist.creatorId}"
+            PixivHelper.print_and_log('info', 'Getting Pages from ' + url)
+            referer = "https://www.fanbox.cc/"
+            req = mechanize.Request(url)
+            req.add_header('Accept', 'application/json, text/plain, */*')
+            req.add_header('Referer', referer)
+            req.add_header('Origin', 'https://www.fanbox.cc')
+
+            res = self.open_with_retry(req)
+            response = res.read()
+            PixivHelper.get_logger().debug(response.decode('utf8'))
+            res.close()
+
+            artist.setPages(response)
+
             # url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
             # Issue #1094
             # https://api.fanbox.cc/post.listCreator?creatorId=onartworks&maxPublishedDatetime=2022-02-26%2015%3A57%3A17&maxId=3468213&limit=10
-            url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
+            #url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
+
+            url = artist.Pages[artist.PageIndex]
         elif next_url.startswith("https://"):
             url = next_url
         else:
