@@ -523,6 +523,9 @@ class FanboxArtist(object):
     FOLLOWING = 1
     CUSTOM = 2
 
+    Pages = None
+    PageIndex = 0
+
     @classmethod
     def parseArtistIds(cls, page):
         ids = list()
@@ -550,6 +553,16 @@ class FanboxArtist(object):
     def __str__(self):
         return f"FanboxArtist({self.artistId}, {self.creatorId}, {self.artistName})"
 
+    def setPages(self, page):
+        js = demjson3.decode(page)
+
+        if "error" in js and js["error"]:
+            raise PixivException(f"Error when requesting Fanbox artist pages: {self.artistId}", 9999, page)
+
+        if js["body"] is not None:
+            js_body = js["body"]
+            self.Pages = js_body
+
     def parsePosts(self, page) -> List[FanboxPost]:
         js = demjson3.decode(page)
 
@@ -558,7 +571,7 @@ class FanboxArtist(object):
 
         if js["body"] is not None:
             js_body = js["body"]
-
+            
             posts = list()
 
             if "creator" in js_body:
@@ -571,15 +584,22 @@ class FanboxArtist(object):
                 # https://www.pixiv.net/ajax/fanbox/post?postId={0}
                 # or old api
                 post_root = js_body
+            
 
-            for jsPost in post_root["items"]:
+            #for jsPost in post_root["items"]:
+            for jsPost in post_root:
                 post_id = int(jsPost["id"])
                 post = FanboxPost(post_id, self, jsPost, tzInfo=self._tzInfo)
                 posts.append(post)
                 # sanity check
                 assert (self.artistId == int(jsPost["user"]["userId"])), "Different user id from constructor!"
 
-            self.nextUrl = post_root["nextUrl"]
+            #self.nextUrl = post_root["nextUrl"]
+            self.PageIndex += 1
+            if self.PageIndex < len(self.Pages):
+                self.nextUrl = self.Pages[self.PageIndex]
+            else:
+                self.nextUrl = None
             if self.nextUrl is not None and len(self.nextUrl) > 0:
                 self.hasNextPage = True
 
