@@ -348,7 +348,7 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie, "pixiv.net")
-            res = self.open_with_retry('https://www.pixiv.net/en')  # + self._locale)
+            res = self.open_with_retry('https://www.pixiv.net')  # + self._locale)
             parsed = BeautifulSoup(res, features="html5lib")
             parsed_str = str(parsed.decode('utf-8'))
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
@@ -369,7 +369,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', 'Login successful.')
                 PixivHelper.get_logger().info('Logged in using cookie')
                 self.getMyId(parsed_str)
-                temp_locale = str(res.geturl()).replace('https://www.pixiv.net/', '').replace('/', '')
+                temp_locale = str(res.geturl()).replace('https://www.pixiv.net', '').replace('/', '')
                 if len(temp_locale) > 0:
                     self._locale = '/' + temp_locale
                 PixivHelper.get_logger().info('Locale = %s', self._locale)
@@ -1023,10 +1023,27 @@ class PixivBrowser(mechanize.Browser):
 
         # Issue #641
         if next_url is None or next_url == "":
+            url = f"https://api.fanbox.cc/post.paginateCreator?creatorId={artist.creatorId}"
+            PixivHelper.print_and_log('info', 'Getting Pages from ' + url)
+            referer = "https://www.fanbox.cc/"
+            req = mechanize.Request(url)
+            req.add_header('Accept', 'application/json, text/plain, */*')
+            req.add_header('Referer', referer)
+            req.add_header('Origin', 'https://www.fanbox.cc')
+
+            res = self.open_with_retry(req)
+            response = res.read()
+            PixivHelper.get_logger().debug(response.decode('utf8'))
+            res.close()
+
+            artist.setPages(response)
+
             # url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
             # Issue #1094
             # https://api.fanbox.cc/post.listCreator?creatorId=onartworks&maxPublishedDatetime=2022-02-26%2015%3A57%3A17&maxId=3468213&limit=10
-            url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
+            #url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
+
+            url = artist.Pages[artist.PageIndex]
         elif next_url.startswith("https://"):
             url = next_url
         else:
