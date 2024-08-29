@@ -174,6 +174,7 @@ class PixivBrowser(mechanize.Browser):
             else:
                 # Handle target environment that doesn't support HTTPS verification
                 ssl._create_default_https_context = _create_unverified_https_context
+                self.set_ca_data(context=_create_unverified_https_context())
 
     def _configureCookie(self, cookie_jar):
         if cookie_jar is not None:
