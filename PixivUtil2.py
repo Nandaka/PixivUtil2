@@ -1575,8 +1575,15 @@ def read_lists():
         PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
 async def telegram_report(TOKEN,CHAT_ID):
-    bot = telegram.Bot(TOKEN)
+    if __config__.useProxy:
+        PROXY_URL = __config__.proxyAddress
+    else:
+        PROXY_URL=None
+    httpXRequest=telegram.request.HTTPXRequest(proxy=PROXY_URL)
+    #
+    bot = telegram.Bot(TOKEN,request=httpXRequest)
     text=f"Pixiv Bookmark Backup Done at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
     async with bot:
         await bot.send_message(text=text, chat_id=CHAT_ID)
 
