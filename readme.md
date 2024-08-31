@@ -1,3 +1,17 @@
+# Telegram report feature
+```
+pixivutil2 -r
+```
+
+Add the following configuration in `config.ini`
+
+```
+[TelegramReport]
+tgToken = xxxxxxx:xxxxxxx
+tgChatID = xxxxx
+```
+
+
 # Requirements:
 - Running from Windows binary:
   - minimum Windows 10 with latest updates installed.
@@ -147,7 +161,7 @@ Q9. The downloaded images are corrupted, how to redownload it again?
       from databases (enter d, followed by 10).
     - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini
       and retry the download.
-      
+
 Q10. I got this error またはメールアドレス、パスワードが正しいかチェックしてください。
     - Use your email address for the username, or check your password in config.ini
 
@@ -339,7 +353,7 @@ Please refer run with `--help` for latest information.
 - numberofpage
 
   Number of page to be processed, put `0` to process all pages.
-  
+
 - r18mode
 
   Only list images tagged R18, for member, member's bookmark, and search by tag. Set to `True` to enable.
@@ -416,7 +430,7 @@ Please refer run with `--help` for latest information.
   - `socks5://<username>:<password>@<proxy_server>:<port>` or
   - `socks4://<username>:<password>@<proxy_server>:<port>`
 - useragent
-  
+
   Browser user agent to spoof. You can check it from https://www.whatismybrowser.com/detect/what-is-my-user-agent
 - userobots
 
@@ -550,7 +564,7 @@ Please refer run with `--help` for latest information.
 
   Remove all HTML tags and their contents from the image caption/description when writing metadata to files. The contents of any links will be lost, so consider enabling writeUrlInDescription to retain them.
 - urlBlacklistRegex
-  
+
   Used to filter out the url in the description using regular expression.
 - dbPath
 
@@ -624,7 +638,7 @@ Please refer run with `--help` for latest information.
   Skip downloading if the remote size is not known when `alwaysCheckFileSize` is set to True.
 
 - enablePostProcessing
-  
+
   If true, it enabled post processing cmd for every downloaded files. Default: False.
 
 - postProcessingCmd
@@ -651,7 +665,7 @@ Please refer run with `--help` for latest information.
 
   Codec to be used for encoding, default is using `libvpx-vp9`.
 - ffmpegExt
-  
+
   The file extension (container format) to use for encoding. default: `webm`.
 - ffmpegparam
 
@@ -759,7 +773,7 @@ Please refer run with `--help` for latest information.
   For sanitizing filenames with custom rules. Supports regular expressions.
   For detailed syntax, please refer to 'Bad chars' section.
 - customCleanUpRe
-  
+
   TODO.
 
 # Filename Format Syntax
@@ -934,7 +948,7 @@ http://www.pixiv.net/member_illust.php?id=123456
 - Currently available syntaxes are:
 ```
 -> %coverImage%
-   A 'div' tag with its 'class' set to 'cover', and a child 'img' tag with 
+   A 'div' tag with its 'class' set to 'cover', and a child 'img' tag with
    the url to the cover image as its 'src' attribute.
 -> %coverImageUrl%
    Simply the url to the cover image in clear text.
@@ -961,7 +975,7 @@ http://www.pixiv.net/member_illust.php?id=123456
    A 'div' tag with its 'class' set to 'non-article text' and all paragraphs
    of text put in 'p' tags as its children tokens.
 ```
-- If there is a 'div' tag with 'main' in its 'class' in the template, 'article' or 
+- If there is a 'div' tag with 'main' in its 'class' in the template, 'article' or
   'non-article' would be appended to its 'class' depending on the type of the post.
 
 # Bad chars

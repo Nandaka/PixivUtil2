@@ -222,6 +222,9 @@ class PixivConfig():
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
         ConfigItem("DownloadControl", "extensionFilter", ""),
         ConfigItem("DownloadControl", "downloadBuffer", 512, restriction=lambda x: int(x) > 0),
+        # Tim: add telegram report setting
+        ConfigItem("TelegramReport", "tgToken", ""),
+        ConfigItem("TelegramReport", "tgChatID", 0),
     ]
 
     def __init__(self):

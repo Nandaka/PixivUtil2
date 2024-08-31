@@ -35,6 +35,9 @@ from PixivDBManager import PixivDBManager
 from PixivException import PixivException
 from PixivTags import PixivTags
 
+import asyncio
+import telegram
+
 colorama.init()
 DEBUG_SKIP_PROCESS_IMAGE = False
 DEBUG_SKIP_DOWNLOAD_IMAGE = False
@@ -1251,6 +1254,11 @@ e  - Export online bookmark                         \n
 m  - Export online user bookmark                    \n
 p  - Export online image bookmark                   \n
 d  - Manage database''')
+    parser.add_option('-r', '--report_telegram',
+                      dest='report_telegram',
+                      default=False,
+                      help='Send notification to Telegram when done.',
+                      action='store_true')
     parser.add_option('-x', '--exit_when_done',
                       dest='exit_when_done',
                       default=False,
@@ -1566,6 +1574,11 @@ def read_lists():
         __suppressTags = PixivTags.parseTagsList("suppress_tags.txt")
         PixivHelper.print_and_log('info', 'Using Suppress Tags: ' + str(len(__suppressTags)) + " items.")
 
+async def telegram_report(TOKEN,CHAT_ID):
+    bot = telegram.Bot(TOKEN)
+    text=f"Pixiv Bookmark Backup Done at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    async with bot:
+        await bot.send_message(text=text, chat_id=CHAT_ID)
 
 def main():
     set_console_title()
@@ -1573,6 +1586,7 @@ def main():
 
     # Option Parser
     global start_iv  # used in download_image
+    global report_telegram
     global dfilename
     global op
     global __br__
@@ -1660,6 +1674,9 @@ def main():
         start_irfan_view = True
         start_irfan_slide = False
 
+    # Tim: adding telegram report
+    report_telegram = options.report_telegram
+
     if __config__.enablePostProcessing and len(__config__.postProcessingCmd) > 0:
         PixivHelper.print_and_log("warn", f"Post Processing after download is enabled: {__config__.postProcessingCmd}")
 
@@ -1742,6 +1759,15 @@ def main():
 
             if start_iv:  # Yavos: adding start_irfan_view-handling
                 PixivHelper.start_irfanview(dfilename, __config__.IrfanViewPath, start_irfan_slide, start_irfan_view)
+
+            if report_telegram: # Tim: adding telegram report handling
+                try:
+                    TOKEN=__config__.tgToken
+                    CHAT_ID=__config__.tgChatID
+                    asyncio.run(telegram_report(TOKEN,CHAT_ID))
+                except Exception as e:
+                    __log__.exception(e)
+
         else:
             ERROR_CODE = PixivException.NOT_LOGGED_IN
     except PixivException as pex:
