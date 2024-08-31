@@ -69,3 +69,5 @@ Temporary Items
 .apdisk
 Error*
 /db
+/downloads
+config_docker.ini

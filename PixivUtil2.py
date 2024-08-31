@@ -1773,7 +1773,7 @@ def main():
                     CHAT_ID=__config__.tgChatID
                     asyncio.run(telegram_report(TOKEN,CHAT_ID))
                 except Exception as e:
-                    __log__.exception(e)
+                    PixivHelper.print_and_log("error", str(e))
 
         else:
             ERROR_CODE = PixivException.NOT_LOGGED_IN
