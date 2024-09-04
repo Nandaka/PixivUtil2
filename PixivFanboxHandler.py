@@ -70,7 +70,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
             else:
                 PixivHelper.print_and_log("info", f"Unsupported post type: {post.imageId} => {post.type}")
             image_count += 1
-            PixivHelper.wait(config)
+            PixivHelper.wait(config=config)
 
         if not artist.hasNextPage:
             PixivHelper.print_and_log("info", "No more post for {0}".format(artist))
