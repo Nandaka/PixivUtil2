@@ -167,7 +167,8 @@ class PixivImage (object):
 
     def ParseInfo(self, page, writeRawJSON):
         key = list(page["illust"].keys())[0]
-        assert (str(key) == str(self.imageId))
+        if isinstance(self.imageId, int):
+            assert (str(key) == str(self.imageId))
         root = page["illust"][key]
         # save the JSON if writeRawJSON is enabled
         if writeRawJSON:
