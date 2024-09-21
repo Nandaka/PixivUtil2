@@ -386,7 +386,7 @@ class PixivBrowser(mechanize.Browser):
         parsed = ""
         if login_cookie is None or len(login_cookie) == 0:
             login_cookie = self._config.cookieFanbox
-        
+
         # Issue #1342
         if self._config.cf_clearance != "":
             ck1 = http.cookiejar.Cookie(version=0, name='cf_clearance', value=self._config.cf_clearance, port=None,
@@ -429,7 +429,7 @@ class PixivBrowser(mechanize.Browser):
                 fanboxErrorPage = parsed.decode('utf-8')
                 parsed.decompose()
                 del parsed
-                raise PixivException("Failed FANBOX Cloudflare CAPTCHA challenge, please check your cookie and user-agent settings.", 
+                raise PixivException("Failed FANBOX Cloudflare CAPTCHA challenge, please check your cookie and user-agent settings.",
                                              errorCode=PixivException.CANNOT_LOGIN, htmlPage=fanboxErrorPage)
             parsed.decompose()
             del parsed
@@ -646,8 +646,12 @@ class PixivBrowser(mechanize.Browser):
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
-        # https://www.pixiv.net/en/artworks/76656661
-        url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
+        if isinstance(image_id, int):
+            # https://www.pixiv.net/en/artworks/76656661
+            url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
+        else:
+            # https://www.pixiv.net/artworks/unlisted/SbliQHtJS5MMu3elqDFZ
+            url = f"https://www.pixiv.net{self._locale}/artworks/unlisted/{image_id}"
         response = self.getPixivPage(url, enable_cache=False)
         self.handleDebugMediumPage(response, image_id)
 
@@ -708,7 +712,12 @@ class PixivBrowser(mechanize.Browser):
         ''' get artist information using Ajax and AppAPI '''
         try:
             info = None
-            if int(artist.reference_image_id) > 0:
+            try:
+                image_id = int(artist.reference_image_id)
+            except:
+                image_id = -1
+
+            if image_id > 0:
                 url = f"https://www.pixiv.net/rpc/get_work.php?id={artist.reference_image_id}"
                 PixivHelper.get_logger().debug("using webrpc: %s", url)
                 info = self._get_from_cache(url)
