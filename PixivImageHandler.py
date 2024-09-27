@@ -56,7 +56,7 @@ def process_image(caller,
     result = None
     if isinstance(image_id, int):
         # https://www.pixiv.net/en/artworks/76656661
-        url = f"https://www.pixiv.net/artworks/{image_id}"
+        referer = f"https://www.pixiv.net/artworks/{image_id}"
     else:
         # https://www.pixiv.net/artworks/unlisted/SbliQHtJS5MMu3elqDFZ
         referer = f"https://www.pixiv.net/artworks/unlisted/{image_id}"
