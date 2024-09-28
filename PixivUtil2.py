@@ -747,7 +747,8 @@ def menu_download_by_unlisted_image_id(opisvalid, args, options):
                                                 __config__,
                                                 artist=None,
                                                 image_id=image_id,
-                                                useblacklist=False)
+                                                useblacklist=False,
+                                                is_unlisted=True)
             except BaseException:
                 PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
                 global ERROR_CODE
@@ -761,7 +762,8 @@ def menu_download_by_unlisted_image_id(opisvalid, args, options):
                                             __config__,
                                             artist=None,
                                             image_id=image_id,
-                                            useblacklist=False)
+                                            useblacklist=False,
+                                            is_unlisted=True)
 
 
 def menu_ugoira_reencode(opisvalid, args, options):

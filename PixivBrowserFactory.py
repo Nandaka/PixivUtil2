@@ -642,11 +642,12 @@ class PixivBrowser(mechanize.Browser):
                      bookmark_count=-1,
                      image_response_count=-1,
                      manga_series_order=-1,
-                     manga_series_parent=None) -> Tuple[PixivImage, str]:
+                     manga_series_parent=None,
+                     is_unlisted=False) -> Tuple[PixivImage, str]:
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
-        if isinstance(image_id, int):
+        if not is_unlisted:
             # https://www.pixiv.net/en/artworks/76656661
             url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
         else:
