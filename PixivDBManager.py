@@ -180,6 +180,12 @@ class PixivDBManager(object):
     def dropDatabase(self):
         try:
             c = self.conn.cursor()
+
+            c.execute('''DROP TABLE IF EXISTS pixiv_image_to_tag''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_tag_translation''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_master_tag''')
+            self.conn.commit()
+
             c.execute('''DROP TABLE IF EXISTS pixiv_master_member''')
             self.conn.commit()
 
@@ -187,11 +193,6 @@ class PixivDBManager(object):
             self.conn.commit()
 
             c.execute('''DROP TABLE IF EXISTS pixiv_manga_image''')
-            self.conn.commit()
-
-            c.execute('''DROP TABLE IF EXISTS pixiv_master_tag''')
-            c.execute('''DROP TABLE IF EXISTS pixiv_image_to_tag''')
-            c.execute('''DROP TABLE IF EXISTS pixiv_tag_translation''')
             self.conn.commit()
 
             c.execute('''DROP TABLE IF EXISTS fanbox_master_post''')
