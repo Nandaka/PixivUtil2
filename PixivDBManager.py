@@ -790,7 +790,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag VALUES (?, ?)''',
+            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date) VALUES (?, ?, datetime('now'), datetime('now'))''',
                       (image_id, tag_id))
             self.conn.commit()
         except BaseException:
@@ -803,8 +803,7 @@ class PixivDBManager(object):
     def insertTagTranslation(self, tag_id, translation_type, translation):
         try:
             c = self.conn.cursor()
-            image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation VALUES (?, ?, ?, datetime('now'), datetime('now'))''',
+            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date) VALUES (?, ?, ?, datetime('now'), datetime('now'))''',
                       (tag_id, translation_type, translation))
             self.conn.commit()
         except BaseException:
