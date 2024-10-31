@@ -91,7 +91,7 @@ class PixivDBManager(object):
             # add column caption (corresponds to illustComment)
             try:
                 c.execute(
-                    '''ALTER TABLE pixiv_master_image ADD COLUMN captionTEXT''')
+                    '''ALTER TABLE pixiv_master_image ADD COLUMN caption TEXT''')
             except BaseException:
                 pass
 
