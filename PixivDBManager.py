@@ -842,7 +842,7 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def updateImage(self, imageId, title, filename, isManga="", caption=""):
+    def updateImage(self, imageId, title, filename, isManga=None, caption=None):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_image
