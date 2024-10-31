@@ -360,6 +360,10 @@ Please refer run with `--help` for latest information.
 
   Automatically save member id to db for all download.
 
+- autoAddCaption
+
+  Automatically save captions to db for all download.
+
 - aiDisplayFewer
 
   if true, filter out AI-generated images from downloading.
