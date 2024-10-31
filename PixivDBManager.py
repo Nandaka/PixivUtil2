@@ -88,6 +88,12 @@ class PixivDBManager(object):
                     '''ALTER TABLE pixiv_master_image ADD COLUMN is_manga TEXT''')
             except BaseException:
                 pass
+            # add column caption
+            try:
+                c.execute(
+                    '''ALTER TABLE pixiv_master_image ADD COLUMN caption TEXT''')
+            except BaseException:
+                pass
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_manga_image (
                             image_id INTEGER,
@@ -742,13 +748,13 @@ class PixivDBManager(object):
 ##########################################
 # V. CRUD Image Table                    #
 ##########################################
-    def insertImage(self, member_id, image_id, isManga=""):
+    def insertImage(self, member_id, image_id, isManga="", caption=""):
         try:
             c = self.conn.cursor()
             member_id = int(member_id)
             image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ? )''',
-                      (image_id, member_id, isManga))
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ?, ? )''',
+                      (image_id, member_id, isManga, caption))
             self.conn.commit()
         except BaseException:
             print('Error at insertImage():', str(sys.exc_info()))
@@ -836,12 +842,12 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def updateImage(self, imageId, title, filename, isManga=""):
+    def updateImage(self, imageId, title, filename, isManga=None, caption=None):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_image
-                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = ?
-                      WHERE image_id = ?''', (title, filename, isManga, imageId))
+                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = COALESCE(?, is_manga), caption= COALESCE(?, caption)
+                      WHERE image_id = ?''', (title, filename, isManga, caption, imageId))
             self.conn.commit()
         except BaseException:
             print('Error at updateImage():', str(sys.exc_info()))
