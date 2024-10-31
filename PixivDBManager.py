@@ -846,7 +846,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_image
-                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = ?, caption= ?
+                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = COALESCE(?, is_manga), caption= COALESCE(?, caption)
                       WHERE image_id = ?''', (title, filename, isManga, caption, imageId))
             self.conn.commit()
         except BaseException:
