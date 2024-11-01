@@ -441,6 +441,15 @@ def process_image(caller,
                                 for locale in tag_data.translation_data:
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
+            # Save member data if enabled
+            if config.autoAddMember:
+                member_id = image.artist.artistId
+                member_token = image.artist.artistToken
+                member_name = image.artist.artistName
+                if member_id and member_token and member_name:
+                    db.insertNewMember(int(member_id), member_token=member_token)
+                    db.updateMemberName(member_id, member_name, member_token)
+
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
 
