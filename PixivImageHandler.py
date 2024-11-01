@@ -415,8 +415,9 @@ def process_image(caller,
         if result in (PixivConstant.PIXIVUTIL_OK,
                       PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
                       PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
+            caption = image.imageCaption if config.autoAddCaption else ""
             try:
-                db.insertImage(image.artist.artistId, image.imageId, image.imageMode)
+                db.insertImage(image.artist.artistId, image.imageId, image.imageMode, caption=caption)
             except BaseException:
                 PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
 

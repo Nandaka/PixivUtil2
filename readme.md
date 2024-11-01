@@ -364,6 +364,10 @@ Please refer run with `--help` for latest information.
 
   Automatically add image tags for db for all downloads.
 
+- autoAddCaption
+
+  Automatically save captions for db for all downloads.
+
 - aiDisplayFewer
 
   if true, filter out AI-generated images from downloading.
