@@ -88,6 +88,13 @@ class PixivDBManager(object):
                     '''ALTER TABLE pixiv_master_image ADD COLUMN is_manga TEXT''')
             except BaseException:
                 pass
+            # add column caption
+            try:
+                c.execute(
+                    '''ALTER TABLE pixiv_master_image ADD COLUMN caption TEXT''')
+            except BaseException:
+                pass
+                
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_manga_image (
                             image_id INTEGER,
@@ -96,6 +103,31 @@ class PixivDBManager(object):
                             created_date DATE,
                             last_update_date DATE,
                             PRIMARY KEY (image_id, page)
+                            )''')
+            self.conn.commit()
+
+            # Pixiv Tags
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_master_tag (
+                            tag_id VARCHAR(255) PRIMARY KEY,
+                            created_date DATE,
+                            last_update_date DATE
+                            )''')
+
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_tag_translation (
+                            id INTEGER PRIMARY KEY,
+                            tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
+                            translation_type VARCHAR(255),
+                            translation VARCHAR(255),
+                            created_date DATE,
+                            last_update_date DATE
+                            )''')
+
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_image_to_tag (
+                            id INTEGER PRIMARY KEY,
+                            image_id INTEGER REFERENCES pixiv_master_image(image_id),
+                            tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
+                            created_date DATE,
+                            last_update_date DATE
                             )''')
             self.conn.commit()
 
@@ -155,6 +187,12 @@ class PixivDBManager(object):
     def dropDatabase(self):
         try:
             c = self.conn.cursor()
+
+            c.execute('''DROP TABLE IF EXISTS pixiv_image_to_tag''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_tag_translation''')
+            c.execute('''DROP TABLE IF EXISTS pixiv_master_tag''')
+            self.conn.commit()
+
             c.execute('''DROP TABLE IF EXISTS pixiv_master_member''')
             self.conn.commit()
 
@@ -742,13 +780,106 @@ class PixivDBManager(object):
 ##########################################
 # V. CRUD Image Table                    #
 ##########################################
-    def insertImage(self, member_id, image_id, isManga=""):
+
+    def insertTag(self, tag_id):
+        try:
+            c = self.conn.cursor()
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_tag VALUES (?, datetime('now'), datetime('now'))''',
+                      (tag_id,))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertTag():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertImageToTag(self, image_id, tag_id):
+        try:
+            c = self.conn.cursor()
+            image_id = int(image_id)
+            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date) VALUES (?, ?, datetime('now'), datetime('now'))''',
+                      (image_id, tag_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertImageToTag():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertTagTranslation(self, tag_id, translation_type, translation):
+        try:
+            c = self.conn.cursor()
+            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date) VALUES (?, ?, ?, datetime('now'), datetime('now'))''',
+                      (tag_id, translation_type, translation))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertImageToTag():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectImagesByTagId(self, tag_id):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                '''SELECT pixiv_master_image.* 
+                FROM pixiv_master_image
+                JOIN pixiv_image_to_tag ON pixiv_master_image.image_id = pixiv_image_to_tag.image_id
+                WHERE pixiv_image_to_tag.tag_id = ?
+                ''', (tag_id,))
+            return c.fetchall()
+        except BaseException:
+            print('Error at selectImagesByTagId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectTagsByImageId(self, image_id):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                '''SELECT pixiv_master_tag.* 
+                FROM pixiv_master_tag
+                JOIN pixiv_image_to_tag ON pixiv_image_to_tag.tag_id = pixiv_master_tag.tag_id
+                WHERE pixiv_image_to_tag.image_id = ?
+                ''', (image_id,))
+            return c.fetchall()
+        except BaseException:
+            print('Error at selectTagsByImageId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def deleteImagesByTag(self, tag_id):
+        try:
+            c = self.conn.cursor()
+            c.execute('''DELETE FROM pixiv_master_image
+                      WHERE image_id IN (SELECT image_id FROM pixiv_image_to_tag WHERE tag_id = ?)''',
+                      (tag_id, ))
+            c.execute('''DELETE FROM pixiv_manga_image
+                      WHERE image_id IN (SELECT image_id FROM pixiv_image_to_tag WHERE tag_id = ?)''',
+                      (tag_id, ))
+            c.execute('''DELETE FROM pixiv_image_to_tag WHERE tag_id = ?''', (tag_id, ))
+            self.conn.commit()
+        except BaseException:
+            print('Error at deleteImage():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertImage(self, member_id, image_id, isManga="", caption=""):
         try:
             c = self.conn.cursor()
             member_id = int(member_id)
             image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ? )''',
-                      (image_id, member_id, isManga))
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_image VALUES(?, ?, 'N/A' ,'N/A' , datetime('now'), datetime('now'), ?, ? )''',
+                      (image_id, member_id, isManga, caption))
             self.conn.commit()
         except BaseException:
             print('Error at insertImage():', str(sys.exc_info()))
@@ -836,12 +967,12 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def updateImage(self, imageId, title, filename, isManga=""):
+    def updateImage(self, imageId, title, filename, isManga=None, caption=None):
         try:
             c = self.conn.cursor()
             c.execute('''UPDATE pixiv_master_image
-                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = ?
-                      WHERE image_id = ?''', (title, filename, isManga, imageId))
+                      SET title = ?, save_name = ?, last_update_date = datetime('now'), is_manga = COALESCE(?, is_manga), caption = COALESCE(?, caption)
+                      WHERE image_id = ?''', (title, filename, isManga, caption, imageId))
             self.conn.commit()
         except BaseException:
             print('Error at updateImage():', str(sys.exc_info()))
@@ -855,6 +986,7 @@ class PixivDBManager(object):
             c = self.conn.cursor()
             c.execute('''DELETE FROM pixiv_master_image WHERE image_id = ?''', (imageId, ))
             c.execute('''DELETE FROM pixiv_manga_image WHERE image_id = ?''', (imageId, ))
+            c.execute('''DELETE FROM pixiv_image_to_tag WHERE image_id = ?''', (imageId, ))
             self.conn.commit()
         except BaseException:
             print('Error at deleteImage():', str(sys.exc_info()))

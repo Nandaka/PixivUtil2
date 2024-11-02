@@ -155,6 +155,8 @@ class PixivConfig():
         ConfigItem("Pixiv", "r18Type", 0),  # Issue #439
         ConfigItem("Pixiv", "dateFormat", ""),
         ConfigItem("Pixiv", "autoAddMember", False),
+        ConfigItem("Pixiv", "autoAddTag", False),
+        ConfigItem("Pixiv", "autoAddCaption", False),
         ConfigItem("Pixiv", "aiDisplayFewer", False),
 
         ConfigItem("FANBOX", "filenameFormatFanboxCover",

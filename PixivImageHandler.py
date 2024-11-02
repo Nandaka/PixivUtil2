@@ -415,8 +415,9 @@ def process_image(caller,
         if result in (PixivConstant.PIXIVUTIL_OK,
                       PixivConstant.PIXIVUTIL_SKIP_DUPLICATE,
                       PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
+            caption = image.imageCaption if config.autoAddCaption else ""
             try:
-                db.insertImage(image.artist.artistId, image.imageId, image.imageMode)
+                db.insertImage(image.artist.artistId, image.imageId, image.imageMode, caption=caption)
             except BaseException:
                 PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
 
@@ -424,6 +425,30 @@ def process_image(caller,
 
             if len(manga_files) > 0:
                 db.insertMangaImages(manga_files)
+
+            # Save tags if enabled
+            if config.autoAddTag:
+                tags = image.tags
+                if tags:
+                    for tag_data in tags:
+                        tag_id = tag_data.tag
+                        if tag_id:
+                            db.insertTag(tag_id)
+                            db.insertImageToTag(image_id, tag_id)
+                            if tag_data.romaji:
+                                db.insertTagTranslation(tag_id, 'romaji', tag_data.romaji)
+                            if tag_data.translation_data:
+                                for locale in tag_data.translation_data:
+                                    db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
+
+            # Save member data if enabled
+            if config.autoAddMember:
+                member_id = image.artist.artistId
+                member_token = image.artist.artistToken
+                member_name = image.artist.artistName
+                if member_id and member_token and member_name:
+                    db.insertNewMember(int(member_id), member_token=member_token)
+                    db.updateMemberName(member_id, member_name, member_token)
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
