@@ -114,20 +114,20 @@ class PixivDBManager(object):
                             )''')
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_tag_translation (
-                            id INTEGER PRIMARY KEY,
                             tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
                             translation_type VARCHAR(255),
                             translation VARCHAR(255),
                             created_date DATE,
-                            last_update_date DATE
+                            last_update_date DATE,
+                            PRIMARY KEY (tag_id, translation_type)
                             )''')
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_image_to_tag (
-                            id INTEGER PRIMARY KEY,
                             image_id INTEGER REFERENCES pixiv_master_image(image_id),
                             tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
                             created_date DATE,
-                            last_update_date DATE
+                            last_update_date DATE,
+                            PRIMARY KEY (image_id, tag_id)
                             )''')
             self.conn.commit()
 
@@ -798,7 +798,9 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date) VALUES (?, ?, datetime('now'), datetime('now'))''',
+            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date) 
+                      VALUES (?, ?, datetime('now'), datetime('now'))
+                      ON CONFLICT(image_id, tag_id) DO UPDATE SET last_update_date = datetime('now')''',
                       (image_id, tag_id))
             self.conn.commit()
         except BaseException:
@@ -811,7 +813,11 @@ class PixivDBManager(object):
     def insertTagTranslation(self, tag_id, translation_type, translation):
         try:
             c = self.conn.cursor()
-            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date) VALUES (?, ?, ?, datetime('now'), datetime('now'))''',
+            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date) 
+                      VALUES (?, ?, ?, datetime('now'), datetime('now'))
+                      ON CONFLICT(tag_id, translation_type) DO UPDATE SET 
+                      translation = excluded.translation,
+                      last_update_date = datetime('now')''',
                       (tag_id, translation_type, translation))
             self.conn.commit()
         except BaseException:
