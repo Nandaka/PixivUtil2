@@ -99,7 +99,7 @@ class PixivConfig():
         ConfigItem("Settings", "includeSeriesJSON", False),
         ConfigItem("Settings", "writeImageXMP", False),
         ConfigItem("Settings", "writeImageXMPPerImage", False),
-        ConfigItem("Settings", "verifyImage", False),
+        ConfigItem("Settings", "verifyImage", True),
         ConfigItem("Settings", "writeUrlInDescription", False),
         ConfigItem("Settings", "stripHTMLTagsFromCaption", False),
         ConfigItem("Settings", "urlBlacklistRegex", ""),
