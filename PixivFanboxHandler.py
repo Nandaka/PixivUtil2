@@ -130,7 +130,6 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                 print("Saved to {0}".format(filename))
 
                 referer = "https://www.pixiv.net/fanbox/creator/{0}/post/{1}".format(artist.artistId, post.imageId)
-                # don't pass the post id and page number to skip db check
                 (result, filename) = PixivDownloadHandler.download_image(caller,
                                                                          post.coverImageUrl,
                                                                          filename,
@@ -139,6 +138,7 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                                                                          config.retry,
                                                                          config.backupOldFile,
                                                                          image=post,
+                                                                         page=-1,
                                                                          download_from=PixivConstant.DOWNLOAD_FANBOX)
                 post_files.append((post.imageId, -1, filename))
                 PixivHelper.get_logger().debug("Download %s result: %s", filename, result)
@@ -185,7 +185,6 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                 # filesize detection and overwrite issue
                 _oldvalue = config.alwaysCheckFileSize
                 config.alwaysCheckFileSize = False
-                # don't pass the post id and page number to skip db check
                 (result, filename) = PixivDownloadHandler.download_image(caller,
                                                                          image_url,
                                                                          filename,
@@ -194,6 +193,7 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
                                                                          config.retry,
                                                                          config.backupOldFile,
                                                                          image=post,
+                                                                         page=current_page,
                                                                          download_from=PixivConstant.DOWNLOAD_FANBOX)
                 if result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                     raise KeyboardInterrupt()
