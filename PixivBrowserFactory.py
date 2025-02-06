@@ -594,7 +594,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
             else:
                 # var dataLayer = [{ login: 'yes', gender: "male", user_id: "3145410", lang: "en", illustup_flg: 'not_uploaded', premium: 'no', }];
-                temp = re.findall(r"var dataLayer = .*user_id: \"(\d+)\"", parsed)
+                temp = re.findall(r"var dataLayer = .*user_id: *['\"](\d+)['\"]", parsed)
                 if self._myId == 0 and temp is not None and len(temp) > 0:
                     self._myId = int(temp[0])
                     PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
