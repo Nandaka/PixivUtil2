@@ -351,7 +351,7 @@ class PixivBrowser(mechanize.Browser):
             self._loadCookie(login_cookie, "pixiv.net")
             res = self.open_with_retry('https://www.pixiv.net')  # + self._locale)
             parsed = BeautifulSoup(res, features="html5lib")
-            parsed_str = str(parsed.decode('utf-8'))
+            parsed_str = str(parsed)
             PixivHelper.print_and_log("info", f'Logging in, return url: {res.geturl()}')
             res.close()
             parsed.decompose()
@@ -421,11 +421,11 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.get_logger().error('Error at fanboxLoginUsingCookie(): %s', sys.exc_info())
                 self.cookiejar.clear("fanbox.cc")
 
-            if '"user":{"isLoggedIn":true' in str(parsed.decode('utf-8')):
+            if '"user":{"isLoggedIn":true' in str(parsed):
                 result = True
                 self._is_logged_in_to_FANBOX = True
             # Issue #1342
-            elif "challenge_basic_security_FANBOX" in str(parsed.decode('utf-8')):
+            elif "challenge_basic_security_FANBOX" in str(parsed):
                 fanboxErrorPage = parsed.decode('utf-8')
                 parsed.decompose()
                 del parsed
@@ -478,7 +478,7 @@ class PixivBrowser(mechanize.Browser):
             return False
 
         result = False
-        if '"user":{"isLoggedIn":true' in str(parsed.decode('utf-8')):
+        if '"user":{"isLoggedIn":true' in str(parsed):
             result = True
             self._is_logged_in_to_FANBOX = True
         parsed.decompose()
@@ -594,7 +594,7 @@ class PixivBrowser(mechanize.Browser):
                 PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
             else:
                 # var dataLayer = [{ login: 'yes', gender: "male", user_id: "3145410", lang: "en", illustup_flg: 'not_uploaded', premium: 'no', }];
-                temp = re.findall(r"var dataLayer = .*user_id: \"(\d+)\"", parsed)
+                temp = re.findall(r"var dataLayer = .*user_id: *['\"](\d+)['\"]", parsed)
                 if self._myId == 0 and temp is not None and len(temp) > 0:
                     self._myId = int(temp[0])
                     PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
