@@ -811,10 +811,15 @@ def download_image(url, filename, res, file_size, overwrite):
                 print_and_log(None, f' Completed in {Fore.CYAN}{total_time}{Style.RESET_ALL}s ({Fore.RED}{speed_in_str(file_size, total_time)}{Style.RESET_ALL})')
                 break
 
-            elif curr == prev:  # no file size info
+            # no file size info
+            elif file_size < 0 and curr == prev:
                 total_time = (datetime.now() - start_time).total_seconds()
                 print_and_log(None, f' Completed in {Fore.CYAN}{total_time}{Style.RESET_ALL}s ({Fore.RED}{speed_in_str(curr, total_time)}{Style.RESET_ALL})')
                 break
+
+            # incomplete download
+            elif file_size >= 0 and curr == prev:
+                raise PixivException(f"Download incomplete for: {url}", errorCode=PixivException.DOWNLOAD_FAILED_OTHER)
 
             prev = curr
     except OSError as ex:
