@@ -388,6 +388,9 @@ def get_remote_filesize(url, referer, config, notifier=None):
 
 
 def handle_ugoira(image, zip_filename, config, notifier):
+    if not hasattr(image, 'create_ugoira'): # for fanbox zips that can't resolve remote file size
+        return
+
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
