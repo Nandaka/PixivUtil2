@@ -89,7 +89,7 @@ class PixivImage (object):
 
     def __init__(self,
                  iid=0,
-                 page=None,
+                 payload=None,
                  parent=None,
                  fromBookmark=False,
                  bookmark_count=-1,
@@ -118,45 +118,24 @@ class PixivImage (object):
         self.translated_work_title = ""
         self.translated_work_caption = ""
 
-        if page is not None:
+        if payload is not None:
 
-            # Issue #556
-            payload = self.parseJs(page)
+            if payload["error"]:
+                raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=payload)
+            if payload["body"] is None:
+                raise PixivException("Missing body content, possible artist id doesn't exists.",
+                                        errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=payload)
 
-            # check error
-            if payload is None:
-                parsed = BeautifulSoup(page, features="html5lib")
-                if self.IsNotLoggedIn(parsed):
-                    raise PixivException('Not Logged In!', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
-                if self.IsNeedPermission(parsed):
-                    raise PixivException('Not in MyPick List, Need Permission!', errorCode=PixivException.NOT_IN_MYPICK, htmlPage=page)
-                if self.IsNeedAppropriateLevel(parsed):
-                    raise PixivException('Public works can not be viewed by the appropriate level!',
-                                         errorCode=PixivException.NO_APPROPRIATE_LEVEL, htmlPage=page)
-                if self.IsDeleted(parsed):
-                    raise PixivException('Image not found/already deleted!', errorCode=PixivException.IMAGE_DELETED, htmlPage=page)
-                if self.IsGuroDisabled(parsed):
-                    raise PixivException('Image is disabled for under 18, check your setting page (R-18/R-18G)!',
-                                         errorCode=PixivException.R_18_DISABLED, htmlPage=page)
-                # detect if there is any other error
-                errorMessage = self.IsErrorExist(parsed)
-                if errorMessage is not None:
-                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.UNKNOWN_IMAGE_ERROR, htmlPage=page)
-                # detect if there is server error
-                errorMessage = self.IsServerErrorExist(parsed)
-                if errorMessage is not None:
-                    raise PixivException('Image Error: ' + str(errorMessage), errorCode=PixivException.SERVER_ERROR, htmlPage=page)
-                parsed.decompose()
-                del parsed
+            payload_body = payload["body"]
 
             # parse artist information
             if parent is None:
-                temp_artist_id = list(payload["user"].keys())[0]
-                self.artist = PixivArtist(temp_artist_id, page, fromImage=True)
+                temp_artist_id = int(payload["body"]["userId"])
+                self.artist = PixivArtist(temp_artist_id, payload_body, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
                 assert (self.artist is not None)
-                self.originalArtist = PixivArtist(page=page, fromImage=True)
+                self.originalArtist = PixivArtist(payload_body=payload_body, fromImage=True)
                 print("From Artist Bookmark: {0}".format(self.artist.artistId))
                 print("Original Artist: {0}".format(self.originalArtist.artistId))
             else:
@@ -166,10 +145,7 @@ class PixivImage (object):
             self.ParseInfo(payload, writeRawJSON)
 
     def ParseInfo(self, page, writeRawJSON):
-        key = list(page["illust"].keys())[0]
-        if isinstance(self.imageId, int):
-            assert (str(key) == str(self.imageId))
-        root = page["illust"][key]
+        root = page["body"]
         # save the JSON if writeRawJSON is enabled
         if writeRawJSON:
             self.rawJSON = root

@@ -647,53 +647,51 @@ class PixivBrowser(mechanize.Browser):
         image = None
         response = None
         PixivHelper.get_logger().debug("Getting image page: %s", image_id)
-        if not is_unlisted:
-            # https://www.pixiv.net/en/artworks/76656661
-            url = f"https://www.pixiv.net{self._locale}/artworks/{image_id}"
-        else:
-            # https://www.pixiv.net/artworks/unlisted/SbliQHtJS5MMu3elqDFZ
-            url = f"https://www.pixiv.net{self._locale}/artworks/unlisted/{image_id}"
-        response = self.getPixivPage(url, enable_cache=False)
-        self.handleDebugMediumPage(response, image_id)
 
         # Issue #355 new ui handler
         image = None
         try:
-            if response.find("meta-preload-data") > 0:
-                PixivHelper.print_and_log('debug', 'New UI Mode')
+            # https://www.pixiv.net/ajax/illust/128949568
+            url = f"https://www.pixiv.net/ajax/illust/{image_id}"
+            response = self.getPixivPage(url, enable_cache=False)
+            payload = json.loads(response)
 
-                # Issue #420
-                _tzInfo = None
-                if self._config.useLocalTimezone:
-                    _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+            # self.handleDebugMediumPage(response, image_id)
 
-                image = PixivImage(image_id,
-                                   response,
-                                   parent,
-                                   from_bookmark,
-                                   bookmark_count,
-                                   image_response_count,
-                                   dateFormat=self._config.dateFormat,
-                                   tzInfo=_tzInfo,
-                                   manga_series_order=manga_series_order,
-                                   manga_series_parent=manga_series_parent,
-                                   writeRawJSON=self._config.writeRawJSON,
-                                   stripHTMLTagsFromCaption=self._config.stripHTMLTagsFromCaption)
+            # Issue #420
+            _tzInfo = None
+            if self._config.useLocalTimezone:
+                _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
 
-                if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
-                    res = self.open_with_retry(ugoira_meta_url)
-                    meta_response = res.read()
-                    image.ParseUgoira(meta_response)
-                    res.close()
+            image = PixivImage(
+                image_id,
+                payload,
+                parent,
+                from_bookmark,
+                bookmark_count,
+                image_response_count,
+                dateFormat=self._config.dateFormat,
+                tzInfo=_tzInfo,
+                manga_series_order=manga_series_order,
+                manga_series_parent=manga_series_parent,
+                writeRawJSON=self._config.writeRawJSON,
+                stripHTMLTagsFromCaption=self._config.stripHTMLTagsFromCaption,
+            )
 
-                if parent is None:
-                    if from_bookmark:
-                        image.originalArtist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-                    else:
-                        image.artist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+            if image.imageMode == "ugoira_view":
+                ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
+                res = self.open_with_retry(ugoira_meta_url)
+                meta_response = res.read()
+                image.ParseUgoira(meta_response)
+                res.close()
+
+            if parent is None:
+                if from_bookmark:
+                    image.originalArtist.reference_image_id = image_id
+                    self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                else:
+                    image.artist.reference_image_id = image_id
+                    self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         except BaseException:
             PixivHelper.get_logger().error("Respose data: \r\n %s", response)
             raise

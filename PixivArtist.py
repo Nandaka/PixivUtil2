@@ -25,31 +25,23 @@ class PixivArtist:
     manga_series = []
     novel_series = []
 
-    def __init__(self, mid: int = 0, page: str = None, fromImage=False, offset: int = None, limit: int = None):
+    def __init__(self, mid: int = 0, payload_body: dict = None, fromImage=False, offset: int = None, limit: int = None):
         self.offset = offset
         self.limit = limit
         self.artistId = mid
 
-        if page is not None:
-            payload = None
+        if payload_body is not None:
             # detect if image count != 0
             if not fromImage:
-                payload = demjson3.decode(page)
-                if payload["error"]:
-                    raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
-                if payload["body"] is None:
-                    raise PixivException("Missing body content, possible artist id doesn't exists.",
-                                         errorCode=PixivException.USER_ID_NOT_EXISTS, htmlPage=page)
-                self.ParseImages(payload["body"])
-                self.ParseMangaList(payload["body"])
-                self.ParseNovelList(payload["body"])
+                self.ParseImages(payload_body)
+                self.ParseMangaList(payload_body)
+                self.ParseNovelList(payload_body)
             else:
-                payload = self.parseJs(page)
                 self.isLastPage = True
                 self.haveImages = True
 
             # parse artist info
-            self.ParseInfo(payload, fromImage)
+            self.ParseInfo(payload_body, fromImage)
 
     def ParseMangaList(self, payload):
         if payload is not None and "mangaSeries" in payload:
@@ -112,22 +104,12 @@ class PixivArtist:
                         self.artistBackground = page["profile"]["background_image_url"]
 
     def ParseInfoFromImage(self, page):
-        key = list(page["user"].keys())[0]
-        root = page["user"][key]
+        self.artistId = page["userId"]
+        self.artistToken = page["userAccount"]
+        self.artistName = page["userName"]
 
-        self.artistId = root["userId"]
-        self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")
-        self.artistName = root["name"]
-
-        if root["background"] is not None:
-            self.artistBackground = root["background"]["url"]
-
-        # Issue 388 user token is stored in image
-        illusts = page["illust"]
-        for il in illusts:
-            if illusts[il]["userAccount"]:
-                self.artistToken = illusts[il]["userAccount"]
-                break
+        self.artistAvatar = None
+        self.artistBackground = None
 
     def ParseBackground(self, payload):
         # self.artistBackground = "no_background"
