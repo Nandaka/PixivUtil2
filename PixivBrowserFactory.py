@@ -580,12 +580,11 @@ class PixivBrowser(mechanize.Browser):
 
     def getMyId(self, parsed):
         ''' Assume from main page '''
-        temp = None
         # Possible formats are:
         # pixiv.user.id = "189816";
         # user_id:'189816'
         temp = (re.findall(r"pixiv.user.id = \"(\d+)\";", parsed)
-             or re.findall(r"user_id:\'(\d+)\'", parsed))
+             or re.findall(r"user_id:\s?\'(\d+)\'", parsed))
         if temp is not None and len(temp) > 0:
             self._myId = int(temp[0])
             PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
