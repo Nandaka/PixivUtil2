@@ -668,7 +668,7 @@ class PixivDBManager(object):
             c = self.conn.cursor()
             for item in listTxt:
                 c.execute('''DELETE FROM pixiv_manga_image
-                        WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (item.memberId, ))
+                        WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)''', (item.memberId, ))
                 c.execute('''DELETE FROM pixiv_master_image
                         WHERE member_id = ?''', (item.memberId, ))
                 c.execute('''DELETE FROM pixiv_master_member
@@ -733,7 +733,7 @@ class PixivDBManager(object):
             for row in result:
                 if str(row[0]) not in listTxt:
                     c.execute('''DELETE FROM pixiv_manga_image
-                        WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (row[0], ))
+                        WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)''', (row[0], ))
                     c.execute('''DELETE FROM pixiv_master_image
                         WHERE member_id = ?''', (row[0], ))
                     c.execute('''DELETE FROM pixiv_master_member
@@ -750,7 +750,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             c.execute('''DELETE FROM pixiv_manga_image
-                      WHERE EXISTS (SELECT * FROM pixiv_master_image WHERE member_id = ?)''', (memberId, ))
+                      WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)''', (memberId, ))
             c.execute('''DELETE FROM pixiv_master_image
                       WHERE member_id = ?''', (memberId, ))
             c.execute('''DELETE FROM pixiv_master_member
