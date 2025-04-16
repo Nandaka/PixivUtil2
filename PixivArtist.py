@@ -44,7 +44,7 @@ class PixivArtist:
                 self.ParseMangaList(payload["body"])
                 self.ParseNovelList(payload["body"])
             else:
-                payload = self.parseJs(page)
+                payload = page
                 self.isLastPage = True
                 self.haveImages = True
 
@@ -112,8 +112,7 @@ class PixivArtist:
                         self.artistBackground = page["profile"]["background_image_url"]
 
     def ParseInfoFromImage(self, page):
-        key = list(page["user"].keys())[0]
-        root = page["user"][key]
+        root = page
 
         self.artistId = root["userId"]
         self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")

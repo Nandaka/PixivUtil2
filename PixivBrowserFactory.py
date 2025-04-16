@@ -661,41 +661,44 @@ class PixivBrowser(mechanize.Browser):
         # Issue #355 new ui handler
         image = None
         try:
-            if response.find("meta-preload-data") > 0:
-                PixivHelper.print_and_log('debug', 'New UI Mode')
 
-                # Issue #420
-                _tzInfo = None
-                if self._config.useLocalTimezone:
-                    _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+            # https://www.pixiv.net/ajax/illust/129153804?lang=en
+            js_image_info = f"https://www.pixiv.net/ajax/illust/{image_id}?lang={self._locale}"
+            response = self.getPixivPage(js_image_info, enable_cache=False)
+            PixivHelper.print_and_log('debug', f'js_image_info = {response}')
 
-                image = PixivImage(image_id,
-                                   response,
-                                   parent,
-                                   from_bookmark,
-                                   bookmark_count,
-                                   image_response_count,
-                                   dateFormat=self._config.dateFormat,
-                                   tzInfo=_tzInfo,
-                                   manga_series_order=manga_series_order,
-                                   manga_series_parent=manga_series_parent,
-                                   writeRawJSON=self._config.writeRawJSON,
-                                   stripHTMLTagsFromCaption=self._config.stripHTMLTagsFromCaption)
+            # Issue #420
+            _tzInfo = None
+            if self._config.useLocalTimezone:
+                _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
 
-                if image.imageMode == "ugoira_view":
-                    ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
-                    res = self.open_with_retry(ugoira_meta_url)
-                    meta_response = res.read()
-                    image.ParseUgoira(meta_response)
-                    res.close()
+            image = PixivImage(image_id,
+                                response,
+                                parent,
+                                from_bookmark,
+                                bookmark_count,
+                                image_response_count,
+                                dateFormat=self._config.dateFormat,
+                                tzInfo=_tzInfo,
+                                manga_series_order=manga_series_order,
+                                manga_series_parent=manga_series_parent,
+                                writeRawJSON=self._config.writeRawJSON,
+                                stripHTMLTagsFromCaption=self._config.stripHTMLTagsFromCaption)
 
-                if parent is None:
-                    if from_bookmark:
-                        image.originalArtist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
-                    else:
-                        image.artist.reference_image_id = image_id
-                        self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
+            if image.imageMode == "ugoira_view":
+                ugoira_meta_url = f"https://www.pixiv.net/ajax/illust/{image_id}/ugoira_meta"
+                res = self.open_with_retry(ugoira_meta_url)
+                meta_response = res.read()
+                image.ParseUgoira(meta_response)
+                res.close()
+
+            if parent is None:
+                if from_bookmark:
+                    image.originalArtist.reference_image_id = image_id
+                    self.getMemberInfoWhitecube(image.originalArtist.artistId, image.originalArtist)
+                else:
+                    image.artist.reference_image_id = image_id
+                    self.getMemberInfoWhitecube(image.artist.artistId, image.artist)
         except BaseException:
             PixivHelper.get_logger().error("Respose data: \r\n %s", response)
             raise
@@ -717,7 +720,7 @@ class PixivBrowser(mechanize.Browser):
             info = None
             try:
                 image_id = int(artist.reference_image_id)
-            except:
+            except Exception:
                 image_id = -1
 
             if image_id > 0:
@@ -1054,7 +1057,7 @@ class PixivBrowser(mechanize.Browser):
             # url = f"https://api.fanbox.cc/post.listCreator?userId={artist.artistId}&limit=10"
             # Issue #1094
             # https://api.fanbox.cc/post.listCreator?creatorId=onartworks&maxPublishedDatetime=2022-02-26%2015%3A57%3A17&maxId=3468213&limit=10
-            #url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
+            # url = f"https://api.fanbox.cc/post.listCreator?creatorId={artist.creatorId}&limit=10"
 
             url = artist.Pages[artist.PageIndex]
         elif next_url.startswith("https://"):
