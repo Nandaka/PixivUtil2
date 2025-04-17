@@ -131,7 +131,7 @@ class PixivImage (object):
             # parse artist information
             if parent is None:
                 temp_artist_id = int(payload["body"]["userId"])
-                self.artist = PixivArtist(temp_artist_id, payload_body, fromImage=True)
+                self.artist = PixivArtist(temp_artist_id, payload_body=payload_body, fromImage=True)
 
             if fromBookmark and self.originalArtist is None:
                 assert (self.artist is not None)

@@ -29,7 +29,7 @@ class PixivArtist:
         self.offset = offset
         self.limit = limit
         self.artistId = mid
-
+        
         if payload_body is not None:
             # detect if image count != 0
             if not fromImage:
@@ -37,11 +37,10 @@ class PixivArtist:
                 self.ParseMangaList(payload_body)
                 self.ParseNovelList(payload_body)
             else:
+                self.ParseInfo(page=payload_body, fromImage=fromImage)
                 self.isLastPage = True
                 self.haveImages = True
 
-            # parse artist info
-            self.ParseInfo(payload_body, fromImage)
 
     def ParseMangaList(self, payload):
         if payload is not None and "mangaSeries" in payload:
@@ -66,7 +65,7 @@ class PixivArtist:
                 self.ParseInfoFromImage(page)
             else:
                 # used in PixivBrowserFactory.getMemberInfoWhitecube()
-                # webrpc method
+                # webrpc method https://www.pixiv.net/rpc/get_work.php?id=1039353
                 if "body" in page and "illust" in page["body"] and page["body"]["illust"]:
                     root = page["body"]["illust"]
                     self.artistId = root["illust_user_id"]
@@ -77,22 +76,6 @@ class PixivArtist:
                     self.artistId = root["user_id"]
                     self.artistToken = root["user_account"]
                     self.artistName = root["user_name"]
-                else:
-                    # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
-                    data = None
-                    if "user" in page:
-                        data = page
-                    elif "illusts" in page and len(page["illusts"]) > 0:
-                        data = page["illusts"][0]
-
-                    if data is not None:
-                        self.artistId = data["user"]["id"]
-                        self.artistToken = data["user"]["account"]
-                        self.artistName = data["user"]["name"]
-
-                        avatar_data = data["user"]["profile_image_urls"]
-                        if avatar_data is not None and "medium" in avatar_data:
-                            self.artistAvatar = avatar_data["medium"].replace("_170", "")
 
                 if "profile" in page:
                     if self.totalImages == 0:
@@ -104,6 +87,7 @@ class PixivArtist:
                         self.artistBackground = page["profile"]["background_image_url"]
 
     def ParseInfoFromImage(self, page):
+        # https://www.pixiv.net/ajax/illust/128949568
         self.artistId = page["userId"]
         self.artistToken = page["userAccount"]
         self.artistName = page["userName"]
