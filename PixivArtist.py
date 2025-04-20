@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
-import json
+import demjson3
 from bs4 import BeautifulSoup
 
 from PixivException import PixivException
@@ -123,7 +123,6 @@ class PixivArtist:
             if len(self.imageList) > 0:
                 self.haveImages = True
 
-            assert (self.offset is not None and self.offset >= 0)
             if len(self.imageList) + self.offset == self.totalImages:
                 self.isLastPage = True
             else:
@@ -141,8 +140,6 @@ class PixivArtist:
             self.totalImages = len(self.imageList)
             # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
 
-            assert (self.offset is not None and self.offset >= 0)
-            assert (self.limit is not None and self.limit >= 0)
             if self.offset + self.limit >= self.totalImages:
                 self.isLastPage = True
             else:
@@ -162,3 +159,18 @@ class PixivArtist:
             print(f'\t{item}')
         print(f'total : {self.totalImages}')
         print(f'last? : {self.isLastPage}')
+
+    def parseJs(self, page):
+        ''' get the <meta> tag for attribute meta-preload-data and return json object'''
+        parsed = BeautifulSoup(page, features="html5lib")
+        jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
+
+        # cleanup
+        parsed.decompose()
+        del parsed
+
+        if jss is None or len(jss["content"]) == 0:
+            return None  # Possibly error page
+
+        payload = demjson3.decode(jss["content"])
+        return payload
