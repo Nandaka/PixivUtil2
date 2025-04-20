@@ -822,6 +822,11 @@ def download_image(url, filename, res, file_size, overwrite):
                 raise PixivException(f"Download incomplete for: {url}", errorCode=PixivException.DOWNLOAD_FAILED_OTHER)
 
             prev = curr
+
+    except ConnectionResetError as ex:
+        print_and_log('error', f"ConnectionResetError at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
+        raise
+
     except OSError as ex:
         print_and_log('error', f"Error at download_image(): Cannot save {url} to {filename}: {sys.exc_info()}", exception=ex)
         input("Press enter to continue or Ctrl+C to abort.")  # Issue #1187
