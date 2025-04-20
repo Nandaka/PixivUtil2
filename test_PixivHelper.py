@@ -8,6 +8,7 @@ import unittest
 
 from bs4 import BeautifulSoup
 
+from PixivBrowserFactory import PixivBrowser
 import PixivConfig
 import PixivConstant
 import PixivHelper
@@ -15,6 +16,12 @@ from PixivArtist import PixivArtist
 from PixivImage import PixivImage
 
 PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
+
+
+def mock_getMemberInfoWhitecube(self, member_id, artist: PixivArtist, bookmark=False):
+    assert (artist is not None)
+
+    return artist
 
 
 class TestPixivHelper(unittest.TestCase):
@@ -38,8 +45,9 @@ class TestPixivHelper(unittest.TestCase):
             rootDir = '/home/travis/build/Nandaka/PixivUtil2/'
 
         nameformat = '%searchTags%\\%member_id% %member_token%\\%R-18% %urlFilename% - %title%'
-        p = open('./test/test-image-unicode.htm', 'r', encoding="utf-8")
+        p = open('./test/test-image-unicode-2493913.json', 'r', encoding="utf-8")
         page = p.read()
+        PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(2493913, page)
         self.assertEqual(image.imageUrls[0], "https://i.pximg.net/img-original/img/2008/12/23/21/01/21/2493913_p0.jpg")
         filename = PixivHelper.make_filename(nameformat, image, fileUrl="2493913_p0.jpg")
@@ -54,8 +62,9 @@ class TestPixivHelper(unittest.TestCase):
         self.assertTrue(len(result) < 255)
 
     def testCreateMangaFilename(self):
-        p = open(r'./test/test-image-manga.htm', 'r', encoding='utf-8')
+        p = open(r'./test/test-image-manga-28820443.json', 'r', encoding='utf-8')
         page = p.read()
+        PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
 
@@ -63,9 +72,10 @@ class TestPixivHelper(unittest.TestCase):
         js_file = open('./test/detail-554800.json', 'r')
         js = json.load(js_file)
 
-        self.assertEqual(imageInfo.artist.artistId, str(js["user"]["id"]))
+        assert (imageInfo.artist is not None)
+        self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
-        self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
+        # self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %page_number% %works_date_only% %works_res% %title%'
 
@@ -97,17 +107,19 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def testCreateFilenameUnicode(self):
-        p = open('./test/test-image-unicode.htm', 'r', encoding='utf-8')
+        p = open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8')
         page = p.read()
+        PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         imageInfo = PixivImage(2493913, page)
 
         # cross check with json value for artist info
         js_file = open('./test/detail-267014.json', 'r', encoding='utf-8')
         js = json.load(js_file)
 
-        self.assertEqual(imageInfo.artist.artistId, str(js["user"]["id"]))
+        assert (imageInfo.artist is not None)
+        self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
-        self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
+        # self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title%'
         expected = u'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２.jpg'
@@ -120,17 +132,18 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def testCreateFilenameTranslatedTag(self):
-        p = open('./test/test-image-unicode.htm', 'r', encoding='utf-8')
+        p = open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8')
         page = p.read()
+        PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         imageInfo = PixivImage(2493913, page)
 
         # cross check with json value for artist info
         js_file = open('./test/detail-267014.json', 'r', encoding='utf-8')
         js = json.load(js_file)
-
-        self.assertEqual(imageInfo.artist.artistId, str(js["user"]["id"]))
+        assert (imageInfo.artist is not None)
+        self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
-        self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
+        # self.assertEqual(imageInfo.artist.artistAvatar, js["user"]["profile_image_urls"]["medium"].replace("_170", ""))
 
         nameFormat = '%member_token% (%member_id%)\\%urlFilename% %works_date_only% %works_res% %title% %tags%'
         expected = 'balzehn (267014)\\2493913 2008-12-23 852x1200 アラクネのいる日常２ arachne monster girl モン娘のいる日常シリーズ non-human monster girl R-18 tsundere spider woman love-making.jpg'

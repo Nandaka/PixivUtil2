@@ -8,7 +8,7 @@ import shutil
 import time
 import traceback
 import pathlib
-import urllib
+from urllib.error import URLError
 
 from colorama import Fore, Style
 
@@ -94,6 +94,7 @@ def process_image(caller,
             if len(title_prefix) > 0:
                 caller.set_console_title(f"{title_prefix} ImageId: {image.imageId}")
             else:
+                assert (image.artist is not None)
                 caller.set_console_title(f"MemberId: {image.artist.artistId} ImageId: {image.imageId}")
 
         except PixivException as ex:
@@ -134,7 +135,7 @@ def process_image(caller,
 
         # date validation and blacklist tag validation
         if config.dateDiff > 0:
-            if image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
+            if image.worksDateDateTime is not None and image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
                 if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – it\'s older than: {config.dateDiff} day(s).')
                     download_image_flag = False
@@ -142,7 +143,7 @@ def process_image(caller,
 
         if useblacklist:
             if config.useBlacklistMembers and download_image_flag:
-                if str(image.originalArtist.artistId) in caller.__blacklistMembers:
+                if image.originalArtist is not None and str(image.originalArtist.artistId) in caller.__blacklistMembers:
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
@@ -205,7 +206,7 @@ def process_image(caller,
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - post bookmark count {image.bookmark_count} is less than: {bookmark_count}')
 
         if download_image_flag:
-            if artist is None:
+            if artist is None and image.artist is not None:
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Name":14}:{Style.RESET_ALL} {image.artist.artistName}')
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Avatar":14}:{Style.RESET_ALL} {image.artist.artistAvatar}')
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Token":14}:{Style.RESET_ALL} {image.artist.artistToken}')
@@ -301,7 +302,7 @@ def process_image(caller,
                     manga_files.append((image_id, page, filename))
                     page = page + 1
 
-                except urllib.error.URLError:
+                except URLError:
                     PixivHelper.print_and_log('error', f'Error when download_image(), giving up url: {img}')
                 PixivHelper.print_and_log(None, '')
 
@@ -417,6 +418,7 @@ def process_image(caller,
                       PixivConstant.PIXIVUTIL_SKIP_LOCAL_LARGER):
             caption = image.imageCaption if config.autoAddCaption else ""
             try:
+                assert (image.artist is not None)
                 db.insertImage(image.artist.artistId, image.imageId, image.imageMode, caption=caption)
             except BaseException:
                 PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
@@ -442,7 +444,7 @@ def process_image(caller,
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
             # Save member data if enabled
-            if config.autoAddMember:
+            if image.artist is not None and config.autoAddMember:
                 member_id = image.artist.artistId
                 member_token = image.artist.artistToken
                 member_name = image.artist.artistName

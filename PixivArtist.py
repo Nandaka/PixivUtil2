@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011, C, C0302
 
-import demjson3
+import json
 from bs4 import BeautifulSoup
 
 from PixivException import PixivException
@@ -25,16 +25,16 @@ class PixivArtist:
     manga_series = []
     novel_series = []
 
-    def __init__(self, mid: int = 0, page: str = None, fromImage=False, offset: int = None, limit: int = None):
+    def __init__(self, mid: int = 0, page: str = "", fromImage=False, offset: int = -1, limit: int = -1):
         self.offset = offset
         self.limit = limit
         self.artistId = mid
 
-        if page is not None:
+        if page is not None and len(page) > 0:
             payload = None
             # detect if image count != 0
             if not fromImage:
-                payload = demjson3.decode(page)
+                payload = json.loads(page)
                 if payload["error"]:
                     raise PixivException(payload["message"], errorCode=PixivException.OTHER_MEMBER_ERROR, htmlPage=page)
                 if payload["body"] is None:
@@ -156,6 +156,7 @@ class PixivArtist:
             if len(self.imageList) > 0:
                 self.haveImages = True
 
+            assert (self.offset is not None and self.offset >= 0)
             if len(self.imageList) + self.offset == self.totalImages:
                 self.isLastPage = True
             else:
@@ -173,6 +174,8 @@ class PixivArtist:
             self.totalImages = len(self.imageList)
             # print("{0} {1} {2}".format(self.offset, self.limit, self.totalImages))
 
+            assert (self.offset is not None and self.offset >= 0)
+            assert (self.limit is not None and self.limit >= 0)
             if self.offset + self.limit >= self.totalImages:
                 self.isLastPage = True
             else:
@@ -192,18 +195,3 @@ class PixivArtist:
             print(f'\t{item}')
         print(f'total : {self.totalImages}')
         print(f'last? : {self.isLastPage}')
-
-    def parseJs(self, page):
-        ''' get the <meta> tag for attribute meta-preload-data and return json object'''
-        parsed = BeautifulSoup(page, features="html5lib")
-        jss = parsed.find('meta', attrs={'id': 'meta-preload-data'})
-
-        # cleanup
-        parsed.decompose()
-        del parsed
-
-        if jss is None or len(jss["content"]) == 0:
-            return None  # Possibly error page
-
-        payload = demjson3.decode(jss["content"])
-        return payload

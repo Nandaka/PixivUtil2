@@ -13,7 +13,6 @@ from typing import List, Tuple
 
 from bs4 import BeautifulSoup
 
-import PixivBrowserFactory
 import datetime_z
 import PixivHelper
 from PixivArtist import PixivArtist
@@ -58,7 +57,7 @@ class PixivImage (object):
     imageResizedUrls = []
     worksDate = ""
     worksResolution = ""
-    seriesNavData = ""
+    seriesNavData = {}
     rawJSON = {}
     jd_rtv = 0
     jd_rtc = 0
@@ -128,12 +127,19 @@ class PixivImage (object):
 
             payload = payload["body"]
 
+            # not logged in will return empty values in the urls node
+            if payload["urls"]["original"] is None:
+                raise PixivException(f'Image Error: Unable to get the image urls, possibly not logged in.', errorCode=PixivException.NOT_LOGGED_IN, htmlPage=page)
+
             # parse artist information
             if parent is None:
-                br, _ = PixivBrowserFactory.get_br()
+                from PixivBrowserFactory import getBrowser
+                br = getBrowser()
                 artist, _ = br.getMemberPage(member_id=int(payload["userId"]))
                 self.artist = artist
-                assert (self.artist.artistId == payload["userId"])
+                assert (int(self.artist.artistId) == int(payload["userId"]))
+                self.artist.artistName = payload["userName"]
+                self.artist.artistToken = payload["userAccount"]
 
             if fromBookmark and self.originalArtist is None:
                 assert (self.artist is not None)
@@ -147,8 +153,7 @@ class PixivImage (object):
             self.ParseInfo(payload, writeRawJSON)
 
     def ParseInfo(self, page, writeRawJSON):
-        key = page["id"]
-        assert (str(key) == str(self.imageId))
+        assert (int(page["illustId"]) == int(self.imageId))
         root = page
         # save the JSON if writeRawJSON is enabled
         if writeRawJSON:
@@ -554,6 +559,7 @@ class PixivImage (object):
 
     def WriteSeriesData(self, seriesId, seriesDownloaded, filename):
         from PixivBrowserFactory import getBrowser
+        br = getBrowser()
         try:
             # Issue #421 ensure subdir exists.
             PixivHelper.makeSubdirs(filename)
@@ -561,12 +567,12 @@ class PixivImage (object):
         except IOError:
             outfile = codecs.open("Series " + str(seriesId) + ".json", 'w', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, "Series " + str(seriesId) + ".json")
-        receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId, 1, returnJSON=True))
+        receivedJSON = json.loads(br.getMangaSeriesJson(seriesId, 1))
         jsondata = receivedJSON["body"]["illustSeries"][0]
         jsondata.update(receivedJSON["body"]["page"])
         pages = jsondata["total"] // 12 + 2
         for x in range(2, pages):
-            receivedJSON = json.loads(getBrowser().getMangaSeries(seriesId, x, returnJSON=True))
+            receivedJSON = json.loads(br.getMangaSeriesJson(seriesId, x))
             jsondata["series"].extend(receivedJSON["body"]["page"]["series"])
         for x in ["recentUpdatedWorkIds", "otherSeriesId", "seriesId", "isSetCover", "firstIllustId", "coverImageSl", "url"]:
             del jsondata[x]
