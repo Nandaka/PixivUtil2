@@ -1,3 +1,6 @@
+20250426
+- too many changes, please refer to git log
+
 20240703
 - Implement #1226, add %AI% for nameformat
 - Update Dockerfile (#1230) by @Naoya Muramatsu
