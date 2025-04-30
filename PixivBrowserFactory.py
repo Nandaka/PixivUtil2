@@ -630,7 +630,7 @@ class PixivBrowser(mechanize.Browser):
         PixivHelper.print_and_log('info', f'Premium User: {self._isPremium}.')
 
         self._xRestrict = 0
-        temp = re.findall(r"\"xRestrict\":(\d+)", parsed)
+        temp = re.findall(r"\"xRestrict\\?\":(\d+)", parsed)
         if temp is not None and len(temp) > 0:
             self._xRestrict = int(temp[0])
         if self._xRestrict == 1:
