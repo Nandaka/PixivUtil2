@@ -624,13 +624,13 @@ class PixivBrowser(mechanize.Browser):
         if temp is not None and len(temp) > 0:
             self._isPremium = True if temp[0] == "premium" else False
         else:
-            temp = re.findall(r"var dataLayer = .*premium: '(\w+)'", parsed)
+            temp = re.findall(r"var dataLayer = .*premium:\s?'(\w+)'", parsed)
             if temp is not None and len(temp) > 0:
                 self._isPremium = True if temp[0] == "yes" else False
         PixivHelper.print_and_log('info', f'Premium User: {self._isPremium}.')
 
         self._xRestrict = 0
-        temp = re.findall(r"\"xRestrict\":(\d+)", parsed)
+        temp = re.findall(r"\"xRestrict\\?\":(\d+)", parsed)
         if temp is not None and len(temp) > 0:
             self._xRestrict = int(temp[0])
         if self._xRestrict == 1:
