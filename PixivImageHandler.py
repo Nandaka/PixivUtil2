@@ -270,7 +270,6 @@ def process_image(caller,
                 return PixivConstant.PIXIVUTIL_OK
 
             # Get all the directory-related archive-mode info we can right now.
-            original_target_dir = target_dir
             # TODO: this is kind of a hack so we can get relative path
             relative_download_dir = os.path.dirname(PixivHelper.make_filename(config.filenameFormat,
                                                     image,
@@ -281,49 +280,80 @@ def process_image(caller,
                                                     searchTags=search_tags,
                                                     useTranslatedTag=config.useTranslatedTag,
                                                     tagTranslationLocale=config.tagTranslationLocale))
+            archive_mode_zip_filepath = os.path.abspath(os.path.join(target_dir, relative_download_dir + ".zip"))
             target_download_dir = os.path.join(target_dir, relative_download_dir)
-            archive_mode_zip_filepath = os.path.abspath(os.path.join(original_target_dir, relative_download_dir + ".zip"))
-            if in_db and exists:
+            if is_archive_mode:
+                target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
+            if in_db:
                 _filepath: str = r[0]
                 if is_archive_mode:
                     # If the archive is already downloaded, put its contents into the download directory
                     # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
                     # e.g. skip downloaded files, etc.
                     archive_mode_download_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
-                    target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
-                    if zipfile.is_zipfile(_filepath):
+                    if zipfile.is_zipfile(_filepath) and exists:
                         PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
                         if archive_mode_zip_filepath != _filepath:
                             PixivHelper.print_and_log('warn', f'Archive path mismatch for image {image_id}, expected {_filepath} but got {archive_mode_zip_filepath}')
                         with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
                             zip_file.extractall(archive_mode_download_dir)
                             PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
-                    elif os.path.isfile(_filepath):
+                    elif os.path.isdir(os.path.dirname(_filepath)):
                         # A non-zip file exists. This is probably an artwork directory from a previous run.
+                        # It is possible that the file has been deleted so exists = False due to a previous incomplete download, so we will scan the directory to confirm.
                         # In this case, we will attempt to use existing files in the same directory to populate the archive, and use it to save
                         # download time. HOWEVER, this means we have both an archive and a directory for the same image.
                         # Maybe the user should be responsible for cleaning up the duplicate, or we could delete the archive...?
                         # If the user ALSO changes filenameformat, then we are truly screwed...
                         # The ideal solution would be to run archive mode on a clean directory, or manually migrate between modes.
-                        PixivHelper.print_and_log('info', f"File exists in database for image {image_id} as {_filepath}, but is not an archive.")
-                        os.makedirs(archive_mode_download_dir, exist_ok=True)
-                        _files_copied = 0
+                        # TODO: use db to get more precise image files instead of os.listdir()
+                        if not exists:
+                            PixivHelper.print_and_log('info', f"File in database {_filepath} does not exist in local filesystem.")
+                        PixivHelper.print_and_log('info', "Verifying artwork directory structure...")
+                        _is_valid_artwork_directory = True
+                        _file_count = 0
                         for file in os.listdir(os.path.dirname(_filepath)):
-                            shutil.copy2(os.path.join(os.path.dirname(_filepath), file), archive_mode_download_dir)
-                            _files_copied += 1
-                        PixivHelper.print_and_log('info', f"Copied {_files_copied} files from {_filepath} to {archive_mode_download_dir}")
-                        archive_mode_update_manga_image_paths = True
-                    else:
+                            if os.path.isdir(os.path.join(os.path.dirname(_filepath), file)):
+                                PixivHelper.print_and_log('warn', f"Directory {os.path.dirname(_filepath)} contains directories. Skipping.")
+                                _is_valid_artwork_directory = False
+                            else:
+                                _file_count += 1
+                        if not _file_count:
+                            PixivHelper.print_and_log('warn', f"No files found in {os.path.dirname(_filepath)}. Skipping.")
+                            _is_valid_artwork_directory = False
+
+                        if _is_valid_artwork_directory:
+                            os.makedirs(archive_mode_download_dir, exist_ok=True)
+                            _files_copied = 0
+                            for file in os.listdir(os.path.dirname(_filepath)):
+                                shutil.copy2(os.path.join(os.path.dirname(_filepath), file), archive_mode_download_dir)
+                                _files_copied += 1
+                            PixivHelper.print_and_log('info', f"Copied {_files_copied} existing files from {_filepath} to {archive_mode_download_dir}")
+                            archive_mode_update_manga_image_paths = True
+                    elif exists:
                         raise TypeError(f"Existing object is not a zip file or directory: {_filepath}")
+                    else:
+                        # We should just mark everything as if we are downloading for the first time.
+                        PixivHelper.print_and_log('warn', f"File in database {_filepath} does not exist in local filesystem. Downloading from scratch.")
+                        in_db = False
+                        archive_mode_update_manga_image_paths = True
                 else:
                     # On the other hand, if archive mode is False but we have an archive in the database, we should also use the archive, and
                     # rewrite the manga save names to point to their place in the directory.
-                    if zipfile.is_zipfile(_filepath):
+                    if exists and zipfile.is_zipfile(_filepath):
                         PixivHelper.print_and_log('info', f"Archive exists for image {image_id}, attempting to extract contents to {target_download_dir}...")
                         with zipfile.ZipFile(_filepath, 'r') as zip_file:
                             zip_file.extractall(target_download_dir)
                             PixivHelper.print_and_log('info', f'Extracted archive contents to {target_download_dir}')
                             archive_mode_update_manga_image_paths = True
+                    elif _filepath.lower().endswith('.zip') and not exists:
+                        # If the user previously downloaded an artwork as an archive but deleted it for some reason,
+                        # we should consider it as a new download and mark in_db = False, and also change the manga save names.
+                        # We can also remove it from database via db.deleteImage(image_id), but
+                        # this would also remove metadata, so let's not do that.
+                        PixivHelper.print_and_log('info', f"Archive {_filepath} existed in database but is no longer in filesystem.")
+                        in_db = False
+                        archive_mode_update_manga_image_paths = True
 
             current_img = 1
             total = len(source_urls)
@@ -522,6 +552,13 @@ def process_image(caller,
                     if archived_count == total:
                         PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
                         shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
+                        if in_db and not exists:
+                            # This can happen if the user previously downloaded an artwork as a directory, deleted some images, then downloads
+                            # the artwork as an archive.
+                            # Because the database saves the last image path, it is possible that in_db = True but exists = False.
+                            # We need to tell the database that yes the archive exists and download is complete, otherwise it triggers
+                            # PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD error.
+                            exists = True
                     else:
                         PixivHelper.print_and_log('error', f"Files archived does not match total. Expected {total} but got {archived_count}.")
                         result = PixivConstant.PIXIVUTIL_NOT_OK
