@@ -773,7 +773,7 @@ Please refer run with `--help` for latest information.
 
   Download Pixiv artworks into an archive, rather than a directory. Uses the [zipfile](https://docs.python.org/3/library/zipfile.html) library. The `.zip` extension need not be added: if the configured filenameformat is `a/b/c/d`, PixivUtil2 will automatically put images into a ZIP archive with path `a/b/c.zip`, such that the contained images have filenameformat `d`. This avoids the need to change existing configuration.
 
-  > When `createPixivArchive = True`, the `pixiv_manga_image.save_name` fields of images within archives will be their basenames instead of their relative or absolute paths in the host filesystem.
+  > When `createPixivArchive = True`, the `pixiv_manga_image.save_name` fields of images within archives will be their basenames instead of their relative or absolute paths in the host filesystem. If a previously downloaded artwork exists as a directory, PixivUtil2 will simply create an archive next to it, and point the save path in the database to the new archive.
 
 - createPixivArchiveCompressionType
 

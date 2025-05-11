@@ -907,6 +907,22 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+    def upsertMangaImage(self, manga_files):
+        try:
+            c = self.conn.cursor()
+            c.executemany('''INSERT INTO pixiv_manga_image
+                          VALUES(?, ?, ?, datetime('now'), datetime('now'))
+                          ON CONFLICT(image_id, page) DO UPDATE SET
+                          save_name = excluded.save_name,
+                          last_update_date = datetime('now')''', manga_files)
+            self.conn.commit()
+        except BaseException:
+            print('Error at upsertMangaImage():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
     def blacklistImage(self, memberId, ImageId):
         try:
             c = self.conn.cursor()
