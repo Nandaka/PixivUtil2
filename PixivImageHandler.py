@@ -268,10 +268,9 @@ def process_image(caller,
             if caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
                 return PixivConstant.PIXIVUTIL_OK
 
-            # When in archive mode, previously downloaded images are extracted to the temp download directory.
-            # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
+            # Get all the directory-related archive-mode info we can right now.
             original_target_dir = target_dir
-            if in_db and is_archive_mode and exists:
+            if is_archive_mode:
                 # TODO: this is kind of a hack so we can get relative path
                 relative_download_dir = os.path.dirname(PixivHelper.make_filename(config.filenameFormat,
                                                         image,
@@ -284,13 +283,29 @@ def process_image(caller,
                                                         tagTranslationLocale=config.tagTranslationLocale))
                 archive_mode_download_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
                 archive_mode_zip_filepath = os.path.join(original_target_dir, relative_download_dir + ".zip")
-                PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
                 target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
-                if archive_mode_zip_filepath != r[0]:
-                    PixivHelper.print_and_log('warn', f'Archive path mismatch for image {image_id}, expected {r[0]} but got {archive_mode_zip_filepath}')
-                with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
-                    zip_file.extractall(archive_mode_download_dir)
-                    PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
+
+                # If the archive is already downloaded, put its contents into the download directory
+                # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
+                # e.g. skip downloaded files, etc.
+                if in_db and exists:
+                    if zipfile.is_zipfile(r[0]):
+                        PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
+                        if archive_mode_zip_filepath != r[0]:
+                            PixivHelper.print_and_log('warn', f'Archive path mismatch for image {image_id}, expected {r[0]} but got {archive_mode_zip_filepath}')
+                        with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
+                            zip_file.extractall(archive_mode_download_dir)
+                            PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
+                    elif os.path.isdir(r[0]):
+                        # This is probably an artwork directory from a previous run.
+                        # In this case, we will just ignore it, make sure that our archive won't conflict with it.
+                        # HOWEVER, the archive will probably not be downloaded because of the checks made at the download stage.
+                        # The ideal solution would be to run archive mode on a clean directory, or migrate from directory mode to archive mode.
+                        PixivHelper.print_and_log('warn', f'Archive exists for image {image_id}, but it is a directory. This download will probably be skipped.')
+                        if archive_mode_zip_filepath == r[0]:
+                            raise FileExistsError(f"Cannot download ZIP archive to an existing artwork directory: {r[0]}")
+                    else:
+                        raise TypeError(f"Existing object is not a zip file or directory: {r[0]}")
 
             current_img = 1
             total = len(source_urls)
