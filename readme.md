@@ -769,6 +769,20 @@ Please refer run with `--help` for latest information.
 - customCleanUpRe
   
   TODO.
+- createPixivArchive
+
+  Download Pixiv artworks into an archive, rather than a directory. Uses the [zipfile](https://docs.python.org/3/library/zipfile.html) library. The `.zip` extension need not be added: if the configured filenameformat is `a/b/c/d`, PixivUtil2 will automatically put images into a ZIP archive with path `a/b/c.zip`, such that the contained images have filenameformat `d`. This avoids the need to change existing configuration.
+
+  > When `createPixivArchive = True`, the `pixiv_manga_image.save_name` fields of images within archives will be their basenames instead of their relative or absolute paths in the host filesystem.
+
+- createPixivArchiveCompressionType
+
+  Specify compression algorithm ([ZIP_STORED](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_STORED), [ZIP_DEFLATED](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_DEFLATED), [ZIP_BZIP2](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_BZIP2), or [ZIP_LZMA](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_LZMA)).
+  Default is ZIP_STORED/no compression.
+- createPixivArchiveCompressionLevel
+
+  Specify compression level. Applies only when using it with ZIP_DEFLATED OR ZIP_BZIP2. Refer to the zipfile documentation on level to algorithm compatibility.
+  Default value is 0.
 
 # Filename Format Syntax
 Available for filenameFormat, filenameMangaFormat, avatarNameFormat, filenameInfoFormat,
