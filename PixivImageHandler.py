@@ -310,6 +310,7 @@ def process_image(caller,
                     # If the archive is already downloaded, put its contents into the download directory
                     # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
                     # e.g. skip downloaded files, etc.
+                    # TODO: figure out how to skip downloaded ugoira files.
                     archive_mode_download_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
                     if zipfile.is_zipfile(_filepath) and exists:
                         PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
