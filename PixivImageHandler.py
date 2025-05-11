@@ -617,7 +617,7 @@ def process_image(caller,
             db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
             if len(manga_files) > 0:
-                if archive_mode_update_manga_image_paths and config.overwrite:
+                if archive_mode_update_manga_image_paths:
                     # Rewrite manga save names to point to their place in the archive.
                     db.upsertMangaImage(manga_files)
                 else:
