@@ -477,31 +477,35 @@ def process_image(caller,
             if is_archive_mode:
                 # Move the files from the temp download directory to a temp zip archive, then move temp zip archive to original target directory.
                 # Make sure that the compression type and level are correct combinations otherwise you'll probably get a RuntimeError.
-                filename = archive_mode_zip_filepath
-                os.makedirs(os.path.dirname(archive_mode_zip_filepath), exist_ok=True)
-                archived_count = 0
-                compression = zipfile.ZIP_STORED
-                match archive_mode_compression_type:
-                    case "ZIP_STORED":
-                        compression = zipfile.ZIP_STORED
-                    case "ZIP_DEFLATED":
-                        compression = zipfile.ZIP_DEFLATED
-                    case "ZIP_BZIP2":
-                        compression = zipfile.ZIP_BZIP2
-                    case "ZIP_LZMA":
-                        compression = zipfile.ZIP_LZMA
-                    case _:
-                        raise ValueError(f'Invalid compression type: {archive_mode_compression_type}')
-                with zipfile.ZipFile(archive_mode_temp_zip_filepath, 'w', compression=compression, compresslevel=archive_mode_compression_level) as zip_file:
-                    _downloaded_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
-                    for file in os.listdir(_downloaded_dir):
-                        if not os.path.isfile(os.path.join(_downloaded_dir, file)):
-                            continue
-                        zip_file.write(os.path.join(_downloaded_dir, file), file)
-                        PixivHelper.print_and_log('info', f'Archived: {file}')
-                        archived_count += 1
-                shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
-                PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
+                try:
+                    filename = archive_mode_zip_filepath
+                    os.makedirs(os.path.dirname(archive_mode_zip_filepath), exist_ok=True)
+                    archived_count = 0
+                    compression = zipfile.ZIP_STORED
+                    match archive_mode_compression_type:
+                        case "ZIP_STORED":
+                            compression = zipfile.ZIP_STORED
+                        case "ZIP_DEFLATED":
+                            compression = zipfile.ZIP_DEFLATED
+                        case "ZIP_BZIP2":
+                            compression = zipfile.ZIP_BZIP2
+                        case "ZIP_LZMA":
+                            compression = zipfile.ZIP_LZMA
+                        case _:
+                            raise ValueError(f'Invalid compression type: {archive_mode_compression_type}')
+                    with zipfile.ZipFile(archive_mode_temp_zip_filepath, 'w', compression=compression, compresslevel=archive_mode_compression_level) as zip_file:
+                        _downloaded_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
+                        for file in os.listdir(_downloaded_dir):
+                            if not os.path.isfile(os.path.join(_downloaded_dir, file)):
+                                continue
+                            zip_file.write(os.path.join(_downloaded_dir, file), file)
+                            PixivHelper.print_and_log('info', f'Archived: {file}')
+                            archived_count += 1
+                    shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
+                    PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
+                finally:
+                    # Clean up everything at the end.
+                    shutil.rmtree(archive_mode_temp_dir)
 
         if in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
