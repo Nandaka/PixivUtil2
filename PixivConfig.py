@@ -141,6 +141,10 @@ class PixivConfig():
         ConfigItem("Filename", "tagTranslationLocale", "en"),
         ConfigItem("Filename", "customBadChars", "", followup=PixivHelper.parse_custom_sanitizer),
         ConfigItem("Filename", "customCleanUpRe", "", followup=PixivHelper.parse_custom_clean_up_re),
+        ConfigItem("Filename", "createPixivArchive", False),
+        ConfigItem("Filename", "createPixivArchiveCompressionType", "ZIP_STORED",
+                   restriction=lambda algorithm: algorithm in {"ZIP_STORED", "ZIP_DEFLATED", "ZIP_BZIP2", "ZIP_LZMA"}),
+        ConfigItem("Filename", "createPixivArchiveCompressionLevel", 0, restriction=lambda level: level in range(0, 10)),
 
         ConfigItem("Authentication", "username", ""),
         ConfigItem("Authentication", "password", ""),

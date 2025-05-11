@@ -5,10 +5,12 @@ import os
 import re
 import sys
 import shutil
+import tempfile
 import time
 import traceback
 import pathlib
 from urllib.error import URLError
+import zipfile
 
 from colorama import Fore, Style
 
@@ -43,9 +45,27 @@ def process_image(caller,
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db: PixivDBManager = caller.__dbManager__
+    relative_download_dir: str = None                           # relative path to the archive root directory for downloaded files
+    
+    # Pixiv archive mode specific configuration extraction.
+    is_archive_mode: bool = bool(config.createPixivArchive)
+    archive_mode_compression_type: str = config.createPixivArchiveCompressionType
+    archive_mode_compression_level: int = config.createPixivArchiveCompressionLevel
+    archive_mode_zip_filepath: str = None                       # actual archive path that we're downloading to
+    archive_mode_temp_dir: str = None                           # temp directory for everything
+    archive_mode_temp_download_root_dir: str = None             # temp root directory for downloaded files
+    archive_mode_temp_zip_filepath: str = None                  # temp zip archive for downloaded files
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
+
+    # If downloading to an archive, setup temporary root and download directories.
+    # build the archive path.
+    if is_archive_mode:
+        archive_mode_temp_dir = tempfile.mkdtemp(prefix='pixivutil_archive_')
+        archive_mode_temp_download_root_dir = os.path.join(archive_mode_temp_dir, 'download')
+        archive_mode_temp_zip_filepath = os.path.join(archive_mode_temp_dir, 'archive.zip')
+        os.makedirs(archive_mode_temp_download_root_dir, exist_ok=True)
 
     # override the config source if job_option is give for filename formats
     extension_filter = None
@@ -248,6 +268,30 @@ def process_image(caller,
             if caller.DEBUG_SKIP_DOWNLOAD_IMAGE:
                 return PixivConstant.PIXIVUTIL_OK
 
+            # When in archive mode, previously downloaded images are extracted to the temp download directory.
+            # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
+            original_target_dir = target_dir
+            if in_db and is_archive_mode and exists:
+                # TODO: this is kind of a hack so we can get relative path
+                relative_download_dir = os.path.dirname(PixivHelper.make_filename(config.filenameFormat,
+                                                        image,
+                                                        tagsSeparator=config.tagsSeparator,
+                                                        tagsLimit=config.tagsLimit,
+                                                        fileUrl=source_urls[0],
+                                                        bookmark=bookmark,
+                                                        searchTags=search_tags,
+                                                        useTranslatedTag=config.useTranslatedTag,
+                                                        tagTranslationLocale=config.tagTranslationLocale))
+                archive_mode_download_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
+                archive_mode_zip_filepath = os.path.join(original_target_dir, relative_download_dir + ".zip")
+                PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
+                target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
+                if archive_mode_zip_filepath != r[0]:
+                    PixivHelper.print_and_log('warn', f'Archive path mismatch for image {image_id}, expected {r[0]} but got {archive_mode_zip_filepath}')
+                with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
+                    zip_file.extractall(archive_mode_download_dir)
+                    PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
+
             current_img = 1
             total = len(source_urls)
             for img in source_urls:
@@ -299,7 +343,13 @@ def process_image(caller,
                     elif result == PixivConstant.PIXIVUTIL_KEYBOARD_INTERRUPT:
                         raise KeyboardInterrupt()
 
-                    manga_files.append((image_id, page, filename))
+                    if is_archive_mode:
+                        # set file path relative to its containing archive.
+                        # for some reason .gif files are saved as .zip files, but it's also the same in non-archive mode, so
+                        # not much to do about it.
+                        manga_files.append((image_id, page, os.path.basename(filename)))
+                    else:
+                        manga_files.append((image_id, page, filename))
                     page = page + 1
 
                 except URLError:
@@ -408,6 +458,35 @@ def process_image(caller,
 
             if config.writeUrlInDescription:
                 PixivHelper.write_url_in_description(image, config.urlBlacklistRegex, config.urlDumpFilename)
+            
+            if is_archive_mode:
+                # Move the files from the temp download directory to a temp zip archive, then move temp zip archive to original target directory.
+                # Make sure that the compression type and level are correct combinations otherwise you'll probably get a RuntimeError.
+                filename = archive_mode_zip_filepath
+                os.makedirs(os.path.dirname(archive_mode_zip_filepath), exist_ok=True)
+                archived_count = 0
+                compression = zipfile.ZIP_STORED
+                match archive_mode_compression_type:
+                    case "ZIP_STORED":
+                        compression = zipfile.ZIP_STORED
+                    case "ZIP_DEFLATED":
+                        compression = zipfile.ZIP_DEFLATED
+                    case "ZIP_BZIP2":
+                        compression = zipfile.ZIP_BZIP2
+                    case "ZIP_LZMA":
+                        compression = zipfile.ZIP_LZMA
+                    case _:
+                        raise ValueError(f'Invalid compression type: {archive_mode_compression_type}')
+                with zipfile.ZipFile(archive_mode_temp_zip_filepath, 'w', compression=compression, compresslevel=archive_mode_compression_level) as zip_file:
+                    _downloaded_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
+                    for file in os.listdir(_downloaded_dir):
+                        if not os.path.isfile(os.path.join(_downloaded_dir, file)):
+                            continue
+                        zip_file.write(os.path.join(_downloaded_dir, file), file)
+                        PixivHelper.print_and_log('info', f'Archived: {file}')
+                        archived_count += 1
+                shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
+                PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
 
         if in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
