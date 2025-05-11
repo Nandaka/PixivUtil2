@@ -298,9 +298,9 @@ def process_image(caller,
                                                     useTranslatedTag=config.useTranslatedTag,
                                                     tagTranslationLocale=config.tagTranslationLocale))
             archive_mode_zip_filepath = os.path.abspath(os.path.join(target_dir, relative_download_dir + ".zip"))
-            if not config.overwrite and os.path.exists(archive_mode_zip_filepath):
-                PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, skipping download.')
-                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
+            # if not config.overwrite and os.path.exists(archive_mode_zip_filepath):
+            #     PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, skipping download.')
+            #     return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
             target_download_dir = os.path.join(target_dir, relative_download_dir)
             if is_archive_mode:
                 target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
@@ -329,7 +329,7 @@ def process_image(caller,
                             # get rid of files that are not in the database.
                             for __file in os.listdir(archive_mode_download_dir):
                                 __filepath = os.path.join(archive_mode_download_dir, __file)
-                                if os.path.isfile(__filepath) and __file not in page_number_to_filename_map.values():
+                                if os.path.isfile(__filepath) and __filepath not in page_number_to_filename_map.values():
                                     os.remove(__filepath)
                                     PixivHelper.print_and_log('info', f"Removed orphan file {__filepath}.")
                     elif os.path.isdir(os.path.dirname(_filepath)):
