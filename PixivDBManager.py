@@ -976,6 +976,18 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+    def selectImagesByImageId(self, image_id):
+        try:
+            c = self.conn.cursor()
+            c.execute('''SELECT * FROM pixiv_manga_image WHERE image_id = ? ORDER BY page ASC''', (image_id,))
+            return c.fetchall()
+        except BaseException:
+            print('Error at selectImagesByImageId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
     def selectImageByImageIdAndPage(self, imageId, page):
         try:
             c = self.conn.cursor()

@@ -9,6 +9,7 @@ import tempfile
 import time
 import traceback
 import pathlib
+from typing import Dict
 from urllib.error import URLError
 import zipfile
 
@@ -56,6 +57,8 @@ def process_image(caller,
     archive_mode_temp_download_root_dir: str = None             # temp root directory for downloaded files
     archive_mode_temp_zip_filepath: str = None                  # temp zip archive for downloaded files
     archive_mode_update_manga_image_paths: bool = False         # whether to update manga image paths instead of ignore
+    page_number_to_filename_map: Dict[int, str] = {}            # map of page number to filename (in the temp directory)
+    page_number_to_database_path_map: Dict[int, str] = {}       # map of page number to database path
 
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
@@ -63,6 +66,20 @@ def process_image(caller,
     # If downloading to an archive, setup temporary root and download directories.
     # build the archive path.
     if is_archive_mode:
+
+        # Sanity checks
+        # acceptable formats for filenameFormat and filenameMangaFormat
+        # %member_id%_%image_id%/page_%page_number%
+        # %member_id%/%image_id%/page_%page_number%
+        for __format in [config.filenameFormat, config.filenameMangaFormat]:
+            if os.sep not in __format:
+                # Archive mode requires separation between the archive file and the file contents in it.
+                # Generally, page numbers should be included in the filename.
+                raise ValueError("filenameFormat must contain a path separator when using archive mode.")
+            if "%page_number%" not in __format.split(os.sep)[-1]:
+                # If some user decides to put page_number in a directory, then I don't know what I'm going to do.
+                raise ValueError("filenameFormat must contain %page_no% in filename when using archive mode.")
+
         archive_mode_temp_dir = tempfile.mkdtemp(prefix='pixivutil_archive_')
         archive_mode_temp_download_root_dir = os.path.join(archive_mode_temp_dir, 'download')
         archive_mode_temp_zip_filepath = os.path.join(archive_mode_temp_dir, 'archive.zip')
@@ -281,6 +298,9 @@ def process_image(caller,
                                                     useTranslatedTag=config.useTranslatedTag,
                                                     tagTranslationLocale=config.tagTranslationLocale))
             archive_mode_zip_filepath = os.path.abspath(os.path.join(target_dir, relative_download_dir + ".zip"))
+            if not config.overwrite and os.path.exists(archive_mode_zip_filepath):
+                PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, skipping download.')
+                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
             target_download_dir = os.path.join(target_dir, relative_download_dir)
             if is_archive_mode:
                 target_dir = archive_mode_temp_download_root_dir # this needs to be root dir so that the later make_filename logic is consistent.
@@ -298,38 +318,44 @@ def process_image(caller,
                         with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
                             zip_file.extractall(archive_mode_download_dir)
                             PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
+                            existing_images = db.selectImagesByImageId(image_id)
+                            for __image in existing_images:
+                                save_name = __image[2]
+                                _extracted_filepath = os.path.join(archive_mode_download_dir, save_name)
+                                if os.path.exists(_extracted_filepath) and os.path.isfile(_extracted_filepath):
+                                    PixivHelper.print_and_log('info', f"Copied {save_name} to {_extracted_filepath}")
+                                    page_number_to_database_path_map[__image[1]] = save_name
+                                    page_number_to_filename_map[__image[1]] = _extracted_filepath
+                            # get rid of files that are not in the database.
+                            for __file in os.listdir(archive_mode_download_dir):
+                                __filepath = os.path.join(archive_mode_download_dir, __file)
+                                if os.path.isfile(__filepath) and __file not in page_number_to_filename_map.values():
+                                    os.remove(__filepath)
+                                    PixivHelper.print_and_log('info', f"Removed orphan file {__filepath}.")
                     elif os.path.isdir(os.path.dirname(_filepath)):
                         # A non-zip file exists. This is probably an artwork directory from a previous run.
-                        # It is possible that the file has been deleted so exists = False due to a previous incomplete download, so we will scan the directory to confirm.
                         # In this case, we will attempt to use existing files in the same directory to populate the archive, and use it to save
                         # download time. HOWEVER, this means we have both an archive and a directory for the same image.
                         # Maybe the user should be responsible for cleaning up the duplicate, or we could delete the archive...?
                         # If the user ALSO changes filenameformat, then we are truly screwed...
                         # The ideal solution would be to run archive mode on a clean directory, or manually migrate between modes.
-                        # TODO: use db to get more precise image files instead of os.listdir()
                         if not exists:
                             PixivHelper.print_and_log('info', f"File in database {_filepath} does not exist in local filesystem.")
-                        PixivHelper.print_and_log('info', "Verifying artwork directory structure...")
-                        _is_valid_artwork_directory = True
-                        _file_count = 0
-                        for file in os.listdir(os.path.dirname(_filepath)):
-                            if os.path.isdir(os.path.join(os.path.dirname(_filepath), file)):
-                                PixivHelper.print_and_log('warn', f"Directory {os.path.dirname(_filepath)} contains directories. Skipping.")
-                                _is_valid_artwork_directory = False
-                            else:
-                                _file_count += 1
-                        if not _file_count:
-                            PixivHelper.print_and_log('warn', f"No files found in {os.path.dirname(_filepath)}. Skipping.")
-                            _is_valid_artwork_directory = False
-
-                        if _is_valid_artwork_directory:
-                            os.makedirs(archive_mode_download_dir, exist_ok=True)
-                            _files_copied = 0
-                            for file in os.listdir(os.path.dirname(_filepath)):
-                                shutil.copy2(os.path.join(os.path.dirname(_filepath), file), archive_mode_download_dir)
-                                _files_copied += 1
-                            PixivHelper.print_and_log('info', f"Copied {_files_copied} existing files from {_filepath} to {archive_mode_download_dir}")
-                            archive_mode_update_manga_image_paths = True
+                            in_db = False
+                        PixivHelper.print_and_log('info', f"Getting existing artwork images from database with image ID {image_id}")
+                        os.makedirs(archive_mode_download_dir, exist_ok=True)
+                        archive_mode_update_manga_image_paths = True
+                        existing_images = db.selectImagesByImageId(image_id)
+                        if len(existing_images) == 0:
+                            PixivHelper.print_and_log('warn', f"No images found for image {image_id} in database.")
+                            in_db = False
+                        for __image in existing_images:
+                            save_name = __image[2]
+                            if os.path.exists(save_name) and os.path.isfile(save_name):
+                                shutil.copy2(save_name, archive_mode_download_dir)
+                                PixivHelper.print_and_log('info', f"Copied {save_name} to {archive_mode_download_dir}")
+                                page_number_to_database_path_map[__image[1]] = save_name
+                                page_number_to_filename_map[__image[1]] = os.path.join(archive_mode_download_dir, os.path.basename(save_name))
                     elif exists:
                         raise TypeError(f"Existing object is not a zip file or directory: {_filepath}")
                     else:
@@ -387,6 +413,13 @@ def process_image(caller,
                         filename = f"{splitted_filename[0]}{splitted_manga_page[0]}{os.sep}_p{splitted_manga_page[1]}{splitted_filename[1]}"
 
                 PixivHelper.print_and_log('info', f'{prefix}Filename  : {filename}')
+
+                # Handle changes to filename format.
+                if is_archive_mode and page in page_number_to_filename_map:
+                    if filename != page_number_to_filename_map[page]:
+                        PixivHelper.print_and_log('info', f'Database filename changed from {os.path.basename(page_number_to_database_path_map[page])} to {os.path.basename(filename)}')
+                        archive_mode_update_manga_image_paths = True
+                        shutil.move(page_number_to_filename_map[page], filename)
 
                 result = PixivConstant.PIXIVUTIL_NOT_OK
                 try:
@@ -583,7 +616,7 @@ def process_image(caller,
             db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
             if len(manga_files) > 0:
-                if archive_mode_update_manga_image_paths:
+                if archive_mode_update_manga_image_paths and config.overwrite:
                     # Rewrite manga save names to point to their place in the archive.
                     db.upsertMangaImage(manga_files)
                 else:
