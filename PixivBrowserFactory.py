@@ -1099,7 +1099,7 @@ class PixivBrowser(mechanize.Browser):
         _tzInfo = None
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-        artist = self.fanboxGetArtistById(js["body"]["user"]["userId"])
+        artist = self.fanboxGetArtistById(js["body"]["creatorId"])
         post = FanboxPost(post_id, artist, js["body"], _tzInfo)
         return post
 
