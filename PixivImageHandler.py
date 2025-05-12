@@ -310,7 +310,8 @@ def process_image(caller,
                     # If the archive is already downloaded, put its contents into the download directory
                     # this will be the "pretend" directory that PixivUtil is downloading to, so we get feature parity.
                     # e.g. skip downloaded files, etc.
-                    # TODO: figure out how to skip downloaded ugoira files.
+                    # TODO: figure out how to skip downloaded ugoira files. Currently database will only show the zip file, so
+                    # non-zip files like .gif will be downloaded again.
                     archive_mode_download_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
                     if zipfile.is_zipfile(_filepath) and exists:
                         PixivHelper.print_and_log('info', f'Archive exists for image {image_id}, extracting contents to {archive_mode_download_dir}')
@@ -323,13 +324,13 @@ def process_image(caller,
                                     __extracted_path = os.path.join(archive_mode_download_dir, __zip_info.filename)
                                     __timestamp = time.mktime(__zip_info.date_time + (0, 0, -1))
                                     os.utime(__extracted_path, (__timestamp, __timestamp))
-                            PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
+                            PixivHelper.print_and_log('debug', f'Extracted archive contents to {archive_mode_download_dir}')
                             existing_images = db.selectImagesByImageId(image_id)
                             for __image in existing_images:
                                 save_name = __image[2]
                                 _extracted_filepath = os.path.join(archive_mode_download_dir, save_name)
                                 if os.path.exists(_extracted_filepath) and os.path.isfile(_extracted_filepath):
-                                    PixivHelper.print_and_log('info', f"Copied {save_name} to {_extracted_filepath}")
+                                    PixivHelper.print_and_log('debug', f"Copied {save_name} to {_extracted_filepath}")
                                     page_number_to_database_path_map[__image[1]] = save_name
                                     page_number_to_filename_map[__image[1]] = _extracted_filepath
                             # get rid of files that are not in the database.
@@ -591,7 +592,7 @@ def process_image(caller,
                             if not os.path.isfile(os.path.join(_downloaded_dir, file)):
                                 continue
                             zip_file.write(os.path.join(_downloaded_dir, file), file)
-                            PixivHelper.print_and_log('info', f'Archived: {file}')
+                            PixivHelper.print_and_log('debug', f'Archived: {file}')
                             archived_count += 1
                     if archived_count == total:
                         PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
