@@ -985,7 +985,7 @@ class PixivBrowser(mechanize.Browser):
             response = res.read()
             res.close()
 
-            ids = FanboxArtist.parseArtistIds(page=response)
+            ids = FanboxArtist.parseArtistCreatorIDs(page=response)
             return ids
         else:
             raise ValueError(f"Invalid via argument {via}")
