@@ -318,6 +318,11 @@ def process_image(caller,
                             PixivHelper.print_and_log('warn', f'Archive path mismatch for image {image_id}, expected {_filepath} but got {archive_mode_zip_filepath}')
                         with zipfile.ZipFile(archive_mode_zip_filepath, 'r') as zip_file:
                             zip_file.extractall(archive_mode_download_dir)
+                            for __zip_info in zip_file.infolist():
+                                if not __zip_info.is_dir():
+                                    __extracted_path = os.path.join(archive_mode_download_dir, __zip_info.filename)
+                                    __timestamp = time.mktime(__zip_info.date_time + (0, 0, -1))
+                                    os.utime(__extracted_path, (__timestamp, __timestamp))
                             PixivHelper.print_and_log('info', f'Extracted archive contents to {archive_mode_download_dir}')
                             existing_images = db.selectImagesByImageId(image_id)
                             for __image in existing_images:
@@ -371,6 +376,11 @@ def process_image(caller,
                         PixivHelper.print_and_log('info', f"Archive exists for image {image_id}, attempting to extract contents to {target_download_dir}...")
                         with zipfile.ZipFile(_filepath, 'r') as zip_file:
                             zip_file.extractall(target_download_dir)
+                            for __zip_info in zip_file.infolist():
+                                if not __zip_info.is_dir():
+                                    __extracted_path = os.path.join(target_download_dir, __zip_info.filename)
+                                    __timestamp = time.mktime(__zip_info.date_time + (0, 0, -1))
+                                    os.utime(__extracted_path, (__timestamp, __timestamp))
                             PixivHelper.print_and_log('info', f'Extracted archive contents to {target_download_dir}')
                             archive_mode_update_manga_image_paths = True
                     elif _filepath.lower().endswith('.zip') and not exists:
