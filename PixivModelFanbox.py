@@ -542,6 +542,22 @@ class FanboxArtist(object):
                 ids.append(creator["user"]["userId"])
         return ids
 
+    @classmethod
+    def parseArtistCreatorIDs(cls, page):
+        ids = list()
+        js = demjson3.decode(page)
+
+        if "error" in js and js["error"]:
+            raise PixivException("Error when requesting Fanbox", 9999, page)
+
+        if "body" in js and js["body"] is not None:
+            js_body = js["body"]
+            if "supportingPlans" in js["body"]:
+                js_body = js_body["supportingPlans"]
+            for creator in js_body:
+                ids.append(creator["creatorId"])
+        return ids
+
     def __init__(self, artist_id, artist_name, creator_id, tzInfo=None):
         self.artistId = int(artist_id)
         self.artistName = artist_name
@@ -571,7 +587,7 @@ class FanboxArtist(object):
 
         if js["body"] is not None:
             js_body = js["body"]
-            
+
             posts = list()
 
             if "creator" in js_body:
@@ -584,7 +600,7 @@ class FanboxArtist(object):
                 # https://www.pixiv.net/ajax/fanbox/post?postId={0}
                 # or old api
                 post_root = js_body
-            
+
 
             #for jsPost in post_root["items"]:
             for jsPost in post_root:
