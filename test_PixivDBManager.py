@@ -1,6 +1,7 @@
 #!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
+import unittest
 import PixivConstant
 from PixivDBManager import PixivDBManager
 from PixivListItem import PixivListItem
@@ -10,7 +11,7 @@ root_directory = '.'
 PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 
 
-class TestPixivDBManager(object):
+class TestPixivDBManager(unittest.TestCase):
     def test_ImportListTxt(self):
         DB = PixivDBManager(root_directory=".", target="test.db.sqlite")
         DB.createDatabase()

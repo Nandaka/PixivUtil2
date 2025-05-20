@@ -1,9 +1,8 @@
 #!C:/Python37-32/python
 # -*- coding: UTF-8 -*-
 
+from typing import Tuple
 import unittest
-
-from bs4 import BeautifulSoup
 
 import PixivConstant
 # import PixivHelper
@@ -22,6 +21,10 @@ last_page = 52
 def mock_getMemberInfoWhitecube(self, member_id, artist: PixivArtist, bookmark=False):
     assert (artist is not None)
     return artist
+
+def mock_getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, throw_empty_error=False) -> Tuple[PixivArtist, str]:
+    artist = PixivArtist(member_id)
+    return (artist, "")
 
 # class MockPixivBrowser(PixivBrowser):
 #     mode = None
@@ -53,8 +56,8 @@ class TestPixivArtist(unittest.TestCase):
 
     def testPixivArtistNoMember(self):
         # print('\nTesting member page - no member')
-        p = open('./test/test-nouser.htm', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-nouser.htm', 'r', encoding="utf-8") as p:
+            page = p.read()
         with self.assertRaises(PixivException):
             PixivArtist(1, page)
 
@@ -106,8 +109,8 @@ class TestPixivArtist(unittest.TestCase):
 
 class TestPixivImage(unittest.TestCase):
     def testPixivImageParseInfo(self):
-        p = open('./test/test-image-info-32039274.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-info-32039274.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image2 = PixivImage(32039274, page, dateFormat='%Y-%m-%d %H:%M')
 
@@ -178,8 +181,8 @@ class TestPixivImage(unittest.TestCase):
 #        self.assertEqual(image2.artist.artistToken, 'k2321656')
 
     def testPixivImageParseInfoMixed(self):
-        p = open('./test/test-image-info2-67729319.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-info2-67729319.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image2 = PixivImage(67729319, page)
 
@@ -226,8 +229,8 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageNoAvatar(self):
         # print('\nTesting artist page without avatar image')
-        p = open('./test/test-image-noavatar-20496355.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-noavatar-20496355.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(20496355, page)
 
@@ -241,8 +244,8 @@ class TestPixivImage(unittest.TestCase):
         # self.assertEqual(image.worksTools, 'RETAS STUDIO')
 
     def testPixivImageParseTags(self):
-        p = open('./test/test-image-parse-tags-11164869.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-parse-tags-11164869.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(11164869, page)
 
@@ -256,8 +259,8 @@ class TestPixivImage(unittest.TestCase):
         self.assertEqual(joinedResult.find("VOCALOID") > -1, True)
 
     def testPixivImageParseNoTags(self):
-        p = open('./test/test-image-no_tags-9175987.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-no_tags-9175987.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(9175987, page)
 
@@ -270,8 +273,8 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageUnicode(self):
         # print('\nTesting image page - big')
-        p = open('./test/test-image-unicode-2493913.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-unicode-2493913.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(2493913, page, dateFormat="%m/%d/%y %H:%M")
 
@@ -284,8 +287,8 @@ class TestPixivImage(unittest.TestCase):
         # self.assertEqual(image.worksTools, u'Photoshop SAI つけペン')
 
     def testPixivImageRateCount(self):
-        p = open('./test/test-image-rate_count-28865189.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-rate_count-28865189.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(28865189, page)
 
@@ -307,17 +310,18 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageGenericError(self):
         # print('\nTesting image page - deleted image')
-        p = open('./test/test-image-error-123.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-error-123.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         with self.assertRaises(PixivException):
             PixivImage(123, page)
 
     def testPixivImageModeManga(self):
         # print('\nTesting image page - manga')
-        p = open('./test/test-image-manga-28820443.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-manga-28820443.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
+        PixivBrowser.getMemberPage = mock_getMemberPage
         image = PixivImage(28820443, page)
 
         self.assertNotEqual(image, None)
@@ -330,8 +334,8 @@ class TestPixivImage(unittest.TestCase):
     def testPixivImageParseMangaInfoMixed(self):
         # print('\nTesting parse Manga Images')
         # Issue #224
-        p = open('./test/test-image-big-manga-mixed-67487303.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-big-manga-mixed-67487303.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(iid=67487303, page=page, dateFormat="%m/%d/%y %H:%M")
         # image.PrintInfo()
@@ -405,8 +409,8 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageNoLogin(self):
         # print('\nTesting not logged in')
-        p = open('./test/test-image-nologin-67089412.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-nologin-67089412.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         try:
             PixivImage(67089412, page)
@@ -416,8 +420,8 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageUgoira(self):
         # print('\nTesting image page')
-        p = open('./test/test-image-ugoira-46281014.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-ugoira-46281014.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(46281014, page)
         # print(image.imageUrls)
@@ -426,8 +430,8 @@ class TestPixivImage(unittest.TestCase):
 
     def testPixivImageParseInfoSelf(self):
         # assuming being accessed via manage page for your own artwork.
-        p = open('./test/test-image-selfimage-65079382.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-selfimage-65079382.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image2 = PixivImage(65079382, page, dateFormat="%m/%d/%y %H:%M")
 
@@ -446,17 +450,17 @@ class TestPixivImage(unittest.TestCase):
 class TestPixivBookmark(unittest.TestCase):
     def testPixivBookmarkNewIlust(self):
         # print('\nTesting BookmarkNewIlust')
-        p = open('./test/test-bookmarks_new_ilust.json', 'r', encoding="utf-8")
-        # page = BeautifulSoup(p.read(), features="html5lib")
-        page = p.read()
+        with open('./test/test-bookmarks_new_ilust.json', 'r', encoding="utf-8") as p:
+            # page = BeautifulSoup(p.read(), features="html5lib")
+            page = p.read()
         result = PixivNewIllustBookmark(page)
 
         self.assertEqual(len(result.imageList), 60)
 
     def testPixivImageBookmark(self):
         # print('\nTesting PixivImageBookmark')
-        p = open('./test/bookmarks.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/bookmarks.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         (result, total) = PixivBookmark.parseImageBookmark(page)
 
         self.assertEqual(len(result), 19)
@@ -515,8 +519,8 @@ class TestPixivBookmark(unittest.TestCase):
 class TestPixivTags(unittest.TestCase):
     def testTagsSearchExact1(self):
         path = './test/test-tags-search-exact2.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = ''
         current_page = 1
 
@@ -530,8 +534,8 @@ class TestPixivTags(unittest.TestCase):
     # tags.php?tag=%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B%21
     def testTagsSearchExact(self):
         path = './test/test-tags-search-exact.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = ''
         current_page = 1
 
@@ -544,8 +548,8 @@ class TestPixivTags(unittest.TestCase):
     # search.php?word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9&s_mode=s_tag_full&order=date_d&p=70
     def testTagsSearchExactLast(self):
         path = './test/test-tags-search-exact-last.json'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = ''
 
         image = PixivTags()
@@ -558,8 +562,8 @@ class TestPixivTags(unittest.TestCase):
     # /ajax/search/artworks/GuP or ガルパン or ガールズ%26パンツァー or garupan?word=GuP or ガルパン or ガールズ%26パンツァー or garupan&p=119&s_mode=s_tag&type=all&order=date_d
     def testTagsSearchPartialNotLast(self):
         path = './test/tag-not-last-page.json'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = ''
 
         image = PixivTags()
@@ -572,8 +576,8 @@ class TestPixivTags(unittest.TestCase):
     # search.php?s_mode=s_tag&word=%E5%88%9D%E6%98%A5%E9%A3%BE%E5%88%A9
     def testTagsSearchPartial(self):
         path = './test/test-tags-search-partial.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = '%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!'
         current_page = 1
 
@@ -585,8 +589,8 @@ class TestPixivTags(unittest.TestCase):
 
     def testTagsSearchPartialLast(self):
         path = './test/test-tags-search-partial-last.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = '%E3%81%93%E3%81%AE%E4%B8%AD%E3%81%AB1%E4%BA%BA%E3%80%81%E5%A6%B9%E3%81%8C%E3%81%84%E3%82%8B!'
         current_page = 4
 
@@ -598,8 +602,8 @@ class TestPixivTags(unittest.TestCase):
 
     def testTagsSearchParseDetails(self):
         path = './test/test-tags-search-exact-parse_details.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = ''
         current_page = 1
 
@@ -634,8 +638,8 @@ class TestPixivTags(unittest.TestCase):
 
     def testTagsSkipShowcase(self):
         path = './test/test-tags-search-skip-showcase.htm'
-        p = open(path, 'r', encoding="utf-8")
-        response = p.read()
+        with open(path, 'r', encoding="utf-8") as p:
+            response = p.read()
         tags = 'K-On!'
         current_page = 1
 
@@ -648,8 +652,8 @@ class TestPixivTags(unittest.TestCase):
 class TestPixivGroup(unittest.TestCase):
     def testParseJson(self):
         path = './test/group.json'
-        p = open(path)
-        result = PixivGroup(p.read())
+        with open(path, 'r', encoding="utf-8") as p:
+            result = PixivGroup(p.read())
 
         self.assertEqual(len(result.imageList), 35)
         self.assertEqual(len(result.externalImageList), 1)
