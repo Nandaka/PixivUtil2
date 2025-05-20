@@ -570,46 +570,42 @@ def process_image(caller,
             if is_archive_mode:
                 # Move the files from the temp download directory to a temp zip archive, then move temp zip archive to original target directory.
                 # Make sure that the compression type and level are correct combinations otherwise you'll probably get a RuntimeError.
-                try:
-                    filename = archive_mode_zip_filepath
-                    os.makedirs(os.path.dirname(archive_mode_zip_filepath), exist_ok=True)
-                    archived_count = 0
-                    compression = zipfile.ZIP_STORED
-                    match archive_mode_compression_type:
-                        case "ZIP_STORED":
-                            compression = zipfile.ZIP_STORED
-                        case "ZIP_DEFLATED":
-                            compression = zipfile.ZIP_DEFLATED
-                        case "ZIP_BZIP2":
-                            compression = zipfile.ZIP_BZIP2
-                        case "ZIP_LZMA":
-                            compression = zipfile.ZIP_LZMA
-                        case _:
-                            raise ValueError(f'Invalid compression type: {archive_mode_compression_type}')
-                    with zipfile.ZipFile(archive_mode_temp_zip_filepath, 'w', compression=compression, compresslevel=archive_mode_compression_level) as zip_file:
-                        _downloaded_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
-                        for file in os.listdir(_downloaded_dir):
-                            if not os.path.isfile(os.path.join(_downloaded_dir, file)):
-                                continue
-                            zip_file.write(os.path.join(_downloaded_dir, file), file)
-                            PixivHelper.print_and_log('debug', f'Archived: {file}')
-                            archived_count += 1
-                    if archived_count == total:
-                        PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
-                        shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
-                        if in_db and not exists:
-                            # This can happen if the user previously downloaded an artwork as a directory, deleted some images, then downloads
-                            # the artwork as an archive.
-                            # Because the database saves the last image path, it is possible that in_db = True but exists = False.
-                            # We need to tell the database that yes the archive exists and download is complete, otherwise it triggers
-                            # PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD error.
-                            exists = True
-                    else:
-                        PixivHelper.print_and_log('error', f"Files archived does not match total. Expected {total} but got {archived_count}.")
-                        result = PixivConstant.PIXIVUTIL_NOT_OK
-                finally:
-                    # Clean up everything at the end.
-                    shutil.rmtree(archive_mode_temp_dir)
+                filename = archive_mode_zip_filepath
+                os.makedirs(os.path.dirname(archive_mode_zip_filepath), exist_ok=True)
+                archived_count = 0
+                compression = zipfile.ZIP_STORED
+                match archive_mode_compression_type:
+                    case "ZIP_STORED":
+                        compression = zipfile.ZIP_STORED
+                    case "ZIP_DEFLATED":
+                        compression = zipfile.ZIP_DEFLATED
+                    case "ZIP_BZIP2":
+                        compression = zipfile.ZIP_BZIP2
+                    case "ZIP_LZMA":
+                        compression = zipfile.ZIP_LZMA
+                    case _:
+                        raise ValueError(f'Invalid compression type: {archive_mode_compression_type}')
+                with zipfile.ZipFile(archive_mode_temp_zip_filepath, 'w', compression=compression, compresslevel=archive_mode_compression_level) as zip_file:
+                    _downloaded_dir = os.path.join(archive_mode_temp_download_root_dir, relative_download_dir)
+                    for file in os.listdir(_downloaded_dir):
+                        if not os.path.isfile(os.path.join(_downloaded_dir, file)):
+                            continue
+                        zip_file.write(os.path.join(_downloaded_dir, file), file)
+                        PixivHelper.print_and_log('debug', f'Archived: {file}')
+                        archived_count += 1
+                if archived_count == total:
+                    PixivHelper.print_and_log('info', f'Moved {archived_count} files to archive: {archive_mode_zip_filepath}')
+                    shutil.move(archive_mode_temp_zip_filepath, archive_mode_zip_filepath)
+                    if in_db and not exists:
+                        # This can happen if the user previously downloaded an artwork as a directory, deleted some images, then downloads
+                        # the artwork as an archive.
+                        # Because the database saves the last image path, it is possible that in_db = True but exists = False.
+                        # We need to tell the database that yes the archive exists and download is complete, otherwise it triggers
+                        # PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD error.
+                        exists = True
+                else:
+                    PixivHelper.print_and_log('error', f"Files archived does not match total. Expected {total} but got {archived_count}.")
+                    result = PixivConstant.PIXIVUTIL_NOT_OK
 
         if in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
@@ -683,7 +679,11 @@ def process_image(caller,
             PixivHelper.print_and_log('error', f'Dumping html to: {dump_filename}')
 
         raise
-
+    finally:
+        # Image handling cleanup logic
+        if archive_mode_temp_dir and os.path.isdir(archive_mode_temp_dir):
+            PixivHelper.print_and_log('debug', f'Cleaning up temporary directory: {archive_mode_temp_dir} ...')
+            shutil.rmtree(archive_mode_temp_dir)
 
 def process_manga_series(caller,
                          config,
