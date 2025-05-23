@@ -650,6 +650,20 @@ Please refer run with `--help` for latest information.
   You can change it based on your download speed. Mainly useful for smoother progress bar.
   Usually no need to change this value.
 
+- createPixivArchive
+
+  Download Pixiv artworks into an archive, rather than a directory. Uses the [zipfile](https://docs.python.org/3/library/zipfile.html) library. The `.zip` extension need not be added: if the configured filenameformat is `a/b/c/d`, PixivUtil2 will automatically put images into a ZIP archive with path `a/b/c.zip`, such that the contained images have filenameformat `d`. This avoids the need to change existing configuration.
+
+  > When `createPixivArchive = True`, the `pixiv_manga_image.save_name` fields of images within archives will be their basenames instead of their relative or absolute paths in the host filesystem. If a previously downloaded artwork exists as a directory, PixivUtil2 will simply create an archive next to it, and point the save path in the database to the new archive.
+
+- createPixivArchiveCompressionType
+
+  Specify compression algorithm ([ZIP_STORED](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_STORED), [ZIP_DEFLATED](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_DEFLATED), [ZIP_BZIP2](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_BZIP2), or [ZIP_LZMA](https://docs.python.org/3/library/zipfile.html#zipfile.ZIP_LZMA)).
+  Default is ZIP_STORED/no compression.
+- createPixivArchiveCompressionLevel
+
+  Specify compression level. Applies only when using it with ZIP_DEFLATED OR ZIP_BZIP2. Refer to the zipfile documentation on level to algorithm compatibility.
+  Default value is 0.
 
 ## [FFmpeg]
 - ffmpeg

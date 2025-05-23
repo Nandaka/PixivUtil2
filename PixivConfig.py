@@ -224,6 +224,10 @@ class PixivConfig():
         ConfigItem("DownloadControl", "postProcessingCmd", ""),
         ConfigItem("DownloadControl", "extensionFilter", ""),
         ConfigItem("DownloadControl", "downloadBuffer", 512, restriction=lambda x: int(x) > 0),
+        ConfigItem("DownloadControl", "createPixivArchive", False),
+        ConfigItem("DownloadControl", "createPixivArchiveCompressionType", "ZIP_STORED",
+                   restriction=lambda algorithm: algorithm in {"ZIP_STORED", "ZIP_DEFLATED", "ZIP_BZIP2", "ZIP_LZMA"}),
+        ConfigItem("DownloadControl", "createPixivArchiveCompressionLevel", 0, restriction=lambda level: level in range(0, 10)),
     ]
 
     def __init__(self):
