@@ -4,6 +4,7 @@
 import json
 import os
 import platform
+from typing import Tuple
 import unittest
 
 from bs4 import BeautifulSoup
@@ -23,6 +24,9 @@ def mock_getMemberInfoWhitecube(self, member_id, artist: PixivArtist, bookmark=F
 
     return artist
 
+def mock_getMemberPage(self, member_id, page=1, bookmark=False, tags=None, r18mode=False, throw_empty_error=False) -> Tuple[PixivArtist, str]:
+    artist = PixivArtist(member_id)
+    return (artist, "")
 
 class TestPixivHelper(unittest.TestCase):
     currPath = os.path.abspath('.')
@@ -45,8 +49,8 @@ class TestPixivHelper(unittest.TestCase):
             rootDir = '/home/travis/build/Nandaka/PixivUtil2/'
 
         nameformat = '%searchTags%\\%member_id% %member_token%\\%R-18% %urlFilename% - %title%'
-        p = open('./test/test-image-unicode-2493913.json', 'r', encoding="utf-8")
-        page = p.read()
+        with open('./test/test-image-unicode-2493913.json', 'r', encoding="utf-8") as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         image = PixivImage(2493913, page)
         self.assertEqual(image.imageUrls[0], "https://i.pximg.net/img-original/img/2008/12/23/21/01/21/2493913_p0.jpg")
@@ -62,15 +66,15 @@ class TestPixivHelper(unittest.TestCase):
         self.assertTrue(len(result) < 255)
 
     def testCreateMangaFilename(self):
-        p = open(r'./test/test-image-manga-28820443.json', 'r', encoding='utf-8')
-        page = p.read()
+        with open(r'./test/test-image-manga-28820443.json', 'r', encoding='utf-8') as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         imageInfo = PixivImage(28820443, page)
         imageInfo.imageCount = 100
 
         # cross check with json value for artist info
-        js_file = open('./test/detail-554800.json', 'r')
-        js = json.load(js_file)
+        with open('./test/detail-554800.json', 'r') as js_file:
+            js = json.load(js_file)
 
         assert (imageInfo.artist is not None)
         self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
@@ -107,14 +111,14 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def testCreateFilenameUnicode(self):
-        p = open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8')
-        page = p.read()
+        with open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8') as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
         imageInfo = PixivImage(2493913, page)
 
         # cross check with json value for artist info
-        js_file = open('./test/detail-267014.json', 'r', encoding='utf-8')
-        js = json.load(js_file)
+        with open('./test/detail-267014.json', 'r', encoding='utf-8') as js_file:
+            js = json.load(js_file)
 
         assert (imageInfo.artist is not None)
         self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
@@ -132,14 +136,15 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def testCreateFilenameTranslatedTag(self):
-        p = open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8')
-        page = p.read()
+        with open('./test/test-image-unicode-2493913.json', 'r', encoding='utf-8') as p:
+            page = p.read()
         PixivBrowser.getMemberInfoWhitecube = mock_getMemberInfoWhitecube
+        PixivBrowser.getMemberPage = mock_getMemberPage
         imageInfo = PixivImage(2493913, page)
 
         # cross check with json value for artist info
-        js_file = open('./test/detail-267014.json', 'r', encoding='utf-8')
-        js = json.load(js_file)
+        with open('./test/detail-267014.json', 'r', encoding='utf-8') as js_file:
+            js = json.load(js_file)
         assert (imageInfo.artist is not None)
         self.assertEqual(imageInfo.artist.artistId, int(js["user"]["id"]))
         self.assertEqual(imageInfo.artist.artistToken, js["user"]["account"])
@@ -172,11 +177,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result2, expected2)
 
     def testcreateAvatarFilenameFormatNoSubfolderNoRootDir(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = ''
@@ -193,11 +198,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[1], self.currPath + os.sep + u'bg_folder.jpg')
 
     def testcreateAvatarFilenameFormatNoSubfolderNoRootDir883(self):
-        p = open('./test/all-4991959.json', 'r')
-        artist = PixivArtist(4991959, p.read(), False, 192, 48)
+        with open('./test/all-4991959.json', 'r') as p:
+            artist = PixivArtist(4991959, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-4991959.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-4991959.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = ''
@@ -216,11 +221,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertTrue(artist.artistBackground == "no_background")
 
     def testcreateAvatarFilenameFormatWithSubfolderNoRootDir(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = ''
@@ -235,11 +240,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], self.currPath + os.sep + u'p199451 (14095911)' + os.sep + 'folder.png')
 
     def testcreateAvatarFilenameFormatNoSubfolderWithRootDir3(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = os.path.abspath('.')
@@ -254,11 +259,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], targetDir + os.sep + u'folder.png')
 
     def testcreateAvatarFilenameFormatWithSubfolderWithRootDir4(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = os.path.abspath('.')
@@ -273,11 +278,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], targetDir + os.sep + u'p199451 (14095911)' + os.sep + 'folder.png')
 
     def testcreateAvatarFilenameFormatNoSubfolderWithCustomRootDir5(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = os.path.abspath(os.sep + 'images')
@@ -292,11 +297,11 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], targetDir + os.sep + 'folder.png')
 
     def testcreateAvatarFilenameFormatWithSubfolderWithCustomRootDir6(self):
-        p = open('./test/all-14095911.json', 'r')
-        artist = PixivArtist(14095911, p.read(), False, 192, 48)
+        with open('./test/all-14095911.json', 'r') as p:
+            artist = PixivArtist(14095911, p.read(), False, 192, 48)
         self.assertIsNotNone(artist)
-        p2 = open('./test/userdetail-14095911.json', 'r')
-        info = json.loads(p2.read())
+        with open('./test/userdetail-14095911.json', 'r') as p2:
+            info = json.loads(p2.read())
         artist.ParseInfo(info, False, False)
 
         targetDir = os.path.abspath(os.sep + 'images')
@@ -311,16 +316,16 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(filename[0], targetDir + os.sep + 'p199451 (14095911)' + os.sep + 'folder.png')
 
     def testParseLoginError(self):
-        p = open('./test/test-login-error.htm', 'r', encoding='utf-8')
-        page = BeautifulSoup(p.read(), features="html5lib")
-        r = page.findAll('span', attrs={'class': 'error'})
+        with open('./test/test-login-error.htm', 'r', encoding='utf-8') as p:
+            page = BeautifulSoup(p.read(), features="html5lib")
+        r = page.find_all('span', attrs={'class': 'error'})
         self.assertTrue(len(r) > 0)
         self.assertEqual(u'Please ensure your pixiv ID, email address and password is entered correctly.', r[0].string)
 
     def testParseLoginForm(self):
-        p = open('./test/test-login-form.html', 'r', encoding='utf-8')
-        page = BeautifulSoup(p.read(), features="html5lib")
-        r = page.findAll('form', attrs={'action': '/login.php'})
+        with open('./test/test-login-form.html', 'r', encoding='utf-8') as p:
+            page = BeautifulSoup(p.read(), features="html5lib")
+        r = page.find_all('form', attrs={'action': '/login.php'})
         # print(r)
         self.assertTrue(len(r) > 0)
 
