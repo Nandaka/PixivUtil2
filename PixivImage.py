@@ -275,7 +275,7 @@ class PixivImage (object):
 
     def parse_url_from_caption(self, caption_to_parse):
         parsed = BeautifulSoup(caption_to_parse, features="html5lib")
-        links = parsed.findAll('a')
+        links = parsed.find_all('a')
         if links is not None and len(links) > 0:
             for link in links:
                 link_str = link["href"]
