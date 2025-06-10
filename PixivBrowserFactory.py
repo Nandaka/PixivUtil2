@@ -1126,7 +1126,7 @@ class PixivBrowser(mechanize.Browser):
                 raise PixivException("Fanbox post not found!", PixivException.OTHER_ERROR)
             raise
         p_response = p_res.text
-        PixivHelper.get_logger().debug(p_response.decode('utf8'))
+        PixivHelper.get_logger().debug(p_response)
         p_res.close()
         js = demjson3.decode(p_response)
         return js
