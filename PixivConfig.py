@@ -146,6 +146,7 @@ class PixivConfig():
         ConfigItem("Authentication", "password", ""),
         ConfigItem("Authentication", "cookie", ""),
         ConfigItem("Authentication", "cookieFanbox", ""),
+        ConfigItem("Authentication", "cookieFanboxTemp", ""),
         ConfigItem("Authentication", "refresh_token", ""),
         ConfigItem("Authentication", "cf_clearance", ""),
         ConfigItem("Authentication", "cf_bm", ""),

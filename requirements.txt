@@ -10,4 +10,5 @@ PySocks>=1.7.1
 # apng>=0.3.3
 colorama>=0.4.4
 cloudscraper>=1.2.58
+curl_cffi>=0.11.3
 # pyexiv2>=2.7.0 # Required for writeImageXMP.
