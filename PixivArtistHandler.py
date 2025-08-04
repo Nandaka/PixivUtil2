@@ -117,6 +117,13 @@ def process_member(caller,
 
             result = PixivConstant.PIXIVUTIL_NOT_OK
             for image_id in artist.imageList:
+
+                # Cached blacklist check
+                ai_type = db.selectAiTypeByImageId(image_id)
+                if ai_type is not None and config.aiDisplayFewer and ai_type == 2:
+                    PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True and aiType = {ai_type}.')
+                    continue
+
                 ui_prefix = f'{Fore.LIGHTGREEN_EX}[{no_of_images} of {artist.totalImages}]{Style.RESET_ALL} '
                 # PixivHelper.print_and_log(None, ui_prefix)
                 retry_count = 0

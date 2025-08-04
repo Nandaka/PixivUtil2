@@ -409,6 +409,9 @@ def process_image(caller,
             if config.writeUrlInDescription:
                 PixivHelper.write_url_in_description(image, config.urlBlacklistRegex, config.urlDumpFilename)
 
+        # Save AI type to DB
+        db.insertAiInfo(image_id, image.ai_type)
+
         if in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
