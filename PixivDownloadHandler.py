@@ -219,12 +219,10 @@ def download_image(caller,
                 elif config.verifyImage and filename_save.endswith((".jpg", ".png", ".gif")) and is_exists:
                     fp = None
                     try:
-                        from PIL import Image, ImageFile
+                        from PIL import Image
                         fp = open(filename_save, "rb")
-                        # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
-                        ImageFile.LOAD_TRUNCATED_IMAGES = True
                         img = Image.open(fp)
-                        img.load()
+                        img.verify()
                         fp.close()
                         PixivHelper.print_and_log('info', ' Image verified.')
                     except BaseException:
