@@ -131,6 +131,26 @@ class PixivDBManager(object):
                             )''')
             self.conn.commit()
 
+            # Pixiv Series
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_master_series (
+                            series_id VARCHAR(255) PRIMARY KEY,
+                            series_title VARCHAR(255),
+                            series_type VARCHAR(255),
+                            series_description TEXT,
+                            created_date DATE,
+                            last_update_date DATE
+                            )''')
+
+            c.execute('''CREATE TABLE IF NOT EXISTS pixiv_image_to_series (
+                            series_id VARCHAR(255) REFERENCES pixiv_master_series(series_id),
+                            series_order INTEGER,
+                            image_id INTEGER REFERENCES pixiv_master_image(image_id),
+                            created_date DATE,
+                            last_update_date DATE,
+                            PRIMARY KEY (series_id, series_order),
+                            UNIQUE (image_id)
+                            )''')
+
             # FANBOX
             c.execute('''CREATE TABLE IF NOT EXISTS fanbox_master_post (
                             member_id INTEGER,
@@ -780,6 +800,39 @@ class PixivDBManager(object):
 ##########################################
 # V. CRUD Image Table                    #
 ##########################################
+
+    def insertSeries(self, series_id, series_title, series_type, series_desc=None):
+        try:
+            c = self.conn.cursor()
+            c.execute('''INSERT OR IGNORE INTO pixiv_master_series VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))''',
+                      (series_id, series_title, series_type, series_desc,))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertSeries():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertImageToSeries(self, image_id, series_id, series_order):
+        try:
+            c = self.conn.cursor()
+            image_id = int(image_id)
+            series_order = int(series_order)
+            c.execute('''INSERT INTO pixiv_image_to_series(series_id, series_order, image_id, created_date, last_update_date) 
+                    VALUES (?, ?, ?, datetime('now'), datetime('now'))
+                    ON CONFLICT(image_id) DO UPDATE SET 
+                    series_id = excluded.series_id,
+                    series_order = excluded.series_order,
+                    last_update_date = datetime('now')''',
+                      (series_id, series_order, image_id))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertImageToSeries():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
 
     def insertTag(self, tag_id):
         try:

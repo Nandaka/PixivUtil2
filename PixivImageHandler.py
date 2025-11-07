@@ -443,6 +443,17 @@ def process_image(caller,
                                 for locale in tag_data.translation_data:
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
+            # Save series data if enabled.
+            if config.autoAddSeries and (seriesNavData := image.seriesNavData):
+                seriesId = seriesNavData.get("seriesId")
+                seriesType = seriesNavData.get("seriesType")
+                seriesTitle = seriesNavData.get("title")
+                seriesOrder = seriesNavData.get("order")
+                if isinstance(seriesId, str) and seriesId.isdigit() and seriesType and seriesTitle and isinstance(seriesOrder, int):
+                    seriesId = int(seriesId)
+                    db.insertSeries(seriesId, seriesTitle, seriesType)
+                    db.insertImageToSeries(image_id, seriesId, seriesOrder)
+
             # Save member data if enabled
             if image.artist is not None and config.autoAddMember:
                 member_id = image.artist.artistId
