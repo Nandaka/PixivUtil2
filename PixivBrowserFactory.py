@@ -19,6 +19,7 @@ import mechanize
 import socks
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
+import curl_cffi
 
 import PixivHelper
 from PixivArtist import PixivArtist
@@ -1116,15 +1117,16 @@ class PixivBrowser(mechanize.Browser):
         p_req.add_header('Referer', p_referer)
         p_req.add_header('Origin', 'https://www.fanbox.cc')
         p_req.add_header('User-Agent', self._config.useragent)
+        p_req.add_header('Cookie', self._config.cookieFanboxTemp)
 
         try:
-            p_res = self.open_with_retry(p_req)
+            p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)
         except HTTPError as ex:
             if ex.code in [404]:
                 raise PixivException("Fanbox post not found!", PixivException.OTHER_ERROR)
             raise
-        p_response = p_res.read()
-        PixivHelper.get_logger().debug(p_response.decode('utf8'))
+        p_response = p_res.text
+        PixivHelper.get_logger().debug(p_response)
         p_res.close()
         js = demjson3.decode(p_response)
         return js
