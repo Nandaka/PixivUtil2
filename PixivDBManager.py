@@ -806,7 +806,7 @@ class PixivDBManager(object):
                 )
             finally:
                 reader.close()
-                return memberList
+            return memberList
 
         list_name = input("Members filename = ").rstrip("\r")
 

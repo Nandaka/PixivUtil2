@@ -1315,7 +1315,7 @@ def check_version(br, config=None):
     if br is None:
         import common.PixivBrowserFactory as PixivBrowserFactory
         br = PixivBrowserFactory.getBrowser(config=config)
-    result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/PixivConstant.py", retry=3)
+    result = br.open_with_retry("https://raw.githubusercontent.com/Nandaka/PixivUtil2/master/common/PixivConstant.py", retry=3)
     page = result.read().decode('utf-8')
     result.close()
     latest_version_full = re.findall(r"PIXIVUTIL_VERSION = '(\d+)(.*)'", page)
