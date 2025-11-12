@@ -1,5 +1,32 @@
+20251112
+- Organize scripts and update version
+- Merge add option to save series data to db (#1480) by @psilabs
+- Merge fix(cloudflare): proof of concept to prevent TLS fingerprinting from setting cloudflare off (#1456) by @samuelgallagher21
+- Merge Support archive mode for Pixiv artworks (#1446) by @psilabs
+- Merge FIX: fanboxGetArtistList to get parseArtistCreatorIDs instead as userID API seems to be failing (#1449) by @Malcolm
+- Merge Fix the neglection of local ugoira files when reencoding ugoira (#1434) by @amamiya_yuuko
+- Merge Fix premium user detection (#1430) by @Grant Wong
+
 20250426
-- too many changes, please refer to git log
+- Merge Python compatibility fix (#1424) by @Nomake Wan
+- Merge Fix cascade deletion where it deletes the entire pixiv_manga_image (#1413) by @xxpc9
+- Merge Handle ConnectionResetError separately in download_image() (#1417) by @RadCraftplay
+- Merge Fix #1411 by adding lookup for new possible user_id format (#1418) by @Vlad Kaverov
+- Merge Skip ugoira creation for fanbox zip files that fails remote size check (#1412) by @xWTF
+- And other contributions by 
+  - @RadCraftplay #1409
+  - @poyazi #1404
+  - @fireattack #1401
+  - @Liu Xiaoyi #1396
+  - @psilabs #1388, #1385
+  - @Kieri Suizahn #1378
+  - @Malcolm #1376, #1373
+  - @Grant Wong #1370
+  - @websitemonitorer #1367
+  - @MarieRose #1363
+  - @Pomax #1332
+  - @Chrisch3n #1329
+  - @0fbcb238c0 #1356
 
 20240703
 - Implement #1226, add %AI% for nameformat
