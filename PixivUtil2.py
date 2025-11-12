@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# flake8: noqa:E501,E128,E127
-import codecs
 import datetime
 import gc
 import getpass
@@ -16,24 +14,24 @@ from optparse import OptionParser
 import colorama
 from colorama import Back, Fore, Style
 
-import PixivArtistHandler
-import PixivBatchHandler
-import PixivBookmarkHandler
-import PixivBrowserFactory
-import PixivConfig
-import PixivConstant
-import PixivFanboxHandler
-import PixivHelper
-import PixivImageHandler
-import PixivListHandler
-import PixivModelFanbox
-import PixivNovelHandler
-import PixivRankingHandler
-import PixivSketchHandler
-import PixivTagsHandler
+import common.PixivBrowserFactory as PixivBrowserFactory
+import common.PixivConfig as PixivConfig
+import common.PixivConstant as PixivConstant
+import common.PixivHelper as PixivHelper
+import handler.PixivArtistHandler as PixivArtistHandler
+import handler.PixivBatchHandler as PixivBatchHandler
+import handler.PixivBookmarkHandler as PixivBookmarkHandler
+import handler.PixivFanboxHandler as PixivFanboxHandler
+import handler.PixivImageHandler as PixivImageHandler
+import handler.PixivListHandler as PixivListHandler
+import handler.PixivNovelHandler as PixivNovelHandler
+import handler.PixivRankingHandler as PixivRankingHandler
+import handler.PixivSketchHandler as PixivSketchHandler
+import handler.PixivTagsHandler as PixivTagsHandler
+import model.PixivModelFanbox as PixivModelFanbox
+from common.PixivException import PixivException
+from model.PixivTags import PixivTags
 from PixivDBManager import PixivDBManager
-from PixivException import PixivException
-from PixivTags import PixivTags
 
 colorama.init()
 DEBUG_SKIP_PROCESS_IMAGE = False
@@ -78,7 +76,7 @@ ERROR_CODE = 0
 UTF8_FS = None
 
 __config__ = PixivConfig.PixivConfig()
-configfile = "config.ini"
+configfile = "./config.ini"
 __dbManager__ = None
 __br__: PixivBrowserFactory.PixivBrowser = None
 __blacklistTags = list()
@@ -1750,16 +1748,14 @@ def main():
         if __config__.useLocalTimezone:
             PixivHelper.print_and_log("info", f"Using local timezone: {PixivHelper.LocalUTCOffsetTimezone()}")
 
-        print(Fore.RED + Style.BRIGHT + "Username login is broken, use Cookies to log in." + Style.RESET_ALL)
-        print(Fore.YELLOW + Style.BRIGHT + "See Q3. at " + Style.RESET_ALL +
-              Fore.CYAN + Style.BRIGHT + "https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#a-usage" + Style.RESET_ALL)
+        print(f"{Fore.RED}{Style.BRIGHT}Username login is broken, use Cookies to log in.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{Style.BRIGHT}See Q3. at {Fore.CYAN}{Style.BRIGHT}https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#a-usage{Style.RESET_ALL}")
 
         username = __config__.username
         password = __config__.password
         if not username or not password:
-            print(Fore.RED + Style.BRIGHT + "No username and/or password found in config.ini" + Style.RESET_ALL)
-            print(Fore.YELLOW + Style.BRIGHT + "See " + Style.RESET_ALL + Fore.CYAN + Style.BRIGHT +
-                  "https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#authentication" + Style.RESET_ALL)
+            print(f"{Fore.RED}{Style.BRIGHT}No username and/or password found in config.ini{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{Style.BRIGHT}See {Fore.CYAN}{Style.BRIGHT}https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#authentication{Style.RESET_ALL}")
 
         if np_is_valid and options.number_of_pages != 0:  # Yavos: overwrite config-data
             PixivHelper.print_and_log("info", f'Limit up to: {options.number_of_pages} page(s). (set via commandline)')
