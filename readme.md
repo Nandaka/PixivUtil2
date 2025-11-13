@@ -1,9 +1,7 @@
 # Requirements:
-- Running from Windows binary:
-  - minimum Windows 10 with latest updates installed.
-
 - Running from source code:
-  - Python 3.8.0+ (https://www.python.org/)
+  - Python 3.10+ (https://www.python.org/)
+    - Archive mode required Python 3.13+
   - Additional library listed in requirements.txt
   - IDE Environment: see https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
 
