@@ -3,9 +3,10 @@ name = "pixivutil2"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4>=4.9.3",
+    "browser-cookie3>=0.20.1",
     "certifi>=2021.5.30",
     "cloudscraper>=1.2.58",
     "colorama>=0.4.4",
