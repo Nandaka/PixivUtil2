@@ -12,7 +12,7 @@ import traceback
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request
-from typing import List, Tuple, Union
+from typing import List, Literal, Tuple, Union
 
 import demjson3
 import mechanize
@@ -317,9 +317,20 @@ class PixivBrowser(mechanize.Browser):
                     domain = "www.pixiv.net"
                 elif name in ("login_ever"):
                     domain = ".www.pixiv.net"
+
+                final_domain: Literal['www.pixiv.net', '.www.pixiv.net', '.pixiv.net'] = domain
+                domain_specified: bool      = False
+                domain_initial_dot: bool    = False
+
+                # Override: Send PHPSESSID cookie to ".pixiv.net" domain.
+                if name == "PHPSESSID" and "pixiv.net" in domain:
+                    final_domain            = ".pixiv.net"
+                    domain_specified        = True
+                    domain_initial_dot      = True
+
                 ck = http.cookiejar.Cookie(version=0, name=name, value=value, port=None,
-                                           port_specified=False, domain=domain, domain_specified=False,
-                                           domain_initial_dot=False, path='/', path_specified=True,
+                                           port_specified=False, domain=final_domain, domain_specified=domain_specified,
+                                           domain_initial_dot=domain_initial_dot, path='/', path_specified=True,
                                            secure=False, expires=None, discard=True, comment=None,
                                            comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
                 self.addCookie(ck)
@@ -327,8 +338,8 @@ class PixivBrowser(mechanize.Browser):
         else:
             if "pixiv.net" in domain:
                 ck = http.cookiejar.Cookie(version=0, name='PHPSESSID', value=cookie_value, port=None,
-                                           port_specified=False, domain='pixiv.net', domain_specified=False,
-                                           domain_initial_dot=False, path='/', path_specified=True,
+                                           port_specified=False, domain='.pixiv.net', domain_specified=True,
+                                           domain_initial_dot=True, path='/', path_specified=True,
                                            secure=False, expires=None, discard=True, comment=None,
                                            comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
             elif "fanbox.cc" in domain:
@@ -357,6 +368,25 @@ class PixivBrowser(mechanize.Browser):
             PixivHelper.print_and_log('info', 'Trying to log in with saved cookie')
             self.clearCookie()
             self._loadCookie(login_cookie, "pixiv.net")
+
+            # Disable redirect and confirm that User ID is obtained.
+            # This will confirm successful login.
+            self.set_handle_redirect(False)
+            headers = {}
+            try:
+                r0 = self.open('https://www.pixiv.net')
+                if r0 is not None and hasattr(r0, "info") and callable(r0.info):
+                    headers = dict(r0.info().items())
+            except HTTPError as ex:
+                if ex.headers is not None:
+                    headers = dict(ex.headers.items())
+            finally:
+                self.set_handle_redirect(True)
+            x_uid = headers.get('x-userid') or headers.get('X-UserId') or headers.get('X-Userid')
+            if x_uid:
+                PixivHelper.print_and_log('info', f'Login recognized by server (x-userid={x_uid}).')
+                return True
+
             res = self.open_with_retry('https://www.pixiv.net')  # + self._locale)
             assert (res is not None)
             parsed = BeautifulSoup(res, features="html5lib")
