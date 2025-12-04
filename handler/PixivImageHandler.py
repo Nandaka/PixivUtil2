@@ -614,6 +614,9 @@ def process_image(caller,
                     PixivHelper.print_and_log('error', f"Files archived does not match total. Expected {total} but got {archived_count}.")
                     result = PixivConstant.PIXIVUTIL_NOT_OK
 
+        # Save AI type to DB
+        db.insertAiInfo(image_id, image.ai_type)
+
         if in_db and not exists:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
