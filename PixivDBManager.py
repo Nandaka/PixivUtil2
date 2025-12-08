@@ -36,177 +36,64 @@ class PixivDBManager(object):
     def close(self):
         self.conn.close()
 
+    def loadMigratedFiles(cursor):
+        try:
+            cursor.execute("SELECT file_name FROM migrations ORDER BY file_name")
+            return [row[0] for row in cursor.fetchall()]
+        except BaseException:
+            print("Error at loadMigrations():", str(sys.exc_info()))
+            print("failed.")
+            raise
+
+    def applyMigration(migrationDir, migrationFile, connection: sqlite3.Connection):
+        print(migrationFile, end=" ")
+
+        cursor = connection.cursor()
+        fullPath = os.path.join(migrationDir, migrationFile)
+
+        try:
+            with open(fullPath, 'r') as file:
+                script = file.read()
+                cursor.executescript(script)
+                cursor.execute("INSERT INTO migrations (file_name) VALUES(?)", (migrationFile, ))
+                connection.commit()
+        except BaseException:
+            print("Error at applyMigration():", str(sys.exc_info()))
+            print("failed.")
+            raise
+
+
     ##########################################
-    # I. Create/Drop Database                #
+    # I. Migrate Database                    #
     ##########################################
-    def createDatabase(self):
-        print("Creating database...", end=" ")
+    def migrateDatabase(self):
+        print("Migrating database...", end=" ")
 
         try:
             c = self.conn.cursor()
 
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_master_member (
-                            member_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
-                            name TEXT,
-                            save_folder TEXT,
-                            created_date DATE,
-                            last_update_date DATE,
-                            last_image INTEGER
-                            )""")
-
-            self.conn.commit()
-
-            # add column isDeleted
-            # 0 = false, 1 = true
-            try:
-                c.execute(
-                    """ALTER TABLE pixiv_master_member ADD COLUMN is_deleted INTEGER DEFAULT 0"""
-                )
-                self.conn.commit()
-            except BaseException:
-                pass
-
-            # add column for artist token
-            try:
-                c.execute(
-                    """ALTER TABLE pixiv_master_member ADD COLUMN member_token TEXT"""
-                )
-                self.conn.commit()
-            except BaseException:
-                pass
-
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_master_image (
-                            image_id INTEGER PRIMARY KEY,
-                            member_id INTEGER,
-                            title TEXT,
-                            save_name TEXT,
-                            created_date DATE,
-                            last_update_date DATE
-                            )""")
-            # add column isManga
-            try:
-                c.execute("""ALTER TABLE pixiv_master_image ADD COLUMN is_manga TEXT""")
-            except BaseException:
-                pass
-            # add column caption
-            try:
-                c.execute("""ALTER TABLE pixiv_master_image ADD COLUMN caption TEXT""")
-            except BaseException:
-                pass
-
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_manga_image (
-                            image_id INTEGER,
-                            page INTEGER,
-                            save_name TEXT,
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (image_id, page)
-                            )""")
-            self.conn.commit()
-
-            # Pixiv Tags
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_master_tag (
-                            tag_id VARCHAR(255) PRIMARY KEY,
-                            created_date DATE,
-                            last_update_date DATE
-                            )""")
-
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_tag_translation (
-                            tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
-                            translation_type VARCHAR(255),
-                            translation VARCHAR(255),
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (tag_id, translation_type)
-                            )""")
-
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_image_to_tag (
-                            image_id INTEGER REFERENCES pixiv_master_image(image_id),
-                            tag_id VARCHAR(255) REFERENCES pixiv_master_tag(tag_id),
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (image_id, tag_id)
-                            )""")
+            c.execute("""CREATE TABLE IF NOT EXISTS migrations (
+                            file_name TEXT NOT NULL,
+                            applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                            );""")
             
-            # image ID is primary key, may not reference to pixiv_master_image as it may not
-            # be downloaded. Used for filtering out AI images.
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_ai_info (
-                            image_id INTEGER PRIMARY KEY,
-                            ai_type INTEGER,
-                            created_date DATE,
-                            last_update_date DATE
-            )""")
-
             self.conn.commit()
 
-            # Pixiv Series
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_master_series (
-                            series_id VARCHAR(255) PRIMARY KEY,
-                            series_title VARCHAR(255),
-                            series_type VARCHAR(255),
-                            series_description TEXT,
-                            created_date DATE,
-                            last_update_date DATE
-                            )""")
+            # load migrations and compare them with already migrated files
+            migrationDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "migrations")
+            files = os.listdir(migrationDir)
+            migratedFiles = PixivDBManager.loadMigratedFiles(c)
+            toMigrate = [item for item in files if item not in migratedFiles]
 
-            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_image_to_series (
-                            series_id VARCHAR(255) REFERENCES pixiv_master_series(series_id),
-                            series_order INTEGER,
-                            image_id INTEGER REFERENCES pixiv_master_image(image_id),
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (series_id, series_order),
-                            UNIQUE (image_id)
-                            )""")
+            # perform migrations
+            for file in toMigrate:
+                PixivDBManager.applyMigration(migrationDir, file, self.conn)
+            
+            print("Done!")
 
-            # FANBOX
-            c.execute("""CREATE TABLE IF NOT EXISTS fanbox_master_post (
-                            member_id INTEGER,
-                            post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
-                            title TEXT,
-                            fee_required INTEGER,
-                            published_date DATE,
-                            updated_date DATE,
-                            post_type TEXT,
-                            last_update_date DATE
-                            )""")
 
-            c.execute("""CREATE TABLE IF NOT EXISTS fanbox_post_image (
-                            post_id INTEGER,
-                            page INTEGER,
-                            save_name TEXT,
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (post_id, page)
-                            )""")
-            self.conn.commit()
-
-            # Sketch
-            c.execute("""CREATE TABLE IF NOT EXISTS sketch_master_post (
-                            member_id INTEGER,
-                            post_id INTEGER PRIMARY KEY ON CONFLICT IGNORE,
-                            title TEXT,
-                            published_date DATE,
-                            updated_date DATE,
-                            post_type TEXT,
-                            last_update_date DATE
-                            )""")
-            c.execute("""CREATE TABLE IF NOT EXISTS sketch_post_image (
-                            post_id INTEGER,
-                            page INTEGER,
-                            save_name TEXT,
-                            created_date DATE,
-                            last_update_date DATE,
-                            PRIMARY KEY (post_id, page)
-                            )""")
-
-            # Novel
-            self.create_update_novel_table(c)
-            self.conn.commit()
-
-            print("done.")
         except BaseException:
-            print("Error at createDatabase():", str(sys.exc_info()))
+            print("Error at migrateDatabase():", str(sys.exc_info()))
             print("failed.")
             raise
         finally:

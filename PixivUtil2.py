@@ -1694,7 +1694,7 @@ def main():
 
     try:
         __dbManager__ = PixivDBManager(root_directory=__config__.rootDirectory, target=__config__.dbPath)
-        __dbManager__.createDatabase()
+        __dbManager__.migrateDatabase()
 
         if __config__.useList:
             PixivListHandler.import_list(sys.modules[__name__], __config__, 'list.txt')

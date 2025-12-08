@@ -14,7 +14,7 @@ PixivConstant.PIXIVUTIL_LOG_FILE = 'pixivutil.test.log'
 class TestPixivDBManager(unittest.TestCase):
     def test_ImportListTxt(self):
         DB = PixivDBManager(root_directory=".", target="test.db.sqlite")
-        DB.createDatabase()
+        DB.migrateDatabase()
         members = PixivListItem.parseList("test.list.txt", root_directory)
         result = DB.importList(members)
         # self.assertEqual(result, 0)
@@ -22,7 +22,7 @@ class TestPixivDBManager(unittest.TestCase):
 
     def test_SelectMembersByLastDownloadDate(self):
         DB = PixivDBManager(root_directory=".", target="test.db.sqlite")
-        DB.createDatabase()
+        DB.migrateDatabase()
         result = DB.selectMembersByLastDownloadDate(7)
         # self.assertEqual(len(result), LIST_SIZE)
         assert len(result) == LIST_SIZE
@@ -31,7 +31,7 @@ class TestPixivDBManager(unittest.TestCase):
 
     def test_SelectAllMember(self):
         DB = PixivDBManager(root_directory=".", target="test.db.sqlite")
-        DB.createDatabase()
+        DB.migrateDatabase()
         result = DB.selectAllMember()
         # self.assertEqual(len(result), LIST_SIZE)
         assert len(result) == LIST_SIZE
