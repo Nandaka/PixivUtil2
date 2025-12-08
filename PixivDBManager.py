@@ -86,7 +86,7 @@ class PixivDBManager(object):
             toMigrate = [item for item in files if item not in migratedFiles]
 
             # perform migrations
-            for file in toMigrate:
+            for file in sorted(toMigrate):
                 PixivDBManager.applyMigration(migrationDir, file, self.conn)
             
             print("Done!")
