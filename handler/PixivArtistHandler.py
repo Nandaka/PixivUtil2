@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import gc
+import os
 import sys
 import traceback
 
@@ -10,6 +11,7 @@ import common.PixivConstant as PixivConstant
 import handler.PixivDownloadHandler as PixivDownloadHandler
 import common.PixivHelper as PixivHelper
 import handler.PixivImageHandler as PixivImageHandler
+import handler.PixivAuthorProfileHandler as PixivAuthorProfileHandler
 from common.PixivException import PixivException
 
 
@@ -101,6 +103,27 @@ def process_member(caller,
             print_offset_stop = offset_stop if offset_stop < artist.totalImages and offset_stop != 0 else artist.totalImages
             PixivHelper.print_and_log(None, f'Processing images from {offset_start + 1} to {print_offset_stop} of {artist.totalImages}')
 
+            # Create author folder first and fetch author profile if configured
+            if config.createAuthorFolderFirst or config.downloadAuthorProfileBeforeDownload:
+                try:
+                    if user_dir == '':
+                        author_dir = config.rootDirectory
+                    else:
+                        author_dir = user_dir
+                    
+                    # Ensure author directory exists
+                    if config.createAuthorFolderFirst:
+                        os.makedirs(author_dir, exist_ok=True)
+                        PixivHelper.print_and_log('info', f'Author folder: {author_dir}')
+                    
+                    # Fetch and save author profile before downloading images
+                    if config.downloadAuthorProfileBeforeDownload:
+                        PixivAuthorProfileHandler.fetch_and_save_author_profile(
+                            caller, config, member_id, artist, author_dir, notifier=notifier
+                        )
+                except Exception as ex:
+                    PixivHelper.print_and_log('warn', f'Error preparing author folder/profile: {ex}')
+
             if not artist.haveImages:
                 PixivHelper.print_and_log('info', f"No image found for: {member_id}")
                 db.updateLastDownloadDate(member_id)
@@ -109,7 +132,6 @@ def process_member(caller,
 
             if config.downloadAvatar and not is_avatar_downloaded:
                 is_avatar_downloaded = process_avatar_bg(caller, config, user_dir, notifier, artist)
-
             if config.autoAddMember:
                 db.insertNewMember(int(member_id), member_token=artist.artistToken)
 

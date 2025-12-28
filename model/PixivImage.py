@@ -447,10 +447,15 @@ class PixivImage (object):
             info = codecs.open(str(self.imageId) + ".json", 'w', encoding='utf-8')
             PixivHelper.get_logger().exception("Error when saving image info: %s, file is saved to: %s.json", filename, self.imageId)
         if self.rawJSON:
-            jsonInfo = self.rawJSON
+            # Use a shallow copy so we don't modify the original rawJSON and
+            # safely remove any requested keys without raising KeyError.
+            jsonInfo = dict(self.rawJSON)
             if JSONfilter:
                 for x in JSONfilter.split(","):
-                    del jsonInfo[x.strip()]
+                    key = x.strip()
+                    if not key:
+                        continue
+                    jsonInfo.pop(key, None)
             if self.ugoira_data:
                 jsonInfo["Ugoira Data"] = self.ugoira_data
             info.write(json.dumps(jsonInfo, ensure_ascii=False, indent=4))

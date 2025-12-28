@@ -710,26 +710,15 @@ def preheat_followed_members(caller, config, list_file=None, hide='n', delay_sec
         raise
 
 
-def scan_and_mark_completed_members(caller, config, list_file=None, progress_file=None, compare_remote=True, dry_run=True, download_missing=False, download_limit=None, candidate_set=None):
+def scan_and_mark_completed_members(caller, config, list_file=None, progress_file=None, compare_remote=True, dry_run=True, download_missing=False, download_limit=None):
     """Scan local DB/files for followed members and mark those that appear complete.
 
     - list_file: followed list file (default config.followedArtistListFile)
     - progress_file: file to write completed member ids (default: <list_file>.preheat_progress.json)
-    - compare_remote: if True, fetch remote member image id list to determine exact remote set
+    - compare_remote: if True, fetch remote member image list to determine exact remote set
     - dry_run: if True, do not write changes, only print a summary
     - download_missing: if True, attempt to download missing images (only missing ones)
     - download_limit: optional int to limit number of images to download per member for safety
-
-    行为约束（按你的期望）：
-
-    - 不用远程(compare_remote=False)：
-      - 只对“本地/DB 已经有作品的作者（present>0）”进行完成判定；
-      - 完成判定仅基于 DB 的 total_images（来自 5a 预热/历史远端计数），若缺失则不自动标完成。
-      - 不会下载任何内容。
-    - 用远程(compare_remote=True)：
-      - 仍然先以“本地/DB 已经有作品的作者（present>0）”为集合再远程比对；
-      - 远端返回 totalImages 时写回 DB.total_images 作为下次“不用远程”的基准；
-      - 仅当拿到 remote_ids 时才会计算 missing_ids 并按需下载（避免误下载）。
     """
     br: PixivBrowser = caller.__br__
     db = caller.__dbManager__
@@ -763,89 +752,9 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
             PixivHelper.print_and_log('info', 'Scan: No members to process.')
             return
 
-        # read new small-config options (backwards compatible)
-        candidate_set = getattr(config, 'menu5CandidateSet', None) or None
-        require_present = getattr(config, 'menu5RequirePresent', True)
-        config_download_missing = getattr(config, 'menu5DownloadMissing', False)
-        # allow function param to enable download_missing but honor config as default
-        download_missing = download_missing or config_download_missing
-
-        # base followed set (F) from local list if present
-        F_set = set()
-        try:
-            F_set = set(int(x.memberId) for x in total_list if getattr(x, 'memberId', None) is not None)
-        except Exception:
-            F_set = set()
-
-        # downloaded/local set (L)
-        try:
-            L_members = db.selectDistinctMembersWithImages() if hasattr(db, 'selectDistinctMembersWithImages') else []
-            L_set = set(int(x) for x in L_members)
-        except Exception:
-            L_set = set()
-
-        # remote set (R) will be fetched later only if needed (after reading progress)
-        R_set = set()
-
-        # load existing progress
-        progress = _load_preheat_progress(progress_file) or {}
-        done_set = set(str(x) for x in progress.get('done', []))
-
-        # now compute candidate ids by requested simple set names (need done_set)
-        # ensure remote fetch if candidate requires it
-        cs = (candidate_set or getattr(config, 'menu5CandidateSet', 'downloaded'))
-        if cs in ('remote', 'downloaded_and_remote', 'remote_not_downloaded'):
-            if not compare_remote:
-                PixivHelper.print_and_log('info', f"Scan: candidate '{cs}' requires remote fetch, enabling compare_remote.")
-                compare_remote = True
-        # fetch R only if needed
-        if compare_remote and cs in ('remote', 'downloaded_and_remote', 'remote_not_downloaded'):
-            try:
-                r_list = []
-                r_list.extend(get_bookmarks(caller, config, False, 1, 0, br._myId)[0])
-                r_list.extend(get_bookmarks(caller, config, True, 1, 0, br._myId)[0])
-                R_set = set(int(x.memberId) for x in r_list if getattr(x, 'memberId', None) is not None)
-            except Exception as ex:
-                PixivHelper.print_and_log('warn', f"Scan: failed to fetch remote followed list: {ex}")
-                R_set = set()
-
-        candidate_ids = set()
-        if cs == 'downloaded':
-            candidate_ids = set(L_set)
-        elif cs == 'followed':
-            candidate_ids = set(F_set)
-        elif cs == 'remote':
-            candidate_ids = set(R_set)
-        elif cs == 'downloaded_and_remote':
-            candidate_ids = L_set.intersection(R_set)
-        elif cs == 'followed_not_done':
-            candidate_ids = set(F_set) - set(int(x) for x in done_set) if done_set else set(F_set)
-        elif cs == 'downloaded_not_done':
-            candidate_ids = set(L_set) - set(int(x) for x in done_set) if done_set else set(L_set)
-        elif cs == 'remote_not_downloaded':
-            candidate_ids = set(R_set) - set(L_set)
-        elif cs == 'done':
-            candidate_ids = set(int(x) for x in done_set)
-        else:
-            candidate_ids = set(L_set)
-
-        # enforce require_present: only keep those with local present files
-        if require_present:
-            candidate_ids = candidate_ids.intersection(L_set)
-
-        PixivHelper.print_and_log('info', f"Scan: Candidate set={cs}, require_present={require_present}, candidates={len(candidate_ids)}")
-
-        # rebuild total_list as simple objects with memberId so rest of code works unchanged
-        from types import SimpleNamespace
-        total_list = [SimpleNamespace(memberId=m) for m in sorted(candidate_ids)]
-
-        if len(total_list) == 0:
-            PixivHelper.print_and_log('info', 'Scan: No candidate members after applying candidate_set and require_present.')
-            return
-
         member_ids = [int(x.memberId) for x in total_list if getattr(x, 'memberId', None) is not None]
 
-        # load total_images from DB (as baseline remote count)
+        # load total_images from DB
         total_map = {}
         try:
             if hasattr(db, 'selectMemberTotalImagesMap'):
@@ -862,15 +771,11 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
         checked = 0
         total_missing_to_download = 0
 
-        # when compare_remote=False, never download
-        if not compare_remote and download_missing:
-            PixivHelper.print_and_log('info', 'Scan: compare_remote is disabled, forcing download_missing=False (no remote IDs, cannot safely download).')
-            download_missing = False
-
         for item in total_list:
             mid = str(item.memberId)
             if mid in done_set:
                 continue
+            checked += 1
 
             # 1) build db set (images known as downloaded in DB and actually present)
             db_image_ids = set()
@@ -889,15 +794,15 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
 
             # 2) build local set by inspecting member save_folder or nearby folders
             local_image_ids = set()
-            save_folder = None
             try:
-                row = db.selectMemberByMemberId(int(mid))
-                if row is not None and len(row) > 2 and row[2]:
-                    save_folder = row[2]
-            except Exception:
                 save_folder = None
+                try:
+                    row = db.selectMemberByMemberId(int(mid))
+                    if row is not None and len(row) > 2 and row[2]:
+                        save_folder = row[2]
+                except Exception:
+                    save_folder = None
 
-            try:
                 candidate_dirs = []
                 if save_folder:
                     candidate_dirs.append(os.path.join(config.rootDirectory, save_folder))
@@ -932,19 +837,10 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
             present_ids = set()
             present_ids.update(db_image_ids)
             present_ids.update(local_image_ids)
-            present_cnt = len(present_ids)
 
-            # 关键：只处理本地已有的作者
-            if present_cnt <= 0:
-                # 不做远端请求、不做标记（避免“远程对全部关注作者对比”）
-                continue
-
-            checked += 1
-
-            # 3) remote
+            # 3) get remote image id list (exact)
             remote_ids = set()
             remote_total = total_map.get(int(mid)) if total_map is not None else None
-
             if compare_remote:
                 try:
                     page = 1
@@ -958,36 +854,44 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
                                     remote_ids.add(int(iid))
                                 except Exception:
                                     pass
+                        # update remote_total if available
                         if getattr(artist, 'totalImages', None) is not None:
                             remote_total = int(artist.totalImages)
                         if getattr(artist, 'isLastPage', False):
                             break
                         page += 1
+                        # small delay between profile requests
                         PixivHelper.print_delay(getattr(config, 'preheatDelaySeconds', getattr(config, 'preheatDelay', 0.5)))
                 except Exception as ex:
                     PixivHelper.print_and_log('warn', f'Scan: failed to fetch remote images for {mid}: {ex}')
 
-                # 写回 DB 的远端数量（用于下次 compare_remote=False 的本地对比）
-                if remote_total is not None:
-                    try:
-                        db.updateMemberTotalImages(int(mid), int(remote_total))
-                        # keep total_map in sync within this run
-                        if total_map is not None:
-                            total_map[int(mid)] = int(remote_total)
-                    except Exception as ex:
-                        PixivHelper.print_and_log('warn', f'Scan: failed to update DB total_images for {mid}: {ex}')
+            # fallback: if remote_total known and no remote_ids (e.g., failed), just use count
+            if not remote_ids and remote_total is not None:
+                # we cannot know ids, only counts — treat as conservative
+                try:
+                    remote_total = int(remote_total)
+                except Exception:
+                    remote_total = None
 
             # compute missing set at image level
             missing_ids = set()
-            if compare_remote and remote_ids:
+            if remote_ids:
                 missing_ids = remote_ids - present_ids
+            elif remote_total is not None:
+                # if we only know counts, mark missing if db/local count < remote_total
+                if len(present_ids) < remote_total:
+                    PixivHelper.print_and_log('info', f'Scan: Member {mid} has less files ({len(present_ids)}) than remote total ({remote_total}), but remote IDs unavailable.')
+                    # cannot download specific missing ids without remote list
+                else:
+                    # counts match
+                    pass
 
             if missing_ids:
                 PixivHelper.print_and_log('info', f'Scan: Member {mid} missing {len(missing_ids)} images.')
             else:
-                PixivHelper.print_and_log('info', f'Scan: Member {mid} no missing images detected (local={present_cnt}, remote={len(remote_ids) if remote_ids else remote_total}).')
+                PixivHelper.print_and_log('info', f'Scan: Member {mid} no missing images detected (local={len(present_ids)}, remote={len(remote_ids) if remote_ids else remote_total}).')
 
-            # optionally download missing images (ONLY when we have exact remote_ids)
+            # optionally download missing images
             downloaded_count = 0
             if download_missing and missing_ids:
                 for iid in sorted(missing_ids):
@@ -996,11 +900,13 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
                         break
                     PixivHelper.print_and_log('info', f'Scan: Downloading missing image {iid} for member {mid}...')
                     try:
+                        # process_image will insert/update DB on success
                         result = PixivImageHandler.process_image(caller, config, artist=None, image_id=int(iid), user_dir='')
                         PixivHelper.wait(result, config)
                         if result == PixivConstant.PIXIVUTIL_OK:
                             downloaded_count += 1
                             total_missing_to_download += 1
+                            # refresh present_ids by checking DB
                             try:
                                 r = db.selectImageByImageId(iid, cols='save_name')
                                 if r is not None and db.cleanupFileExists(r[0]):
@@ -1011,29 +917,29 @@ def scan_and_mark_completed_members(caller, config, list_file=None, progress_fil
                             PixivHelper.print_and_log('warn', f'Scan: Download of image {iid} returned result {result}.')
                     except Exception as ex:
                         PixivHelper.print_and_log('warn', f'Scan: Failed downloading image {iid} for member {mid}: {ex}')
+                    # small delay between downloads to be polite
                     PixivHelper.print_delay(getattr(config, 'preheatDelaySeconds', getattr(config, 'preheatDelay', 0.5)))
 
-            # decide completion
+            # decide completion only when remote_ids known and present_ids covers them
             is_complete = False
-
-            if compare_remote:
-                # 远端模式：优先用 remote_ids 精确判定；没有 remote_ids 时退化到 remote_total（仅计数）
-                if remote_ids:
-                    is_complete = remote_ids.issubset(present_ids)
-                elif remote_total is not None:
-                    try:
-                        is_complete = len(present_ids) >= int(remote_total)
-                    except Exception:
-                        is_complete = False
-                else:
-                    is_complete = False
+            if remote_ids:
+                if remote_ids.issubset(present_ids):
+                    is_complete = True
+            elif remote_total is not None:
+                if len(present_ids) >= remote_total:
+                    is_complete = True
             else:
-                # 本地模式：只用 DB total_images（历史远端计数）判定；缺失则不标完成
-                baseline = total_map.get(int(mid)) if total_map is not None else None
-                if baseline is not None:
+                # fallback: conservative folder check
+                if len(present_ids) > 0:
                     try:
-                        baseline_int = int(baseline)
-                        if baseline_int > 0 and len(present_ids) >= baseline_int:
+                        folder_ok = False
+                        if save_folder:
+                            dirpath = os.path.join(config.rootDirectory, save_folder)
+                            if os.path.isdir(dirpath):
+                                cnt = len([n for n in os.listdir(dirpath) if not n.startswith('.')])
+                                if cnt >= len(present_ids):
+                                    folder_ok = True
+                        if folder_ok:
                             is_complete = True
                     except Exception:
                         is_complete = False
@@ -1075,17 +981,11 @@ def _is_member_complete_via_db(caller, config, member_id, skip_local_scan=False,
     检查一个作者是否已完成下载。
     - skip_local_scan=True: 跳过本地扫盘，只用DB文件列表
     - compare_remote=True: 与云端对比
-    返回: (is_complete, present_ids_count, remote_ids_count_or_total)
-
-    约束（按 5b 的需求）：
-
-    - compare_remote=False 时：只允许在 DB.total_images 存在且 present>=total_images 时标记完成；
-      DB 未记录 total_images（0/None）时不标记完成（避免误判）。
-    - compare_remote=True 时：优先用 remote_ids 精确判定；拿不到 remote_ids 时退化到 remote_total 计数判定。
+    返回: (is_complete, present_ids_count, remote_ids_count)
     """
     db = caller.__dbManager__
     br = caller.__br__
-
+    
     # 1) build db set (images in DB and file exists)
     db_image_ids = set()
     try:
@@ -1100,7 +1000,7 @@ def _is_member_complete_via_db(caller, config, member_id, skip_local_scan=False,
                 continue
     except Exception:
         pass
-
+    
     # 2) build local set (only if not skipping)
     local_image_ids = set()
     if not skip_local_scan:
@@ -1118,6 +1018,7 @@ def _is_member_complete_via_db(caller, config, member_id, skip_local_scan=False,
                 candidate_dirs.append(os.path.join(config.rootDirectory, save_folder))
             candidate_dirs.append(os.path.join(config.rootDirectory, str(member_id)))
 
+            # search limited depth for directories containing member id prefix
             if not save_folder and os.path.isdir(config.rootDirectory):
                 for name in os.listdir(config.rootDirectory):
                     if name.startswith(str(member_id)) or name.find(f"{member_id} ") >= 0 or name.find(f" {member_id}") >= 0:
@@ -1139,11 +1040,13 @@ def _is_member_complete_via_db(caller, config, member_id, skip_local_scan=False,
                         pass
         except Exception:
             pass
-
+    
+    # union of known local sources
     present_ids = set()
     present_ids.update(db_image_ids)
     present_ids.update(local_image_ids)
-
+    
+    # 3) get remote image id list
     remote_ids = set()
     remote_total = None
     if compare_remote:
@@ -1167,30 +1070,24 @@ def _is_member_complete_via_db(caller, config, member_id, skip_local_scan=False,
                 PixivHelper.print_delay(getattr(config, 'preheatDelaySeconds', getattr(config, 'preheatDelay', 0.5)))
         except Exception:
             pass
-
+    
+    # decide completion
     is_complete = False
-    if compare_remote:
-        if remote_ids:
-            is_complete = remote_ids.issubset(present_ids)
-        elif remote_total is not None:
-            try:
-                is_complete = len(present_ids) >= int(remote_total)
-            except Exception:
-                is_complete = False
-    else:
-        # 本地模式：必须依赖 DB.total_images
+    if compare_remote and remote_ids:
+        is_complete = remote_ids.issubset(present_ids)
+    elif not compare_remote and len(present_ids) > 0:
+        # without remote comparison, assume complete if we have some local/db files
+        # this is conservative: only mark if we're confident
         try:
             row = db.selectMemberByMemberId(int(member_id))
             if row is not None and len(row) > 5:
                 total_images_in_db = row[5]  # column for total_images
-                if total_images_in_db is not None:
-                    total_images_in_db = int(total_images_in_db)
-                if total_images_in_db and total_images_in_db > 0:
-                    if len(present_ids) >= total_images_in_db:
+                if total_images_in_db and int(total_images_in_db) > 0:
+                    if len(present_ids) >= int(total_images_in_db):
                         is_complete = True
         except Exception:
             pass
-
+    
     return (is_complete, len(present_ids), len(remote_ids) if remote_ids else remote_total)
 
 

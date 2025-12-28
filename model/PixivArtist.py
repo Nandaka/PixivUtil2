@@ -14,6 +14,11 @@ class PixivArtist:
     artistAvatar = ""
     artistToken = ""
     artistBackground = ""
+    # 新增字段：完整的作者资料
+    artistComment = ""
+    artistWebpage = ""
+    artistTwitter = ""
+    artistExternalLinks = {}
     imageList = []
     isLastPage = None
     haveImages = None
@@ -62,12 +67,18 @@ class PixivArtist:
                 self.novel_series.append(int(novel_series_id["id"]))
 
     def ParseInfo(self, page, fromImage=False, bookmark=False):
-        ''' parse artistId, artistAvatar, artistToken, artistName, and artistBackground '''
+        ''' parse artistId, artistAvatar, artistToken, artistName, artistBackground, and profile info '''
         self.artistId = 0
         self.artistAvatar = "no_profile"
         self.artistToken = "self"
         self.artistName = "self"
         self.artistBackground = "no_background"
+        self.artistComment = ""
+        self.artistWebpage = ""
+        self.artistTwitter = ""
+        self.artistExternalLinks = {}
+        # 保存完整的 OAuth profile 数据
+        self.oauthProfile = {}
 
         if page is not None:
             if fromImage:
@@ -87,6 +98,7 @@ class PixivArtist:
                     self.artistName = root["user_name"]
                 else:
                     # https://app-api.pixiv.net/v1/user/detail?user_id=1039353
+                    # OAuth API 返回结构: { "user": {...}, "profile": {...} }
                     data = None
                     if "user" in page:
                         data = page
@@ -101,6 +113,25 @@ class PixivArtist:
                         avatar_data = data["user"]["profile_image_urls"]
                         if avatar_data is not None and "medium" in avatar_data:
                             self.artistAvatar = avatar_data["medium"].replace("_170", "")
+                        
+                        # 从OAuth API提取额外的作者信息字段
+                        # comment 在 user 里
+                        self.artistComment = data["user"].get("comment", "") or ""
+                        
+                        # webpage/twitter 在 profile 里（如果有的话）
+                        if "profile" in data:
+                            profile = data["profile"]
+                            self.artistWebpage = profile.get("webpage", "") or ""
+                            # Twitter 字段名是 twitter_account 或 twitter_url
+                            self.artistTwitter = profile.get("twitter_url", "") or profile.get("twitter_account", "") or ""
+                            
+                            # 保存完整的 OAuth profile 数据供 JSON 导出使用
+                            self.oauthProfile = {
+                                "user": data["user"],
+                                "profile": profile,
+                                "profile_publicity": data.get("profile_publicity", {}),
+                                "workspace": data.get("workspace", {})
+                            }
 
                 if "profile" in page:
                     if self.totalImages == 0:
@@ -144,6 +175,20 @@ class PixivArtist:
             # https://www.pixiv.net/ajax/user/1893126
             if "background" in root and root["background"] is not None:
                 self.artistBackground = root["background"]["url"]
+            
+            # 从AJAX响应中提取额外的作者信息（备用）
+            # 如果这些字段在ParseInfo中未设置，则从AJAX response设置
+            if not self.artistComment and "comment" in root:
+                self.artistComment = root.get("comment", "") or ""
+            if not self.artistWebpage and "webpage" in root:
+                self.artistWebpage = root.get("webpage", "") or ""
+            if not self.artistTwitter and "social" in root:
+                # AJAX response可能在social字段中有twitter信息
+                social_links = root.get("social", [])
+                for social in social_links:
+                    if social.get("name", "").lower() == "twitter":
+                        self.artistTwitter = social.get("url", "") or ""
+                        break
 
     def ParseImages(self, payload):
         self.imageList = list()

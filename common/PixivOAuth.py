@@ -137,21 +137,61 @@ class PixivOAuth():
     _req = cloudscraper.create_scraper(sess=sess)
 
     def __init__(self, username, password, proxies=None, validate_ssl=True, refresh_token=None):
-        if username is None or len(username) <= 0:
-            raise Exception("Username cannot empty!")
-        if password is None or len(password) <= 0:
-            raise Exception("Password cannot empty!")
-
-        self._username = username
-        self._password = password
-        self._proxies = proxies
+        # NOTE:
+        # 允许“只用 refresh_token”的模式。
+        # 只要 refresh_token 有值，就不强制要求 username/password。
         if refresh_token is not None and len(refresh_token) > 0:
             self._refresh_token = refresh_token
         else:
             self._refresh_token = None
+
+        # 仅当没有 refresh_token 时，才强制要求 username/password
+        if self._refresh_token is None:
+            if username is None or len(username) <= 0:
+                raise Exception("Username cannot empty!")
+            if password is None or len(password) <= 0:
+                raise Exception("Password cannot empty!")
+
+        self._username = username
+        self._password = password
+        self._proxies = proxies
         self._access_token = None
         self._tzInfo = PixivHelper.LocalUTCOffsetTimezone()
         self._validate_ssl = validate_ssl
+        
+        # 修复 Python 3.13 下 verify=False 与 check_hostname 冲突
+        # 当 validate_ssl=False 时，彻底禁用 SSL 验证
+        # Python 3.13 的 urllib3 强制 check_hostname + verify=False 冲突，必须 monkey patch
+        if not validate_ssl:
+            import ssl
+            import urllib3
+            import requests
+            # 禁用 SSL 警告
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            
+            # Monkey patch urllib3.connection._ssl_wrap_socket_and_match_hostname
+            from urllib3 import connection
+            from urllib3.util.ssl_ import resolve_cert_reqs
+            
+            original_ssl_wrap = connection._ssl_wrap_socket_and_match_hostname
+            
+            def patched_ssl_wrap(sock, *, cert_reqs=None, ssl_context=None, **kwargs):
+                # 关键修复：在设置 verify_mode 之前，如果 cert_reqs == CERT_NONE，先禁用 check_hostname
+                if ssl_context is not None and cert_reqs is not None:
+                    resolved_cert_reqs = resolve_cert_reqs(cert_reqs)
+                    if resolved_cert_reqs == ssl.CERT_NONE:
+                        ssl_context.check_hostname = False
+                
+                return original_ssl_wrap(sock, cert_reqs=cert_reqs, ssl_context=ssl_context, **kwargs)
+            
+            connection._ssl_wrap_socket_and_match_hostname = patched_ssl_wrap
+            
+            # 使用原始 requests.Session 而不是 cloudscraper（避免 cloudscraper 的 wrap_socket 钩子干扰）
+            self._req = requests.Session()
+        else:
+            # 使用类变量的 scraper
+            self._req = PixivOAuth._req
+        
         PixivOAuthBrowser.set_proxy(proxies)
         PixivOAuthBrowser.set_verify(validate_ssl)
 
@@ -197,13 +237,25 @@ class PixivOAuth():
         headers["Authorization"] = "Bearer {0}".format(self._access_token)
         return headers
 
+    def _request_verify_arg(self):
+        """Return a value suitable for requests/cloudscraper 'verify' argument."""
+        # True  -> default CA verification
+        # False -> disable SSL verification (needed for some environments)
+        return bool(self._validate_ssl)
+
     def login_with_username_and_password(self):
+        # 当用户明确要求用账号密码登录时，做更清晰的错误提示
+        if self._username is None or len(self._username) <= 0:
+            raise Exception("Username cannot empty (required for password login).")
+        if self._password is None or len(self._password) <= 0:
+            raise Exception("Password cannot empty (required for password login).")
+
         PixivHelper.get_logger().info("Login to OAuth using username and password.")
         oauth_response = self._req.post(self._url,
                                         data=self._get_values_for_login(),
                                         headers=self._get_default_headers(),
                                         proxies=self._proxies,
-                                        verify=self._validate_ssl)
+                                        verify=self._request_verify_arg())
         return oauth_response
 
     def login(self):
@@ -215,7 +267,7 @@ class PixivOAuth():
                                             data=self._get_values_for_refresh(),
                                             headers=self._get_default_headers(),
                                             proxies=self._proxies,
-                                            verify=self._validate_ssl)
+                                            verify=self._request_verify_arg())
             if oauth_response.status_code == 200:
                 need_relogin = False
             else:
@@ -243,12 +295,13 @@ class PixivOAuth():
 
         return oauth_response
 
-    def get_user_info(self, userid):
+    def get_user_info(self, userid, timeout=30):
         url = 'https://app-api.pixiv.net/v1/user/detail?user_id={0}'.format(userid)
         user_info = self._req.get(url,
                                   headers=self._get_headers_with_bearer(),
                                   proxies=self._proxies,
-                                  verify=self._validate_ssl)
+                                  verify=self._request_verify_arg(),
+                                  timeout=timeout)
 
         if user_info.status_code == 404:
             PixivHelper.print_and_log('error', user_info.text)

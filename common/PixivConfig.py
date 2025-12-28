@@ -104,9 +104,35 @@ class PixivConfig():
         ConfigItem("Settings", "stripHTMLTagsFromCaption", False),
         ConfigItem("Settings", "urlBlacklistRegex", ""),
         ConfigItem("Settings", "dbPath", ""),
+        # optional per-folder database path; can contain {rootDirectory}
+        ConfigItem("Settings", "folderDatabase", ""),
         ConfigItem("Settings", "setLastModified", True),
         ConfigItem("Settings", "useLocalTimezone", False),
         ConfigItem("Settings", "defaultSketchOption", ""),
+        # preheat delay (seconds) for preheat_followed_members; supports float via followup
+        ConfigItem("Settings", "preheatDelaySeconds", 0.5, followup=float),
+        ConfigItem("Settings", "preheatDelay", 0.5, followup=float),
+        # 排序配置：how to order followed authors when processing bookmarks
+        ConfigItem("Settings", "memberOrder", ""),
+        # menu 5 自动标记完成作者（下载后写入进度文件）
+        ConfigItem("Settings", "menu5EnableAutoMark", True),
+        # menu 5 标记文件路径（默认 <list_file>.preheat_progress.json）
+        ConfigItem("Settings", "menu5MarkProgressFile", ""),
+        # menu 5 是否跳过本地扫盘，直接用数据库文件列表
+        ConfigItem("Settings", "menu5SkipLocalScan", False),
+        # menu 5 下载时是否与云端对比（获取完整作品列表）
+        ConfigItem("Settings", "menu5CompareRemote", False),
+        # menu 5 是否优先从本地文件读取关注列表（跳过网络拉取）
+        ConfigItem("Settings", "menu5UseLocalList", True),
+        # menu5: candidate set controlling which author set to operate on
+        ConfigItem("Settings", "menu5CandidateSet", "downloaded",
+                   restriction=lambda x: x in ['downloaded','followed','remote','downloaded_and_remote','followed_not_done','downloaded_not_done','remote_not_downloaded','done']),
+        ConfigItem("Settings", "menu5RequirePresent", True),
+        ConfigItem("Settings", "menu5DownloadMissing", False),
+        # 下载作者作品前是否先获取作者资料（bio、头像、背景、外链等）
+        ConfigItem("Settings", "downloadAuthorProfileBeforeDownload", True),
+        # 是否在下载作品前创建作者文件夹（menu 3 等其他菜单也可用）
+        ConfigItem("Settings", "createAuthorFolderFirst", True),
 
         ConfigItem("Filename",
                    "filenameFormat",

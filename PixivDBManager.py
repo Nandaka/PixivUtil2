@@ -29,8 +29,17 @@ class PixivDBManager(object):
             target = script_path + os.sep + "db.sqlite"
             PixivHelper.print_and_log("info", "Using default DB Path: " + target)
         else:
+            # allow folder-specific DB path; keep behavior unchanged otherwise
             PixivHelper.print_and_log("info", "Using custom DB Path: " + target)
         self.rootDirectory = root_directory
+
+        # ensure directory for DB exists
+        try:
+            db_dir = os.path.dirname(os.path.abspath(target))
+            if db_dir and not os.path.exists(db_dir):
+                os.makedirs(db_dir, exist_ok=True)
+        except Exception:
+            pass
         self.conn = sqlite3.connect(target, timeout)
 
     def close(self):
@@ -70,6 +79,15 @@ class PixivDBManager(object):
             try:
                 c.execute(
                     """ALTER TABLE pixiv_master_member ADD COLUMN member_token TEXT"""
+                )
+                self.conn.commit()
+            except BaseException:
+                pass
+
+            # add column for total images (full works count on Pixiv)
+            try:
+                c.execute(
+                    """ALTER TABLE pixiv_master_member ADD COLUMN total_images INTEGER"""
                 )
                 self.conn.commit()
             except BaseException:
@@ -724,189 +742,61 @@ class PixivDBManager(object):
         finally:
             c.close()
 
-    def deleteMemberByMemberId(self, memberId):
+    def updateMemberTotalImages(self, memberId, totalImages):
+        """Persist full Pixiv works count for a member.
+
+        totalImages can be None to skip.
+        """
         try:
-            c = self.conn.cursor()
-            c.execute(
-                """DELETE FROM pixiv_master_member
-                      WHERE member_id = ?""",
-                (memberId,),
-            )
-            self.conn.commit()
-        except BaseException:
-            print("Error at deleteMemberByMemberId():", str(sys.exc_info()))
-            print("failed")
-            raise
-        finally:
-            c.close()
-
-    def deleteMembersByList(self):
-        list_name = input("Members filename = ").rstrip("\r")
-
-        if len(list_name) == 0:
-            list_name = "members.txt"
-
-        listTxt = PixivListItem.parseList(list_name)
-
-        print("Reading list...", end=" ")
-        print("Found", len(listTxt), "items", end=" ")
-
-        try:
-            c = self.conn.cursor()
-            for item in listTxt:
-                c.execute(
-                    """DELETE FROM pixiv_manga_image
-                        WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)""",
-                    (item.memberId,),
-                )
-                c.execute(
-                    """DELETE FROM pixiv_master_image
-                        WHERE member_id = ?""",
-                    (item.memberId,),
-                )
-                c.execute(
-                    """DELETE FROM pixiv_master_member
-                        WHERE member_id = ?""",
-                    (item.memberId,),
-                )
-            self.conn.commit()
-        except BaseException:
-            print("Error at deleteMembersByList():", str(sys.exc_info()))
-            print("failed")
-            raise
-        finally:
-            c.close()
-
-    def keepMembersByList(self):
-        def parseMembersList(filename):
-            memberList = list()
-            reader = PixivHelper.open_text_file(filename)
-            line_no = 1
-
-            try:
-                for line in reader:
-                    original_line = line
-                    if line.startswith("#") or len(line) < 1:
-                        continue
-                    if len(line.strip()) == 0:
-                        continue
-
-                    line = line.strip()
-                    memberList.append(line)
-                    line_no = line_no + 1
-                    original_line = ""
-
-            except UnicodeDecodeError:
-                PixivHelper.get_logger().exception(
-                    "PixivDBManager.parseMembersList(): Invalid value when parsing list"
-                )
-                PixivHelper.print_and_log(
-                    "error",
-                    "Invalid value: {0} at line {1}, try to save the list.txt in UTF-8.".format(
-                        original_line, line_no
-                    ),
-                )
-            except BaseException:
-                PixivHelper.get_logger().exception(
-                    "PixivDBManager.parseMembersList(): Invalid value when parsing list"
-                )
-                PixivHelper.print_and_log(
-                    "error",
-                    "Invalid value: {0} at line {1}".format(original_line, line_no),
-                )
-            finally:
-                reader.close()
-            return memberList
-
-        list_name = input("Members filename = ").rstrip("\r")
-
-        if len(list_name) == 0:
-            list_name = "members.txt"
-
-        if os.path.exists(list_name):
-            listTxt = parseMembersList(list_name)
-        else:
-            msg = f"List file not found: {list_name}"
-            raise PixivException(
-                "File doesn't exists or no permission to read: " + list_name,
-                errorCode=PixivException.FILE_NOT_EXISTS_OR_NO_WRITE_PERMISSION,
-            )
-
-        print("Reading list...", end=" ")
-        print("Found", len(listTxt), "items", end=" ")
-
-        try:
-            c = self.conn.cursor()
-            c.execute("""SELECT * FROM pixiv_master_member""")
-            result = c.fetchall()
-            for row in result:
-                if str(row[0]) not in listTxt:
-                    c.execute(
-                        """DELETE FROM pixiv_manga_image
-                        WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)""",
-                        (row[0],),
-                    )
-                    c.execute(
-                        """DELETE FROM pixiv_master_image
-                        WHERE member_id = ?""",
-                        (row[0],),
-                    )
-                    c.execute(
-                        """DELETE FROM pixiv_master_member
-                        WHERE member_id = ?""",
-                        (row[0],),
-                    )
-            self.conn.commit()
-        except BaseException:
-            print("Error at keepMembersByList():", str(sys.exc_info()))
-            print("failed")
-            raise
-        finally:
-            c.close()
-
-    def deleteCascadeMemberByMemberId(self, memberId):
-        try:
-            c = self.conn.cursor()
-            c.execute(
-                """DELETE FROM pixiv_manga_image
-                      WHERE image_id IN (SELECT image_id FROM pixiv_master_image WHERE member_id = ?)""",
-                (memberId,),
-            )
-            c.execute(
-                """DELETE FROM pixiv_master_image
-                      WHERE member_id = ?""",
-                (memberId,),
-            )
-            c.execute(
-                """DELETE FROM pixiv_master_member
-                      WHERE member_id = ?""",
-                (memberId,),
-            )
-            self.conn.commit()
-        except BaseException:
-            print("Error at deleteCascadeMemberByMemberId():", str(sys.exc_info()))
-            print("failed")
-            raise
-        finally:
-            c.close()
-
-    def setIsDeletedFlagForMemberId(self, memberId):
-        try:
+            if totalImages is None:
+                return
             c = self.conn.cursor()
             c.execute(
                 """UPDATE pixiv_master_member
-                         SET is_deleted = 1, last_update_date = datetime('now')
-                         WHERE member_id = ?""",
-                (memberId,),
+                   SET total_images = ?,
+                       last_update_date = datetime('now')
+                   WHERE member_id = ?""",
+                (int(totalImages), int(memberId)),
             )
+            # If row did not exist, ensure member inserted
+            if c.rowcount == 0:
+                c.execute(
+                    """INSERT OR IGNORE INTO pixiv_master_member (member_id, save_folder, name, created_date, last_update_date, last_image, is_deleted, member_token, total_images)
+                        VALUES(?, ?, ?, datetime('now'), datetime('now'), -1, 0, '', ?)""",
+                    (int(memberId), str(memberId), str(memberId), int(totalImages)),
+                )
             self.conn.commit()
         except BaseException:
-            print("Error at setIsDeletedFlagForMemberId():", str(sys.exc_info()))
-            print("failed")
-            raise
-        finally:
-            c.close()
+            PixivHelper.print_and_log('warn', f"Error at updateMemberTotalImages(): {sys.exc_info()}")
 
+    def selectMemberTotalImagesMap(self, member_ids=None):
+        """Return {member_id(str): total_images(int)} for members with total_images not null.
+
+        If member_ids is provided, filter to those ids.
+        """
+        try:
+            c = self.conn.cursor()
+            if member_ids:
+                ids = [int(x) for x in member_ids]
+                placeholders = ",".join(["?"] * len(ids))
+                rows = c.execute(
+                    f"""SELECT member_id, total_images
+                        FROM pixiv_master_member
+                        WHERE total_images IS NOT NULL
+                          AND member_id IN ({placeholders})""",
+                    ids,
+                ).fetchall()
+            else:
+                rows = c.execute(
+                    """SELECT member_id, total_images
+                        FROM pixiv_master_member
+                        WHERE total_images IS NOT NULL"""
+                ).fetchall()
+
+            return {int(r[0]): int(r[1]) for r in rows if r[1] is not None}
+        except BaseException:
+            PixivHelper.print_and_log('warn', f"Error at selectMemberTotalImagesMap(): {sys.exc_info()}")
+            return {}
     ##########################################
     # V. CRUD Image Table                    #
     ##########################################
@@ -2000,6 +1890,8 @@ class PixivDBManager(object):
         print("i. Interactive Clean Up Database")
         print("p. Compact Database")
         print("r. Replace Root Path")
+        print(Style.BRIGHT + "── Folder Database (per-folder DB) ".ljust(PADDING, "─") + Style.RESET_ALL)
+        print("d2. Manage folder database (compare/sync/replace)")
         print("x. Exit")
         selection = input("Select one? ").rstrip("\r")
         return selection
@@ -2114,9 +2006,275 @@ class PixivDBManager(object):
                     self.compactDatabase()
                 elif selection == "r":
                     self.replaceRootPath()
+                elif selection == "d2":
+                    self.folder_database_menu()
                 elif selection == "x":
                     break
             print("end PixivDBManager.")
         except BaseException:
             print("Error: ", sys.exc_info())
             self.main()
+
+    def folder_database_menu(self):
+        """Interactive menu for managing folder-specific databases."""
+        import datetime
+        import re
+        
+        while True:
+            print("\n=== Folder Database Manager ===")
+            print("1. Compare main DB with folder DB")
+            print("2. Sync folder DB incrementally (add missing from main DB)")
+            print("3. Replace folder DB completely (backup old first)")
+            print("4. Scan and sync local files into folder DB")
+            print("x. Exit")
+            
+            selection = input("Select one? ").rstrip("\r").lower()
+            
+            if selection == "1":
+                folder_db_path = input("Path to folder DB? ").rstrip("\r")
+                if not os.path.exists(folder_db_path):
+                    print(f"ERROR: Folder DB not found: {folder_db_path}")
+                    continue
+                self._compare_databases_interactive(folder_db_path)
+                
+            elif selection == "2":
+                folder_db_path = input("Path to folder DB? ").rstrip("\r")
+                if not os.path.exists(folder_db_path):
+                    print(f"ERROR: Folder DB not found: {folder_db_path}")
+                    continue
+                root_dir = input("Root directory for folder DB? ").rstrip("\r")
+                if not os.path.isdir(root_dir):
+                    print(f"ERROR: Root directory not found: {root_dir}")
+                    continue
+                self._sync_folder_db_incremental_interactive(folder_db_path, root_dir)
+                
+            elif selection == "3":
+                folder_db_path = input("Path to folder DB? ").rstrip("\r")
+                root_dir = input("Root directory for folder DB? ").rstrip("\r")
+                if not os.path.isdir(root_dir):
+                    print(f"ERROR: Root directory not found: {root_dir}")
+                    continue
+                self._replace_folder_db_interactive(folder_db_path, root_dir)
+                
+            elif selection == "4":
+                folder_db_path = input("Path to folder DB? ").rstrip("\r")
+                if not os.path.exists(folder_db_path):
+                    print(f"ERROR: Folder DB not found: {folder_db_path}")
+                    continue
+                root_dir = input("Root directory to scan? ").rstrip("\r")
+                if not os.path.isdir(root_dir):
+                    print(f"ERROR: Root directory not found: {root_dir}")
+                    continue
+                self._scan_local_files_interactive(folder_db_path, root_dir)
+                
+            elif selection == "x":
+                break
+
+    def _compare_databases_interactive(self, folder_db_path):
+        """Compare current DB with folder DB."""
+        print(f"\n=== Comparing Databases ===")
+        folder_conn = sqlite3.connect(folder_db_path)
+        
+        try:
+            c_main = self.conn.cursor()
+            c_folder = folder_conn.cursor()
+            
+            c_main.execute("SELECT COUNT(*) FROM pixiv_master_member")
+            main_member_count = c_main.fetchone()[0]
+            
+            c_folder.execute("SELECT COUNT(*) FROM pixiv_master_member")
+            folder_member_count = c_folder.fetchone()[0]
+            
+            c_main.execute("SELECT COUNT(*) FROM pixiv_master_image")
+            main_image_count = c_main.fetchone()[0]
+            
+            c_folder.execute("SELECT COUNT(*) FROM pixiv_master_image")
+            folder_image_count = c_folder.fetchone()[0]
+            
+            print(f"\nMain DB: {main_member_count} members, {main_image_count} images")
+            print(f"Folder DB: {folder_member_count} members, {folder_image_count} images")
+            print(f"Difference: {main_member_count - folder_member_count:+d} members, {main_image_count - folder_image_count:+d} images")
+            
+        finally:
+            folder_conn.close()
+
+    def _sync_folder_db_incremental_interactive(self, folder_db_path, root_dir):
+        """Incrementally sync: add missing members/images from main DB to folder DB."""
+        print(f"\n=== Incremental Sync (Main DB → Folder DB) ===")
+        
+        folder_conn = sqlite3.connect(folder_db_path)
+        
+        try:
+            c_main = self.conn.cursor()
+            c_folder = folder_conn.cursor()
+            
+            c_main.execute("SELECT member_id FROM pixiv_master_member")
+            main_members = set(row[0] for row in c_main.fetchall())
+            
+            c_folder.execute("SELECT member_id FROM pixiv_master_member")
+            folder_members = set(row[0] for row in c_folder.fetchall())
+            
+            new_members = main_members - folder_members
+            print(f"Found {len(new_members)} new members to add.")
+            
+            if new_members:
+                placeholders = ",".join(["?"] * len(new_members))
+                c_main.execute(f"SELECT * FROM pixiv_master_member WHERE member_id IN ({placeholders})", tuple(new_members))
+                member_rows = c_main.fetchall()
+                
+                for row in member_rows:
+                    try:
+                        cols = len(row)
+                        q = "INSERT OR IGNORE INTO pixiv_master_member VALUES(" + ",".join(["?"] * cols) + ")"
+                        c_folder.execute(q, row)
+                    except Exception:
+                        continue
+                
+                c_main.execute(f"SELECT * FROM pixiv_master_image WHERE member_id IN ({placeholders})", tuple(new_members))
+                image_rows = c_main.fetchall()
+                
+                for row in image_rows:
+                    try:
+                        cols = len(row)
+                        q = "INSERT OR IGNORE INTO pixiv_master_image VALUES(" + ",".join(["?"] * cols) + ")"
+                        c_folder.execute(q, row)
+                    except Exception:
+                        continue
+                
+                folder_conn.commit()
+                print(f"Synced {len(new_members)} members and {len(image_rows)} images.")
+            
+            print(f"Scanning local files...")
+            inserted = self._scan_local_files_to_db(folder_conn, root_dir)
+            print(f"Added {inserted} new images from local files.")
+            
+        finally:
+            folder_conn.close()
+
+    def _replace_folder_db_interactive(self, folder_db_path, root_dir):
+        """Replace folder DB with main DB data."""
+        print(f"\n=== Replace Folder DB ===")
+        print(f"This will replace {folder_db_path} with data from main DB.")
+        
+        confirm = input("Are you sure? [y/n, default n]: ").rstrip("\r").lower()
+        if confirm != 'y':
+            print("Cancelled.")
+            return
+        
+        if os.path.exists(folder_db_path):
+            import shutil
+            backup_path = folder_db_path + ".backup"
+            shutil.copy2(folder_db_path, backup_path)
+            print(f"Backed up to {backup_path}")
+            os.remove(folder_db_path)
+        
+        folder_conn = sqlite3.connect(folder_db_path)
+        
+        try:
+            db_mgr = PixivDBManager(root_directory=root_dir, target=folder_db_path)
+            db_mgr.createDatabase()
+            db_mgr.close()
+            
+            c_main = self.conn.cursor()
+            c_folder = folder_conn.cursor()
+            
+            c_main.execute("SELECT member_id FROM pixiv_master_member")
+            all_members = [row[0] for row in c_main.fetchall()]
+            print(f"Copying {len(all_members)} members...")
+            
+            if all_members:
+                placeholders = ",".join(["?"] * len(all_members))
+                
+                c_main.execute(f"SELECT * FROM pixiv_master_member WHERE member_id IN ({placeholders})", tuple(all_members))
+                member_rows = c_main.fetchall()
+                
+                for row in member_rows:
+                    try:
+                        cols = len(row)
+                        q = "INSERT OR IGNORE INTO pixiv_master_member VALUES(" + ",".join(["?"] * cols) + ")"
+                        c_folder.execute(q, row)
+                    except Exception:
+                        continue
+                
+                c_main.execute(f"SELECT * FROM pixiv_master_image WHERE member_id IN ({placeholders})", tuple(all_members))
+                image_rows = c_main.fetchall()
+                
+                for row in image_rows:
+                    try:
+                        cols = len(row)
+                        q = "INSERT OR IGNORE INTO pixiv_master_image VALUES(" + ",".join(["?"] * cols) + ")"
+                        c_folder.execute(q, row)
+                    except Exception:
+                        continue
+                
+                folder_conn.commit()
+                print(f"Copied {len(member_rows)} members and {len(image_rows)} images.")
+            
+            print(f"Scanning local files...")
+            inserted = self._scan_local_files_to_db(folder_conn, root_dir)
+            print(f"Added {inserted} images from local files.")
+            print("Done.")
+            
+        finally:
+            folder_conn.close()
+
+    def _scan_local_files_to_db(self, folder_conn, root_dir):
+        """Scan root_dir and insert found image IDs."""
+        import re
+        import datetime
+        
+        IMAGE_ID_RE = re.compile(r"(\d{6,9})")
+        inserted = 0
+        c = folder_conn.cursor()
+        
+        for dirpath, dirs, files in os.walk(root_dir):
+            for f in files:
+                if f.startswith('.'):
+                    continue
+                m = IMAGE_ID_RE.search(f)
+                if not m:
+                    continue
+                try:
+                    image_id = int(m.group(1))
+                    c.execute("SELECT 1 FROM pixiv_master_image WHERE image_id = ?", (image_id,))
+                    if c.fetchone():
+                        continue
+                    
+                    save_name = os.path.relpath(os.path.join(dirpath, f), root_dir)
+                    created = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    c.execute("INSERT OR IGNORE INTO pixiv_master_image (image_id, member_id, title, save_name, created_date, last_update_date) VALUES (?,?,?,?,?,?)",
+                              (image_id, None, '', save_name, created, created))
+                    inserted += 1
+                except Exception:
+                    continue
+        
+        folder_conn.commit()
+        return inserted
+
+    def _scan_local_files_interactive(self, folder_db_path, root_dir):
+        """Scan local files and insert into folder DB."""
+        print(f"\n=== Scanning Local Files ===")
+        print(f"Scanning {root_dir}...")
+        
+        folder_conn = sqlite3.connect(folder_db_path)
+        
+        try:
+            inserted = self._scan_local_files_to_db(folder_conn, root_dir)
+            print(f"Added {inserted} images from local files.")
+        finally:
+            folder_conn.close()
+
+    def selectDistinctMembersWithImages(self):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                """SELECT DISTINCT member_id FROM pixiv_master_image WHERE save_name != 'N/A'"""
+            )
+            rows = c.fetchall()
+            return [r[0] for r in rows] if rows else []
+        except BaseException:
+            print("Error at selectDistinctMembersWithImages():", str(sys.exc_info()))
+            return []
+        finally:
+            c.close()

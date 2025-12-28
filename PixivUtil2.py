@@ -158,6 +158,8 @@ def menu():
     print(' 3.  Download by tags')
     print(' 4.  Download from list')
     print(' 5.  Download from followed artists (/bookmark.php?type=user)')
+    print(' 5a. Preheat followed members (fetch profiles and backfill total_images)')
+    print(' 5b. Scan local followed artists and mark completed members (new)')
     print(' 6.  Download from bookmarked images (/bookmark.php)')
     print(' 7.  Download from tags list')
     print(' 8.  Download new illust from bookmarked members (/bookmark_new_illust.php)')
@@ -538,603 +540,98 @@ def menu_download_from_online_user_bookmark(opisvalid, args, options):
                                           bookmark_count=bookmark_count)
 
 
-def menu_download_from_online_image_bookmark(opisvalid, args, options):
-    __log__.info("User's Image Bookmark mode (6).")
-    start_page = 1
-    end_page = 0
+def menu_preheat_followed_members(opisvalid, args, options):
+    __log__.info('Preheat followed members (5a).')
+    list_file = None
     hide = 'n'
-    tag = ''
-    use_image_tag = False
-
-    if opisvalid:
-        if len(args) > 0:
-            tag = args[0]
-
-        (start_page, end_page) = get_start_and_end_page_from_options(options)
-        if options.bookmark_flag is not None:
-            hide = options.bookmark_flag.lower()
-            if hide not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {args}, valid values are [y/n/o].")
-                return
-        use_image_tag = options.use_image_tag
+    if opisvalid and len(args) > 0:
+        list_file = args[0]
     else:
-        hide = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        hide = hide.lower()
-        if hide not in ('y', 'n', 'o'):
-            print("Invalid args: ", hide)
-            return
-        tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
-        (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        if tag != '':
-            use_image_tag = input("Use Image Tags as the filter [y/n, default is no]? ").rstrip("\r") or 'n'
-            use_image_tag = use_image_tag.lower()
-            use_image_tag = True if use_image_tag == 'y' else False
-
-    PixivBookmarkHandler.process_image_bookmark(sys.modules[__name__],
-                                                __config__,
-                                                hide=hide,
-                                                start_page=start_page,
-                                                end_page=end_page,
-                                                tag=tag,
-                                                use_image_tag=use_image_tag)
-
-
-def menu_download_from_tags_list(opisvalid, args, options):
-    __log__.info('Taglist mode (7).')
-    page = 1
-    end_page = 0
-    sort_order = 'date_d'
-    wildcard = False
-    bookmark_count = None
-    start_date = None
-    end_date = None
-
-    if opisvalid:
-        filename = get_list_file_from_options(options=options, default_list_file='./tags.txt')
-        sort_order = options.tag_sort_order
-        wildcard = options.use_wildcard_tag
-        start_date = options.start_date
-        end_date = options.end_date
-        (page, end_page) = get_start_and_end_page_from_options(options)
-        bookmark_count = options.bookmark_count_limit
-    else:
-        filename = input("Tags list filename [tags.txt]: ").rstrip("\r") or './tags.txt'
-        wildcard = input('Use Wildcard[y/n, default is no]: ').rstrip("\r") or 'n'
-        if wildcard.lower() == 'y':
-            wildcard = True
+        list_file = input('Followed list file (leave blank to use config.followedArtistListFile): ').rstrip('\r') or None
+        arg = input("Include Private followed artists [y/n, default is no]: ").rstrip('\r') or 'n'
+        if arg.lower() in ('y', 'n', 'o'):
+            hide = arg.lower()
         else:
-            wildcard = False
+            print("Invalid arg, using public only.")
 
-        # Issue #834
-        if __br__._isPremium:
-            msg = 'Sorting Order [date_d|date|popular_d|popular_male_d|popular_female_d, default is date_d]? '
-            sort_order = input(msg).rstrip("\r") or 'date_d'
-        else:
-            oldest_first = input('Oldest first [y/n, default is no]: ').rstrip("\r") or 'n'
-            if oldest_first.lower() == 'y':
-                sort_order = 'date'
+    # optional override for delay
+    try:
+        delay = float(input(f"Preheat delay seconds (press Enter to use config or default {__config__.preheatDelaySeconds if hasattr(__config__, 'preheatDelaySeconds') else __config__.preheatDelay}): ").strip() or 0)
+    except Exception:
+        delay = None
 
-        bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
-        (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        (start_date, end_date) = PixivHelper.get_start_and_end_date()
-
-    if bookmark_count is not None and bookmark_count != -1 and len(bookmark_count) > 0:
-        bookmark_count = int(bookmark_count)
-
-    PixivListHandler.process_tags_list(sys.modules[__name__],
-                                       __config__,
-                                       filename,
-                                       page,
-                                       end_page,
-                                       wild_card=wildcard,
-                                       sort_order=sort_order,
-                                       bookmark_count=bookmark_count,
-                                       start_date=start_date,
-                                       end_date=end_date)
-
-
-def menu_download_new_illust_from_bookmark(opisvalid, args, options):
-    __log__.info('New Illust from Bookmark mode (8).')
-    bookmark_count = None
-
-    if opisvalid:
-        (page_num, end_page_num) = get_start_and_end_page_from_options(options)
-        bookmark_count = options.bookmark_count_limit
+    progress_file = None
+    if delay is not None and delay > 0:
+        PixivBookmarkHandler.preheat_followed_members(sys.modules[__name__], __config__, list_file=list_file, hide=hide, delay_seconds=delay, progress_file=progress_file)
     else:
-        (page_num, end_page_num) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        bookmark_count = input('Bookmark Count: ').rstrip("\r") or None
-
-    if bookmark_count is not None and bookmark_count != -1 and len(bookmark_count) > 0:
-        bookmark_count = int(bookmark_count)
-
-    PixivBookmarkHandler.process_new_illust_from_bookmark(sys.modules[__name__],
-                                                          __config__,
-                                                          page_num=page_num,
-                                                          end_page_num=end_page_num,
-                                                          bookmark_count=bookmark_count)
+        PixivBookmarkHandler.preheat_followed_members(sys.modules[__name__], __config__, list_file=list_file, hide=hide, progress_file=progress_file)
 
 
-def menu_download_by_manga_series_id(opisvalid, args, options):
-    __log__.info('Manga Series mode (13).')
-    manga_series_ids = []
-    start_page = 1
-    end_page = 0
-
-    if opisvalid:
-        (start_page, end_page) = get_start_and_end_page_from_options(options)
-        for manga_series_id in args:
-            if manga_series_id.isdigit():
-                manga_series_ids.append(int(manga_series_id))
-            else:
-                print(f"Possible invalid manga series id = {manga_series_id}")
-    else:
-        manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
-        (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids)
-        PixivHelper.print_and_log('info', f"Manga Series IDs: {manga_series_ids}")
-
-    for manga_series_id in manga_series_ids:
-        PixivImageHandler.process_manga_series(sys.modules[__name__],
-                                               __config__,
-                                               manga_series_id=manga_series_id,
-                                               start_page=start_page,
-                                               end_page=end_page)
-
-
-def menu_download_by_novel_id(opisvalid, args, options):
-    __log__.info('Novel mode (14).')
-    novel_ids = input('Novel IDs: ').rstrip("\r")
-    novel_ids = PixivHelper.get_ids_from_csv(novel_ids)
-    PixivHelper.print_and_log('info', f"Novel IDs: {novel_ids}")
-
-    for novel_id in novel_ids:
-        PixivNovelHandler.process_novel(sys.modules[__name__],
-                                        __config__,
-                                        novel_id)
-
-
-def menu_download_by_novel_series_id(opisvalid, args, options):
-    __log__.info('Novel Series mode (15).')
-    start_page = 1
-    end_page = 0
-
-    novel_series_ids = input('Novel Series IDs: ').rstrip("\r")
-    (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-    novel_series_ids = PixivHelper.get_ids_from_csv(novel_series_ids)
-    PixivHelper.print_and_log('info', f"Novel Series IDs: {novel_series_ids}")
-
-    for novel_series_id in novel_series_ids:
-        PixivNovelHandler.process_novel_series(sys.modules[__name__],
-                                               __config__,
-                                               novel_series_id,
-                                               start_page=start_page,
-                                               end_page=end_page)
-
-
-def menu_download_by_group_id(opisvalid, args, options):
-    __log__.info('Group mode (12).')
-    process_external = False
-    limit = 0
-
+# New menu handler for scanning local folders and marking completed members
+def menu_scan_and_mark_complete(opisvalid, args, options):
+    __log__.info('Scan local followed artists and mark completed (5b).')
+    list_file = None
     if opisvalid and len(args) > 0:
-        group_id = args[0]
-        limit = int(args[1])
-        if args[2].lower() == 'y':
-            process_external = True
+        list_file = args[0]
     else:
-        group_id = input("Group Id: ").rstrip("\r")
-        limit = int(input("Limit: ").rstrip("\r"))
-        arg = input("Process External Image [y/n, default is no]: ").rstrip("\r") or 'n'
-        arg = arg.lower()
-        if arg == 'y':
-            process_external = True
+        list_file = input('Followed list file (leave blank to use config.followedArtistListFile): ').rstrip('\\r') or None
 
-    PixivBookmarkHandler.process_from_group(sys.modules[__name__],
-                                            __config__,
-                                            group_id,
-                                            limit=limit,
-                                            process_external=process_external)
+    progress_file = input('Progress file to write (leave blank to use <list_file>.preheat_progress.json): ').rstrip('\\r') or None
 
+    print("\\n--- Scanning Parameters ---")
+    compare_remote_in = input('Compare against remote (fetch remote IDs / update DB total_images)? [Y/n]: ').rstrip('\\r') or 'y'
+    compare_remote_flag = (compare_remote_in.lower() != 'n')
 
-def menu_download_by_unlisted_image_id(opisvalid, args, options):
-    __log__.info('Unlisted ID mode (19).')
-    if opisvalid and len(args) > 0:
-        for image_id in args:
-            try:
-                PixivImageHandler.process_image(sys.modules[__name__],
-                                                __config__,
-                                                artist=None,
-                                                image_id=image_id,
-                                                useblacklist=False,
-                                                is_unlisted=True)
-            except BaseException:
-                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
-                global ERROR_CODE
-                ERROR_CODE = -1
-                continue
+    # 只有 compare_remote=True 时才允许下载缺失（需要 remote_ids 才能安全下载）
+    if compare_remote_flag:
+        download_missing_in = input('Download missing images (requires remote IDs)? [Y/n]: ').rstrip('\\r') or 'y'
+        download_missing_flag = (download_missing_in.lower() != 'n')
     else:
-        image_ids = input('Image ids: ').rstrip("\r")
-        image_ids = PixivHelper.get_ids_from_csv(image_ids, is_string=True)
-        for image_id in image_ids:
-            PixivImageHandler.process_image(sys.modules[__name__],
-                                            __config__,
-                                            artist=None,
-                                            image_id=image_id,
-                                            useblacklist=False,
-                                            is_unlisted=True)
+        print('Note: Remote compare disabled => will NOT download missing images (no remote IDs).')
+        download_missing_flag = False
 
+    print("\\nIMPORTANT: To generate progress/completion marker file, answer YES to execute (default).")
+    print("           Answer NO only if you want to preview without saving.")
+    execute_in = input('Execute and save progress file? [Y/n]: ').rstrip('\\r') or 'y'
 
-def menu_ugoira_reencode(opisvalid, args, options):
-    __log__.info('Re-encode Ugoira (u)')
-    msg = Fore.YELLOW + Style.NORMAL + 'WARNING: THIS ACTION CANNOT BE UNDO !' + Style.RESET_ALL
-    PixivHelper.print_and_log(None, msg)
-    msg = Fore.YELLOW + Style.NORMAL + 'You are about to re-encode and overwrite all of your stored ugoira and its related files (gif, webm ...).' + Style.RESET_ALL
-    PixivHelper.print_and_log(None, msg)
-    arg = input(Fore.YELLOW + Style.BRIGHT + 'Do you really want to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
-    sure = arg.lower()
-    if sure not in ('y', 'n'):
-        PixivHelper.print_and_log("error", f"Invalid args for ugoira reencode: {arg}, valid values are [y/n].")
-        return
-    if __config__.overwrite:
-        arg = input(Fore.YELLOW + Style.BRIGHT + 'Overwrite option is set to True, all animated files will be re-download from Pixiv and not re-encode locally. Do you still want to proceed ? [y/n, default is no]: ' + Style.RESET_ALL).rstrip("\r") or 'n'
-        sure = arg.lower()
-        if sure not in ('y', 'n'):
-            PixivHelper.print_and_log("error", f"Invalid args for ugoira reencode: {arg}, valid values are [y/n].")
-            return
-    if sure == 'y':
-        PixivImageHandler.process_ugoira_local(sys.modules[__name__], __config__)
-
-
-def menu_export_database_images(opisvalid, args, options):
-    __log__.info('Export local database (l)')
-    use_pixiv = "n"   # y|n|o
-    use_fanbox = "n"  # y|n|o
-    use_sketch = "n"  # y|n|o
-    filename = "export-database.txt"
-
-    if opisvalid:
-        if options.export_filename is not None:
-            filename = options.export_filename
-        if options.use_pixiv is not None:
-            use_pixiv = options.use_pixiv
-            if use_pixiv not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for Pixiv database: {use_pixiv}, valid values are [y/n/o].")
-                return
-        if options.use_fanbox is not None:
-            use_fanbox = options.use_fanbox
-            if use_fanbox not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {use_fanbox}, valid values are [y/n/o].")
-                return
-        if options.use_sketch is not None:
-            use_sketch = options.use_sketch
-            if use_sketch not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for Sketch database: {use_sketch}, valid values are [y/n/o].")
-                return
-
-    else:
-        filename = input("Filename: ").rstrip("\r") or filename
-        arg = input("Include Pixiv database [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        use_pixiv = arg.lower()
-        if use_pixiv not in ('y', 'n', 'o'):
-            PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {arg}, valid values are [y/n/o].")
-            return
-        arg = input("Include Fanbox database [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        use_fanbox = arg.lower()
-        if use_fanbox not in ('y', 'n', 'o'):
-            PixivHelper.print_and_log("error", f"Invalid args for Fanbox database: {arg}, valid values are [y/n/o].")
-            return
-        arg = input("Include Sketch database [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        use_sketch = arg.lower()
-        if use_sketch not in ('y', 'n', 'o'):
-            PixivHelper.print_and_log("error", f"Invalid args for Sketch database: {arg}, valid values are [y/n/o].")
-            return
-    PixivBookmarkHandler.export_image_table(sys.modules[__name__], filename, use_pixiv, use_fanbox, use_sketch)
-
-
-def menu_export_online_bookmark(opisvalid, args, options):
-    __log__.info('Export Followed Artists mode (e).')
-    hide = "y"  # y|n|o
-    filename = "export.txt"
-
-    if opisvalid:
-        if options.export_filename is not None:
-            filename = options.export_filename
-        if options.bookmark_flag is not None:
-            hide = options.bookmark_flag.lower()
-            if hide not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {hide}, valid values are [y/n/o].")
-                return
-    else:
-        filename = input("Filename: ").rstrip("\r")
-        arg = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        hide = arg.lower()
-        if hide not in ('y', 'n', 'o'):
-            PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {arg}, valid values are [y/n/o].")
-            return
-
-    PixivBookmarkHandler.export_bookmark(sys.modules[__name__], __config__, filename, hide)
-
-
-def menu_export_online_user_bookmark(opisvalid, args, options):
-    __log__.info('Export Other\'s Followed Artist mode (m).')
-    member_id = ''
-    filename = "export-user.txt"
-
-    if opisvalid and len(args) > 0:
-        arg = args[0]  # member id
-        if options.export_filename is not None:
-            filename = options.export_filename
-        else:
-            filename = f"export-user-{arg}.txt"
-    else:
-        filename = input("Filename: ").rstrip("\r") or filename
-        arg = input("Member Id: ").rstrip("\r") or ''
-        arg = arg.lower()
-
-    if arg.isdigit():
-        member_id = arg
-    else:
-        print("Invalid args, member id is expected: ", arg)
-        return
-
-    PixivBookmarkHandler.export_bookmark(sys.modules[__name__], __config__, filename, 'n', 1, 0, member_id)
-
-
-def menu_export_from_online_image_bookmark(opisvalid, args, options):
-    __log__.info("Export User's Image Bookmark mode (p).")
-    start_page = 1
-    end_page = 0
-    hide = 'n'
-    tag = ''
-    use_image_tag = False
-    filename = "Exported_images.txt"
-
-    if opisvalid:
-        if len(args) > 0:
-            tag = args[0]
-
-        (start_page, end_page) = get_start_and_end_page_from_options(options)
-        if options.bookmark_flag is not None:
-            hide = options.bookmark_flag.lower()
-            if hide not in ('y', 'n', 'o'):
-                PixivHelper.print_and_log("error", f"Invalid args for bookmark_flag: {options.bookmark_flag}, valid values are [y/n/o].")
-                return
-        use_image_tag = options.use_image_tag
-        if options.export_filename is not None:
-            filename = options.export_filename
-    else:
-        hide = input("Include Private bookmarks [y/n/o, default is no]: ").rstrip("\r") or 'n'
-        hide = hide.lower()
-        if hide not in ('y', 'n', 'o'):
-            print("Invalid args: ", hide)
-            return
-        tag = input("Tag (press enter for all images): ").rstrip("\r") or ''
-        (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-        if tag != '':
-            use_image_tag = input("Use Image Tags as the filter [y/n, default is no]? ").rstrip("\r") or 'n'
-            use_image_tag = use_image_tag.lower()
-            use_image_tag = True if use_image_tag == 'y' else False
-        filename = input(f"Filename (default is '{filename}'): ").rstrip("\r") or filename
-
-    PixivBookmarkHandler.export_image_bookmark(sys.modules[__name__],
-                                                __config__,
-                                                hide=hide,
-                                                start_page=start_page,
-                                                end_page=end_page,
-                                                tag=tag,
-                                                use_image_tag=use_image_tag,
-                                                filename=filename)
-
-
-def menu_fanbox_download_from_list(op_is_valid, via, args, options):
-    via_type = ""
-    if via == PixivModelFanbox.FanboxArtist.SUPPORTING:
-        via_type = "supporting"
-    elif via == PixivModelFanbox.FanboxArtist.FOLLOWING:
-        via_type = "following"
-    elif via == PixivModelFanbox.FanboxArtist.CUSTOM:
-        via_type = "custom"
-
-    __log__.info(f'Download FANBOX {via_type.capitalize()} list mode (f1/f4/f5).')
-
-    if op_is_valid:
-        (page, end_page) = get_start_and_end_page_from_options(options)
-    else:
-        end_page = int(input("End Page (default is 0) = ").rstrip("\r") or 0)
-
-    ids = list()
-    if via in [PixivModelFanbox.FanboxArtist.SUPPORTING, PixivModelFanbox.FanboxArtist.FOLLOWING]:
-        ids = __br__.fanboxGetArtistList(via)
-    elif via == PixivModelFanbox.FanboxArtist.CUSTOM:
-        list_file_name = __config__.listPathFanbox
-        if op_is_valid:
-            list_file_name = get_list_file_from_options(options, list_file_name)
-        if os.path.isfile(list_file_name):
-            with PixivHelper.open_text_file(list_file_name) as reader:
-                while True:
-                    line = reader.readline()
-                    if not line:
-                        break
-                    line = line.strip()
-                    if line.startswith("#"):
-                        continue
-                    ids.append(line)
-
-    if not ids:
-        PixivHelper.print_and_log("info", f"No artist in {via_type} list!")
-        return
-    PixivHelper.print_and_log("info", f"Found {len(ids)} artist(s) in {via_type} list")
-    PixivHelper.print_and_log(None, f"{ids}")
-
-    for index, artist_id in enumerate(ids, start=1):
-        # Issue #567
+    download_limit_in = input('Download limit per member (blank = no limit): ').rstrip('\\r')
+    download_limit = None
+    if download_limit_in.strip():
         try:
-            PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
-                                                           __config__,
-                                                           artist_id,
-                                                           end_page,
-                                                           title_prefix=f"{index} of {len(ids)}")
-        except KeyboardInterrupt:
-            choice = input("Keyboard Interrupt detected, continue to next artist (Y/N)").rstrip("\r")
-            if choice.upper() == 'N':
-                PixivHelper.print_and_log("info", f"Artist id: {artist_id}, processing aborted")
-                break
-            else:
-                continue
-        except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist in {via_type} list: {artist_id} ==> {pex.message}")
+            download_limit = int(download_limit_in.strip())
+        except Exception:
+            PixivHelper.print_and_log('warn', f'Invalid download_limit: {download_limit_in}, using no limit.')
+            download_limit = None
 
+    # candidate set selection (simple names as in config)
+    valid_candidates = [
+        'downloaded','followed','remote','downloaded_and_remote',
+        'followed_not_done','downloaded_not_done','remote_not_downloaded','done'
+    ]
+    default_candidate = getattr(__config__, 'menu5CandidateSet', 'downloaded')
+    candidate_in = input(f"Candidate set [{default_candidate}]: ").rstrip('\r') or default_candidate
+    if candidate_in not in valid_candidates:
+        PixivHelper.print_and_log('warn', f'Invalid candidate set: {candidate_in}, using default: {default_candidate}')
+        candidate_in = default_candidate
 
-def menu_fanbox_download_by_post_id(op_is_valid, args, options):
-    __log__.info('Download FANBOX by post id mode (f3).')
-    if op_is_valid and len(args) > 0:
-        post_ids = args
-    else:
-        post_ids = input("Post ids = ").rstrip("\r")
-        post_ids = PixivHelper.get_ids_from_csv(post_ids)
+    compare_remote_flag = (compare_remote_in.lower() != 'n')
+    # FIX: dry_run should be True ONLY when user says 'n' (no execution)
+    # Default and 'y' = execute (dry_run=False)
+    # 'n' = preview only (dry_run=True)
+    dry_run_flag = (execute_in.lower() == 'n')
+    download_missing_flag = (download_missing_in.lower() != 'n')
 
-    for post_id in post_ids:
-        try:
-            post = __br__.fanboxGetPostById(post_id)
-            PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, post.parent)
-            del post
-        except KeyboardInterrupt:
-            choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
-            if choice.upper() == 'N':
-                PixivHelper.print_and_log("info", f"Post id: {post_id}, processing aborted")
-                break
-            else:
-                continue
-        except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX post: {post_id} ==> {pex.message}")
-
-
-def menu_fanbox_download_by_id(op_is_valid, args, options):
-    __log__.info('Download FANBOX by Artist or Creator ID mode (f2).')
-
-    if op_is_valid and len(args) > 0:
-        (page, end_page) = get_start_and_end_page_from_options(options)
-        member_ids = args
-
-    else:
-        member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        end_page = int(input("End page (default is 0) = ").rstrip("\r") or 0)
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
-
-    PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
-
-    for index, member_id in enumerate(member_ids, start=1):
-        try:
-            PixivFanboxHandler.process_fanbox_artist_by_id(sys.modules[__name__],
-                                                           __config__,
-                                                           member_id,
-                                                           end_page,
-                                                           title_prefix=f"{index} of {len(member_ids)}")
-        except KeyboardInterrupt:
-            choice = input("Keyboard Interrupt detected, continue to next artist (Y/N)").rstrip("\r")
-            if choice.upper() == 'N':
-                PixivHelper.print_and_log("info", f"Artist id: {member_id}, processing aborted")
-                break
-            else:
-                continue
-        except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist: {member_id} ==> {pex.message}")
-
-
-def menu_fanbox_download_pixiv_by_fanbox_id(op_is_valid, args, options):
-    __log__.info('Download FANBOX by Artist or Creator ID mode (f6).')
-
-    if op_is_valid and len(args) > 0:
-        (start_page, end_page) = get_start_and_end_page_from_options(options)
-        member_ids = args
-    else:
-        member_ids = input("Artist/Creator IDs = ").rstrip("\r")
-        start_page = int(input("Start page (default is 0) = ").rstrip("\r") or 0)
-        end_page = int(input("End page (default is 0) = ").rstrip("\r") or 0)
-
-    member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
-    PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
-
-    for index, member_id in enumerate(member_ids, start=1):
-        try:
-            PixivFanboxHandler.process_pixiv_by_fanbox_id(sys.modules[__name__],
-                                                           __config__,
-                                                           member_id,
-                                                           start_page=start_page,
-                                                           end_page=end_page,
-                                                           title_prefix=f"{index} of {len(member_ids)}")
-        except KeyboardInterrupt:
-            choice = input("Keyboard Interrupt detected, continue to next artist (Y/N)").rstrip("\r")
-            if choice.upper() == 'N':
-                PixivHelper.print_and_log("info", f"Artist id: {member_id}, processing aborted")
-                break
-            else:
-                continue
-        except PixivException as pex:
-            PixivHelper.print_and_log("error", f"Error processing FANBOX Artist: {member_id} ==> {pex.message}")
-
-
-def menu_sketch_download_by_artist_id(opisvalid, args, options):
-    __log__.info('Download Sketch by Artist ID mode (s1).')
-    current_member = 1
-    page = 1
-    end_page = 0
-
-    if opisvalid and len(args) > 0:
-        for member_id in args:
-            try:
-                prefix = f"Pixiv Sketch [{current_member} of {len(args)}] "
-                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                          __config__,
-                                                          member_id,
-                                                          page,
-                                                          end_page,
-                                                          title_prefix=prefix)
-                current_member = current_member + 1
-            except PixivException as ex:
-                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
-                continue
-    else:
-        member_ids = input('Artist ids: ').rstrip("\r")
-        (page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
-
-        member_ids = PixivHelper.get_ids_from_csv(member_ids, is_string=True)
-        PixivHelper.print_and_log('info', f"Artist IDs: {member_ids}")
-        for member_id in member_ids:
-            try:
-                prefix = f"Pixiv Sketch [{current_member} of {len(member_ids)}] "
-                PixivSketchHandler.process_sketch_artists(sys.modules[__name__],
-                                                          __config__,
-                                                          member_id,
-                                                          page,
-                                                          end_page,
-                                                          title_prefix=prefix)
-                current_member = current_member + 1
-            except PixivException as ex:
-                PixivHelper.print_and_log("error", f"Error when processing Pixiv Sketch:{member_id}", ex)
-
-
-def menu_sketch_download_by_post_id(opisvalid, args, options):
-    __log__.info('Download Sketch by Post ID mode (s2).')
-    if opisvalid and len(args) > 0:
-        for image_id in args:
-            try:
-                test_id = int(image_id)
-                PixivSketchHandler.process_sketch_post(sys.modules[__name__],
-                                                        __config__,
-                                                        image_id)
-            except BaseException:
-                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
-                global ERROR_CODE
-                ERROR_CODE = -1
-                continue
-    else:
-        image_ids = input('Post ids: ').rstrip("\r")
-        image_ids = PixivHelper.get_ids_from_csv(image_ids)
-        for image_id in image_ids:
-            PixivSketchHandler.process_sketch_post(sys.modules[__name__],
-                                                   __config__,
-                                                   image_id)
+    PixivBookmarkHandler.scan_and_mark_completed_members(
+        sys.modules[__name__],
+        __config__,
+        list_file=list_file,
+        progress_file=progress_file,
+        compare_remote=compare_remote_flag,
+        dry_run=dry_run_flag,
+        download_missing=download_missing_flag,
+        download_limit=download_limit,
+        candidate_set=candidate_in,
+    )
 
 
 def menu_download_by_rank(op_is_valid, args, options, valid_modes=None):
@@ -1408,6 +905,7 @@ Used in option e, m, p''')
  y - include sketch database.                       \n
  n - don't include sketch database.                 \n
  o - only export sketch database.''')
+    parser.add_option('--db-file', dest='db_file', help='Use a specific sqlite DB file for this run (overrides config dbPath)')
     return parser
 
 
@@ -1490,6 +988,10 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_print_config()
             elif selection == 'i':
                 menu_import_list()
+            elif selection == '5a':
+                menu_preheat_followed_members(op_is_valid, args, options)
+            elif selection == '5b':
+                menu_scan_and_mark_complete(op_is_valid, args, options)
 
             # PIXIV FANBOX
             elif selection == 'f1':
@@ -1693,6 +1195,16 @@ def main():
         PixivHelper.print_and_log("warn", f"Post Processing after download is enabled: {__config__.postProcessingCmd}")
 
     try:
+        # if CLI provided db_file, override config dbPath
+        if getattr(options, 'db_file', None):
+            __config__.dbPath = options.db_file
+        # support folderDatabase placeholder
+        if getattr(__config__, 'folderDatabase', None):
+            fd = str(__config__.folderDatabase)
+            fd = fd.replace('{rootDirectory}', __config__.rootDirectory)
+            if fd:
+                __config__.dbPath = fd
+
         __dbManager__ = PixivDBManager(root_directory=__config__.rootDirectory, target=__config__.dbPath)
         __dbManager__.createDatabase()
 

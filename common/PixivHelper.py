@@ -741,11 +741,26 @@ def check_file_exists(config, filename, file_size, old_size):
 
 
 def print_delay(retry_wait):
-    repeat = range(1, retry_wait + 1)
-    for t in repeat:
-        print_and_log(None, f"\r{t} of {retry_wait}s.", newline=False)
-        time.sleep(1)
-    print_and_log(None, "")
+    try:
+        total = float(retry_wait)
+    except Exception:
+        total = 0.0
+    if total <= 0:
+        return
+
+    # 只打印一次等待提示并精确等待总秒数，避免按秒循环导致不必要的开销
+    # 显示到小数点后两位以便短延迟也能被识别
+    try:
+        if total < 1.0:
+            print_and_log(None, f"\rWaiting {total:.2f}s...", newline=False)
+        else:
+            print_and_log(None, f"\rWaiting {total:.0f}s...", newline=False)
+        time.sleep(total)
+    except Exception:
+        # 在极少数环境下 print_and_log 可能失败，仍要保证等待
+        time.sleep(total)
+    finally:
+        print_and_log(None, "")
 
 
 def create_custom_request(url, config, referer='https://www.pixiv.net', head=False):
