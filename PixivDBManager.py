@@ -998,6 +998,19 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print("Error at insertTag():", str(sys.exc_info()))
+
+    def updateTag(self, tag_id):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                """UPDATE pixiv_master_tag
+                      SET last_update_date = datetime('now')
+                      WHERE tag_id = ?""",
+                (tag_id,),
+            )
+            self.conn.commit()
+        except BaseException:
+            print("Error at updateTag():", str(sys.exc_info()))
             print("failed")
             raise
         finally:

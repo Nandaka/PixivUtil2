@@ -4,6 +4,7 @@
 import json
 import os
 import re
+from typing import Optional
 
 import common.PixivHelper as PixivHelper
 from common.PixivException import PixivException
@@ -116,3 +117,42 @@ class PixivTags:
                 tags.append(line)
         reader.close()
         return tags
+
+class PixivTag:
+    """
+    AJAX response of https://www.pixiv.net/ajax/search/tags/{tag_id}
+    """
+
+    class PixPediaInfo:
+        abstract: str
+        image: str
+        id: str
+        tag: str
+
+        def __init__(self, payload):
+            self.abstract = payload.get("abstract", "")
+            self.image = payload.get("image", "")
+            self.id = payload.get("id", "")
+            self.tag = payload.get("tag", "")
+
+    tag: str
+    word: str
+    pixpedia: Optional[PixPediaInfo]
+    myFavoriteTags: list[str]
+    tagTranslation: dict[str, dict[str, dict]]  # tag_id -> { lang -> translation }
+
+    def __init__(self, payload):
+        if payload is None:
+            raise PixivException("Tag payload is empty", errorCode=PixivException.OTHER_ERROR)
+        if payload.get("error"):
+            raise PixivException(payload.get("message", "Tag info error"),
+                                 errorCode=PixivException.OTHER_ERROR,
+                                 htmlPage=payload)
+
+        body = payload.get("body", {})
+        self.tag = body.get("tag", "")
+        self.word = body.get("word", "")
+        pixpedia_payload = body.get("pixpedia")
+        self.pixpedia = self.PixPediaInfo(pixpedia_payload) if pixpedia_payload else None
+        self.myFavoriteTags = body.get("myFavoriteTags", [])
+        self.tagTranslation = body.get("tagTranslation", {})
