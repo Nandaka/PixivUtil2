@@ -437,7 +437,11 @@ def menu_metadata_by_tag(opisvalid, args, options):
         tags = args
     else:
         tags = input('Tags (comma-separated): ').rstrip("\r")
-    PixivTagsHandler.process_tag_metadata(sys.modules[__name__], __config__, tags)
+    filter_mode = options.tag_metadata_filter
+    if not opisvalid:
+        filter_prompt = "Tag metadata filter [none/pixpedia/translation/pixpedia_or_translation, default is none]: "
+        filter_mode = input(filter_prompt).rstrip("\r") or "none"
+    PixivTagsHandler.process_tag_metadata(sys.modules[__name__], __config__, tags, filter_mode=filter_mode)
 
 
 def menu_download_by_tags(opisvalid, args, options):
@@ -1506,6 +1510,10 @@ Used in option e, m, p''')
  y - include sketch database.                       \n
  n - don't include sketch database.                 \n
  o - only export sketch database.''')
+    parser.add_option('--tmf', '--tag_metadata_filter',
+                      dest='tag_metadata_filter',
+                      default='none',
+                      help='''Filter for tag metadata (m4). Valid: none, pixpedia, translation, pixpedia_or_translation.''')
     return parser
 
 
