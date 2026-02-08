@@ -9,6 +9,7 @@ import tempfile
 import time
 import traceback
 import pathlib
+import sqlite3
 from typing import Dict
 from urllib.error import URLError
 import zipfile
@@ -674,7 +675,17 @@ def process_image(caller,
                 if isinstance(seriesId, str) and seriesId.isdigit() and seriesType and seriesTitle and isinstance(seriesOrder, int):
                     seriesId = int(seriesId)
                     db.insertSeries(seriesId, seriesTitle, seriesType)
-                    db.insertImageToSeries(image_id, seriesId, seriesOrder)
+                    try:
+                        db.insertImageToSeries(image_id, seriesId, seriesOrder)
+                    except sqlite3.IntegrityError:
+                        PixivHelper.print_and_log('warn', f'Series mapping conflict for series {seriesId}, refreshing series data...')
+                        update_manga_series_mapping(caller,
+                                                    config,
+                                                    seriesId,
+                                                    series_type=seriesType,
+                                                    series_title=seriesTitle)
+                    except BaseException:
+                        PixivHelper.print_and_log('error', f'Failed to insert series mapping for image {image_id} in series {seriesId}')
 
             # Save member data if enabled
             if image.artist is not None and config.autoAddMember:
@@ -773,6 +784,73 @@ def process_manga_series(caller,
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         PixivHelper.print_and_log('error', f'Error at process_manga_series(): {manga_series_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
+        raise
+
+
+def update_manga_series_mapping(caller,
+                                config,
+                                manga_series_id: int,
+                                series_type: str = None,
+                                series_title: str = None,
+                                series_desc: str = None,
+                                notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    db: PixivDBManager = caller.__dbManager__
+    try:
+        current_page = 1
+        pages_with_order = []
+        while True:
+            manga_series = PixivBrowserFactory.getBrowser().getMangaSeries(manga_series_id, current_page)
+            if current_page == 1:
+                resolved_title = series_title or manga_series.title
+                resolved_desc = series_desc if series_desc is not None else manga_series.description
+                resolved_type = series_type or "manga"
+                db.insertSeries(manga_series_id, resolved_title, resolved_type, resolved_desc)
+                db.updateSeries(manga_series_id, resolved_title, resolved_type, resolved_desc)
+            if manga_series.pages_with_order is None or len(manga_series.pages_with_order) == 0:
+                break
+            pages_with_order.extend(manga_series.pages_with_order)
+            if manga_series.is_last_page:
+                break
+            current_page += 1
+
+        image_ids = [image_id for (image_id, _order) in pages_with_order]
+        db.deleteImageToSeriesBySeriesId(manga_series_id)
+        db.deleteImageToSeriesByImageIds(image_ids)
+        for (image_id, order) in pages_with_order:
+            db.insertImageToSeries(image_id, manga_series_id, order)
+        PixivHelper.print_and_log('info', f'Updated series {manga_series_id} with {len(pages_with_order)} works.')
+    except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
+        caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at update_manga_series_mapping(): {manga_series_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
+        raise
+
+
+def process_manga_series_metadata(caller,
+                                  config,
+                                  manga_series_id: int,
+                                  notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    try:
+        msg = Fore.YELLOW + Style.NORMAL + f'Processing Manga Series Metadata: {manga_series_id}' + Style.RESET_ALL
+        PixivHelper.print_and_log(None, msg)
+        notifier(type="MANGA_SERIES", message=msg)
+        update_manga_series_mapping(caller, config, manga_series_id, notifier=notifier)
+    except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
+        caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at process_manga_series_metadata(): {manga_series_id}')
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
         raise
 

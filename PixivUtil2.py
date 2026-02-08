@@ -174,6 +174,7 @@ def menu():
     print(' 19. Download by Unlisted image_id')
     print(' m1. Metadata by member_id')
     print(' m2. Metadata by image_id')
+    print(' m3. Metadata by manga series id')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -406,6 +407,27 @@ def menu_metadata_by_image_id(opisvalid, args, options):
                                             image_id=int(image_id),
                                             useblacklist=False,
                                             metadata_only=True)
+
+
+def menu_metadata_by_manga_series_id(opisvalid, args, options):
+    __log__.info('Manga Series metadata mode (m3).')
+    manga_series_ids = []
+
+    if opisvalid and len(args) > 0:
+        for manga_series_id in args:
+            if manga_series_id.isdigit():
+                manga_series_ids.append(int(manga_series_id))
+            else:
+                print(f"Possible invalid manga series id = {manga_series_id}")
+    else:
+        manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
+        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids)
+        PixivHelper.print_and_log('info', f"Manga Series IDs: {manga_series_ids}")
+
+    for manga_series_id in manga_series_ids:
+        PixivImageHandler.process_manga_series_metadata(sys.modules[__name__],
+                                                        __config__,
+                                                        manga_series_id)
 
 
 def menu_download_by_tags(opisvalid, args, options):
@@ -1306,7 +1328,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1', 'm2',
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1', 'm2', 'm3',
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
                        'l', 'd', 'e', 'm', 'b', 'p', 'c')
@@ -1329,6 +1351,7 @@ def setup_option_parser():
 12 - Download images by Group Id                    \n
 m1 - Metadata by member_id                          \n
 m2 - Metadata by image_id                           \n
+m3 - Metadata by manga series id                    \n
 f1 - Download from supporting list (FANBOX)         \n
 f2 - Download by artist/creator id (FANBOX)         \n
 f3 - Download by post id (FANBOX)                   \n
@@ -1537,6 +1560,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_metadata_by_member_id(op_is_valid, args, options)
             elif selection == 'm2':
                 menu_metadata_by_image_id(op_is_valid, args, options)
+            elif selection == 'm3':
+                menu_metadata_by_manga_series_id(op_is_valid, args, options)
             elif selection == "l":
                 menu_export_database_images(op_is_valid, args, options)
             elif selection == 'b':
