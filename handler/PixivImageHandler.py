@@ -42,7 +42,8 @@ def process_image(caller,
                   manga_series_order=-1,
                   manga_series_parent=None,
                   ui_prefix="",
-                  is_unlisted=False) -> int:
+                  is_unlisted=False,
+                  metadata_only=False) -> int:
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db: PixivDBManager = caller.__dbManager__
@@ -115,7 +116,8 @@ def process_image(caller,
             in_db = True
 
         # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
-        if in_db and not config.alwaysCheckFileSize and not config.overwrite and not reencoding:
+        # metadata_only mode bypasses skip to always refresh metadata.
+        if in_db and not config.alwaysCheckFileSize and not config.overwrite and not reencoding and not metadata_only:
             PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
             gc.collect()
             return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
@@ -164,6 +166,10 @@ def process_image(caller,
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
+        if metadata_only:
+            download_image_flag = False
+            if result is None:
+                result = PixivConstant.PIXIVUTIL_OK
 
         # feature #1189 AI filtering
         if config.aiDisplayFewer and image.ai_type == 2:
@@ -243,7 +249,7 @@ def process_image(caller,
             download_image_flag = False
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - post bookmark count {image.bookmark_count} is less than: {bookmark_count}')
 
-        if download_image_flag:
+        if download_image_flag or metadata_only:
             if artist is None and image.artist is not None:
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Name":14}:{Style.RESET_ALL} {image.artist.artistName}')
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Avatar":14}:{Style.RESET_ALL} {image.artist.artistAvatar}')
@@ -268,6 +274,8 @@ def process_image(caller,
             if image.imageMode == 'manga':
                 PixivHelper.print_and_log(None, f"{Fore.LIGHTCYAN_EX}{'Pages':10}:{Style.RESET_ALL} {image.imageCount}")
 
+        # Only proceed with download logic if actually downloading (not metadata-only mode)
+        if download_image_flag:
             if user_dir == '':  # Yavos: use config-options
                 target_dir = config.rootDirectory
             else:  # Yavos: use filename from list
@@ -617,7 +625,7 @@ def process_image(caller,
         # Save AI type to DB
         db.insertAiInfo(image_id, image.ai_type)
 
-        if in_db and not exists:
+        if in_db and not exists and not metadata_only:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
@@ -631,6 +639,8 @@ def process_image(caller,
             except BaseException:
                 PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
 
+            if metadata_only:
+                filename = r[0] if in_db else 'N/A'
             db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
 
             if len(manga_files) > 0:

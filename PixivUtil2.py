@@ -173,6 +173,7 @@ def menu():
     print(' 18. Download by New Illusts')
     print(' 19. Download by Unlisted image_id')
     print(' m1. Metadata by member_id')
+    print(' m2. Metadata by image_id')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -376,6 +377,35 @@ def menu_download_by_image_id(opisvalid, args, options):
                                             artist=None,
                                             image_id=int(image_id),
                                             useblacklist=False)
+
+
+def menu_metadata_by_image_id(opisvalid, args, options):
+    __log__.info('Image metadata mode (m2).')
+    if opisvalid and len(args) > 0:
+        for image_id in args:
+            try:
+                test_id = int(image_id)
+                PixivImageHandler.process_image(sys.modules[__name__],
+                                                __config__,
+                                                artist=None,
+                                                image_id=test_id,
+                                                useblacklist=False,
+                                                metadata_only=True)
+            except BaseException:
+                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
+                global ERROR_CODE
+                ERROR_CODE = -1
+                continue
+    else:
+        image_ids = input('Image ids: ').rstrip("\r")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids)
+        for image_id in image_ids:
+            PixivImageHandler.process_image(sys.modules[__name__],
+                                            __config__,
+                                            artist=None,
+                                            image_id=int(image_id),
+                                            useblacklist=False,
+                                            metadata_only=True)
 
 
 def menu_download_by_tags(opisvalid, args, options):
@@ -1276,7 +1306,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1',
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1', 'm2',
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
                        'l', 'd', 'e', 'm', 'b', 'p', 'c')
@@ -1298,6 +1328,7 @@ def setup_option_parser():
 11 - Download images from Member Bookmark           \n
 12 - Download images by Group Id                    \n
 m1 - Metadata by member_id                          \n
+m2 - Metadata by image_id                           \n
 f1 - Download from supporting list (FANBOX)         \n
 f2 - Download by artist/creator id (FANBOX)         \n
 f3 - Download by post id (FANBOX)                   \n
@@ -1504,6 +1535,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_by_unlisted_image_id(op_is_valid, args, options)
             elif selection == 'm1':
                 menu_metadata_by_member_id(op_is_valid, args, options)
+            elif selection == 'm2':
+                menu_metadata_by_image_id(op_is_valid, args, options)
             elif selection == "l":
                 menu_export_database_images(op_is_valid, args, options)
             elif selection == 'b':
