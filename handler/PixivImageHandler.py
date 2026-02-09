@@ -174,20 +174,20 @@ def process_image(caller,
                 result = PixivConstant.PIXIVUTIL_OK
 
         # feature #1189 AI filtering
-        if config.aiDisplayFewer and image.ai_type == 2:
+        if not metadata_only and config.aiDisplayFewer and image.ai_type == 2:
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True and aiType = {image.ai_type}.')
             download_image_flag = False
             result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         # date validation and blacklist tag validation
-        if config.dateDiff > 0:
+        if not metadata_only and config.dateDiff > 0:
             if image.worksDateDateTime is not None and image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
                 if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – it\'s older than: {config.dateDiff} day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
-        if useblacklist:
+        if not metadata_only and useblacklist:
             if config.useBlacklistMembers and download_image_flag:
                 if image.originalArtist is not None and str(image.originalArtist.artistId) in caller.__blacklistMembers:
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
