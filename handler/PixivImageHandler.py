@@ -653,6 +653,9 @@ def process_image(caller,
 
             # Save tags if enabled
             if config.autoAddTag:
+                if metadata_only:
+                    # assume existing tag maps are oudated, and re-apply tag mappings.
+                    db.deleteImageToTagByImageId(image_id)
                 tags = image.tags
                 if tags:
                     for tag_data in tags:
@@ -667,6 +670,9 @@ def process_image(caller,
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
             # Save series data if enabled.
+            if config.autoAddSeries and metadata_only:
+                # assume existing series data (if any) are outdated, and re-apply series mappings.
+                db.deleteImageToSeriesByImageIds([image_id])
             if config.autoAddSeries and (seriesNavData := image.seriesNavData):
                 seriesId = seriesNavData.get("seriesId")
                 seriesType = seriesNavData.get("seriesType")

@@ -1035,6 +1035,18 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+    def deleteImageToTagByImageId(self, image_id):
+        try:
+            c = self.conn.cursor()
+            c.execute("""DELETE FROM pixiv_image_to_tag WHERE image_id = ?""", (image_id,))
+            self.conn.commit()
+        except BaseException:
+            print("Error at deleteImageToTagByImageId():", str(sys.exc_info()))
+            print("failed")
+            raise
+        finally:
+            c.close()
+
     def insertTagTranslation(self, tag_id, translation_type, translation):
         try:
             c = self.conn.cursor()
