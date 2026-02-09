@@ -669,29 +669,38 @@ def process_image(caller,
                                 for locale in tag_data.translation_data:
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
-            # Save series data if enabled.
+            # Save series data if enabled. In metadata-only mode, refresh mappings for freshness,
+            # subject to autoAddSeries flag.
             if config.autoAddSeries and metadata_only:
                 # assume existing series data (if any) are outdated, and re-apply series mappings.
+                # if image has been removed from the series, we will have handled it here.
                 db.deleteImageToSeriesByImageIds([image_id])
-            if config.autoAddSeries and (seriesNavData := image.seriesNavData):
+            if seriesNavData := image.seriesNavData:
                 seriesId = seriesNavData.get("seriesId")
                 seriesType = seriesNavData.get("seriesType")
                 seriesTitle = seriesNavData.get("title")
                 seriesOrder = seriesNavData.get("order")
                 if isinstance(seriesId, str) and seriesId.isdigit() and seriesType and seriesTitle and isinstance(seriesOrder, int):
                     seriesId = int(seriesId)
-                    db.insertSeries(seriesId, seriesTitle, seriesType)
-                    try:
-                        db.insertImageToSeries(image_id, seriesId, seriesOrder)
-                    except sqlite3.IntegrityError:
-                        PixivHelper.print_and_log('warn', f'Series mapping conflict for series {seriesId}, refreshing series data...')
+                    if config.autoAddSeries and metadata_only:
                         update_manga_series_mapping(caller,
                                                     config,
                                                     seriesId,
                                                     series_type=seriesType,
                                                     series_title=seriesTitle)
-                    except BaseException:
-                        PixivHelper.print_and_log('error', f'Failed to insert series mapping for image {image_id} in series {seriesId}')
+                    elif config.autoAddSeries:
+                        db.insertSeries(seriesId, seriesTitle, seriesType)
+                        try:
+                            db.insertImageToSeries(image_id, seriesId, seriesOrder)
+                        except sqlite3.IntegrityError:
+                            PixivHelper.print_and_log('warn', f'Series mapping conflict for series {seriesId}, refreshing series data...')
+                            update_manga_series_mapping(caller,
+                                                        config,
+                                                        seriesId,
+                                                        series_type=seriesType,
+                                                        series_title=seriesTitle)
+                        except BaseException:
+                            PixivHelper.print_and_log('error', f'Failed to insert series mapping for image {image_id} in series {seriesId}')
 
             # Save member data if enabled
             if image.artist is not None and config.autoAddMember:
