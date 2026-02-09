@@ -678,10 +678,15 @@ def get_ids_from_csv(ids_str, is_string=False):
 
 def coalesce(*values):
     """
-    Return the first non-None value, or None if all values are None.
+    Return the first value that is not None and not an empty string.
+    If none match, return the first value that is not an empty string.
+    Otherwise, return None.
     """
     for value in values:
-        if value is not None:
+        if value is not None and not (isinstance(value, str) and value == ""):
+            return value
+    for value in values:
+        if not (isinstance(value, str) and value == ""):
             return value
     return None
 

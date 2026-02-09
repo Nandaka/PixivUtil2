@@ -45,6 +45,15 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
 
+    def testCoalesceNonEmptyString(self):
+        self.assertEqual(PixivHelper.coalesce(None, "", "a"), "a")
+        self.assertEqual(PixivHelper.coalesce("", None, "a"), "a")
+        self.assertEqual(PixivHelper.coalesce("", " ", None), " ")
+        self.assertEqual(PixivHelper.coalesce(0, "", None), 0)
+        self.assertEqual(PixivHelper.coalesce("", 0), 0)
+        self.assertIsNone(PixivHelper.coalesce(None, "", None))
+        self.assertIsNone(PixivHelper.coalesce("", None))
+
     def testSanitizeFilename3(self):
         rootDir = 'D:\\Temp\\Pixiv2\\'
         if platform.system() != 'Windows':
