@@ -703,13 +703,32 @@ def process_image(caller,
                             PixivHelper.print_and_log('error', f'Failed to insert series mapping for image {image_id} in series {seriesId}')
 
             # Save member data if enabled
-            if image.artist is not None and config.autoAddMember:
-                member_id = image.artist.artistId
-                member_token = image.artist.artistToken
-                member_name = image.artist.artistName
-                if member_id and member_token and member_name:
+        if image.artist is not None and config.autoAddMember:
+            member_id = image.artist.artistId
+            member_token = image.artist.artistToken
+            member_name = image.artist.artistName
+            if metadata_only:
+                if member_id:
                     db.insertNewMember(int(member_id), member_token=member_token)
+                    c = db.conn.cursor()
+                    try:
+                        c.execute(
+                            """SELECT name, member_token
+                               FROM pixiv_master_member WHERE member_id = ?""",
+                            (member_id,),
+                        )
+                        row = c.fetchone()
+                        db_name = row[0] if row else None
+                        db_member_token = row[1] if row else None
+                    finally:
+                        c.close()
+
+                    member_name = PixivHelper.coalesce(member_name, db_name)
+                    member_token = PixivHelper.coalesce(member_token, db_member_token, None)
                     db.updateMemberName(member_id, member_name, member_token)
+            elif member_id and member_token and member_name:
+                db.insertNewMember(int(member_id), member_token=member_token)
+                db.updateMemberName(member_id, member_name, member_token)
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
