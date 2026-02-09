@@ -172,6 +172,10 @@ def menu():
     print(' 17. Download by Rank R-18')
     print(' 18. Download by New Illusts')
     print(' 19. Download by Unlisted image_id')
+    print(' m1. Metadata by member_id')
+    print(' m2. Metadata by image_id')
+    print(' m3. Metadata by manga series id')
+    print(' m4. Metadata by tag')
     print(Style.BRIGHT + '── FANBOX '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' f1. Download from supporting list (FANBOX)')
     print(' f2. Download by artist/creator id (FANBOX)')
@@ -270,6 +274,37 @@ def menu_download_by_member_id(opisvalid, args, options):
             continue
 
 
+def menu_metadata_by_member_id(opisvalid, args, options):
+    __log__.info('Member metadata mode (m1).')
+    current_member = 1
+    member_ids = list()
+
+    if opisvalid and len(args) > 0:
+        for member_id in args:
+            if member_id.isdigit():
+                member_ids.append(int(member_id))
+            else:
+                print(f"Possible invalid member id = {member_id}")
+    else:
+        member_ids = input('Member ids: ').rstrip("\r")
+        member_ids = PixivHelper.get_ids_from_csv(member_ids)
+        PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
+
+    for member_id in member_ids:
+        try:
+            prefix = f"[{current_member} of {len(member_ids)}] "
+            PixivArtistHandler.process_member_metadata(sys.modules[__name__],
+                                                      __config__,
+                                                      member_id,
+                                                      title_prefix=prefix)
+            current_member = current_member + 1
+        except PixivException:
+            PixivHelper.print_and_log('error', f"Member ID: {member_id} is not valid")
+            global ERROR_CODE
+            ERROR_CODE = -1
+            continue
+
+
 def menu_download_by_member_bookmark(opisvalid, args, options):
     __log__.info('Member Bookmark mode (11).')
     page = 1
@@ -344,6 +379,69 @@ def menu_download_by_image_id(opisvalid, args, options):
                                             artist=None,
                                             image_id=int(image_id),
                                             useblacklist=False)
+
+
+def menu_metadata_by_image_id(opisvalid, args, options):
+    __log__.info('Image metadata mode (m2).')
+    if opisvalid and len(args) > 0:
+        for image_id in args:
+            try:
+                test_id = int(image_id)
+                PixivImageHandler.process_image(sys.modules[__name__],
+                                                __config__,
+                                                artist=None,
+                                                image_id=test_id,
+                                                useblacklist=False,
+                                                metadata_only=True)
+            except BaseException:
+                PixivHelper.print_and_log('error', f"Image ID: {image_id} is not valid")
+                global ERROR_CODE
+                ERROR_CODE = -1
+                continue
+    else:
+        image_ids = input('Image ids: ').rstrip("\r")
+        image_ids = PixivHelper.get_ids_from_csv(image_ids)
+        for image_id in image_ids:
+            PixivImageHandler.process_image(sys.modules[__name__],
+                                            __config__,
+                                            artist=None,
+                                            image_id=int(image_id),
+                                            useblacklist=False,
+                                            metadata_only=True)
+
+
+def menu_metadata_by_manga_series_id(opisvalid, args, options):
+    __log__.info('Manga Series metadata mode (m3).')
+    manga_series_ids = []
+
+    if opisvalid and len(args) > 0:
+        for manga_series_id in args:
+            if manga_series_id.isdigit():
+                manga_series_ids.append(int(manga_series_id))
+            else:
+                print(f"Possible invalid manga series id = {manga_series_id}")
+    else:
+        manga_series_ids = input('Manga Series IDs: ').rstrip("\r")
+        manga_series_ids = PixivHelper.get_ids_from_csv(manga_series_ids)
+        PixivHelper.print_and_log('info', f"Manga Series IDs: {manga_series_ids}")
+
+    for manga_series_id in manga_series_ids:
+        PixivImageHandler.process_manga_series_metadata(sys.modules[__name__],
+                                                        __config__,
+                                                        manga_series_id)
+
+
+def menu_metadata_by_tag(opisvalid, args, options):
+    __log__.info('Tag metadata mode (m4).')
+    if opisvalid and len(args) > 0:
+        tags = args
+    else:
+        tags = input('Tags (comma-separated): ').rstrip("\r")
+    filter_mode = options.tag_metadata_filter
+    if not opisvalid:
+        filter_prompt = "Tag metadata filter [none/pixpedia/translation/pixpedia_or_translation, default is none]: "
+        filter_mode = input(filter_prompt).rstrip("\r") or "none"
+    PixivTagsHandler.process_tag_metadata(sys.modules[__name__], __config__, tags, filter_mode=filter_mode)
 
 
 def menu_download_by_tags(opisvalid, args, options):
@@ -1244,7 +1342,7 @@ def set_console_title(title=''):
 def setup_option_parser():
 
     global __valid_options
-    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
+    __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1', 'm2', 'm3', 'm4',
                        'f1', 'f2', 'f3', 'f4', 'f5',
                        's1', 's2',
                        'l', 'd', 'e', 'm', 'b', 'p', 'c')
@@ -1265,6 +1363,10 @@ def setup_option_parser():
 10 - Download by Tag and Member Id                  \n
 11 - Download images from Member Bookmark           \n
 12 - Download images by Group Id                    \n
+m1 - Metadata by member_id                          \n
+m2 - Metadata by image_id                           \n
+m3 - Metadata by manga series id                    \n
+m4 - Metadata by tag                                \n
 f1 - Download from supporting list (FANBOX)         \n
 f2 - Download by artist/creator id (FANBOX)         \n
 f3 - Download by post id (FANBOX)                   \n
@@ -1408,6 +1510,10 @@ Used in option e, m, p''')
  y - include sketch database.                       \n
  n - don't include sketch database.                 \n
  o - only export sketch database.''')
+    parser.add_option('--tmf', '--tag_metadata_filter',
+                      dest='tag_metadata_filter',
+                      default='none',
+                      help='''Filter for tag metadata (m4). Valid: none, pixpedia, translation, pixpedia_or_translation.''')
     return parser
 
 
@@ -1469,6 +1575,14 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_download_new_illusts(op_is_valid, args, options)
             elif selection == '19':
                 menu_download_by_unlisted_image_id(op_is_valid, args, options)
+            elif selection == 'm1':
+                menu_metadata_by_member_id(op_is_valid, args, options)
+            elif selection == 'm2':
+                menu_metadata_by_image_id(op_is_valid, args, options)
+            elif selection == 'm3':
+                menu_metadata_by_manga_series_id(op_is_valid, args, options)
+            elif selection == 'm4':
+                menu_metadata_by_tag(op_is_valid, args, options)
             elif selection == "l":
                 menu_export_database_images(op_is_valid, args, options)
             elif selection == 'b':

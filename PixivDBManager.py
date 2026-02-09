@@ -926,6 +926,41 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print("Error at insertSeries():", str(sys.exc_info()))
+
+    def updateSeries(self, series_id, series_title, series_type, series_desc=None):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                """UPDATE pixiv_master_series
+                      SET series_title = ?,
+                          series_type = ?,
+                          series_description = ?,
+                          last_update_date = datetime('now')
+                      WHERE series_id = ?""",
+                (series_title, series_type, series_desc, series_id),
+            )
+            self.conn.commit()
+        except BaseException:
+            print("Error at updateSeries():", str(sys.exc_info()))
+
+    def deleteImageToSeriesBySeriesId(self, series_id):
+        try:
+            c = self.conn.cursor()
+            c.execute("""DELETE FROM pixiv_image_to_series WHERE series_id = ?""", (series_id,))
+            self.conn.commit()
+        except BaseException:
+            print("Error at deleteImageToSeriesBySeriesId():", str(sys.exc_info()))
+
+    def deleteImageToSeriesByImageIds(self, image_ids):
+        if image_ids is None or len(image_ids) == 0:
+            return
+        try:
+            c = self.conn.cursor()
+            placeholders = ','.join('?' for _ in image_ids)
+            c.execute(f"""DELETE FROM pixiv_image_to_series WHERE image_id IN ({placeholders})""", image_ids)
+            self.conn.commit()
+        except BaseException:
+            print("Error at deleteImageToSeriesByImageIds():", str(sys.exc_info()))
             print("failed")
             raise
         finally:
@@ -963,6 +998,19 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print("Error at insertTag():", str(sys.exc_info()))
+
+    def updateTag(self, tag_id):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                """UPDATE pixiv_master_tag
+                      SET last_update_date = datetime('now')
+                      WHERE tag_id = ?""",
+                (tag_id,),
+            )
+            self.conn.commit()
+        except BaseException:
+            print("Error at updateTag():", str(sys.exc_info()))
             print("failed")
             raise
         finally:
@@ -982,6 +1030,18 @@ class PixivDBManager(object):
             self.conn.commit()
         except BaseException:
             print("Error at insertImageToTag():", str(sys.exc_info()))
+            print("failed")
+            raise
+        finally:
+            c.close()
+
+    def deleteImageToTagByImageId(self, image_id):
+        try:
+            c = self.conn.cursor()
+            c.execute("""DELETE FROM pixiv_image_to_tag WHERE image_id = ?""", (image_id,))
+            self.conn.commit()
+        except BaseException:
+            print("Error at deleteImageToTagByImageId():", str(sys.exc_info()))
             print("failed")
             raise
         finally:

@@ -13,6 +13,107 @@ import handler.PixivImageHandler as PixivImageHandler
 from common.PixivException import PixivException
 
 
+def process_member_metadata(caller,
+                            config,
+                            member_id,
+                            bookmark=False,
+                            tags=None,
+                            title_prefix="",
+                            notifier=None):
+    # caller function/method
+    # TODO: ideally to be removed or passed as argument
+    db = caller.__dbManager__
+
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+
+    list_page = None
+
+    msg = Fore.YELLOW + Style.BRIGHT + f'Processing Member Metadata: {member_id}' + Style.RESET_ALL
+    PixivHelper.print_and_log('info', msg)
+    notifier(type="MEMBER", message=msg)
+
+    try:
+        caller.set_console_title(f"{title_prefix}MemberId: {member_id}")
+        try:
+            (artist, list_page) = PixivBrowserFactory.getBrowser().getMemberPage(member_id, 1, bookmark, tags, r18mode=config.r18mode, throw_empty_error=True)
+        except PixivException as ex:
+            caller.ERROR_CODE = ex.errorCode
+            PixivHelper.print_and_log('info', f'Member ID ({member_id}): {ex}')
+            if list_page is None:
+                list_page = ex.htmlPage
+            if list_page is not None:
+                PixivHelper.dump_html(f"Dump for {member_id} Error Code {ex.errorCode}.html", list_page)
+            if ex.errorCode == PixivException.USER_ID_NOT_EXISTS or ex.errorCode == PixivException.USER_ID_SUSPENDED:
+                db.setIsDeletedFlagForMemberId(int(member_id))
+                PixivHelper.print_and_log('info', f'Set IsDeleted for MemberId: {member_id} not exist.')
+            elif ex.errorCode == PixivException.OTHER_MEMBER_ERROR:
+                PixivHelper.print_and_log(None, ex.message)
+                caller.__errorList.append(dict(type="Member", id=str(member_id), message=ex.message, exception=ex))
+            return
+
+        PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Name":14}:{Style.RESET_ALL} {artist.artistName}')
+        PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Avatar":14}:{Style.RESET_ALL} {artist.artistAvatar}')
+        PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Token":14}:{Style.RESET_ALL} {artist.artistToken}')
+        PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Backgrd":14}:{Style.RESET_ALL} {artist.artistBackground}')
+
+        conn = db.conn
+        c = conn.cursor()
+        try:
+            c.execute("BEGIN")
+            c.execute(
+                """SELECT member_id, name, save_folder, created_date, last_update_date, last_image, is_deleted, member_token
+                   FROM pixiv_master_member WHERE member_id = ?""",
+                (member_id,),
+            )
+            row = c.fetchone()
+            db_name = row[1] if row else None
+            db_created_date = row[3] if row else None
+            db_last_image = row[5] if row else None
+            db_is_deleted = row[6] if row else None
+            db_member_token = row[7] if row else None
+
+            name = PixivHelper.coalesce(artist.artistName, db_name)
+            save_folder = r"N\A"
+            last_image = PixivHelper.coalesce(None, db_last_image, -1)
+            is_deleted = PixivHelper.coalesce(None, db_is_deleted, 0)
+            member_token = PixivHelper.coalesce(artist.artistToken, db_member_token, None)
+
+            c.execute(
+                """INSERT OR REPLACE INTO pixiv_master_member
+                   (member_id, name, save_folder, created_date, last_update_date, last_image, is_deleted, member_token)
+                   VALUES (?, ?, ?, COALESCE(?, datetime('now')), datetime('now'), ?, ?, ?)""",
+                (int(member_id), name, save_folder, db_created_date, last_image, is_deleted, member_token),
+            )
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        finally:
+            c.close()
+
+        PixivHelper.print_and_log("info", f"Member_id: {member_id} metadata updated.")
+    except KeyboardInterrupt:
+        raise
+    except Exception:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at process_member_metadata(): {sys.exc_info()}')
+        try:
+            if list_page is not None:
+                dump_filename = f'Error page for member {member_id}.html'
+                PixivHelper.dump_html(dump_filename, list_page)
+                PixivHelper.print_and_log('error', f"Dumping html to: {dump_filename}")
+        except BaseException:
+            PixivHelper.print_and_log('error', f'Cannot dump page for member_id: {member_id}')
+        raise
+    finally:
+        try:
+            PixivBrowserFactory.getBrowser(config=config).clear_history()
+        except BaseException:
+            pass
+        gc.collect()
+
 def process_member(caller,
                    config,
                    member_id,

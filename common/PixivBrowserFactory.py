@@ -31,7 +31,7 @@ from model.PixivModelSketch import SketchArtist, SketchPost
 from model.PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
 from common.PixivOAuth import PixivOAuth
 from model.PixivRanking import PixivNewIllust, PixivRanking
-from model.PixivTags import PixivTags
+from model.PixivTags import PixivTags, PixivTag
 
 defaultCookieJar = None
 defaultConfig = None
@@ -980,7 +980,27 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
                     raise
 
-        return (result, response_page)
+            return (result, response_page)
+
+    def getTagInfo(self, tag, lang=None) -> PixivTag:
+        if tag is None or len(tag) == 0:
+            raise PixivException("Tag is empty.", errorCode=PixivException.OTHER_ERROR)
+
+        encoded_tag = PixivHelper.encode_tags(tag)
+        url = f'https://www.pixiv.net/ajax/search/tags/{encoded_tag}'
+        if lang is None:
+            lang = self._locale
+        if lang:
+            url = f'{url}?lang={lang}'
+
+        response = self._get_from_cache(url)
+        if response is None:
+            res = self.open_with_retry(url)
+            response = res.read()
+            res.close()
+            self._put_to_cache(url, response)
+
+        return PixivTag(json.loads(response))
 
     def handleDebugTagSearchPage(self, response, url):
         if self._config.enableDump:

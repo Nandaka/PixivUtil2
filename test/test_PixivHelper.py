@@ -45,6 +45,15 @@ class TestPixivHelper(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertTrue(len(result) < 255)
 
+    def testCoalesceNonEmptyString(self):
+        self.assertEqual(PixivHelper.coalesce(None, "", "a"), "a")
+        self.assertEqual(PixivHelper.coalesce("", None, "a"), "a")
+        self.assertEqual(PixivHelper.coalesce("", " ", None), " ")
+        self.assertEqual(PixivHelper.coalesce(0, "", None), 0)
+        self.assertEqual(PixivHelper.coalesce("", 0), 0)
+        self.assertIsNone(PixivHelper.coalesce(None, "", None))
+        self.assertIsNone(PixivHelper.coalesce("", None))
+
     def testSanitizeFilename3(self):
         rootDir = 'D:\\Temp\\Pixiv2\\'
         if platform.system() != 'Windows':
@@ -330,6 +339,13 @@ class TestPixivHelper(unittest.TestCase):
         r = page.find_all('form', attrs={'action': '/login.php'})
         # print(r)
         self.assertTrue(len(r) > 0)
+
+    def testCoalesce(self):
+        self.assertIsNone(PixivHelper.coalesce())
+        self.assertIsNone(PixivHelper.coalesce(None, None))
+        self.assertEqual(PixivHelper.coalesce(None, 0, 1), 0)
+        self.assertEqual(PixivHelper.coalesce(None, "a", "b"), "a")
+        self.assertEqual(PixivHelper.coalesce(None, None, "fallback"), "fallback")
 
 
 if __name__ == '__main__':

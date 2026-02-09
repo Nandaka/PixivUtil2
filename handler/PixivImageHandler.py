@@ -9,6 +9,7 @@ import tempfile
 import time
 import traceback
 import pathlib
+import sqlite3
 from typing import Dict
 from urllib.error import URLError
 import zipfile
@@ -42,7 +43,8 @@ def process_image(caller,
                   manga_series_order=-1,
                   manga_series_parent=None,
                   ui_prefix="",
-                  is_unlisted=False) -> int:
+                  is_unlisted=False,
+                  metadata_only=False) -> int:
     # caller function/method
     # TODO: ideally to be removed or passed as argument
     db: PixivDBManager = caller.__dbManager__
@@ -93,6 +95,7 @@ def process_image(caller,
     parse_medium_page = None
     image = None
     result = None
+    manga_files = []
     if not is_unlisted:
         # https://www.pixiv.net/en/artworks/76656661
         referer = f"https://www.pixiv.net/artworks/{image_id}"
@@ -115,7 +118,8 @@ def process_image(caller,
             in_db = True
 
         # skip if already recorded in db and alwaysCheckFileSize is disabled and overwrite is disabled.
-        if in_db and not config.alwaysCheckFileSize and not config.overwrite and not reencoding:
+        # metadata_only mode bypasses skip to always refresh metadata.
+        if in_db and not config.alwaysCheckFileSize and not config.overwrite and not reencoding and not metadata_only:
             PixivHelper.print_and_log(None, f'Already downloaded in DB: {image_id}')
             gc.collect()
             return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE_NO_WAIT
@@ -164,22 +168,26 @@ def process_image(caller,
             return PixivConstant.PIXIVUTIL_NOT_OK
 
         download_image_flag = True
+        if metadata_only:
+            download_image_flag = False
+            if result is None:
+                result = PixivConstant.PIXIVUTIL_OK
 
         # feature #1189 AI filtering
-        if config.aiDisplayFewer and image.ai_type == 2:
+        if not metadata_only and config.aiDisplayFewer and image.ai_type == 2:
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted due to aiDisplayFewer is set to True and aiType = {image.ai_type}.')
             download_image_flag = False
             result = PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         # date validation and blacklist tag validation
-        if config.dateDiff > 0:
+        if not metadata_only and config.dateDiff > 0:
             if image.worksDateDateTime is not None and image.worksDateDateTime != datetime.datetime.fromordinal(1).replace(tzinfo=datetime_z.utc):
                 if image.worksDateDateTime < (datetime.datetime.today() - datetime.timedelta(config.dateDiff)).replace(tzinfo=datetime_z.utc):
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – it\'s older than: {config.dateDiff} day(s).')
                     download_image_flag = False
                     result = PixivConstant.PIXIVUTIL_SKIP_OLDER
 
-        if useblacklist:
+        if not metadata_only and useblacklist:
             if config.useBlacklistMembers and download_image_flag:
                 if image.originalArtist is not None and str(image.originalArtist.artistId) in caller.__blacklistMembers:
                     PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} – blacklisted member id: {image.originalArtist.artistId}')
@@ -243,7 +251,7 @@ def process_image(caller,
             download_image_flag = False
             PixivHelper.print_and_log('warn', f'Skipping image_id: {image_id} - post bookmark count {image.bookmark_count} is less than: {bookmark_count}')
 
-        if download_image_flag:
+        if download_image_flag or metadata_only:
             if artist is None and image.artist is not None:
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Name":14}:{Style.RESET_ALL} {image.artist.artistName}')
                 PixivHelper.print_and_log(None, f'{Fore.LIGHTCYAN_EX}{"Member Avatar":14}:{Style.RESET_ALL} {image.artist.artistAvatar}')
@@ -268,13 +276,14 @@ def process_image(caller,
             if image.imageMode == 'manga':
                 PixivHelper.print_and_log(None, f"{Fore.LIGHTCYAN_EX}{'Pages':10}:{Style.RESET_ALL} {image.imageCount}")
 
+        # Only proceed with download logic if actually downloading (not metadata-only mode)
+        if download_image_flag:
             if user_dir == '':  # Yavos: use config-options
                 target_dir = config.rootDirectory
             else:  # Yavos: use filename from list
                 target_dir = user_dir
 
             result = PixivConstant.PIXIVUTIL_OK
-            manga_files = list()
             page = 0
 
             # Issue #639
@@ -617,7 +626,7 @@ def process_image(caller,
         # Save AI type to DB
         db.insertAiInfo(image_id, image.ai_type)
 
-        if in_db and not exists:
+        if in_db and not exists and not metadata_only:
             result = PixivConstant.PIXIVUTIL_CHECK_DOWNLOAD  # There was something in the database which had not been downloaded
 
         # Only save to db if all images is downloaded completely
@@ -631,7 +640,12 @@ def process_image(caller,
             except BaseException:
                 PixivHelper.print_and_log('error', f'Failed to insert image id:{image.imageId} to DB')
 
-            db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode)
+            if metadata_only:
+                filename = r[0] if in_db else 'N/A'
+
+            # Only update caption when autoAddCaption is enabled; otherwise preserve existing value.
+            caption_to_update = image.imageCaption if config.autoAddCaption else None
+            db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode, caption=caption_to_update)
 
             if len(manga_files) > 0:
                 if archive_mode_update_manga_image_paths:
@@ -642,6 +656,9 @@ def process_image(caller,
 
             # Save tags if enabled
             if config.autoAddTag:
+                if metadata_only:
+                    # assume existing tag maps are oudated, and re-apply tag mappings.
+                    db.deleteImageToTagByImageId(image_id)
                 tags = image.tags
                 if tags:
                     for tag_data in tags:
@@ -655,25 +672,66 @@ def process_image(caller,
                                 for locale in tag_data.translation_data:
                                     db.insertTagTranslation(tag_id, locale, tag_data.translation_data[locale])
 
-            # Save series data if enabled.
-            if config.autoAddSeries and (seriesNavData := image.seriesNavData):
+            # Save series data if enabled. In metadata-only mode, refresh mappings for freshness,
+            # subject to autoAddSeries flag.
+            if config.autoAddSeries and metadata_only:
+                # assume existing series data (if any) are outdated, and re-apply series mappings.
+                # if image has been removed from the series, we will have handled it here.
+                db.deleteImageToSeriesByImageIds([image_id])
+            if seriesNavData := image.seriesNavData:
                 seriesId = seriesNavData.get("seriesId")
                 seriesType = seriesNavData.get("seriesType")
                 seriesTitle = seriesNavData.get("title")
                 seriesOrder = seriesNavData.get("order")
                 if isinstance(seriesId, str) and seriesId.isdigit() and seriesType and seriesTitle and isinstance(seriesOrder, int):
                     seriesId = int(seriesId)
-                    db.insertSeries(seriesId, seriesTitle, seriesType)
-                    db.insertImageToSeries(image_id, seriesId, seriesOrder)
+                    if config.autoAddSeries and metadata_only:
+                        update_manga_series_mapping(caller,
+                                                    config,
+                                                    seriesId,
+                                                    series_type=seriesType,
+                                                    series_title=seriesTitle)
+                    elif config.autoAddSeries:
+                        db.insertSeries(seriesId, seriesTitle, seriesType)
+                        try:
+                            db.insertImageToSeries(image_id, seriesId, seriesOrder)
+                        except sqlite3.IntegrityError:
+                            PixivHelper.print_and_log('warn', f'Series mapping conflict for series {seriesId}, refreshing series data...')
+                            update_manga_series_mapping(caller,
+                                                        config,
+                                                        seriesId,
+                                                        series_type=seriesType,
+                                                        series_title=seriesTitle)
+                        except BaseException:
+                            PixivHelper.print_and_log('error', f'Failed to insert series mapping for image {image_id} in series {seriesId}')
 
             # Save member data if enabled
-            if image.artist is not None and config.autoAddMember:
-                member_id = image.artist.artistId
-                member_token = image.artist.artistToken
-                member_name = image.artist.artistName
-                if member_id and member_token and member_name:
+        if image.artist is not None and config.autoAddMember:
+            member_id = image.artist.artistId
+            member_token = image.artist.artistToken
+            member_name = image.artist.artistName
+            if metadata_only:
+                if member_id:
                     db.insertNewMember(int(member_id), member_token=member_token)
+                    c = db.conn.cursor()
+                    try:
+                        c.execute(
+                            """SELECT name, member_token
+                               FROM pixiv_master_member WHERE member_id = ?""",
+                            (member_id,),
+                        )
+                        row = c.fetchone()
+                        db_name = row[0] if row else None
+                        db_member_token = row[1] if row else None
+                    finally:
+                        c.close()
+
+                    member_name = PixivHelper.coalesce(member_name, db_name)
+                    member_token = PixivHelper.coalesce(member_token, db_member_token, None)
                     db.updateMemberName(member_id, member_name, member_token)
+            elif member_id and member_token and member_name:
+                db.insertNewMember(int(member_id), member_token=member_token)
+                db.updateMemberName(member_id, member_name, member_token)
 
             # map back to PIXIVUTIL_OK (because of ugoira file check)
             result = 0
@@ -763,6 +821,73 @@ def process_manga_series(caller,
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         PixivHelper.print_and_log('error', f'Error at process_manga_series(): {manga_series_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
+        raise
+
+
+def update_manga_series_mapping(caller,
+                                config,
+                                manga_series_id: int,
+                                series_type: str = None,
+                                series_title: str = None,
+                                series_desc: str = None,
+                                notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    db: PixivDBManager = caller.__dbManager__
+    try:
+        current_page = 1
+        pages_with_order = []
+        while True:
+            manga_series = PixivBrowserFactory.getBrowser().getMangaSeries(manga_series_id, current_page)
+            if current_page == 1:
+                resolved_title = series_title or manga_series.title
+                resolved_desc = series_desc if series_desc is not None else manga_series.description
+                resolved_type = series_type or "manga"
+                db.insertSeries(manga_series_id, resolved_title, resolved_type, resolved_desc)
+                db.updateSeries(manga_series_id, resolved_title, resolved_type, resolved_desc)
+            if manga_series.pages_with_order is None or len(manga_series.pages_with_order) == 0:
+                break
+            pages_with_order.extend(manga_series.pages_with_order)
+            if manga_series.is_last_page:
+                break
+            current_page += 1
+
+        image_ids = [image_id for (image_id, _order) in pages_with_order]
+        db.deleteImageToSeriesBySeriesId(manga_series_id)
+        db.deleteImageToSeriesByImageIds(image_ids)
+        for (image_id, order) in pages_with_order:
+            db.insertImageToSeries(image_id, manga_series_id, order)
+        PixivHelper.print_and_log('info', f'Updated series {manga_series_id} with {len(pages_with_order)} works.')
+    except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
+        caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at update_manga_series_mapping(): {manga_series_id}')
+        PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
+        raise
+
+
+def process_manga_series_metadata(caller,
+                                  config,
+                                  manga_series_id: int,
+                                  notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+    try:
+        msg = Fore.YELLOW + Style.NORMAL + f'Processing Manga Series Metadata: {manga_series_id}' + Style.RESET_ALL
+        PixivHelper.print_and_log(None, msg)
+        notifier(type="MANGA_SERIES", message=msg)
+        update_manga_series_mapping(caller, config, manga_series_id, notifier=notifier)
+    except Exception as ex:
+        if isinstance(ex, KeyboardInterrupt):
+            raise
+        caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        PixivHelper.print_and_log('error', f'Error at process_manga_series_metadata(): {manga_series_id}')
         PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
         raise
 

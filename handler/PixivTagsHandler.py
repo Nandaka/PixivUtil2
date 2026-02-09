@@ -9,7 +9,58 @@ import common.PixivBrowserFactory as PixivBrowserFactory
 import common.PixivConstant as PixivConstant
 import common.PixivHelper as PixivHelper
 import handler.PixivImageHandler as PixivImageHandler
+from common.PixivException import PixivException
 from model.PixivTags import PixivTags
+
+
+def process_tag_metadata(caller, config, tags, filter_mode="none", notifier=None):
+    if notifier is None:
+        notifier = PixivHelper.dummy_notifier
+
+    db = caller.__dbManager__
+    if isinstance(tags, str):
+        tags_list = [t.strip() for t in tags.split(',') if t.strip()]
+    else:
+        tags_list = tags
+
+    for tag in tags_list:
+        msg = f'Processing Tag Metadata: {tag}'
+        PixivHelper.print_and_log('info', msg)
+        notifier(type="TAG", message=msg)
+        try:
+            tag_info = PixivBrowserFactory.getBrowser().getTagInfo(tag, lang=config.tagTranslationLocale)
+            tag_id = tag_info.tag or tag_info.word or tag
+
+            has_pixpedia = tag_info.pixpedia is not None and bool(tag_info.pixpedia.tag)
+            has_translation = bool(tag_info.tagTranslation)
+            if filter_mode == "pixpedia" and not has_pixpedia:
+                PixivHelper.print_and_log('info', f"Skipping tag without pixpedia: {tag_id}")
+                continue
+            if filter_mode == "translation" and not has_translation:
+                PixivHelper.print_and_log('info', f"Skipping tag without translation: {tag_id}")
+                continue
+            if filter_mode == "pixpedia_or_translation" and not (has_pixpedia or has_translation):
+                PixivHelper.print_and_log('info', f"Skipping tag without pixpedia/translation: {tag_id}")
+                continue
+            db.insertTag(tag_id)
+            db.updateTag(tag_id)
+
+            tag_translations = tag_info.tagTranslation or {}
+            for key_tag, translations in tag_translations.items():
+                if key_tag:
+                    db.insertTag(key_tag)
+                    db.updateTag(key_tag)
+                if translations:
+                    for locale, value in translations.items():
+                        if value:
+                            db.insertTagTranslation(key_tag, locale, value)
+        except Exception as ex:
+            if isinstance(ex, KeyboardInterrupt):
+                raise
+            caller.ERROR_CODE = getattr(ex, 'errorCode', -1)
+            PixivHelper.print_and_log('error', f'Error at process_tag_metadata(): {tag}')
+            PixivHelper.print_and_log('error', f'Exception: {sys.exc_info()}')
+            continue
 
 
 def process_tags(caller,
