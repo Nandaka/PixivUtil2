@@ -95,6 +95,7 @@ def process_image(caller,
     parse_medium_page = None
     image = None
     result = None
+    manga_files = []
     if not is_unlisted:
         # https://www.pixiv.net/en/artworks/76656661
         referer = f"https://www.pixiv.net/artworks/{image_id}"
@@ -283,7 +284,6 @@ def process_image(caller,
                 target_dir = user_dir
 
             result = PixivConstant.PIXIVUTIL_OK
-            manga_files = list()
             page = 0
 
             # Issue #639
