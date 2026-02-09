@@ -331,6 +331,13 @@ class TestPixivHelper(unittest.TestCase):
         # print(r)
         self.assertTrue(len(r) > 0)
 
+    def testCoalesce(self):
+        self.assertIsNone(PixivHelper.coalesce())
+        self.assertIsNone(PixivHelper.coalesce(None, None))
+        self.assertEqual(PixivHelper.coalesce(None, 0, 1), 0)
+        self.assertEqual(PixivHelper.coalesce(None, "a", "b"), "a")
+        self.assertEqual(PixivHelper.coalesce(None, None, "fallback"), "fallback")
+
 
 if __name__ == '__main__':
     # unittest.main()

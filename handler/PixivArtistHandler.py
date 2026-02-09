@@ -57,9 +57,40 @@ def process_member_metadata(caller,
         PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Token":14}:{Style.RESET_ALL} {artist.artistToken}')
         PixivHelper.print_and_log(None, f'{Fore.LIGHTGREEN_EX}{"Member Backgrd":14}:{Style.RESET_ALL} {artist.artistBackground}')
 
-        db.insertNewMember(int(member_id), member_token=artist.artistToken)
-        db.updateMemberName(member_id, artist.artistName, artist.artistToken)
-        db.updateLastDownloadDate(member_id)
+        conn = db.conn
+        c = conn.cursor()
+        try:
+            c.execute("BEGIN")
+            c.execute(
+                """SELECT member_id, name, save_folder, created_date, last_update_date, last_image, is_deleted, member_token
+                   FROM pixiv_master_member WHERE member_id = ?""",
+                (member_id,),
+            )
+            row = c.fetchone()
+            db_name = row[1] if row else None
+            db_created_date = row[3] if row else None
+            db_last_image = row[5] if row else None
+            db_is_deleted = row[6] if row else None
+            db_member_token = row[7] if row else None
+
+            name = PixivHelper.coalesce(artist.artistName, db_name)
+            save_folder = r"N\A"
+            last_image = PixivHelper.coalesce(None, db_last_image, -1)
+            is_deleted = PixivHelper.coalesce(None, db_is_deleted, 0)
+            member_token = PixivHelper.coalesce(artist.artistToken, db_member_token, None)
+
+            c.execute(
+                """INSERT OR REPLACE INTO pixiv_master_member
+                   (member_id, name, save_folder, created_date, last_update_date, last_image, is_deleted, member_token)
+                   VALUES (?, ?, ?, COALESCE(?, datetime('now')), datetime('now'), ?, ?, ?)""",
+                (int(member_id), name, save_folder, db_created_date, last_image, is_deleted, member_token),
+            )
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        finally:
+            c.close()
 
         PixivHelper.print_and_log("info", f"Member_id: {member_id} metadata updated.")
     except KeyboardInterrupt:

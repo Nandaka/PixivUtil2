@@ -676,6 +676,16 @@ def get_ids_from_csv(ids_str, is_string=False):
     return ids
 
 
+def coalesce(*values):
+    """
+    Return the first non-None value, or None if all values are None.
+    """
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
 def clear_all():
     all_vars = [var for var in globals() if (var[:2], var[-2:]) != ("__", "__") and var != "clear_all"]
     for var in all_vars:
