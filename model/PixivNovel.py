@@ -11,44 +11,39 @@ MAX_LIMIT = 10
 
 
 class PixivNovel:
-    novel_id = 0
-    novel_json_str = ""
-    content = ""
-
-    # compatibility
-    artist = None
-    artist_id = 0
-    imageTitle = ""
-    imageId = 0
-    worksDate = ""
-    worksDateDateTime = datetime.fromordinal(1)
-    imageTags = None
-    tags = None
-    bookmark_count = 0
-    image_response_count = 0
-
-    # series info
-    seriesNavData = None
-    seriesId = 0
-    seriesOrder = 0
-
-    # novel specific
-    isOriginal = False
-    isBungei = False
-    language = ""
-    xRestrict = False
-    uploadDate = datetime.fromordinal(1)
-
-    # doesn't apply
-    worksResolution = ""
-    imageMode = "Novel"
-
-    _tzInfo = None
-    dateFormat = None
 
     def __init__(self, novel_id, novel_json, tzInfo=None, dateFormat=None) -> None:
         self.novel_id = self.imageId = novel_id
         self.novel_json_str = novel_json
+        self.content = ""
+
+        # compatibility
+        self.artist = None
+        self.artist_id = 0
+        self.imageTitle = ""
+        self.worksDate = ""
+        self.worksDateDateTime = datetime.fromordinal(1)
+        self.imageTags = None
+        self.tags = None
+        self.bookmark_count = 0
+        self.image_response_count = 0
+
+        # series info
+        self.seriesNavData = None
+        self.seriesId = 0
+        self.seriesOrder = 0
+
+        # novel specific
+        self.isOriginal = False
+        self.isBungei = False
+        self.language = ""
+        self.xRestrict = False
+        self.uploadDate = datetime.fromordinal(1)
+
+        # doesn't apply
+        self.worksResolution = ""
+        self.imageMode = "Novel"
+
         self._tzInfo = tzInfo
         self.dateFormat = dateFormat
         self.parse()
@@ -132,16 +127,14 @@ class PixivNovel:
 
 
 class NovelSeries:
-    series_id = 0
-    series_str = ""
-    series_list = list()
-    series_list_str = dict()
-    total = 0
-    series_name = ""
 
     def __init__(self, series_id, series_json) -> None:
         self.series_id = series_id
         self.series_str = series_json
+        self.series_list = list()
+        self.series_list_str = dict()
+        self.total = 0
+        self.series_name = ""
 
         self.parse()
 
