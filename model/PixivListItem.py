@@ -11,8 +11,6 @@ from common.PixivException import PixivException
 
 class PixivListItem(object):
     '''Class for item in list.txt'''
-    memberId = ""
-    path = ""
 
     def __init__(self, memberId, path):
         self.memberId = int(memberId)

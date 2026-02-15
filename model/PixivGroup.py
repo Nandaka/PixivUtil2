@@ -11,9 +11,6 @@ from model.PixivImage import PixivImage
 
 class PixivGroup(object):
     short_pattern = re.compile(r"https?://www.pixiv.net/member_illust.php\?mode=(.*)&illust_id=(\d+)")
-    imageList = None
-    externalImageList = None
-    maxId = 0
 
     def __init__(self, jsonResponse):
         data = json.loads(jsonResponse)

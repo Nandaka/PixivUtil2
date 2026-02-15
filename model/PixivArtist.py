@@ -9,26 +9,23 @@ from common.PixivException import PixivException
 
 class PixivArtist:
     '''Class for parsing member page.'''
-    artistId = 0
-    artistName = ""
-    artistAvatar = ""
-    artistToken = ""
-    artistBackground = ""
-    imageList = []
-    isLastPage = None
-    haveImages = None
-    totalImages = 0
-    # __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
-    offset = None
-    limit = None
-    reference_image_id = 0
-    manga_series = []
-    novel_series = []
 
     def __init__(self, mid: int = 0, page: str = "", fromImage=False, offset: int = -1, limit: int = -1):
+        self.artistId = mid
+        self.artistName = ""
+        self.artistAvatar = ""
+        self.artistToken = ""
+        self.artistBackground = ""
+        self.imageList = []
+        self.isLastPage = None
+        self.haveImages = None
+        self.totalImages = 0
+        # __re_imageULItemsClass = re.compile(r".*\b_image-items\b.*")
         self.offset = offset
         self.limit = limit
-        self.artistId = mid
+        self.reference_image_id = 0
+        self.manga_series = []
+        self.novel_series = []
 
         if page is not None and len(page) > 0:
             payload = None

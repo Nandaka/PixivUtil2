@@ -21,13 +21,12 @@ from common.PixivException import PixivException
 
 
 class PixivTagData(object):
-    tag = ""
-    romaji = None
-    translation_data = None
 
     def __init__(self, tag, tag_node):
         super().__init__()
         self.tag = tag
+        self.romaji = None
+        self.translation_data = None
         if tag_node is not None:
             if "romaji" in tag_node:
                 self.romaji = tag_node["romaji"]
@@ -47,45 +46,7 @@ class PixivTagData(object):
 
 class PixivImage (object):
     '''Class for parsing image page, including manga page and big image.'''
-    artist = None
-    originalArtist = None
-    imageId = 0
-    imageTitle = ""
-    imageCaption = ""
-    imageTags = []
-    imageMode = ""
-    imageUrls = []
-    imageResizedUrls = []
-    worksDate = ""
-    worksResolution = ""
-    seriesNavData = {}
-    rawJSON = {}
-    jd_rtv = 0
-    jd_rtc = 0
-    # jd_rtt = 0
-    imageCount = 0
-    fromBookmark = False
-    worksDateDateTime = datetime.fromordinal(1)
-    js_createDate = None
-    bookmark_count = -1
-    image_response_count = -1
-    ugoira_data = ""
-    dateFormat = None
-    descriptionUrlList = []
     __re_caption = re.compile("caption")
-    _tzInfo = None
-    tags: list[PixivTagData]
-
-    # only applicable for manga series
-    manga_series_order: int = -1
-    manga_series_parent = None
-
-    # Issue #1064 titleCaptionTranslation
-    translated_work_title = ""
-    translated_work_caption = ""
-
-    # Issue #1189
-    ai_type = -1
 
     def __init__(self,
                  iid=0,
@@ -101,11 +62,28 @@ class PixivImage (object):
                  writeRawJSON=False,
                  stripHTMLTagsFromCaption=False):
         self.artist = parent
-        self.fromBookmark = fromBookmark
-        self.bookmark_count = bookmark_count
+        self.originalArtist = None
         self.imageId = iid
+        self.imageTitle = ""
+        self.imageCaption = ""
+        self.imageTags = []
+        self.imageMode = ""
         self.imageUrls = []
         self.imageResizedUrls = []
+        self.worksDate = ""
+        self.worksResolution = ""
+        self.seriesNavData = {}
+        self.rawJSON = {}
+        self.jd_rtv = 0
+        self.jd_rtc = 0
+        # jd_rtt = 0
+        self.imageCount = 0
+        self.fromBookmark = fromBookmark
+        self.worksDateDateTime = datetime.fromordinal(1)
+        self.js_createDate = None
+        self.bookmark_count = bookmark_count
+        self.image_response_count = image_response_count
+        self.ugoira_data = ""
         self.dateFormat = dateFormat
         self.descriptionUrlList = []
         self._tzInfo = tzInfo
@@ -115,8 +93,12 @@ class PixivImage (object):
         self.manga_series_order = manga_series_order
         self.manga_series_parent = manga_series_parent
 
+        # Issue #1064 titleCaptionTranslation
         self.translated_work_title = ""
         self.translated_work_caption = ""
+
+        # Issue #1189
+        self.ai_type = -1
 
         if page is not None:
             payload = json.loads(page)  # https://www.pixiv.net/ajax/illust/{image_id}?lang=en
@@ -627,22 +609,20 @@ class PixivImage (object):
 
 
 class PixivMangaSeries:
-    manga_series_id: int = 0
-    member_id: int = 0
-    pages_with_order: List[Tuple[int, int]] = []
-    current_page: int = 0
-    total_works: int = 0
-    title: str = ""
-    description: str = ""
-    is_last_page = False
-
-    # object data
-    artist: PixivArtist
-    images: List[PixivImage] = []
 
     def __init__(self, manga_series_id: int, current_page: int, payload: str):
         self.manga_series_id = manga_series_id
+        self.member_id: int = 0
+        self.pages_with_order: List[Tuple[int, int]] = []
         self.current_page = current_page
+        self.total_works: int = 0
+        self.title: str = ""
+        self.description: str = ""
+        self.is_last_page = False
+
+        # object data
+        self.artist: PixivArtist = None
+        self.images: List[PixivImage] = []
 
         if payload is not None:
             js = json.loads(payload)

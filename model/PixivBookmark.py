@@ -115,11 +115,11 @@ class PixivBookmark(object):
 
 class PixivNewIllustBookmark(object):
     '''Class for parsing New Illust from Bookmarks'''
-    imageList = None
-    isLastPage = None
-    haveImages = None
 
     def __init__(self, page):
+        self.imageList = None
+        self.isLastPage = None
+        self.haveImages = None
         self.__ParseNewIllustBookmark(page)
         # self.__CheckLastPage(page)
         self.haveImages = bool(len(self.imageList) > 0)

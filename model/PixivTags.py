@@ -10,10 +10,6 @@ from common.PixivException import PixivException
 
 
 class PixivTagsItem:
-    imageId: int = 0
-    bookmarkCount: int = 0
-    imageResponse: int = 0
-    ai_type: int = -1
 
     def __init__(self, image_id, bookmark_count, image_response_count, ai_type=-1):
         self.imageId = image_id
@@ -24,17 +20,18 @@ class PixivTagsItem:
 
 class PixivTags:
     '''Class for parsing tags search page'''
-    itemList = None
-    haveImage = None
-    isLastPage = None
-    availableImages = 0
-    # __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
-    # __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
-    query = ""
-    memberId = 0
-
     POSTS_PER_PAGE = 60
-    page = -1
+
+    def __init__(self):
+        self.itemList = None
+        self.haveImage = None
+        self.isLastPage = None
+        self.availableImages = 0
+        # __re_illust = re.compile(r'member_illust.*illust_id=(\d*)')
+        # __re_imageItemClass = re.compile(r".*\bimage-item\b.*")
+        self.query = ""
+        self.memberId = 0
+        self.page = -1
 
     def parseMemberTags(self, artist, memberId, query=""):
         '''process artist result and return the image list, https://www.pixiv.net/ajax/user/25661139/illustmanga/tag/<search_tags>'''
