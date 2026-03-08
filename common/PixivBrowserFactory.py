@@ -980,7 +980,7 @@ class PixivBrowser(mechanize.Browser):
                     PixivHelper.dump_html(f"Dump for SearchTags {tags}.html", response_page)
                     raise
 
-            return (result, response_page)
+        return (result, response_page)
 
     def getTagInfo(self, tag, lang=None) -> PixivTag:
         if tag is None or len(tag) == 0:
