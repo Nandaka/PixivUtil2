@@ -405,7 +405,11 @@ Please refer run with `--help` for latest information.
 - checkDBProcessHistory
   Each FANBOX post has a updated_date value, which will be recorded/updated in database after it is processed.
   - When this is `True`, the values in database would be checked when processing each post. If record is no earlier than the newly retrieved date, which means that the post has not been processed at all or changed since last time, the post would be skipped.
+  - Can be combined with `checkUpdatedLimitFanbox` to stop checking more posts for the current FANBOX member after enough unchanged/already-processed posts are encountered.
   - When this is `False`, posts will be processed anyways.
+- checkUpdatedLimitFanbox
+  Skip to next FANBOX member if already see n-number of previously processed/unchanged posts for current member while `checkDBProcessHistory` is enabled.
+  Set `0` to disable.
 - listPathFanbox
 
   The list file for fanbox creators. One creator per line.

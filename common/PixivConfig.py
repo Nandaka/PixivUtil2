@@ -178,6 +178,7 @@ class PixivConfig():
         ConfigItem("FANBOX", "downloadCoverWhenRestricted", False),
         ConfigItem("FANBOX", "downloadCover", True),
         ConfigItem("FANBOX", "checkDBProcessHistory", False),
+        ConfigItem("FANBOX", "checkUpdatedLimitFanbox", 0),
         ConfigItem("FANBOX", "listPathFanbox", "listfanbox.txt"),
 
         ConfigItem("FFmpeg", "ffmpeg", "ffmpeg.exe"),
