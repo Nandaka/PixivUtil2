@@ -18,7 +18,7 @@ dist*/*
 old/*
 config.ini
 config.ini.error*
-list.txt
+listfanbox.txt
 *.log
 *.bat
 db.sqlite
