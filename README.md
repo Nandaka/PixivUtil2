@@ -410,7 +410,7 @@ Please refer run with `--help` for latest information.
   - When this is `False`, posts will be processed anyways.
 - checkUpdatedLimitFanbox
 
-  Skip to next FANBOX member if already seen n-number of previously processed/unchanged posts for current member while `checkDBProcessHistory` is enabled.
+  Skip to next FANBOX member if a number of consecutive previously processed/unchanged posts are encountered for the current member while `checkDBProcessHistory` is enabled.
   Set to `0` to disable.
 - listPathFanbox
 
