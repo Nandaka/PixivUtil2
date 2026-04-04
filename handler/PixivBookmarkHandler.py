@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import time
+from datetime import datetime, time, timedelta
 
 import handler.PixivArtistHandler as PixivArtistHandler
 import common.PixivConstant as PixivConstant
@@ -115,6 +115,25 @@ def process_new_illust_from_bookmark(caller,
     parsed_page = None
     try:
         print("Processing New Illust from bookmark")
+
+        db = caller.__dbManager__
+        start_date = None
+        # support both dateDiff and startDate, startDate takes precedence
+        if hasattr(config, 'startDate') and config.startDate is not None and len(config.startDate) > 0:
+            try:
+                start_date = datetime.strptime(config.startDate, "%Y-%m-%d")
+                PixivHelper.print_and_log('info', f"startDate is set, only processing images on or after {start_date.strftime('%Y-%m-%d')}")
+            except ValueError:
+                PixivHelper.print_and_log('error', f"Invalid startDate format: {config.startDate}. Please use YYYY-MM-DD.")
+                return
+        elif config.dateDiff > 0:
+            start_date = datetime.now() - timedelta(days=config.dateDiff)
+            PixivHelper.print_and_log('info', f"dateDiff={config.dateDiff} is set, only processing images on or after ~{start_date.strftime('%Y-%m-%d')}")
+
+        if start_date is not None:
+            # remove time part for comparison
+            start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
         i = page_num
         image_count = 1
         flag = True
@@ -126,11 +145,30 @@ def process_new_illust_from_bookmark(caller,
             pb = br.getFollowedNewIllusts(mode, current_page=i)
 
             for image_id in pb.imageList:
+                image_id = int(image_id)
+
+                if start_date is not None:
+                    image_date = None
+                    image_in_db = db.selectImageByImageId(image_id)
+                    if image_in_db is not None and image_in_db.worksDate is not None:
+                        # worksDate is string 'YYYY-MM-DD HH:MM:SS'
+                        image_date = datetime.strptime(image_in_db.worksDate, '%Y-%m-%d %H:%M:%S')
+                    else:
+                        # not in DB, get from API
+                        PixivHelper.print_and_log('debug', f'Image {image_id} not in DB, fetching info for date check.')
+                        (image, _) = br.getImagePage(image_id)
+                        image_date = image.worksDateDateTime
+
+                    if image_date < start_date:
+                        PixivHelper.print_and_log('info', f"Image {image_id} ({image_date.strftime('%Y-%m-%d')}) is older than start date {start_date.strftime('%Y-%m-%d')}, stopping.")
+                        flag = False
+                        break
+
                 print(f"Image #{image_count}")
                 result = PixivImageHandler.process_image(caller,
                                                          config,
                                                          artist=None,
-                                                         image_id=int(image_id),
+                                                         image_id=image_id,
                                                          bookmark_count=bookmark_count)
                 image_count = image_count + 1
 
