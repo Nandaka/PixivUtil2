@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import gc
 
 import common.datetime_z as datetime_z
 import common.PixivBrowserFactory as PixivBrowserFactory
@@ -43,6 +44,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
     current_page = 1
     next_url = None
     image_count = 1
+    updated_limit_count = 0
     while True:
         PixivHelper.print_and_log("info", "Processing {0}, page {1}".format(artist, current_page))
         caller.set_console_title(f"{title_prefix} {artist}, page {current_page}")
@@ -59,7 +61,7 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
             # images
             if post.type in PixivModelFanbox.FanboxPost._supportedType:
                 try:
-                    process_fanbox_post(caller, config, post, artist)
+                    result = process_fanbox_post(caller, config, post, artist)
                 except KeyboardInterrupt:
                     choice = input("Keyboard Interrupt detected, continue to next post? (Y/N)").rstrip("\r")
                     if choice.upper() == 'N':
@@ -67,6 +69,20 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
                         return
                     else:
                         continue
+                # Similar behavior to Pixiv's checkUpdatedLimit skip
+                # If we keep encountering already downloaded posts, skip the rest for this creator.
+                if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE:
+                    updated_limit_count += 1
+                    if (config.checkUpdatedLimitFanbox != 0 and updated_limit_count >= config.checkUpdatedLimitFanbox):
+                        PixivHelper.print_and_log(
+                                "info",
+                                f"Skipping FANBOX member: {artist.artistId}\n" +
+                                f"(reached checkUpdatedLimitFanbox={config.checkUpdatedLimitFanbox})")
+                        PixivBrowserFactory.getBrowser().clear_history()
+                        return
+                    gc.collect()
+                elif result == PixivConstant.PIXIVUTIL_OK:
+                    updated_limit_count = 0
             else:
                 PixivHelper.print_and_log("info", f"Unsupported post type: {post.imageId} => {post.type}")
             image_count += 1
@@ -147,11 +163,11 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
 
         if post.is_restricted:
             PixivHelper.print_and_log("info", "Skipping post: {0} due to restricted post.".format(post.imageId))
-            return
+            return PixivConstant.PIXIVUTIL_SKIP_BLACKLIST
 
         if flag_processed:
             PixivHelper.print_and_log("info", "Skipping post: {0} because it was downloaded before.".format(post.imageId))
-            return
+            return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
         if post.images is None or len(post.images) == 0:
             PixivHelper.print_and_log("info", "No Image available in post: {0}.".format(post.imageId))
@@ -235,6 +251,7 @@ def process_fanbox_post(caller, config, post: PixivModelFanbox.FanboxPost, artis
             db.insertPostImages(post_files)
 
     db.updatePostUpdateDate(post.imageId, post.updatedDate)
+    return PixivConstant.PIXIVUTIL_OK
 
 
 def process_pixiv_by_fanbox_id(caller, config, artist_id, start_page=1, end_page=0, tags=None, title_prefix=""):
