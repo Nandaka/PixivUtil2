@@ -13,6 +13,6 @@ dependencies = [
     "curl-cffi>=0.11.3",
     "demjson3>=3.0.0",
     "mechanize>=0.4.5",
-    "pillow>=8.3.0",
+    "pillow>=12.2.0",
     "pysocks>=1.7.1",
 ]
