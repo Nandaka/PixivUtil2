@@ -416,9 +416,16 @@ def get_image_bookmark(caller, config, hide, start_page=1, end_page=0, tag=None,
         offset = limit * (i - 1)
         PixivHelper.print_and_log('info', f"Importing user's bookmarked image from page {i}")
 
-        url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={encoded_tag}&offset={offset}&limit={limit}&rest={show}"
+        locale = ""
+        if br._locale is not None and len(br._locale) > 0:
+            if br._locale[0] == "/":
+                locale = f"&lang={br._locale[1:]}"
+            else:
+                locale = f"&lang={br._locale}"
+
+        url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag={encoded_tag}&offset={offset}&limit={limit}&rest={show}{locale}"
         if use_image_tag:  # don't filter based on user's bookmark tag
-            url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag=&offset={offset}&limit={limit}&rest={show}"
+            url = f"https://www.pixiv.net/ajax/user/{member_id}/illusts/bookmarks?tag=&offset={offset}&limit={limit}&rest={show}{locale}"
             PixivHelper.print_and_log('info', f"Using image tag: {tag}")
 
         PixivHelper.print_and_log('info', f"Source URL: {url}")
