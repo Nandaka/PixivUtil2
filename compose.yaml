@@ -1,0 +1,10 @@
+services:
+  pixivutil2:
+    build: .
+    image: pixivutil2
+    volumes:
+      - .:/workdir
+    working_dir: /workdir
+    stdin_open: true
+    tty: true
+    command: ["python", "PixivUtil2.py"]
