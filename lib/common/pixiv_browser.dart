@@ -27,6 +27,16 @@ import 'pixiv_oauth.dart';
 PixivBrowser? _defaultBrowser;
 CookieJar? _defaultCookieJar;
 
+const _setCookieAttributeNames = {
+  'domain',
+  'expires',
+  'httponly',
+  'max-age',
+  'path',
+  'samesite',
+  'secure',
+};
+
 /// Get the default browser instance.
 PixivBrowser? getBrowser() => _defaultBrowser;
 
@@ -142,14 +152,28 @@ class PixivBrowser {
 
   Future<Map<String, String>> _buildHeaders(
       String url, Map<String, String>? headers) async {
+    final uri = Uri.parse(url);
     final h = <String, String>{
       'User-Agent': config.useragent,
       'Accept': '*/*',
     };
     if (headers != null) h.addAll(headers);
-    final cookies = await cookieJar.loadForRequest(Uri.parse(url));
+
+    final cookieValues = <String, String>{};
+    cookieValues.addAll(parseCookieHeader(h.remove('Cookie')));
+    if (uri.host == 'pixiv.net' || uri.host.endsWith('.pixiv.net')) {
+      cookieValues.addAll(parseCookieHeader(config.cookie));
+    }
+
+    final cookies = await cookieJar.loadForRequest(uri);
     if (cookies.isNotEmpty) {
-      h['Cookie'] = cookies.map((c) => '${c.name}=${c.value}').join('; ');
+      for (final cookie in cookies) {
+        cookieValues[cookie.name] = cookie.value;
+      }
+    }
+    if (cookieValues.isNotEmpty) {
+      h['Cookie'] =
+          cookieValues.entries.map((e) => '${e.key}=${e.value}').join('; ');
     }
     return h;
   }
@@ -170,17 +194,42 @@ class PixivBrowser {
     // http package merges Set-Cookie headers with ", " between them. This is a
     // best-effort split that respects comma-in-date.
     final result = <String>[];
-    final re =
-        RegExp(r',(?=[^,;]+=[^,;]+)(?!\s*\d{2}[-A-Za-z]{3}\s\d{4})');
+    final re = RegExp(r',(?=[^,;]+=[^,;]+)(?!\s*\d{2}[-A-Za-z]{3}\s\d{4})');
     for (final s in header.split(re)) {
       if (s.trim().isNotEmpty) result.add(s.trim());
     }
     return result;
   }
 
+  static Map<String, String> parseCookieHeader(String? header) {
+    if (header == null) return const {};
+    var raw = header.trim();
+    if (raw.isEmpty) return const {};
+    if (raw.toLowerCase().startsWith('cookie:')) {
+      raw = raw.substring(raw.indexOf(':') + 1).trim();
+    }
+
+    final values = <String, String>{};
+    for (final part in raw.split(';')) {
+      final trimmed = part.trim();
+      final separator = trimmed.indexOf('=');
+      if (separator <= 0) continue;
+
+      final name = trimmed.substring(0, separator).trim();
+      final lowerName = name.toLowerCase();
+      if (name.isEmpty || _setCookieAttributeNames.contains(lowerName)) {
+        continue;
+      }
+
+      values[name] = trimmed.substring(separator + 1).trim();
+    }
+    return values;
+  }
+
   void _putCache(String key, dynamic item, {int expirationSeconds = 3600}) {
-    final expiry =
-        DateTime.now().add(Duration(seconds: expirationSeconds)).millisecondsSinceEpoch;
+    final expiry = DateTime.now()
+        .add(Duration(seconds: expirationSeconds))
+        .millisecondsSinceEpoch;
     _cache[key] = _CacheEntry(item, expiry);
     if (_cache.length > _maxCache) {
       String? oldest;
@@ -199,16 +248,17 @@ class PixivBrowser {
     final entry = _cache.remove(key);
     if (entry == null) return null;
     if (entry.expiry > DateTime.now().millisecondsSinceEpoch) {
-      _cache[key] = _CacheEntry(entry.item,
-          entry.expiry + (slidingWindowSeconds * 1000));
+      _cache[key] =
+          _CacheEntry(entry.item, entry.expiry + (slidingWindowSeconds * 1000));
       return entry.item;
     }
     return null;
   }
 
-  void addCookieValue(String name, String value, {String domain = '.pixiv.net'}) {
-    cookieJar.saveFromResponse(
-        Uri.parse('https://www.pixiv.net'), [Cookie(name, value)..domain = domain]);
+  void addCookieValue(String name, String value,
+      {String domain = '.pixiv.net'}) {
+    cookieJar.saveFromResponse(Uri.parse('https://www.pixiv.net'),
+        [Cookie(name, value)..domain = domain]);
   }
 
   // -----------
@@ -298,7 +348,8 @@ class PixivBrowser {
   Future<PixivRanking> getPixivRanking(
       String mode, int currentPage, String date, String content,
       [List<String>? filters]) async {
-    var url = 'https://www.pixiv.net/ranking.php?mode=$mode&p=$currentPage&format=json';
+    var url =
+        'https://www.pixiv.net/ranking.php?mode=$mode&p=$currentPage&format=json';
     if (date.isNotEmpty) url += '&date=$date';
     if (content.isNotEmpty) url += '&content=$content';
     final body = await getContent(url);
@@ -314,7 +365,8 @@ class PixivBrowser {
   }
 
   Future<PixivNewIllustBookmark> getNewIllustBookmark({int page = 1}) async {
-    final url = 'https://www.pixiv.net/ajax/follow_latest/illust?p=$page&mode=all';
+    final url =
+        'https://www.pixiv.net/ajax/follow_latest/illust?p=$page&mode=all';
     final body = await getContent(url);
     return PixivNewIllustBookmark(body);
   }
@@ -382,8 +434,7 @@ class PixivBrowser {
     request.headers.addAll(mergedHeaders);
     final response = await _client.send(request);
     if (response.statusCode >= 400) {
-      throw PixivException(
-          'HTTP ${response.statusCode} downloading $url',
+      throw PixivException('HTTP ${response.statusCode} downloading $url',
           errorCode: PixivException.DOWNLOAD_FAILED_NETWORK);
     }
     final file = await File(destination).create(recursive: true);

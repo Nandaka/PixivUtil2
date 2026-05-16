@@ -146,6 +146,15 @@ keys and sections from the Python version are recognised — see
 [lib/common/pixiv_config.dart](lib/common/pixiv_config.dart) for the
 full list.
 
+For artwork downloads, make sure the `[Authentication]` section has a
+valid Pixiv web cookie. The minimum useful value is usually your
+`PHPSESSID`, but pasting a browser `Cookie:` header also works:
+
+```ini
+[Authentication]
+cookie = PHPSESSID=your_pixiv_session_here
+```
+
 By default, each artwork is saved into its own folder:
 
 ```text
