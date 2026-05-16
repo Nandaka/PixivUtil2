@@ -1,0 +1,31 @@
+name: pixiv_util2
+description: Dart port of PixivUtil2 - a Pixiv downloader.
+version: 0.1.0
+homepage: https://github.com/Nandaka/PixivUtil2
+publish_to: none
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  http: ^1.2.0
+  args: ^2.5.0
+  path: ^1.9.0
+  ini: ^2.1.0
+  sqlite3: ^2.4.0
+  html: ^0.15.4
+  intl: ^0.19.0
+  crypto: ^3.0.3
+  archive: ^3.6.1
+  logging: ^1.2.0
+  ansicolor: ^2.0.2
+  collection: ^1.18.0
+  http_parser: ^4.0.2
+  cookie_jar: ^4.0.8
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^4.0.0
+
+executables:
+  pixiv_util2: pixiv_util2

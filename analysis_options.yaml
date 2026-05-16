@@ -1,0 +1,17 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  errors:
+    unused_import: warning
+    unused_local_variable: warning
+    dead_code: warning
+  exclude:
+    - "**/*.g.dart"
+    - "build/**"
+
+linter:
+  rules:
+    prefer_single_quotes: false
+    avoid_print: false
+    constant_identifier_names: false
+    non_constant_identifier_names: false
