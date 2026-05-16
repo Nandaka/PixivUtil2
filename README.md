@@ -81,7 +81,7 @@ Non-interactive mode (one option at a time, useful for scripting):
 dart run bin/pixiv_util2.dart --option 2 --image-id 12345
 dart run bin/pixiv_util2.dart --option 1 --member-id 12345
 dart run bin/pixiv_util2.dart --option 3 --tag "風景"
-dart run bin/pixiv_util2.dart --option 6 --mode daily --start-page 1 --end-page 3
+dart run bin/pixiv_util2.dart --option 16 --mode daily --start-page 1 --end-page 3
 ```
 
 Options:
@@ -92,13 +92,17 @@ Options:
 | `2`        | Download by Image ID            |
 | `3`        | Download by Tag                 |
 | `4`        | Download from list.txt          |
-| `5`        | Download bookmarks              |
-| `6`        | Download Pixiv ranking          |
-| `7`        | Download a single novel         |
-| `8`        | Download a novel series         |
-| `9`        | Download a Pixiv Sketch artist  |
-| `10`       | Download a FANBOX artist        |
-| `11`       | Run a `batch_job.json`          |
+| `6`        | Download bookmarked images      |
+| `8`        | Download new followed illusts   |
+| `11`       | Download member bookmarks       |
+| `14`       | Download a single novel         |
+| `15`       | Download a novel series         |
+| `16`       | Download Pixiv ranking          |
+| `18`       | Download new illusts            |
+| `s1`       | Download a Pixiv Sketch artist  |
+| `f2`       | Download a FANBOX artist        |
+| `f3`       | Download a FANBOX post          |
+| `b`        | Run a `batch_job.json`          |
 
 ## Build a standalone binary
 

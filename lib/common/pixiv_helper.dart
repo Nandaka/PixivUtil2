@@ -23,9 +23,8 @@ dynamic _config;
 final RegExp _ansiColor = RegExp(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])');
 
 /// Bad-character regex (platform-aware), matches PixivHelper.__badchars__.
-final RegExp _badchars = Platform.isWindows
-    ? RegExp(r'[\?:<>\|\*"]')
-    : RegExp(r'^$');
+final RegExp _badchars =
+    Platform.isWindows ? RegExp(r'[\?:<>\|\*"]') : RegExp(r'^$');
 
 /// Custom sanitizer dictionary.
 final Map<String, Map<String, dynamic>> _customSanitizerDic = {};
@@ -127,9 +126,28 @@ String sanitizeFilename(String name, [String? rootDir]) {
 bool _isReservedName(String name) {
   if (!Platform.isWindows) return false;
   final reserved = {
-    'CON', 'PRN', 'AUX', 'NUL',
-    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+    'CON',
+    'PRN',
+    'AUX',
+    'NUL',
+    'COM1',
+    'COM2',
+    'COM3',
+    'COM4',
+    'COM5',
+    'COM6',
+    'COM7',
+    'COM8',
+    'COM9',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'LPT4',
+    'LPT5',
+    'LPT6',
+    'LPT7',
+    'LPT8',
+    'LPT9',
   };
   final stem = p.withoutExtension(name).toUpperCase();
   return reserved.contains(stem);
@@ -208,13 +226,12 @@ String makeFilename(
 
   // %works_date_fmt{...}%
   if (nameFormat.contains('%works_date_fmt')) {
-    final m =
-        RegExp(r'(%works_date_fmt\{(.*?)\}%)').firstMatch(nameFormat);
+    final m = RegExp(r'(%works_date_fmt\{(.*?)\}%)').firstMatch(nameFormat);
     if (m != null) {
       final fmt = _convertPyDateFormat(m.group(2)!);
-      final dt =
-          (imageInfo.worksDateDateTime as DateTime?) ?? DateTime.now();
-      nameFormat = nameFormat.replaceFirst(m.group(0)!, DateFormat(fmt).format(dt));
+      final dt = (imageInfo.worksDateDateTime as DateTime?) ?? DateTime.now();
+      nameFormat =
+          nameFormat.replaceFirst(m.group(0)!, DateFormat(fmt).format(dt));
     }
   }
 
@@ -322,13 +339,13 @@ String makeFilename(
         '%original_member_id%', '${artistInfo.artistId ?? 0}');
     nameFormat = nameFormat.replaceAll(
         '%original_member_token%', _safeStr(artistInfo.artistToken));
-    nameFormat = nameFormat.replaceAll(
-        '%original_artist%', replacePathSeparator(_safeStr(artistInfo.artistName)));
+    nameFormat = nameFormat.replaceAll('%original_artist%',
+        replacePathSeparator(_safeStr(artistInfo.artistName)));
   }
 
   if ((imageInfo.bookmark_count ?? 0) > 0) {
-    nameFormat =
-        nameFormat.replaceAll('%bookmark_count%', '${imageInfo.bookmark_count}');
+    nameFormat = nameFormat.replaceAll(
+        '%bookmark_count%', '${imageInfo.bookmark_count}');
     if (nameFormat.contains('%bookmarks_group%')) {
       nameFormat = nameFormat.replaceAll(
           '%bookmarks_group%', calculateGroup(imageInfo.bookmark_count as int));
@@ -359,8 +376,8 @@ String makeFilename(
   if (_config != null &&
       (_config.customCleanUpRe as String?) != null &&
       (_config.customCleanUpRe as String).isNotEmpty) {
-    nameFormat = nameFormat.replaceAll(
-        RegExp(_config.customCleanUpRe as String), '');
+    nameFormat =
+        nameFormat.replaceAll(RegExp(_config.customCleanUpRe as String), '');
   }
 
   return nameFormat.trim();
@@ -470,7 +487,10 @@ Future<List<String>> openTextFileLines(String filename) async {
   final raw = await File(filename).readAsBytes();
   // Strip BOMs
   List<int> data = raw;
-  if (data.length >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF) {
+  if (data.length >= 3 &&
+      data[0] == 0xEF &&
+      data[1] == 0xBB &&
+      data[2] == 0xBF) {
     data = data.sublist(3);
   }
   final text = utf8.decode(data, allowMalformed: true);
@@ -523,7 +543,8 @@ Future<void> dumpHtml(String filename, String htmlText,
 }
 
 /// Print and log a message.
-void printAndLog(String? level, String msg, {bool newline = true, String? end}) {
+void printAndLog(String? level, String msg,
+    {bool newline = true, String? end}) {
   final cleaned = msg.replaceAll(_ansiColor, '');
   final lvl = level?.toLowerCase();
   if (lvl != null) {
@@ -636,6 +657,9 @@ bool isPixivMediaUrl(String url) =>
 
 /// Print the program header. Replaces colorama-based output with simple ANSI codes.
 void printHeader() {
+  printOriginalHeader();
+  return;
+  // ignore: dead_code
   const padding = 60;
   const yellow = '\x1B[33m';
   const cyan = '\x1B[36m';
@@ -644,8 +668,7 @@ void printHeader() {
   print('┌$border┐');
   print(
       '│ $yellow${'PixivDownloader2 version ${pixiv_constant.PIXIVUTIL_VERSION}'.padRight(padding - 3)}$reset│');
-  print(
-      '│ $cyan${pixiv_constant.PIXIVUTIL_LINK.padRight(padding - 3)}$reset│');
+  print('│ $cyan${pixiv_constant.PIXIVUTIL_LINK.padRight(padding - 3)}$reset│');
   print(
       '│ $yellow${'Donate at ${pixiv_constant.PIXIVUTIL_DONATE}'.padRight(padding - 3)}$reset│');
   print('└$border┘');
@@ -654,6 +677,21 @@ void printHeader() {
 /// Try to format a [DateTime] using a Python-style strftime format string.
 String strftime(String fmt, DateTime dt) {
   return DateFormat(_convertPyDateFormat(fmt)).format(dt);
+}
+
+void printOriginalHeader() {
+  const padding = 60;
+  const yellow = '\x1B[33m';
+  const cyan = '\x1B[36m';
+  const reset = '\x1B[0m';
+  final border = '─' * (padding - 2);
+  print('┌$border┐');
+  print(
+      '│ $yellow${'PixivDownloader2 version ${pixiv_constant.PIXIVUTIL_VERSION}'.padRight(padding - 3)}$reset│');
+  print('│ $cyan${pixiv_constant.PIXIVUTIL_LINK.padRight(padding - 3)}$reset│');
+  print(
+      '│ $yellow${'Donate at ${pixiv_constant.PIXIVUTIL_DONATE}'.padRight(padding - 3)}$reset│');
+  print('└$border┘');
 }
 
 /// Mark the given time as the application start time.

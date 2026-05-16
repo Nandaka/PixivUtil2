@@ -66,7 +66,7 @@ ArgParser _buildParser() {
 }
 
 Future<void> main(List<String> arguments) async {
-  pixiv_helper.printHeader();
+  pixiv_helper.printOriginalHeader();
 
   final parser = _buildParser();
   final ArgResults args;
@@ -99,6 +99,8 @@ Future<void> main(List<String> arguments) async {
   final caller = PixivCaller(config: config, br: browser, dbManager: db);
 
   try {
+    _printStartupNotes(config);
+    await _loginWithCookie(browser, config);
     if (args['option'] != null) {
       await _runOption(caller, args, args['option'] as String);
     } else {
@@ -112,6 +114,32 @@ Future<void> main(List<String> arguments) async {
   }
 
   exit(caller.errorCode);
+}
+
+void _printStartupNotes(PixivConfig config) {
+  if (config.dayLastUpdated != 0 && config.processFromDb) {
+    pixiv_helper.printAndLog('info',
+        'Only process members where the last update is >= ${config.dayLastUpdated} days ago');
+  }
+  print('Username login is broken, use Cookies to log in.');
+  print(
+      'See Q3. at https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#a-usage');
+  if (config.username.isEmpty || config.password.isEmpty) {
+    print('No username and/or password found in config.ini');
+    print(
+        'See https://github.com/Nandaka/PixivUtil2?tab=readme-ov-file#authentication');
+  }
+}
+
+Future<void> _loginWithCookie(PixivBrowser browser, PixivConfig config) async {
+  if (config.cookie.isEmpty) return;
+  final result = await browser.loginUsingCookie();
+  if (result) {
+    if (browser.myId > 0) {
+      pixiv_helper.printAndLog('info', 'My User Id: ${browser.myId}.');
+    }
+    pixiv_helper.printAndLog('info', 'Premium User: ${browser.isPremium}.');
+  }
 }
 
 String _requireArg(ArgResults args, String key, String option) {
@@ -167,7 +195,32 @@ Future<void> _runOption(
         listFileName: args['list-file'] as String?,
       );
       break;
-    case '5': // bookmarks
+    case '5':
+      _notImplemented('Download from followed artists');
+      break;
+    case '6':
+      final memberId = caller.br.myId;
+      if (memberId <= 0) {
+        _notImplemented(
+            'Download from bookmarked images requires login user id');
+        break;
+      }
+      await bookmark_handler.processImageBookmark(
+        caller: caller,
+        config: config,
+        memberId: memberId,
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+      );
+      break;
+    case '7':
+      await list_handler.processTagsList(
+        caller: caller,
+        config: config,
+        filename: args['list-file'] as String? ?? 'list.txt',
+      );
+      break;
+    case '8':
       await bookmark_handler.processBookmark(
         caller: caller,
         config: config,
@@ -175,7 +228,30 @@ Future<void> _runOption(
         endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
-    case '6': // ranking
+    case '11':
+      await bookmark_handler.processImageBookmark(
+        caller: caller,
+        config: config,
+        memberId: _requireIntArg(args, 'member-id', option),
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+      );
+      break;
+    case '14': // novel
+      await novel_handler.processNovel(
+        caller: caller,
+        config: config,
+        novelId: _requireIntArg(args, 'novel-id', option),
+      );
+      break;
+    case '15': // novel series
+      await novel_handler.processNovelSeries(
+        caller: caller,
+        config: config,
+        seriesId: _requireIntArg(args, 'series-id', option),
+      );
+      break;
+    case '16': // ranking
       await ranking_handler.processRanking(
         caller: caller,
         config: config,
@@ -185,35 +261,35 @@ Future<void> _runOption(
         endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
-    case '7': // novel
-      await novel_handler.processNovel(
+    case '18': // new illusts
+      await ranking_handler.processNewIllusts(
         caller: caller,
         config: config,
-        novelId: _requireIntArg(args, 'novel-id', option),
+        maxPage: _requireIntArg(args, 'end-page', option),
       );
       break;
-    case '8': // novel series
-      await novel_handler.processNovelSeries(
-        caller: caller,
-        config: config,
-        seriesId: _requireIntArg(args, 'series-id', option),
-      );
-      break;
-    case '9': // sketch
+    case 's1': // sketch
       await sketch_handler.processSketchArtists(
         caller: caller,
         config: config,
         artistToken: _requireArg(args, 'member-id', option),
       );
       break;
-    case '10': // fanbox
+    case 'f2': // fanbox
       await fanbox_handler.processFanboxArtist(
         caller: caller,
         config: config,
         artistId: _requireIntArg(args, 'member-id', option),
       );
       break;
-    case '11': // batch job
+    case 'f3': // fanbox post
+      await fanbox_handler.processFanboxPost(
+        caller: caller,
+        config: config,
+        postId: _requireIntArg(args, 'image-id', option),
+      );
+      break;
+    case 'b': // batch job
       await batch_handler.processBatchJob(
         caller: caller,
         config: config,
@@ -227,24 +303,10 @@ Future<void> _runOption(
 
 Future<void> _menuLoop(PixivCaller caller) async {
   while (true) {
-    print('');
-    print('===== MENU =====');
-    print(' 1. Download by Member ID');
-    print(' 2. Download by Image ID');
-    print(' 3. Download by Tag');
-    print(' 4. Download from list.txt');
-    print(' 5. Download bookmarks');
-    print(' 6. Download Pixiv Ranking');
-    print(' 7. Download Novel');
-    print(' 8. Download Novel Series');
-    print(' 9. Download Pixiv Sketch');
-    print('10. Download FANBOX');
-    print('11. Run batch_job.json');
-    print(' c. Print config.ini');
-    print('99. Save and exit');
-    stdout.write('Choose an option: ');
+    pixiv_helper.printOriginalHeader();
+    _printMenu();
     final input = stdin.readLineSync()?.trim() ?? '';
-    if (input == '99' || input == 'q' || input.isEmpty) break;
+    if (input == 'x' || input == '99' || input == 'q' || input.isEmpty) break;
     try {
       switch (input) {
         case '1':
@@ -281,12 +343,75 @@ Future<void> _menuLoop(PixivCaller caller) async {
           );
           break;
         case '5':
+          _notImplemented('Download from followed artists');
+          break;
+        case '6':
+          if (caller.br.myId <= 0) {
+            _notImplemented(
+                'Download from bookmarked images requires login user id');
+            break;
+          }
+          await bookmark_handler.processImageBookmark(
+            caller: caller,
+            config: caller.config,
+            memberId: caller.br.myId,
+          );
+          break;
+        case '7':
+          stdout.write('Tags list filename [tags.txt]: ');
+          final f = stdin.readLineSync()!.trim();
+          await list_handler.processTagsList(
+            caller: caller,
+            config: caller.config,
+            filename: f.isEmpty ? 'tags.txt' : f,
+          );
+          break;
+        case '8':
           await bookmark_handler.processBookmark(
             caller: caller,
             config: caller.config,
           );
           break;
-        case '6':
+        case '9':
+          _notImplemented('Download by Title/Caption');
+          break;
+        case '10':
+          _notImplemented('Download by Tag and Member Id');
+          break;
+        case '11':
+          stdout.write('Member ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await bookmark_handler.processImageBookmark(
+            caller: caller,
+            config: caller.config,
+            memberId: id,
+          );
+          break;
+        case '12':
+          _notImplemented('Download by Group Id');
+          break;
+        case '13':
+          _notImplemented('Download by Manga Series Id');
+          break;
+        case '14':
+          stdout.write('Novel ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await novel_handler.processNovel(
+            caller: caller,
+            config: caller.config,
+            novelId: id,
+          );
+          break;
+        case '15':
+          stdout.write('Series ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await novel_handler.processNovelSeries(
+            caller: caller,
+            config: caller.config,
+            seriesId: id,
+          );
+          break;
+        case '16':
           stdout.write('Mode (daily/weekly/monthly/...): ');
           final mode = stdin.readLineSync()!.trim();
           await ranking_handler.processRanking(
@@ -296,34 +421,27 @@ Future<void> _menuLoop(PixivCaller caller) async {
             content: '',
           );
           break;
-        case '7':
-          stdout.write('Novel ID: ');
-          final id = int.parse(stdin.readLineSync()!.trim());
-          await novel_handler.processNovel(
+        case '17':
+          await ranking_handler.processRanking(
             caller: caller,
             config: caller.config,
-            novelId: id,
+            mode: 'daily_r18',
+            content: '',
           );
           break;
-        case '8':
-          stdout.write('Series ID: ');
-          final id = int.parse(stdin.readLineSync()!.trim());
-          await novel_handler.processNovelSeries(
+        case '18':
+          await ranking_handler.processNewIllusts(
             caller: caller,
             config: caller.config,
-            seriesId: id,
           );
           break;
-        case '9':
-          stdout.write('Artist Token: ');
-          final token = stdin.readLineSync()!.trim();
-          await sketch_handler.processSketchArtists(
-            caller: caller,
-            config: caller.config,
-            artistToken: token,
-          );
+        case '19':
+          _notImplemented('Download by Unlisted image_id');
           break;
-        case '10':
+        case 'f1':
+          _notImplemented('Download from supporting list (FANBOX)');
+          break;
+        case 'f2':
           stdout.write('Fanbox artist ID: ');
           final id = int.parse(stdin.readLineSync()!.trim());
           await fanbox_handler.processFanboxArtist(
@@ -332,7 +450,37 @@ Future<void> _menuLoop(PixivCaller caller) async {
             artistId: id,
           );
           break;
-        case '11':
+        case 'f3':
+          stdout.write('Fanbox post ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await fanbox_handler.processFanboxPost(
+            caller: caller,
+            config: caller.config,
+            postId: id,
+          );
+          break;
+        case 'f4':
+          _notImplemented('Download from following list (FANBOX)');
+          break;
+        case 'f5':
+          _notImplemented('Download from custom list (FANBOX)');
+          break;
+        case 'f6':
+          _notImplemented('Download Pixiv by FANBOX Artist ID');
+          break;
+        case 's1':
+          stdout.write('Artist Token: ');
+          final token = stdin.readLineSync()!.trim();
+          await sketch_handler.processSketchArtists(
+            caller: caller,
+            config: caller.config,
+            artistToken: token,
+          );
+          break;
+        case 's2':
+          _notImplemented('Download by post id (Sketch)');
+          break;
+        case 'b':
           stdout.write('Batch file [batch_job.json]: ');
           final f = stdin.readLineSync()!.trim();
           await batch_handler.processBatchJob(
@@ -340,6 +488,37 @@ Future<void> _menuLoop(PixivCaller caller) async {
             config: caller.config,
             jobFile: f.isEmpty ? 'batch_job.json' : f,
           );
+          break;
+        case 'd':
+          _notImplemented('Manage database');
+          break;
+        case 'l':
+          _notImplemented('Export local database');
+          break;
+        case 'e':
+          _notImplemented('Export online followed artist');
+          break;
+        case 'm':
+          _notImplemented("Export online other's followed artist");
+          break;
+        case 'p':
+          _notImplemented('Export online image bookmarks');
+          break;
+        case 'i':
+          stdout.write('List filename [list.txt]: ');
+          final f = stdin.readLineSync()!.trim();
+          await list_handler.importList(
+            caller: caller,
+            config: caller.config,
+            listName: f.isEmpty ? 'list.txt' : f,
+          );
+          break;
+        case 'u':
+          _notImplemented('Ugoira re-encode');
+          break;
+        case 'r':
+          await caller.config.loadConfig();
+          pixiv_helper.setConfig(caller.config);
           break;
         case 'c':
           caller.config.printConfig();
@@ -353,4 +532,57 @@ Future<void> _menuLoop(PixivCaller caller) async {
   }
   print('Saving config and exiting...');
   await caller.config.writeConfig();
+}
+
+void _printMenu() {
+  print('── Pixiv ───────────────────────────────────────────────────');
+  print(' 1.  Download by member_id');
+  print(' 2.  Download by image_id');
+  print(' 3.  Download by tags');
+  print(' 4.  Download from list');
+  print(' 5.  Download from followed artists (/bookmark.php?type=user)');
+  print(' 6.  Download from bookmarked images (/bookmark.php)');
+  print(' 7.  Download from tags list');
+  print(
+      ' 8.  Download new illust from bookmarked members (/bookmark_new_illust.php)');
+  print(' 9.  Download by Title/Caption');
+  print(' 10. Download by Tag and Member Id');
+  print(' 11. Download Member Bookmark (/bookmark.php?id=)');
+  print(' 12. Download by Group Id');
+  print(' 13. Download by Manga Series Id');
+  print(' 14. Download by Novel Id');
+  print(' 15. Download by Novel Series Id');
+  print(' 16. Download by Rank');
+  print(' 17. Download by Rank R-18');
+  print(' 18. Download by New Illusts');
+  print(' 19. Download by Unlisted image_id');
+  print('── FANBOX ──────────────────────────────────────────────────');
+  print(' f1. Download from supporting list (FANBOX)');
+  print(' f2. Download by artist/creator id (FANBOX)');
+  print(' f3. Download by post id (FANBOX)');
+  print(' f4. Download from following list (FANBOX)');
+  print(' f5. Download from custom list (FANBOX)');
+  print(' f6. Download Pixiv by FANBOX Artist ID');
+  print('── Sketch ──────────────────────────────────────────────────');
+  print(' s1. Download by creator id (Sketch)');
+  print(' s2. Download by post id (Sketch)');
+  print('── Batch Download ──────────────────────────────────────────');
+  print(' b. Batch Download from batch_job.json (experimental)');
+  print('── Others ──────────────────────────────────────────────────');
+  print(' d. Manage database');
+  print(' l. Export local database.');
+  print(' e. Export online followed artist.');
+  print(" m. Export online other's followed artist.");
+  print(' p. Export online image bookmarks.');
+  print(' i. Import list file');
+  print(' u. Ugoira re-encode');
+  print(' r. Reload config.ini');
+  print(' c. Print config.ini');
+  print(' x. Exit');
+  stdout.write('Input: ');
+}
+
+void _notImplemented(String label) {
+  pixiv_helper.printAndLog(
+      'warn', '$label is not implemented in the Dart port yet.');
 }

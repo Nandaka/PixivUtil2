@@ -97,6 +97,70 @@ class PixivBrowser {
   /// Clear browser history (no-op in this Dart port).
   void clearHistory() {}
 
+  Future<bool> loginUsingCookie([String? loginCookie]) async {
+    final cookie = (loginCookie == null || loginCookie.isEmpty)
+        ? config.cookie
+        : loginCookie;
+    if (cookie.isEmpty) return false;
+
+    pixiv_helper.printAndLog('info', 'Trying to log in with saved cookie');
+    final uri = Uri.parse('https://www.pixiv.net');
+    final request = http.Request('GET', uri)..followRedirects = false;
+    request.headers.addAll(await _buildHeaders(uri.toString(), {
+      'Accept':
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    }));
+
+    final streamed = await _client.send(request).timeout(
+          Duration(seconds: config.timeout),
+        );
+    final response = await http.Response.fromStream(streamed);
+    _saveCookies(uri.toString(), response);
+
+    final xUserId = response.headers['x-userid'] ??
+        response.headers['x-userId'] ??
+        response.headers['X-UserId'];
+    if (xUserId != null && xUserId.isNotEmpty) {
+      _myId = int.tryParse(xUserId) ?? _myId;
+      pixiv_helper.printAndLog(
+          'info', 'Login recognized by server (x-userid=$xUserId).');
+      return true;
+    }
+
+    final body = response.body;
+    pixiv_helper.printAndLog('info', 'Logging in, return url: $uri');
+    final result = body.contains('logout.php') ||
+        body.contains('pixiv.user.loggedIn = true') ||
+        body.contains("_gaq.push(['_setCustomVar', 1, 'login', 'yes'") ||
+        body.contains("var dataLayer = [{ login: 'yes',");
+
+    if (result) {
+      _parseLoginStatus(body);
+      pixiv_helper.printAndLog('info', 'Login successful.');
+    } else {
+      pixiv_helper.printAndLog('info', 'Cookie already expired/invalid.');
+    }
+    return result;
+  }
+
+  void _parseLoginStatus(String body) {
+    final userIdPatterns = [
+      RegExp(r'''user_id['"]?\s*:\s*['"]?(\d+)'''),
+      RegExp(r'''userId['"]?\s*:\s*['"]?(\d+)'''),
+      RegExp(r'''USER_ID['"]?\s*:\s*['"]?(\d+)'''),
+    ];
+    for (final pattern in userIdPatterns) {
+      final match = pattern.firstMatch(body);
+      if (match != null) {
+        _myId = int.tryParse(match.group(1)!) ?? _myId;
+        break;
+      }
+    }
+    _isPremium = body.contains("premium: 'yes'") ||
+        body.contains('"premium":true') ||
+        body.contains('"isPremium":true');
+  }
+
   /// Make a generic GET request and return the response body.
   Future<String> getContent(String url, {Map<String, String>? headers}) async {
     final mergedHeaders = await _buildHeaders(url, headers);
