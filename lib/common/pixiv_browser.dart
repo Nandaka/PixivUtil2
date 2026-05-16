@@ -208,6 +208,7 @@ class PixivBrowser {
     if (raw.toLowerCase().startsWith('cookie:')) {
       raw = raw.substring(raw.indexOf(':') + 1).trim();
     }
+    if (!raw.contains('=')) return {'PHPSESSID': raw};
 
     final values = <String, String>{};
     for (final part in raw.split(';')) {

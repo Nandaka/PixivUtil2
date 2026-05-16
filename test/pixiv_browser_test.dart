@@ -10,6 +10,10 @@ void main() {
       );
     });
 
+    test('accepts raw PHPSESSID value like upstream PixivUtil2', () {
+      expect(PixivBrowser.parseCookieHeader('abc123'), {'PHPSESSID': 'abc123'});
+    });
+
     test('ignores Set-Cookie attributes when pasted into config', () {
       expect(
         PixivBrowser.parseCookieHeader(
