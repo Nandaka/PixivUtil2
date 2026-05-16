@@ -3,8 +3,6 @@ library;
 
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
-
 import '../common/pixiv_browser.dart';
 import '../common/pixiv_config.dart';
 import '../common/pixiv_constant.dart' as pixiv_constant;
@@ -28,8 +26,7 @@ Future<int> processImage({
   void Function({String? title, String? message, dynamic type})? notifier,
 }) async {
   notifier ??= pixiv_helper.dummyNotifier;
-  pixiv_helper.printAndLog(
-      'info', 'Processing Image: $imageId ($titlePrefix)');
+  pixiv_helper.printAndLog('info', 'Processing Image: $imageId ($titlePrefix)');
   final br = caller.br as PixivBrowser;
   try {
     final (image, _) = await br.getImagePage(
@@ -51,6 +48,7 @@ Future<int> processImage({
         ? config.filenameMangaFormat
         : config.filenameFormat;
 
+    final downloadedPaths = <String>[];
     var allOk = true;
     for (var i = 0; i < image.imageUrls.length; i++) {
       final url = image.imageUrls[i];
@@ -68,6 +66,7 @@ Future<int> processImage({
       );
       final fullPath = pixiv_helper.sanitizeFilename(
           filename, userDir.isNotEmpty ? userDir : config.rootDirectory);
+      downloadedPaths.add(fullPath);
       pixiv_helper.printAndLog(null, 'Filename: $fullPath');
 
       final result = await download_handler.downloadImage(
@@ -84,8 +83,11 @@ Future<int> processImage({
     }
 
     if (config.writeImageInfo) {
+      final infoFormat = image.imageMode == 'manga'
+          ? config.filenameMangaInfoFormat
+          : config.filenameInfoFormat;
       final infoFilename = pixiv_helper.makeFilename(
-        config.filenameInfoFormat,
+        infoFormat,
         image,
         artistInfo: artist,
         tagsSeparator: config.tagsSeparator,
@@ -93,15 +95,18 @@ Future<int> processImage({
         fileUrl: image.imageUrls.first,
         bookmark: bookmark,
         searchTags: searchTags,
+        appendExtension: false,
       );
-      final infoPath = pixiv_helper.sanitizeFilename(
-          '$infoFilename.txt',
+      final infoPath = pixiv_helper.sanitizeFilename('$infoFilename.txt',
           userDir.isNotEmpty ? userDir : config.rootDirectory);
       await image.writeInfo(infoPath);
     }
     if (config.writeImageJSON) {
+      final infoFormat = image.imageMode == 'manga'
+          ? config.filenameMangaInfoFormat
+          : config.filenameInfoFormat;
       final jsonName = pixiv_helper.makeFilename(
-        config.filenameInfoFormat,
+        infoFormat,
         image,
         artistInfo: artist,
         tagsSeparator: config.tagsSeparator,
@@ -109,15 +114,16 @@ Future<int> processImage({
         fileUrl: image.imageUrls.first,
         bookmark: bookmark,
         searchTags: searchTags,
+        appendExtension: false,
       );
-      final jsonPath = pixiv_helper.sanitizeFilename(
-          '$jsonName.json',
+      final jsonPath = pixiv_helper.sanitizeFilename('$jsonName.json',
           userDir.isNotEmpty ? userDir : config.rootDirectory);
-      await image.writeJson(jsonPath, includeSeriesJson: config.includeSeriesJSON);
+      await image.writeJson(jsonPath,
+          includeSeriesJson: config.includeSeriesJSON);
     }
 
     if (config.setLastModified) {
-      _touchAll(image.imageUrls, image.worksDateDateTime, config.rootDirectory);
+      _touchFiles(downloadedPaths, image.worksDateDateTime);
     }
 
     caller.dbManager.insertImage(imageId, artist?.artistId ?? 0,
@@ -140,13 +146,10 @@ Future<int> processImage({
   }
 }
 
-void _touchAll(
-    List<String> urls, DateTime worksDateDateTime, String rootDirectory) {
-  // Best-effort: for each url, find the corresponding file (if any) and update
-  // its mtime to the works date. Used when config.setLastModified is true.
-  for (final url in urls) {
-    final basename = p.basename(url);
-    final candidate = File(p.join(rootDirectory, basename));
+void _touchFiles(List<String> paths, DateTime worksDateDateTime) {
+  // Best-effort: update downloaded file mtimes to the Pixiv works date.
+  for (final path in paths) {
+    final candidate = File(path);
     if (candidate.existsSync()) {
       try {
         candidate.setLastModifiedSync(worksDateDateTime);

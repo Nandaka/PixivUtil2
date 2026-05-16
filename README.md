@@ -146,6 +146,21 @@ keys and sections from the Python version are recognised — see
 [lib/common/pixiv_config.dart](lib/common/pixiv_config.dart) for the
 full list.
 
+By default, each artwork is saved into its own folder:
+
+```text
+Artist Name (member_id)/
+└── image_id - Title/
+    ├── original_image_file.jpg
+    └── info.txt
+```
+
+`info.txt` is written automatically and contains the artwork title,
+caption/text, tags, artist, date, resolution, and related counters. If you
+already have an older `config.ini`, set `writeImageInfo = true` and update
+`filenameFormat`, `filenameMangaFormat`, `filenameInfoFormat`, and
+`filenameMangaInfoFormat` to match this layout.
+
 ## Tests
 
 ```sh

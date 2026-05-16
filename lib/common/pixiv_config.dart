@@ -10,6 +10,14 @@ import 'pixiv_helper.dart' as pixiv_helper;
 
 bool _stringNotEmpty(String? value) => value != null && value.isNotEmpty;
 
+String _defaultArtworkImageFormat() =>
+    '%artist% (%member_id%)${Platform.pathSeparator}'
+    '%image_id% - %title%${Platform.pathSeparator}%urlFilename%';
+
+String _defaultArtworkInfoFormat() =>
+    '%artist% (%member_id%)${Platform.pathSeparator}'
+    '%image_id% - %title%${Platform.pathSeparator}info';
+
 class ConfigItem {
   final String section;
   final String option;
@@ -80,8 +88,7 @@ class PixivConfig {
   bool get enableDump => _values['enableDump'] as bool? ?? true;
   String get skipDumpFilter => _values['skipDumpFilter'] as String? ?? '';
   bool get dumpMediumPage => _values['dumpMediumPage'] as bool? ?? false;
-  bool get dumpTagSearchPage =>
-      _values['dumpTagSearchPage'] as bool? ?? false;
+  bool get dumpTagSearchPage => _values['dumpTagSearchPage'] as bool? ?? false;
   bool get debugHttp => _values['debugHttp'] as bool? ?? false;
   bool get disableLog => _values['disableLog'] as bool? ?? false;
   bool get disableScreenClear =>
@@ -96,11 +103,10 @@ class PixivConfig {
   bool get useSuppressTags => _values['useSuppressTags'] as bool? ?? false;
   int get tagsLimit => _values['tagsLimit'] as int? ?? -1;
   bool get writeImageJSON => _values['writeImageJSON'] as bool? ?? false;
-  bool get writeImageInfo => _values['writeImageInfo'] as bool? ?? false;
+  bool get writeImageInfo => _values['writeImageInfo'] as bool? ?? true;
   bool get writeRawJSON => _values['writeRawJSON'] as bool? ?? false;
   String get rawJSONFilter => _values['RawJSONFilter'] as String? ?? '';
-  bool get includeSeriesJSON =>
-      _values['includeSeriesJSON'] as bool? ?? false;
+  bool get includeSeriesJSON => _values['includeSeriesJSON'] as bool? ?? false;
   bool get writeImageXMP => _values['writeImageXMP'] as bool? ?? false;
   bool get writeImageXMPPerImage =>
       _values['writeImageXMPPerImage'] as bool? ?? false;
@@ -109,8 +115,7 @@ class PixivConfig {
       _values['writeUrlInDescription'] as bool? ?? false;
   bool get stripHTMLTagsFromCaption =>
       _values['stripHTMLTagsFromCaption'] as bool? ?? false;
-  String get urlBlacklistRegex =>
-      _values['urlBlacklistRegex'] as String? ?? '';
+  String get urlBlacklistRegex => _values['urlBlacklistRegex'] as String? ?? '';
   String get dbPath => _values['dbPath'] as String? ?? '';
   bool get setLastModified => _values['setLastModified'] as bool? ?? true;
   bool get useLocalTimezone => _values['useLocalTimezone'] as bool? ?? false;
@@ -118,22 +123,21 @@ class PixivConfig {
       _values['defaultSketchOption'] as String? ?? '';
 
   String get filenameFormat =>
-      _values['filenameFormat'] as String? ?? '%artist% (%member_id%)';
+      _values['filenameFormat'] as String? ?? _defaultArtworkImageFormat();
   String get filenameMangaFormat =>
-      _values['filenameMangaFormat'] as String? ?? '%artist% (%member_id%)';
+      _values['filenameMangaFormat'] as String? ?? _defaultArtworkImageFormat();
   String get filenameInfoFormat =>
-      _values['filenameInfoFormat'] as String? ?? '%artist% (%member_id%)';
+      _values['filenameInfoFormat'] as String? ?? _defaultArtworkInfoFormat();
   String get filenameMangaInfoFormat =>
       _values['filenameMangaInfoFormat'] as String? ??
-      '%artist% (%member_id%)';
+      _defaultArtworkInfoFormat();
   String get filenameSeriesJSON =>
       _values['filenameSeriesJSON'] as String? ?? '';
   String get filenameFormatSketch =>
       _values['filenameFormatSketch'] as String? ?? '';
   String get filenameFormatNovel =>
       _values['filenameFormatNovel'] as String? ?? '';
-  String get avatarNameFormat =>
-      _values['avatarNameFormat'] as String? ?? '';
+  String get avatarNameFormat => _values['avatarNameFormat'] as String? ?? '';
   String get backgroundNameFormat =>
       _values['backgroundNameFormat'] as String? ?? '';
   String get tagsSeparator => _values['tagsSeparator'] as String? ?? ', ';
@@ -151,8 +155,7 @@ class PixivConfig {
   String get password => _values['password'] as String? ?? '';
   String get cookie => _values['cookie'] as String? ?? '';
   String get cookieFanbox => _values['cookieFanbox'] as String? ?? '';
-  String get cookieFanboxTemp =>
-      _values['cookieFanboxTemp'] as String? ?? '';
+  String get cookieFanboxTemp => _values['cookieFanboxTemp'] as String? ?? '';
   String get refreshToken => _values['refresh_token'] as String? ?? '';
   String get cfClearance => _values['cf_clearance'] as String? ?? '';
   String get cfBm => _values['cf_bm'] as String? ?? '';
@@ -194,8 +197,7 @@ class PixivConfig {
 
   int get minFileSize => _values['minFileSize'] as int? ?? 0;
   int get maxFileSize => _values['maxFileSize'] as int? ?? 0;
-  bool get checkLastModified =>
-      _values['checkLastModified'] as bool? ?? true;
+  bool get checkLastModified => _values['checkLastModified'] as bool? ?? true;
   bool get alwaysCheckFileSize =>
       _values['alwaysCheckFileSize'] as bool? ?? false;
   bool get overwrite => _values['overwrite'] as bool? ?? false;
@@ -204,8 +206,7 @@ class PixivConfig {
   int get checkUpdatedLimit => _values['checkUpdatedLimit'] as int? ?? 0;
   int get checkUpdatedLimitFanbox =>
       _values['checkUpdatedLimitFanbox'] as int? ?? 0;
-  bool get useBlacklistTags =>
-      _values['useBlacklistTags'] as bool? ?? false;
+  bool get useBlacklistTags => _values['useBlacklistTags'] as bool? ?? false;
   bool get useBlacklistTitles =>
       _values['useBlacklistTitles'] as bool? ?? false;
   bool get useBlacklistTitlesRegex =>
@@ -215,22 +216,17 @@ class PixivConfig {
       _values['enableInfiniteLoop'] as bool? ?? false;
   bool get useBlacklistMembers =>
       _values['useBlacklistMembers'] as bool? ?? false;
-  bool get downloadResized =>
-      _values['downloadResized'] as bool? ?? false;
-  bool get skipUnknownSize =>
-      _values['skipUnknownSize'] as bool? ?? false;
+  bool get downloadResized => _values['downloadResized'] as bool? ?? false;
+  bool get skipUnknownSize => _values['skipUnknownSize'] as bool? ?? false;
   bool get enablePostProcessing =>
       _values['enablePostProcessing'] as bool? ?? false;
-  String get postProcessingCmd =>
-      _values['postProcessingCmd'] as String? ?? '';
-  String get extensionFilter =>
-      _values['extensionFilter'] as String? ?? '';
+  String get postProcessingCmd => _values['postProcessingCmd'] as String? ?? '';
+  String get extensionFilter => _values['extensionFilter'] as String? ?? '';
   int get downloadBuffer => _values['downloadBuffer'] as int? ?? 512;
   bool get createPixivArchive =>
       _values['createPixivArchive'] as bool? ?? false;
   String get createPixivArchiveCompressionType =>
-      _values['createPixivArchiveCompressionType'] as String? ??
-      'ZIP_STORED';
+      _values['createPixivArchiveCompressionType'] as String? ?? 'ZIP_STORED';
   int get createPixivArchiveCompressionLevel =>
       _values['createPixivArchiveCompressionLevel'] as int? ?? 0;
 
@@ -259,8 +255,7 @@ class PixivConfig {
   Map<String, String>? get proxy {
     final value = proxyAddress;
     if (value.isEmpty) return null;
-    final m = RegExp(
-            r'^(?:(https?|socks[45]h?)://)?([\w.-]+)(:\d+)?$')
+    final m = RegExp(r'^(?:(https?|socks[45]h?)://)?([\w.-]+)(:\d+)?$')
         .firstMatch(value);
     if (m == null) return null;
     final scheme = (m.group(1) ?? 'http');
@@ -418,7 +413,6 @@ class PixivConfig {
       ConfigItem('Network', 'notifyBetaVersion', true),
       ConfigItem('Network', 'openNewVersion', true),
       ConfigItem('Network', 'enableSSLVerification', true),
-
       ConfigItem('Debug', 'logLevel', 'DEBUG',
           followup: (v) => (v as String).toUpperCase(),
           restriction: (v) => const [
@@ -437,12 +431,10 @@ class PixivConfig {
       ConfigItem('Debug', 'debugHttp', false),
       ConfigItem('Debug', 'disableLog', false),
       ConfigItem('Debug', 'disableScreenClear', false),
-
       ConfigItem('IrfanView', 'IrfanViewPath', r'C:\Program Files\IrfanView'),
       ConfigItem('IrfanView', 'startIrfanView', false),
       ConfigItem('IrfanView', 'startIrfanSlide', false),
       ConfigItem('IrfanView', 'createDownloadLists', false),
-
       ConfigItem('Settings', 'downloadListDirectory', '.'),
       ConfigItem('Settings', 'useList', false),
       ConfigItem('Settings', 'processFromDb', true),
@@ -451,7 +443,7 @@ class PixivConfig {
       ConfigItem('Settings', 'useSuppressTags', false),
       ConfigItem('Settings', 'tagsLimit', -1),
       ConfigItem('Settings', 'writeImageJSON', false),
-      ConfigItem('Settings', 'writeImageInfo', false),
+      ConfigItem('Settings', 'writeImageInfo', true),
       ConfigItem('Settings', 'writeRawJSON', false),
       ConfigItem('Settings', 'RawJSONFilter',
           'id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion'),
@@ -466,48 +458,31 @@ class PixivConfig {
       ConfigItem('Settings', 'setLastModified', true),
       ConfigItem('Settings', 'useLocalTimezone', false),
       ConfigItem('Settings', 'defaultSketchOption', ''),
-
-      ConfigItem(
-          'Filename',
-          'filenameFormat',
-          '%artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
+      ConfigItem('Filename', 'filenameFormat', _defaultArtworkImageFormat(),
           restriction: (v) => _stringNotEmpty(v as String?)),
       ConfigItem(
-          'Filename',
-          'filenameMangaFormat',
-          '%artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
+          'Filename', 'filenameMangaFormat', _defaultArtworkImageFormat(),
           restriction: (v) {
-            final s = v as String?;
-            return _stringNotEmpty(s) &&
-                (s!.contains('%urlFilename%') ||
-                    s.contains('%page_index%') ||
-                    s.contains('%page_number%'));
-          },
+        final s = v as String?;
+        return _stringNotEmpty(s) &&
+            (s!.contains('%urlFilename%') ||
+                s.contains('%page_index%') ||
+                s.contains('%page_number%'));
+      },
           errorMessage:
               'At least %urlFilename%, %page_index%, or %page_number% is required in'),
-      ConfigItem(
-          'Filename',
-          'filenameInfoFormat',
-          '%artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
+      ConfigItem('Filename', 'filenameInfoFormat', _defaultArtworkInfoFormat(),
           restriction: (v) => _stringNotEmpty(v as String?)),
       ConfigItem(
-          'Filename',
-          'filenameMangaInfoFormat',
-          '%artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
+          'Filename', 'filenameMangaInfoFormat', _defaultArtworkInfoFormat(),
           restriction: (v) => _stringNotEmpty(v as String?)),
-      ConfigItem(
-          'Filename',
-          'filenameSeriesJSON',
+      ConfigItem('Filename', 'filenameSeriesJSON',
           '%artist% (%member_id%)${Platform.pathSeparator}%manga_series_id% - %manga_series_title%',
           restriction: (v) => _stringNotEmpty(v as String?)),
-      ConfigItem(
-          'Filename',
-          'filenameFormatSketch',
+      ConfigItem('Filename', 'filenameFormatSketch',
           '%artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
           restriction: (v) => _stringNotEmpty(v as String?)),
-      ConfigItem(
-          'Filename',
-          'filenameFormatNovel',
+      ConfigItem('Filename', 'filenameFormatNovel',
           '%artist% (%member_id%)${Platform.pathSeparator}%manga_series_id% %manga_series_order% %urlFilename% - %title%',
           restriction: (v) => _stringNotEmpty(v as String?)),
       ConfigItem('Filename', 'avatarNameFormat', ''),
@@ -522,7 +497,6 @@ class PixivConfig {
           followup: (v) => pixiv_helper.parseCustomSanitizer(v as String)),
       ConfigItem('Filename', 'customCleanUpRe', '',
           followup: (v) => pixiv_helper.parseCustomCleanUpRe(v as String)),
-
       ConfigItem('Authentication', 'username', ''),
       ConfigItem('Authentication', 'password', ''),
       ConfigItem('Authentication', 'cookie', ''),
@@ -531,7 +505,6 @@ class PixivConfig {
       ConfigItem('Authentication', 'refresh_token', ''),
       ConfigItem('Authentication', 'cf_clearance', ''),
       ConfigItem('Authentication', 'cf_bm', ''),
-
       ConfigItem('Pixiv', 'numberOfPage', 0),
       ConfigItem('Pixiv', 'r18mode', false),
       ConfigItem('Pixiv', 'r18Type', 0),
@@ -541,28 +514,21 @@ class PixivConfig {
       ConfigItem('Pixiv', 'autoAddCaption', false),
       ConfigItem('Pixiv', 'autoAddSeries', false),
       ConfigItem('Pixiv', 'aiDisplayFewer', false),
-
-      ConfigItem(
-          'FANBOX',
-          'filenameFormatFanboxCover',
+      ConfigItem('FANBOX', 'filenameFormatFanboxCover',
           'FANBOX %artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
           restriction: (v) => _stringNotEmpty(v as String?)),
-      ConfigItem(
-          'FANBOX',
-          'filenameFormatFanboxContent',
+      ConfigItem('FANBOX', 'filenameFormatFanboxContent',
           'FANBOX %artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
           restriction: (v) {
-            final s = v as String?;
-            return _stringNotEmpty(s) &&
-                (s!.contains('%urlFilename%') ||
-                    s.contains('%page_index%') ||
-                    s.contains('%page_number%'));
-          },
+        final s = v as String?;
+        return _stringNotEmpty(s) &&
+            (s!.contains('%urlFilename%') ||
+                s.contains('%page_index%') ||
+                s.contains('%page_number%'));
+      },
           errorMessage:
               'At least %urlFilename%, %page_index%, or %page_number% is required in'),
-      ConfigItem(
-          'FANBOX',
-          'filenameFormatFanboxInfo',
+      ConfigItem('FANBOX', 'filenameFormatFanboxInfo',
           'FANBOX %artist% (%member_id%)${Platform.pathSeparator}%urlFilename% - %title%',
           restriction: (v) => _stringNotEmpty(v as String?)),
       ConfigItem('FANBOX', 'writeHtml', false),
@@ -574,7 +540,6 @@ class PixivConfig {
       ConfigItem('FANBOX', 'checkDBProcessHistory', false),
       ConfigItem('FANBOX', 'checkUpdatedLimitFanbox', 0),
       ConfigItem('FANBOX', 'listPathFanbox', 'listfanbox.txt'),
-
       ConfigItem('FFmpeg', 'ffmpeg', 'ffmpeg.exe'),
       ConfigItem('FFmpeg', 'ffmpegCodec', 'libvpx-vp9'),
       ConfigItem('FFmpeg', 'ffmpegExt', 'webm'),
@@ -592,7 +557,6 @@ class PixivConfig {
       ConfigItem('FFmpeg', 'avifParam',
           '-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0'),
       ConfigItem('FFmpeg', 'verboseOutput', false),
-
       ConfigItem('Ugoira', 'writeUgoiraInfo', false),
       ConfigItem('Ugoira', 'createUgoira', false),
       ConfigItem('Ugoira', 'createMkv', false),
@@ -603,7 +567,6 @@ class PixivConfig {
       ConfigItem('Ugoira', 'createAvif', false),
       ConfigItem('Ugoira', 'deleteUgoira', false),
       ConfigItem('Ugoira', 'deleteZipFile', false),
-
       ConfigItem('DownloadControl', 'minFileSize', 0),
       ConfigItem('DownloadControl', 'maxFileSize', 0),
       ConfigItem('DownloadControl', 'checkLastModified', true),
@@ -627,17 +590,14 @@ class PixivConfig {
           restriction: (v) => (v as int) > 0),
       ConfigItem('DownloadControl', 'createPixivArchive', false),
       ConfigItem(
-          'DownloadControl',
-          'createPixivArchiveCompressionType',
-          'ZIP_STORED',
+          'DownloadControl', 'createPixivArchiveCompressionType', 'ZIP_STORED',
           restriction: (v) => const {
                 'ZIP_STORED',
                 'ZIP_DEFLATED',
                 'ZIP_BZIP2',
                 'ZIP_LZMA'
               }.contains(v as String)),
-      ConfigItem(
-          'DownloadControl', 'createPixivArchiveCompressionLevel', 0,
+      ConfigItem('DownloadControl', 'createPixivArchiveCompressionLevel', 0,
           restriction: (v) => (v as int) >= 0 && v < 10),
     ];
   }

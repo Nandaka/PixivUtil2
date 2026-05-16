@@ -52,7 +52,8 @@ class PixivImage {
   int jd_rtc = 0;
   int imageCount = 0;
   bool fromBookmark;
-  DateTime worksDateDateTime = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+  DateTime worksDateDateTime =
+      DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
   String? jsCreateDate;
   int bookmark_count;
   int image_response_count;
@@ -172,8 +173,7 @@ class PixivImage {
     }
 
     final created = root['createDate'] as String;
-    worksDateDateTime =
-        datetime_z.parseDatetime(created) ?? worksDateDateTime;
+    worksDateDateTime = datetime_z.parseDatetime(created) ?? worksDateDateTime;
     jsCreateDate = created;
     if (_tzInfo != null) {
       worksDateDateTime = worksDateDateTime.add(_tzInfo!);
@@ -241,8 +241,7 @@ class PixivImage {
 
   bool isNotLoggedIn(dynamic page) {
     if (page is! String) return false;
-    return page.contains('signup_button') ||
-        page.contains('ui-button _signup');
+    return page.contains('signup_button') || page.contains('ui-button _signup');
   }
 
   bool isNeedAppropriateLevel(dynamic page) {
@@ -297,12 +296,18 @@ class PixivImage {
     f.writeln('ArtistName    = $aName');
     f.writeln('ImageID       = $imageId');
     f.writeln('Title         = $imageTitle');
+    if (translatedWorkTitle.isNotEmpty) {
+      f.writeln('TranslatedTitle = $translatedWorkTitle');
+    }
     if (seriesNavData != null) {
       f.writeln('SeriesTitle   = ${seriesNavData!['title']}');
       f.writeln('SeriesOrder   = ${seriesNavData!['order']}');
       f.writeln('SeriesId      = ${seriesNavData!['seriesId']}');
     }
     f.writeln('Caption       = $imageCaption');
+    if (translatedWorkCaption.isNotEmpty) {
+      f.writeln('TranslatedCaption = $translatedWorkCaption');
+    }
     f.writeln('Tags          = ${imageTags.join(', ')}');
     f.writeln('Image Mode    = $imageMode');
     f.writeln('Pages         = $imageCount');
@@ -321,8 +326,8 @@ class PixivImage {
     await f.close();
   }
 
-  Future<void> writeJson(String filename, {bool includeSeriesJson = false,
-      String? seriesJson}) async {
+  Future<void> writeJson(String filename,
+      {bool includeSeriesJson = false, String? seriesJson}) async {
     await pixiv_helper.makeSubdirs(filename);
     final out = <String, dynamic>{
       'imageId': imageId,
