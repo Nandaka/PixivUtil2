@@ -4,6 +4,7 @@
 /// interactive menu and an `args`-based CLI.
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -37,6 +38,7 @@ class PixivCaller {
   int errorCode = 0;
   bool DEBUG_SKIP_PROCESS_IMAGE = false;
   bool DEBUG_SKIP_DOWNLOAD_IMAGE = false;
+  bool stopRequested = false;
   List<dynamic> errorList = [];
 
   PixivCaller({
@@ -112,6 +114,7 @@ Future<void> main(List<String> arguments) async {
   db.createDatabase();
 
   final caller = PixivCaller(config: config, br: browser, dbManager: db);
+  final signalSubscriptions = _installSignalHandlers(caller);
 
   try {
     if ((args['import-db'] as String?)?.trim().isNotEmpty == true) {
@@ -141,11 +144,45 @@ Future<void> main(List<String> arguments) async {
   } catch (e, st) {
     pixiv_helper.printAndLog('error', 'Fatal error: $e\n$st');
   } finally {
+    for (final subscription in signalSubscriptions) {
+      await subscription.cancel();
+    }
+    if (caller.stopRequested && caller.errorCode == 0) {
+      caller.errorCode = 130;
+    }
     db.close();
     browser.close();
   }
 
   exit(caller.errorCode);
+}
+
+List<StreamSubscription<ProcessSignal>> _installSignalHandlers(
+    PixivCaller caller) {
+  final subscriptions = <StreamSubscription<ProcessSignal>>[];
+
+  void handleSignal(ProcessSignal signal) {
+    if (!caller.stopRequested) {
+      caller.stopRequested = true;
+      pixiv_helper.printAndLog(
+          'warn',
+          '${signal.toString()} received. Stopping after the current item; '
+              'run the same command again to resume missing metadata.');
+      return;
+    }
+    pixiv_helper.printAndLog(
+        'warn', '${signal.toString()} received again. Exiting now.');
+    exit(130);
+  }
+
+  for (final signal in [ProcessSignal.sigint, ProcessSignal.sigterm]) {
+    try {
+      subscriptions.add(signal.watch().listen(handleSignal));
+    } on UnsupportedError {
+      // Some signals are not supported on every platform.
+    }
+  }
+  return subscriptions;
 }
 
 void _printStartupNotes(PixivConfig config) {

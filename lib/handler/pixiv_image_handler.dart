@@ -56,6 +56,12 @@ Future<int> processImage({
     final downloadedPaths = <String>[];
     var allOk = true;
     for (var i = 0; i < image.imageUrls.length; i++) {
+      if (_isStopRequested(caller)) {
+        pixiv_helper.printAndLog(
+            'warn', 'Stop requested; skipping remaining pages for $imageId.');
+        allOk = false;
+        break;
+      }
       final url = image.imageUrls[i];
       final filename = pixiv_helper.makeFilename(
         format,
@@ -229,6 +235,11 @@ Future<void> processImageMetadataFromDb({
   var done = 0;
   var failed = 0;
   for (final row in rows) {
+    if (_isStopRequested(caller)) {
+      pixiv_helper.printAndLog(
+          'warn', 'Stop requested; metadata refresh paused.');
+      break;
+    }
     final imageId = int.parse('${row['image_id']}');
     attempted++;
     try {
@@ -310,6 +321,11 @@ Future<void> processMangaSeries({
     }
 
     for (final work in series.pagesWithOrder) {
+      if (_isStopRequested(caller)) {
+        pixiv_helper.printAndLog(
+            'warn', 'Stop requested; manga series download paused.');
+        return;
+      }
       final result = await processImage(
         caller: caller,
         config: config,
@@ -382,5 +398,13 @@ void _touchFiles(List<String> paths, DateTime worksDateDateTime) {
         candidate.setLastModifiedSync(worksDateDateTime);
       } catch (_) {}
     }
+  }
+}
+
+bool _isStopRequested(dynamic caller) {
+  try {
+    return caller.stopRequested == true;
+  } catch (_) {
+    return false;
   }
 }
