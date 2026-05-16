@@ -229,8 +229,30 @@ Future<void> processImageMetadataFromDb({
     ${limit > 0 ? 'LIMIT $limit' : ''}
   ''', [refreshExisting ? 1 : 0]);
 
-  pixiv_helper.printAndLog(
-      'info', 'Metadata refresh queue: ${rows.length} artwork(s).');
+  final total = rows.length;
+  if (total == 0) {
+    pixiv_helper.printAndLog('info', 'Metadata refresh: nothing to do.');
+    return;
+  }
+
+  if (refreshExisting) {
+    pixiv_helper.printAndLog(
+        'info', 'Metadata refresh queue: $total artwork(s) (refresh all).');
+  } else {
+    final (missing, incomplete) = _countResumeBuckets(caller);
+    if (missing + incomplete > 0) {
+      pixiv_helper.printAndLog(
+          'info',
+          'Resuming metadata refresh: $missing missing + $incomplete '
+              'incomplete ($total queued). Already-filled artworks are '
+              'skipped automatically.');
+    } else {
+      pixiv_helper.printAndLog(
+          'info', 'Metadata refresh queue: $total artwork(s).');
+    }
+  }
+
+  final startedAt = DateTime.now();
   var attempted = 0;
   var done = 0;
   var failed = 0;
@@ -242,9 +264,14 @@ Future<void> processImageMetadataFromDb({
     }
     final imageId = int.parse('${row['image_id']}');
     attempted++;
+    final progress = _formatProgressSuffix(
+      processed: attempted - 1,
+      total: total,
+      startedAt: startedAt,
+    );
+    pixiv_helper.printAndLog(
+        null, 'Metadata $attempted/$total$progress: $imageId');
     try {
-      pixiv_helper.printAndLog(
-          null, 'Metadata $attempted/${rows.length}: $imageId');
       await processImageMetadata(
         caller: caller,
         config: config,
@@ -259,8 +286,73 @@ Future<void> processImageMetadataFromDb({
           'error', 'Failed metadata refresh for image $imageId: $e');
     }
   }
+  final elapsed = DateTime.now().difference(startedAt);
+  final remaining = total - attempted;
+  final status = remaining > 0 ? 'paused' : 'completed';
   pixiv_helper.printAndLog(
-      'info', 'Metadata refresh completed: $done updated, $failed failed.');
+      'info',
+      'Metadata refresh $status: $done updated, $failed failed, '
+          '$remaining remaining · elapsed '
+          '${pixiv_helper.formatDuration(elapsed)}.');
+  if (remaining > 0) {
+    pixiv_helper.printAndLog(
+        'info',
+        'Run --fill-metadata-from-db again to resume from the same point.');
+  }
+}
+
+(int, int) _countResumeBuckets(dynamic caller) {
+  int countOf(String sql) {
+    final rows = caller.dbManager.raw.select(sql);
+    if (rows.isEmpty) return 0;
+    return (rows.first['c'] as int?) ??
+        int.parse('${rows.first.values.first}');
+  }
+
+  final missing = countOf('''
+    SELECT COUNT(*) AS c
+    FROM pixiv_master_image i
+    LEFT JOIN pixiv_download_metadata m ON m.image_id = i.image_id
+    WHERE m.image_id IS NULL
+  ''');
+  final incomplete = countOf('''
+    SELECT COUNT(*) AS c
+    FROM pixiv_download_metadata
+    WHERE COALESCE(title, '') = ''
+       OR COALESCE(caption, '') = ''
+       OR COALESCE(tags, '') = ''
+  ''');
+  return (missing, incomplete);
+}
+
+String _formatProgressSuffix({
+  required int processed,
+  required int total,
+  required DateTime startedAt,
+}) {
+  if (total <= 0) return '';
+  final pct = (processed * 100 / total).toStringAsFixed(1);
+  final elapsed = DateTime.now().difference(startedAt);
+  if (processed <= 0 || elapsed.inMilliseconds <= 0) {
+    return ' ($pct% · elapsed ${pixiv_helper.formatDuration(elapsed)})';
+  }
+  final avgMs = elapsed.inMilliseconds / processed;
+  final remaining = total - processed;
+  final eta = Duration(milliseconds: (avgMs * remaining).round());
+  final finishAt = DateTime.now().add(eta);
+  return ' ($pct% · elapsed ${pixiv_helper.formatDuration(elapsed)} · '
+      'ETA ${pixiv_helper.formatDuration(eta)} ~${_formatFinishAt(finishAt)})';
+}
+
+String _formatFinishAt(DateTime dt) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  final now = DateTime.now();
+  final sameDay =
+      dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  if (sameDay) {
+    return '${two(dt.hour)}:${two(dt.minute)}';
+  }
+  return '${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
 }
 
 Future<int> processUnlistedImage({
