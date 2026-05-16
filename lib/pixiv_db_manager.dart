@@ -85,8 +85,7 @@ class PixivDBManager {
     ''');
     _tryExec(
         'ALTER TABLE pixiv_master_member ADD COLUMN is_deleted INTEGER DEFAULT 0');
-    _tryExec(
-        'ALTER TABLE pixiv_master_member ADD COLUMN member_token TEXT');
+    _tryExec('ALTER TABLE pixiv_master_member ADD COLUMN member_token TEXT');
 
     _db.execute('''
       CREATE TABLE IF NOT EXISTS pixiv_master_image (
@@ -141,6 +140,21 @@ class PixivDBManager {
       CREATE TABLE IF NOT EXISTS pixiv_ai_info (
         image_id INTEGER PRIMARY KEY,
         ai_type INTEGER,
+        created_date DATE,
+        last_update_date DATE
+      )
+    ''');
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS pixiv_download_metadata (
+        image_id INTEGER PRIMARY KEY,
+        title TEXT,
+        caption TEXT,
+        tags TEXT,
+        pages INTEGER,
+        works_date DATE,
+        total_views INTEGER,
+        total_rating INTEGER,
+        bookmark_count INTEGER,
         created_date DATE,
         last_update_date DATE
       )
@@ -229,6 +243,7 @@ class PixivDBManager {
       'pixiv_tag_translation',
       'pixiv_image_to_tag',
       'pixiv_ai_info',
+      'pixiv_download_metadata',
       'pixiv_master_series',
       'pixiv_image_to_series',
       'fanbox_master_post',
@@ -279,8 +294,7 @@ class PixivDBManager {
   }
 
   List<PixivMemberRow> selectMembersByLastDownloadDate(int days) {
-    final rows = _db.select(
-        '''
+    final rows = _db.select('''
         SELECT * FROM pixiv_master_member
         WHERE COALESCE(is_deleted, 0) = 0
           AND (last_update_date IS NULL OR DATE(last_update_date) <= DATE('now', '-${days} days'))
@@ -297,8 +311,7 @@ class PixivDBManager {
   }
 
   void updateMemberName(int memberId, String name) {
-    _db.execute(
-        'UPDATE pixiv_master_member SET name = ? WHERE member_id = ?',
+    _db.execute('UPDATE pixiv_master_member SET name = ? WHERE member_id = ?',
         [name, memberId]);
   }
 
@@ -325,16 +338,8 @@ class PixivDBManager {
         (image_id, member_id, title, save_name, created_date,
          last_update_date, is_manga, caption)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', [
-      imageId,
-      memberId,
-      title,
-      saveName,
-      _now(),
-      _now(),
-      isManga,
-      caption
-    ]);
+    ''',
+        [imageId, memberId, title, saveName, _now(), _now(), isManga, caption]);
   }
 
   void insertMangaImages(int imageId, List<String> saveNames) {
@@ -406,7 +411,47 @@ class PixivDBManager {
     return r.first['ai_type'] as int?;
   }
 
-  /// VI. Series CRUD
+  /// VI. Download metadata
+  void insertDownloadMetadata({
+    required int imageId,
+    required String title,
+    required String caption,
+    required List<String> tags,
+    required int pages,
+    required String worksDate,
+    required int totalViews,
+    required int totalRating,
+    required int bookmarkCount,
+  }) {
+    _db.execute('''
+      INSERT OR REPLACE INTO pixiv_download_metadata
+        (image_id, title, caption, tags, pages, works_date, total_views,
+         total_rating, bookmark_count, created_date, last_update_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      imageId,
+      title,
+      caption,
+      tags.take(10).join(', '),
+      pages,
+      worksDate,
+      totalViews,
+      totalRating,
+      bookmarkCount,
+      _now(),
+      _now(),
+    ]);
+  }
+
+  Map<String, dynamic>? selectDownloadMetadata(int imageId) {
+    final r = _db.select(
+        'SELECT * FROM pixiv_download_metadata WHERE image_id = ?', [imageId]);
+    if (r.isEmpty) return null;
+    return Map<String, dynamic>.fromEntries(
+        r.first.keys.map((k) => MapEntry('$k', r.first[k])));
+  }
+
+  /// VII. Series CRUD
   void insertSeries(String seriesId, String title,
       {String? type, String? description}) {
     _db.execute('''
@@ -424,7 +469,7 @@ class PixivDBManager {
     ''', [seriesId, order, imageId, _now(), _now()]);
   }
 
-  /// VII. Fanbox/Sketch
+  /// VIII. Fanbox/Sketch
   void insertFanboxPost({
     required int memberId,
     required int postId,
@@ -452,8 +497,8 @@ class PixivDBManager {
   }
 
   Map<String, dynamic>? selectFanboxPost(int postId) {
-    final r = _db.select(
-        'SELECT * FROM fanbox_master_post WHERE post_id = ?', [postId]);
+    final r = _db
+        .select('SELECT * FROM fanbox_master_post WHERE post_id = ?', [postId]);
     if (r.isEmpty) return null;
     return Map<String, dynamic>.fromEntries(
         r.first.keys.map((k) => MapEntry('$k', r.first[k])));
@@ -482,7 +527,7 @@ class PixivDBManager {
     ]);
   }
 
-  /// VIII. Maintenance
+  /// IX. Maintenance
   void vacuum() => _db.execute('VACUUM');
 
   void replaceRootPath(String oldRoot, String newRoot) {

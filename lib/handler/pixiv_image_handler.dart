@@ -43,6 +43,7 @@ Future<int> processImage({
       pixiv_helper.printAndLog('warn', 'Image $imageId has no URLs.');
       return pixiv_constant.PIXIVUTIL_NOT_OK;
     }
+    final resolvedArtist = artist ?? image.artist;
 
     final format = image.imageMode == 'manga'
         ? config.filenameMangaFormat
@@ -55,7 +56,7 @@ Future<int> processImage({
       final filename = pixiv_helper.makeFilename(
         format,
         image,
-        artistInfo: artist,
+        artistInfo: resolvedArtist,
         tagsSeparator: config.tagsSeparator,
         tagsLimit: config.tagsLimit,
         fileUrl: url,
@@ -89,7 +90,7 @@ Future<int> processImage({
       final infoFilename = pixiv_helper.makeFilename(
         infoFormat,
         image,
-        artistInfo: artist,
+        artistInfo: resolvedArtist,
         tagsSeparator: config.tagsSeparator,
         tagsLimit: config.tagsLimit,
         fileUrl: image.imageUrls.first,
@@ -108,7 +109,7 @@ Future<int> processImage({
       final jsonName = pixiv_helper.makeFilename(
         infoFormat,
         image,
-        artistInfo: artist,
+        artistInfo: resolvedArtist,
         tagsSeparator: config.tagsSeparator,
         tagsLimit: config.tagsLimit,
         fileUrl: image.imageUrls.first,
@@ -126,11 +127,22 @@ Future<int> processImage({
       _touchFiles(downloadedPaths, image.worksDateDateTime);
     }
 
-    caller.dbManager.insertImage(imageId, artist?.artistId ?? 0,
+    caller.dbManager.insertImage(imageId, resolvedArtist?.artistId ?? 0,
         title: image.imageTitle,
         saveName: image.imageUrls.join(','),
         isManga: image.imageMode == 'manga' ? 'Y' : 'N',
         caption: image.imageCaption);
+    caller.dbManager.insertDownloadMetadata(
+      imageId: imageId,
+      title: image.imageTitle,
+      caption: image.imageCaption,
+      tags: image.imageTags,
+      pages: image.imageCount,
+      worksDate: image.worksDate,
+      totalViews: image.jd_rtv,
+      totalRating: image.jd_rtc,
+      bookmarkCount: image.bookmark_count,
+    );
     if (image.ai_type > 0) {
       caller.dbManager.insertAiInfo(imageId, image.ai_type);
     }

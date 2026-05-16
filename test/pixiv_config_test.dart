@@ -5,11 +5,11 @@ import 'package:test/test.dart';
 
 void main() {
   group('PixivConfig defaults', () {
-    test('save artwork files and info into one folder per artwork', () {
+    test('save artwork files into image-id folder without text info', () {
       final config = PixivConfig();
-      final artworkFolder = '%image_id% - %title%${Platform.pathSeparator}';
+      final artworkFolder = '%image_id%${Platform.pathSeparator}';
 
-      expect(config.writeImageInfo, isTrue);
+      expect(config.writeImageInfo, isFalse);
       expect(config.filenameFormat, contains(artworkFolder));
       expect(config.filenameMangaFormat, contains(artworkFolder));
       expect(config.filenameInfoFormat, endsWith('${artworkFolder}info'));

@@ -11,12 +11,9 @@ import 'pixiv_helper.dart' as pixiv_helper;
 bool _stringNotEmpty(String? value) => value != null && value.isNotEmpty;
 
 String _defaultArtworkImageFormat() =>
-    '%artist% (%member_id%)${Platform.pathSeparator}'
-    '%image_id% - %title%${Platform.pathSeparator}%urlFilename%';
+    '%image_id%${Platform.pathSeparator}%urlFilename%';
 
-String _defaultArtworkInfoFormat() =>
-    '%artist% (%member_id%)${Platform.pathSeparator}'
-    '%image_id% - %title%${Platform.pathSeparator}info';
+String _defaultArtworkInfoFormat() => '%image_id%${Platform.pathSeparator}info';
 
 class ConfigItem {
   final String section;
@@ -103,7 +100,7 @@ class PixivConfig {
   bool get useSuppressTags => _values['useSuppressTags'] as bool? ?? false;
   int get tagsLimit => _values['tagsLimit'] as int? ?? -1;
   bool get writeImageJSON => _values['writeImageJSON'] as bool? ?? false;
-  bool get writeImageInfo => _values['writeImageInfo'] as bool? ?? true;
+  bool get writeImageInfo => _values['writeImageInfo'] as bool? ?? false;
   bool get writeRawJSON => _values['writeRawJSON'] as bool? ?? false;
   String get rawJSONFilter => _values['RawJSONFilter'] as String? ?? '';
   bool get includeSeriesJSON => _values['includeSeriesJSON'] as bool? ?? false;
@@ -443,7 +440,7 @@ class PixivConfig {
       ConfigItem('Settings', 'useSuppressTags', false),
       ConfigItem('Settings', 'tagsLimit', -1),
       ConfigItem('Settings', 'writeImageJSON', false),
-      ConfigItem('Settings', 'writeImageInfo', true),
+      ConfigItem('Settings', 'writeImageInfo', false),
       ConfigItem('Settings', 'writeRawJSON', false),
       ConfigItem('Settings', 'RawJSONFilter',
           'id,title,description,alt,userIllusts,storableTags,zoneConfig,extraData,comicPromotion,fanboxPromotion'),

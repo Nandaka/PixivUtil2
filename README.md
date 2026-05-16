@@ -156,20 +156,25 @@ works:
 cookie = your_pixiv_session_here
 ```
 
-By default, each artwork is saved into its own folder:
+By default, each artwork is saved into a folder named only after the image ID:
 
 ```text
-Artist Name (member_id)/
-└── image_id - Title/
-    ├── original_image_file.jpg
-    └── info.txt
+image_id/
+  original_image_file.jpg
 ```
 
-`info.txt` is written automatically and contains the artwork title,
-caption/text, tags, artist, date, resolution, and related counters. If you
-already have an older `config.ini`, set `writeImageInfo = true` and update
-`filenameFormat`, `filenameMangaFormat`, `filenameInfoFormat`, and
-`filenameMangaInfoFormat` to match this layout.
+Text info files are disabled by default. Artwork metadata is stored in the
+SQLite database table `pixiv_download_metadata`, with image ID, title,
+caption, up to ten tags, page count, date, total views, total rating, and
+bookmark count. If you already have an older `config.ini`, set
+`writeImageInfo = false` and update these filename settings:
+
+```ini
+filenameFormat = %image_id%\%urlFilename%
+filenameMangaFormat = %image_id%\%urlFilename%
+filenameInfoFormat = %image_id%\info
+filenameMangaInfoFormat = %image_id%\info
+```
 
 ## Tests
 
