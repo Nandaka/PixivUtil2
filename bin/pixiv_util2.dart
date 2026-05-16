@@ -78,6 +78,10 @@ ArgParser _buildParser() {
     ..addFlag('refresh-existing-metadata',
         negatable: false,
         help: 'Refresh all DB image metadata, not just missing metadata')
+    ..addFlag('repair-db',
+        negatable: false,
+        help:
+            'Recover/check DB after a hard kill and report incomplete metadata')
     ..addFlag('verbose', abbr: 'v', help: 'Verbose output')
     ..addFlag('help', abbr: 'h', negatable: false);
 }
@@ -117,6 +121,10 @@ Future<void> main(List<String> arguments) async {
   final signalSubscriptions = _installSignalHandlers(caller);
 
   try {
+    if (args['repair-db'] as bool) {
+      _repairDb(caller);
+      return;
+    }
     if ((args['import-db'] as String?)?.trim().isNotEmpty == true) {
       _importMetadataDb(
         caller,
@@ -472,6 +480,9 @@ Future<void> _runOption(
         replaceExisting: args['replace-existing-metadata'] as bool,
       );
       break;
+    case 'repair-db':
+      _repairDb(caller);
+      break;
     default:
       pixiv_helper.printAndLog('error', 'Unknown option: $option');
   }
@@ -789,6 +800,9 @@ Future<void> _menuLoop(PixivCaller caller) async {
           }
           _importMetadataDb(caller, path);
           break;
+        case 'repair-db':
+          _repairDb(caller);
+          break;
         case 'u':
           _notImplemented('Ugoira re-encode');
           break;
@@ -857,6 +871,7 @@ void _printMenu() {
   print(' p. Export online image bookmarks.');
   print(' i. Import list file');
   print(' idb. Import metadata from PixivUtil2 db.sqlite');
+  print(' repair-db. Recover/check database after hard kill');
   print(' u. Ugoira re-encode');
   print(' r. Reload config.ini');
   print(' c. Print config.ini');
@@ -883,4 +898,17 @@ void _importMetadataDb(
   pixiv_helper.printAndLog(null, stats.toString());
   pixiv_helper.printAndLog('info',
       'Metadata import complete. No artwork files were copied or downloaded.');
+}
+
+void _repairDb(PixivCaller caller) {
+  pixiv_helper.printAndLog(
+      'info', 'Checking database and recovering interrupted SQLite state...');
+  final report = caller.dbManager.repairAfterInterruptedRun();
+  pixiv_helper.printAndLog(null, report.toString());
+  if (report.missingMetadataRows > 0 || report.incompleteMetadataRows > 0) {
+    pixiv_helper.printAndLog(
+        'info',
+        'Run --fill-metadata-from-db to continue filling artwork metadata '
+            'left by the interrupted run.');
+  }
 }

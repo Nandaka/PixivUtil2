@@ -65,6 +65,40 @@ class PixivDbImportStats {
   }
 }
 
+class PixivDbRepairReport {
+  final bool integrityOk;
+  final List<String> integrityMessages;
+  final int imageRows;
+  final int missingMetadataRows;
+  final int incompleteMetadataRows;
+  final int orphanMetadataRows;
+  final String checkpointResult;
+
+  PixivDbRepairReport({
+    required this.integrityOk,
+    required this.integrityMessages,
+    required this.imageRows,
+    required this.missingMetadataRows,
+    required this.incompleteMetadataRows,
+    required this.orphanMetadataRows,
+    required this.checkpointResult,
+  });
+
+  @override
+  String toString() {
+    return [
+      'Database integrity: ${integrityOk ? 'ok' : 'problem found'}',
+      if (integrityMessages.isNotEmpty)
+        'Integrity detail: ${integrityMessages.join('; ')}',
+      'WAL checkpoint: $checkpointResult',
+      'Artwork rows: $imageRows',
+      'Missing metadata rows: $missingMetadataRows',
+      'Incomplete metadata rows: $incompleteMetadataRows',
+      'Orphan metadata rows: $orphanMetadataRows',
+    ].join('\n');
+  }
+}
+
 DateTime? _parseDate(dynamic v) {
   if (v == null) return null;
   if (v is DateTime) return v;
@@ -591,6 +625,49 @@ class PixivDBManager {
     ''', [oldRoot, newRoot, '$oldRoot%']);
   }
 
+  PixivDbRepairReport repairAfterInterruptedRun() {
+    final integrityRows = _db.select('PRAGMA integrity_check');
+    final integrityMessages =
+        integrityRows.map((row) => '${row.values.first}').toList();
+    final integrityOk =
+        integrityMessages.length == 1 && integrityMessages.first == 'ok';
+
+    var checkpointResult = 'not needed';
+    try {
+      final checkpointRows = _db.select('PRAGMA wal_checkpoint(TRUNCATE)');
+      checkpointResult =
+          checkpointRows.map((row) => row.values.join(',')).join('; ');
+    } catch (e) {
+      checkpointResult = 'skipped: $e';
+    }
+
+    return PixivDbRepairReport(
+      integrityOk: integrityOk,
+      integrityMessages: integrityMessages,
+      checkpointResult: checkpointResult,
+      imageRows: _count('SELECT COUNT(*) AS c FROM pixiv_master_image'),
+      missingMetadataRows: _count('''
+        SELECT COUNT(*) AS c
+        FROM pixiv_master_image i
+        LEFT JOIN pixiv_download_metadata m ON m.image_id = i.image_id
+        WHERE m.image_id IS NULL
+      '''),
+      incompleteMetadataRows: _count('''
+        SELECT COUNT(*) AS c
+        FROM pixiv_download_metadata
+        WHERE COALESCE(title, '') = ''
+           OR COALESCE(caption, '') = ''
+           OR COALESCE(tags, '') = ''
+      '''),
+      orphanMetadataRows: _count('''
+        SELECT COUNT(*) AS c
+        FROM pixiv_download_metadata m
+        LEFT JOIN pixiv_master_image i ON i.image_id = m.image_id
+        WHERE i.image_id IS NULL
+      '''),
+    );
+  }
+
   PixivDbImportStats importMetadataFromPixivUtilDb(
     String sourceDbPath, {
     bool replaceExisting = false,
@@ -693,6 +770,12 @@ class PixivDBManager {
   Database get raw => _db;
 
   String _now() => DateTime.now().toIso8601String();
+
+  int _count(String sql) {
+    final rows = _db.select(sql);
+    if (rows.isEmpty) return 0;
+    return (rows.first['c'] as int?) ?? int.parse('${rows.first.values.first}');
+  }
 
   static const List<String> _metadataTables = [
     'pixiv_master_member',
