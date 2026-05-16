@@ -1,9 +1,13 @@
 /// Bookmark handler.
 library;
 
+import 'dart:io';
+
 import '../common/pixiv_browser.dart';
 import '../common/pixiv_config.dart';
+import '../common/pixiv_constant.dart' as pixiv_constant;
 import '../common/pixiv_helper.dart' as pixiv_helper;
+import 'pixiv_download_handler.dart' as download_handler;
 import 'pixiv_image_handler.dart' as image_handler;
 
 Future<void> processBookmark({
@@ -28,8 +32,7 @@ Future<void> processBookmark({
     var i = 1;
     for (final imageId in pageData.imageList) {
       try {
-        pixiv_helper.printAndLog(
-            null, '#$i - $imageId from bookmarks');
+        pixiv_helper.printAndLog(null, '#$i - $imageId from bookmarks');
         final result = await image_handler.processImage(
             caller: caller,
             config: config,
@@ -38,8 +41,7 @@ Future<void> processBookmark({
             notifier: notifier);
         await pixiv_helper.wait(result, config);
       } catch (e) {
-        pixiv_helper.printAndLog(
-            'error', 'Failed bookmark image $imageId: $e');
+        pixiv_helper.printAndLog('error', 'Failed bookmark image $imageId: $e');
       }
       i++;
     }
@@ -61,8 +63,7 @@ Future<void> processImageBookmark({
   String? sort,
   bool hide = false,
 }) async {
-  pixiv_helper.printAndLog(
-      'info', 'Processing image bookmarks for $memberId.');
+  pixiv_helper.printAndLog('info', 'Processing image bookmarks for $memberId.');
   // The actual API endpoint is /ajax/user/{member_id}/illusts/bookmarks
   final br = caller.br as PixivBrowser;
   var offset = (startPage - 1) * 48;
@@ -81,12 +82,93 @@ Future<void> processImageBookmark({
           bookmark: true,
         );
       } catch (e) {
-        pixiv_helper.printAndLog(
-            'error', 'Failed bookmark image $imageId: $e');
+        pixiv_helper.printAndLog('error', 'Failed bookmark image $imageId: $e');
       }
     }
     offset += 48;
     if (endPage > 0 && offset >= endPage * 48) break;
+  }
+}
+
+Future<void> processFromGroup({
+  required dynamic caller,
+  required PixivConfig config,
+  required String groupId,
+  int limit = 0,
+  bool processExternal = true,
+}) async {
+  final br = caller.br as PixivBrowser;
+  pixiv_helper.printAndLog('info', 'Download by Group Id: $groupId');
+  if (limit != 0) pixiv_helper.printAndLog('info', 'Limit: $limit');
+  if (processExternal) {
+    pixiv_helper.printAndLog(
+        'info', 'Include External Image: $processExternal');
+  }
+
+  var maxId = 0;
+  var imageCount = 0;
+  while (true) {
+    final group = await br.getGroupImages(groupId, maxId: maxId);
+    maxId = group.maxId ?? 0;
+
+    for (final imageId in group.imageList) {
+      if (limit != 0 && imageCount >= limit) return;
+      pixiv_helper.printAndLog(null, 'Image #$imageCount');
+      pixiv_helper.printAndLog(null, 'ImageId: $imageId');
+      final result = await image_handler.processImage(
+        caller: caller,
+        config: config,
+        imageId: imageId,
+      );
+      imageCount++;
+      await pixiv_helper.wait(result, config);
+    }
+
+    if (processExternal) {
+      for (final image in group.externalImageList) {
+        if (limit != 0 && imageCount >= limit) return;
+        pixiv_helper.printAndLog(null, 'Image #$imageCount');
+        pixiv_helper.printAndLog(
+            null, 'Member Id    : ${image.artist?.artistId ?? 0}');
+        pixiv_helper
+            .safePrint('Member Name  : ${image.artist?.artistName ?? ''}');
+        pixiv_helper.printAndLog(
+            null, 'Member Token : ${image.artist?.artistToken ?? ''}');
+        pixiv_helper.printAndLog(
+            null, 'Image Url    : ${image.imageUrls.first}');
+
+        final filename = pixiv_helper.makeFilename(
+          config.filenameFormat,
+          image,
+          tagsSeparator: config.tagsSeparator,
+          tagsLimit: config.tagsLimit,
+          fileUrl: image.imageUrls.first,
+          useTranslatedTag: config.useTranslatedTag,
+          tagTranslationLocale: config.tagTranslationLocale,
+        );
+        final fullPath =
+            pixiv_helper.sanitizeFilename(filename, config.rootDirectory);
+        pixiv_helper.safePrint('Filename  : $fullPath');
+        final result = await download_handler.downloadImage(
+          caller: caller,
+          config: config,
+          url: image.imageUrls.first,
+          filename: fullPath,
+          referer: 'https://www.pixiv.net/group/$groupId',
+        );
+        if (config.setLastModified &&
+            result == pixiv_constant.PIXIVUTIL_OK &&
+            File(fullPath).existsSync()) {
+          try {
+            File(fullPath).setLastModifiedSync(image.worksDateDateTime);
+          } catch (_) {}
+        }
+        imageCount++;
+      }
+    }
+
+    if (group.imageList.isEmpty && group.externalImageList.isEmpty) break;
+    if (maxId == 0) break;
   }
 }
 

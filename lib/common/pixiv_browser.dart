@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 
 import '../model/pixiv_artist.dart';
 import '../model/pixiv_bookmark.dart';
+import '../model/pixiv_group.dart';
 import '../model/pixiv_image.dart';
 import '../model/pixiv_model_fanbox.dart';
 import '../model/pixiv_model_sketch.dart';
@@ -531,6 +532,17 @@ class PixivBrowser {
     return tagInfo;
   }
 
+  Future<PixivGroup> getGroupImages(String groupId, {int maxId = 0}) async {
+    final url = Uri.https('www.pixiv.net', '/group/images.php', {
+      'format': 'json',
+      'max_id': '$maxId',
+      'id': groupId,
+    }).toString();
+    pixiv_helper.printAndLog('info', 'Getting images from: $url');
+    final body = await getContent(url);
+    return PixivGroup(body);
+  }
+
   Future<PixivRanking> getPixivRanking(
       String mode, int currentPage, String date, String content,
       [List<String>? filters]) async {
@@ -602,14 +614,23 @@ class PixivBrowser {
 
   Future<FanboxArtist> getFanboxArtist(int artistId,
       {String? creatorId}) async {
-    final url = creatorId != null
+    final url = creatorId != null && creatorId.isNotEmpty
         ? 'https://api.fanbox.cc/creator.get?creatorId=$creatorId'
-        : 'https://api.fanbox.cc/legacy/manage/profile/get';
+        : 'https://api.fanbox.cc/creator.get?userId=$artistId';
     final body = await getContent(url, headers: {
+      'Accept': 'application/json, text/plain, */*',
       'Origin': 'https://www.fanbox.cc',
       'Referer': 'https://www.fanbox.cc/',
     });
-    return FanboxArtist(artistId: artistId, page: body);
+    final artist = FanboxArtist(artistId: artistId, page: body);
+    if (artist.artistId > 0) {
+      try {
+        final (pixivArtist, _) = await getMemberPage(artist.artistId);
+        artist.artistName = pixivArtist.artistName;
+        artist.artistToken = pixivArtist.artistToken;
+      } catch (_) {}
+    }
+    return artist;
   }
 
   Future<List<FanboxPost>> getFanboxPosts(FanboxArtist artist) async {

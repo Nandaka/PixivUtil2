@@ -4,6 +4,7 @@ library;
 import '../common/pixiv_browser.dart';
 import '../common/pixiv_config.dart';
 import '../common/pixiv_helper.dart' as pixiv_helper;
+import 'pixiv_artist_handler.dart' as artist_handler;
 import 'pixiv_download_handler.dart' as download_handler;
 
 Future<void> processFanboxArtist({
@@ -155,4 +156,36 @@ Future<void> processFanboxPost({
         pixiv_helper.sanitizeFilename('$filename.txt', config.rootDirectory);
     await post.writeInfo(fullPath);
   }
+}
+
+Future<void> processPixivByFanboxId({
+  required dynamic caller,
+  required PixivConfig config,
+  required String artistOrCreatorId,
+  int startPage = 1,
+  int endPage = 0,
+  String? tags,
+  String titlePrefix = '',
+}) async {
+  pixiv_helper.printAndLog(
+      'info', 'Processing Pixiv by FANBOX ID: $artistOrCreatorId');
+  final br = caller.br as PixivBrowser;
+  final numericId = int.tryParse(artistOrCreatorId);
+  final artist = numericId == null
+      ? await br.getFanboxArtist(0, creatorId: artistOrCreatorId)
+      : await br.getFanboxArtist(numericId);
+  if (artist.artistId <= 0) {
+    pixiv_helper.printAndLog(
+        'warn', 'Unable to resolve Pixiv member id for $artistOrCreatorId');
+    return;
+  }
+  await artist_handler.processMember(
+    caller: caller,
+    config: config,
+    memberId: artist.artistId,
+    tags: tags,
+    startPage: startPage,
+    endPage: endPage,
+    titlePrefix: titlePrefix,
+  );
 }

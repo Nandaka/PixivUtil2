@@ -54,6 +54,7 @@ ArgParser _buildParser() {
     ..addOption('member-id', help: 'Member ID for options 1/9/10')
     ..addOption('image-id', help: 'Image ID for option 2')
     ..addOption('post-id', help: 'FANBOX/Sketch post ID')
+    ..addOption('group-id', help: 'Pixiv group ID')
     ..addOption('tag', help: 'Tag for option 3')
     ..addOption('novel-id', help: 'Novel ID')
     ..addOption('series-id', help: 'Series ID')
@@ -258,6 +259,13 @@ Future<void> _runOption(
         endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
+    case '12':
+      await bookmark_handler.processFromGroup(
+        caller: caller,
+        config: config,
+        groupId: _requireArg(args, 'group-id', option),
+      );
+      break;
     case '13':
       await image_handler.processMangaSeries(
         caller: caller,
@@ -363,6 +371,16 @@ Future<void> _runOption(
         postId: int.parse(
           (args['post-id'] as String?) ?? _requireArg(args, 'image-id', option),
         ),
+      );
+      break;
+    case 'f6':
+      await fanbox_handler.processPixivByFanboxId(
+        caller: caller,
+        config: config,
+        artistOrCreatorId: _requireArg(args, 'member-id', option),
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+        tags: args['tag'] as String?,
       );
       break;
     case 'b': // batch job
@@ -480,7 +498,13 @@ Future<void> _menuLoop(PixivCaller caller) async {
           );
           break;
         case '12':
-          _notImplemented('Download by Group Id');
+          stdout.write('Group ID: ');
+          final id = stdin.readLineSync()!.trim();
+          await bookmark_handler.processFromGroup(
+            caller: caller,
+            config: caller.config,
+            groupId: id,
+          );
           break;
         case '13':
           stdout.write('Manga Series ID: ');
@@ -606,7 +630,13 @@ Future<void> _menuLoop(PixivCaller caller) async {
           _notImplemented('Download from custom list (FANBOX)');
           break;
         case 'f6':
-          _notImplemented('Download Pixiv by FANBOX Artist ID');
+          stdout.write('FANBOX artist/creator ID: ');
+          final id = stdin.readLineSync()!.trim();
+          await fanbox_handler.processPixivByFanboxId(
+            caller: caller,
+            config: caller.config,
+            artistOrCreatorId: id,
+          );
           break;
         case 's1':
           stdout.write('Artist Token: ');

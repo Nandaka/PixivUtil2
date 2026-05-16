@@ -16,20 +16,19 @@ class PixivGroup {
 
   PixivGroup(String jsonResponse) {
     final data = jsonDecode(jsonResponse) as Map<String, dynamic>;
-    maxId = data['max_id'] as int?;
-    for (final imageData in data['imageArticles'] as List) {
+    maxId = int.tryParse('${data['max_id'] ?? 0}');
+    for (final imageData in data['imageArticles'] as List? ?? const []) {
       final detail = imageData['detail'] as Map<String, dynamic>;
       if (detail.containsKey('id')) {
-        imageList.add(detail['id'] as int);
+        imageList.add(int.parse('${detail['id']}'));
       } else if (detail.containsKey('fullscale_url')) {
         final fullscaleUrl = detail['fullscale_url'] as String;
         final memberId = PixivArtist();
-        memberId.artistId = imageData['user_id'] as int;
+        memberId.artistId = int.tryParse('${imageData['user_id']}') ?? 0;
         if (imageData['user_name'] != null) {
           memberId.artistName = '${imageData['user_name']}';
           memberId.artistAvatar = parseAvatar(imageData['img'] as String);
-          memberId.artistToken =
-              parseToken(imageData['img'] as String) ?? '';
+          memberId.artistToken = parseToken(imageData['img'] as String) ?? '';
         } else {
           memberId.artistName = '${imageData['user_id']}';
           memberId.artistAvatar = '';
