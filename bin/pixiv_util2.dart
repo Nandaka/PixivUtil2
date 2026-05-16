@@ -183,9 +183,22 @@ List<StreamSubscription<ProcessSignal>> _installSignalHandlers(
     exit(130);
   }
 
-  for (final signal in [ProcessSignal.sigint, ProcessSignal.sigterm]) {
+  final signals = <ProcessSignal>[ProcessSignal.sigint];
+  if (!Platform.isWindows) {
+    // Windows does not support SIGTERM; listening for it raises a
+    // SignalException with errno 50 (ERROR_NOT_SUPPORTED).
+    signals.add(ProcessSignal.sigterm);
+  }
+
+  for (final signal in signals) {
     try {
-      subscriptions.add(signal.watch().listen(handleSignal));
+      subscriptions.add(signal.watch().listen(
+            handleSignal,
+            onError: (Object _) {
+              // Some signals are not supported on every platform; the OS
+              // reports the failure asynchronously via the stream.
+            },
+          ));
     } on UnsupportedError {
       // Some signals are not supported on every platform.
     }
