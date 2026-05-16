@@ -377,6 +377,14 @@ class PixivDBManager {
     ''', [tagId, _now(), _now()]);
   }
 
+  void updateTag(String tagId) {
+    _db.execute('''
+      UPDATE pixiv_master_tag
+      SET last_update_date = ?
+      WHERE tag_id = ?
+    ''', [_now(), tagId]);
+  }
+
   void insertImageTag(int imageId, String tagId) {
     insertTag(tagId);
     _db.execute('''

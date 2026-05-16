@@ -23,6 +23,8 @@ Future<int> processImage({
   String searchTags = '',
   String titlePrefix = '',
   int imageResponseCount = -1,
+  int mangaSeriesOrder = -1,
+  dynamic mangaSeriesParent,
   void Function({String? title, String? message, dynamic type})? notifier,
 }) async {
   notifier ??= pixiv_helper.dummyNotifier;
@@ -34,6 +36,8 @@ Future<int> processImage({
       parent: artist,
       fromBookmark: bookmark,
       imageResponseCount: imageResponseCount,
+      mangaSeriesOrder: mangaSeriesOrder,
+      mangaSeriesParent: mangaSeriesParent,
       writeRawJSON: config.writeRawJSON,
       stripHTMLTagsFromCaption: config.stripHTMLTagsFromCaption,
     );
@@ -155,6 +159,167 @@ Future<int> processImage({
     return e.errorCode == PixivException.IMAGE_DELETED
         ? pixiv_constant.PIXIVUTIL_SKIP_BLACKLIST
         : pixiv_constant.PIXIVUTIL_NOT_OK;
+  }
+}
+
+Future<void> processImageMetadata({
+  required dynamic caller,
+  required PixivConfig config,
+  required int imageId,
+  void Function({String? title, String? message, dynamic type})? notifier,
+}) async {
+  notifier ??= pixiv_helper.dummyNotifier;
+  pixiv_helper.printAndLog('info', 'Processing Image Metadata: $imageId');
+  final br = caller.br as PixivBrowser;
+  final (image, _) = await br.getImagePage(
+    imageId,
+    writeRawJSON: config.writeRawJSON,
+    stripHTMLTagsFromCaption: config.stripHTMLTagsFromCaption,
+  );
+  image.printInfo();
+  final resolvedArtist = image.artist;
+  caller.dbManager.insertImage(
+    imageId,
+    resolvedArtist?.artistId ?? 0,
+    title: image.imageTitle,
+    saveName: image.imageUrls.join(','),
+    isManga: image.imageMode == 'manga' ? 'Y' : 'N',
+    caption: image.imageCaption,
+  );
+  caller.dbManager.insertDownloadMetadata(
+    imageId: imageId,
+    title: image.imageTitle,
+    caption: image.imageCaption,
+    tags: image.imageTags,
+    pages: image.imageCount,
+    worksDate: image.worksDate,
+    totalViews: image.jd_rtv,
+    totalRating: image.jd_rtc,
+    bookmarkCount: image.bookmark_count,
+  );
+  if (image.ai_type > 0) {
+    caller.dbManager.insertAiInfo(imageId, image.ai_type);
+  }
+}
+
+Future<int> processUnlistedImage({
+  required dynamic caller,
+  required PixivConfig config,
+  required String unlistedId,
+  String titlePrefix = '',
+  void Function({String? title, String? message, dynamic type})? notifier,
+}) async {
+  notifier ??= pixiv_helper.dummyNotifier;
+  pixiv_helper.printAndLog(
+      'info', 'Processing Unlisted Image: $unlistedId ($titlePrefix)');
+  final br = caller.br as PixivBrowser;
+  try {
+    final (image, _) = await br.getUnlistedImagePage(
+      unlistedId,
+      writeRawJSON: config.writeRawJSON,
+      stripHTMLTagsFromCaption: config.stripHTMLTagsFromCaption,
+    );
+    return processImage(
+      caller: caller,
+      config: config,
+      artist: image.artist,
+      imageId: image.imageId,
+      titlePrefix: titlePrefix,
+      notifier: notifier,
+    );
+  } on PixivException catch (e) {
+    pixiv_helper.printAndLog('error', 'Unlisted image $unlistedId failed: $e');
+    return e.errorCode == PixivException.IMAGE_DELETED
+        ? pixiv_constant.PIXIVUTIL_SKIP_BLACKLIST
+        : pixiv_constant.PIXIVUTIL_NOT_OK;
+  }
+}
+
+Future<void> processMangaSeries({
+  required dynamic caller,
+  required PixivConfig config,
+  required int mangaSeriesId,
+  int startPage = 1,
+  int endPage = 0,
+  void Function({String? title, String? message, dynamic type})? notifier,
+}) async {
+  notifier ??= pixiv_helper.dummyNotifier;
+  pixiv_helper.printAndLog(
+      'info', 'Processing Manga Series Id: $mangaSeriesId');
+
+  final br = caller.br as PixivBrowser;
+  var currentPage = startPage;
+  while (true) {
+    final series = await br.getMangaSeries(mangaSeriesId, currentPage);
+    series.printInfo();
+    updateMangaSeriesMappingFromPage(caller, series);
+
+    if (series.pagesWithOrder.isEmpty) {
+      pixiv_helper.printAndLog('info', 'No more works.');
+      break;
+    }
+
+    for (final work in series.pagesWithOrder) {
+      final result = await processImage(
+        caller: caller,
+        config: config,
+        artist: series.artist,
+        imageId: work.imageId,
+        mangaSeriesOrder: work.order,
+        mangaSeriesParent: series,
+        notifier: notifier,
+      );
+      await pixiv_helper.wait(result, config);
+    }
+
+    if (series.isLastPage) {
+      pixiv_helper.printAndLog('info', 'Last Page ${series.currentPage}');
+      break;
+    }
+    currentPage++;
+    if (endPage > 0 && currentPage > endPage) {
+      pixiv_helper.printAndLog('info', 'End Page reached $endPage');
+      break;
+    }
+  }
+}
+
+Future<void> processMangaSeriesMetadata({
+  required dynamic caller,
+  required PixivConfig config,
+  required int mangaSeriesId,
+  void Function({String? title, String? message, dynamic type})? notifier,
+}) async {
+  notifier ??= pixiv_helper.dummyNotifier;
+  pixiv_helper.printAndLog(
+      'info', 'Processing Manga Series Metadata: $mangaSeriesId');
+  final br = caller.br as PixivBrowser;
+  var currentPage = 1;
+  var totalWorks = 0;
+  while (true) {
+    final series = await br.getMangaSeries(mangaSeriesId, currentPage);
+    updateMangaSeriesMappingFromPage(caller, series);
+    totalWorks += series.pagesWithOrder.length;
+    if (series.isLastPage || series.pagesWithOrder.isEmpty) break;
+    currentPage++;
+  }
+  pixiv_helper.printAndLog(
+      'info', 'Updated series $mangaSeriesId with $totalWorks works.');
+}
+
+void updateMangaSeriesMappingFromPage(dynamic caller, dynamic series) {
+  caller.dbManager.insertSeries(
+    '${series.mangaSeriesId}',
+    series.title,
+    type: 'manga',
+    description: series.description,
+  );
+  for (final work in series.pagesWithOrder) {
+    caller.dbManager.insertImageToSeries(
+      '${series.mangaSeriesId}',
+      work.order,
+      work.imageId,
+    );
   }
 }
 

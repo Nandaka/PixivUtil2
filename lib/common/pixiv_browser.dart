@@ -227,6 +227,9 @@ class PixivBrowser {
     cookieValues.addAll(parseCookieHeader(h.remove('Cookie')));
     if (uri.host == 'pixiv.net' || uri.host.endsWith('.pixiv.net')) {
       cookieValues.addAll(parseCookieHeader(config.cookie));
+    } else if (uri.host == 'fanbox.cc' || uri.host.endsWith('.fanbox.cc')) {
+      cookieValues.addAll(parseCookieHeader(config.cookieFanbox));
+      cookieValues.addAll(parseCookieHeader(config.cookieFanboxTemp));
     }
 
     final cookies = await cookieJar.loadForRequest(uri);
@@ -331,8 +334,13 @@ class PixivBrowser {
   // -----------
 
   Future<(PixivArtist, String)> getMemberPage(int memberId,
-      {int page = 1, int? referenceImageId, bool tagsOnly = false}) async {
-    final cacheKey = 'member_$memberId';
+      {int page = 1,
+      int? referenceImageId,
+      bool tagsOnly = false,
+      String? tags}) async {
+    final cacheKey = tags == null || tags.isEmpty
+        ? 'member_$memberId'
+        : 'member_${memberId}_tag_${tags}_$page';
     PixivArtist? cached = _getCache(cacheKey) as PixivArtist?;
     if (cached != null) return (cached, '');
 
@@ -350,14 +358,19 @@ class PixivBrowser {
     final artist = PixivArtist(artistId: memberId);
     artist.parseInfo({'body': null, ...data}, false);
 
-    // Fetch the all-illust list to populate imageList.
-    final allUrl = 'https://www.pixiv.net/ajax/user/$memberId/profile/all';
+    // Fetch the all-illust list or the member/tag result to populate imageList.
+    final offset = (page - 1) * 60;
+    const limit = 60;
+    final allUrl = tags == null || tags.isEmpty
+        ? 'https://www.pixiv.net/ajax/user/$memberId/profile/all'
+        : 'https://www.pixiv.net/ajax/user/$memberId/illustmanga/tag'
+            '?tag=${Uri.encodeQueryComponent(tags)}&offset=$offset&limit=$limit';
     final allBody = await getContent(allUrl);
     final allData = jsonDecode(allBody) as Map<String, dynamic>;
     if (allData['body'] is Map) {
       final inner = allData['body'] as Map<String, dynamic>;
-      artist.offset = 0;
-      artist.limit = 60;
+      artist.offset = offset;
+      artist.limit = limit;
       artist.parseImages(inner);
       artist.parseMangaList(inner);
       artist.parseNovelList(inner);
@@ -372,6 +385,8 @@ class PixivBrowser {
       bool fromBookmark = false,
       int bookmarkCount = -1,
       int imageResponseCount = -1,
+      int mangaSeriesOrder = -1,
+      PixivMangaSeries? mangaSeriesParent,
       Duration? tzInfo,
       String? dateFormat,
       bool writeRawJSON = false,
@@ -387,27 +402,133 @@ class PixivBrowser {
       image_response_count: imageResponseCount,
       tzInfo: tzInfo,
       dateFormat: dateFormat,
+      mangaSeriesOrder: mangaSeriesOrder,
+      mangaSeriesParent: mangaSeriesParent,
       writeRawJSON: writeRawJSON,
       stripHTMLTagsFromCaption: stripHTMLTagsFromCaption,
     );
     return (image, body);
   }
 
+  Future<(PixivImage, String)> getUnlistedImagePage(String unlistedId,
+      {PixivArtist? parent,
+      bool fromBookmark = false,
+      int bookmarkCount = -1,
+      int imageResponseCount = -1,
+      Duration? tzInfo,
+      String? dateFormat,
+      bool writeRawJSON = false,
+      bool stripHTMLTagsFromCaption = false}) async {
+    final pageUrl = 'https://www.pixiv.net/artworks/unlisted/$unlistedId';
+    final page = await getContent(pageUrl, headers: {
+      'Referer': 'https://www.pixiv.net/',
+    });
+    var resolvedId = int.tryParse(unlistedId);
+    resolvedId ??= _extractIllustId(page);
+    if (resolvedId == null) {
+      throw PixivException(
+        'Unable to resolve unlisted artwork id from $unlistedId',
+        errorCode: PixivException.OTHER_ERROR,
+        htmlPage: page,
+      );
+    }
+    return getImagePage(
+      resolvedId,
+      parent: parent,
+      fromBookmark: fromBookmark,
+      bookmarkCount: bookmarkCount,
+      imageResponseCount: imageResponseCount,
+      tzInfo: tzInfo,
+      dateFormat: dateFormat,
+      writeRawJSON: writeRawJSON,
+      stripHTMLTagsFromCaption: stripHTMLTagsFromCaption,
+    );
+  }
+
+  int? _extractIllustId(String page) {
+    final patterns = [
+      RegExp(r'"illustId"\s*:\s*"?(\d+)"?'),
+      RegExp(r'"illust_id"\s*:\s*"?(\d+)"?'),
+      RegExp(r'/artworks/(\d+)'),
+      RegExp(r'illust_id=(\d+)'),
+    ];
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(page);
+      if (match != null) return int.tryParse(match.group(1)!);
+    }
+    return null;
+  }
+
   Future<PixivTags> getSearchTagPage(String tags,
       {int currentPage = 1,
       String wildCard = '%20',
+      bool wildCardSearch = true,
+      bool titleCaption = false,
       String typeMode = 'all',
       String sortOrder = 'date_d',
       String? startDate,
       String? endDate,
+      int? memberId,
       int? bookmarkCount}) async {
-    final urlTags = Uri.encodeComponent(tags);
-    final url = 'https://www.pixiv.net/ajax/search/artworks/$urlTags'
-        '?word=$urlTags&order=$sortOrder&mode=all&p=$currentPage&type=$typeMode';
+    if (memberId != null) {
+      final (artist, _) =
+          await getMemberPage(memberId, page: currentPage, tags: tags);
+      final result = PixivTags();
+      result.parseMemberTags(artist, memberId, query: tags);
+      return result;
+    }
+
+    final query = <String, String>{
+      'word': tags,
+      'order': sortOrder,
+      'mode': 'all',
+      'p': '$currentPage',
+      's_mode':
+          titleCaption ? 's_tc' : (wildCardSearch ? 's_tag' : 's_tag_full'),
+      'type': _normalizeSearchType(typeMode),
+    };
+    if (startDate != null && startDate.isNotEmpty) query['scd'] = startDate;
+    if (endDate != null && endDate.isNotEmpty) query['ecd'] = endDate;
+    if (bookmarkCount != null && bookmarkCount > 0 && _isPremium) {
+      query['blt'] = '$bookmarkCount';
+    }
+    if (_locale.isNotEmpty) query['lang'] = _locale.replaceFirst('/', '');
+    final url = Uri.https(
+      'www.pixiv.net',
+      '/ajax/search/artworks/$tags',
+      query,
+    ).toString();
     final body = await getContent(url);
     final result = PixivTags();
     result.parseTags(body, query: tags, currPage: currentPage);
     return result;
+  }
+
+  String _normalizeSearchType(String typeMode) {
+    if (typeMode == 'i') return 'illust_and_ugoira';
+    if (typeMode == 'm') return 'manga';
+    return typeMode == 'all' ? 'all' : typeMode;
+  }
+
+  Future<PixivTag> getTagInfo(String tag, {String? lang}) async {
+    if (tag.trim().isEmpty) {
+      throw PixivException('Tag is empty.',
+          errorCode: PixivException.OTHER_ERROR);
+    }
+    final query = <String, String>{};
+    final resolvedLang = lang ?? _locale.replaceFirst('/', '');
+    if (resolvedLang.isNotEmpty) query['lang'] = resolvedLang;
+    final url = Uri.https(
+      'www.pixiv.net',
+      '/ajax/search/tags/${tag.trim()}',
+      query.isEmpty ? null : query,
+    ).toString();
+    final cached = _getCache(url) as PixivTag?;
+    if (cached != null) return cached;
+    final body = await getContent(url);
+    final tagInfo = PixivTag(jsonDecode(body) as Map<String, dynamic>);
+    _putCache(url, tagInfo);
+    return tagInfo;
   }
 
   Future<PixivRanking> getPixivRanking(
@@ -449,6 +570,36 @@ class PixivBrowser {
     return NovelSeries(seriesId, body);
   }
 
+  Future<String> getMangaSeriesJson(int mangaSeriesId, int currentPage) async {
+    pixiv_helper.printAndLog(
+        'info', 'Getting Manga Series: $mangaSeriesId from page: $currentPage');
+    final query = <String, String>{'p': '$currentPage'};
+    if (_locale.isNotEmpty) query['lang'] = _locale.replaceFirst('/', '');
+    final url = Uri.https(
+      'www.pixiv.net',
+      '/ajax/series/$mangaSeriesId',
+      query,
+    ).toString();
+    return getContent(url);
+  }
+
+  Future<PixivMangaSeries> getMangaSeries(
+      int mangaSeriesId, int currentPage) async {
+    final body = await getMangaSeriesJson(mangaSeriesId, currentPage);
+    final series = PixivMangaSeries(
+      mangaSeriesId: mangaSeriesId,
+      currentPage: currentPage,
+      payload: body,
+    );
+    if (series.memberId > 0) {
+      pixiv_helper.printAndLog(
+          'info', ' - Fetching artist details ${series.memberId}');
+      final (artist, _) = await getMemberPage(series.memberId);
+      series.artist = artist;
+    }
+    return series;
+  }
+
   Future<FanboxArtist> getFanboxArtist(int artistId,
       {String? creatorId}) async {
     final url = creatorId != null
@@ -472,6 +623,26 @@ class PixivBrowser {
     return artist.posts;
   }
 
+  Future<FanboxPost> getFanboxPostById(int postId) async {
+    final body = await getContent(
+      'https://api.fanbox.cc/post.info?postId=$postId',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Origin': 'https://www.fanbox.cc',
+        'Referer': 'https://www.fanbox.cc/posts/$postId',
+      },
+    );
+    final js = jsonDecode(body) as Map<String, dynamic>;
+    if (js['error'] == true) {
+      throw PixivException('${js['message']}',
+          errorCode: PixivException.OTHER_ERROR, htmlPage: body);
+    }
+    final postBody = js['body'] as Map<String, dynamic>;
+    final creatorId = '${postBody['creatorId'] ?? ''}';
+    final artist = await getFanboxArtist(0, creatorId: creatorId);
+    return FanboxPost(postId, artist, postBody);
+  }
+
   Future<SketchArtist> getSketchArtist(String unique) async {
     final url = 'https://sketch.pixiv.net/api/users/@$unique.json';
     final body = await getContent(url);
@@ -488,6 +659,15 @@ class PixivBrowser {
     final body = await getContent(url);
     artist.parsePosts(body);
     return artist.posts;
+  }
+
+  Future<SketchPost> getSketchPost(int postId, {SketchArtist? artist}) async {
+    final url = 'https://sketch.pixiv.net/api/replies/$postId.json';
+    final body = await getContent(url, headers: {
+      'Referer': 'https://sketch.pixiv.net/items/$postId',
+      'X-Requested-With': 'https://sketch.pixiv.net/items/$postId',
+    });
+    return SketchPost(postId, artist, body);
   }
 
   /// Download a file at [url] to [destination].

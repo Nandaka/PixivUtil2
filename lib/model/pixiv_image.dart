@@ -66,7 +66,7 @@ class PixivImage {
 
   // Manga series
   int mangaSeriesOrder;
-  PixivImage? mangaSeriesParent;
+  PixivMangaSeries? mangaSeriesParent;
 
   // Title/caption translations
   String translatedWorkTitle = '';
@@ -168,6 +168,13 @@ class PixivImage {
     imageTitle = root['illustTitle'] as String? ?? '';
     imageCaption = root['illustComment'] as String? ?? '';
     seriesNavData = root['seriesNavData'] as Map<String, dynamic>?;
+    if (seriesNavData == null && mangaSeriesParent != null) {
+      seriesNavData = {
+        'title': mangaSeriesParent!.title,
+        'seriesId': mangaSeriesParent!.mangaSeriesId,
+        'order': mangaSeriesOrder,
+      };
+    }
     jd_rtv = (root['viewCount'] as num? ?? 0).toInt();
     jd_rtc = (root['likeCount'] as num? ?? 0).toInt();
 
@@ -364,5 +371,84 @@ class PixivImage {
       if (includeSeriesJson && seriesJson != null) 'seriesJson': seriesJson,
     };
     await File(filename).writeAsString(jsonEncode(out));
+  }
+}
+
+class MangaSeriesWork {
+  final int imageId;
+  final int order;
+
+  const MangaSeriesWork(this.imageId, this.order);
+}
+
+class PixivMangaSeries {
+  final int mangaSeriesId;
+  final int currentPage;
+  int memberId = 0;
+  int totalWorks = 0;
+  String title = '';
+  String description = '';
+  bool isLastPage = false;
+  PixivArtist? artist;
+  final List<MangaSeriesWork> pagesWithOrder = [];
+
+  PixivMangaSeries({
+    required this.mangaSeriesId,
+    required this.currentPage,
+    required String payload,
+  }) {
+    final js = jsonDecode(payload) as Map<String, dynamic>;
+    if (js['error'] == true) {
+      throw PixivException(
+        '${js['message']}',
+        errorCode: PixivException.OTHER_ERROR,
+        htmlPage: payload,
+      );
+    }
+    final body = js['body'] as Map<String, dynamic>;
+    _parseInfo(body);
+  }
+
+  void _parseInfo(Map<String, dynamic> payload) {
+    final meta = payload['extraData']?['meta'] as Map<String, dynamic>? ?? {};
+    title = '${meta['title'] ?? ''}';
+    description = '${meta['description'] ?? ''}';
+    totalWorks = (payload['page']?['total'] as num? ?? 0).toInt();
+
+    final users = payload['users'] as List? ?? const [];
+    if (users.length > 1) {
+      throw PixivException(
+        'Multiple artist detected in manga series: $mangaSeriesId',
+        errorCode: PixivException.OTHER_ERROR,
+        htmlPage: payload,
+      );
+    }
+    if (users.isNotEmpty) {
+      memberId = int.parse('${users.first['userId']}');
+    }
+
+    final series = payload['page']?['series'] as List? ?? const [];
+    for (final work in series) {
+      if (work is! Map) continue;
+      final imageId = int.parse('${work['workId']}');
+      final order = int.parse('${work['order']}');
+      pagesWithOrder.add(MangaSeriesWork(imageId, order));
+      if (order == 1) isLastPage = true;
+    }
+  }
+
+  void printInfo() {
+    pixiv_helper.safePrint('Manga Series Info');
+    pixiv_helper.safePrint('Manga Series ID: $mangaSeriesId');
+    pixiv_helper.safePrint('Artist ID      : $memberId');
+    if (artist != null) {
+      pixiv_helper.safePrint('Artist Name    : ${artist!.artistName}');
+    }
+    pixiv_helper.safePrint('Title          : $title');
+    pixiv_helper.safePrint('Description    : $description');
+    pixiv_helper.safePrint('Works          :');
+    for (final work in pagesWithOrder) {
+      pixiv_helper.safePrint(' - [${work.order}] ${work.imageId}');
+    }
   }
 }

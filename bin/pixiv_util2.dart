@@ -53,6 +53,7 @@ ArgParser _buildParser() {
         abbr: 'o', help: 'Run a specific menu option non-interactively')
     ..addOption('member-id', help: 'Member ID for options 1/9/10')
     ..addOption('image-id', help: 'Image ID for option 2')
+    ..addOption('post-id', help: 'FANBOX/Sketch post ID')
     ..addOption('tag', help: 'Tag for option 3')
     ..addOption('novel-id', help: 'Novel ID')
     ..addOption('series-id', help: 'Series ID')
@@ -228,11 +229,40 @@ Future<void> _runOption(
         endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
+    case '9':
+      await tags_handler.processTags(
+        caller: caller,
+        config: config,
+        tags: _requireArg(args, 'tag', option),
+        page: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+        titleCaption: true,
+      );
+      break;
+    case '10':
+      await tags_handler.processTags(
+        caller: caller,
+        config: config,
+        tags: _requireArg(args, 'tag', option),
+        page: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+        memberId: _requireIntArg(args, 'member-id', option),
+      );
+      break;
     case '11':
       await bookmark_handler.processImageBookmark(
         caller: caller,
         config: config,
         memberId: _requireIntArg(args, 'member-id', option),
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
+      );
+      break;
+    case '13':
+      await image_handler.processMangaSeries(
+        caller: caller,
+        config: config,
+        mangaSeriesId: _requireIntArg(args, 'series-id', option),
         startPage: _requireIntArg(args, 'start-page', option),
         endPage: _requireIntArg(args, 'end-page', option),
       );
@@ -268,11 +298,55 @@ Future<void> _runOption(
         maxPage: _requireIntArg(args, 'end-page', option),
       );
       break;
+    case '19':
+      await image_handler.processUnlistedImage(
+        caller: caller,
+        config: config,
+        unlistedId: _requireArg(args, 'image-id', option),
+      );
+      break;
+    case 'm1':
+      await artist_handler.processMemberMetadata(
+        caller: caller,
+        config: config,
+        memberId: _requireIntArg(args, 'member-id', option),
+      );
+      break;
+    case 'm2':
+      await image_handler.processImageMetadata(
+        caller: caller,
+        config: config,
+        imageId: _requireIntArg(args, 'image-id', option),
+      );
+      break;
+    case 'm3':
+      await image_handler.processMangaSeriesMetadata(
+        caller: caller,
+        config: config,
+        mangaSeriesId: _requireIntArg(args, 'series-id', option),
+      );
+      break;
+    case 'm4':
+      await tags_handler.processTagMetadata(
+        caller: caller,
+        config: config,
+        tags: _requireArg(args, 'tag', option),
+      );
+      break;
     case 's1': // sketch
       await sketch_handler.processSketchArtists(
         caller: caller,
         config: config,
         artistToken: _requireArg(args, 'member-id', option),
+      );
+      break;
+    case 's2':
+      await sketch_handler.processSketchPost(
+        caller: caller,
+        config: config,
+        postId: int.parse(
+          (args['post-id'] as String?) ?? _requireArg(args, 'image-id', option),
+        ),
       );
       break;
     case 'f2': // fanbox
@@ -286,7 +360,9 @@ Future<void> _runOption(
       await fanbox_handler.processFanboxPost(
         caller: caller,
         config: config,
-        postId: _requireIntArg(args, 'image-id', option),
+        postId: int.parse(
+          (args['post-id'] as String?) ?? _requireArg(args, 'image-id', option),
+        ),
       );
       break;
     case 'b': // batch job
@@ -373,10 +449,26 @@ Future<void> _menuLoop(PixivCaller caller) async {
           );
           break;
         case '9':
-          _notImplemented('Download by Title/Caption');
+          stdout.write('Title/Caption keyword: ');
+          final keyword = stdin.readLineSync()!.trim();
+          await tags_handler.processTags(
+            caller: caller,
+            config: caller.config,
+            tags: keyword,
+            titleCaption: true,
+          );
           break;
         case '10':
-          _notImplemented('Download by Tag and Member Id');
+          stdout.write('Member ID: ');
+          final memberId = int.parse(stdin.readLineSync()!.trim());
+          stdout.write('Tag: ');
+          final tag = stdin.readLineSync()!.trim();
+          await tags_handler.processTags(
+            caller: caller,
+            config: caller.config,
+            tags: tag,
+            memberId: memberId,
+          );
           break;
         case '11':
           stdout.write('Member ID: ');
@@ -391,7 +483,13 @@ Future<void> _menuLoop(PixivCaller caller) async {
           _notImplemented('Download by Group Id');
           break;
         case '13':
-          _notImplemented('Download by Manga Series Id');
+          stdout.write('Manga Series ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await image_handler.processMangaSeries(
+            caller: caller,
+            config: caller.config,
+            mangaSeriesId: id,
+          );
           break;
         case '14':
           stdout.write('Novel ID: ');
@@ -436,7 +534,49 @@ Future<void> _menuLoop(PixivCaller caller) async {
           );
           break;
         case '19':
-          _notImplemented('Download by Unlisted image_id');
+          stdout.write('Unlisted image ID/token: ');
+          final id = stdin.readLineSync()!.trim();
+          await image_handler.processUnlistedImage(
+            caller: caller,
+            config: caller.config,
+            unlistedId: id,
+          );
+          break;
+        case 'm1':
+          stdout.write('Member ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await artist_handler.processMemberMetadata(
+            caller: caller,
+            config: caller.config,
+            memberId: id,
+          );
+          break;
+        case 'm2':
+          stdout.write('Image ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await image_handler.processImageMetadata(
+            caller: caller,
+            config: caller.config,
+            imageId: id,
+          );
+          break;
+        case 'm3':
+          stdout.write('Manga Series ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await image_handler.processMangaSeriesMetadata(
+            caller: caller,
+            config: caller.config,
+            mangaSeriesId: id,
+          );
+          break;
+        case 'm4':
+          stdout.write('Tag(s), comma-separated: ');
+          final tag = stdin.readLineSync()!.trim();
+          await tags_handler.processTagMetadata(
+            caller: caller,
+            config: caller.config,
+            tags: tag,
+          );
           break;
         case 'f1':
           _notImplemented('Download from supporting list (FANBOX)');
@@ -478,7 +618,13 @@ Future<void> _menuLoop(PixivCaller caller) async {
           );
           break;
         case 's2':
-          _notImplemented('Download by post id (Sketch)');
+          stdout.write('Sketch post ID: ');
+          final id = int.parse(stdin.readLineSync()!.trim());
+          await sketch_handler.processSketchPost(
+            caller: caller,
+            config: caller.config,
+            postId: id,
+          );
           break;
         case 'b':
           stdout.write('Batch file [batch_job.json]: ');
@@ -556,6 +702,10 @@ void _printMenu() {
   print(' 17. Download by Rank R-18');
   print(' 18. Download by New Illusts');
   print(' 19. Download by Unlisted image_id');
+  print(' m1. Metadata by member_id');
+  print(' m2. Metadata by image_id');
+  print(' m3. Metadata by manga series id');
+  print(' m4. Metadata by tag');
   print('── FANBOX ──────────────────────────────────────────────────');
   print(' f1. Download from supporting list (FANBOX)');
   print(' f2. Download by artist/creator id (FANBOX)');

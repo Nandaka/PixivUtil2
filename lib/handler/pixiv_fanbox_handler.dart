@@ -65,11 +65,94 @@ Future<void> processFanboxPost({
 }) async {
   pixiv_helper.printAndLog('info', 'Processing Fanbox post: $postId');
   final br = caller.br as PixivBrowser;
-  final body = await br.getContent(
-      'https://api.fanbox.cc/post.info?postId=$postId',
-      headers: {
-        'Origin': 'https://www.fanbox.cc',
-        'Referer': 'https://www.fanbox.cc/',
-      });
-  pixiv_helper.printAndLog(null, body.length > 200 ? '${body.substring(0, 200)}...' : body);
+  final post = await br.getFanboxPostById(postId);
+  final artist = post.parent;
+  pixiv_helper.printAndLog(null, 'Post : $post');
+
+  if (artist != null) {
+    caller.dbManager.insertFanboxPost(
+      memberId: artist.artistId,
+      postId: post.imageId,
+      title: post.imageTitle,
+      feeRequired: post.feeRequired,
+      publishedDate: post.worksDate,
+      updatedDate: post.updatedDate,
+      postType: post.type,
+    );
+  }
+
+  if (post.coverImageUrl.isNotEmpty) {
+    final fakeUrl = post.coverImageUrl.replaceAll(
+      '${post.imageId}/cover/',
+      '${post.imageId}_',
+    );
+    final filename = pixiv_helper.makeFilename(
+      config.filenameFormatFanboxCover,
+      post,
+      artistInfo: artist,
+      tagsSeparator: config.tagsSeparator,
+      tagsLimit: config.tagsLimit,
+      fileUrl: fakeUrl,
+    );
+    final fullPath = pixiv_helper.sanitizeFilename(
+      filename,
+      config.rootDirectory,
+    );
+    pixiv_helper.printAndLog(null, 'Cover -> $fullPath');
+    await download_handler.downloadImage(
+      caller: caller,
+      config: config,
+      url: post.coverImageUrl,
+      filename: fullPath,
+      referer: 'https://www.fanbox.cc/posts/${post.imageId}',
+    );
+  }
+
+  if (post.isRestricted) {
+    pixiv_helper.printAndLog(
+        'info', 'Skipping post ${post.imageId} due to restricted post.');
+    return;
+  }
+
+  pixiv_helper.printAndLog(null, 'Image Count = ${post.images.length}');
+  for (var i = 0; i < post.images.length; i++) {
+    final url = post.images[i];
+    final fakeUrl =
+        url.replaceAll('${post.imageId}/', '${post.imageId}_p${i}_');
+    final filename = pixiv_helper.makeFilename(
+      config.filenameFormatFanboxContent,
+      post,
+      artistInfo: artist,
+      tagsSeparator: config.tagsSeparator,
+      tagsLimit: config.tagsLimit,
+      fileUrl: fakeUrl,
+    );
+    final fullPath =
+        pixiv_helper.sanitizeFilename(filename, config.rootDirectory);
+    post.linkToFile?[url] = fullPath;
+    pixiv_helper.printAndLog(null, 'Downloading image $i from $url');
+    pixiv_helper.printAndLog(null, 'Saved to $fullPath');
+    await download_handler.downloadImage(
+      caller: caller,
+      config: config,
+      url: url,
+      filename: fullPath,
+      referer: 'https://www.fanbox.cc/posts/${post.imageId}',
+    );
+  }
+
+  if (config.writeImageInfo) {
+    final filename = pixiv_helper.makeFilename(
+      config.filenameFormatFanboxInfo,
+      post,
+      artistInfo: artist,
+      tagsSeparator: config.tagsSeparator,
+      tagsLimit: config.tagsLimit,
+      fileUrl: '${post.imageId}',
+      appendExtension: false,
+    );
+    final fullPath =
+        pixiv_helper.sanitizeFilename('$filename.txt', config.rootDirectory);
+    await post.writeInfo(fullPath);
+  }
 }

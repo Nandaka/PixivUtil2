@@ -19,30 +19,28 @@ Future<void> processMemberMetadata({
   void Function({String? title, String? message, dynamic type})? notifier,
 }) async {
   notifier ??= pixiv_helper.dummyNotifier;
-  pixiv_helper.printAndLog(
-      'info', 'Processing Member Metadata: $memberId');
+  pixiv_helper.printAndLog('info', 'Processing Member Metadata: $memberId');
   try {
     pixiv_helper.setConsoleTitle('${titlePrefix}MemberId: $memberId');
     final br = caller.br as PixivBrowser;
-    final (artist, _) = await br.getMemberPage(memberId);
+    final (artist, _) = await br.getMemberPage(memberId, tags: tags);
     pixiv_helper.printAndLog(null, 'Member Name   : ${artist.artistName}');
     pixiv_helper.printAndLog(null, 'Member Avatar : ${artist.artistAvatar}');
     pixiv_helper.printAndLog(null, 'Member Token  : ${artist.artistToken}');
-    pixiv_helper.printAndLog(null, 'Member Backgrd: ${artist.artistBackground}');
+    pixiv_helper.printAndLog(
+        null, 'Member Backgrd: ${artist.artistBackground}');
 
     final db = caller.dbManager;
     db.insertNewMember(memberId);
     db.updateMemberName(memberId, artist.artistName);
     db.updateMemberToken(memberId, artist.artistToken);
-    pixiv_helper.printAndLog(
-        'info', 'Member_id: $memberId metadata updated.');
+    pixiv_helper.printAndLog('info', 'Member_id: $memberId metadata updated.');
   } on PixivException catch (e) {
     caller.errorCode = e.errorCode;
     pixiv_helper.printAndLog('info', 'Member ID ($memberId): $e');
     rethrow;
   } catch (e) {
-    pixiv_helper.printAndLog(
-        'error', 'Error at processMemberMetadata(): $e');
+    pixiv_helper.printAndLog('error', 'Error at processMemberMetadata(): $e');
     rethrow;
   }
 }
@@ -62,23 +60,22 @@ Future<void> processMember({
 }) async {
   notifier ??= pixiv_helper.dummyNotifier;
   pixiv_helper.setConsoleTitle('${titlePrefix}MemberId: $memberId');
-  pixiv_helper.printAndLog(
-      'info', 'Processing Member: $memberId (tags=$tags)');
+  pixiv_helper.printAndLog('info', 'Processing Member: $memberId (tags=$tags)');
   final br = caller.br as PixivBrowser;
-  final (artist, _) = await br.getMemberPage(memberId);
+  final (artist, _) =
+      await br.getMemberPage(memberId, page: startPage, tags: tags);
   artist.printInfo();
 
   if (artist.imageList.isEmpty) {
-    pixiv_helper.printAndLog(
-        'warn', 'Member $memberId has no images.');
+    pixiv_helper.printAndLog('warn', 'Member $memberId has no images.');
     return;
   }
 
   var i = 1;
   for (final imageId in artist.imageList) {
     try {
-      pixiv_helper.printAndLog(null,
-          '#$i of ${artist.imageList.length} - image_id=$imageId');
+      pixiv_helper.printAndLog(
+          null, '#$i of ${artist.imageList.length} - image_id=$imageId');
       final result = await image_handler.processImage(
         caller: caller,
         config: config,
@@ -113,7 +110,8 @@ Future<void> processMemberBookmark({
   String? tags,
   String titlePrefix = '',
 }) async {
-  pixiv_helper.printAndLog('info', 'Processing Bookmarked images for member $memberId');
+  pixiv_helper.printAndLog(
+      'info', 'Processing Bookmarked images for member $memberId');
   // The browser layer would expose dedicated calls; here we re-use the standard
   // page request and treat each image as a bookmark.
   await processMember(
