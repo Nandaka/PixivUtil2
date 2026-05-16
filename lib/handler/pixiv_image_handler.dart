@@ -225,13 +225,15 @@ Future<void> processImageMetadataFromDb({
 
   pixiv_helper.printAndLog(
       'info', 'Metadata refresh queue: ${rows.length} artwork(s).');
+  var attempted = 0;
   var done = 0;
   var failed = 0;
   for (final row in rows) {
     final imageId = int.parse('${row['image_id']}');
+    attempted++;
     try {
       pixiv_helper.printAndLog(
-          null, 'Metadata ${done + 1}/${rows.length}: $imageId');
+          null, 'Metadata $attempted/${rows.length}: $imageId');
       await processImageMetadata(
         caller: caller,
         config: config,
