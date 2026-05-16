@@ -52,6 +52,49 @@ void main() {
     });
   });
 
+  group('PixivImage', () {
+    test('parses artist from ajax illust payload', () {
+      final json = jsonEncode({
+        'error': false,
+        'message': '',
+        'body': {
+          'illustId': '130952072',
+          'illustTitle': 'title',
+          'illustComment': 'caption',
+          'userId': '123',
+          'userName': 'artist',
+          'userAccount': 'artist_account',
+          'pageCount': 1,
+          'urls': {
+            'original':
+                'https://i.pximg.net/img-original/img/2025/01/01/00/00/00/130952072_p0.jpg',
+            'regular':
+                'https://i.pximg.net/img-master/img/2025/01/01/00/00/00/130952072_p0_master1200.jpg',
+          },
+          'viewCount': 1,
+          'likeCount': 2,
+          'bookmarkCount': 3,
+          'responseCount': 4,
+          'tags': {
+            'tags': [
+              {'tag': 'tag'}
+            ]
+          },
+          'createDate': '2025-05-29T00:00:00+09:00',
+          'width': 100,
+          'height': 200,
+        },
+      });
+
+      final image = PixivImage(iid: 130952072, page: json);
+
+      expect(image.artist?.artistId, 123);
+      expect(image.artist?.artistName, 'artist');
+      expect(image.artist?.artistToken, 'artist_account');
+      expect(image.originalArtist, same(image.artist));
+    });
+  });
+
   group('PixivListItem', () {
     test('parses memberId and path', () {
       final item = PixivListItem(123, 'foo/bar');

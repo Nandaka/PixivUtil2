@@ -115,9 +115,17 @@ class PixivImage {
           htmlPage: page,
         );
       }
+      artist ??= _artistFromPayload(payload);
       originalArtist ??= artist;
       parseInfo(payload, writeRawJSON);
     }
+  }
+
+  PixivArtist _artistFromPayload(Map<String, dynamic> payload) {
+    final artistId = int.tryParse('${payload['userId']}') ?? 0;
+    return PixivArtist(artistId: artistId)
+      ..artistName = '${payload['userName'] ?? ''}'
+      ..artistToken = '${payload['userAccount'] ?? ''}';
   }
 
   void parseInfo(Map<String, dynamic> page, bool writeRawJSON) {
