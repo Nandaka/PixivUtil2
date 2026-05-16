@@ -58,11 +58,16 @@ ArgParser _buildParser() {
     ..addOption('tag', help: 'Tag for option 3')
     ..addOption('novel-id', help: 'Novel ID')
     ..addOption('series-id', help: 'Series ID')
+    ..addOption('import-db',
+        help: 'Import metadata from an original PixivUtil2 db.sqlite')
     ..addOption('list-file', defaultsTo: 'list.txt')
     ..addOption('mode', defaultsTo: 'daily', help: 'Ranking mode')
     ..addOption('start-page', defaultsTo: '1')
     ..addOption('end-page', defaultsTo: '0')
     ..addFlag('process-from-db', help: 'Use the DB instead of list.txt')
+    ..addFlag('replace-existing-metadata',
+        negatable: false,
+        help: 'Replace existing rows while importing PixivUtil2 metadata')
     ..addFlag('verbose', abbr: 'v', help: 'Verbose output')
     ..addFlag('help', abbr: 'h', negatable: false);
 }
@@ -101,6 +106,14 @@ Future<void> main(List<String> arguments) async {
   final caller = PixivCaller(config: config, br: browser, dbManager: db);
 
   try {
+    if ((args['import-db'] as String?)?.trim().isNotEmpty == true) {
+      _importMetadataDb(
+        caller,
+        args['import-db'] as String,
+        replaceExisting: args['replace-existing-metadata'] as bool,
+      );
+      return;
+    }
     _printStartupNotes(config);
     await _loginWithCookie(browser, config);
     if (args['option'] != null) {
@@ -388,6 +401,13 @@ Future<void> _runOption(
         caller: caller,
         config: config,
         jobFile: _requireArg(args, 'list-file', option),
+      );
+      break;
+    case 'idb':
+      _importMetadataDb(
+        caller,
+        _requireArg(args, 'import-db', option),
+        replaceExisting: args['replace-existing-metadata'] as bool,
       );
       break;
     default:
@@ -689,6 +709,15 @@ Future<void> _menuLoop(PixivCaller caller) async {
             listName: f.isEmpty ? 'list.txt' : f,
           );
           break;
+        case 'idb':
+          stdout.write('Original PixivUtil2 db.sqlite path: ');
+          final path = stdin.readLineSync()!.trim();
+          if (path.isEmpty) {
+            pixiv_helper.printAndLog('warn', 'No database path entered.');
+            break;
+          }
+          _importMetadataDb(caller, path);
+          break;
         case 'u':
           _notImplemented('Ugoira re-encode');
           break;
@@ -755,6 +784,7 @@ void _printMenu() {
   print(" m. Export online other's followed artist.");
   print(' p. Export online image bookmarks.');
   print(' i. Import list file');
+  print(' idb. Import metadata from PixivUtil2 db.sqlite');
   print(' u. Ugoira re-encode');
   print(' r. Reload config.ini');
   print(' c. Print config.ini');
@@ -765,4 +795,20 @@ void _printMenu() {
 void _notImplemented(String label) {
   pixiv_helper.printAndLog(
       'warn', '$label is not implemented in the Dart port yet.');
+}
+
+void _importMetadataDb(
+  PixivCaller caller,
+  String sourceDbPath, {
+  bool replaceExisting = false,
+}) {
+  pixiv_helper.printAndLog(
+      'info', 'Importing metadata from PixivUtil2 DB: $sourceDbPath');
+  final stats = caller.dbManager.importMetadataFromPixivUtilDb(
+    sourceDbPath,
+    replaceExisting: replaceExisting,
+  );
+  pixiv_helper.printAndLog(null, stats.toString());
+  pixiv_helper.printAndLog('info',
+      'Metadata import complete. No artwork files were copied or downloaded.');
 }

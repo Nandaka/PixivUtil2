@@ -42,6 +42,29 @@ class PixivMemberRow {
       );
 }
 
+class PixivDbImportStats {
+  final Map<String, int> importedByTable = {};
+  final Map<String, String> skippedTables = {};
+
+  int get totalImported =>
+      importedByTable.values.fold(0, (sum, count) => sum + count);
+
+  @override
+  String toString() {
+    final parts = <String>['Imported $totalImported metadata rows.'];
+    for (final entry in importedByTable.entries) {
+      parts.add('  ${entry.key}: ${entry.value}');
+    }
+    if (skippedTables.isNotEmpty) {
+      parts.add('Skipped tables:');
+      for (final entry in skippedTables.entries) {
+        parts.add('  ${entry.key}: ${entry.value}');
+      }
+    }
+    return parts.join('\n');
+  }
+}
+
 DateTime? _parseDate(dynamic v) {
   if (v == null) return null;
   if (v is DateTime) return v;
@@ -223,6 +246,22 @@ class PixivDBManager {
         PRIMARY KEY (post_id, page)
       )
     ''');
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS novel_detail (
+        post_id INTEGER,
+        user_id INTEGER,
+        save_name TEXT,
+        created_date DATE,
+        last_update_date DATE,
+        is_original INTEGER,
+        is_bungei INTEGER,
+        language TEXT,
+        x_restrict INTEGER,
+        series_id INTEGER,
+        series_order INTEGER,
+        PRIMARY KEY (post_id, user_id)
+      )
+    ''');
     stdout.writeln('done.');
   }
 
@@ -250,6 +289,7 @@ class PixivDBManager {
       'fanbox_post_image',
       'sketch_master_post',
       'sketch_post_image',
+      'novel_detail',
     ]) {
       _tryExec('DROP TABLE IF EXISTS $t');
     }
@@ -551,8 +591,148 @@ class PixivDBManager {
     ''', [oldRoot, newRoot, '$oldRoot%']);
   }
 
+  PixivDbImportStats importMetadataFromPixivUtilDb(
+    String sourceDbPath, {
+    bool replaceExisting = false,
+  }) {
+    final sourceFile = File(sourceDbPath);
+    if (!sourceFile.existsSync()) {
+      throw ArgumentError('Source database does not exist: $sourceDbPath');
+    }
+
+    final stats = PixivDbImportStats();
+    final source = sqlite3.open(sourceDbPath, mode: OpenMode.readOnly);
+    try {
+      _db.execute('BEGIN IMMEDIATE');
+      try {
+        for (final table in _metadataTables) {
+          if (!_hasTable(source, table)) {
+            stats.skippedTables[table] = 'missing in source';
+            continue;
+          }
+          if (!_hasTable(_db, table)) {
+            stats.skippedTables[table] = 'missing in target';
+            continue;
+          }
+
+          final sourceColumns = _tableColumns(source, table);
+          final targetColumns = _tableColumns(_db, table);
+          final columns =
+              sourceColumns.where((c) => targetColumns.contains(c)).toList();
+          if (columns.isEmpty) {
+            stats.skippedTables[table] = 'no matching columns';
+            continue;
+          }
+
+          final quotedTable = _quoteIdentifier(table);
+          final rows = source.select(
+            'SELECT ${columns.map(_quoteIdentifier).join(', ')} FROM $quotedTable',
+          );
+          if (rows.isEmpty) {
+            stats.importedByTable[table] = 0;
+            continue;
+          }
+
+          final insertMode = replaceExisting ? 'REPLACE' : 'IGNORE';
+          final insertStatement = _db.prepare('''
+            INSERT OR $insertMode INTO $quotedTable
+              (${columns.map(_quoteIdentifier).join(', ')})
+            VALUES (${List.filled(columns.length, '?').join(', ')})
+          ''');
+          final pkColumns = _primaryKeyColumns(source, table)
+              .where((c) => columns.contains(c))
+              .toList();
+          final fillColumns = replaceExisting || pkColumns.isEmpty
+              ? <String>[]
+              : columns.where((c) => !pkColumns.contains(c)).toList();
+          PreparedStatement? fillStatement;
+          if (fillColumns.isNotEmpty) {
+            fillStatement = _db.prepare('''
+              UPDATE $quotedTable
+              SET ${fillColumns.map((column) {
+              final quoted = _quoteIdentifier(column);
+              return "$quoted = CASE WHEN $quoted IS NULL OR $quoted = '' THEN ? ELSE $quoted END";
+            }).join(', ')}
+              WHERE ${pkColumns.map((column) => '${_quoteIdentifier(column)} = ?').join(' AND ')}
+            ''');
+          }
+
+          var changed = 0;
+          try {
+            for (final row in rows) {
+              insertStatement
+                  .execute(columns.map((column) => row[column]).toList());
+              final inserted = _db.updatedRows;
+              changed += inserted;
+              if (inserted == 0 && fillStatement != null) {
+                fillStatement.execute([
+                  ...fillColumns.map((column) => row[column]),
+                  ...pkColumns.map((column) => row[column]),
+                ]);
+                changed += _db.updatedRows;
+              }
+            }
+          } finally {
+            insertStatement.dispose();
+            fillStatement?.dispose();
+          }
+          stats.importedByTable[table] = changed;
+        }
+        _db.execute('COMMIT');
+      } catch (_) {
+        _db.execute('ROLLBACK');
+        rethrow;
+      }
+    } finally {
+      source.dispose();
+    }
+    return stats;
+  }
+
   /// Returns a raw db handle for advanced usage.
   Database get raw => _db;
 
   String _now() => DateTime.now().toIso8601String();
+
+  static const List<String> _metadataTables = [
+    'pixiv_master_member',
+    'pixiv_master_image',
+    'pixiv_manga_image',
+    'pixiv_master_tag',
+    'pixiv_tag_translation',
+    'pixiv_image_to_tag',
+    'pixiv_ai_info',
+    'pixiv_download_metadata',
+    'pixiv_master_series',
+    'pixiv_image_to_series',
+    'fanbox_master_post',
+    'fanbox_post_image',
+    'sketch_master_post',
+    'sketch_post_image',
+    'novel_detail',
+  ];
+
+  static bool _hasTable(Database db, String table) {
+    final rows = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      [table],
+    );
+    return rows.isNotEmpty;
+  }
+
+  static List<String> _tableColumns(Database db, String table) {
+    final rows = db.select('PRAGMA table_info(${_quoteIdentifier(table)})');
+    return rows.map((row) => '${row['name']}').toList();
+  }
+
+  static List<String> _primaryKeyColumns(Database db, String table) {
+    final rows = db.select('PRAGMA table_info(${_quoteIdentifier(table)})');
+    final pkRows = rows.where((row) => (row['pk'] as int? ?? 0) > 0).toList()
+      ..sort((a, b) => (a['pk'] as int).compareTo(b['pk'] as int));
+    return pkRows.map((row) => '${row['name']}').toList();
+  }
+
+  static String _quoteIdentifier(String value) {
+    return '"${value.replaceAll('"', '""')}"';
+  }
 }
