@@ -107,6 +107,36 @@ dart compile exe bin/pixiv_util2.dart -o pixiv_util2
 ./pixiv_util2 --help
 ```
 
+Windows (PowerShell):
+
+```powershell
+dart compile exe .\bin\pixiv_util2.dart -o .\pixiv_util2.exe
+.\pixiv_util2.exe --help
+```
+
+## Windows quick start
+
+1. Install Dart SDK from <https://dart.dev/get-dart>.
+2. Open **PowerShell** in the repository folder.
+3. Run:
+
+```powershell
+dart pub get
+dart run .\bin\pixiv_util2.dart
+```
+
+For non-interactive usage:
+
+```powershell
+dart run .\bin\pixiv_util2.dart --option 2 --image-id 12345
+```
+
+If you use Japanese tags in terminal arguments, switch your shell to UTF-8 first:
+
+```powershell
+chcp 65001
+```
+
 ## Configuration
 
 On first run a `config.ini` will be written with sensible defaults. Open

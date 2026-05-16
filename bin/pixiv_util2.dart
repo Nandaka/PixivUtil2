@@ -45,9 +45,9 @@ ArgParser _buildParser() {
   return ArgParser()
     ..addOption('config', abbr: 'c', defaultsTo: 'config.ini')
     ..addOption('option', abbr: 'o', help: 'Run a specific menu option non-interactively')
-    ..addOption('member-id', help: 'Member ID for option 1/2')
-    ..addOption('image-id', help: 'Image ID for option 3')
-    ..addOption('tag', help: 'Tag for option 4')
+    ..addOption('member-id', help: 'Member ID for options 1/9/10')
+    ..addOption('image-id', help: 'Image ID for option 2')
+    ..addOption('tag', help: 'Tag for option 3')
     ..addOption('novel-id', help: 'Novel ID')
     ..addOption('series-id', help: 'Series ID')
     ..addOption('list-file', defaultsTo: 'list.txt')
@@ -107,12 +107,30 @@ Future<void> main(List<String> arguments) async {
   exit(caller.errorCode);
 }
 
+
+String _requireArg(ArgResults args, String key, String option) {
+  final value = args[key] as String?;
+  if (value == null || value.trim().isEmpty) {
+    throw FormatException('Missing --$key for option $option');
+  }
+  return value.trim();
+}
+
+int _requireIntArg(ArgResults args, String key, String option) {
+  final raw = _requireArg(args, key, option);
+  final parsed = int.tryParse(raw);
+  if (parsed == null) {
+    throw FormatException('Invalid integer for --$key: $raw');
+  }
+  return parsed;
+}
+
 Future<void> _runOption(
     PixivCaller caller, ArgResults args, String option) async {
   final config = caller.config;
   switch (option) {
     case '1': // download by member id
-      final id = int.parse(args['member-id'] as String);
+      final id = _requireIntArg(args, 'member-id', option);
       await artist_handler.processMember(
         caller: caller,
         config: config,
@@ -120,7 +138,7 @@ Future<void> _runOption(
       );
       break;
     case '2': // download by image id
-      final id = int.parse(args['image-id'] as String);
+      final id = _requireIntArg(args, 'image-id', option);
       await image_handler.processImage(
         caller: caller,
         config: config,
@@ -131,9 +149,9 @@ Future<void> _runOption(
       await tags_handler.processTags(
         caller: caller,
         config: config,
-        tags: args['tag'] as String,
-        page: int.parse(args['start-page'] as String),
-        endPage: int.parse(args['end-page'] as String),
+        tags: _requireArg(args, 'tag', option),
+        page: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
     case '4': // download by list
@@ -147,53 +165,53 @@ Future<void> _runOption(
       await bookmark_handler.processBookmark(
         caller: caller,
         config: config,
-        startPage: int.parse(args['start-page'] as String),
-        endPage: int.parse(args['end-page'] as String),
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
     case '6': // ranking
       await ranking_handler.processRanking(
         caller: caller,
         config: config,
-        mode: args['mode'] as String,
+        mode: _requireArg(args, 'mode', option),
         content: '',
-        startPage: int.parse(args['start-page'] as String),
-        endPage: int.parse(args['end-page'] as String),
+        startPage: _requireIntArg(args, 'start-page', option),
+        endPage: _requireIntArg(args, 'end-page', option),
       );
       break;
     case '7': // novel
       await novel_handler.processNovel(
         caller: caller,
         config: config,
-        novelId: int.parse(args['novel-id'] as String),
+        novelId: _requireIntArg(args, 'novel-id', option),
       );
       break;
     case '8': // novel series
       await novel_handler.processNovelSeries(
         caller: caller,
         config: config,
-        seriesId: int.parse(args['series-id'] as String),
+        seriesId: _requireIntArg(args, 'series-id', option),
       );
       break;
     case '9': // sketch
       await sketch_handler.processSketchArtists(
         caller: caller,
         config: config,
-        artistToken: args['member-id'] as String,
+        artistToken: _requireArg(args, 'member-id', option),
       );
       break;
     case '10': // fanbox
       await fanbox_handler.processFanboxArtist(
         caller: caller,
         config: config,
-        artistId: int.parse(args['member-id'] as String),
+        artistId: _requireIntArg(args, 'member-id', option),
       );
       break;
     case '11': // batch job
       await batch_handler.processBatchJob(
         caller: caller,
         config: config,
-        jobFile: args['list-file'] as String,
+        jobFile: _requireArg(args, 'list-file', option),
       );
       break;
     default:
