@@ -11,15 +11,20 @@ import 'package:args/args.dart';
 import 'package:pixiv_util2/common/pixiv_browser.dart';
 import 'package:pixiv_util2/common/pixiv_config.dart';
 import 'package:pixiv_util2/common/pixiv_helper.dart' as pixiv_helper;
-import 'package:pixiv_util2/handler/pixiv_artist_handler.dart' as artist_handler;
+import 'package:pixiv_util2/handler/pixiv_artist_handler.dart'
+    as artist_handler;
 import 'package:pixiv_util2/handler/pixiv_batch_handler.dart' as batch_handler;
-import 'package:pixiv_util2/handler/pixiv_bookmark_handler.dart' as bookmark_handler;
-import 'package:pixiv_util2/handler/pixiv_fanbox_handler.dart' as fanbox_handler;
+import 'package:pixiv_util2/handler/pixiv_bookmark_handler.dart'
+    as bookmark_handler;
+import 'package:pixiv_util2/handler/pixiv_fanbox_handler.dart'
+    as fanbox_handler;
 import 'package:pixiv_util2/handler/pixiv_image_handler.dart' as image_handler;
 import 'package:pixiv_util2/handler/pixiv_list_handler.dart' as list_handler;
 import 'package:pixiv_util2/handler/pixiv_novel_handler.dart' as novel_handler;
-import 'package:pixiv_util2/handler/pixiv_ranking_handler.dart' as ranking_handler;
-import 'package:pixiv_util2/handler/pixiv_sketch_handler.dart' as sketch_handler;
+import 'package:pixiv_util2/handler/pixiv_ranking_handler.dart'
+    as ranking_handler;
+import 'package:pixiv_util2/handler/pixiv_sketch_handler.dart'
+    as sketch_handler;
 import 'package:pixiv_util2/handler/pixiv_tags_handler.dart' as tags_handler;
 import 'package:pixiv_util2/pixiv_db_manager.dart';
 
@@ -44,7 +49,8 @@ class PixivCaller {
 ArgParser _buildParser() {
   return ArgParser()
     ..addOption('config', abbr: 'c', defaultsTo: 'config.ini')
-    ..addOption('option', abbr: 'o', help: 'Run a specific menu option non-interactively')
+    ..addOption('option',
+        abbr: 'o', help: 'Run a specific menu option non-interactively')
     ..addOption('member-id', help: 'Member ID for options 1/9/10')
     ..addOption('image-id', help: 'Image ID for option 2')
     ..addOption('tag', help: 'Tag for option 3')
@@ -54,8 +60,7 @@ ArgParser _buildParser() {
     ..addOption('mode', defaultsTo: 'daily', help: 'Ranking mode')
     ..addOption('start-page', defaultsTo: '1')
     ..addOption('end-page', defaultsTo: '0')
-    ..addFlag('process-from-db',
-        help: 'Use the DB instead of list.txt')
+    ..addFlag('process-from-db', help: 'Use the DB instead of list.txt')
     ..addFlag('verbose', abbr: 'v', help: 'Verbose output')
     ..addFlag('help', abbr: 'h', negatable: false);
 }
@@ -80,7 +85,9 @@ Future<void> main(List<String> arguments) async {
   final config = PixivConfig();
   await config.loadConfig(args['config'] as String?);
   pixiv_helper.setConfig(config);
-  config.printConfig();
+  if (args['verbose'] as bool) {
+    config.printConfig();
+  }
 
   final browser = createBrowser(config: config);
   final db = PixivDBManager(
@@ -106,7 +113,6 @@ Future<void> main(List<String> arguments) async {
 
   exit(caller.errorCode);
 }
-
 
 String _requireArg(ArgResults args, String key, String option) {
   final value = args[key] as String?;
@@ -234,6 +240,7 @@ Future<void> _menuLoop(PixivCaller caller) async {
     print(' 9. Download Pixiv Sketch');
     print('10. Download FANBOX');
     print('11. Run batch_job.json');
+    print(' c. Print config.ini');
     print('99. Save and exit');
     stdout.write('Choose an option: ');
     final input = stdin.readLineSync()?.trim() ?? '';
@@ -333,6 +340,9 @@ Future<void> _menuLoop(PixivCaller caller) async {
             config: caller.config,
             jobFile: f.isEmpty ? 'batch_job.json' : f,
           );
+          break;
+        case 'c':
+          caller.config.printConfig();
           break;
         default:
           print('Unknown option.');
