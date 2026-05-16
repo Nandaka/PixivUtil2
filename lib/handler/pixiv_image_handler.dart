@@ -202,6 +202,54 @@ Future<void> processImageMetadata({
   }
 }
 
+Future<void> processImageMetadataFromDb({
+  required dynamic caller,
+  required PixivConfig config,
+  int limit = 0,
+  bool refreshExisting = false,
+  void Function({String? title, String? message, dynamic type})? notifier,
+}) async {
+  notifier ??= pixiv_helper.dummyNotifier;
+  final rows = caller.dbManager.raw.select('''
+    SELECT i.image_id
+    FROM pixiv_master_image i
+    LEFT JOIN pixiv_download_metadata m ON m.image_id = i.image_id
+    WHERE ? = 1
+       OR m.image_id IS NULL
+       OR COALESCE(m.title, '') = ''
+       OR COALESCE(m.caption, '') = ''
+       OR COALESCE(m.tags, '') = ''
+    ORDER BY i.image_id DESC
+    ${limit > 0 ? 'LIMIT $limit' : ''}
+  ''', [refreshExisting ? 1 : 0]);
+
+  pixiv_helper.printAndLog(
+      'info', 'Metadata refresh queue: ${rows.length} artwork(s).');
+  var done = 0;
+  var failed = 0;
+  for (final row in rows) {
+    final imageId = int.parse('${row['image_id']}');
+    try {
+      pixiv_helper.printAndLog(
+          null, 'Metadata ${done + 1}/${rows.length}: $imageId');
+      await processImageMetadata(
+        caller: caller,
+        config: config,
+        imageId: imageId,
+        notifier: notifier,
+      );
+      done++;
+      await pixiv_helper.wait(pixiv_constant.PIXIVUTIL_OK, config);
+    } catch (e) {
+      failed++;
+      pixiv_helper.printAndLog(
+          'error', 'Failed metadata refresh for image $imageId: $e');
+    }
+  }
+  pixiv_helper.printAndLog(
+      'info', 'Metadata refresh completed: $done updated, $failed failed.');
+}
+
 Future<int> processUnlistedImage({
   required dynamic caller,
   required PixivConfig config,

@@ -60,6 +60,8 @@ ArgParser _buildParser() {
     ..addOption('series-id', help: 'Series ID')
     ..addOption('import-db',
         help: 'Import metadata from an original PixivUtil2 db.sqlite')
+    ..addOption('metadata-limit',
+        defaultsTo: '0', help: 'Limit DB metadata refresh count; 0 means all')
     ..addOption('list-file', defaultsTo: 'list.txt')
     ..addOption('mode', defaultsTo: 'daily', help: 'Ranking mode')
     ..addOption('start-page', defaultsTo: '1')
@@ -68,6 +70,12 @@ ArgParser _buildParser() {
     ..addFlag('replace-existing-metadata',
         negatable: false,
         help: 'Replace existing rows while importing PixivUtil2 metadata')
+    ..addFlag('fill-metadata-from-db',
+        negatable: false,
+        help: 'Fetch artwork page metadata for image IDs already in the DB')
+    ..addFlag('refresh-existing-metadata',
+        negatable: false,
+        help: 'Refresh all DB image metadata, not just missing metadata')
     ..addFlag('verbose', abbr: 'v', help: 'Verbose output')
     ..addFlag('help', abbr: 'h', negatable: false);
 }
@@ -116,6 +124,15 @@ Future<void> main(List<String> arguments) async {
     }
     _printStartupNotes(config);
     await _loginWithCookie(browser, config);
+    if (args['fill-metadata-from-db'] as bool) {
+      await image_handler.processImageMetadataFromDb(
+        caller: caller,
+        config: config,
+        limit: int.tryParse(args['metadata-limit'] as String? ?? '0') ?? 0,
+        refreshExisting: args['refresh-existing-metadata'] as bool,
+      );
+      return;
+    }
     if (args['option'] != null) {
       await _runOption(caller, args, args['option'] as String);
     } else {
@@ -352,6 +369,14 @@ Future<void> _runOption(
         caller: caller,
         config: config,
         tags: _requireArg(args, 'tag', option),
+      );
+      break;
+    case 'mdb':
+      await image_handler.processImageMetadataFromDb(
+        caller: caller,
+        config: config,
+        limit: int.tryParse(args['metadata-limit'] as String? ?? '0') ?? 0,
+        refreshExisting: args['refresh-existing-metadata'] as bool,
       );
       break;
     case 's1': // sketch
@@ -622,6 +647,15 @@ Future<void> _menuLoop(PixivCaller caller) async {
             tags: tag,
           );
           break;
+        case 'mdb':
+          stdout.write('Limit [0 = all]: ');
+          final limitText = stdin.readLineSync()!.trim();
+          await image_handler.processImageMetadataFromDb(
+            caller: caller,
+            config: caller.config,
+            limit: int.tryParse(limitText.isEmpty ? '0' : limitText) ?? 0,
+          );
+          break;
         case 'f1':
           _notImplemented('Download from supporting list (FANBOX)');
           break;
@@ -765,6 +799,7 @@ void _printMenu() {
   print(' m2. Metadata by image_id');
   print(' m3. Metadata by manga series id');
   print(' m4. Metadata by tag');
+  print(' mdb. Fill missing artwork metadata from DB image IDs');
   print('── FANBOX ──────────────────────────────────────────────────');
   print(' f1. Download from supporting list (FANBOX)');
   print(' f2. Download by artist/creator id (FANBOX)');
