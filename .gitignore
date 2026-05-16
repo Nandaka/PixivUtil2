@@ -1,55 +1,66 @@
-# VSCode files
-.vscode/*
+# Dart
+.dart_tool/
+.packages
+.pub/
+build/
+pubspec.lock
+doc/api/
+*.dill
+
+# IDE
+.vscode/
 *.code-workspace
+.idea/
+.vs/
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
 # Environments
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-# others
-Downloaded*.txt
-_backup/*
-build/*
-dist/*
-dist*/*
-old/*
+
+# Build artifacts
+dist/
+*.exe
+*.snapshot
+*.aot
+
+# Logs
+*.log
+pixivutil.log*
+
+# Application output
 config.ini
 config.ini.error*
-listfanbox.txt
-*.log
-*.bat
+config.ini.bak
+config.ini.tmp
 db.sqlite
-*.pyc
-*.zip
-*.7z
-image*.html
-error*.html
-*.source*/*
-Images/*
-testapp*/*
-.idea/*
-*.bak
-*.pyo
-pixivutil.log*
-.pytest_cache/*
-__pycache__/*
+test.db.sqlite
 
-.idea/*
-.vs/*
+# User lists & data
+listfanbox.txt
+batch_job.json
+Downloaded*.txt
+url_list_*.txt
+tags.txt
 blacklist_members.txt
 blacklist_tags.txt
 blacklist_titles.txt
-batch_job.json
-Dump*
-ffmpeg.exe
 ignore_list.txt
-numpy-atlas.dll
-tags.txt
-url_list_*.txt
-test.db.sqlite
+Images/*
+Dump*
+Error*
+image*.html
+error*.html
+
+# Backups
+_backup/
+*.bak
+*.7z
+*.zip
+
+# OS
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -67,4 +78,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-Error*
