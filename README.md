@@ -152,7 +152,21 @@ Q10. I got this error またはメールアドレス、パスワードが正し�
 Q11. Older windows support (e.g. Win7)?
     - You can try to run from source code with the latest supported python 3.x.
       See the instruction here: https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
-
+	  
+Q12. How do I get around Cloudflare preventing me from downloading from Fanbox
+    - Go to https://www.whatismybrowser.com/detect/what-is-my-user-agent/ and copy your user agent to the `useragent` field in config.ini
+	- Go to https://curl-cffi.readthedocs.io/en/latest/impersonate/targets.html to see a list of supported browsers for impersonation. Inside `PixivBrowserFactory.py` replace `p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)` with the appropriate browser you would like to impersonate. If you do not know which browser to use, just use the latest one that matches your user agent.
+	- Change your user agent's version in config.ini to match the browser you are impersonating. For example, `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0` => `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/147.0` if you are impersonating `firefox147`
+	- Have your browser's network tab open and visit fanbox.
+	Filter your network requests by "post" and click on any network request
+	- Go to the "headers" tab on the ribbon and scroll down to the "request headers" section.
+	- Enable "raw" text to get the real string values
+	- Copy the value from "Cookie" into `cookieFanboxTemp` in config.ini. Your cookie should be a long string that looks like `p_ab_id=<omitted>; p_ab_id_2=<omitted>; p_ab_d_id=<omitted>; cf_clearance=<omitted>; privacy_policy_agreement=<omitted>; privacy_policy_notification=<omitted>; __cf_bm=<omitted>; FANBOXSESSID=<omitted> ...`
+	- You may have more or fewer fields for your cookie. This is normal.
+	- If these steps stopped working, you probably:
+	  - Logged out on fanbox
+	  - Changed your IP
+	  - Are using an IP address that is specifically blacklisted by Fanbox
 ```
 ## B.Bugs/Source Code/Supports
 ```
@@ -329,6 +343,9 @@ Please refer run with `--help` for latest information.
 - cookieFanbox
 
   Cookie for fanbox.cc, normally no need to fill in.
+- cookieFanboxTemp
+
+  Workaround for Pixiv's TLS fingerprinting blacklist. See Q.12 of Usage for instructions.
 - refresh_token
 
   Used for OAuth refresh token to avoid relogin too many time. Automatically generated upon succesful OAuth login.
