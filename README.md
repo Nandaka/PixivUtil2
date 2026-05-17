@@ -350,6 +350,9 @@ Please refer run with `--help` for latest information.
 - refresh_token
 
   Used for OAuth refresh token to avoid relogin too many time. Automatically generated upon succesful OAuth login.
+- userAgentImpersonation
+
+  Parametrised argument to customise which browser PixivUtil2 will impersonate when downloading from Fanbox. Defaults to `firefox135`.
 
 ## [Pixiv]
 - numberofpage
