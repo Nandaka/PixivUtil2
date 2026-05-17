@@ -1,7 +1,7 @@
 # Requirements:
 - Running from source code:
   - Python 3.10+ (https://www.python.org/)
-    - Archive mode required Python 3.13+
+	- Archive mode required Python 3.13+
   - Additional library listed in requirements.txt
   - IDE Environment: see https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
 
@@ -73,92 +73,92 @@ Overusage can lead to Pixiv blocking your IP for a few hours.
 ## A. Usage
 ```
 Q1. How to paste Japanese tags to the console window?
-    - Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
-      it show up as question mark -> Change the Language for non-Unicode
-      program to Japanese (google it).
-    - or use online url encoder (http://meyerweb.com/eric/tools/dencoder/)
-      and paste the encoded tag back to the console.
-    - or paste it to tags.txt and select download by tags list. Separate each
-      tags with space, and separate with new line for new query.
+	- Click the top-left icon -> select Edit -> Paste (Cannot use Ctrl-V), if
+	  it show up as question mark -> Change the Language for non-Unicode
+	  program to Japanese (google it).
+	- or use online url encoder (http://meyerweb.com/eric/tools/dencoder/)
+	  and paste the encoded tag back to the console.
+	- or paste it to tags.txt and select download by tags list. Separate each
+	  tags with space, and separate with new line for new query.
 
 Q2. My password doesn't show up in the console!
-    - This is normal. The program still reads it.
-    - or you can put in the config.ini if not sure.
+	- This is normal. The program still reads it.
+	- or you can put in the config.ini if not sure.
 
 Q3. I cannot login to Pixiv!
-    - Check your password.
-    - Try to login to the Pixiv Website.
-    - Try to use the config.ini on the [Authentication] section.
-    - Check your date and time setting (e.g.: https://www.timeanddate.com/)
-    - Disable Daylight Saving Time and try again.
-    - Copy your session values from browser:
-      1. Open Firefox.
-      2. Go to Pixiv website and login, remember to enable [Remember Me]
-          check box.
-      3. Press F12 to open Developer Tools, and select the Storage tab.
-      4. Click the Cookies and select for the pixiv.net.
-      5. Look for Cookie named = PHPSESSID.
-      6. Copy the content value. https://imgur.com/a/BppHOoQ
-      7. Open config.ini, go to [Authentication] section, paste the value
-         to cookie. https://imgur.com/VB2g3qn
+	- Check your password.
+	- Try to login to the Pixiv Website.
+	- Try to use the config.ini on the [Authentication] section.
+	- Check your date and time setting (e.g.: https://www.timeanddate.com/)
+	- Disable Daylight Saving Time and try again.
+	- Copy your session values from browser:
+	  1. Open Firefox.
+	  2. Go to Pixiv website and login, remember to enable [Remember Me]
+		  check box.
+	  3. Press F12 to open Developer Tools, and select the Storage tab.
+	  4. Click the Cookies and select for the pixiv.net.
+	  5. Look for Cookie named = PHPSESSID.
+	  6. Copy the content value. https://imgur.com/a/BppHOoQ
+	  7. Open config.ini, go to [Authentication] section, paste the value
+		 to cookie. https://imgur.com/VB2g3qn
 
 Q4. PixivUtil working from local terminal on Linux box but not working when I
-    used SSH with PuTTY!
-    - export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are
-      not set, python does not know what to write (Thanks to nho!)
-    - ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate
-      it properly (Thanks to Mailia!)
+	used SSH with PuTTY!
+	- export LANG=en_US.UTF-8. PuTTY does not set locales right, when they are
+	  not set, python does not know what to write (Thanks to nho!)
+	- ... and export PYTHONIOENCODING=utf-8, so it can create DB and populate
+	  it properly (Thanks to Mailia!)
 
 Q5. How to delete member id from Database?
-    - Open the application and choose Manage Database (d) then select delete
-      Member by Member Id.
-    - Open the database (db.sqlite) directly using sqlite browser and use sql
-      command to delete it.
-    - If you are downloading using Download from List.txt (3), you can create
-      ignore_list.txt to skip the member id.
+	- Open the application and choose Manage Database (d) then select delete
+	  Member by Member Id.
+	- Open the database (db.sqlite) directly using sqlite browser and use sql
+	  command to delete it.
+	- If you are downloading using Download from List.txt (3), you can create
+	  ignore_list.txt to skip the member id.
 
 Q6. The app doesn't download all the images! (I want to download SFW images too).
-    - Pixiv only allow to search up to 1000 pages if you don't have Pixiv
-      Premium.
-    - Check your pixiv website settings (refer to https://goo.gl/gQi09v),
-      then delete the cookie value in config.ini and retry.
-    - Check the value of r18mode in config.ini. Setting it to True will only
-      download R-18 images.
+	- Pixiv only allow to search up to 1000 pages if you don't have Pixiv
+	  Premium.
+	- Check your pixiv website settings (refer to https://goo.gl/gQi09v),
+	  then delete the cookie value in config.ini and retry.
+	- Check the value of r18mode in config.ini. Setting it to True will only
+	  download R-18 images.
 
 Q7. The apps show square/question mark texts in the console output!
-    - This is because your Windows is not set to Japanese for the Regional Settings
-      in control panel.
-    - Since 20161114+ version, you need to set the console font properties to
-      use font with unicode support (e.g. Arial Unicode, MS Gothic).
+	- This is because your Windows is not set to Japanese for the Regional Settings
+	  in control panel.
+	- Since 20161114+ version, you need to set the console font properties to
+	  use font with unicode support (e.g. Arial Unicode, MS Gothic).
 
 Q8. Where to get FFmpeg software? How to enable `createwebm`?
-    - Download the stable version of FFmpeg from https://www.ffmpeg.org/download.html.
-    - For Windows:
-      - Extract the archive to a folder.
-      - Open the extracted folder and open to the `/bin` folder.
-      - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
-    - For Linux:
-      - Install the package using your favorite package manager.
+	- Download the stable version of FFmpeg from https://www.ffmpeg.org/download.html.
+	- For Windows:
+	  - Extract the archive to a folder.
+	  - Open the extracted folder and open to the `/bin` folder.
+	  - Copy the application `ffmpeg.exe` to your PixivUtil2 folder.
+	- For Linux:
+	  - Install the package using your favorite package manager.
 
 Q9. The downloaded images are corrupted, how to redownload it again?
-    - You can delete the download history in databases by manually delete the image id
-      from databases (enter d, followed by 10).
-    - Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini
-      and retry the download.
-      
+	- You can delete the download history in databases by manually delete the image id
+	  from databases (enter d, followed by 10).
+	- Or, you can set alwaysCheckFileSize = True and verifyimage = True in config.ini
+	  and retry the download.
+	  
 Q10. I got this error またはメールアドレス、パスワードが正しいかチェックしてください。
-    - Use your email address for the username, or check your password in config.ini
+	- Use your email address for the username, or check your password in config.ini
 
 Q11. Older windows support (e.g. Win7)?
-    - You can try to run from source code with the latest supported python 3.x.
-      See the instruction here: https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
+	- You can try to run from source code with the latest supported python 3.x.
+	  See the instruction here: https://github.com/Nandaka/PixivUtil2/wiki/IDE-Enviroment-(Windows)
 	  
 Q12. How do I get around Cloudflare preventing me from downloading from Fanbox
-    - Go to https://www.whatismybrowser.com/detect/what-is-my-user-agent/ and copy your user agent to the `useragent` field in config.ini
+	- Go to https://www.whatismybrowser.com/detect/what-is-my-user-agent/ and copy your user agent to the `useragent` field in config.ini
 	- Go to https://curl-cffi.readthedocs.io/en/latest/impersonate/targets.html to see a list of supported browsers for impersonation. Inside `PixivBrowserFactory.py` replace `p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)` with the appropriate browser you would like to impersonate. If you do not know which browser to use, just use the latest one that matches your user agent.
 	- Change your user agent's version in config.ini to match the browser you are impersonating. For example, `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0` => `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/147.0` if you are impersonating `firefox147`
 	- Have your browser's network tab open and visit fanbox.
-	Filter your network requests by "post" and click on any network request
+	- Filter your network requests by "post" and click on any network request
 	- Go to the "headers" tab on the ribbon and scroll down to the "request headers" section.
 	- Enable "raw" text to get the real string values
 	- Copy the value from "Cookie" into `cookieFanboxTemp` in config.ini. Your cookie should be a long string that looks like `p_ab_id=<omitted>; p_ab_id_2=<omitted>; p_ab_d_id=<omitted>; cf_clearance=<omitted>; privacy_policy_agreement=<omitted>; privacy_policy_notification=<omitted>; __cf_bm=<omitted>; FANBOXSESSID=<omitted> ...`
@@ -171,143 +171,143 @@ Q12. How do I get around Cloudflare preventing me from downloading from Fanbox
 ## B.Bugs/Source Code/Supports
 ```
 Q1. Where I can report bugs?
-    - Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
+	- Please report any bug to https://github.com/Nandaka/PixivUtil2/issues.
 
 Q2. Where I can support/donate to you?
-    - You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
-    - or visit https://bit.ly/PixivUtilDonation.
+	- You can send it to my PayPal account (nchek2000[at]gmail[dot]com).
+	- or visit https://bit.ly/PixivUtilDonation.
 
 Q3. I want to use/modify the source code!
-    - Feel free to use/modify the source code as long you give credit to me
-      and make the modificated source code open.
-    - if you want to add feature/bug fix, you can do fork the repository in
-      https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
+	- Feel free to use/modify the source code as long you give credit to me
+	  and make the modificated source code open.
+	- if you want to add feature/bug fix, you can do fork the repository in
+	  https://github.com/Nandaka/PixivUtil2 and issue Pull Requests.
 
 Q4. I got ValueError: invalid literal for int() with base 10: '<something>'
-    - Please modify _html.py from mechanize library, search for
-      'def unescape_charref(data, encoding):' and replace with patch in
-      https://pastebin.com/5bT5HFkb.
+	- Please modify _html.py from mechanize library, search for
+	  'def unescape_charref(data, encoding):' and replace with patch in
+	  https://pastebin.com/5bT5HFkb.
 
 Q5. I got '<library_name> module no found error'
-    - Download the library from the source (see links from the Requirements
-      section) and copy the file into your Lib\site-packages directory.
-    - Or use pip install (google on how to use).
+	- Download the library from the source (see links from the Requirements
+	  section) and copy the file into your Lib\site-packages directory.
+	- Or use pip install (google on how to use).
 ```
 ## C.Log Messages
 ```
 Q1: HTTPError: HTTP Error 404: Not Found
-    - This is because the file doesn't exist in the pixiv server, usually
-       because there is no big images version for the manga mode (currently the
-       apps will try to download the big version first then try the normal size
-       if failed, this is only for the manga mode and it is normal).
+	- This is because the file doesn't exist in the pixiv server, usually
+	   because there is no big images version for the manga mode (currently the
+	   apps will try to download the big version first then try the normal size
+	   if failed, this is only for the manga mode and it is normal).
 
 Q2: Error at process_image(): (<type 'exceptions.WindowsError'>, WindowsError
-    (32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin
-    kaytossa')
-    - The file is being used by another process (google translate). Either you
-      ran multiple instace of Pixiv downloader from the same folder, or there
-      are other processes locking the file/db.sqllite (usually from antivirus
-      or some sync/backup application).
+	(32, 'Prosessi ei voi kayttaa tiedostoa, koska se on toisen prosessin
+	kaytossa')
+	- The file is being used by another process (google translate). Either you
+	  ran multiple instace of Pixiv downloader from the same folder, or there
+	  are other processes locking the file/db.sqllite (usually from antivirus
+	  or some sync/backup application).
 
 Q3: Error at process_image(): (<type 'exceptions.AttributeError'>,
-    AttributeError ("'NoneType' object has no attribute 'find'",)
-    - Usually this is because of failed login (cookie not valid). Try to change
-      your password to simple one for testing, or copy the cookie from browser:
-      1. Open Firefox/Chrome.
-      2. Login to your Pixiv.
-      3. On Pixiv page, press F12 and choose the Storage tab (Firefox), or
-         Right click on the leftmost address bar/the (i) icon (Chrome)
-      5. Click the View Cookies button.
-      6. Look for Cookie named = PHPSESSID.
-      7. Copy the content value.
-      8. Open config.ini, go to [Authentication] section, paste the value to
-         cookie.
-    - Or because Pixiv has changed the layout code, so the Pixiv
-      downloader cannot parse the page correctly. Please tell me by posting a
-      comment if this happens and include the details, such as the member/image
-      id, dump html, and log file (check on the application folder).
+	AttributeError ("'NoneType' object has no attribute 'find'",)
+	- Usually this is because of failed login (cookie not valid). Try to change
+	  your password to simple one for testing, or copy the cookie from browser:
+	  1. Open Firefox/Chrome.
+	  2. Login to your Pixiv.
+	  3. On Pixiv page, press F12 and choose the Storage tab (Firefox), or
+		 Right click on the leftmost address bar/the (i) icon (Chrome)
+	  5. Click the View Cookies button.
+	  6. Look for Cookie named = PHPSESSID.
+	  7. Copy the content value.
+	  8. Open config.ini, go to [Authentication] section, paste the value to
+		 cookie.
+	- Or because Pixiv has changed the layout code, so the Pixiv
+	  downloader cannot parse the page correctly. Please tell me by posting a
+	  comment if this happens and include the details, such as the member/image
+	  id, dump html, and log file (check on the application folder).
 
 Q4: URLError: <urlopen error [Errno 11004] getaddrinfo failed>
-    - Update version to > pixivutil20221029.
-    - This is because the Pixiv downloader cannot resolve the address to
-      download the images, please try to restart the network connection or do
-      ipconfig /flushdns to refresh the dns cache (windows).
+	- Update version to > pixivutil20221029.
+	- This is because the Pixiv downloader cannot resolve the address to
+	  download the images, please try to restart the network connection or do
+	  ipconfig /flushdns to refresh the dns cache (windows).
 
 Q5: Error at download_image(): (<class 'socket.timeout'>, timeout('timed out',)
-    - This is because the Pixiv downloader didn't receive any reply for
-      specified time in config.ini from Pixiv. Please retry the download again
-      later.
+	- This is because the Pixiv downloader didn't receive any reply for
+	  specified time in config.ini from Pixiv. Please retry the download again
+	  later.
 
 Q6: httperror_seek_wrapper: HTTP Error 403: request disallowed by robots.txt
-    - Set userobots = False in config.ini
+	- Set userobots = False in config.ini
 ```
 
 # Command Line Option
 Please refer run with `--help` for latest information.
 ```
-  -h, --help            show this help message and exit
+  -h, --help			show this help message and exit
   -s STARTACTION, --startaction=STARTACTION
-                        Action you want to load your program with:
-                        1 - Download by member_id
-                            (required: list of member_ids separated by space
-                             optional: --include_sketch to also download Pixiv Sketch)
-                        2 - Download by image_id
-                            (required: followed by image_ids separated by space)
-                        3 - Download by tags
-                            (required: tags
-                             optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
-                        4 - Download from list
-                            (required: -f LIST_FILE and followed with optional tag)
-                        5 - Download from user bookmark
-                            (optional: -p BOOKMARK_FLAG [y/n/o] for private bookmark, --sp=START_PAGE, and --ep=END_PAGE)
-                        6 - Download from image bookmark
-                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
-                             optional: --sp=START_PAGE, and --ep=END_PAGE, and followed with tag)
-                        7 - Download from tags list
-                            (required: -f LIST_FILE,
-                             optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
-                        8 - Download new illust from bookmark
-                            (optional: --sp=START_PAGE, and --ep=END_PAGE)
-                        9 - Download by Title/Caption
-                            (required: title/caption
-                             optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
-                        10 - Download by Tag and Member Id
-                            (required: member_id, followed by tags
-                             optional: --sp=START_PAGE, and --ep=END_PAGE)
-                        11 - Download Member's Bookmarked Images
-                            (required: followed by member_ids separated by space)
-                        12 - Download by Group ID
-                            (required: Group ID, limit, and process external[y/n])
-                        13 - Download by Manga Series ID
-                            (required: Manga Series ID separated by space
-                            optional: --sp=START_PAGE, and --ep=END_PAGE)
-                        f1 - Download from supported artists (FANBOX)
-                            (optional: End Page)
-                        f2 - Download by artist/creator id (FANBOX)
-                            (required: artist(digits only)/creator ids separated by space,
-                             optional: end page)
-                        f3 - Download by post id (FANBOX)
-                            (required: post ids, separated with space)
-                        f4 - Download from followed artists (FANBOX)
-                            (optional: End Page)
-                        f5 - Download from custom artist list (FANBOX)
-                            (optional: End page, path to list)
-                        b - Batch Download from batch_job.json (experimental)
-                            (optional: --bf=BATCH_FILE)
-                        l - Export local database image_id/post_id
-                            (required: --up=USE_PIXIV, and --uf=USE_FANBOX, and --us=USE_SKETCH)
-                        e - Export online bookmark
-                            (required: -p BOOKMARK_FLAG [y/n/o] for private bookmark,
-                             optional: --ef=EXPORT_FILENAME)
-                        m - Export online user bookmark
-                            (required: member_id, optional: --ef=EXPORT_FILENAME)
-                        d - Manage database
-  -x, --exitwhendone    Exit programm when done.
-                        (only useful when DB-Manager)
-  -i, --irfanview       start IrfanView after downloading images using
-                        downloaded_on_%date%.txt
+						Action you want to load your program with:
+						1 - Download by member_id
+							(required: list of member_ids separated by space
+							 optional: --include_sketch to also download Pixiv Sketch)
+						2 - Download by image_id
+							(required: followed by image_ids separated by space)
+						3 - Download by tags
+							(required: tags
+							 optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
+						4 - Download from list
+							(required: -f LIST_FILE and followed with optional tag)
+						5 - Download from user bookmark
+							(optional: -p BOOKMARK_FLAG [y/n/o] for private bookmark, --sp=START_PAGE, and --ep=END_PAGE)
+						6 - Download from image bookmark
+							(required: -p BOOKMARK_FLAG [y/n/o] for private bookmark
+							 optional: --sp=START_PAGE, and --ep=END_PAGE, and followed with tag)
+						7 - Download from tags list
+							(required: -f LIST_FILE,
+							 optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
+						8 - Download new illust from bookmark
+							(optional: --sp=START_PAGE, and --ep=END_PAGE)
+						9 - Download by Title/Caption
+							(required: title/caption
+							 optional: --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
+						10 - Download by Tag and Member Id
+							(required: member_id, followed by tags
+							 optional: --sp=START_PAGE, and --ep=END_PAGE)
+						11 - Download Member's Bookmarked Images
+							(required: followed by member_ids separated by space)
+						12 - Download by Group ID
+							(required: Group ID, limit, and process external[y/n])
+						13 - Download by Manga Series ID
+							(required: Manga Series ID separated by space
+							optional: --sp=START_PAGE, and --ep=END_PAGE)
+						f1 - Download from supported artists (FANBOX)
+							(optional: End Page)
+						f2 - Download by artist/creator id (FANBOX)
+							(required: artist(digits only)/creator ids separated by space,
+							 optional: end page)
+						f3 - Download by post id (FANBOX)
+							(required: post ids, separated with space)
+						f4 - Download from followed artists (FANBOX)
+							(optional: End Page)
+						f5 - Download from custom artist list (FANBOX)
+							(optional: End page, path to list)
+						b - Batch Download from batch_job.json (experimental)
+							(optional: --bf=BATCH_FILE)
+						l - Export local database image_id/post_id
+							(required: --up=USE_PIXIV, and --uf=USE_FANBOX, and --us=USE_SKETCH)
+						e - Export online bookmark
+							(required: -p BOOKMARK_FLAG [y/n/o] for private bookmark,
+							 optional: --ef=EXPORT_FILENAME)
+						m - Export online user bookmark
+							(required: member_id, optional: --ef=EXPORT_FILENAME)
+						d - Manage database
+  -x, --exitwhendone	Exit programm when done.
+						(only useful when DB-Manager)
+  -i, --irfanview		start IrfanView after downloading images using
+						downloaded_on_%date%.txt
   -n NUMBEROFPAGES, --numberofpages=NUMBEROFPAGES
-                        temporarily overwrites numberOfPage set in config.ini
+						temporarily overwrites numberOfPage set in config.ini
   -c [PATH], --config [PATH] provide different config.ini
 ```
 
@@ -345,7 +345,7 @@ Please refer run with `--help` for latest information.
   Cookie for fanbox.cc, normally no need to fill in.
 - cookieFanboxTemp
 
-  Workaround for Pixiv's TLS fingerprinting blacklist. See Q.12 of Usage for instructions.
+  Workaround for Fanbox's TLS fingerprinting blacklist. See Q.12 of Usage for instructions.
 - refresh_token
 
   Used for OAuth refresh token to avoid relogin too many time. Automatically generated upon succesful OAuth login.
@@ -903,9 +903,9 @@ member_id2 directory2
 - member_id = in number only
 - directory = path to download-directory for member_id
   - %root%\directory will save directory in rootFolder specified in config.ini
-    \directory will save the folder in the root of your PixivUtil-drive
+	\directory will save the folder in the root of your PixivUtil-drive
   - C:\directory will save the folder in drive C: (change to any other
-    drive as you wish)
+	drive as you wish)
   - .\directory will save the folder in same directory as PixivUtil2.exe
   - directory-path can end with \ or not
 
