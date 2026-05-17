@@ -150,6 +150,7 @@ class PixivConfig():
         ConfigItem("Authentication", "refresh_token", ""),
         ConfigItem("Authentication", "cf_clearance", ""),
         ConfigItem("Authentication", "cf_bm", ""),
+        ConfigItem("Authentication", "userAgentImpersonation", "firefox135"),
 
         ConfigItem("Pixiv", "numberOfPage", 0),
         ConfigItem("Pixiv", "r18mode", False),
