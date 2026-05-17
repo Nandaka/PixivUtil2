@@ -1168,6 +1168,7 @@ class PixivBrowser(mechanize.Browser):
         p_req.add_header('Origin', 'https://www.fanbox.cc')
         p_req.add_header('User-Agent', self._config.useragent)
         p_req.add_header('Cookie', self._config.cookieFanboxTemp)
+        impersonation = self._config.userAgentImpersonation or "firefox135" # default value
 
         try:
             p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)

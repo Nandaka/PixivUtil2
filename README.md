@@ -155,7 +155,7 @@ Q11. Older windows support (e.g. Win7)?
 	  
 Q12. How do I get around Cloudflare preventing me from downloading from Fanbox
 	- Go to https://www.whatismybrowser.com/detect/what-is-my-user-agent/ and copy your user agent to the `useragent` field in config.ini
-	- Go to https://curl-cffi.readthedocs.io/en/latest/impersonate/targets.html to see a list of supported browsers for impersonation. Inside `PixivBrowserFactory.py` replace `p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)` with the appropriate browser you would like to impersonate. If you do not know which browser to use, just use the latest one that matches your user agent.
+	- Go to https://curl-cffi.readthedocs.io/en/latest/impersonate/targets.html to see a list of supported browsers for impersonation. Inside config.ini, replace userAgentImpersonation with the appropriate browser you would like to impersonate. If you do not know which browser to use, just use the latest one that closely matches your user agent.
 	- Change your user agent's version in config.ini to match the browser you are impersonating. For example, `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0` => `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/147.0` if you are impersonating `firefox147`
 	- Have your browser's network tab open and visit fanbox.
 	- Filter your network requests by "post" and click on any network request
@@ -167,6 +167,7 @@ Q12. How do I get around Cloudflare preventing me from downloading from Fanbox
 	  - Logged out on fanbox
 	  - Changed your IP
 	  - Are using an IP address that is specifically blacklisted by Fanbox
+	  - Are on the Japanese site for fanbox
 ```
 ## B.Bugs/Source Code/Supports
 ```
