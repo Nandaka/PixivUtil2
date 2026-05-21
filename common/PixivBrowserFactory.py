@@ -1171,7 +1171,7 @@ class PixivBrowser(mechanize.Browser):
         impersonation = self._config.userAgentImpersonation or "firefox135" # default value
 
         try:
-            p_res = curl_cffi.get(p_url, impersonate="firefox135", headers=p_req.headers)
+            p_res = curl_cffi.get(p_url, impersonate=impersonation, headers=p_req.headers)
         except HTTPError as ex:
             if ex.code in [404]:
                 raise PixivException("Fanbox post not found!", PixivException.OTHER_ERROR)
