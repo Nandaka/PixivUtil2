@@ -83,6 +83,7 @@ class PixivImage (object):
         self.js_createDate = None
         self.bookmark_count = bookmark_count
         self.image_response_count = image_response_count
+        self.comment_count = -1
         self.ugoira_data = ""
         self.dateFormat = dateFormat
         self.descriptionUrlList = []
@@ -221,6 +222,7 @@ class PixivImage (object):
 
         self.bookmark_count = root["bookmarkCount"]
         self.image_response_count = root["responseCount"]
+        self.comment_count = root["commentCount"]
 
         # Issue 421
         self.parse_url_from_caption(self.imageCaption)

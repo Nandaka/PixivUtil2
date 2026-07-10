@@ -387,6 +387,10 @@ Please refer run with `--help` for latest information.
 
   Automatically save captions for db for all downloads.
 
+- autoAddStats
+
+  Automatically save an artwork's engagement stats (view, like, bookmark, comment and response counts).
+
 - aiDisplayFewer
 
   if true, filter out AI-generated images from downloading.

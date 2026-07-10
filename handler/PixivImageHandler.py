@@ -647,6 +647,11 @@ def process_image(caller,
             caption_to_update = image.imageCaption if config.autoAddCaption else None
             db.updateImage(image.imageId, image.imageTitle, filename, image.imageMode, caption=caption_to_update)
 
+            # Save engagement stats snapshot (views, likes, bookmarks, comments, responses) if enabled
+            if config.autoAddStats:
+                db.insertStats(image.imageId, image.jd_rtv, image.jd_rtc,
+                               image.bookmark_count, image.comment_count, image.image_response_count)
+
             if len(manga_files) > 0:
                 if archive_mode_update_manga_image_paths:
                     # Rewrite manga save names to point to their place in the archive.

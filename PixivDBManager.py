@@ -137,6 +137,19 @@ class PixivDBManager(object):
                             last_update_date DATE
             )""")
 
+            # image ID is primary key, may not reference to pixiv_master_image as it may not
+            # be downloaded. Holds the latest engagement stats snapshot for an artwork.
+            c.execute("""CREATE TABLE IF NOT EXISTS pixiv_stats (
+                            image_id INTEGER PRIMARY KEY,
+                            view_count INTEGER,
+                            like_count INTEGER,
+                            bookmark_count INTEGER,
+                            comment_count INTEGER,
+                            response_count INTEGER,
+                            created_date DATE,
+                            last_update_date DATE
+            )""")
+
             self.conn.commit()
 
             # Pixiv Series
@@ -1372,6 +1385,42 @@ class PixivDBManager(object):
             return result[0] if result is not None else None
         except BaseException:
             print('Error at selectAiTypeByImageId():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def insertStats(self, image_id, view_count, like_count, bookmark_count, comment_count, response_count):
+        try:
+            c = self.conn.cursor()
+            image_id = int(image_id)
+            c.execute('''INSERT OR IGNORE INTO pixiv_stats (image_id, view_count, like_count, bookmark_count, comment_count, response_count, created_date, last_update_date)
+                      VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+                      ON CONFLICT(image_id) DO UPDATE SET
+                      view_count = excluded.view_count,
+                      like_count = excluded.like_count,
+                      bookmark_count = excluded.bookmark_count,
+                      comment_count = excluded.comment_count,
+                      response_count = excluded.response_count,
+                      last_update_date = datetime('now')''',
+                      (image_id, view_count, like_count, bookmark_count, comment_count, response_count))
+            self.conn.commit()
+        except BaseException:
+            print('Error at insertStats():', str(sys.exc_info()))
+            print('failed')
+            raise
+        finally:
+            c.close()
+
+    def selectStatsByImageId(self, image_id):
+        try:
+            c = self.conn.cursor()
+            image_id = int(image_id)
+            c.execute('''SELECT view_count, like_count, bookmark_count, comment_count, response_count FROM pixiv_stats WHERE image_id = ?''', (image_id,))
+            result = c.fetchone()
+            return result if result is not None else None
+        except BaseException:
+            print('Error at selectStatsByImageId():', str(sys.exc_info()))
             print('failed')
             raise
         finally:
