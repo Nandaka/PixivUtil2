@@ -9,29 +9,29 @@ import socket
 import sys
 import time
 import traceback
+from typing import List, Literal, Tuple, Union
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request
-from typing import List, Literal, Tuple, Union
 
+import curl_cffi
 import demjson3
 import mechanize
 import socks
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
-import curl_cffi
 
 import common.PixivHelper as PixivHelper
+from common.PixivException import PixivException
+from common.PixivOAuth import PixivOAuth
 from model.PixivArtist import PixivArtist
 from model.PixivBookmark import PixivNewIllustBookmark
-from common.PixivException import PixivException
 from model.PixivImage import PixivImage, PixivMangaSeries
 from model.PixivModelFanbox import FanboxArtist, FanboxPost
 from model.PixivModelSketch import SketchArtist, SketchPost
 from model.PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
-from common.PixivOAuth import PixivOAuth
 from model.PixivRanking import PixivNewIllust, PixivRanking
-from model.PixivTags import PixivTags, PixivTag
+from model.PixivTags import PixivTag, PixivTags
 
 defaultCookieJar = None
 defaultConfig = None
@@ -1142,8 +1142,11 @@ class PixivBrowser(mechanize.Browser):
 
     def fanboxUpdatePost(self, post: FanboxPost):
         js = self.fanboxGetPostJsonById(post.imageId, post.parent)
-        post.parsePost(js["body"])
-        post.parse_post_details(js["body"])
+        data = js["body"]
+        if "post" in data:  # new API response as of 2026-07-25
+            data = data["post"]
+        post.parsePost(data)
+        post.parse_post_details(data)
 
     def fanboxGetPostById(self, post_id):
         js = self.fanboxGetPostJsonById(post_id)
