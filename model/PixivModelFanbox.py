@@ -552,6 +552,8 @@ class FanboxArtist(object):
 
         if "body" in js and js["body"] is not None:
             js_body = js["body"]
+            if "plans" in js["body"]:
+                js_body = js_body["plans"]
             if "supportingPlans" in js["body"]:
                 js_body = js_body["supportingPlans"]
             for creator in js_body:
@@ -607,9 +609,9 @@ class FanboxArtist(object):
             if "creator" in js_body:
                 self.artistName = js_body["creator"]["user"]["name"]
 
-            if "post" in js_body:
+            if "posts" in js_body:
                 # new api
-                post_root = js_body["post"]
+                post_root = js_body["posts"]
             else:
                 # https://www.pixiv.net/ajax/fanbox/post?postId={0}
                 # or old api

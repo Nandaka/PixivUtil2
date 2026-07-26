@@ -183,6 +183,7 @@ def menu():
     print(' f4. Download from following list (FANBOX)')
     print(' f5. Download from custom list (FANBOX)')
     print(' f6. Download Pixiv by FANBOX Artist ID')
+    print(' f7. Download from latest supporting posts (FANBOX)')
     print(Style.BRIGHT + '── Sketch '.ljust(PADDING, "─") + Style.RESET_ALL)
     print(' s1. Download by creator id (Sketch)')
     print(' s2. Download by post id (Sketch)')
@@ -1107,6 +1108,35 @@ def menu_fanbox_download_by_post_id(op_is_valid, args, options):
             PixivHelper.print_and_log("error", f"Error processing FANBOX post: {post_id} ==> {pex.message}")
 
 
+def menu_fanbox_download_latest_supporting_posts(op_is_valid, args, options):
+    __log__.info('Download FANBOX from latest supporting posts mode (f7).')
+    if op_is_valid and len(args) > 0:
+        pages = int(args[0])
+    else:
+        pages = int(input("Number of pages (default is 1) = ").rstrip("\r") or 1)
+
+    if pages <= 0:
+        PixivHelper.print_and_log("error", "Number of pages must be greater than 0.")
+        return
+
+    posts = __br__.fanboxGetLatestSupportingPosts(pages)
+    PixivHelper.print_and_log("info", f"Found {len(posts)} post(s) from supporting artists")
+
+    for index, post in enumerate(posts, start=1):
+        try:
+            print(f"#{index}")
+            post.printPost()
+            PixivFanboxHandler.process_fanbox_post(sys.modules[__name__], __config__, post, post.parent)
+            PixivHelper.wait(config=__config__)
+        except KeyboardInterrupt:
+            choice = input("Keyboard Interrupt detected, continue to next post (Y/N)").rstrip("\r")
+            if choice.upper() == 'N':
+                PixivHelper.print_and_log("info", f"FANBOX post: {post.imageId}, processing aborted")
+                break
+        except PixivException as pex:
+            PixivHelper.print_and_log("error", f"Error processing FANBOX post: {post.imageId} ==> {pex.message}")
+
+
 def menu_fanbox_download_by_id(op_is_valid, args, options):
     __log__.info('Download FANBOX by Artist or Creator ID mode (f2).')
 
@@ -1343,7 +1373,7 @@ def setup_option_parser():
 
     global __valid_options
     __valid_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'm1', 'm2', 'm3', 'm4',
-                       'f1', 'f2', 'f3', 'f4', 'f5',
+                       'f1', 'f2', 'f3', 'f4', 'f5', 'f7',
                        's1', 's2',
                        'l', 'd', 'e', 'm', 'b', 'p', 'c')
     parser = OptionParser()
@@ -1372,6 +1402,7 @@ f2 - Download by artist/creator id (FANBOX)         \n
 f3 - Download by post id (FANBOX)                   \n
 f4 - Download from following list (FANBOX)          \n
 f5 - Download from custom list (FANBOX)             \n
+f7 - Download from latest supporting posts (FANBOX) \n
 s1 - Download by creator id (Sketch)')              \n
 s2 - Download by post id (Sketch)')                 \n
 b  - Batch Download from batch_job.json             \n
@@ -1618,6 +1649,8 @@ def main_loop(ewd, op_is_valid, selection, np_is_valid_local, args, options):
                 menu_fanbox_download_from_list(op_is_valid, PixivModelFanbox.FanboxArtist.CUSTOM, args, options)
             elif selection == 'f6':
                 menu_fanbox_download_pixiv_by_fanbox_id(op_is_valid, args, options)
+            elif selection == 'f7':
+                menu_fanbox_download_latest_supporting_posts(op_is_valid, args, options)
             # END PIXIV FANBOX
             # PIXIV Sketch
             elif selection == 's1':
