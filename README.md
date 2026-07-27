@@ -28,6 +28,7 @@
 - Download by artist/creator id (FANBOX)
 - Download by post id (FANBOX)
 - Download from followed artists (FANBOX)
+- Download latest posts from supported artists (FANBOX)
 - Re-encoding of all ugoira present in folder
 - Batch Download from batch_job.json (experimental)
   See https://github.com/Nandaka/PixivUtil2/wiki/Using-Batch-Job-(Experimental)
@@ -293,6 +294,8 @@ Please refer run with `--help` for latest information.
                             (optional: End Page)
                         f5 - Download from custom artist list (FANBOX)
                             (optional: End page, path to list)
+                        f7 - Download latest posts from supported artists (FANBOX)
+                            (optional: number of pages greater than 0, default: 1)
                         b - Batch Download from batch_job.json (experimental)
                             (optional: --bf=BATCH_FILE)
                         l - Export local database image_id/post_id

@@ -1091,6 +1091,50 @@ class PixivBrowser(mechanize.Browser):
         else:
             raise PixivException("Id does not exist", errorCode=PixivException.USER_ID_NOT_EXISTS)
 
+    def fanboxGetLatestSupportingPosts(self, pages) -> List[FanboxPost]:
+        self.fanbox_is_logged_in()
+        supported_creator_ids = {
+            str(creator_id)
+            for creator_id in self.fanboxGetArtistList(FanboxArtist.SUPPORTING)
+        }
+        artists = {}
+        posts = []
+        _tzInfo = None
+        if self._config.useLocalTimezone:
+            _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
+
+        url = 'https://api.fanbox.cc/post.listSupporting?limit=10'
+        for current_page in range(1, pages + 1):
+            PixivHelper.print_and_log('info', f'Getting latest supporting posts page {current_page} from {url}')
+            req = mechanize.Request(url)
+            req.add_header('Accept', 'application/json, text/plain, */*')
+            req.add_header('Referer', 'https://www.fanbox.cc/')
+            req.add_header('Origin', 'https://www.fanbox.cc')
+            req.add_header('User-Agent', self._config.useragent)
+
+            res = self.open_with_retry(req)
+            response = res.read()
+            res.close()
+
+            js = demjson3.decode(response)
+            if "error" in js and js["error"]:
+                raise PixivException("Error when requesting latest supporting posts", 9999, response)
+            if "body" not in js or js["body"] is None:
+                break
+
+            for js_post in js["body"]["items"]:
+                creator_id = str(js_post["creatorId"])
+                if creator_id not in supported_creator_ids:
+                    continue
+                if creator_id not in artists:
+                    artists[creator_id] = self.fanboxGetArtistById(creator_id)
+                posts.append(FanboxPost(js_post["id"], artists[creator_id], js_post, _tzInfo))
+
+            url = js["body"].get("nextUrl")
+            if not url:
+                break
+        return posts
+
     def fanboxGetPostsFromArtist(self, artist: FanboxArtist = None, next_url="") -> List[FanboxPost]:
         ''' get all posts from the supported user
         from https://fanbox.pixiv.net/api/post.listCreator?userId=1305019&limit=10 '''
@@ -1153,8 +1197,8 @@ class PixivBrowser(mechanize.Browser):
         _tzInfo = None
         if self._config.useLocalTimezone:
             _tzInfo = PixivHelper.LocalUTCOffsetTimezone()
-        artist = self.fanboxGetArtistById(js["body"]["creatorId"])
-        post = FanboxPost(post_id, artist, js["body"], _tzInfo)
+        artist = self.fanboxGetArtistById(js["body"]["post"]["creatorId"])
+        post = FanboxPost(post_id, artist, js["body"]["post"], _tzInfo)
         return post
 
     def fanboxGetPostJsonById(self, post_id, artist=None):
@@ -1170,7 +1214,10 @@ class PixivBrowser(mechanize.Browser):
         p_req.add_header('Referer', p_referer)
         p_req.add_header('Origin', 'https://www.fanbox.cc')
         p_req.add_header('User-Agent', self._config.useragent)
-        p_req.add_header('Cookie', self._config.cookieFanboxTemp)
+        p_req.add_header('Cookie', "; ".join(
+            f"{c.name}={c.value}" for c in self._ua_handlers['_cookies'].cookiejar
+            if c.domain in (".fanbox.cc", "fanbox.cc", "api.fanbox.cc")
+        ))
         impersonation = self._config.userAgentImpersonation or "firefox135" # default value
 
         try:
