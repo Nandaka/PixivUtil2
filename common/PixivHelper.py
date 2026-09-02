@@ -1257,9 +1257,9 @@ _FFMPEG_STDERR_TAIL_LINES = 20
 def ffmpeg_progress_report(p: subprocess.Popen) -> Tuple[subprocess.Popen, str]:
     """Relay ffmpeg's output and return the tail of its stderr.
 
-    ffmpeg terminates progress updates with '\r' and diagnostics with '\n'. Only
-    the former used to be flushed, so the reason a conversion failed was collected
-    and then discarded, leaving nothing but "ffmpeg return exit code=N". Emit every
+    ffmpeg terminates progress updates with CR and diagnostics with LF. Only the
+    former used to be flushed, so the reason a conversion failed was collected and
+    then discarded, leaving nothing but "ffmpeg return exit code=N". Emit every
     line and hand the tail back to the caller for the error message.
     """
     tail = collections.deque(maxlen=_FFMPEG_STDERR_TAIL_LINES)
@@ -1300,7 +1300,8 @@ def check_image_encoding(directory: str) -> None:
     """
     nb_channel_max = 4
     dict_of_components = dict()
-    for i in range(nb_channel_max):
+    # an image has between 1 (L) and 4 (RGBA) bands, so the buckets are 1..nb_channel_max
+    for i in range(1, nb_channel_max + 1):
         dict_of_components[i] = list()
 
     # Append every images to their corresponding number of bit depth in a dictionnary
@@ -1309,32 +1310,38 @@ def check_image_encoding(directory: str) -> None:
         # checking if it is a file
         if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
             fp = None
+            nb_components = 0
             try:
                 fp = open(f, "rb")
                 # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
                 ImageFile.LOAD_TRUNCATED_IMAGES = True
                 with Image.open(fp) as im:
                     nb_components = len(im.getbands())
-                    dict_of_components[nb_components].append(f)
                     im.close()
             except BaseException:
                 if fp is not None:
                     fp.close()
-                print_and_log('error', ' Image {f} invalid during check_image_encoding() , deleting...')
+                print_and_log('error', f' Image {f} invalid during check_image_encoding() , deleting...')
                 os.remove(f)
                 raise
+
+            # bucketing is kept out of the try block, a miscounted band must not be
+            # mistaken for a corrupt image and get the frame deleted.
+            if nb_components in dict_of_components:
+                dict_of_components[nb_components].append(f)
+            else:
+                print_and_log('warn', f' Image {f} has an unexpected number of components ({nb_components}), skipping it during check_image_encoding()')
 
     # Get the maximum amount of component of bit depth from the batch of images and convert thoses below it
     re_encode = False
     re_encode_channel = nb_channel_max
     for i in range(nb_channel_max, 0, -1):
         if re_encode:
-            for file in dict_of_components[i - 1]:
+            for file in dict_of_components[i]:
                 re_encode_image(re_encode_channel, file)
-
-        if (len(dict_of_components[i - 1]) != 0) and not (re_encode):
+        elif len(dict_of_components[i]) != 0:
             re_encode = True
-            re_encode_channel = i - 1
+            re_encode_channel = i
 
 
 def re_encode_image(nb_channel: int, im_path: str) -> None:
