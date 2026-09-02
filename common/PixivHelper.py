@@ -2,6 +2,7 @@
 # pylint: disable=W0603
 
 import codecs
+import collections
 import html
 import json
 import logging
@@ -26,7 +27,7 @@ from datetime import date, datetime, timedelta, tzinfo
 from hashlib import md5, sha1, sha256
 from mmap import ACCESS_READ, mmap
 from pathlib import Path
-from typing import Union
+from typing import Tuple, Union
 
 import mechanize
 from colorama import Fore, Style
@@ -1174,9 +1175,9 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
     param = replace_legacy_ffmpeg_param(param, ffmpeg)
 
-    cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
+    cmd = f"{ffmpeg} -hide_banner -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
     if codec is None:
-        cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat {param} {tempname}"
+        cmd = f"{ffmpeg} -hide_banner -y -safe 0 -i {d}{os.sep}i.ffconcat {param} {tempname}"
 
     try:
         frames = {}
@@ -1207,11 +1208,13 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
         # progress report
         print_and_log('info', f"Start encoding {exportname}")
-        p = ffmpeg_progress_report(p)
+        p, stderr_tail = ffmpeg_progress_report(p)
         ret = p.wait()
 
         if (p.returncode != 0):
             msg = f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0."
+            if len(stderr_tail) > 0:
+                msg += f"\nffmpeg output:\n{stderr_tail}"
             print_and_log("error", msg)
             raise PixivException(msg, errorCode=PixivException.UGOIRA_CONVERSION_ERROR)  # Issue #1176
         else:
@@ -1247,30 +1250,47 @@ def create_temp_dir(prefix: str = None) -> str:
     return d
 
 
-def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
-    chatter = ""
+# how many trailing stderr lines to keep so a failed run can report why it failed.
+_FFMPEG_STDERR_TAIL_LINES = 20
+
+
+def ffmpeg_progress_report(p: subprocess.Popen) -> Tuple[subprocess.Popen, str]:
+    """Relay ffmpeg's output and return the tail of its stderr.
+
+    ffmpeg terminates progress updates with '\r' and diagnostics with '\n'. Only
+    the former used to be flushed, so the reason a conversion failed was collected
+    and then discarded, leaving nothing but "ffmpeg return exit code=N". Emit every
+    line and hand the tail back to the caller for the error message.
+    """
+    tail = collections.deque(maxlen=_FFMPEG_STDERR_TAIL_LINES)
     while p.stderr:
-        buff = p.stderr.readline().decode('utf-8').rstrip('\n')
-        chatter += buff
-        if buff.endswith("\r"):
-            if _config.verboseOutput:
-                print(chatter.strip())
-            elif chatter.find("frame=") > 0 \
-                    or chatter.lower().find("stream") > 0:
-                print(chatter.strip())
-            elif chatter.lower().find("error") > 0 \
-                    or chatter.lower().find("could not") > 0 \
-                    or chatter.lower().find("unknown") > 0 \
-                    or chatter.lower().find("invalid") > 0 \
-                    or chatter.lower().find("trailing options") > 0 \
-                    or chatter.lower().find("cannot") > 0 \
-                    or chatter.lower().find("can't") > 0 \
-                    or chatter.lower().find("no ") > 0:
-                print_and_log("error", chatter.strip())
-            chatter = ""
-        if len(buff) == 0:
+        raw = p.stderr.readline()
+        if len(raw) == 0:  # EOF, note that a blank line is "\n" and must not stop us
             break
-    return p
+        # a run of progress updates arrives as a single '\r'-separated read, keep it
+        # as one line so the console output stays as compact as it was before.
+        chatter = raw.decode('utf-8', errors='replace').rstrip('\r\n').strip()
+        if len(chatter) == 0:
+            continue
+
+        tail.append(chatter)
+        lowered = chatter.lower()
+        if _config.verboseOutput:
+            print(chatter)
+        elif chatter.find("frame=") >= 0 \
+                or lowered.find("stream") >= 0:
+            print(chatter)
+        elif lowered.find("error") >= 0 \
+                or lowered.find("could not") >= 0 \
+                or lowered.find("unknown") >= 0 \
+                or lowered.find("unrecognized") >= 0 \
+                or lowered.find("invalid") >= 0 \
+                or lowered.find("trailing options") >= 0 \
+                or lowered.find("cannot") >= 0 \
+                or lowered.find("can't") >= 0 \
+                or lowered.find("no ") >= 0:
+            print_and_log("error", chatter)
+    return p, "\n".join(tail)
 
 
 # Issue 1109
@@ -1329,7 +1349,7 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
     split_tup = os.path.splitext(im_path)
     temp_name = f"{split_tup[0]}_temp{split_tup[1]}"
     # Fix #1126
-    cmd = f"{_config.ffmpeg} -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
+    cmd = f"{_config.ffmpeg} -hide_banner -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
 
     ffmpeg_args = shlex.split(cmd, posix=False)
     get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
@@ -1337,11 +1357,14 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
 
     # progress report
     print_and_log('debug', f"Start re_encoding image {im_path}")
-    p = ffmpeg_progress_report(p)
+    p, stderr_tail = ffmpeg_progress_report(p)
     p.wait()
 
     if (p.returncode != 0):
-        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERROR)
+        msg = f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0."
+        if len(stderr_tail) > 0:
+            msg += f"\nffmpeg output:\n{stderr_tail}"
+        raise PixivException(msg, errorCode=PixivException.OTHER_ERROR)
 
     if os.path.exists(im_path) and os.path.exists(temp_name):
         try:
