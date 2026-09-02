@@ -1020,7 +1020,7 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
     print_and_log('info', 'Processing ugoira to animated gif...')
     # Issue #802 use ffmpeg to convert to gif
     if len(_config.gifParam) == 0:
-        _config.gifParam = "-filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle -vsync 0"
+        _config.gifParam = "-filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1034,7 +1034,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to apng...')
     # fix #796 convert apng using ffmpeg
     if len(_config.apngParam) == 0:
-        _config.apngParam = "-plays 0 -vsync 0"
+        _config.apngParam = "-plays 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1047,7 +1047,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
 def ugoira2avif(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to avif...')
     if len(_config.avifParam) == 0:
-        _config.avifParam = "-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0"
+        _config.avifParam = "-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1060,7 +1060,7 @@ def ugoira2avif(ugoira_file, exportname, image=None):
 def ugoira2webp(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to webp...')
     if len(_config.webpParam) == 0:
-        _config.webpParam = "-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0"
+        _config.webpParam = "-lossless 0 -compression_level 5 -quality 100 -loop 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1073,7 +1073,7 @@ def ugoira2webp(ugoira_file, exportname, image=None):
 def ugoira2webm(ugoira_file, exportname, codec="libvpx-vp9", extension="webm", image=None):
     print_and_log('info', 'Processing ugoira to webm...')
     if len(_config.ffmpegParam) == 0:
-        _config.ffmpegParam = "-lossless 0 -crf 15 -b 0 -vsync 0"
+        _config.ffmpegParam = "-lossless 0 -crf 15 -b 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1094,6 +1094,71 @@ def ugoira2mkv(ugoira_file, exportname, codec="copy", image=None):
                    image=image)
 
 
+# `-vsync` was deprecated in ffmpeg 5.0 and removed outright in ffmpeg 8.0, where it
+# now aborts argument parsing with "Unrecognized option 'vsync'" and exit code 8. The
+# replacement, `-fps_mode`, has been available since ffmpeg 5.1. Existing config.ini
+# files still carry `-vsync` in the *Param settings, so translate it on the fly for
+# ffmpeg builds that no longer accept it.
+_VSYNC_TO_FPS_MODE = {"0": "passthrough",
+                      "1": "cfr",
+                      "2": "vfr",
+                      "-1": "auto",
+                      "passthrough": "passthrough",
+                      "cfr": "cfr",
+                      "vfr": "vfr",
+                      "drop": "drop",
+                      "auto": "auto"}
+_ffmpeg_supports_vsync = None
+_vsync_warning_shown = False
+
+
+def ffmpeg_supports_vsync(ffmpeg) -> bool:
+    """Probe once whether this ffmpeg build still accepts the legacy -vsync option."""
+    global _ffmpeg_supports_vsync
+    if _ffmpeg_supports_vsync is None:
+        cmd = f"{ffmpeg} -hide_banner -loglevel quiet -vsync 0 -version"
+        try:
+            # option parsing happens before anything else, so -version makes this a
+            # cheap syntax check that never touches the filesystem.
+            p = subprocess.run(shlex.split(cmd, posix=False),
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+            _ffmpeg_supports_vsync = p.returncode == 0
+            get_logger().info(f"[ffmpeg_supports_vsync()] {ffmpeg} accepts -vsync => {_ffmpeg_supports_vsync}")
+        except OSError:
+            # cannot run ffmpeg at all, leave the parameters untouched and let the
+            # actual conversion report the failure.
+            _ffmpeg_supports_vsync = True
+    return _ffmpeg_supports_vsync
+
+
+def replace_legacy_ffmpeg_param(param, ffmpeg) -> str:
+    """Rewrite `-vsync <n>` to `-fps_mode <mode>` when ffmpeg no longer supports it."""
+    global _vsync_warning_shown
+    if param is None or "-vsync" not in param or ffmpeg_supports_vsync(ffmpeg):
+        return param
+
+    tokens = param.split()
+    result = []
+    i = 0
+    while i < len(tokens):
+        mode = _VSYNC_TO_FPS_MODE.get(tokens[i + 1]) if tokens[i] == "-vsync" and i + 1 < len(tokens) else None
+        if mode is None:
+            result.append(tokens[i])
+            i += 1
+        else:
+            result.extend(("-fps_mode", mode))
+            i += 2
+    updated = " ".join(result)
+
+    if not _vsync_warning_shown:
+        _vsync_warning_shown = True
+        print_and_log("warn", "Your ffmpeg no longer supports '-vsync', which was removed in ffmpeg 8.0. "
+                              "Substituting '-fps_mode' for this run, please update the *Param settings in config.ini.")
+    get_logger().info(f"[replace_legacy_ffmpeg_param()] {param} => {updated}")
+    return updated
+
+
 def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     # if not os.path.exists(os.path.abspath(ffmpeg)):
@@ -1106,6 +1171,8 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
         exportname = f"{os.path.basename(name)}.{extension}"
 
     tempname = d + os.sep + "temp." + extension
+
+    param = replace_legacy_ffmpeg_param(param, ffmpeg)
 
     cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
     if codec is None:
