@@ -6,6 +6,9 @@ PIXIVUTIL_DONATE = 'https://bit.ly/PixivUtilDonation'
 
 # Log Settings
 PIXIVUTIL_LOG_FILE = 'pixivutil.log'
+# errors-only companion to the main log, so failures from a long run can be
+# reviewed without grepping a multi-megabyte DEBUG transcript.
+PIXIVUTIL_ERROR_LOG_FILE = 'pixivutil_error.log'
 PIXIVUTIL_LOG_SIZE = 10485760
 PIXIVUTIL_LOG_COUNT = 10
 PIXIVUTIL_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
