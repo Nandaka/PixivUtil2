@@ -385,6 +385,8 @@ class PixivBrowser(mechanize.Browser):
             x_uid = headers.get('x-userid') or headers.get('X-UserId') or headers.get('X-Userid')
             if x_uid:
                 PixivHelper.print_and_log('info', f'Login recognized by server (x-userid={x_uid}).')
+                self._myId = int(x_uid)
+                PixivHelper.print_and_log('info', f'My User Id: {self._myId}.')
                 return True
 
             res = self.open_with_retry('https://www.pixiv.net')  # + self._locale)
