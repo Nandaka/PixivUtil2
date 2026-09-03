@@ -709,7 +709,7 @@ Please refer run with `--help` for latest information.
   The file extension (container format) to use for encoding. default: `webm`.
 - ffmpegparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 0`.
+  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -fps_mode passthrough`.
 - mkvcodec
 
   Codec to be used for encoding mkv, default is using `copy`.
@@ -721,13 +721,13 @@ Please refer run with `--help` for latest information.
   Codec to be used for encoding avif, default is using `libaom-av1`.
 - avifparam
 
-  Parameter to be used to encode avif, default: `-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0`.
+  Parameter to be used to encode avif, default: `-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -fps_mode passthrough`.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`.
+  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -fps_mode passthrough`.
 
 ## [Ugoira]
 - writeugoirainfo

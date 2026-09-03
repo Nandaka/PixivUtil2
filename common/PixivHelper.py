@@ -2,6 +2,7 @@
 # pylint: disable=W0603
 
 import codecs
+import collections
 import html
 import json
 import logging
@@ -26,7 +27,7 @@ from datetime import date, datetime, timedelta, tzinfo
 from hashlib import md5, sha1, sha256
 from mmap import ACCESS_READ, mmap
 from pathlib import Path
-from typing import Union
+from typing import Tuple, Union
 
 import mechanize
 from colorama import Fore, Style
@@ -1020,7 +1021,7 @@ def ugoira2gif(ugoira_file, exportname, fmt='gif', image=None):
     print_and_log('info', 'Processing ugoira to animated gif...')
     # Issue #802 use ffmpeg to convert to gif
     if len(_config.gifParam) == 0:
-        _config.gifParam = "-filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle -vsync 0"
+        _config.gifParam = "-filter_complex [0:v]split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1034,7 +1035,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to apng...')
     # fix #796 convert apng using ffmpeg
     if len(_config.apngParam) == 0:
-        _config.apngParam = "-plays 0 -vsync 0"
+        _config.apngParam = "-plays 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1047,7 +1048,7 @@ def ugoira2apng(ugoira_file, exportname, image=None):
 def ugoira2avif(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to avif...')
     if len(_config.avifParam) == 0:
-        _config.avifParam = "-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0"
+        _config.avifParam = "-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1060,7 +1061,7 @@ def ugoira2avif(ugoira_file, exportname, image=None):
 def ugoira2webp(ugoira_file, exportname, image=None):
     print_and_log('info', 'Processing ugoira to webp...')
     if len(_config.webpParam) == 0:
-        _config.webpParam = "-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0"
+        _config.webpParam = "-lossless 0 -compression_level 5 -quality 100 -loop 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1073,7 +1074,7 @@ def ugoira2webp(ugoira_file, exportname, image=None):
 def ugoira2webm(ugoira_file, exportname, codec="libvpx-vp9", extension="webm", image=None):
     print_and_log('info', 'Processing ugoira to webm...')
     if len(_config.ffmpegParam) == 0:
-        _config.ffmpegParam = "-lossless 0 -crf 15 -b 0 -vsync 0"
+        _config.ffmpegParam = "-lossless 0 -crf 15 -b 0 -fps_mode passthrough"
     convert_ugoira(ugoira_file,
                    exportname,
                    ffmpeg=_config.ffmpeg,
@@ -1094,6 +1095,71 @@ def ugoira2mkv(ugoira_file, exportname, codec="copy", image=None):
                    image=image)
 
 
+# `-vsync` was deprecated in ffmpeg 5.0 and removed outright in ffmpeg 8.0, where it
+# now aborts argument parsing with "Unrecognized option 'vsync'" and exit code 8. The
+# replacement, `-fps_mode`, has been available since ffmpeg 5.1. Existing config.ini
+# files still carry `-vsync` in the *Param settings, so translate it on the fly for
+# ffmpeg builds that no longer accept it.
+_VSYNC_TO_FPS_MODE = {"0": "passthrough",
+                      "1": "cfr",
+                      "2": "vfr",
+                      "-1": "auto",
+                      "passthrough": "passthrough",
+                      "cfr": "cfr",
+                      "vfr": "vfr",
+                      "drop": "drop",
+                      "auto": "auto"}
+_ffmpeg_supports_vsync = None
+_vsync_warning_shown = False
+
+
+def ffmpeg_supports_vsync(ffmpeg) -> bool:
+    """Probe once whether this ffmpeg build still accepts the legacy -vsync option."""
+    global _ffmpeg_supports_vsync
+    if _ffmpeg_supports_vsync is None:
+        cmd = f"{ffmpeg} -hide_banner -loglevel quiet -vsync 0 -version"
+        try:
+            # option parsing happens before anything else, so -version makes this a
+            # cheap syntax check that never touches the filesystem.
+            p = subprocess.run(shlex.split(cmd, posix=False),
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+            _ffmpeg_supports_vsync = p.returncode == 0
+            get_logger().info(f"[ffmpeg_supports_vsync()] {ffmpeg} accepts -vsync => {_ffmpeg_supports_vsync}")
+        except OSError:
+            # cannot run ffmpeg at all, leave the parameters untouched and let the
+            # actual conversion report the failure.
+            _ffmpeg_supports_vsync = True
+    return _ffmpeg_supports_vsync
+
+
+def replace_legacy_ffmpeg_param(param, ffmpeg) -> str:
+    """Rewrite `-vsync <n>` to `-fps_mode <mode>` when ffmpeg no longer supports it."""
+    global _vsync_warning_shown
+    if param is None or "-vsync" not in param or ffmpeg_supports_vsync(ffmpeg):
+        return param
+
+    tokens = param.split()
+    result = []
+    i = 0
+    while i < len(tokens):
+        mode = _VSYNC_TO_FPS_MODE.get(tokens[i + 1]) if tokens[i] == "-vsync" and i + 1 < len(tokens) else None
+        if mode is None:
+            result.append(tokens[i])
+            i += 1
+        else:
+            result.extend(("-fps_mode", mode))
+            i += 2
+    updated = " ".join(result)
+
+    if not _vsync_warning_shown:
+        _vsync_warning_shown = True
+        print_and_log("warn", "Your ffmpeg no longer supports '-vsync', which was removed in ffmpeg 8.0. "
+                              "Substituting '-fps_mode' for this run, please update the *Param settings in config.ini.")
+    get_logger().info(f"[replace_legacy_ffmpeg_param()] {param} => {updated}")
+    return updated
+
+
 def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, image=None):
     ''' modified based on https://github.com/tsudoko/ugoira-tools/blob/master/ugoira2webm/ugoira2webm.py '''
     # if not os.path.exists(os.path.abspath(ffmpeg)):
@@ -1107,9 +1173,11 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
     tempname = d + os.sep + "temp." + extension
 
-    cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
+    param = replace_legacy_ffmpeg_param(param, ffmpeg)
+
+    cmd = f"{ffmpeg} -hide_banner -y -safe 0 -i {d}{os.sep}i.ffconcat -c:v {codec} {param} {tempname}"
     if codec is None:
-        cmd = f"{ffmpeg} -y -safe 0 -i {d}{os.sep}i.ffconcat {param} {tempname}"
+        cmd = f"{ffmpeg} -hide_banner -y -safe 0 -i {d}{os.sep}i.ffconcat {param} {tempname}"
 
     try:
         frames = {}
@@ -1140,11 +1208,13 @@ def convert_ugoira(ugoira_file, exportname, ffmpeg, codec, param, extension, ima
 
         # progress report
         print_and_log('info', f"Start encoding {exportname}")
-        p = ffmpeg_progress_report(p)
+        p, stderr_tail = ffmpeg_progress_report(p)
         ret = p.wait()
 
         if (p.returncode != 0):
             msg = f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0."
+            if len(stderr_tail) > 0:
+                msg += f"\nffmpeg output:\n{stderr_tail}"
             print_and_log("error", msg)
             raise PixivException(msg, errorCode=PixivException.UGOIRA_CONVERSION_ERROR)  # Issue #1176
         else:
@@ -1180,30 +1250,47 @@ def create_temp_dir(prefix: str = None) -> str:
     return d
 
 
-def ffmpeg_progress_report(p: subprocess.Popen) -> subprocess.Popen:
-    chatter = ""
+# how many trailing stderr lines to keep so a failed run can report why it failed.
+_FFMPEG_STDERR_TAIL_LINES = 20
+
+
+def ffmpeg_progress_report(p: subprocess.Popen) -> Tuple[subprocess.Popen, str]:
+    """Relay ffmpeg's output and return the tail of its stderr.
+
+    ffmpeg terminates progress updates with CR and diagnostics with LF. Only the
+    former used to be flushed, so the reason a conversion failed was collected and
+    then discarded, leaving nothing but "ffmpeg return exit code=N". Emit every
+    line and hand the tail back to the caller for the error message.
+    """
+    tail = collections.deque(maxlen=_FFMPEG_STDERR_TAIL_LINES)
     while p.stderr:
-        buff = p.stderr.readline().decode('utf-8').rstrip('\n')
-        chatter += buff
-        if buff.endswith("\r"):
-            if _config.verboseOutput:
-                print(chatter.strip())
-            elif chatter.find("frame=") > 0 \
-                    or chatter.lower().find("stream") > 0:
-                print(chatter.strip())
-            elif chatter.lower().find("error") > 0 \
-                    or chatter.lower().find("could not") > 0 \
-                    or chatter.lower().find("unknown") > 0 \
-                    or chatter.lower().find("invalid") > 0 \
-                    or chatter.lower().find("trailing options") > 0 \
-                    or chatter.lower().find("cannot") > 0 \
-                    or chatter.lower().find("can't") > 0 \
-                    or chatter.lower().find("no ") > 0:
-                print_and_log("error", chatter.strip())
-            chatter = ""
-        if len(buff) == 0:
+        raw = p.stderr.readline()
+        if len(raw) == 0:  # EOF, note that a blank line is "\n" and must not stop us
             break
-    return p
+        # a run of progress updates arrives as a single '\r'-separated read, keep it
+        # as one line so the console output stays as compact as it was before.
+        chatter = raw.decode('utf-8', errors='replace').rstrip('\r\n').strip()
+        if len(chatter) == 0:
+            continue
+
+        tail.append(chatter)
+        lowered = chatter.lower()
+        if _config.verboseOutput:
+            print(chatter)
+        elif chatter.find("frame=") >= 0 \
+                or lowered.find("stream") >= 0:
+            print(chatter)
+        elif lowered.find("error") >= 0 \
+                or lowered.find("could not") >= 0 \
+                or lowered.find("unknown") >= 0 \
+                or lowered.find("unrecognized") >= 0 \
+                or lowered.find("invalid") >= 0 \
+                or lowered.find("trailing options") >= 0 \
+                or lowered.find("cannot") >= 0 \
+                or lowered.find("can't") >= 0 \
+                or lowered.find("no ") >= 0:
+            print_and_log("error", chatter)
+    return p, "\n".join(tail)
 
 
 # Issue 1109
@@ -1213,7 +1300,8 @@ def check_image_encoding(directory: str) -> None:
     """
     nb_channel_max = 4
     dict_of_components = dict()
-    for i in range(nb_channel_max):
+    # an image has between 1 (L) and 4 (RGBA) bands, so the buckets are 1..nb_channel_max
+    for i in range(1, nb_channel_max + 1):
         dict_of_components[i] = list()
 
     # Append every images to their corresponding number of bit depth in a dictionnary
@@ -1222,32 +1310,38 @@ def check_image_encoding(directory: str) -> None:
         # checking if it is a file
         if ((os.path.isfile(f)) and (f.endswith((".jpg", ".png")))):
             fp = None
+            nb_components = 0
             try:
                 fp = open(f, "rb")
                 # Fix Issue #269, refer to https://stackoverflow.com/a/42682508
                 ImageFile.LOAD_TRUNCATED_IMAGES = True
                 with Image.open(fp) as im:
                     nb_components = len(im.getbands())
-                    dict_of_components[nb_components].append(f)
                     im.close()
             except BaseException:
                 if fp is not None:
                     fp.close()
-                print_and_log('error', ' Image {f} invalid during check_image_encoding() , deleting...')
+                print_and_log('error', f' Image {f} invalid during check_image_encoding() , deleting...')
                 os.remove(f)
                 raise
+
+            # bucketing is kept out of the try block, a miscounted band must not be
+            # mistaken for a corrupt image and get the frame deleted.
+            if nb_components in dict_of_components:
+                dict_of_components[nb_components].append(f)
+            else:
+                print_and_log('warn', f' Image {f} has an unexpected number of components ({nb_components}), skipping it during check_image_encoding()')
 
     # Get the maximum amount of component of bit depth from the batch of images and convert thoses below it
     re_encode = False
     re_encode_channel = nb_channel_max
     for i in range(nb_channel_max, 0, -1):
         if re_encode:
-            for file in dict_of_components[i - 1]:
+            for file in dict_of_components[i]:
                 re_encode_image(re_encode_channel, file)
-
-        if (len(dict_of_components[i - 1]) != 0) and not (re_encode):
+        elif len(dict_of_components[i]) != 0:
             re_encode = True
-            re_encode_channel = i - 1
+            re_encode_channel = i
 
 
 def re_encode_image(nb_channel: int, im_path: str) -> None:
@@ -1262,7 +1356,7 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
     split_tup = os.path.splitext(im_path)
     temp_name = f"{split_tup[0]}_temp{split_tup[1]}"
     # Fix #1126
-    cmd = f"{_config.ffmpeg} -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
+    cmd = f"{_config.ffmpeg} -hide_banner -i {im_path} -pix_fmt {pix_fmt_nb_components[nb_channel]} {temp_name}"
 
     ffmpeg_args = shlex.split(cmd, posix=False)
     get_logger().info(f"[re_encode_image()] running with cmd: {cmd}")
@@ -1270,11 +1364,14 @@ def re_encode_image(nb_channel: int, im_path: str) -> None:
 
     # progress report
     print_and_log('debug', f"Start re_encoding image {im_path}")
-    p = ffmpeg_progress_report(p)
+    p, stderr_tail = ffmpeg_progress_report(p)
     p.wait()
 
     if (p.returncode != 0):
-        raise PixivException("error", f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0.", errorCode=PixivException.OTHER_ERROR)
+        msg = f"Failed when converting image using {cmd} ==> ffmpeg return exit code={p.returncode}, expected to return 0."
+        if len(stderr_tail) > 0:
+            msg += f"\nffmpeg output:\n{stderr_tail}"
+        raise PixivException(msg, errorCode=PixivException.OTHER_ERROR)
 
     if os.path.exists(im_path) and os.path.exists(temp_name):
         try:
