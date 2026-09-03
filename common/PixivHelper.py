@@ -88,13 +88,32 @@ def get_logger(level=None, reload=False):
                 if _config is not None:
                     level = _config.logLevel
             __logger.setLevel(level)
+
+            # logging.getLogger() returns a singleton per name, so on reload the
+            # handlers from the previous setup are still attached. Drop them first,
+            # otherwise every record is written once per call to get_logger(reload=True).
+            for handler in __logger.handlers[:]:
+                __logger.removeHandler(handler)
+                handler.close()
+
+            __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
+
             __logHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_LOG_FILE,
                                                                   maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
                                                                   backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
                                                                   encoding="utf-8")
-            __formatter__ = logging.Formatter(PixivConstant.PIXIVUTIL_LOG_FORMAT)
             __logHandler__.setFormatter(__formatter__)
             __logger.addHandler(__logHandler__)
+
+            # second handler: warnings and errors only, so a failed run can be
+            # reviewed without digging through the full DEBUG transcript.
+            __errorLogHandler__ = logging.handlers.RotatingFileHandler(script_path + os.sep + PixivConstant.PIXIVUTIL_ERROR_LOG_FILE,
+                                                                       maxBytes=PixivConstant.PIXIVUTIL_LOG_SIZE,
+                                                                       backupCount=PixivConstant.PIXIVUTIL_LOG_COUNT,
+                                                                       encoding="utf-8")
+            __errorLogHandler__.setLevel(logging.WARNING)
+            __errorLogHandler__.setFormatter(__formatter__)
+            __logger.addHandler(__errorLogHandler__)
     return __logger
 
 

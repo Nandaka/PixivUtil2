@@ -491,6 +491,11 @@ Please refer run with `--help` for latest information.
 - logLevel
 
   Set log level, valid values are CRITICAL, ERROR, WARNING, INFO, DEBUG, and NOTSET
+
+  Two log files are written next to the application: `pixivutil.log` with everything
+  at the configured level, and `pixivutil_error.log` with only warnings and errors,
+  so a failed run can be reviewed without searching the full log. Both rotate at
+  10MB, keeping 10 backups, and both are suppressed by `disableLog`.
 - enableDump
 
   Enable HTML Dump. Set to False to disable.
