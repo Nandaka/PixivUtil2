@@ -7,6 +7,21 @@ from bs4 import BeautifulSoup
 from common.PixivException import PixivException
 
 
+def get_original_avatar_url(url):
+    '''Strip the size suffix from an avatar url to get the original image.
+
+    Issue #1508: an animated gif avatar only keeps its frames in the resized
+    variants, the unsuffixed original is a single static frame. Fall back to
+    the largest animated size (_170) for gif, the size suffix is still
+    stripped for every other format.
+    '''
+    if url is None:
+        return url
+    if url.lower().endswith(".gif"):
+        return url.replace("_50.", "_170.")
+    return url.replace("_50.", ".").replace("_170.", ".")
+
+
 class PixivArtist:
     '''Class for parsing member page.'''
 
@@ -97,7 +112,7 @@ class PixivArtist:
 
                         avatar_data = data["user"]["profile_image_urls"]
                         if avatar_data is not None and "medium" in avatar_data:
-                            self.artistAvatar = avatar_data["medium"].replace("_170", "")
+                            self.artistAvatar = get_original_avatar_url(avatar_data["medium"])
 
                 if "profile" in page:
                     if self.totalImages == 0:
@@ -112,7 +127,7 @@ class PixivArtist:
         root = page
 
         self.artistId = root["userId"]
-        self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")
+        self.artistAvatar = get_original_avatar_url(root["image"])
         self.artistName = root["name"]
 
         if root["background"] is not None:
@@ -134,9 +149,9 @@ class PixivArtist:
             self.artistId = root["userId"]
             self.artistName = root["name"]
             if "imageBig" in root and root["imageBig"] is not None:
-                self.artistAvatar = payload["body"]["imageBig"].replace("_50.", ".").replace("_170.", ".")
+                self.artistAvatar = get_original_avatar_url(payload["body"]["imageBig"])
             elif "image" in root and root["image"] is not None:
-                self.artistAvatar = root["image"].replace("_50.", ".").replace("_170.", ".")
+                self.artistAvatar = get_original_avatar_url(root["image"])
 
             # https://www.pixiv.net/ajax/user/1893126
             if "background" in root and root["background"] is not None:
