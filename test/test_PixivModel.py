@@ -6,7 +6,7 @@ import unittest
 
 import common.PixivConstant as PixivConstant
 # import PixivHelper
-from model.PixivArtist import PixivArtist
+from model.PixivArtist import PixivArtist, get_original_avatar_url
 from model.PixivBookmark import PixivBookmark, PixivNewIllustBookmark
 from common.PixivBrowserFactory import PixivBrowser
 from common.PixivException import PixivException
@@ -106,6 +106,50 @@ class TestPixivArtist(unittest.TestCase):
     #     # self.assertEqual(artist.artistToken, 'nandaka')
     #     self.assertGreaterEqual(artist.totalImages, 1)
     #     self.assertIn(65079382, artist.imageList)
+
+    # Issue #1508
+    def testGetOriginalAvatarUrlStatic(self):
+        base = "https://i.pximg.net/user-profile/img/2018/01/01/00/00/00/11223344_0123456789abcdef"
+        # the unsuffixed original is the biggest version for a static avatar
+        self.assertEqual(get_original_avatar_url(f"{base}_50.jpg"), f"{base}.jpg")
+        self.assertEqual(get_original_avatar_url(f"{base}_170.jpg"), f"{base}.jpg")
+        self.assertEqual(get_original_avatar_url(f"{base}_170.png"), f"{base}.png")
+        self.assertEqual(get_original_avatar_url(f"{base}.png"), f"{base}.png")
+
+    # Issue #1508
+    def testGetOriginalAvatarUrlAnimatedGif(self):
+        base = "https://i.pximg.net/user-profile/img/2018/01/01/00/00/00/11223344_0123456789abcdef"
+        # the unsuffixed original of a gif avatar is a single static frame,
+        # _170 is the biggest one that keeps the animation.
+        self.assertEqual(get_original_avatar_url(f"{base}_50.gif"), f"{base}_170.gif")
+        self.assertEqual(get_original_avatar_url(f"{base}_170.gif"), f"{base}_170.gif")
+        self.assertEqual(get_original_avatar_url(f"{base}_170.GIF"), f"{base}_170.GIF")
+
+    def testGetOriginalAvatarUrlNone(self):
+        self.assertIsNone(get_original_avatar_url(None))
+
+    # Issue #1508
+    def testParseBackgroundKeepAnimatedAvatar(self):
+        base = "https://i.pximg.net/user-profile/img/2018/01/01/00/00/00/11223344_0123456789abcdef"
+        payload = {"body": {"userId": "11223344",
+                            "name": "example_user",
+                            "image": f"{base}_50.gif",
+                            "imageBig": f"{base}_170.gif",
+                            "background": None}}
+        artist = PixivArtist(11223344)
+        artist.ParseBackground(payload)
+        self.assertEqual(artist.artistAvatar, f"{base}_170.gif")
+
+    def testParseBackgroundStaticAvatar(self):
+        base = "https://i.pximg.net/user-profile/img/2018/01/01/00/00/00/11223344_0123456789abcdef"
+        payload = {"body": {"userId": "11223344",
+                            "name": "example_user",
+                            "image": f"{base}_50.jpg",
+                            "imageBig": f"{base}_170.jpg",
+                            "background": None}}
+        artist = PixivArtist(11223344)
+        artist.ParseBackground(payload)
+        self.assertEqual(artist.artistAvatar, f"{base}.jpg")
 
 
 class TestPixivImage(unittest.TestCase):
