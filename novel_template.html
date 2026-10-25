@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <meta charset="utf-8">
     <style>
         .content {
             color: rgb(31, 31, 31);
@@ -161,15 +162,76 @@
         word-break: break-all;
         -webkit-font-smoothing: antialiased;
     }
+        .cover img{
+            display: block;
+            max-width: 100%;
+            max-height: 600px;
+            margin-bottom: 16px;
+        }
+        .content img{
+            display: block;
+            max-width: 100%;
+            margin: 16px auto;
+        }
+        .content .chapter{
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 32px;
+            margin: 32px 0 16px 0;
+        }
+        .content .newpage{
+            border: none;
+            border-top: 1px dashed rgb(173, 173, 173);
+            margin: 32px 0;
+        }
     </style>
     <title>%title%</title>
     <script>
 data = %novel_json_str%;
+images = %novel_images_json%;
     </script>
     <script>
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function imageTag(key, link, alt) {
+    // an image downloaded into the page, else a link to it on pixiv
+    if (images[key]) {
+        return "<img src=\"" + images[key] + "\" alt=\"" + alt + "\">";
+    }
+    return "<a href=\"" + link + "\">[" + alt + "]</a>";
+}
+
+function renderMarkup(text) {
+    // pixiv's novel markup, in the escaped text
+    let html = escapeHtml(text);
+    let page = 1;
+    html = html.replace(/\[newpage\]/g, function () {
+        page = page + 1;
+        return "<hr class=\"newpage\" id=\"page-" + page + "\">";
+    });
+    html = html.replace(/\[chapter:(.*?)\]/g, "<span class=\"chapter\">$1</span>");
+    html = html.replace(/\[\[rb:(.*?)\s*&gt;\s*(.*?)\]\]/g, "<ruby>$1<rt>$2</rt></ruby>");
+    html = html.replace(/\[\[jumpuri:(.*?)\s*&gt;\s*(https?:\/\/[^\]\s]+)\s*\]\]/g, "<a href=\"$2\">$1</a>");
+    html = html.replace(/\[jump:(\d+)\]/g, "<a href=\"#page-$1\">page $1</a>");
+    html = html.replace(/\[b:(.*?)\]/g, "<b>$1</b>");
+    html = html.replace(/\[uploadedimage:(\d+)\]/g, function (m, id) {
+        return imageTag("uploaded-" + id, "https://www.pixiv.net/novel/show.php?id=" + data["body"]["id"], "image " + id);
+    });
+    html = html.replace(/\[pixivimage:(\d+)(?:-(\d+))?\]/g, function (m, id, p) {
+        return imageTag("pixiv-" + id + "-" + (p || "1"), "https://www.pixiv.net/artworks/" + id, "pixiv " + id + (p ? "-" + p : ""));
+    });
+    return html;
+}
+
 function render() {
     let content_div = document.getElementById("content");
-    content_div.innerHTML = data["body"]["content"];
+    content_div.innerHTML = renderMarkup(data["body"]["content"]);
+    let cover = document.getElementById("cover");
+    if (images["cover"]) {
+        cover.innerHTML = "<img src=\"" + images["cover"] + "\" alt=\"cover\">";
+    }
     let title = document.getElementById("title");
     title.innerHTML = data["body"]["title"];
     let desc = document.getElementById("desc");
@@ -187,6 +249,9 @@ function render() {
     tags.innerHTML = tag_list;
 
     let series_info = document.getElementById("series_info");
+    if (!data["body"]["seriesNavData"]) {
+        return;
+    }
     let series_id = data["body"]["seriesNavData"]["seriesId"]
     let series_name = data["body"]["seriesNavData"]["title"]
     let series_order = data["body"]["seriesNavData"]["order"]
@@ -197,13 +262,14 @@ function render() {
 </head>
 
 <body onload="render()">
+    <div id="cover" class="cover"></div>
     <div id="series_info" class="series"></div>
     <div id="title" class="title"></div>
     <div id="desc" class="desc"></div>
     <div id="workdate" class="workdate"></div>
     <div id="tags" class="tags"></div>
     <hr />
-    <pre id="content" class='content'>
+    <pre id="content" class='content'></pre>
 </body>
 
 </html>

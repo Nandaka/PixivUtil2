@@ -213,12 +213,16 @@ def menu_download_by_member_id(opisvalid, args, options):
     page = 1
     end_page = 0
     include_sketch = False
+    include_novel = False
     member_ids = list()
 
     if opisvalid and len(args) > 0:
         include_sketch = options.include_sketch
         if include_sketch:
             print("Including Pixiv Sketch.")
+        include_novel = options.include_novel
+        if include_novel:
+            print("Including novels.")
 
         (page, end_page) = get_start_and_end_page_from_options(options)
 
@@ -242,6 +246,8 @@ def menu_download_by_member_id(opisvalid, args, options):
             include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
             if include_sketch_ask.lower() == 'y':
                 include_sketch = True
+        include_novel_ask = input('Include novels [y/n, default is no]? ').rstrip("\r") or 'n'
+        include_novel = include_novel_ask.lower() == 'y'
 
         member_ids = PixivHelper.get_ids_from_csv(member_ids)
         PixivHelper.print_and_log('info', f"Member IDs: {member_ids}")
@@ -266,6 +272,11 @@ def menu_download_by_member_id(opisvalid, args, options):
                                                             page,
                                                             end_page,
                                                             title_prefix=prefix)
+            if include_novel:
+                PixivNovelHandler.process_member_novels(sys.modules[__name__],
+                                                        __config__,
+                                                        member_id,
+                                                        title_prefix=prefix)
 
             current_member = current_member + 1
         except PixivException as ex:
@@ -576,11 +587,13 @@ def menu_download_from_list(opisvalid, args, options):
     global op
     global __config__
     include_sketch = False
+    include_novel = False
 
     list_file_name = __config__.downloadListDirectory + os.sep + 'list.txt'
     tags = None
     if opisvalid:
         include_sketch = options.include_sketch
+        include_novel = options.include_novel
         list_file_name = get_list_file_from_options(options, list_file_name)
         # get one tag from input parameter
         if len(args) > 0:
@@ -590,6 +603,8 @@ def menu_download_from_list(opisvalid, args, options):
         include_sketch_ask = input('Include Pixiv Sketch [y/n, default is no]? ').rstrip("\r") or 'n'
         if include_sketch_ask.lower() == 'y':
             include_sketch = True
+        include_novel_ask = input('Include novels [y/n, default is no]? ').rstrip("\r") or 'n'
+        include_novel = include_novel_ask.lower() == 'y'
         if len(test_tags) > 0:
             tags = test_tags
 
@@ -597,7 +612,8 @@ def menu_download_from_list(opisvalid, args, options):
                                   __config__,
                                   list_file_name=list_file_name,
                                   tags=tags,
-                                  include_sketch=include_sketch)
+                                  include_sketch=include_sketch,
+                                  include_novel=include_novel)
 
 
 def menu_download_from_online_user_bookmark(opisvalid, args, options):
@@ -782,7 +798,10 @@ def menu_download_by_manga_series_id(opisvalid, args, options):
 
 def menu_download_by_novel_id(opisvalid, args, options):
     __log__.info('Novel mode (14).')
-    novel_ids = input('Novel IDs: ').rstrip("\r")
+    if opisvalid and len(args) > 0:
+        novel_ids = ",".join(args)
+    else:
+        novel_ids = input('Novel IDs: ').rstrip("\r")
     novel_ids = PixivHelper.get_ids_from_csv(novel_ids)
     PixivHelper.print_and_log('info', f"Novel IDs: {novel_ids}")
 
@@ -797,8 +816,12 @@ def menu_download_by_novel_series_id(opisvalid, args, options):
     start_page = 1
     end_page = 0
 
-    novel_series_ids = input('Novel Series IDs: ').rstrip("\r")
-    (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
+    if opisvalid and len(args) > 0:
+        novel_series_ids = ",".join(args)
+        (start_page, end_page) = get_start_and_end_page_from_options(options)
+    else:
+        novel_series_ids = input('Novel Series IDs: ').rstrip("\r")
+        (start_page, end_page) = PixivHelper.get_start_and_end_number(total_number_of_page=options.number_of_pages)
     novel_series_ids = PixivHelper.get_ids_from_csv(novel_series_ids)
     PixivHelper.print_and_log('info', f"Novel Series IDs: {novel_series_ids}")
 
@@ -1393,6 +1416,8 @@ def setup_option_parser():
 10 - Download by Tag and Member Id                  \n
 11 - Download images from Member Bookmark           \n
 12 - Download images by Group Id                    \n
+14 - Download by novel id                           \n
+15 - Download by novel series id                    \n
 m1 - Metadata by member_id                          \n
 m2 - Metadata by image_id                           \n
 m3 - Metadata by manga series id                    \n
@@ -1450,6 +1475,11 @@ See get_start_and_end_page_from_options()''')
                       default=False,
                       action='store_true',
                       help='''Include Pixiv Sketch when processing member id (1). Default is False.''')
+    parser.add_option('--in', '--include_novel',
+                      dest='include_novel',
+                      default=False,
+                      action='store_true',
+                      help='''Include the member's novels when processing member id (1) or a list (4). Default is False.''')
     parser.add_option('--wt', '--use_wildcard_tag',
                       dest='use_wildcard_tag',
                       default=False,

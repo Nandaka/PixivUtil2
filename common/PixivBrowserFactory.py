@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0603, C0325
 
+import base64
 import http.client
 import http.cookiejar
 import json
+import mimetypes
 import re
 import socket
 import sys
@@ -29,7 +31,7 @@ from model.PixivBookmark import PixivNewIllustBookmark
 from model.PixivImage import PixivImage, PixivMangaSeries
 from model.PixivModelFanbox import FanboxArtist, FanboxPost
 from model.PixivModelSketch import SketchArtist, SketchPost
-from model.PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel
+from model.PixivNovel import MAX_LIMIT, NovelSeries, PixivNovel, cover_urls
 from model.PixivRanking import PixivNewIllust, PixivRanking
 from model.PixivTags import PixivTag, PixivTags
 
@@ -1347,6 +1349,64 @@ class PixivBrowser(mechanize.Browser):
         (artist, _) = self.getMemberPage(novel.artist_id)
         novel.artist = artist
         return novel
+
+    def getNovelImages(self, novel: PixivNovel, referer="https://www.pixiv.net/") -> dict:
+        '''The novel's cover, its uploaded images and the illustrations it
+        shows, as data URIs keyed as novel_template.html looks them up:
+        cover, uploaded-<id>, pixiv-<illust id>-<page>. An image that
+        cannot be had is left out, and the page links to it instead.'''
+        images = dict()
+        for url in cover_urls(novel.coverUrl):
+            data = self.getImageAsDataUri(url, referer, quiet=True)
+            if data is not None:
+                images["cover"] = data
+                break
+        for image_id, url in novel.embeddedImages.items():
+            data = self.getImageAsDataUri(url, referer)
+            if data is not None:
+                images[f"uploaded-{image_id}"] = data
+        for illust_id, page in novel.pixivImages:
+            url = self.getIllustPageUrl(illust_id, page)
+            data = self.getImageAsDataUri(url, referer) if url else None
+            if data is not None:
+                images[f"pixiv-{illust_id}-{page}"] = data
+        return images
+
+    def getImageAsDataUri(self, url, referer="https://www.pixiv.net/", quiet=False):
+        ''' An image as a data URI, or None when it cannot be had.'''
+        req = mechanize.Request(url)
+        req.add_header('Referer', referer)
+        try:
+            res = self.open_with_retry(req)
+            data = res.read()
+            content_type = res.info().get("Content-Type") or ""
+            res.close()
+        except (HTTPError, PixivException) as ex:
+            if not quiet:
+                PixivHelper.print_and_log('warn', f'Cannot get novel image {url}: {ex}')
+            return None
+        if not content_type.startswith("image/"):
+            content_type = mimetypes.guess_type(url.split("?")[0])[0] or "image/jpeg"
+        return f"data:{content_type};base64,{base64.b64encode(data).decode('ascii')}"
+
+    def getIllustPageUrl(self, illust_id, page):
+        ''' The original image URL of an illustration's page (from 1), or None.'''
+        url = f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=en"
+        try:
+            pages = json.loads(self.getPixivPage(url, enable_cache=False))["body"]
+        except (PixivException, ValueError, KeyError) as ex:
+            PixivHelper.print_and_log('warn', f'Cannot get pages of illust {illust_id}: {ex}')
+            return None
+        if not isinstance(pages, list) or not 0 < page <= len(pages):
+            return None
+        return pages[page - 1]["urls"]["original"]
+
+    def getMemberNovelIds(self, member_id) -> List[int]:
+        ''' The member's novel ids, newest first.'''
+        url = f"https://www.pixiv.net/ajax/user/{member_id}/profile/all?lang=en"
+        body = json.loads(self.getPixivPage(url, enable_cache=False))["body"]
+        novels = body.get("novels") or {}
+        return sorted((int(novel_id) for novel_id in novels), reverse=True)
 
     def getNovelSeries(self, novel_series_id) -> NovelSeries:
         locale = ""
