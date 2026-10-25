@@ -31,7 +31,7 @@ class PixivDBManager(object):
         else:
             PixivHelper.print_and_log("info", "Using custom DB Path: " + target)
         self.rootDirectory = root_directory
-        self.conn = sqlite3.connect(target, timeout)
+        self.conn = sqlite3.connect(target, timeout=timeout)
 
     def close(self):
         self.conn.close()
