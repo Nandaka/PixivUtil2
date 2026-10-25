@@ -1930,7 +1930,8 @@ def main():
         PixivHelper.print_and_log("error", f"Unknown Error, please check the log file: {sys.exc_info()}")
         ERROR_CODE = getattr(ex, 'errorCode', -1)
     finally:
-        __dbManager__.close()
+        if __dbManager__ is not None:
+            __dbManager__.close()
         if not ewd:  # Yavos: prevent input on exit_when_done
             if selection is None or selection != 'x':
                 input('press enter to exit.').rstrip("\r")
