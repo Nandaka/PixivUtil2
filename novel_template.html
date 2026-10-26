@@ -115,7 +115,7 @@
             text-size-adjust: 100%;
             -webkit-font-smoothing: antialiased;
         }
-        .tag ul{
+        .tags ul{
             color: rgb(173, 173, 173);
             display: block;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
@@ -139,11 +139,12 @@
             word-break: break-all;
             -webkit-font-smoothing: antialiased;
         }
-    .tag li{
+    .tags li{
         background-color: rgba(0, 0, 0, 0);
         color: rgb(61, 118, 153);
         cursor: pointer;
         display: inline;
+        margin-right: 12px;
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
         font-kerning: normal;
         font-size: 14px;
@@ -184,8 +185,10 @@
             border-top: 1px dashed rgb(173, 173, 173);
             margin: 32px 0;
         }
-        /* a clicked image at its own size; clicked again, fitted */
-        .cover img, .content img{
+        /* a clicked image at its own size; clicked again, fitted. Only an
+           image shown smaller than its own size can be enlarged
+           (markZoomable) */
+        .cover img.zoomable, .content img.zoomable{
             cursor: zoom-in;
         }
         .cover img.full, .content img.full{
@@ -211,6 +214,7 @@
         /* dark mode: the light colours above, turned */
         html[data-theme="dark"] body{
             background: rgb(24, 24, 24);
+            color: rgb(220, 220, 220);
         }
         html[data-theme="dark"] .content,
         html[data-theme="dark"] .title{
@@ -221,10 +225,10 @@
             color: rgb(170, 170, 170);
         }
         html[data-theme="dark"] .workdate,
-        html[data-theme="dark"] .tag ul{
+        html[data-theme="dark"] .tags ul{
             color: rgb(130, 130, 130);
         }
-        html[data-theme="dark"] .tag li,
+        html[data-theme="dark"] .tags li,
         html[data-theme="dark"] a{
             color: rgb(110, 170, 210);
         }
@@ -281,13 +285,26 @@ function toggleTheme() {
     document.getElementById("theme").textContent = dark ? "Light" : "Dark";
 }
 
+function markZoomable() {
+    // zoomable: a fitted image shown smaller than its own size
+    document.querySelectorAll(".cover img, .content img").forEach(img => {
+        if (!img.classList.contains("full")) {
+            img.classList.toggle("zoomable",
+                img.naturalWidth > img.clientWidth || img.naturalHeight > img.clientHeight);
+        }
+    });
+}
+
 function render() {
     document.getElementById("theme").textContent =
         document.documentElement.getAttribute("data-theme") === "dark" ? "Light" : "Dark";
-    // a click on an image shows it at its own size, another fits it again
+    // a click on a zoomable image shows it at its own size, another fits it again
     document.addEventListener("click", function (event) {
-        if (event.target.tagName === "IMG") {
-            event.target.classList.toggle("full");
+        let img = event.target;
+        if (img.tagName === "IMG" && (img.classList.contains("zoomable") || img.classList.contains("full"))) {
+            img.classList.toggle("full");
+            img.classList.remove("zoomable");
+            markZoomable();
         }
     });
     let content_div = document.getElementById("content");
@@ -296,6 +313,11 @@ function render() {
     if (images["cover"]) {
         cover.innerHTML = "<img src=\"" + images["cover"] + "\" alt=\"cover\">";
     }
+    document.querySelectorAll(".cover img, .content img").forEach(img => {
+        img.addEventListener("load", markZoomable);
+    });
+    window.addEventListener("resize", markZoomable);
+    markZoomable();
     let title = document.getElementById("title");
     title.innerHTML = data["body"]["title"];
     let desc = document.getElementById("desc");
