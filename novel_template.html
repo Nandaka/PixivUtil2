@@ -316,7 +316,8 @@ function countsTag(body) {
     let words = body["useWordCount"] && body["wordCount"];
     let count = words ? body["wordCount"] : (body["characterCount"] || body["content"].length);
     let seconds = body["readingTime"] || body["content"].length * 60 / 500;
-    let minutes = Math.max(1, Math.round(seconds / 60));
+    // whole minutes, rounded down as pixiv shows them (464 s: 7分)
+    let minutes = Math.max(1, Math.floor(seconds / 60));
     return "<span class=\"counts\"><span>" + count.toLocaleString("en-US") +
         (words ? "単語" : "文字") + "</span><span>" + minutes + "分</span></span>";
 }
