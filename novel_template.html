@@ -112,8 +112,18 @@
             font-kerning: normal;
             font-size: 12px;
             line-height: 12px;
+            margin-top: 8px;
             text-size-adjust: 100%;
             -webkit-font-smoothing: antialiased;
+        }
+        .workdate .counts{
+            margin-left: 16px;
+        }
+        .workdate .counts span + span{
+            margin-left: 8px;
+        }
+        .tags{
+            margin-top: 8px;
         }
         .tags ul{
             color: rgb(173, 173, 173);
@@ -144,7 +154,6 @@
         color: rgb(61, 118, 153);
         cursor: pointer;
         display: inline;
-        margin-right: 12px;
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
         font-kerning: normal;
         font-size: 14px;
@@ -163,6 +172,18 @@
         word-break: break-all;
         -webkit-font-smoothing: antialiased;
     }
+        .tags li a{
+            color: inherit;
+            text-decoration: none;
+        }
+        .tags li a:hover{
+            text-decoration: underline;
+        }
+        .tags li + li::before{
+            content: "・";
+            color: rgb(31, 31, 31);
+            margin: 0 2px;
+        }
         .cover img{
             display: block;
             max-width: 100%;
@@ -232,6 +253,9 @@
         html[data-theme="dark"] a{
             color: rgb(110, 170, 210);
         }
+        html[data-theme="dark"] .tags li + li::before{
+            color: rgb(220, 220, 220);
+        }
         html[data-theme="dark"] #theme{
             background: rgb(45, 45, 45);
             color: rgb(220, 220, 220);
@@ -285,6 +309,18 @@ function toggleTheme() {
     document.getElementById("theme").textContent = dark ? "Light" : "Dark";
 }
 
+function countsTag(body) {
+    // the length and reading time pixiv shows beside the date: its own
+    // counts where the data has them, else the text's length at 500
+    // characters a minute, about pixiv's rate
+    let words = body["useWordCount"] && body["wordCount"];
+    let count = words ? body["wordCount"] : (body["characterCount"] || body["content"].length);
+    let seconds = body["readingTime"] || body["content"].length * 60 / 500;
+    let minutes = Math.max(1, Math.round(seconds / 60));
+    return "<span class=\"counts\"><span>" + count.toLocaleString("en-US") +
+        (words ? "単語" : "文字") + "</span><span>" + minutes + "分</span></span>";
+}
+
 function markZoomable() {
     // zoomable: a fitted image shown smaller than its own size
     document.querySelectorAll(".cover img, .content img").forEach(img => {
@@ -323,13 +359,15 @@ function render() {
     let desc = document.getElementById("desc");
     desc.innerHTML = data["body"]["description"];
     let workdate = document.getElementById("workdate");
-    workdate.innerHTML = data["body"]["uploadDate"];
+    workdate.innerHTML = data["body"]["uploadDate"] + countsTag(data["body"]);
 
     let tags = document.getElementById("tags");
     let tag_list = "<ul>";
     let tags_arr = data["body"]["tags"]["tags"];
     tags_arr.forEach(tag => {
-        tag_list = tag_list + "<li>" + tag["tag"] + "</li>";
+        // the tag's novel search on pixiv, as its tag links go
+        let link = "https://www.pixiv.net/tags/" + encodeURIComponent(tag["tag"]) + "/novels";
+        tag_list = tag_list + "<li><a href=\"" + link + "\">" + escapeHtml(tag["tag"]) + "</a></li>";
     });
     tag_list = tag_list + "</ul>";
     tags.innerHTML = tag_list;
