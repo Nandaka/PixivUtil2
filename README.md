@@ -252,14 +252,16 @@ Please refer run with `--help` for latest information.
                         Action you want to load your program with:
                         1 - Download by member_id
                             (required: list of member_ids separated by space
-                             optional: --include_sketch to also download Pixiv Sketch)
+                             optional: --include_sketch to also download Pixiv Sketch,
+                                       --include_novel to also download the member's novels)
                         2 - Download by image_id
                             (required: followed by image_ids separated by space)
                         3 - Download by tags
                             (required: tags
                              optional: --use_wildcard_tag, --sp=START_PAGE, and --ep=END_PAGE, --start_date, --end_date)
                         4 - Download from list
-                            (required: -f LIST_FILE and followed with optional tag)
+                            (required: -f LIST_FILE and followed with optional tag
+                             optional: --include_sketch, --include_novel)
                         5 - Download from user bookmark
                             (optional: -p BOOKMARK_FLAG [y/n/o] for private bookmark, --sp=START_PAGE, and --ep=END_PAGE)
                         6 - Download from image bookmark
@@ -283,6 +285,11 @@ Please refer run with `--help` for latest information.
                         13 - Download by Manga Series ID
                             (required: Manga Series ID separated by space
                             optional: --sp=START_PAGE, and --ep=END_PAGE)
+                        14 - Download by Novel ID
+                            (required: novel ids separated by space)
+                        15 - Download by Novel Series ID
+                            (required: novel series ids separated by space
+                             optional: --sp=START_PAGE, and --ep=END_PAGE)
                         f1 - Download from supported artists (FANBOX)
                             (optional: End Page)
                         f2 - Download by artist/creator id (FANBOX)
@@ -609,6 +616,12 @@ Please refer run with `--help` for latest information.
 - defaultSketchOption
 
   Skip the "Include Pixiv Sketch" prompt when downloading by `member_id` option by using a default option. Set the value to `y` to always include sketches or `n` to exclude sketches from the download.
+- downloadNovelImages
+
+  Download a novel's cover, the images uploaded into its text (`[uploadedimage:...]`) and the pixiv illustrations it shows (`[pixivimage:...]`), and put them into its .html as data URIs, so the page shows them without a connection. Default is `True`.
+- novelDarkMode
+
+  Make saved novel pages open in dark mode. Either way, the button at the top right of the page switches between light and dark. Default is `False`.
 
 ## [DownloadControl]
 - minFileSize
@@ -867,6 +880,9 @@ Available for filenameFormat and filenameMangaFormat:
 -> %R-18%
    Append R-18/R-18 based on image tag, can be used for creating directory
    by appending directory separator, e.g.: %R-18%\%image_id%.
+   For novels it also follows the novel's restriction, which pixiv does not
+   always tag. Empty for all-ages works; a space left before it at the end
+   of a name is dropped, e.g.: %image_id% %R-18%.
 -> %page_big%
    for manga mode, add big in the filename.
 -> %page_index%

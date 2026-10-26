@@ -3,13 +3,14 @@ import sys
 
 import handler.PixivArtistHandler as PixivArtistHandler
 import common.PixivHelper as PixivHelper
+import handler.PixivNovelHandler as PixivNovelHandler
 import handler.PixivSketchHandler as PixivSketchHandler
 import handler.PixivTagsHandler as PixivTagsHandler
 from model.PixivListItem import PixivListItem
 from model.PixivTags import PixivTags
 
 
-def process_list(caller, config, list_file_name=None, tags=None, include_sketch=False):
+def process_list(caller, config, list_file_name=None, tags=None, include_sketch=False, include_novel=False):
     db = caller.__dbManager__
     br = caller.__br__
 
@@ -82,6 +83,12 @@ def process_list(caller, config, list_file_name=None, tags=None, include_sketch=
                     retry_count = retry_count + 1
                     print(f'Something wrong, retrying after 2 second ({retry_count}) ==> {ex}')
                     PixivHelper.print_delay(2)
+
+            if include_novel:
+                PixivNovelHandler.process_member_novels(caller,
+                                                        config,
+                                                        item.memberId,
+                                                        title_prefix=f"[{current_member} of {len(result)}] ")
 
             current_member = current_member + 1
             br.clear_history()

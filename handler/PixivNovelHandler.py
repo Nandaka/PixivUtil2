@@ -12,6 +12,8 @@ def process_novel(caller,
                   config,
                   novel_id,
                   notifier=None):
+    ''' Download a novel; PIXIVUTIL_SKIP_DUPLICATE when the database
+    holds it already, else PIXIVUTIL_OK.'''
     if notifier is None:
         notifier = PixivHelper.dummy_notifier
 
@@ -23,9 +25,14 @@ def process_novel(caller,
     if db_result is not None and not config.overwrite and not config.checkLastModified and not config.alwaysCheckFileSize:
         save_name = db_result[2]  # save_name
         PixivHelper.print_and_log('warn', f"Novel already downloaded : {save_name}")
-        return
+        return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
     novel = caller.__br__.getNovelPage(novel_id)
+    novel.theme = "dark" if config.novelDarkMode else "light"
+    if config.downloadNovelImages:
+        novel.images = caller.__br__.getNovelImages(novel)
+        PixivHelper.print_and_log(None, f"Images : {len(novel.images)} of {1 + len(novel.embeddedImages) + len(novel.pixivImages)}"
+                                        " (the cover, uploaded and pixiv images)")
     PixivHelper.print_and_log(None, f"Title : {novel.imageTitle}")
     PixivHelper.print_and_log(None, f'Member Name  : {novel.artist.artistName}')
     PixivHelper.print_and_log(None, f'Member Avatar: {novel.artist.artistAvatar}')
@@ -58,7 +65,7 @@ def process_novel(caller,
             remote_timestamp = time.mktime(novel.worksDateDateTime.timetuple())
             if local_timestamp == remote_timestamp:
                 PixivHelper.print_and_log('warn', f"\rLocal file timestamp match with remote: {filename} => {novel.worksDateDateTime}")
-                return
+                return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
         if config.alwaysCheckFileSize:
             temp_filename = filename + ".!tmp"
             novel.write_content(temp_filename)
@@ -79,6 +86,36 @@ def process_novel(caller,
     caller.__dbManager__.insertNovelPost(novel, filename)
 
     print()
+    return PixivConstant.PIXIVUTIL_OK
+
+
+def process_member_novels(caller,
+                          config,
+                          member_id,
+                          title_prefix="",
+                          notifier=None):
+    ''' Download a member's novels, newest first. As for the member's
+    images, the walk stops after checkUpdatedLimit novels the database
+    holds already (0: never).'''
+    msg = Fore.YELLOW + Style.NORMAL + f'{title_prefix}Processing novels of member id: {member_id}' + Style.RESET_ALL
+    PixivHelper.print_and_log('info', msg)
+    try:
+        novel_ids = caller.__br__.getMemberNovelIds(member_id)
+    except Exception as ex:
+        PixivHelper.print_and_log('error', f"Cannot get the novels of member id {member_id}: {ex}")
+        return
+    PixivHelper.print_and_log(None, f"Novels: {len(novel_ids)}")
+
+    known = 0
+    for novel_id in novel_ids:
+        result = process_novel(caller, config, novel_id, notifier=notifier)
+        if result == PixivConstant.PIXIVUTIL_SKIP_DUPLICATE:
+            known = known + 1
+            if config.checkUpdatedLimit != 0 and known >= config.checkUpdatedLimit:
+                PixivHelper.print_and_log(None, f"Skipping the rest of member {member_id}'s novels.")
+                return
+        else:
+            PixivHelper.wait(result, config)
 
 
 def process_novel_series(caller,

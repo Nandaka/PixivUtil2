@@ -1,6 +1,7 @@
-<html>
+<html data-theme="%novel_theme%">
 
 <head>
+    <meta charset="utf-8">
     <style>
         .content {
             color: rgb(31, 31, 31);
@@ -111,10 +112,20 @@
             font-kerning: normal;
             font-size: 12px;
             line-height: 12px;
+            margin-top: 8px;
             text-size-adjust: 100%;
             -webkit-font-smoothing: antialiased;
         }
-        .tag ul{
+        .workdate .counts{
+            margin-left: 16px;
+        }
+        .workdate .counts span + span{
+            margin-left: 8px;
+        }
+        .tags{
+            margin-top: 8px;
+        }
+        .tags ul{
             color: rgb(173, 173, 173);
             display: block;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
@@ -138,7 +149,7 @@
             word-break: break-all;
             -webkit-font-smoothing: antialiased;
         }
-    .tag li{
+    .tags li{
         background-color: rgba(0, 0, 0, 0);
         color: rgb(61, 118, 153);
         cursor: pointer;
@@ -161,32 +172,211 @@
         word-break: break-all;
         -webkit-font-smoothing: antialiased;
     }
+        .tags li a{
+            color: inherit;
+            text-decoration: none;
+        }
+        .tags li a:hover{
+            text-decoration: underline;
+        }
+        .tags li + li::before{
+            content: "・";
+            color: rgb(31, 31, 31);
+            margin: 0 2px;
+        }
+        .cover img{
+            display: block;
+            max-width: 100%;
+            max-height: 600px;
+            margin-bottom: 16px;
+        }
+        .content img{
+            display: block;
+            max-width: 100%;
+            margin: 16px auto;
+        }
+        .content .chapter{
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 32px;
+            margin: 32px 0 16px 0;
+        }
+        .content .newpage{
+            border: none;
+            border-top: 1px dashed rgb(173, 173, 173);
+            margin: 32px 0;
+        }
+        /* a clicked image at its own size; clicked again, fitted. Only an
+           image shown smaller than its own size can be enlarged
+           (markZoomable) */
+        .cover img.zoomable, .content img.zoomable{
+            cursor: zoom-in;
+        }
+        .cover img.full, .content img.full{
+            max-width: none;
+            max-height: none;
+            cursor: zoom-out;
+        }
+        body{
+            overflow-x: auto;
+        }
+        #theme{
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid rgb(173, 173, 173);
+            border-radius: 4px;
+            background: rgb(245, 245, 245);
+            color: rgb(31, 31, 31);
+        }
+        /* dark mode: the light colours above, turned */
+        html[data-theme="dark"] body{
+            background: rgb(24, 24, 24);
+            color: rgb(220, 220, 220);
+        }
+        html[data-theme="dark"] .content,
+        html[data-theme="dark"] .title{
+            color: rgb(220, 220, 220);
+        }
+        html[data-theme="dark"] .series,
+        html[data-theme="dark"] .desc{
+            color: rgb(170, 170, 170);
+        }
+        html[data-theme="dark"] .workdate,
+        html[data-theme="dark"] .tags ul{
+            color: rgb(130, 130, 130);
+        }
+        html[data-theme="dark"] .tags li,
+        html[data-theme="dark"] a{
+            color: rgb(110, 170, 210);
+        }
+        html[data-theme="dark"] .tags li + li::before{
+            color: rgb(220, 220, 220);
+        }
+        html[data-theme="dark"] #theme{
+            background: rgb(45, 45, 45);
+            color: rgb(220, 220, 220);
+            border-color: rgb(90, 90, 90);
+        }
     </style>
     <title>%title%</title>
     <script>
 data = %novel_json_str%;
+images = %novel_images_json%;
     </script>
     <script>
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function imageTag(key, link, alt) {
+    // an image downloaded into the page, else a link to it on pixiv
+    if (images[key]) {
+        return "<img src=\"" + images[key] + "\" alt=\"" + alt + "\">";
+    }
+    return "<a href=\"" + link + "\">[" + alt + "]</a>";
+}
+
+function renderMarkup(text) {
+    // pixiv's novel markup, in the escaped text
+    let html = escapeHtml(text);
+    let page = 1;
+    html = html.replace(/\[newpage\]/g, function () {
+        page = page + 1;
+        return "<hr class=\"newpage\" id=\"page-" + page + "\">";
+    });
+    html = html.replace(/\[chapter:(.*?)\]/g, "<span class=\"chapter\">$1</span>");
+    html = html.replace(/\[\[rb:(.*?)\s*&gt;\s*(.*?)\]\]/g, "<ruby>$1<rt>$2</rt></ruby>");
+    html = html.replace(/\[\[jumpuri:(.*?)\s*&gt;\s*(https?:\/\/[^\]\s]+)\s*\]\]/g, "<a href=\"$2\">$1</a>");
+    html = html.replace(/\[jump:(\d+)\]/g, "<a href=\"#page-$1\">page $1</a>");
+    html = html.replace(/\[b:(.*?)\]/g, "<b>$1</b>");
+    html = html.replace(/\[uploadedimage:(\d+)\]/g, function (m, id) {
+        return imageTag("uploaded-" + id, "https://www.pixiv.net/novel/show.php?id=" + data["body"]["id"], "image " + id);
+    });
+    html = html.replace(/\[pixivimage:(\d+)(?:-(\d+))?\]/g, function (m, id, p) {
+        return imageTag("pixiv-" + id + "-" + (p || "1"), "https://www.pixiv.net/artworks/" + id, "pixiv " + id + (p ? "-" + p : ""));
+    });
+    return html;
+}
+
+function toggleTheme() {
+    let root = document.documentElement;
+    let dark = root.getAttribute("data-theme") !== "dark";
+    root.setAttribute("data-theme", dark ? "dark" : "light");
+    document.getElementById("theme").textContent = dark ? "Light" : "Dark";
+}
+
+function countsTag(body) {
+    // the length and reading time pixiv shows beside the date: its own
+    // counts where the data has them, else the text's length at 500
+    // characters a minute, about pixiv's rate
+    let words = body["useWordCount"] && body["wordCount"];
+    let count = words ? body["wordCount"] : (body["characterCount"] || body["content"].length);
+    let seconds = body["readingTime"] || body["content"].length * 60 / 500;
+    // whole minutes, rounded down as pixiv shows them (464 s: 7分)
+    let minutes = Math.max(1, Math.floor(seconds / 60));
+    return "<span class=\"counts\"><span>" + count.toLocaleString("en-US") +
+        (words ? "単語" : "文字") + "</span><span>" + minutes + "分</span></span>";
+}
+
+function markZoomable() {
+    // zoomable: a fitted image shown smaller than its own size
+    document.querySelectorAll(".cover img, .content img").forEach(img => {
+        if (!img.classList.contains("full")) {
+            img.classList.toggle("zoomable",
+                img.naturalWidth > img.clientWidth || img.naturalHeight > img.clientHeight);
+        }
+    });
+}
+
 function render() {
+    document.getElementById("theme").textContent =
+        document.documentElement.getAttribute("data-theme") === "dark" ? "Light" : "Dark";
+    // a click on a zoomable image shows it at its own size, another fits it again
+    document.addEventListener("click", function (event) {
+        let img = event.target;
+        if (img.tagName === "IMG" && (img.classList.contains("zoomable") || img.classList.contains("full"))) {
+            img.classList.toggle("full");
+            img.classList.remove("zoomable");
+            markZoomable();
+        }
+    });
     let content_div = document.getElementById("content");
-    content_div.innerHTML = data["body"]["content"];
+    content_div.innerHTML = renderMarkup(data["body"]["content"]);
+    let cover = document.getElementById("cover");
+    if (images["cover"]) {
+        cover.innerHTML = "<img src=\"" + images["cover"] + "\" alt=\"cover\">";
+    }
+    document.querySelectorAll(".cover img, .content img").forEach(img => {
+        img.addEventListener("load", markZoomable);
+    });
+    window.addEventListener("resize", markZoomable);
+    markZoomable();
     let title = document.getElementById("title");
     title.innerHTML = data["body"]["title"];
     let desc = document.getElementById("desc");
     desc.innerHTML = data["body"]["description"];
     let workdate = document.getElementById("workdate");
-    workdate.innerHTML = data["body"]["uploadDate"];
+    workdate.innerHTML = data["body"]["uploadDate"] + countsTag(data["body"]);
 
     let tags = document.getElementById("tags");
     let tag_list = "<ul>";
     let tags_arr = data["body"]["tags"]["tags"];
     tags_arr.forEach(tag => {
-        tag_list = tag_list + "<li>" + tag["tag"] + "</li>";
+        // the tag's novel search on pixiv, as its tag links go
+        let link = "https://www.pixiv.net/tags/" + encodeURIComponent(tag["tag"]) + "/novels";
+        tag_list = tag_list + "<li><a href=\"" + link + "\">" + escapeHtml(tag["tag"]) + "</a></li>";
     });
     tag_list = tag_list + "</ul>";
     tags.innerHTML = tag_list;
 
     let series_info = document.getElementById("series_info");
+    if (!data["body"]["seriesNavData"]) {
+        return;
+    }
     let series_id = data["body"]["seriesNavData"]["seriesId"]
     let series_name = data["body"]["seriesNavData"]["title"]
     let series_order = data["body"]["seriesNavData"]["order"]
@@ -197,13 +387,15 @@ function render() {
 </head>
 
 <body onload="render()">
+    <button id="theme" onclick="toggleTheme()">Dark</button>
+    <div id="cover" class="cover"></div>
     <div id="series_info" class="series"></div>
     <div id="title" class="title"></div>
     <div id="desc" class="desc"></div>
     <div id="workdate" class="workdate"></div>
     <div id="tags" class="tags"></div>
     <hr />
-    <pre id="content" class='content'>
+    <pre id="content" class='content'></pre>
 </body>
 
 </html>
