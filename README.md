@@ -619,6 +619,9 @@ Please refer run with `--help` for latest information.
 - downloadNovelImages
 
   Download a novel's cover, the images uploaded into its text (`[uploadedimage:...]`) and the pixiv illustrations it shows (`[pixivimage:...]`), and put them into its .html as data URIs, so the page shows them without a connection. Default is `True`.
+- novelDarkMode
+
+  Make saved novel pages open in dark mode. Either way, the button at the top right of the page switches between light and dark. Default is `False`.
 
 ## [DownloadControl]
 - minFileSize
