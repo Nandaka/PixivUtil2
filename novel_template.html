@@ -1,4 +1,4 @@
-<html>
+<html data-theme="%novel_theme%">
 
 <head>
     <meta charset="utf-8">
@@ -184,6 +184,55 @@
             border-top: 1px dashed rgb(173, 173, 173);
             margin: 32px 0;
         }
+        /* a clicked image at its own size; clicked again, fitted */
+        .cover img, .content img{
+            cursor: zoom-in;
+        }
+        .cover img.full, .content img.full{
+            max-width: none;
+            max-height: none;
+            cursor: zoom-out;
+        }
+        body{
+            overflow-x: auto;
+        }
+        #theme{
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid rgb(173, 173, 173);
+            border-radius: 4px;
+            background: rgb(245, 245, 245);
+            color: rgb(31, 31, 31);
+        }
+        /* dark mode: the light colours above, turned */
+        html[data-theme="dark"] body{
+            background: rgb(24, 24, 24);
+        }
+        html[data-theme="dark"] .content,
+        html[data-theme="dark"] .title{
+            color: rgb(220, 220, 220);
+        }
+        html[data-theme="dark"] .series,
+        html[data-theme="dark"] .desc{
+            color: rgb(170, 170, 170);
+        }
+        html[data-theme="dark"] .workdate,
+        html[data-theme="dark"] .tag ul{
+            color: rgb(130, 130, 130);
+        }
+        html[data-theme="dark"] .tag li,
+        html[data-theme="dark"] a{
+            color: rgb(110, 170, 210);
+        }
+        html[data-theme="dark"] #theme{
+            background: rgb(45, 45, 45);
+            color: rgb(220, 220, 220);
+            border-color: rgb(90, 90, 90);
+        }
     </style>
     <title>%title%</title>
     <script>
@@ -225,7 +274,22 @@ function renderMarkup(text) {
     return html;
 }
 
+function toggleTheme() {
+    let root = document.documentElement;
+    let dark = root.getAttribute("data-theme") !== "dark";
+    root.setAttribute("data-theme", dark ? "dark" : "light");
+    document.getElementById("theme").textContent = dark ? "Light" : "Dark";
+}
+
 function render() {
+    document.getElementById("theme").textContent =
+        document.documentElement.getAttribute("data-theme") === "dark" ? "Light" : "Dark";
+    // a click on an image shows it at its own size, another fits it again
+    document.addEventListener("click", function (event) {
+        if (event.target.tagName === "IMG") {
+            event.target.classList.toggle("full");
+        }
+    });
     let content_div = document.getElementById("content");
     content_div.innerHTML = renderMarkup(data["body"]["content"]);
     let cover = document.getElementById("cover");
@@ -262,6 +326,7 @@ function render() {
 </head>
 
 <body onload="render()">
+    <button id="theme" onclick="toggleTheme()">Dark</button>
     <div id="cover" class="cover"></div>
     <div id="series_info" class="series"></div>
     <div id="title" class="title"></div>

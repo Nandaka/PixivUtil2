@@ -70,6 +70,7 @@ class PixivNovel:
         # ([uploadedimage:<id>]) and the illustrations it shows
         # ([pixivimage:<id>-<page>]); images holds them as data URIs,
         # filled by PixivNovelHandler when downloadNovelImages is on
+        self.theme = "light"            # the page's first look, set by novelDarkMode
         self.coverUrl = ""
         self.embeddedImages = dict()    # uploaded image id -> original URL
         self.pixivImages = list()       # (illust id, page from 1)
@@ -171,6 +172,8 @@ class PixivNovel:
 
         if fh is not None:
             content_str = template_str.replace("%title%", self.imageTitle)
+            content_str = content_str.replace("%novel_theme%",
+                                              "dark" if self.theme == "dark" else "light")
             # "</" escaped (still the same JSON) so no text and no data
             # URI can end the <script> it sits in
             content_str = content_str.replace("%novel_json_str%",

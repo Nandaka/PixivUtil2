@@ -28,6 +28,7 @@ def process_novel(caller,
         return PixivConstant.PIXIVUTIL_SKIP_DUPLICATE
 
     novel = caller.__br__.getNovelPage(novel_id)
+    novel.theme = "dark" if config.novelDarkMode else "light"
     if config.downloadNovelImages:
         novel.images = caller.__br__.getNovelImages(novel)
         PixivHelper.print_and_log(None, f"Images : {len(novel.images)} of {1 + len(novel.embeddedImages) + len(novel.pixivImages)}"

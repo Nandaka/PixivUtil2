@@ -82,6 +82,18 @@ class TestPixivNovel(unittest.TestCase):
         # the text cannot close the script the data sits in
         self.assertNotIn("end of </script>", page)
         self.assertIn("end of <\\/script>", page)
+        self.assertIn('<html data-theme="light">', page)
+
+    def testWriteContentDarkTheme(self):
+        novel = PixivNovel(123, novel_json())
+        novel.theme = "dark"
+        with tempfile.TemporaryDirectory() as tmp:
+            target = os.path.join(tmp, "novel.html")
+            novel.write_content(target)
+            with open(target, encoding="utf-8") as f:
+                page = f.read()
+        self.assertIn('<html data-theme="dark">', page)
+        self.assertNotIn("%novel_theme%", page)
 
 
 if __name__ == '__main__':

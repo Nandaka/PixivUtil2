@@ -110,6 +110,8 @@ class PixivConfig():
         # a novel's cover, uploaded images and pixiv images, put into its
         # .html as data URIs so the page needs nothing else
         ConfigItem("Settings", "downloadNovelImages", True),
+        # a novel's .html opens dark; its switch top right turns it
+        ConfigItem("Settings", "novelDarkMode", False),
 
         ConfigItem("Filename",
                    "filenameFormat",
